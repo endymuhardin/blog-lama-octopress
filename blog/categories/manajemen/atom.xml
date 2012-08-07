@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Manajemen | Living life and make it better]]></title>
   <link href="http://endymuhardin.github.com/blog/categories/manajemen/atom.xml" rel="self"/>
   <link href="http://endymuhardin.github.com/"/>
-  <updated>2012-08-07T22:32:36+07:00</updated>
+  <updated>2012-08-07T23:12:20+07:00</updated>
   <id>http://endymuhardin.github.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -45,11 +45,15 @@
 
 <p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
 
-<p>[gist id=1134126 file=maven-profile.sh]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
+<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
+</p>
 
 <p>atau</p>
 
-<p>[gist id=1134126 file=maven-env-var.sh]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
+<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
+</p>
 
 <p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
 
@@ -71,25 +75,94 @@
 
 
 <p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
-[gist id=1134126 file=jdbc.properties]</p>
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
+jdbc.username = kasbon
+jdbc.password = kasbon</code></pre></noscript></div>
+</p>
 
 <p>Kemudian, ini file jdbc.testing.properties :</p>
 
-<p>[gist id=1134126 file=jdbc.testing.properties]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+</p>
 
 <p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
 
 <p>Terakhir, jdbc.production.properties</p>
 
-<p>[gist id=1134126 file=jdbc.production.properties]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+</p>
 
 <p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
 
-<p>[gist id=1134126 file=applicationContext.xml]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+	xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
+	xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
+
+	&lt;context:property-placeholder location=&quot;
+	classpath*:jdbc.properties,
+	classpath*:jdbc.${stage}.properties
+	&quot; /&gt;
+
+	&lt;tx:annotation-driven /&gt;
+
+	&lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
+		destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
+		p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
+		p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
+
+	&lt;bean id=&quot;transactionManager&quot;
+		class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
+		p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
+
+
+	&lt;bean id=&quot;sessionFactory&quot;
+		class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
+		p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
+		&lt;property name=&quot;hibernateProperties&quot;&gt;
+			&lt;props&gt;
+				&lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
+			&lt;/props&gt;
+		&lt;/property&gt;
+	&lt;/bean&gt;
+
+	&lt;bean id=&quot;messageSource&quot;
+		class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
+		&lt;property name=&quot;basenames&quot;&gt;
+			&lt;list&gt;
+				&lt;value&gt;messages&lt;/value&gt;
+			&lt;/list&gt;
+		&lt;/property&gt;
+	&lt;/bean&gt;
+
+&lt;/beans&gt;</code></pre></noscript></div>
+</p>
 
 <p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
 
-<p>[gist id=1134126 file=context-loading.xml]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
+<noscript><pre><code>&lt;context:property-placeholder location=&quot;
+	classpath*:jdbc.properties, 
+	classpath*:jdbc.${stage}.properties
+&quot; /&gt;</code></pre></noscript></div>
+</p>
 
 <p>Di sana kita melihat ada variabel ${stage}.
 Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
@@ -110,15 +183,21 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 
 <p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
 
-<p>[gist id=1134126 file=startup.sh bump=1]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
+<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
+</p>
 
 <p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
 
-<p>[gist id=1134126 file=mvn-jetty-run.sh bump=2]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
+<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
+</p>
 
 <p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
 
-<p>[gist id=1134126 file=linux-env-var.sh bump=3]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
+<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
+</p>
 
 <h2>Konfigurasi Logger</h2>
 
@@ -145,11 +224,33 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 
 <p>Berikut isi file logback.xml.</p>
 
-<p>[gist id=1134126 file=logback.xml]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;configuration&gt;
+
+	&lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
+		&lt;encoder&gt;
+			&lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+		&lt;/encoder&gt;
+	&lt;/appender&gt;
+
+	&lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
+		&lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
+		&lt;encoder&gt;
+			&lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+		&lt;/encoder&gt;
+	&lt;/appender&gt;
+
+	&lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
+
+&lt;/configuration&gt;</code></pre></noscript></div>
+</p>
 
 <p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
 
-<p>[gist id=1134126 file=logback-variable.txt]</p>
+<p><div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
+<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
+</p>
 
 <p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
 

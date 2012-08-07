@@ -142,7 +142,23 @@ Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilka
 
 <p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
 
-<p>[gist id=3205393]</p>
+<div><script src='https://gist.github.com/3205393.js?file='></script>
+<noscript><pre><code># by default, levelnya adalah INFO, tampilkan ke System.out
+log4j.rootLogger=INFO,Konsole 
+
+# untuk package com.artivisi, tampilkan level DEBUG ke System.out
+log4j.logger.com.artivisi=DEBUG,Konsole
+
+# untuk spring, error saja yang ditampilkan
+log4j.logger.org.springframework=ERROR,Konsole
+
+# Appender Konsole adalah System.out
+log4j.appender.Konsole=org.apache.log4j.ConsoleAppender 
+log4j.appender.Konsole.layout=org.apache.log4j.PatternLayout 
+# Format tanggal menurut ISO­8601 : %d 
+log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
+</code></pre></noscript></div>
+
 
 <p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
 </div>
@@ -266,81 +282,122 @@ Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilka
 
 <p>Beda jenis datanya, tentu beda juga cara pengumpulan data dan tools yang digunakan untuk mengolahnya.</p>
 
-<pre><code>    Metric
-    Metode Pengumpulan
-    Tools
-</code></pre>
+<h3>Tabel Metrik dan Tools</h3>
 
-<p>CPU</p>
+<table>
+<thead>
+<tr>
+<th>Metric      </th>
+<th> Metode Pengumpulan </th>
+<th> Tools</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU         </td>
+<td> SNMP atau Agent    </td>
+<td> Nagios,Zenoss,dkk</td>
+</tr>
+<tr>
+<td>Memori      </td>
+<td> SNMP atau Agent    </td>
+<td> Nagios,Zenoss,dkk</td>
+</tr>
+<tr>
+<td>Disk IO     </td>
+<td> SNMP atau Agent    </td>
+<td> Nagios,Zenoss,dkk</td>
+</tr>
+<tr>
+<td>Network     </td>
+<td> SNMP atau Agent    </td>
+<td> Nagios,Zenoss,dkk</td>
+</tr>
+<tr>
+<td>Tomcat      </td>
+<td> JMX                </td>
+<td> Hyperic</td>
+</tr>
+<tr>
+<td>MySQL       </td>
+<td> Agent              </td>
+<td> Hyperic</td>
+</tr>
+<tr>
+<td>Spring      </td>
+<td> AOP                </td>
+<td> Javamelody</td>
+</tr>
+<tr>
+<td>Hibernate   </td>
+<td> JMX                </td>
+<td> Hyperic</td>
+</tr>
+</tbody>
+</table>
 
-<p>SNMP atau Agent</p>
-
-<p>Nagios, Zenoss, dkk</p>
-
-<p>Memori</p>
-
-<p>SNMP atau Agent</p>
-
-<p>Nagios, Zenoss, dkk</p>
-
-<p>Disk I/O</p>
-
-<p>SNMP atau Agent</p>
-
-<p>Nagios, Zenoss, dkk</p>
-
-<p>Network</p>
-
-<p>SNMP atau Agent</p>
-
-<p>Nagios, Zenoss, dkk</p>
-
-<p>Tomcat Performance</p>
-
-<p>JMX</p>
-
-<p>Hyperic</p>
-
-<p>MySQL Performance</p>
-
-<p>Agent</p>
-
-<p>Hyperic</p>
-
-<p>Spring Beans</p>
-
-<p>Agent</p>
-
-<p>Javamelody</p>
-
-<p>Hibernate Statistics</p>
-
-<p>JMX</p>
-
-<p>Hyperic</p>
 
 <h2>Monitoring dengan JavaMelody</h2>
 
 <p>Untuk mengaktifkan monitoring menggunakan JavaMelody, ada beberapa langkah yang perlu kita lakukan, yaitu :</p>
 
 <ol>
-<li><p>Menambahkan jar JavaMelody</p></li>
-<li><p>Memasang AOP interceptor supaya bisa memonitor beans dalam Spring</p></li>
-<li><p>Mengaktifkan monitoring JavaMelody</p></li>
+<li>Menambahkan jar JavaMelody</li>
+<li>Memasang AOP interceptor supaya bisa memonitor beans dalam Spring</li>
+<li>Mengaktifkan monitoring JavaMelody</li>
 </ol>
 
 
 <p>Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut :</p>
 
-<p>[gist id=3192086 file=pom.xml]</p>
+<div><script src='https://gist.github.com/3192086.js?file=pom.xml'></script>
+<noscript><pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;net.bull.javamelody&lt;/groupId&gt;
+    &lt;artifactId&gt;javamelody-core&lt;/artifactId&gt;
+    &lt;version&gt;1.39.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></noscript></div>
+
 
 <p>Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml</p>
 
-<p>[gist id=3192086 file=applicationContext.xml]</p>
+<div><script src='https://gist.github.com/3192086.js?file=applicationContext.xml'></script>
+<noscript><pre><code>&lt;bean id=&quot;facadeMonitoringAdvisor&quot; 
+      class=&quot;net.bull.javamelody.MonitoringSpringAdvisor&quot;&gt;
+    &lt;property name=&quot;pointcut&quot;&gt;
+        &lt;bean class=&quot;net.bull.javamelody.MonitoredWithInterfacePointcut&quot;&gt;
+            &lt;property name=&quot;interfaceName&quot;
+                      value=&quot;com.artivisi.belajar.restful.service.MonitoredService&quot; 
+                    /&gt;
+        &lt;/bean&gt;
+    &lt;/property&gt;
+&lt;/bean&gt;</code></pre></noscript></div>
+
 
 <p>Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut</p>
 
-<p>[gist id=3192086 file=web.xml]</p>
+<div><script src='https://gist.github.com/3192086.js?file=web.xml'></script>
+<noscript><pre><code>&lt;context-param&gt;
+    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+    &lt;param-value&gt;
+        classpath:net/bull/javamelody/monitoring-spring.xml
+        classpath*:com/artivisi/**/applicationContext.xml
+    &lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;listener&gt;
+    &lt;listener-class&gt;net.bull.javamelody.SessionListener&lt;/listener-class&gt;
+&lt;/listener&gt;
+
+&lt;!-- Monitor aplikasi menggunakan javamelody --&gt;
+&lt;filter&gt;
+    &lt;filter-name&gt;monitoring&lt;/filter-name&gt;
+    &lt;filter-class&gt;net.bull.javamelody.MonitoringFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;monitoring&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</code></pre></noscript></div>
+
 
 <p>Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring.</p>
 
@@ -353,25 +410,54 @@ Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilka
 <p>Selain menggunakan JavaMelody, kita juga bisa melakukan monitoring menggunakan JMX. Beruntung kita yang menggunakan Spring, JMX akan sangat mudah dikonfigurasi. Pada contoh berikut, kita akan mengaktifkan monitoring terhadap statistik Hibernate. Langkah-langkahnya adalah sebagai berikut :</p>
 
 <ol>
-<li><p>Mengaktifkan fitur statistik dalam Hibernate</p></li>
-<li><p>Mendeklarasikan MBean untuk memonitor statistik Hibernate</p></li>
-<li><p>Menginstankan JMX server (MBean Server)</p></li>
+<li>Mengaktifkan fitur statistik dalam Hibernate</li>
+<li>Mendeklarasikan MBean untuk memonitor statistik Hibernate</li>
+<li>Menginstankan JMX server (MBean Server)</li>
 </ol>
 
 
 <p>Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut :</p>
 
-<p>[gist id=3192099 file=hibernate-statistics.xml]</p>
+<div><script src='https://gist.github.com/3192099.js?file=hibernate-statistics.xml'></script>
+<noscript><pre><code>&lt;bean id=&quot;sessionFactory&quot;
+    class=&quot;org.springframework.orm.hibernate4.LocalSessionFactoryBean&quot;
+    p:dataSource-ref=&quot;dataSource&quot;&gt;
+    &lt;property name=&quot;hibernateProperties&quot;&gt;
+        &lt;props&gt;
+            &lt;prop key=&quot;hibernate.generate_statistics&quot;&gt;true&lt;/prop&gt;
+        &lt;/props&gt;
+    &lt;/property&gt;
+    &lt;property name=&quot;packagesToScan&quot; value=&quot;com.artivisi.belajar.restful.domain&quot; /&gt;
+&lt;/bean&gt;</code></pre></noscript></div>
+
 
 <p>Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean.</p>
 
-<p>[gist id=3192099 file=hibernateMBean.xml]</p>
+<div><script src='https://gist.github.com/3192099.js?file=hibernateMBean.xml'></script>
+<noscript><pre><code>&lt;bean id=&quot;hibernateStatisticsMBean&quot; class=&quot;org.hibernate.jmx.StatisticsService&quot;&gt;
+    &lt;property name=&quot;sessionFactory&quot; ref=&quot;sessionFactory&quot; /&gt;
+&lt;/bean&gt;</code></pre></noscript></div>
 
-<p>[gist id=3192099 file=mbeanExporter.xml]</p>
+
+
+
+<div><script src='https://gist.github.com/3192099.js?file=mbeanExporter.xml'></script>
+<noscript><pre><code>&lt;bean id=&quot;mbeanExporter&quot; class=&quot;org.springframework.jmx.export.MBeanExporter&quot;&gt;
+  &lt;property name=&quot;beans&quot;&gt;
+    &lt;map&gt;
+      &lt;entry 
+        key=&quot;SpringBeans:name=hibernateStatisticsMBean&quot; 
+        value-ref=&quot;hibernateStatisticsMBean&quot; /&gt;
+    &lt;/map&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</code></pre></noscript></div>
+
 
 <p>Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru</p>
 
-<p>[gist id=3192099 file=mbean-server.xml]</p>
+<div><script src='https://gist.github.com/3192099.js?file=mbean-server.xml'></script>
+<noscript><pre><code>&lt;context:mbean-server/&gt;</code></pre></noscript></div>
+
 
 <p>Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb.
 Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
@@ -496,31 +582,86 @@ Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu co
 
 <p>Setelah kita memahami opsi <em>rsync</em>, berikut adalah perintah yang kita gunakan</p>
 
-<p>[gist id=1172978 file=rsync-cmd.txt bump=1]</p>
+<div><script src='https://gist.github.com/1172978.js?file=rsync-cmd.txt'></script>
+<noscript><pre><code>rsync -a --force --ignore-errors --exclude-from=rsync-exclude.txt --link-dest=folder-backup-sebelumnya SRC DEST</code></pre></noscript></div>
+
 
 <p>File <em>rsync-exclude.txt</em> berisi folder yang tidak dibackup, punya saya isinya seperti ini :</p>
 
-<p>[gist id=1172978 file=rsync-exclude.txt bump=2]</p>
+<div><script src='https://gist.github.com/1172978.js?file=rsync-exclude.txt'></script>
+<noscript><pre><code>#rsync script exclude file
+**/.thumbnails/
+**/Desktop/Trash/
+**/.cache/
+**/.m2/
+**/.metadata/
+**/.netbeans/
+**/.shotwell/
+**/.config/
+**/.gconf/
+**/virtual-machines/</code></pre></noscript></div>
+
 
 <p><em>folder-backup-sebelumnya</em> perlu dihitung dulu. Caranya menggunakan perintah <em>ls -tr</em> yang akan menampilkan isi folder yang diurutkan berdasarkan modification time secara descending. Berikut contoh outputnya.</p>
 
-<p>[gist id=1172978 file=ls-ltr-output]</p>
+<div><script src='https://gist.github.com/1172978.js?file=ls-ltr-output'></script>
+<noscript><pre><code>ls -ltr /opt/downloads/backups/
+total 12
+drwxr-xr-x 3 endy endy 4096 2011-08-26 13:21 20110826-1321
+drwxr-xr-x 3 endy endy 4096 2011-08-26 14:07 20110826-1407
+drwxr-xr-x 3 endy endy 4096 2011-08-26 14:27 20110826-1427</code></pre></noscript></div>
+
 
 <p>Dari sini, kita cukup ambil yang paling atas menggunakan perintah <em>tail -1</em></p>
 
-<p>[gist id=1172978 file=ls-ltr-tail]</p>
+<div><script src='https://gist.github.com/1172978.js?file=ls-ltr-tail'></script>
+<noscript><pre><code>ls -tr /opt/downloads/backups/ | tail -1
+20110826-1427</code></pre></noscript></div>
+
 
 <p>Dengan bermodalkan pengetahuan tersebut, kita bisa membuat script seperti ini.</p>
 
-<p>[gist id=1172978 file=rsync-backup.sh bump=3]</p>
+<div><script src='https://gist.github.com/1172978.js?file=rsync-backup.sh'></script>
+<noscript><pre><code>#!/usr/bin/env bash
+
+# run hourly with cron
+# 0 * * * * /path/ke/rsync-backup.sh /home/endy /opt/downloads/backups /path/ke/rsync-exclude.txt
+
+SRC=$1
+DEST=$2
+EXCLUDES=$3
+args=(&quot;$@&quot;);
+MORE_OPTS=${args[@]:3}
+
+if [ &quot;$#&quot; -lt 3 ]; then
+    echo &quot;Usage : $0 &lt;src&gt; &lt;dest&gt; &lt;exclude list&gt; [rsync options]&quot;
+    return 1
+fi
+
+
+LAST=$(ls -tr $DEST | tail -1)
+if [ &quot;$LAST&quot; != &quot;&quot; ]; then
+        LINK=&quot;--link-dest=$DEST/$LAST&quot;
+fi
+
+OPTS=&quot; -a --force --ignore-errors --exclude-from=$EXCLUDES $LINK&quot;
+
+# echo OPTS $OPTS MORE_OPTS $MORE_OPTS
+
+rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></div>
+
 
 <p>Untuk membackup folder <em>/home/endy</em> ke folder <em>/opt/downloads/backups</em>, kita jalankan seperti ini :</p>
 
-<p>[gist id=1172978 file=exec-backup.sh]</p>
+<div><script src='https://gist.github.com/1172978.js?file=exec-backup.sh'></script>
+<noscript><pre><code>./rsync-backup-home.sh /home/endy /opt/downloads/backups rsync-exclude.txt</code></pre></noscript></div>
+
 
 <p>Selanjutnya, kita bisa pasang di crontab dengan setting seperti ini, supaya dijalankan tiap tiga jam.</p>
 
-<p>[gist id=1172978 file=crontab.txt bump=2]</p>
+<div><script src='https://gist.github.com/1172978.js?file=crontab.txt'></script>
+<noscript><pre><code>0 */3 * * * /path/ke/rsync-backup-home.sh /home/endy /opt/downloads/backups /path/ke/rsync-exclude.txt</code></pre></noscript></div>
+
 
 <p>Voila &#8230; folder home kita sudah terbackup secara otomatis tanpa kita sadari. Sepanjang menulis artikel ini, laptop saya sudah membackup dirinya sendiri sebanyak 3 kali :D</p>
 
@@ -528,7 +669,9 @@ Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu co
 
 <p>Berikut adalah perintah rsync yang digunakan.</p>
 
-<p>[gist id=1172978 file=copy-backup-to-external.sh]</p>
+<div><script src='https://gist.github.com/1172978.js?file=copy-backup-to-external.sh'></script>
+<noscript><pre><code>rsync -avzPH /opt/downloads/backups /media/DATA2/</code></pre></noscript></div>
+
 
 <p>Dan ini adalah penjelasan terhadap opsi yang digunakan:</p>
 
@@ -616,11 +759,15 @@ Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu co
 
 <p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
 
-<p>[gist id=1134126 file=maven-profile.sh]</p>
+<div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
+<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
+
 
 <p>atau</p>
 
-<p>[gist id=1134126 file=maven-env-var.sh]</p>
+<div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
+<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
+
 
 <p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
 
@@ -641,26 +788,96 @@ Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu co
 </ul>
 
 
-<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
-[gist id=1134126 file=jdbc.properties]</p>
+<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
+jdbc.username = kasbon
+jdbc.password = kasbon</code></pre></noscript></div>
+
 
 <p>Kemudian, ini file jdbc.testing.properties :</p>
 
-<p>[gist id=1134126 file=jdbc.testing.properties]</p>
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+
 
 <p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
 
 <p>Terakhir, jdbc.production.properties</p>
 
-<p>[gist id=1134126 file=jdbc.production.properties]</p>
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+
 
 <p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
 
-<p>[gist id=1134126 file=applicationContext.xml]</p>
+<div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
+
+    &lt;context:property-placeholder location=&quot;
+    classpath*:jdbc.properties,
+    classpath*:jdbc.${stage}.properties
+    &quot; /&gt;
+
+    &lt;tx:annotation-driven /&gt;
+
+    &lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
+        destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
+        p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
+        p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
+
+    &lt;bean id=&quot;transactionManager&quot;
+        class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
+        p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
+
+
+    &lt;bean id=&quot;sessionFactory&quot;
+        class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
+        p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
+        &lt;property name=&quot;hibernateProperties&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;messageSource&quot;
+        class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
+        &lt;property name=&quot;basenames&quot;&gt;
+            &lt;list&gt;
+                &lt;value&gt;messages&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;</code></pre></noscript></div>
+
 
 <p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
 
-<p>[gist id=1134126 file=context-loading.xml]</p>
+<div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
+<noscript><pre><code>&lt;context:property-placeholder location=&quot;
+    classpath*:jdbc.properties, 
+    classpath*:jdbc.${stage}.properties
+&quot; /&gt;</code></pre></noscript></div>
+
 
 <p>Di sana kita melihat ada variabel ${stage}.
 Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
@@ -681,15 +898,21 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 
 <p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
 
-<p>[gist id=1134126 file=startup.sh bump=1]</p>
+<div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
+<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
+
 
 <p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
 
-<p>[gist id=1134126 file=mvn-jetty-run.sh bump=2]</p>
+<div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
+<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
+
 
 <p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
 
-<p>[gist id=1134126 file=linux-env-var.sh bump=3]</p>
+<div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
+<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
+
 
 <h2>Konfigurasi Logger</h2>
 
@@ -716,11 +939,33 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 
 <p>Berikut isi file logback.xml.</p>
 
-<p>[gist id=1134126 file=logback.xml]</p>
+<div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;configuration&gt;
+
+    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
+        &lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
+
+&lt;/configuration&gt;</code></pre></noscript></div>
+
 
 <p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
 
-<p>[gist id=1134126 file=logback-variable.txt]</p>
+<div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
+<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
+
 
 <p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
 

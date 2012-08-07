@@ -139,7 +139,23 @@ Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilka
 
 <p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
 
-<p>[gist id=3205393]</p>
+<div><script src='https://gist.github.com/3205393.js?file='></script>
+<noscript><pre><code># by default, levelnya adalah INFO, tampilkan ke System.out
+log4j.rootLogger=INFO,Konsole 
+
+# untuk package com.artivisi, tampilkan level DEBUG ke System.out
+log4j.logger.com.artivisi=DEBUG,Konsole
+
+# untuk spring, error saja yang ditampilkan
+log4j.logger.org.springframework=ERROR,Konsole
+
+# Appender Konsole adalah System.out
+log4j.appender.Konsole=org.apache.log4j.ConsoleAppender 
+log4j.appender.Konsole.layout=org.apache.log4j.PatternLayout 
+# Format tanggal menurut ISO­8601 : %d 
+log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
+</code></pre></noscript></div>
+
 
 <p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
 </div>
