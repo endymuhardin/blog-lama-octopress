@@ -16,37 +16,26 @@ Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang di
 
 ## Cara setup project ExtJS
 
-
-[external-vfe name="01. Setup ExtJS" path="http://artivisi.com/~endy/videos/training-extjs/"]
-
-
-
+{% video http://artivisi.com/~endy/videos/training-extjs/01.%20Setup%20ExtJS.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/01.%20Setup%20ExtJS.png %}
 
 ## Memahami Layout
 
-
-[external-vfe name="02. ExtJS Layout" path="http://artivisi.com/~endy/videos/training-extjs/"]
-
+{% video http://artivisi.com/~endy/videos/training-extjs/02.%20ExtJS%20Layout.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/02.%20ExtJS%20Layout.png %}
 
 
 ## Membuat Menubar
 
-
-[external-vfe name="03. Klik Menu muncul Tab" path="http://artivisi.com/~endy/videos/training-extjs/"]
-
-
+{% video http://artivisi.com/~endy/videos/training-extjs/03.%20Klik%20Menu%20muncul%20Tab.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/03.%20Klik%20Menu%20muncul%20Tab.png %}
 
 ## Membuat User Management Screen
 
 
-[external-vfe name="04. Membuat User Management Screen" path="http://artivisi.com/~endy/videos/training-extjs/"]
-
-
+{% video http://artivisi.com/~endy/videos/training-extjs/04.%20Membuat%20User%20Management%20Screen.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/04.%20Membuat%20User%20Management%20Screen.png %}
 
 ## Membuat Toolbar CRUD
 
 
-[external-vfe name="05. Membuat Toolbar CRUD" path="http://artivisi.com/~endy/videos/training-extjs/"]
+{% video http://artivisi.com/~endy/videos/training-extjs/05.%20Membuat%20Toolbar%20CRUD.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/05.%20Membuat%20Toolbar%20CRUD.png %}
 
 Masih ada beberapa materi lanjutan yang belum sempat disampaikan, yaitu: 
 
