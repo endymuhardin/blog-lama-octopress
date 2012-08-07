@@ -108,31 +108,31 @@ Fitur ini kita gunakan pada _rsync_ dengan opsi _link-dest_. Sebagai contoh, kit
 
 Setelah kita memahami opsi _rsync_, berikut adalah perintah yang kita gunakan
 
-[gist id=1172978 file=rsync-cmd.txt bump=1]
+{% gist 1172978 rsync-cmd.txt %}
 
 File _rsync-exclude.txt_ berisi folder yang tidak dibackup, punya saya isinya seperti ini :
 
-[gist id=1172978 file=rsync-exclude.txt bump=2]
+{% gist 1172978 rsync-exclude.txt %}
 
 _folder-backup-sebelumnya_ perlu dihitung dulu. Caranya menggunakan perintah _ls -tr_ yang akan menampilkan isi folder yang diurutkan berdasarkan modification time secara descending. Berikut contoh outputnya.
 
-[gist id=1172978 file=ls-ltr-output]
+{% gist 1172978 ls-ltr-output %}
 
 Dari sini, kita cukup ambil yang paling atas menggunakan perintah _tail -1_
 
-[gist id=1172978 file=ls-ltr-tail]
+{% gist 1172978 ls-ltr-tail %}
 
 Dengan bermodalkan pengetahuan tersebut, kita bisa membuat script seperti ini.
 
-[gist id=1172978 file=rsync-backup.sh bump=3]
+{% gist 1172978 rsync-backup.sh %}
 
 Untuk membackup folder _/home/endy_ ke folder _/opt/downloads/backups_, kita jalankan seperti ini :
 
-[gist id=1172978 file=exec-backup.sh]
+{% gist 1172978 exec-backup.sh %}
 
 Selanjutnya, kita bisa pasang di crontab dengan setting seperti ini, supaya dijalankan tiap tiga jam.
 
-[gist id=1172978 file=crontab.txt bump=2]
+{% gist 1172978 crontab.txt %}
 
 Voila ... folder home kita sudah terbackup secara otomatis tanpa kita sadari. Sepanjang menulis artikel ini, laptop saya sudah membackup dirinya sendiri sebanyak 3 kali :D
 
@@ -140,7 +140,7 @@ Setelah membuat backup di harddisk laptop, tentunya kita ingin memindahkannya ke
 
 Berikut adalah perintah rsync yang digunakan. 
 
-[gist id=1172978 file=copy-backup-to-external.sh]
+{% gist 1172978 copy-backup-to-external.sh %}
 
 Dan ini adalah penjelasan terhadap opsi yang digunakan: 
 

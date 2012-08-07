@@ -152,153 +152,41 @@ Aplikasi yang akan kita jadikan contoh kasus adalah template standar aplikasi we
 
 Beda jenis datanya, tentu beda juga cara pengumpulan data dan tools yang digunakan untuk mengolahnya. 
 
+### Tabel Metrik dan Tools
 
-
+Metric      | Metode Pengumpulan | Tools
+------------|--------------------|------------------
+CPU         | SNMP atau Agent    | Nagios,Zenoss,dkk
+Memori      | SNMP atau Agent    | Nagios,Zenoss,dkk
+Disk IO     | SNMP atau Agent    | Nagios,Zenoss,dkk
+Network     | SNMP atau Agent    | Nagios,Zenoss,dkk
+Tomcat      | JMX                | Hyperic
+MySQL       | Agent              | Hyperic
+Spring      | AOP                | Javamelody
+Hibernate   | JMX                | Hyperic
     
-
-
-        Metric
-        Metode Pengumpulan
-        Tools
-    
-    
-
-
-        
-CPU
-
-        
-SNMP atau Agent
-
-        
-Nagios, Zenoss, dkk
-
-    
-    
-
-
-        
-Memori
-
-        
-SNMP atau Agent
-
-        
-Nagios, Zenoss, dkk
-
-    
-    
-
-
-        
-Disk I/O
-
-        
-SNMP atau Agent
-
-        
-Nagios, Zenoss, dkk
-
-    
-    
-
-
-        
-Network
-
-        
-SNMP atau Agent
-
-        
-Nagios, Zenoss, dkk
-
-    
-    
-
-
-        
-Tomcat Performance
-
-        
-JMX
-
-        
-Hyperic
-
-    
-    
-
-
-        
-MySQL Performance
-
-        
-Agent
-
-        
-Hyperic
-
-    
-    
-
-
-        
-Spring Beans
-
-        
-Agent
-
-        
-Javamelody
-
-    
-    
-
-
-        
-Hibernate Statistics
-
-        
-JMX
-
-        
-Hyperic
-
-    
-
-
 
 
 ## Monitoring dengan JavaMelody
 
 
 Untuk mengaktifkan monitoring menggunakan JavaMelody, ada beberapa langkah yang perlu kita lakukan, yaitu : 
-
-
-
-
     
   1. Menambahkan jar JavaMelody
-
-    
   2. Memasang AOP interceptor supaya bisa memonitor beans dalam Spring
-
-    
   3. Mengaktifkan monitoring JavaMelody
-
-
 
 Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut : 
 
-[gist id=3192086 file=pom.xml]
+{% gist 3192086 pom.xml %}
 
 Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml
 
-[gist id=3192086 file=applicationContext.xml]
+{% gist 3192086 applicationContext.xml %}
 
 Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut 
 
-[gist id=3192086 file=web.xml]
+{% gist 3192086 web.xml %}
 
 Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring. 
 
@@ -312,34 +200,24 @@ Berikut adalah screenshotnya.
 
 
 Selain menggunakan JavaMelody, kita juga bisa melakukan monitoring menggunakan JMX. Beruntung kita yang menggunakan Spring, JMX akan sangat mudah dikonfigurasi. Pada contoh berikut, kita akan mengaktifkan monitoring terhadap statistik Hibernate. Langkah-langkahnya adalah sebagai berikut : 
-
-
-
-
     
   1. Mengaktifkan fitur statistik dalam Hibernate
-
-    
   2. Mendeklarasikan MBean untuk memonitor statistik Hibernate
-
-    
   3. Menginstankan JMX server (MBean Server)
-
-
 
 Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut : 
 
-[gist id=3192099 file=hibernate-statistics.xml]
+{% gist 3192099 hibernate-statistics.xml %}
 
 Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean. 
 
-[gist id=3192099 file=hibernateMBean.xml]
+{% gist 3192099 hibernateMBean.xml %}
 
-[gist id=3192099 file=mbeanExporter.xml]
+{% gist 3192099 mbeanExporter.xml %}
 
 Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru
 
-[gist id=3192099 file=mbean-server.xml]
+{% gist 3192099 mbean-server.xml %}
 
 Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb. 
 Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole. 

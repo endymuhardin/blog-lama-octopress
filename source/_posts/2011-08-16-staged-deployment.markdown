@@ -48,11 +48,11 @@ Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelol
 
 Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :
 
-[gist id=1134126 file=maven-profile.sh]
+{% gist 1134126 maven-profile.sh %}
 
 atau
 
-[gist id=1134126 file=maven-env-var.sh]
+{% gist 1134126 maven-env-var.sh %}
 
 Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.
 
@@ -83,25 +83,25 @@ Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membe
 
 
 Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
-[gist id=1134126 file=jdbc.properties]
+{% gist 1134126 jdbc.properties %}
 
 Kemudian, ini file jdbc.testing.properties :
 
-[gist id=1134126 file=jdbc.testing.properties]
+{% gist 1134126 jdbc.testing.properties %}
 
 Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.
 
 Terakhir, jdbc.production.properties
 
-[gist id=1134126 file=jdbc.production.properties]
+{% gist 1134126 jdbc.production.properties %}
 
 Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.
 
-[gist id=1134126 file=applicationContext.xml]
+{% gist 1134126 applicationContext.xml %}
 
 Untuk lebih spesifik, konfigurasinya ada di baris berikut
 
-[gist id=1134126 file=context-loading.xml]
+{% gist 1134126 context-loading.xml %}
 
 Di sana kita melihat ada variabel ${stage}.
 Variabel ${stage} ini akan dicari dari [beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi](http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import). Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.
@@ -129,15 +129,15 @@ Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai 
 
 Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan [Apache Tomcat](http://tomcat.apache.org), maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :
 
-[gist id=1134126 file=startup.sh bump=1]
+{% gist 1134126 startup.sh %}
 
 Atau, kita bisa jalankan dengan Jetty melalui Maven
 
-[gist id=1134126 file=mvn-jetty-run.sh bump=2]
+{% gist 1134126 mvn-jetty-run.sh %}
 
 Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.
 
-[gist id=1134126 file=linux-env-var.sh bump=3]
+{% gist 1134126 linux-env-var.sh %}
 
 
 
@@ -182,11 +182,11 @@ Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan
 
 Berikut isi file logback.xml.
 
-[gist id=1134126 file=logback.xml]
+{% gist 1134126 logback.xml %}
 
 Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini
 
-[gist id=1134126 file=logback-variable.txt]
+{% gist 1134126 logback-variable.txt %}
 
 Yang artinya adalah, [isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development](http://logback.qos.ch/manual/configuration.html). Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.
 

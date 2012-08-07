@@ -59,6 +59,6 @@ Semua log message ditampilkan ke terminal, supaya mudah diamati.
 
 Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut : 
 
-[gist id=3205393]
+{% gist 3205393 %}
 
 Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.
