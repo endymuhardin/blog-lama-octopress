@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Pemakaian Git sehari-hari - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Pemakaian Git Sehari-hari</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-08T16:02:29+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami beberapa istilah sebagai berikut:</p>
+
+<ul>
+<li><p>diff : perbedaan antara satu file dengan file lain
+biasanya diff dilakukan terhadap satu file yang sudah berubah isinya</p></li>
+<li><p>changeset : kumpulan diff</p></li>
+<li><p>working folder : folder kerja kita, berisi file yang (mungkin) sudah berubah sejak commit terakhir</p></li>
+<li><p>staging : tempat persiapan changeset yang akan dicommit</p></li>
+<li><p>commit : snapshot dari posisi folder dan file pada waktu tertentu</p></li>
+<li><p>tip : commit paling ujung</p></li>
+<li><p>head : nama lain tip</p></li>
+<li><p>branch : head yang diberi nama</p></li>
+<li><p>HEAD : head yang sedang aktif</p></li>
+<li><p>merge : menggabungkan lebih dari satu commit</p></li>
+</ul>
+
+
+<h2>Membuat Repository</h2>
+
+<p>Untuk bisa mulai bekerja, kita harus memiliki repository dulu. Ada dua kemungkinan, kita membuat repository baru, atau kita membuat clone dari repository yang sudah ada.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat repository baru</p>
+
+<p>git init</p>
+
+<p>membuat repository baru di folder project-baru</p>
+
+<p>git init project-baru</p>
+
+<p>membuat repository untuk dishare</p>
+
+<pre><code>git init --bare project-baru
+</code></pre>
+
+<p>copy repository lain</p>
+
+<p>git clone repo-url</p>
+
+<p>pilihan format URL</p>
+
+<p>file:///path/ke/repo : clone dari folder lokal</p>
+
+<p>/path/ke/repo : clone dari folder lokal, menggunakan hard link</p>
+
+<p>http://server/path/ke/repo : clone melalui protokol http</p>
+
+<p>username@server:path/ke/repo : clone melalui protokol ssh</p>
+
+<h2>Bekerja dengan Git</h2>
+
+<p>Berikut ini adalah perintah yang dilakukan selama sesi coding.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>Menambah file baru</p>
+
+<p>git add namafile</p>
+
+<p>Menghapus file</p>
+
+<p>git rm namafile</p>
+
+<p>Memasukkan perubahan di satu file ke staging area</p>
+
+<p>git add namafile</p>
+
+<p>memasukkan semua perubahan</p>
+
+<p>git add .</p>
+
+<p>memilih potongan kode yang akan dimasukkan</p>
+
+<p>git add -p</p>
+
+<p>memasukkan perubahan ke staging menggunakan menu</p>
+
+<p>git add -i</p>
+
+<p>melihat status perubahan file, mana yang masih di working dan mana yang sudah di staging</p>
+
+<p>git status</p>
+
+<p>mengeluarkan perubahan dari staging area</p>
+
+<pre><code>git reset -- namafile
+</code></pre>
+
+<p>melihat perubahan yang belum dimasukkan ke staging area</p>
+
+<p>git diff</p>
+
+<p>melihat perubahan yang akan dicommit (sudah ada di staging area)</p>
+
+<pre><code>git diff --staged
+</code></pre>
+
+<p>melihat perubahan antara working folder dan commit terakhir</p>
+
+<p>git diff HEAD</p>
+
+<p>melihat file mana saja yang berubah</p>
+
+<pre><code>git diff --name-status abc123..def456
+</code></pre>
+
+<p>melakukan commit, editor akan diaktifkan untuk mengisi keterangan</p>
+
+<p>git commit</p>
+
+<p>melakukan commit, langsung mengisi keterangan</p>
+
+<p>git commit -m &#8220;langsung isi keterangan di sini&#8221;</p>
+
+<p>commit langsung semua perubahan, tanpa melalui staging</p>
+
+<p>git commit -a</p>
+
+<p>melihat commit history</p>
+
+<p>git log</p>
+
+<p>log lima commit terakhir</p>
+
+<p>git log -5</p>
+
+<p>log hanya menampilkan summary</p>
+
+<pre><code>git log --oneline
+</code></pre>
+
+<p>tampilkan commit summary dari semua branch dengan graph hubungan antar commit</p>
+
+<pre><code>git log --oneline --all --graph
+</code></pre>
+
+<p>membuat commit baru yang berkebalikan dengan (undo) commit terakhir</p>
+
+<p>git revert HEAD</p>
+
+<p>undo 2 commit terakhir</p>
+
+<p>git revert HEAD~2</p>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging disamakan dengan HEAD, working tetap seperti semula. <br/>
+Ini adalah opsi defaultnya reset</p>
+
+<pre><code>git reset --mixed
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, isi working dan staging disamakan dengan commit-id tersebut</p>
+
+<pre><code>git reset --hard commit-id
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging dan working tidak disentuh. Tidak mengubah output git status</p>
+
+<pre><code>git reset --soft
+</code></pre>
+
+<p>membuat working dan staging sama dengan HEAD</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja paralel menggunakan branch</h2>
+
+<p>Branch memungkinkan kita bekerja secara paralel, misalnya ada tim yang menambah fitur, dan ada tim yang melakukan bug fix.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat branch baru</p>
+
+<p>git branch namabranch</p>
+
+<p>pindah ke branch tersebut</p>
+
+<p>git checkout namabranch</p>
+
+<p>bikin branch sambil pindah</p>
+
+<p>git checkout -b namabranch</p>
+
+<p>membuat tracking branch untuk branch bugfix di origin</p>
+
+<pre><code>git checkout --track origin/bugfix
+</code></pre>
+
+<p>membuat tracking branch dengan nama berbeda dengan remote</p>
+
+<p>git checkout -b myfix origin/bugfix</p>
+
+<p>membandingkan branch satu dengan lainnya</p>
+
+<p>git diff master..fitur-xx</p>
+
+<p>membandingkan branch dengan titik awal branch tersebut</p>
+
+<p>git diff master&#8230;fitur-xx</p>
+
+<p>menggabungkan branch satu dengan lainnya</p>
+
+<p>git checkout branch-tujuan</p>
+
+<p>git merge branch-yang-mau-diambil</p>
+
+<p>Mengedit konflik :</p>
+
+<ul>
+<li><p>edit konfliknya</p></li>
+<li><p>remove markernya</p></li>
+</ul>
+
+
+<p>git add namafile-yang-konflik</p>
+
+<p>git commit -m &#8220;merge fitur-xxx ke master&#8221;</p>
+
+<p>membatalkan merge yang konflik</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja dengan remote</h2>
+
+<p>Interaksi dengan remote repository</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>mendaftarkan remote repository</p>
+
+<p>git remote add namaremote url</p>
+
+<p>melihat daftar remote repository</p>
+
+<p>git remote -v</p>
+
+<p>menghapus remote repository</p>
+
+<p>git remote rm namaremote</p>
+
+<p>mengambil perubahan di remote</p>
+
+<p>git remote update</p>
+
+<p>mengambil perubahan di satu remote saja</p>
+
+<p>git remote update namaremote</p>
+
+<p>mengambil perubahan di remote, hapus branch di lokal yang sudah tidak ada di remote</p>
+
+<pre><code>git remote update --prune
+</code></pre>
+
+<p>mengambil perubahan sesuai refspec yang sudah dikonfigurasi</p>
+
+<p>git fetch namaremote</p>
+
+<p>mengambil perubahan kemudian dimerge ke branch lokal yang sesuai</p>
+
+<p>pull = fetch + merge</p>
+
+<p>git pull namaremote</p>
+
+<p>mengirim perubahan di lokal ke remote</p>
+
+<p>git push nama-remote nama-branch-lokal:nama-branch-remote</p>
+
+<p>mengirim perubahan di lokal ke remote, semua branch yang namanya bersesuaian akan dikirim</p>
+
+<p>git push nama-remote</p>
+
+<p>mengirim perubahan di branch lokal yang sedang aktif ke branch di remote dengan nama yang sama</p>
+
+<p>git push nama-remote HEAD</p>
+
+<p>menghapus branch di remote</p>
+
+<p>git push nama-remote :nama-branch-remote</p>
+
+<p>Demikianlah perintah-perintah Git yang kita gunakan sehari-hari. Melengkapi daftar perintah di atas, diagram berikut dapat membantu pemahaman kita tentang konsep dan operasi di Git.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git-300x284.png" alt="" /></a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-08T16:02:29+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/aplikasi/'>Aplikasi</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari/" data-via="endymuhardin" data-counturl="http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/blog/Java/project-setup-dengan-gradle/" title="Previous Post: Project Setup dengan Gradle">&laquo; Project Setup dengan Gradle</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/blog/Java/PHP/database-transaction/" title="Next Post: Database Transaction">Database Transaction &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

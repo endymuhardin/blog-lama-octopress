@@ -1,0 +1,495 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Monitoring Aplikasi Java - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Monitoring Aplikasi Java</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-28T20:45:07+07:00" pubdate data-updated="true">Jul 28<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini disebut dengan transisi dari development menjadi operation.</p>
+
+<p>Salah satu aspek penting dalam fase operation adalah monitoring performance. Monitoring dilakukan untuk berbagai tujuan, diantaranya :</p>
+
+<ul>
+<li><p>Mengetahui karakteristik aplikasi dalam menggunakan resource. Informasi ini bisa kita gunakan untuk melakukan tuning performance</p></li>
+<li><p>Mengetahui karakteristik user dalam menggunakan aplikasi. Perilaku user ini berguna untuk menentukan waktu-waktu sibuk dan waktu-waktu idle, sehingga kita bisa melakukan capacity planning dengan akurat.</p></li>
+<li><p>Mengetahui berapa persen resource yang sudah terpakai, sehingga kita punya gambaran kapan harus melakukan upgrade, dan apa yang harus diupgrade</p></li>
+<li><p>Mendapatkan notifikasi secepat mungkin pada saat sistem mengalami gangguan</p></li>
+</ul>
+
+
+<p>Pada umumnya, monitoring dilakukan dengan memantau bagian-bagian dalam sistem, diantaranya :</p>
+
+<ul>
+<li><p>Dalam sistem operasi</p>
+
+<ul>
+<li><p>Jumlah proses</p></li>
+<li><p>CPU</p></li>
+<li><p>Memori</p></li>
+<li><p>Disk I/O</p></li>
+<li><p>Network I/O</p></li>
+</ul>
+</li>
+<li><p>Dalam aplikasi</p>
+
+<ul>
+<li><p>Jumlah thread</p></li>
+<li><p>Alokasi memori</p></li>
+<li><p>Class/method yang mengkonsumsi resource terbesar</p></li>
+<li><p>Class/method yang memakan waktu lama</p></li>
+<li><p>Untuk bahasa pemrograman yang berjalan di virtual machine (seperti Java, .NET, Ruby, dsb), kita juga perlu memantau perilaku Garbage Collector</p></li>
+</ul>
+</li>
+<li><p>Database Server</p>
+
+<ul>
+<li><p>Jumlah koneksi yang dibuka baik yang idle maupun yang aktif</p></li>
+<li><p>Query yang memakan waktu lama</p></li>
+<li><p>Tabel yang sering diakses</p></li>
+</ul>
+</li>
+</ul>
+
+
+<p>Dalam melakukan monitoring, ada banyak tools yang digunakan. Beberapa aplikasi opensource yang populer diantaranya :</p>
+
+<ul>
+<li><p>Nagios</p></li>
+<li><p>Icinga : ini adalah fork dari Nagios</p></li>
+<li><p>Zenoss</p></li>
+<li><p>Zabbix</p></li>
+<li><p>OpenNMS</p></li>
+<li><p>Hyperic</p></li>
+</ul>
+
+
+<p>Pada umumnya, semua aplikasi di atas memiliki fitur yang mirip-mirip, yaitu :</p>
+
+<ul>
+<li><p>SNMP Monitoring. SNMP adalah protokol yang populer, tersedia di sistem operasi, network hardware (switch, router, dsb), bahkan aplikasi (Java VM, database server, dsb)</p></li>
+<li><p>JMX Monitoring. JMX adalah protokol untuk memonitor aplikasi Java. Dengan menggunakan JMX, informasi yang diperoleh akan lebih rinci.</p></li>
+<li><p>Agent dan Agentless Monitoring. Agent adalah aplikasi kecil yang diinstal di server yang ingin dimonitor. Dengan agent, informasi yang dikumpulkan bisa lebih detail. Di lain sisi, tidak semua tempat bisa dipasangi agent (misalnya router). Umumnya aplikasi monitoring mendukung monitoring dengan agent maupun tanpa agent.</p></li>
+</ul>
+
+
+<p>Cara instalasi dari aplikasi di atas bisa dibaca di websitenya masing-masing. Yang akan kita bahas di sini adalah cara konfigurasi aplikasi Java, khususnya yang menggunakan framework Spring dan Hibernate, agar bisa dimonitor oleh aplikasi-aplikasi di atas.</p>
+
+<p>Pada prinsipnya, berikut adalah hal-hal yang perlu dilakukan :</p>
+
+<ol>
+<li><p>Menentukan metric atau jenis data yang akan dimonitor</p></li>
+<li><p>Mengaktifkan MBean agar metric tersebut dipublish melalui JMX</p></li>
+<li><p>Mengaktifkan JMX server agar bisa dihubungi dari aplikasi monitoring</p></li>
+</ol>
+
+
+<p>Aplikasi yang akan kita jadikan contoh kasus adalah template standar aplikasi web ArtiVisi, yang <a href="https://github.com/endymuhardin/belajar-restful">source codenya tersedia di Github</a>.</p>
+
+<h2>Menentukan metric</h2>
+
+<p>Beda jenis datanya, tentu beda juga cara pengumpulan data dan tools yang digunakan untuk mengolahnya.</p>
+
+<pre><code>    Metric
+    Metode Pengumpulan
+    Tools
+</code></pre>
+
+<p>CPU</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Memori</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Disk I/O</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Network</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Tomcat Performance</p>
+
+<p>JMX</p>
+
+<p>Hyperic</p>
+
+<p>MySQL Performance</p>
+
+<p>Agent</p>
+
+<p>Hyperic</p>
+
+<p>Spring Beans</p>
+
+<p>Agent</p>
+
+<p>Javamelody</p>
+
+<p>Hibernate Statistics</p>
+
+<p>JMX</p>
+
+<p>Hyperic</p>
+
+<h2>Monitoring dengan JavaMelody</h2>
+
+<p>Untuk mengaktifkan monitoring menggunakan JavaMelody, ada beberapa langkah yang perlu kita lakukan, yaitu :</p>
+
+<ol>
+<li><p>Menambahkan jar JavaMelody</p></li>
+<li><p>Memasang AOP interceptor supaya bisa memonitor beans dalam Spring</p></li>
+<li><p>Mengaktifkan monitoring JavaMelody</p></li>
+</ol>
+
+
+<p>Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut :</p>
+
+<p>[gist id=3192086 file=pom.xml]</p>
+
+<p>Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml</p>
+
+<p>[gist id=3192086 file=applicationContext.xml]</p>
+
+<p>Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut</p>
+
+<p>[gist id=3192086 file=web.xml]</p>
+
+<p>Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring.</p>
+
+<p>Berikut adalah screenshotnya.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png" alt="JavaMelody-Charts" /></a></p>
+
+<h2>Mengaktifkan MBean</h2>
+
+<p>Selain menggunakan JavaMelody, kita juga bisa melakukan monitoring menggunakan JMX. Beruntung kita yang menggunakan Spring, JMX akan sangat mudah dikonfigurasi. Pada contoh berikut, kita akan mengaktifkan monitoring terhadap statistik Hibernate. Langkah-langkahnya adalah sebagai berikut :</p>
+
+<ol>
+<li><p>Mengaktifkan fitur statistik dalam Hibernate</p></li>
+<li><p>Mendeklarasikan MBean untuk memonitor statistik Hibernate</p></li>
+<li><p>Menginstankan JMX server (MBean Server)</p></li>
+</ol>
+
+
+<p>Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut :</p>
+
+<p>[gist id=3192099 file=hibernate-statistics.xml]</p>
+
+<p>Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean.</p>
+
+<p>[gist id=3192099 file=hibernateMBean.xml]</p>
+
+<p>[gist id=3192099 file=mbeanExporter.xml]</p>
+
+<p>Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru</p>
+
+<p>[gist id=3192099 file=mbean-server.xml]</p>
+
+<p>Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb.
+Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
+
+<p>Jalankan JConsole, dan pilih proses yang akan dimonitor.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png" alt="jconsole-select-pid" /></a></p>
+
+<p>Tampilkan MBean Hibernate Statistics</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png" alt="jconsole-hibernate-statistics" /></a></p>
+
+<p>Kita bisa lihat bahwa statistik Hibernate sudah dapat diakses. Informasi ini juga bisa ditampilkan di aplikasi monitoring seperti OpenNMS, Hyperic, dan aplikasi lain yang support JMX.</p>
+
+<p>Selain itu, kalau kita sudah mengaktifkan JavaMelody seperti dijelaskan di atas, MBean ini juga bisa ditampilkan di url yang sama seperti screenshot di bawah</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png" alt="javamelody-mbeans" /></a></p>
+
+<h2>Kesimpulan</h2>
+
+<p>Demikianlah hasil oprek-oprek sambil menunggu motor servis rutin. Dengan beberapa langkah sederhana, kita dapat memperoleh informasi lengkap tentang apa yang terjadi di aplikasi kita. Informasi ini selanjutnya dapat dijadikan pedoman untuk melakukan tuning performance. Selain itu, dengan menggunakan aplikasi pengolah data seperti <a href="http://code.google.com/p/rocksteady/">Rocksteady</a>, kita dapat membuat early warning system, yaitu suatu sistem yang dapat memprediksi terjadinya bencana dan memberikan notifikasi, sehingga kita bisa melakukan antisipasi.</p>
+
+<h2>Referensi</h2>
+
+<ul>
+<li><p><a href="http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html">JMX Homepage</a></p></li>
+<li><p><a href="http://visualvm.java.net/">VisualVM Homepage</a></p></li>
+<li><p><a href="http://java.sun.com/developer/technicalArticles/J2SE/jconsole.html">Cara menggunakan JConsole</a></p></li>
+<li><p><a href="http://dzone.com/snippets/spring-jmx-sample">Cara konfigurasi Spring dan Hibernate</a></p></li>
+<li><p><a href="http://nurkiewicz.blogspot.com/2011/03/jolokia-highcharts-jmx-for-human-beings.html">Menampilkan data dari JMX dengan Jolokia</a></p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-28T20:45:07+07:00" pubdate data-updated="true">Jul 28<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/java/'>Java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java/" data-via="endymuhardin" data-counturl="http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/blog/Linux/backup-home-folder/" title="Previous Post: Backup Home Folder">&laquo; Backup Home Folder</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/blog/Java/konsep-dasar-log4/" title="Next Post: Konsep Dasar Log4j">Konsep Dasar Log4j &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

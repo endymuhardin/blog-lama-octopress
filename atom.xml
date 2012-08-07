@@ -1,0 +1,2480 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Living life and make it better]]></title>
+  <link href="http://endymuhardin.github.com/atom.xml" rel="self"/>
+  <link href="http://endymuhardin.github.com/"/>
+  <updated>2012-08-07T22:32:36+07:00</updated>
+  <id>http://endymuhardin.github.com/</id>
+  <author>
+    <name><![CDATA[Endy Muhardin]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Konsep Dasar Log4j]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/konsep-dasar-log4/"/>
+    <updated>2012-07-30T20:59:00+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/konsep-dasar-log4</id>
+    <content type="html"><![CDATA[<p>Walaupun sudah dibuatkan <a href="http://endy.artivisi.com/blog/java/menggunakan-log4j">minibook</a>, tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.</p>
+
+<p>Ada beberapa komponen penting dalam aplikasi logging :</p>
+
+<ul>
+<li><p>logger : ini adalah yang kita gunakan di aplikasi untuk mengeluarkan pesan.
+tadinya System.out.println(&#8220;Coba&#8221;);
+diganti menjadi logger.info(&#8220;Coba&#8221;);</p></li>
+<li><p>appender : komponen yang bertugas menampilkan log message
+misalnya : console appender : menampilkan ke System.out
+File appender : menulis log ke file
+Rolling file appender : menulis ke file, lalu dirolling berdasarkan kriteria tertentu (size atau time)
+misalnya, setelah mencapai 1 MB, tulis ke file berbeda, atau tiap 1 jam ganti file</p></li>
+<li><p>category : ini adalah sumber log message, yaitu package atau realm.
+<strong>biasanya</strong> category == package
+Ini digunakan untuk memfilter log mana yang akan ditampilkan ke appender mana</p></li>
+</ul>
+
+
+<p>Selain 3 komponen itu, ada terminologi yang namanya level.
+Contoh level : error, warn, info, debug, trace
+Level ini berlaku bertingkat, jadi kalau kita bilang info, artinya info, warn, error.
+Kalau kita bilang debug, maka hasilnya debug, info, warn, error.</p>
+
+<p>Log message ditampilkan atau tidak, tergantung category dan level.</p>
+
+<p>Contoh kasus :
+Saya membuat aplikasi, berisi package com.artivisi.belajar.logging.
+Isinya ada 2 class, Coba dan Halo.</p>
+
+<p>Aplikasi saya ini menggunakan framework Spring, yang mana berisi package org.springframework, yang berisi banyak sub package, seperti org.springframework.core, org.springframework.jdbc, dsb.</p>
+
+<p>Untuk source code yang saya tulis sendiri (Coba dan Halo), saya ingin menampilkan level debug, karena masih fase development. Nantinya kalau sudah production, cukup level warn saja yang ditampilkan.
+Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilkan.</p>
+
+<p>Semua log message ditampilkan ke terminal, supaya mudah diamati.</p>
+
+<p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
+
+<p>[gist id=3205393]</p>
+
+<p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Monitoring Aplikasi Java]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java/"/>
+    <updated>2012-07-28T20:45:07+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java</id>
+    <content type="html"><![CDATA[<p>Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini disebut dengan transisi dari development menjadi operation.</p>
+
+<p>Salah satu aspek penting dalam fase operation adalah monitoring performance. Monitoring dilakukan untuk berbagai tujuan, diantaranya :</p>
+
+<ul>
+<li><p>Mengetahui karakteristik aplikasi dalam menggunakan resource. Informasi ini bisa kita gunakan untuk melakukan tuning performance</p></li>
+<li><p>Mengetahui karakteristik user dalam menggunakan aplikasi. Perilaku user ini berguna untuk menentukan waktu-waktu sibuk dan waktu-waktu idle, sehingga kita bisa melakukan capacity planning dengan akurat.</p></li>
+<li><p>Mengetahui berapa persen resource yang sudah terpakai, sehingga kita punya gambaran kapan harus melakukan upgrade, dan apa yang harus diupgrade</p></li>
+<li><p>Mendapatkan notifikasi secepat mungkin pada saat sistem mengalami gangguan</p></li>
+</ul>
+
+
+<p>Pada umumnya, monitoring dilakukan dengan memantau bagian-bagian dalam sistem, diantaranya :</p>
+
+<ul>
+<li><p>Dalam sistem operasi</p>
+
+<ul>
+<li><p>Jumlah proses</p></li>
+<li><p>CPU</p></li>
+<li><p>Memori</p></li>
+<li><p>Disk I/O</p></li>
+<li><p>Network I/O</p></li>
+</ul>
+</li>
+<li><p>Dalam aplikasi</p>
+
+<ul>
+<li><p>Jumlah thread</p></li>
+<li><p>Alokasi memori</p></li>
+<li><p>Class/method yang mengkonsumsi resource terbesar</p></li>
+<li><p>Class/method yang memakan waktu lama</p></li>
+<li><p>Untuk bahasa pemrograman yang berjalan di virtual machine (seperti Java, .NET, Ruby, dsb), kita juga perlu memantau perilaku Garbage Collector</p></li>
+</ul>
+</li>
+<li><p>Database Server</p>
+
+<ul>
+<li><p>Jumlah koneksi yang dibuka baik yang idle maupun yang aktif</p></li>
+<li><p>Query yang memakan waktu lama</p></li>
+<li><p>Tabel yang sering diakses</p></li>
+</ul>
+</li>
+</ul>
+
+
+<p>Dalam melakukan monitoring, ada banyak tools yang digunakan. Beberapa aplikasi opensource yang populer diantaranya :</p>
+
+<ul>
+<li><p>Nagios</p></li>
+<li><p>Icinga : ini adalah fork dari Nagios</p></li>
+<li><p>Zenoss</p></li>
+<li><p>Zabbix</p></li>
+<li><p>OpenNMS</p></li>
+<li><p>Hyperic</p></li>
+</ul>
+
+
+<p>Pada umumnya, semua aplikasi di atas memiliki fitur yang mirip-mirip, yaitu :</p>
+
+<ul>
+<li><p>SNMP Monitoring. SNMP adalah protokol yang populer, tersedia di sistem operasi, network hardware (switch, router, dsb), bahkan aplikasi (Java VM, database server, dsb)</p></li>
+<li><p>JMX Monitoring. JMX adalah protokol untuk memonitor aplikasi Java. Dengan menggunakan JMX, informasi yang diperoleh akan lebih rinci.</p></li>
+<li><p>Agent dan Agentless Monitoring. Agent adalah aplikasi kecil yang diinstal di server yang ingin dimonitor. Dengan agent, informasi yang dikumpulkan bisa lebih detail. Di lain sisi, tidak semua tempat bisa dipasangi agent (misalnya router). Umumnya aplikasi monitoring mendukung monitoring dengan agent maupun tanpa agent.</p></li>
+</ul>
+
+
+<p>Cara instalasi dari aplikasi di atas bisa dibaca di websitenya masing-masing. Yang akan kita bahas di sini adalah cara konfigurasi aplikasi Java, khususnya yang menggunakan framework Spring dan Hibernate, agar bisa dimonitor oleh aplikasi-aplikasi di atas.</p>
+
+<p>Pada prinsipnya, berikut adalah hal-hal yang perlu dilakukan :</p>
+
+<ol>
+<li><p>Menentukan metric atau jenis data yang akan dimonitor</p></li>
+<li><p>Mengaktifkan MBean agar metric tersebut dipublish melalui JMX</p></li>
+<li><p>Mengaktifkan JMX server agar bisa dihubungi dari aplikasi monitoring</p></li>
+</ol>
+
+
+<p>Aplikasi yang akan kita jadikan contoh kasus adalah template standar aplikasi web ArtiVisi, yang <a href="https://github.com/endymuhardin/belajar-restful">source codenya tersedia di Github</a>.</p>
+
+<h2>Menentukan metric</h2>
+
+<p>Beda jenis datanya, tentu beda juga cara pengumpulan data dan tools yang digunakan untuk mengolahnya.</p>
+
+<pre><code>    Metric
+    Metode Pengumpulan
+    Tools
+</code></pre>
+
+<p>CPU</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Memori</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Disk I/O</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Network</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Tomcat Performance</p>
+
+<p>JMX</p>
+
+<p>Hyperic</p>
+
+<p>MySQL Performance</p>
+
+<p>Agent</p>
+
+<p>Hyperic</p>
+
+<p>Spring Beans</p>
+
+<p>Agent</p>
+
+<p>Javamelody</p>
+
+<p>Hibernate Statistics</p>
+
+<p>JMX</p>
+
+<p>Hyperic</p>
+
+<h2>Monitoring dengan JavaMelody</h2>
+
+<p>Untuk mengaktifkan monitoring menggunakan JavaMelody, ada beberapa langkah yang perlu kita lakukan, yaitu :</p>
+
+<ol>
+<li><p>Menambahkan jar JavaMelody</p></li>
+<li><p>Memasang AOP interceptor supaya bisa memonitor beans dalam Spring</p></li>
+<li><p>Mengaktifkan monitoring JavaMelody</p></li>
+</ol>
+
+
+<p>Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut :</p>
+
+<p>[gist id=3192086 file=pom.xml]</p>
+
+<p>Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml</p>
+
+<p>[gist id=3192086 file=applicationContext.xml]</p>
+
+<p>Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut</p>
+
+<p>[gist id=3192086 file=web.xml]</p>
+
+<p>Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring.</p>
+
+<p>Berikut adalah screenshotnya.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png" alt="JavaMelody-Charts" /></a></p>
+
+<h2>Mengaktifkan MBean</h2>
+
+<p>Selain menggunakan JavaMelody, kita juga bisa melakukan monitoring menggunakan JMX. Beruntung kita yang menggunakan Spring, JMX akan sangat mudah dikonfigurasi. Pada contoh berikut, kita akan mengaktifkan monitoring terhadap statistik Hibernate. Langkah-langkahnya adalah sebagai berikut :</p>
+
+<ol>
+<li><p>Mengaktifkan fitur statistik dalam Hibernate</p></li>
+<li><p>Mendeklarasikan MBean untuk memonitor statistik Hibernate</p></li>
+<li><p>Menginstankan JMX server (MBean Server)</p></li>
+</ol>
+
+
+<p>Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut :</p>
+
+<p>[gist id=3192099 file=hibernate-statistics.xml]</p>
+
+<p>Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean.</p>
+
+<p>[gist id=3192099 file=hibernateMBean.xml]</p>
+
+<p>[gist id=3192099 file=mbeanExporter.xml]</p>
+
+<p>Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru</p>
+
+<p>[gist id=3192099 file=mbean-server.xml]</p>
+
+<p>Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb.
+Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
+
+<p>Jalankan JConsole, dan pilih proses yang akan dimonitor.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png" alt="jconsole-select-pid" /></a></p>
+
+<p>Tampilkan MBean Hibernate Statistics</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png" alt="jconsole-hibernate-statistics" /></a></p>
+
+<p>Kita bisa lihat bahwa statistik Hibernate sudah dapat diakses. Informasi ini juga bisa ditampilkan di aplikasi monitoring seperti OpenNMS, Hyperic, dan aplikasi lain yang support JMX.</p>
+
+<p>Selain itu, kalau kita sudah mengaktifkan JavaMelody seperti dijelaskan di atas, MBean ini juga bisa ditampilkan di url yang sama seperti screenshot di bawah</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png" alt="javamelody-mbeans" /></a></p>
+
+<h2>Kesimpulan</h2>
+
+<p>Demikianlah hasil oprek-oprek sambil menunggu motor servis rutin. Dengan beberapa langkah sederhana, kita dapat memperoleh informasi lengkap tentang apa yang terjadi di aplikasi kita. Informasi ini selanjutnya dapat dijadikan pedoman untuk melakukan tuning performance. Selain itu, dengan menggunakan aplikasi pengolah data seperti <a href="http://code.google.com/p/rocksteady/">Rocksteady</a>, kita dapat membuat early warning system, yaitu suatu sistem yang dapat memprediksi terjadinya bencana dan memberikan notifikasi, sehingga kita bisa melakukan antisipasi.</p>
+
+<h2>Referensi</h2>
+
+<ul>
+<li><p><a href="http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html">JMX Homepage</a></p></li>
+<li><p><a href="http://visualvm.java.net/">VisualVM Homepage</a></p></li>
+<li><p><a href="http://java.sun.com/developer/technicalArticles/J2SE/jconsole.html">Cara menggunakan JConsole</a></p></li>
+<li><p><a href="http://dzone.com/snippets/spring-jmx-sample">Cara konfigurasi Spring dan Hibernate</a></p></li>
+<li><p><a href="http://nurkiewicz.blogspot.com/2011/03/jolokia-highcharts-jmx-for-human-beings.html">Menampilkan data dari JMX dengan Jolokia</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Backup Home Folder]]></title>
+    <link href="http://endymuhardin.github.com/blog/Linux/backup-home-folder/"/>
+    <updated>2011-08-26T23:00:29+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Linux/backup-home-folder</id>
+    <content type="html"><![CDATA[<p>Seberapa penting file di komputer kita? Tentu tidak ternilai harganya. Tapi apakah kita melakukan backup secara terhadap file-file di komputer kita? Beberapa menit yang lalu, saya menjawab tidak untuk pertanyaan tersebut.</p>
+
+<p>Kenapa backup tidak dilakukan? Penyebab utamanya biasanya adalah karena merepotkan. Kita harus pilih file yang mau dibackup, membuka aplikasi backup, lalu menjalankannya. Walaupun cuma butuh waktu beberapa menit, tapi biasanya kita sering menunda dan akhirnya lupa.</p>
+
+<p>Cara paling efektif untuk melakukan backup rutin adalah dengan mengotomasinya. Effort untuk melakukan setup cukup sekali saja, selanjutnya backup akan berjalan otomatis tanpa kita sadari. Pada artikel ini, saya akan posting teknik backup yang saya gunakan.</p>
+
+<p>Sebelum kita mulai, terlebih dulu kita tentukan requirementnya, supaya jelas apa yang kita ingin capai. Saya ingin membackup folder tertentu di komputer saya (misalnya <em>/home/endy</em> dan <em>/opt/multimedia/Photos</em>). Backup ini dilakukan secara rutin (misalnya satu jam sekali, satu hari sekali, atau satu minggu sekali). Selain rutin, juga harus incremental. Artinya kalau saya punya backup hari ini jam 11, maka backup selanjutnya di jam 12 hanya menyimpan file yang berubah saja. Dengan demikian, saya bisa jalankan backupnya satu jam sekali dan tidak akan menyebabkan harddisk menjadi penuh dalam beberapa jam saja.</p>
+
+<p>Kalau kita cari di Google dengan keyword <em>ubuntu backup application</em>, ada banyak sekali aplikasi backup yang tersedia.
+Ada Unison, Bacula, SBackup, rdiff-backup, Deja Dup, dan <a href="http://davestechshop.net/ListOfFreeOpenSourceLinuxUbuntuBackupSoftware">entah apa lagi</a>. Walaupun demikian, seperti biasanya, saya akan gunakan aplikasi yang paling populer, universal (ada di mana-mana), dan bisa dijalankan dari command line (supaya bisa diotomasi dengan cron). Pilihannya tentu adalah <em>rsync</em>.</p>
+
+<p><em>rsync</em> adalah aplikasi untuk melakukan file transfer. Dia memiliki beberapa kelebihan, diantaranya :</p>
+
+<ul>
+<li><p>tersedia di semua *nix (misalnya Linux dan Mac)</p></li>
+<li><p>berbasis command line, sehingga bisa saya aplikasikan juga di server</p></li>
+<li><p>sudah teruji kehandalannya</p></li>
+<li><p>bisa resume (bila transfer putus di tengah jalan, tidak perlu ulang dari awal)</p></li>
+<li><p>data yang ditransfer bisa dikompres, supaya lebih cepat</p></li>
+<li><p>bisa mengirim data melalui ssh, sehingga keamanan data terjamin</p></li>
+<li><p>memiliki kemampuan hard linking sehingga bisa menghemat space (akan dijelaskan lebih lanjut)</p></li>
+</ul>
+
+
+<p>With great power, comes great complexity. Demikian kata pamannya Spiderman seandainya dia harus menggunakan <em>rsync</em>. Saking banyaknya opsi, sehingga kita bingung apa yang harus dipakai. Berikut adalah opsi rsync yang saya gunakan :</p>
+
+<ul>
+<li><p>a : archive. Opsi ini sama dengan kalau kita mengaktifkan opsi rlptgoD</p></li>
+<li><p>r : rekursif sampai ke subfolder terdalam</p></li>
+<li><p>l : symlink tetap dicopy sebagai symlink</p></li>
+<li><p>p : file permission disamakan dengan aslinya</p></li>
+<li><p>t : modification time (waktu terakhir update) disamakan dengan aslinya</p></li>
+<li><p>g : kepemilikan group disamakan dengan aslinya</p></li>
+<li><p>o : kepemilikan owner disamakan dengan aslinya</p></li>
+<li><p>D : file device dan special disamakan dengan aslinya</p></li>
+<li><p>force : folder kosong di tujuan dihapus walaupun ada isinya</p></li>
+<li><p>ignore-errors : lanjut terus walaupun ada error</p></li>
+<li><p>exclude-from : file text berisi daftar file/folder yang tidak perlu ditransfer</p></li>
+<li><p>link-dest : lihat ke folder yang disebutkan, kalau ada file yang sama, buat hard link</p></li>
+</ul>
+
+
+<p>Pada penjelasan di atas, beberapa kali disebutkan istilah hard-link. Di Linux, suatu file terdiri dari dua bagian : isi (content), dan nama. Satu content yang sama bisa saja memiliki dua nama yang berbeda di folder berbeda sehingga terlihat seolah-olah ada dua file.
+Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu content dan satu nama file coba.txt. Kita bisa membuat nama file baru yang isinya sama dengan perintah sebagai berikut</p>
+
+<p><em>__ln coba.txt halo.txt</em></p>
+
+<p>Perintah di atas akan membentuk file <em>halo.txt</em> yang isinya sama dengan <em>coba.txt</em>. Kalau kita edit <em>coba.txt</em>, maka isi file <em>halo.txt</em> juga akan berubah, karena mereka sebetulnya menunjuk ke benda yang sama.</p>
+
+<p>Dengan menggunakan hard-link ini, kita bisa menduplikasi file tanpa menduplikasi space di harddisk. Ini akan sangat berguna untuk membuat incremental backup, karena kita bisa membuat backup sesering mungkin tanpa memenuhi isi harddisk.</p>
+
+<p>Fitur ini kita gunakan pada <em>rsync</em> dengan opsi <em>link-dest</em>. Sebagai contoh, kita jalankan backup pertama kali dan menghasilkan folder <em>20110826-1100</em>. Pada waktu kita jalankan backup kedua, kita berikan opsi <em>link-dest=20110826-1100</em>. Saat akan mengisi folder yang baru (misalnya <em>20110826-1200</em>), <em>rsync</em> akan melihat ke folder <em>20110826-1100</em> dan memeriksa apakah file yang sama sudah ada. Bila sudah ada, maka <em>rsync</em> tidak akan menulis file baru, melainkan hanya akan membuat hard-link saja. Jadi, bila backup pertama berisi 100 file dengan total 10 GB, dan backup kedua berisi 99 file yang sama, dan 1 file saja yang berubah dengan ukuran 1 GB, maka total space yang terpakai adalah 10 GB (backup pertama) dan 1 GB (backup kedua), bukannya 20 GB.</p>
+
+<p>Setelah kita memahami opsi <em>rsync</em>, berikut adalah perintah yang kita gunakan</p>
+
+<p>[gist id=1172978 file=rsync-cmd.txt bump=1]</p>
+
+<p>File <em>rsync-exclude.txt</em> berisi folder yang tidak dibackup, punya saya isinya seperti ini :</p>
+
+<p>[gist id=1172978 file=rsync-exclude.txt bump=2]</p>
+
+<p><em>folder-backup-sebelumnya</em> perlu dihitung dulu. Caranya menggunakan perintah <em>ls -tr</em> yang akan menampilkan isi folder yang diurutkan berdasarkan modification time secara descending. Berikut contoh outputnya.</p>
+
+<p>[gist id=1172978 file=ls-ltr-output]</p>
+
+<p>Dari sini, kita cukup ambil yang paling atas menggunakan perintah <em>tail -1</em></p>
+
+<p>[gist id=1172978 file=ls-ltr-tail]</p>
+
+<p>Dengan bermodalkan pengetahuan tersebut, kita bisa membuat script seperti ini.</p>
+
+<p>[gist id=1172978 file=rsync-backup.sh bump=3]</p>
+
+<p>Untuk membackup folder <em>/home/endy</em> ke folder <em>/opt/downloads/backups</em>, kita jalankan seperti ini :</p>
+
+<p>[gist id=1172978 file=exec-backup.sh]</p>
+
+<p>Selanjutnya, kita bisa pasang di crontab dengan setting seperti ini, supaya dijalankan tiap tiga jam.</p>
+
+<p>[gist id=1172978 file=crontab.txt bump=2]</p>
+
+<p>Voila &#8230; folder home kita sudah terbackup secara otomatis tanpa kita sadari. Sepanjang menulis artikel ini, laptop saya sudah membackup dirinya sendiri sebanyak 3 kali :D</p>
+
+<p>Setelah membuat backup di harddisk laptop, tentunya kita ingin memindahkannya ke external harddisk supaya kita bisa mengosongkan lokasi backup di laptop.</p>
+
+<p>Berikut adalah perintah rsync yang digunakan.</p>
+
+<p>[gist id=1172978 file=copy-backup-to-external.sh]</p>
+
+<p>Dan ini adalah penjelasan terhadap opsi yang digunakan:</p>
+
+<ul>
+<li><p>P : sama dengan partial dan progress</p></li>
+<li><p>partial : file yang baru dicopy sebagian tetap disimpan agar bisa diresume</p></li>
+<li><p>progress : menampilkan progress report</p></li>
+<li><p>H : hard link dicopy sebagai hard link juga. Tanpa opsi ini, tiap hard link akan dibuatkan file baru sehingga boros space harddisk</p></li>
+</ul>
+
+
+<p>Perintah untuk transfer ke external harddisk ini tidak saya jalankan secara otomatis via cron, karena harddisknya belum tentu terpasang.</p>
+
+<p>Demikianlah artikel tentang backup rutin. Mudah-mudahan kita semua bisa terhindar dari musibah harddisk.</p>
+
+<h3>Referensi</h3>
+
+<ul>
+<li><p><a href="http://www.mikerubel.org/computers/rsync_snapshots">Easy Automated Snapshot-Style Backups with Linux and Rsync</a></p></li>
+<li><p><a href="http://www.hermann-uwe.de/blog/simple-backups-using-rsync">Simple backup using rsync</a></p></li>
+<li><p><a href="http://rsync.samba.org/examples.html">rsync examples</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Staged Deployment]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/Manajemen/staged-deployment/"/>
+    <updated>2011-08-16T15:57:35+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/Manajemen/staged-deployment</id>
+    <content type="html"><![CDATA[<p>Staged Deployment</p>
+
+<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
+
+<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
+
+<ul>
+<li><p>development (komputer si programmer)</p></li>
+<li><p>testing (test server)</p></li>
+<li><p>production (live system)</p></li>
+</ul>
+
+
+<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
+
+<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
+
+<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
+
+<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
+
+<h2>Alternatif Solusi</h2>
+
+<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
+
+<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
+
+<p>[gist id=1134126 file=maven-profile.sh]</p>
+
+<p>atau</p>
+
+<p>[gist id=1134126 file=maven-env-var.sh]</p>
+
+<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
+
+<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
+
+<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
+
+<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
+
+<ul>
+<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
+<li><p>jdbc.testing.properties : digunakan di server test</p></li>
+<li><p>jdbc.production.properties : digunakan di live</p></li>
+</ul>
+
+
+<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
+[gist id=1134126 file=jdbc.properties]</p>
+
+<p>Kemudian, ini file jdbc.testing.properties :</p>
+
+<p>[gist id=1134126 file=jdbc.testing.properties]</p>
+
+<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
+
+<p>Terakhir, jdbc.production.properties</p>
+
+<p>[gist id=1134126 file=jdbc.production.properties]</p>
+
+<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
+
+<p>[gist id=1134126 file=applicationContext.xml]</p>
+
+<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
+
+<p>[gist id=1134126 file=context-loading.xml]</p>
+
+<p>Di sana kita melihat ada variabel ${stage}.
+Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
+
+<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
+
+<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
+
+<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
+
+<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
+
+<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
+
+<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
+
+<h2>Setting Environment Variabel</h2>
+
+<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
+
+<p>[gist id=1134126 file=startup.sh bump=1]</p>
+
+<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
+
+<p>[gist id=1134126 file=mvn-jetty-run.sh bump=2]</p>
+
+<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
+
+<p>[gist id=1134126 file=linux-env-var.sh bump=3]</p>
+
+<h2>Konfigurasi Logger</h2>
+
+<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
+
+<ul>
+<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
+<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
+
+<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
+
+<ul>
+<li><p>logback.xml : file konfigurasi utama</p></li>
+<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
+</ul>
+
+
+<p>Berikut isi file logback.xml.</p>
+
+<p>[gist id=1134126 file=logback.xml]</p>
+
+<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
+
+<p>[gist id=1134126 file=logback-variable.txt]</p>
+
+<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
+
+<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
+
+<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Meluruskan Mitos CMMI]]></title>
+    <link href="http://endymuhardin.github.com/blog/Manajemen/meluruskan-mitos-cmmi/"/>
+    <updated>2011-08-10T15:01:25+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Manajemen/meluruskan-mitos-cmmi</id>
+    <content type="html"><![CDATA[<p>Di milis manajemen proyek IT sedang rame diskusi tentang CMMI dan Scrum.
+Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam mitos dan &#8216;FUDification&#8217;.</p>
+
+<p>Berikut adalah tanggapan saya tentang mitos yang berkembang mengenai CMMI, dicopy-paste dari posting milis dengan sedikit penyesuaian.</p>
+
+<p>Beberapa mitos yang akan diluruskan :</p>
+
+<ul>
+<li><p>CMMI adalah metodologi manajemen proyek yang cenderung waterfall</p></li>
+<li><p>CMMI mewajibkan kita bikin banyak dokumen</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan meluruskan mitos-mitos tersebut.</p>
+
+<h2>CMMI = metodologi, cenderung waterfall</h2>
+
+<p>CMMI bukanlah metodologi manajemen proyek seperti
+<a href="http://en.wikipedia.org/wiki/Scrum_(development">Scrum</a>), <a href="http://en.wikipedia.org/wiki/IBM_Rational_Unified_Process">IBM Rational Unified Process</a>, <a href="http://en.wikipedia.org/wiki/Extreme_Programming">XP</a>, apalagi <a href="http://en.wikipedia.org/wiki/Waterfall_model">Waterfall</a>.</p>
+
+<p>CMMI sebetulnya sudah pernah saya jelaskan <a href="http://endy.artivisi.com/blog/manajemen/apa-itu-cmmi/">di posting saya sebelumnya</a>.
+Tapi untuk lebih menyederhanakan lagi, kita bisa analogikan CMMI seperti akreditasi perguruan tinggi.
+Kalau kita mau daftar kuliah, biasanya kita cari tahu akreditasi kampus yang kita tuju.
+Semakin tinggi akreditasinya, semakin tinggi ekspektasi kita terhadap kualitas perguruan tinggi tersebut.
+<a href="http://ban-pt.kemdiknas.go.id/">Akreditasi perguruan tinggi</a> <a href="http://ban-pt.kemdiknas.go.id/index.php?option=com_content&amp;view=article&amp;id=57&amp;Itemid=63&amp;lang=in">ditentukan oleh banyak hal</a>, diantaranya :</p>
+
+<ul>
+<li><p>berapa jumlah dosen yang S3</p></li>
+<li><p>berapa karya ilmiah dan penelitian yang dihasilkan dalam satu periode</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Untuk menentukan suatu kampus mendapat level A, B, atau lainnya, maka ada tim assessor yang akan memeriksa apakah kampus tersebut sudah memenuhi apa yang dipersyaratkan.</p>
+
+<p>Demikian juga dengan CMMI, berisi seperangkat checklist yang bentuknya kira-kira seperti ini:</p>
+
+<pre><code>        Level
+        Process Area
+        Ok
+        Not Ok
+</code></pre>
+
+<p>2</p>
+
+<p>Requirement Management</p>
+
+<p>2</p>
+
+<p>Configuration Management</p>
+
+<p>2</p>
+
+<p>Measurement and Analysis</p>
+
+<p>2</p>
+
+<p>Project Planning</p>
+
+<p>2</p>
+
+<p>Project Management and Control</p>
+
+<p>2</p>
+
+<p>PPQA</p>
+
+<p>2</p>
+
+<p>Supplier Agreement Management</p>
+
+<p>Nah, checklist itu nanti akan dicentang sesuai dengan kapabilitas perusahaan yang diperiksa.</p>
+
+<p>Adapun urusan Scrum, Waterfall, XP, whatever metodologi yang kita gunakan,
+hanyalah mencakup sebagian saja dari CMMI.</p>
+
+<p>CMMI itu model untuk menggambarkan organisasi pembuat software yang mature. Apa itu mature? Salah satu karakteristiknya adalah konsistensi. Perusahaan yang gak mature, hasil kerjanya gak konsisten. Project A ontime, Project B molor 3 tahun. Project X bugnya dikit, Project Y isinya bug doang gak ada fiturnya.</p>
+
+<p>Kalau kita bisa mengeksekusi project dengan sukses, kita hanya bisa lulus CMMI level 2.
+Untuk bisa mendapatkan level 3, kita harus bisa mengeksekusi project dengan sukses <strong>secara konsisten</strong>.
+Untuk bisa konsisten, maka kita harus bisa menduplikasi project sukses ke seluruh perusahaan.
+Jadi, kalau kita sudah sukses pakai Scrum di project kita sekarang, tetap saja baru level 2.
+Hanya setelah kesuksesan Scrum bisa direplikasi di keseluruhan perusahaan, barulah bisa level 3.</p>
+
+<p>Seperti juga halnya replikasi resep McDonalds ke seluruh cabang, untuk bisa mereplikasi project sukses ke seluruh perusahaan,
+dibutuhkan kegiatan tambahan di level organisasi, misalnya :</p>
+
+<ul>
+<li><p>Menulis SOP (OPD)</p></li>
+<li><p>Membuat program pelatihan internal (OT)</p></li>
+<li><p>Selalu menganalisas prosedur yang sekarang berlaku, supaya bisa diimprove (OPF)</p></li>
+</ul>
+
+
+<p>Yang di dalam kurung adalah process area yang bersesuaian di CMMI.</p>
+
+<p>Berurusan dengan perusahaan yang mature akan mengurangi resiko di client.
+Apa itu resiko?
+Buat orang awam seperti kita, resiko adalah simply sekian persen
+kemungkinan adanya masalah di kemudian hari.
+Nah, ada perspektif finansial yang kita orang teknis biasanya gak kepikiran.
+Buat orang finance, persentase tersebut bisa diuangkan.
+Misalnya kita mau bikin aplikasi costnya 100 M, uangnya minjem ke bank.
+Karena pada dasarnya bank gak mau rugi, 100 M itu akan diasuransikan sama dia.
+Jadi kalo projectnya bubaran, kita gak sanggup bayar, hutangnya akan
+ditalangin sama asuransi.
+Asuransi akan lihat, kita pakai vendor siapa.
+Kalo vendornya gak mature (baca: resiko tinggi) maka premi asuransinya
+akan tinggi.
+Akibatnya, biaya pinjaman kita (cost of money) juga tinggi.
+Bisa aja kita bayar 100 M (pokok) + 20 M (bunga) + 20 M (asuransi)
+Padahal kalo vendornya mature, premi asuransinya cuma 5 M.</p>
+
+<p>Nah, jadi urusan resiko dan maturity ini bukan semata jargon2 aja,
+tapi ada duit beneran yang tersangkut di dalamnya.</p>
+
+<p>Demikianlah mitos pertama, CMMI bukan metodologi manajemen proyek, melainkan manajemen keseluruhan perusahaan.</p>
+
+<h2>CMMI mewajibkan kita bikin banyak dokumen</h2>
+
+<p>CMMI sama sekali tidak mengharuskan kita bikin dokumen apa-apa.</p>
+
+<p>Yang ada, kita harus :
+- <strong>melakukan</strong> project planning (level 2)
+- <strong>melakukan</strong> project monitoring &amp; control (level 2)
+- <strong>mendefinisikan</strong> project life cycle : bisa waterfall, scrum, spiral,
+cowboy programming juga boleh</p>
+
+<p>Planning : merencanakan apa yang akan dilakukan
+Monitoring : melihat kondisi aktual, apakah sesuai dengan plan
+Control : melakukan tindakan kalau kondisi aktual tidak sesuai dengan plan</p>
+
+<p>Nah, kita harus membuktikan bahwa kita benar2 melakukan apa yang disuruh.
+Gimana cara membuktikannya?
+Kita bisa :
+1. Tunjukin dokumen hardcopy, atau
+2. Tunjukin bahwa kita melakukan planning, monitoring, dan control di
+aplikasi yang kita pake (Redmine, planningpoker.com,
+pivotaltracker.com, basecamphq.com, fogbugz, whatever)</p>
+
+<p>Nah, dari 2 cara di atas, kalo kita <strong>benar-benar</strong> melakukan, akan
+lebih mudah menunjukkan yang #2.
+Tapi kalo akal2an, sebenarnya gak planning tapi mau ngakunya planning,
+akan lebih mudah memalsukan yang #1.
+Soalnya #2 gak bisa di-back-dated, sedangkan #1 bisa.</p>
+
+<p>Jadi, fokusnya lebih ke <strong>melakukan proses</strong>, bukan <strong>membuat dokumen</strong></p>
+
+<p>Kemudian, ada kesalah-kaprahan juga yang umum terjadi tentang planning.
+Planning itu tidak sekali saja lalu dipakai sepanjang project.
+Project plan harus mencerminkan kondisi yang terbaru dari project.
+Misalnya, kita bikin plan awal (versi 1) selesai 3 bulan.
+Ternyata waktu monitoring di akhir bulan 1, kita udah tau bahwa gak
+bakalan selesai dalam 2 bulan sisanya.
+Kita harus melakukan controlling terhadap projectnya.
+Tindakan control bisa macam2, bisa kita tambah orang biar tetap
+selesai dalam 3 bulan,
+bisa juga revisi plannya sehingga mencerminkan kondisi setelah 1 bulan berjalan.</p>
+
+<p>UUD 45 aja bisa diamandemen, masa project plan gak bisa :D</p>
+
+<p>Contoh lain, mengelola requirement (Requirement Management), Level 2.</p>
+
+<p>S.P 1.1 : Understand Requirement : kita harus memastikan bahwa
+requirement dipahami.
+Gimana cara membuktikannya?
+Kalo prosesnya beneran dijalanin, kita bisa tunjukkan email dari BA ke
+Client yang isinya
+mengkonfirmasi pemahaman BA tentang requirement yang diminta Client.
+Atau kalo seperti Scrum, Clientnya hadir di ruangan yang sama, gak
+nyatet apa2, rekaman audio juga boleh.
+Intinya, ada sesuatu yang bisa ditunjukkan ke auditor bahwa kita sudah
+Understanding Requirement.
+Kalo prosesnya palsu, artinya sebenarnya gak dilakukan, tapi mau lulus
+Level 2, maka dibuatlah dokumen palsu.
+Bentuknya biasanya review report, isinya item2 requirement, lalu nanti
+ada tandatangan client palsu.</p>
+
+<p>So, overhead dokumen (mis: review report) itu ada kalo kita memalsukan proses.</p>
+
+<p>Selama kita beneran menjalankan apa yang disuruh, pasti ada evidence
+bahwa kita menjalankan,
+entah itu bentuknya chat YM, email, Skype call, apalah terserah, tidak
+ada CMMI mewajibkan formatnya harus mp3 atau apa.</p>
+
+<p>SP 1.2 : Obtain Commitment to Requirement : semua pihak harus commit
+terhadap requirement yang sudah dibuat.
+Gimana cara membuktikan bahwa kita comply dengan SP ini?
+Paling gampang, BA kirim email ke Client, &#8220;Pak, di iterasi ini, kita
+kerjakan req #12, #14, sama #15 ya. #13 pending dulu aja&#8221;
+Client reply, &#8220;Ok&#8221;
+That&#8217;s it, tunjukin emailnya ke auditor, beres.
+Kalo gak dijalanin, nanti ribet dikemudian hari, usernya client bilang
+A, bosnya user bilang A+, programmer bilang C, PM bilang lain lagi.
+Sekali lagi, selama prosesnya dilakukan, emailnya pasti ada.
+Kalo prosesnya palsu, atau clientnya gaptek gak kenal email, ya
+dibuatlah dokumen requirement sign off.
+Orang2 tandatangan. Dokumennya dijadikan evidence.</p>
+
+<p>SP 1.3 : Manage Requirement Changes : kalo requirement berubah, harus
+di-manage.
+Apa itu dimanage? Harus jelas :
+- apa yang berubah
+- siapa yang minta berubah
+- siapa yang approve
+- apa impactnya ke schedule/cost/effort/cuaca hari ini
+Apa buktinya? Email boleh, chat log boleh, rekaman cctv boleh.</p>
+
+<p>Ok, lalu kenapa semua harus ada evidence ??
+Auditor kita di Sigma dulu becandanya gini,
+In God We Trust, everybody else brings data.</p>
+
+<p>Jadi, CMMI = banyak dokumen hanyalah mitos belaka. Untuk bisa melakukan verifikasi, auditor tentu butuh melihat evidence. Di jaman modern seperti sekarang, evidence bentuknya tidak harus dokumen tertulis yang dibuat dengan aplikasi office.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalasi Redmine di Tomcat]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca/"/>
+    <updated>2011-08-07T04:06:01+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca</id>
+    <content type="html"><![CDATA[<p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
+
+<ul>
+<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
+<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
+<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
+<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
+Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
+Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
+
+<ul>
+<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
+<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
+</ul>
+
+
+<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
+
+<p>Mari kita mulai.</p>
+
+<h2>Instalasi JRuby</h2>
+
+<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
+
+<p>[gist id=1129237 file=install-jruby.sh]</p>
+
+<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
+Tulis baris berikut ini di dalam file ~/.bashrc</p>
+
+<p>[gist id=1129237 file=bashrc]</p>
+
+<p>Terakhir, test instalasi JRuby</p>
+
+<p>[gist id=1129237 file=test-jruby.sh]</p>
+
+<h2>Instalasi Paket Gem</h2>
+
+<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
+
+<ul>
+<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
+<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
+<li><p>jruby-openssl : supaya bisa melayani https</p></li>
+<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
+<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
+</ul>
+
+
+<p>Mari kita install</p>
+
+<p>[gist id=1129237 file=install-gem.sh bump=1]</p>
+
+<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
+
+<h2>Mengambil Redmine dari Subversion Repository</h2>
+
+<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
+Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
+
+<p>[gist id=1129237 file=checkout-redmine.sh]</p>
+
+<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
+Saya menggunakan konfigurasi development sebagai berikut :</p>
+
+<p>[gist id=1129237 file=database.yml]</p>
+
+<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
+
+<p>[gist id=1129237 file=create-database.sh]</p>
+
+<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
+
+<h2>Inisialisasi Redmine</h2>
+
+<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
+
+<p>[gist id=1129237 file=inisialisasi-session.sh]</p>
+
+<p>Setelah itu, inisialisasi skema database.</p>
+
+<p>[gist id=1129237 file=inisialisasi-skema-db.sh]</p>
+
+<p>Isi data awal.</p>
+
+<p>[gist id=1129237 file=inisialisasi-data-awal.sh]</p>
+
+<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
+
+<p>[gist id=1129237 file=start-webrick.sh]</p>
+
+<p>Hasilnya bisa kita browse di http://localhost:3000
+Kemudian kita bisa login dengan username admin dan password admin.</p>
+
+<h2>Konfigurasi Email</h2>
+
+<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
+Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
+
+<p>[gist id=1129237 file=configuration.yml]</p>
+
+<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
+
+<p>[gist id=1129237 file=install-action-mailer-tls.sh]</p>
+
+<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
+Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
+Kemudian pergi ke menu Administration > Settings > Email Notifications,
+kemudian klik link Send a test email di pojok kanan bawah.
+Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
+
+<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
+Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
+
+<h2>Generate WAR</h2>
+
+<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
+
+<p>[gist id=1129237 file=warble-config.sh]</p>
+
+<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
+
+<p>[gist id=1129237 file=warble.rb]</p>
+
+<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
+
+<p>[gist id=1129237 file=warble-generate.sh]</p>
+
+<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
+
+<p>[gist id=1129237 file=redmine-war-deploy.sh]</p>
+
+<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalasi Spket IDE]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Programming/instalasi-spket-ide/"/>
+    <updated>2011-07-07T02:16:13+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Programming/instalasi-spket-ide</id>
+    <content type="html"><![CDATA[<p>Beberapa minggu terakhir ini, saya mencari-cari cara terbaik untuk melakukan development dengan ExtJS.
+Tentunya fitur utama yang kita inginkan adalah autocomplete,
+sehingga tidak perlu bolak-balik membaca dokumentasi di websitenya.</p>
+
+<p>Setelah berhari-hari mencari, akhirnya saya menemukan <a href="http://www.spket.com">Spket IDE</a>.
+Di websitenya dinyatakan bahwa Spket sudah mendukung ExtJS versi 4, membuat saya tertarik untuk mencobanya.
+Sayangnya, petunjuk instalasi sulit didapat, sehingga harus trial-and-error.</p>
+
+<p>Di artikel ini, kita akan membahas petunjuk instalasi Spket IDE di Eclipse Indigo.</p>
+
+<h2>Klik menu Install New Software</h2>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/01.-Install-New-Software.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/01.-Install-New-Software.png" alt="" /></a></p>
+
+<h2>Masukkan Update Site Spket IDE</h2>
+
+<p>Tambahkan Update Site yang baru
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/02.-Add-Update-Site.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/02.-Add-Update-Site.png" alt="" /></a></p>
+
+<p>Update sitenya adalah http://www.spket.com/update/</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/03.-Lokasi-Update-Site-Spket.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/03.-Lokasi-Update-Site-Spket.png" alt="" /></a></p>
+
+<h2>Opsi Instalasi Spket</h2>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/04.-Centang-Semua-Opsi.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/04.-Centang-Semua-Opsi.png" alt="" /></a></p>
+
+<h2>Klik Next</h2>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/05.-Next-Terus.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/05.-Next-Terus.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/06.-Sit-Back-and-Relax.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/06.-Sit-Back-and-Relax.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/07.-Ada-Warning-Lanjut-Saja.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/07.-Ada-Warning-Lanjut-Saja.png" alt="" /></a></p>
+
+<p>Ada warning, klik saja Yes.</p>
+
+<h2>Download Support ExtJS 4</h2>
+
+<p>Agar bisa mengenali ExtJS 4, kita harus <a href="http://forums.spket.com/viewtopic.php?f=6&amp;t=1866">mengunduh update terbaru dari forumnya</a>.
+Entah apa alasannya, tiap ada update baru, versi jarnya tidak dinaikkan dan update sitenya tidak diperbarui.
+Ini menyebabkan kita harus mengunduh file dari forum.</p>
+
+<p>Ada dua file yang harus diunduh, yaitu jar
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/08.-Download-jar-terbaru.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/08.-Download-jar-terbaru.png" alt="" /></a></p>
+
+<p>dan jsb
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/09.-Dukungan-Ext-4.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/09.-Dukungan-Ext-4.png" alt="" /></a>
+Hasilnya, kita akan memiliki dua file.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/13.-Hasil-donlod-dari-forum-spket.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/13.-Hasil-donlod-dari-forum-spket.png" alt="" /></a></p>
+
+<h2>Patch Eclipse</h2>
+
+<p>File jar akan kita pasang di folder plugins di tempat Eclipse terinstal.<br/>
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/11.-Folder-Plugin-Eclipse.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/11.-Folder-Plugin-Eclipse.png" alt="" /></a></p>
+
+<p>Ini akan menimpa file dengan nama sama.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/14.-Replace-dengan-yang-baru.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/14.-Replace-dengan-yang-baru.png" alt="" /></a></p>
+
+<h2>Patch ExtJS</h2>
+
+<p>Sedangkan file jsb akan kita pasang di folder ExtJS 4.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/15.-Masukkan-jsb-ke-folder-extjs.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/15.-Masukkan-jsb-ke-folder-extjs.png" alt="" /></a></p>
+
+<h2>Edit jsb</h2>
+
+<p>Sayangnya, file jsb ini juga masih ada bugnya. Dia salah menyebutkan nama file dalam folder pkgs.
+Kita harus edit, ganti <code>all.js</code> menjadi <code>classes.js</code>.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/16.-Edit-file-jsb-sesuai-nama-file.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/16.-Edit-file-jsb-sesuai-nama-file.png" alt="" /></a></p>
+
+<h2>Konfigurasi Spket</h2>
+
+<p>Selanjutnya, kita masuk ke menu preferences untuk melakukan konfigurasi.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/17.-Konfigurasi-Spket.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/17.-Konfigurasi-Spket.png" alt="" /></a>
+Masuk ke menu Spket - Javascript Profile
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/18.-Javascript-Profile.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/18.-Javascript-Profile.png" alt="" /></a>
+Tambah Profile baru, beri nama ExtJS
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/19.-Tambah-profile-baru.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/19.-Tambah-profile-baru.png" alt="" /></a>
+Di profile yang baru saja ditambahkan, Add Library dan pilih ExtJS
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/20.-Tambah-library-ExtJS.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/20.-Tambah-library-ExtJS.png" alt="" /></a>
+Setelah itu, Add File jsb yang sudah kita edit tadi.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/21.-Add-File-JSB.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/21.-Add-File-JSB.png" alt="" /></a>
+Lalu, set profile ExtJS menjadi default
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/22.-Set-Profile-ExtJS-sebagai-default.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/22.-Set-Profile-ExtJS-sebagai-default.png" alt="" /></a>
+Kemudian, pergi ke menu General - Editors - File Associations. Pilih file js, dan jadikan Spket sebagai editornya.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/23.-Set-file-associations.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/23.-Set-file-associations.png" alt="" /></a>
+Klik Ok, restart Eclipse.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/10.-Restart-Eclipse.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/10.-Restart-Eclipse.png" alt="" /></a></p>
+
+<h2>Code Completion</h2>
+
+<p>Sekarang kita bisa melakukan code completion pada saat memberi titik di depan object.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/24.-Autocomplete-method.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/24.-Autocomplete-method.png" alt="" /></a>
+Atau juga pada saat mengetik di dalam tanda kurung.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/25.-Autocomplete-property.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/25.-Autocomplete-property.png" alt="" /></a></p>
+
+<p>Demikianlah cara instalasi Spket IDE di Eclipse.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Screencast]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Linux/membuat-screencast/"/>
+    <updated>2011-06-28T01:03:23+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Linux/membuat-screencast</id>
+    <content type="html"><![CDATA[<p>Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat bandwidth) menjadi multimedia (rakus bandwidth).</p>
+
+<p>Demi mengikuti perkembangan jaman, saya mengeksplorasi pembuatan tutorial dalam bentuk screencast. Ternyata hasilnya memuaskan. Dengan beberapa menit merekam screencast, informasi yang disampaikan sama dengan beberapa jam mengetik blog entry.</p>
+
+<p>Artikel ini saya tulis untuk mendokumentasikan langkah-langkah membuat screencast, mulai dari merekam screencast, sampai mempublikasikannya di blog.</p>
+
+<h2>Merekam video</h2>
+
+<p>Di Ubuntu ada dua aplikasi yang saya coba, yaitu Xvidcap dan Record My Desktop. Dua-duanya sama fungsinya dan tidak ada perbedaan yang signifikan. Setelah mencoba keduanya, pendapat saya adalah Record My Desktop lebih mudah digunakan. Jadi, inilah aplikasi yang saya pilih.</p>
+
+<p>Perlu diperhatikan kemampuan prosesor komputer Anda. Ini kaitannya dengan setting frame per second (fps). Bila fps melebihi kemampuan prosesor, video yang kita rekam akan terlihat lebih cepat dari sebenarnya. Di laptop saya, setting 15 fps akan menghasilkan video yang kira-kira 2x lebih cepat. Setelah trial and error, saya temukan bahwa 9 fps adalah setting yang tepat.</p>
+
+<p>Perbedaan yang utama di antara kedua aplikasi ini adalah format outputnya. Record My Desktop mengeluarkan format ogv sedangkan Xvidcap mengeluarkan format mpeg. Perbedaan format ini nantinya akan mempengaruhi langkah pemrosesan selanjutnya.</p>
+
+<h2>Merekam suara</h2>
+
+<p>Biasanya, saya merekam suara dalam proses yang terpisah, supaya tidak banyak ehm dan eee. Rekaman dibuat sambil menonton screencast yang sudah kita rekam. Setelah rekaman suara dibuat, bisa diedit dengan menggunakan aplikasi Audacity untuk menghilangkan noise, memotong bagian yang tidak penting, dan sebagainya.</p>
+
+<h2>Menggabungkan video dan audio</h2>
+
+<p>Selanjutnya, kita menggunakan aplikasi Avidemux untuk menggabungkan file audio dan file video menjadi satu file. Dengan aplikasi ini kita juga bisa mengedit video untuk menghilangkan bagian-bagian yang tidak perlu ataupun menyambung beberapa video menjadi satu.</p>
+
+<h2>Mempersiapkan format video untuk web</h2>
+
+<p>Ada berbagai format video yang tersedia. Masing-masing format memiliki dukungan browser yang berbeda-beda. Daftar lengkapnya bisa dilihat <a href="http://diveintohtml5.info/video.html#what-works">di sini</a></p>
+
+<p>Pada intinya, supaya bisa dilihat di berbagai browser, kita harus menyediakan file dengan format ogv, mp4, dan webm. Kita juga harus menyertakan poster dalam format jpg atau png supaya bisa ditampilkan dengan benar di browser.</p>
+
+<p>Ada beberapa script yang bisa digunakan, misalnya <a href="https://github.com/kwiliarty/vfe-sh">ini</a> atau <a href="http://brettterpstra.com/automating-html5-video-encodes/">ini</a></p>
+
+<p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
+
+<p>Konversi dari ogv menjadi mp4
+[gist id=1048657 file=ogv-to-mp4.sh]</p>
+
+<p>Konversi dari ogv menjadi webm
+[gist id=1048657 file=ogv-to-webm.sh]</p>
+
+<p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
+
+<p>Membuat poster
+[gist id=1048657 file=create-poster.sh]</p>
+
+<h2>Upload</h2>
+
+<p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
+[gist id=1048657 file=upload-to-server.sh]</p>
+
+<h2>Tampilkan di blog</h2>
+
+<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus <video>. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
+
+<p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tutorial ExtJS]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/PHP/tutorial-extjs/"/>
+    <updated>2011-06-21T20:15:31+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/PHP/tutorial-extjs</id>
+    <content type="html"><![CDATA[<p>Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang diikuti oleh programmer ArtiVisi dan sister company. Berikut adalah materi trainingnya.</p>
+
+<h2>Cara setup project ExtJS</h2>
+
+<p>[external-vfe name=&#8221;01. Setup ExtJS&#8221; path=&#8221;http://artivisi.com/~endy/videos/training-extjs/&#8221;]</p>
+
+<h2>Memahami Layout</h2>
+
+<p>[external-vfe name=&#8221;02. ExtJS Layout&#8221; path=&#8221;http://artivisi.com/~endy/videos/training-extjs/&#8221;]</p>
+
+<h2>Membuat Menubar</h2>
+
+<p>[external-vfe name=&#8221;03. Klik Menu muncul Tab&#8221; path=&#8221;http://artivisi.com/~endy/videos/training-extjs/&#8221;]</p>
+
+<h2>Membuat User Management Screen</h2>
+
+<p>[external-vfe name=&#8221;04. Membuat User Management Screen&#8221; path=&#8221;http://artivisi.com/~endy/videos/training-extjs/&#8221;]</p>
+
+<h2>Membuat Toolbar CRUD</h2>
+
+<p>[external-vfe name=&#8221;05. Membuat Toolbar CRUD&#8221; path=&#8221;http://artivisi.com/~endy/videos/training-extjs/&#8221;]</p>
+
+<p>Masih ada beberapa materi lanjutan yang belum sempat disampaikan, yaitu:</p>
+
+<ul>
+<li><p>Enable/Disable Form</p></li>
+<li><p>Save isi form ke server</p></li>
+<li><p>Query data dari server, tampilkan ke grid</p></li>
+</ul>
+
+
+<p>Kode program yang digunakan pada training ini dapat diikuti di <a href="https://github.com/endymuhardin/belajar-extjs">Github page saya</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Estimasi Proyek Software]]></title>
+    <link href="http://endymuhardin.github.com/blog/Manajemen/estimasi-proyek-software/"/>
+    <updated>2011-05-11T06:37:12+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Manajemen/estimasi-proyek-software</id>
+    <content type="html"><![CDATA[<blockquote><p>Saya ingin membuat aplikasi akunting, berapa lama dan berapa biayanya?</p></blockquote>
+
+<p>Demikian pertanyaan yang amat sering kita temui di profesi software developer.</p>
+
+<p>Topik estimasi proyek merupakan topik yang sulit. Steve McConnell menyebutnya Black Art,
+sehingga dia mengarang buku yang sangat bagus tentang topik ini,
+judulnya Software Estimation, Demystifying the Black Art.</p>
+
+<p>Menurut Steve, dalam membuat estimasi, ada 3 metode yang dilakukan, yaitu</p>
+
+<ul>
+<li><p>count</p></li>
+<li><p>compute</p></li>
+<li><p>judge</p></li>
+</ul>
+
+
+<p>Kita harus selalu berusaha count, karena ini yang paling akurat.
+Kalo ditanya berapa tinggi pohon, paling baik adalah ambil meteran dan ukur pohonnya.
+Dimana kita tidak bisa count, maka kita compute.
+Contohnya, di sebelah pohon ada pagar dan di atas pagar ada tiang lampu.
+Kita compute jumlah tinggi pagar dan tinggi tiang lampu, sehingga dapat tinggi pohon.
+Hanya kalau tidak ada cara lain, baru kita judge.
+Dikira2 tingginya berapa.</p>
+
+<p>Dalam kaitannya dalam estimasi, idealnya yang kita estimasi hanyalah project size.
+Metric lainnya akan kita compute dari project size ini.</p>
+
+<h2>Apa itu project size?</h2>
+
+<p>Project size merupakan ukuran suatu project.
+Dengan project size, kita bisa membandingkan dua aplikasi yang berbeda,
+misalnya aplikasi akunting dan aplikasi toko online.</p>
+
+<p>Ada banyak metric untuk mengukur ukuran project. Metric yang paling lazim digunakan
+adalah jumlah baris kode program, dalam bahasa Inggris disebut Source Lines of Code (SLOC)
+atau Non Commenting Source Code (NCSS).</p>
+
+<p>Walaupun SLOC sangat akurat dalam menentukan ukuran project, tapi jumlah baris kode sulit diperkirakan di awal project.
+Oleh karena itu, beberapa orang kreatif lalu mengarang metode baru yang disebut Function Point Calculation.
+Metode ini pada intinya adalah menghitung berapa screen input, screen output, jumlah tabel database, dan interaksinya dengan aplikasi lain.</p>
+
+<p>Setelah kita mendapatkan estimasi ukuran project, kita akan menggunakannya untuk mengestimasi effort, durasi, dan cost.</p>
+
+<p>Sebelum lebih jauh, mari kita jelaskan istilah-istilahnya.</p>
+
+<p>Effort, adalah kerja real yang kita lakukan dalam menyelesaikan project. Satuannya adalah mandays atau manhour.
+Misalnya suatu aplikasi diestimasi membutuhkan effort 10 mandays. Artinya aplikasi ini akan selesai bila dikerjakan 1 orang selama 10 hari terus menerus.
+Atau 5 hari bila ada 2 pekerja. Effort tidak mempertimbangkan libur ataupun cuti.</p>
+
+<p>Durasi (bahasa Inggrisnya schedule), adalah jangka waktu penyelesaian project. Ini biasanya dinyatakan dalam satuan hari kerja atau hari kalender.
+Bila durasi project dinyatakan 10 hari kalender, maka bila dimulai tanggal 1, akan selesai tanggal 10.</p>
+
+<p>Jadi, untuk mendapatkan durasi, kita harus punya asumsi berikut :</p>
+
+<ul>
+<li><p>berapa orang yang dipekerjakan</p></li>
+<li><p>berapa hari libur</p></li>
+<li><p>berapa alokasi waktu non-pekerjaan seperti meeting, presentasi, dsb</p></li>
+</ul>
+
+
+<p>Asumsi tersebut, digabungkan dengan estimasi effort, akan menghasilkan estimasi durasi.</p>
+
+<p>Setelah durasi didapatkan, menghitung estimasi cost mudah saja. Kita membutuhkan matriks gaji per role.
+Berapa gaji project manager, gaji programmer, dan role lain dalam setahun, termasuk THR, tunjangan kesehatan, benefit lain dan bonus.
+Bagilah dengan hari kerja setahun sehingga didapatkan nilai gaji sehari.
+Kemudian petakan penggunaan masing-masing role dalam schedule yang sudah kita estimasi, dan kita akan mendapat biaya personel.
+Tambahkan dengan biaya lain-lain seperti transport, komunikasi, dsb untuk mendapatkan biaya total.
+Masukkan juga faktor resiko project, misalnya kalau clientnya terkenal sulit ditagih, tentu perlu ada koefisien pengali.
+Karena tagihan macet sama dengan kita memberi hutang ke client.</p>
+
+<p>Nah, akhirnya biaya total sudah didapatkan, silahkan tambahkan profit yang diinginkan, buffer negosiasi, dan voila, dapatlah harga penawaran.</p>
+
+<p>Selesai? Belum dong :D</p>
+
+<p>Pembaca yang teliti tentu akan menemukan satu celah di penjelasan di atas. Bagaimana mengkonversi estimasi project size menjadi estimasi effort?
+Nah disinilah bedanya perusahaan besar kaya pengalaman dengan startup mahasiswa baru lulus. Perusahaan dengan jam terbang tinggi biasanya punya data historis.
+Dia punya data misalnya berapa mandays yang dibutuhkan programmer untuk membuat aplikasi dengan 3 tabel database.
+Tentunya data ini harus dikumpulkan, diolah, dan diupdate agar bisa dijadikan pedoman. Ini sebabnya tidak semua perusahaan besar punya data ini.
+Dengan bermodalkan data ini, perusahaan tinggal mengkonversi project size menjadi effort.
+Setidaknya ada dua jenis data yang kita butuhkan, yaitu berapa effort yang dibutuhkan untuk menyelesaikan satu baris kode, dan bagaimana distribusi effort selama fase project. Maksudnya, bila project kita diestimasi 100 mandays, berapa mandays habis di analisa, coding, testing, implementasi, dan maintenance.
+Selain itu, juga perlu ada matriks distribusi effort per role. Dengan adanya matriks ini, kita akan lebih mudah menkonversi effort menjadi durasi dan cost.</p>
+
+<p>Startup mahasiswa, karena tidak punya data, maka cuma bisa tebak-tebak buah manggis. Atau kalo mau sedikit ilmiah, bisa mengikuti cara kami di ArtiVisi waktu baru mulai dulu. Kita membuat aplikasi kecil, kemudian datanya dikumpulkan dan dijadikan pedoman.</p>
+
+<p>Jadi, kesimpulannya, begini metode estimasinya.</p>
+
+<p><strong>Kebutuhan Data</strong></p>
+
+<ol>
+<li><p>Tabel konversi size ke mandays</p></li>
+<li><p>Tabel gaji pegawai per role per hari</p></li>
+<li><p>Tabel distribusi effort per fase</p></li>
+<li><p>Tabel distribusi effort per role</p></li>
+</ol>
+
+
+<p>Flow Estimasi</p>
+
+<ol>
+<li><p>Estimasi Size</p></li>
+<li><p>Dari size, gunakan tabel #1 untuk mendapatkan effort</p></li>
+<li><p>Dari effort, gunakan tabel #3 untuk mendapatkan durasi</p></li>
+<li><p>Dari effort, gunakan tabel #4 untuk mendapatkan effort per personel</p></li>
+<li><p>Dari effort per personel, gunakan tabel #2 untuk menghitung biaya personel</p></li>
+<li><p>Gunakan durasi untuk menghitung biaya lain-lain</p></li>
+</ol>
+
+
+<p>Demikian metodologi untuk melakukan estimasi project software. Membuat estimasi saja tidak cukup, kita juga harus bisa mempresentasikan dan mempertahankannya dari negosiasi pihak lain. Ini akan dibahas di lain kesempatan.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Menghapus file secara permanen di Git]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/menghapus-file-secara-permanen-di-git/"/>
+    <updated>2011-04-03T05:06:42+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/menghapus-file-secara-permanen-di-git</id>
+    <content type="html"><![CDATA[<p>Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus satu file tertentu, sebetulnya file tersebut masih ada di repository dan bisa dimunculkan kembali kapan saja.</p>
+
+<p>Hal ini menimbulkan beberapa konsekuensi, diantaranya</p>
+
+<ul>
+<li><p>Ukuran repository menjadi besar. Ini terutama sangat terasa di Git, karena pada waktu clone, kita akan mengambil keseluruhan perubahan dari pertama hingga terakhir. Berbeda dengan Subversion, dimana kita hanya mendapat perubahan terakhir saja.</p></li>
+<li><p>File-file yang mengandung informasi rahasia &#8211;seperti misalnya password&#8211; tidak terhapus secara sempurna, sehingga bisa disalahgunakan orang lain.</p></li>
+</ul>
+
+
+<p>Untuk itu, kita perlu cara untuk menghilangkan file ini secara permanen.</p>
+
+<p>Di Git, caranya adalah menggunakan perintah <code>git filter-branch</code> seperti <a href="http://help.github.com/removing-sensitive-data/">dijelaskan di sini</a>. Walaupun demikian, tutorial tersebut tidak menjelaskan bagaimana cara menghapus folder.</p>
+
+<p>Di ArtiVisi, <a href="https://github.com/dadang">Dadang</a> dan <a href="https://github.com/donraakan">Doni</a> mengalami kejadian tersebut, dimana folder konfigurasi Eclipse (.project, .classpath, .settings) dan file hasil kompilasi Maven (target) ikut serta dicommit. Ini menyulitkan fakir bandwidth yang ingin melakukan clone, karena ukuran reponya menjadi besar sekali. Karena itu, file dan folder tersebut harus dihapus secara permanen.</p>
+
+<p>Cara menghapusnya adalah sebagai berikut.</p>
+
+<h2>Pastikan versi repository di local dan di remote sudah sama</h2>
+
+<p>Ini bisa dilakukan dengan menggunakan perintah git pull dan git push. Selanjutnya, kita masuk ke folder kerja, dan memanggil perintah berikut.</p>
+
+<p>Perintah di atas akan memodifikasi seluruh commit untuk menghilangkan file dan folder tersebut. Konsekuensinya, seluruh downline Anda akan terpaksa melakukan clone ulang, karena ini sama saja mengganti repository tersebut dengan repository baru. Akibatnya, commit, push, pull, dan merge tidak akan berjalan dengan baik.</p>
+
+<p>Periksa kembali repository Git Anda setelah melakukan perintah di atas, pastikan semuanya baik-baik saja.
+Begitu yakin, kita push ke remote.</p>
+
+<p><code>
+git push origin master --force
+</code></p>
+
+<p>Setelah melakukan perintah di atas, file yang terhapus itu masih ada di object database Git kita di local, sehingga ukuran reponya masih belum berkurang secara signifikan.
+Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakukan clone ulang dari remote.</p>
+
+<p>Demikian cara membersihkan repository dari file yang tidak sengaja dicommit. Silahkan mencoba.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Database Transaction]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/PHP/database-transaction/"/>
+    <updated>2011-02-14T04:14:22+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/PHP/database-transaction</id>
+    <content type="html"><![CDATA[<p>Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini,</p>
+
+<blockquote></blockquote>
+
+<p>halo rekan2 dba &amp; developer</p>
+
+<p>mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
+mau nanya, dalam implementasi real di aplikasi,
+contoh bussiness process/use case apa aja yang menggunakan transaction?
+kemudian contoh kasus rollbacknya gimana?</p>
+
+<p>Tadinya saya kurang semangat menjawab, karena asumsi saya, ini pertanyaan mendasar, dan pastilah banyak yang bisa menjawab secara benar dan tidak menyesatkan. Tapi apa lacur, saya membaca pertanyaan lanjutan seperti ini.</p>
+
+<blockquote><p>Ada yang pernah punya pengalaman pake software accounting tanpa feature
+transaction?</p></blockquote>
+
+<p>Dan jawabannya ternyata sangat mengerikan.</p>
+
+<blockquote><p>yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
+dan tidak menggunakan feature transaction&#8230;
+skrng sedang garap accounting lainnya untuk perusahan dagang, dan
+sudah direncakan tanpa feature transaction.</p></blockquote>
+
+<p>yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
+oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
+dipakai, beberapa tdk dipakai karena masalah internal mereka.
+dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.</p>
+
+<p>menurut singkat saya, jika peng-handle php nya sudah cukup
+menanggulangi masalah transaksi data, tidak harus menggunakan feature
+transaction pada database nya.
+karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
+pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
+oleh beberapa user, dan juga optimize database, dengan begitu menurut
+hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
+feature transaction yg sedikit memberatkan proses data.</p>
+
+<p>oya, untuk case mengharuskan memakai feature transaction itu misalnya
+pada kasus:
+- jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
+dihapus/update/input yg mengharuskan ada link data yg juga ikut
+terupdate/terhapus/terinput</p>
+
+<p>untuk yg sudah menggunakan feature transaction, silahkan saya juga
+menunggu tanggapan dan pengalamannya.</p>
+
+<p>What the @#$!
+Ini kalo meminjam istilah MUI, harus dibimbing untuk kembali ke jalan yang benar, tapi tidak boleh anarkis :D</p>
+
+<p>Salah satu poin penting dalam database transaction adalah atomic, yaitu beberapa perintah dianggap sebagai satu kesatuan.
+Kalau satu gagal, yang lain harus dibatalkan.</p>
+
+<p>Ini adalah fundamental dari pemrograman dengan menggunakan database relasional.</p>
+
+<p>Pada kasus apa perlu transaction?
+Ya pada semua kasus yang perlu atomic.
+Contohnya : header detail. Sekali insert, 1 header dan beberapa detail.
+Kalo pada waktu insert detail gagal, ya headernya harus diundo, kalo ngga ada header yang gantung tanpa detail sehingga datanya juga jadi salah.</p>
+
+<p>Sekarang balik saya tanya, aplikasi apa yang gak pake skema header detail?
+Kecuali aplikasi prakarya tugas sekolah, aplikasi bisnis <strong>pasti</strong> pake header detail.</p>
+
+<p>Itu masalah atomicity. Kemudian ada masalah isolation.
+Isolation ini artinya, transaction yang belum dicommit, tidak akan bisa dibaca oleh session lain.
+Contohnya gini, kita terima order 1000 item.
+Tentunya butuh waktu untuk menginsert 1000 record, misalnya butuh waktu 2 detik.
+Di dunia prosesor, 2 detik itu lama sekali, dan banyak hal bisa terjadi dalam rentang waktu tersebut.
+Nah, akan terjadi musibah, kalo kita ternyata ada fitur untuk menghitung jumlah order, katakan saja querynya seperti ini.</p>
+
+<pre><code>select sum(nilai) from t_order where tanggal = '2011-02-02'
+</code></pre>
+
+<p>yang berjalan di tengah-tengah proses insert tadi, misalnya pada waktu baru terinsert 53 order saja. Query hitung ini dijalankan oleh user lain. Suatu hal yang sangat umum terjadi, aplikasi diakses beberapa user berbarengan.</p>
+
+<p>Query ini akan menghasilkan nilai yang salah, karena 1000 order itu belum tentu sukses diinsert.
+Misalnya pada record ke 143 terjadi mati lampu, hardisk penuh, komputer hang, browser ketutup, laptop kesiram kopi, usernya menekan tombol cancel, validasi stok produk tidak cukup, atau whatever kejadian remeh-temeh yang umum terjadi dalam kehidupan sehari-hari, tentu akan terjadi kekacauan.
+Karena tidak atomic, maka kita tidak tau sudah berapa record yang terinsert, sehingga menyulitkan proses recovery. Order mana yang harus diinsert ulang, dan order mana yang sudah masuk?
+Karena tidak ada isolation, maka user yang menjalankan perhitungan order akan mendapat hasil yang tidak sahih kebenarannya.</p>
+
+<p>Seandainya saja kita menggunakan transaction dengan benar, maka pada waktu terjadi sesuatu pada waktu proses insert tadi, maka posisi database akan dikembalikan ke posisi sebelum insert dilakukan. Karena posisi sebelum insert kita tahu dengan pasti, maka recovery gampang.
+Insert ulang saja 1000 order tadi tanpa kecuali. Sederhana dan mudah.</p>
+
+<p>Jadi kalo ada di sini yang bilang bikin aplikasi bisnis tanpa transaction, maka itu adalah nonsense.
+Tidak peduli kalo sampe saat ini jalan lancar, maka itu hanyalah kebetulan belaka, dan kita tidak mau selamanya mengandalkan keberuntungan kan?
+Kalau sampai saat ini berjalan lancar, ya mungkin aplikasinya cuma dipakai 1 concurrent user saja dan itupun jarang-jarang pake.</p>
+
+<p>Nah, jadi transaction itu adalah fitur fundamental yang harus digunakan, sama seperti kalo kita keluar rumah ya harus pake celana.
+Di daerah lain sana orang kemana2 cuma pake koteka, dan saya tidak mau berdebat dengan mereka urusan celana.
+Jadi kalo masih ada yang bersikukuh bikin aplikasi bisnis gak pake transaction, ya silahkan, saya tidak mau berdebat urusan ini.
+Percuma berdebat sama orang yang gak pake celana ;p</p>
+
+<p>Selanjutnya, sebetulnya apa benar transaction itu memberatkan aplikasi?
+Hmm &#8230; ini sebetulnya hanyalah mitos belaka.
+Yang mau mendebat silahkan sajikan benchmark antara non-transactional dan transactional.
+Kalo selisih performance cuma 100%, artinya kalo non-transactional cuma 2 kali lebih lemot, saya mendingan upgrade hardware daripada mengorbankan data integrity untuk gain performance yang tidak seberapa ini.</p>
+
+<p>Jadi, apa kita tidak boleh pakai MyISAM ?
+Tentu ada waktu dan tempatnya.
+Data2 read only seperti misalnya tabel kategori, master produk, bolehlah pake MyISAM.
+Tapi kalo sudah data header detail, ya harus InnoDB dan harus menggunakan transaction supaya atomic.</p>
+
+<p>Setelah kita menggunakan InnoDB, sebetulnya kita tidak bisa non-transactional.
+Kalo kita tidak begin dan commit secara explisit, sebenarnya untuk tiap SQL statement, itu dianggap satu transaction.
+Sehingga SQL seperti ini :</p>
+
+<pre><code>update table harga set nilai = nilai + 1000;
+</code></pre>
+
+<p>Sebetulnya akan dijalankan seperti ini ;</p>
+
+<pre><code>begin;
+update table harga set nilai = nilai + 1000;
+commit;
+</code></pre>
+
+<p>Ini namanya fitur autocommit. Di MySQL defaultnya dienable.</p>
+
+<p>Dengan adanya autocommit ini, justru kita akan lebih lemot kalo tidak menggunakan transaction secara benar.
+Contoh, insert 100 data produk.
+Kalo tanpa begin dan commit explisit, berarti ada 100 begin dan ada 100 commit, artinya 100 kali menjalankan transaction.
+Akan lebih efisien kalo kita lakukan explisit, seperti ini :</p>
+
+<pre><code>begin; 
+insert into table produk (kode) values ('P-001');
+... ulangi 99 kali lagi ..
+commit; 
+</code></pre>
+
+<p>Cara di atas hanya akan membutuhkan satu transaction saja.
+Jauh lebih efisien.</p>
+
+<p>Baiklah, ada beberapa pesan moral di artikel ini</p>
+
+<ol>
+<li><p>Header detail harus dioperasikan secara atomic</p></li>
+<li><p>Operasi yang belum selesai, tidak boleh dilihat session lain, sehingga untuk aplikasi multiuser, pasti butuh isolation</p></li>
+<li><p>Karena aplikasi bisnis umumnya multiuser, dan pasti punya skema header-detail, maka <strong>pasti harus</strong>menggunakan transaction</p></li>
+<li><p>Masalah performance di transaction umumnya mitos belaka, dan walaupun ada, tidak sebanding dengan mengabaikan integritas data</p></li>
+<li><p>Jangan lupa pakai celana kalau keluar rumah</p></li>
+</ol>
+
+
+<p>Pembaca setia blog saya tentu paham bahwa biasanya saya memberikan anjuran dengan kata-kata sebaiknya, tergantung situasi, dan istilah-istilah yang relatif. Tapi di artikel ini, banyak kata-kata pasti, harus, dan sejenisnya. Ini karena masalah transaction ini berkaitan dengan integritas data. Aplikasi yang kita buat haruslah bisa dipercaya untuk menghasilkan perhitungan yang benar. Tanpa menjaga integritas data dengan transaction, mustahil perhitungan yang benar bisa didapatkan.</p>
+
+<p>Lebih lanjut tentang masalah-masalah yang bisa terjadi, bisa lihat <a href="http://en.wikipedia.org/wiki/Database_transaction">di Wikipedia</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pemakaian Git sehari-hari]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari/"/>
+    <updated>2011-02-08T16:02:29+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari</id>
+    <content type="html"><![CDATA[<p>Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami beberapa istilah sebagai berikut:</p>
+
+<ul>
+<li><p>diff : perbedaan antara satu file dengan file lain
+biasanya diff dilakukan terhadap satu file yang sudah berubah isinya</p></li>
+<li><p>changeset : kumpulan diff</p></li>
+<li><p>working folder : folder kerja kita, berisi file yang (mungkin) sudah berubah sejak commit terakhir</p></li>
+<li><p>staging : tempat persiapan changeset yang akan dicommit</p></li>
+<li><p>commit : snapshot dari posisi folder dan file pada waktu tertentu</p></li>
+<li><p>tip : commit paling ujung</p></li>
+<li><p>head : nama lain tip</p></li>
+<li><p>branch : head yang diberi nama</p></li>
+<li><p>HEAD : head yang sedang aktif</p></li>
+<li><p>merge : menggabungkan lebih dari satu commit</p></li>
+</ul>
+
+
+<h2>Membuat Repository</h2>
+
+<p>Untuk bisa mulai bekerja, kita harus memiliki repository dulu. Ada dua kemungkinan, kita membuat repository baru, atau kita membuat clone dari repository yang sudah ada.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat repository baru</p>
+
+<p>git init</p>
+
+<p>membuat repository baru di folder project-baru</p>
+
+<p>git init project-baru</p>
+
+<p>membuat repository untuk dishare</p>
+
+<pre><code>git init --bare project-baru
+</code></pre>
+
+<p>copy repository lain</p>
+
+<p>git clone repo-url</p>
+
+<p>pilihan format URL</p>
+
+<p>file:///path/ke/repo : clone dari folder lokal</p>
+
+<p>/path/ke/repo : clone dari folder lokal, menggunakan hard link</p>
+
+<p>http://server/path/ke/repo : clone melalui protokol http</p>
+
+<p>username@server:path/ke/repo : clone melalui protokol ssh</p>
+
+<h2>Bekerja dengan Git</h2>
+
+<p>Berikut ini adalah perintah yang dilakukan selama sesi coding.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>Menambah file baru</p>
+
+<p>git add namafile</p>
+
+<p>Menghapus file</p>
+
+<p>git rm namafile</p>
+
+<p>Memasukkan perubahan di satu file ke staging area</p>
+
+<p>git add namafile</p>
+
+<p>memasukkan semua perubahan</p>
+
+<p>git add .</p>
+
+<p>memilih potongan kode yang akan dimasukkan</p>
+
+<p>git add -p</p>
+
+<p>memasukkan perubahan ke staging menggunakan menu</p>
+
+<p>git add -i</p>
+
+<p>melihat status perubahan file, mana yang masih di working dan mana yang sudah di staging</p>
+
+<p>git status</p>
+
+<p>mengeluarkan perubahan dari staging area</p>
+
+<pre><code>git reset -- namafile
+</code></pre>
+
+<p>melihat perubahan yang belum dimasukkan ke staging area</p>
+
+<p>git diff</p>
+
+<p>melihat perubahan yang akan dicommit (sudah ada di staging area)</p>
+
+<pre><code>git diff --staged
+</code></pre>
+
+<p>melihat perubahan antara working folder dan commit terakhir</p>
+
+<p>git diff HEAD</p>
+
+<p>melihat file mana saja yang berubah</p>
+
+<pre><code>git diff --name-status abc123..def456
+</code></pre>
+
+<p>melakukan commit, editor akan diaktifkan untuk mengisi keterangan</p>
+
+<p>git commit</p>
+
+<p>melakukan commit, langsung mengisi keterangan</p>
+
+<p>git commit -m &#8220;langsung isi keterangan di sini&#8221;</p>
+
+<p>commit langsung semua perubahan, tanpa melalui staging</p>
+
+<p>git commit -a</p>
+
+<p>melihat commit history</p>
+
+<p>git log</p>
+
+<p>log lima commit terakhir</p>
+
+<p>git log -5</p>
+
+<p>log hanya menampilkan summary</p>
+
+<pre><code>git log --oneline
+</code></pre>
+
+<p>tampilkan commit summary dari semua branch dengan graph hubungan antar commit</p>
+
+<pre><code>git log --oneline --all --graph
+</code></pre>
+
+<p>membuat commit baru yang berkebalikan dengan (undo) commit terakhir</p>
+
+<p>git revert HEAD</p>
+
+<p>undo 2 commit terakhir</p>
+
+<p>git revert HEAD~2</p>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging disamakan dengan HEAD, working tetap seperti semula. <br/>
+Ini adalah opsi defaultnya reset</p>
+
+<pre><code>git reset --mixed
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, isi working dan staging disamakan dengan commit-id tersebut</p>
+
+<pre><code>git reset --hard commit-id
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging dan working tidak disentuh. Tidak mengubah output git status</p>
+
+<pre><code>git reset --soft
+</code></pre>
+
+<p>membuat working dan staging sama dengan HEAD</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja paralel menggunakan branch</h2>
+
+<p>Branch memungkinkan kita bekerja secara paralel, misalnya ada tim yang menambah fitur, dan ada tim yang melakukan bug fix.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat branch baru</p>
+
+<p>git branch namabranch</p>
+
+<p>pindah ke branch tersebut</p>
+
+<p>git checkout namabranch</p>
+
+<p>bikin branch sambil pindah</p>
+
+<p>git checkout -b namabranch</p>
+
+<p>membuat tracking branch untuk branch bugfix di origin</p>
+
+<pre><code>git checkout --track origin/bugfix
+</code></pre>
+
+<p>membuat tracking branch dengan nama berbeda dengan remote</p>
+
+<p>git checkout -b myfix origin/bugfix</p>
+
+<p>membandingkan branch satu dengan lainnya</p>
+
+<p>git diff master..fitur-xx</p>
+
+<p>membandingkan branch dengan titik awal branch tersebut</p>
+
+<p>git diff master&#8230;fitur-xx</p>
+
+<p>menggabungkan branch satu dengan lainnya</p>
+
+<p>git checkout branch-tujuan</p>
+
+<p>git merge branch-yang-mau-diambil</p>
+
+<p>Mengedit konflik :</p>
+
+<ul>
+<li><p>edit konfliknya</p></li>
+<li><p>remove markernya</p></li>
+</ul>
+
+
+<p>git add namafile-yang-konflik</p>
+
+<p>git commit -m &#8220;merge fitur-xxx ke master&#8221;</p>
+
+<p>membatalkan merge yang konflik</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja dengan remote</h2>
+
+<p>Interaksi dengan remote repository</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>mendaftarkan remote repository</p>
+
+<p>git remote add namaremote url</p>
+
+<p>melihat daftar remote repository</p>
+
+<p>git remote -v</p>
+
+<p>menghapus remote repository</p>
+
+<p>git remote rm namaremote</p>
+
+<p>mengambil perubahan di remote</p>
+
+<p>git remote update</p>
+
+<p>mengambil perubahan di satu remote saja</p>
+
+<p>git remote update namaremote</p>
+
+<p>mengambil perubahan di remote, hapus branch di lokal yang sudah tidak ada di remote</p>
+
+<pre><code>git remote update --prune
+</code></pre>
+
+<p>mengambil perubahan sesuai refspec yang sudah dikonfigurasi</p>
+
+<p>git fetch namaremote</p>
+
+<p>mengambil perubahan kemudian dimerge ke branch lokal yang sesuai</p>
+
+<p>pull = fetch + merge</p>
+
+<p>git pull namaremote</p>
+
+<p>mengirim perubahan di lokal ke remote</p>
+
+<p>git push nama-remote nama-branch-lokal:nama-branch-remote</p>
+
+<p>mengirim perubahan di lokal ke remote, semua branch yang namanya bersesuaian akan dikirim</p>
+
+<p>git push nama-remote</p>
+
+<p>mengirim perubahan di branch lokal yang sedang aktif ke branch di remote dengan nama yang sama</p>
+
+<p>git push nama-remote HEAD</p>
+
+<p>menghapus branch di remote</p>
+
+<p>git push nama-remote :nama-branch-remote</p>
+
+<p>Demikianlah perintah-perintah Git yang kita gunakan sehari-hari. Melengkapi daftar perintah di atas, diagram berikut dapat membantu pemahaman kita tentang konsep dan operasi di Git.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git-300x284.png" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Project Setup dengan Gradle]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/project-setup-dengan-gradle/"/>
+    <updated>2011-02-01T20:21:35+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/project-setup-dengan-gradle</id>
+    <content type="html"><![CDATA[<p>Project Setup dengan menggunakan Gradle dan Git</p>
+
+<p>Hal pertama yang kita lakukan sebelum mulai bekerja tentunya adalah menyiapkan meja kerja dan peralatannya. Sama juga dengan mulai membuat aplikasi. Kita harus menyiapkan struktur folder, library dan framework, dan mengatur semuanya agar siap dikerjakan di meja kita, dalam hal ini IDE.</p>
+
+<p>Di ArtiVisi, biasanya ini dikerjakan oleh programmer senior, yaitu <a href="http://martinusadyh.web.id/">Martinus</a> atau saya sendiri. Kegiatan project setup ini tidak terlalu tinggi frekuensinya, karena biasanya coding project yang existing jauh lebih sering daripada memulai project baru.</p>
+
+<p>Yang jarang dikerjakan biasanya cepat dilupakan. Inilah alasan utama saya menulis posting kali ini, sebagai pengingat buat diri sendiri. Selain itu, mudah-mudahan ada manfaatnya juga untuk para pembaca sekalian.</p>
+
+<p>Sebagai gambaran, tipikal aplikasi di ArtiVisi menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">stack standar 2011</a>. Jadi, project setup ini akan dibuat mengikuti stack standar tersebut.</p>
+
+<p>Pertama kali, kita buat dulu projectnya. Satu aplikasi biasanya kita pecah menjadi beberapa komponen, yaitu :</p>
+
+<ul>
+<li><p>Domain Model dan Service API : ini kita pisahkan untuk memudahkan distribusi ke aplikasi client. Perhatikan bahwa yang saya maksud client di sini bukanlah customer pembeli aplikasi, melainkan aplikasi di sisi hilir misalnya user interface yang dibuat dengan Swing. Di sisi client, tidak perlu ada detail implementasi. Cukup class-class domain seperti Produk, Kategori, dsb. Juga kita sediakan service interface, yaitu method yang bisa digunakan untuk menjalankan proses bisnis.</p></li>
+<li><p>Implementasi Service : ini adalah implementasi dari service interface di atas. Implementasi biasanya hanya ada di sisi server. Jadi, jar yang dihasilkan project ini tidak kita distribusikan ke client</p></li>
+<li><p>Konfigurasi : file konfigurasi seperti jdbc.properties, logback-test.xml, smtp.properties, dan setting-setting lain kita juga pisahkan ke project sendiri. Ini tujuannya untuk memudahkan deployment. Seperti kita tahu, biasanya ada beberapa environment seperti development di laptop programmer, testing server, dan production server. Dengan memisahkan konfigurasi, kita bisa menghindari mendeploy konfigurasi development ke server production. Yang perlu diperhatikan di sini, hibernate.cfg.xml dan applicationContext.xml bukanlah file konfigurasi. Itu adalah file aplikasi, walaupun bentuknya xml dan tidak perlu dikompilasi.</p></li>
+<li><p>User Interface : kalau aplikasi desktop, ini hanya satu project saja. Atau mungkin dua dengan konfigurasinya. Tapi untuk web, biasanya kita pecah dua juga. Yang satu berisi source code java, satu lagi berisi aplikasi web. Dengan demikian, bila ada perubahan di controller, kita cukup deploy 1 jar, tidak perlu upload 1 war.</p></li>
+</ul>
+
+
+<p>Sebagai ketentuan lain, biasanya nama package selalu kita awali dengan com.artivisi, dan struktur folder mengikuti standar Maven.</p>
+
+<p>Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project.</p>
+
+<p>[gist id=794650 file=folder-structure.sh]</p>
+
+<p>Outputnya bisa kita lihat sebagai berikut</p>
+
+<pre><code>find . 
+.
+./com.artivisi.contoh.service.impl
+./com.artivisi.contoh.service.impl/src
+./com.artivisi.contoh.service.impl/src/test
+./com.artivisi.contoh.service.impl/src/test/java
+./com.artivisi.contoh.service.impl/src/test/resources
+./com.artivisi.contoh.service.impl/src/main
+./com.artivisi.contoh.service.impl/src/main/java
+./com.artivisi.contoh.service.impl/src/main/resources
+./com.artivisi.contoh.domain
+./com.artivisi.contoh.domain/src
+./com.artivisi.contoh.domain/src/test
+./com.artivisi.contoh.domain/src/test/java
+./com.artivisi.contoh.domain/src/test/resources
+./com.artivisi.contoh.domain/src/main
+./com.artivisi.contoh.domain/src/main/java
+./com.artivisi.contoh.domain/src/main/resources
+./com.artivisi.contoh.ui.springmvc
+./com.artivisi.contoh.ui.springmvc/src
+./com.artivisi.contoh.ui.springmvc/src/test
+./com.artivisi.contoh.ui.springmvc/src/test/java
+./com.artivisi.contoh.ui.springmvc/src/test/resources
+./com.artivisi.contoh.ui.springmvc/src/main
+./com.artivisi.contoh.ui.springmvc/src/main/java
+./com.artivisi.contoh.ui.springmvc/src/main/resources
+./com.artivisi.contoh.config
+./com.artivisi.contoh.config/src
+./com.artivisi.contoh.config/src/test
+./com.artivisi.contoh.config/src/test/java
+./com.artivisi.contoh.config/src/test/resources
+./com.artivisi.contoh.config/src/main
+./com.artivisi.contoh.config/src/main/java
+./com.artivisi.contoh.config/src/main/resources
+./com.artivisi.contoh.ui.web
+./com.artivisi.contoh.ui.web/src
+./com.artivisi.contoh.ui.web/src/test
+./com.artivisi.contoh.ui.web/src/test/java
+./com.artivisi.contoh.ui.web/src/test/resources
+./com.artivisi.contoh.ui.web/src/main
+./com.artivisi.contoh.ui.web/src/main/java
+./com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF
+./com.artivisi.contoh.ui.web/src/main/resources
+</code></pre>
+
+<p>Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle.
+Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle</p>
+
+<p>[gist id=794650 file=settings.gradle bump=1]</p>
+
+<p>Dan ini build file Gradle.</p>
+
+<p>[gist id=794650 file=build.gradle bump=2]</p>
+
+<p>Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project.</p>
+
+<p>Karena saya menggunakan Eclipse, saya menambahkan metadata supaya projectnya bisa dibuka di Eclipse. Ini bisa kita lakukan dengan cara menjalankan perintah</p>
+
+<pre><code>gradle eclipse
+</code></pre>
+
+<p>dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini.</p>
+
+<p>[gist id=794650 file=export-eclipse.sh bump=3]</p>
+
+<p>Untung saja pakai linux, jadi bisa coding di command prompt :D</p>
+
+<p>Selanjutnya, kita bisa test dengan melakukan build di project paling hilir, yaitu ui.web</p>
+
+<pre><code>cd com.artivisi.contoh.ui.web
+gradle war
+</code></pre>
+
+<p>Hasilnya ada di folder build/libs
+Kita cek apakah semua dependensi sudah terpenuhi dengan perintah berikut.</p>
+
+<pre><code>jar tvf build/libs/com.artivisi.contoh.ui.web-1.0-SNAPSHOT.war
+</code></pre>
+
+<p>Ini juga bisa langsung dijalankan dengan plugin Jetty yang ada dalam Gradle.</p>
+
+<pre><code>cd com.artivisi.contoh.ui.web
+gradle jetty
+</code></pre>
+
+<p>Outputnya bisa kita lihat di browser, dengan port 8080.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/jetty-run.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/jetty-run-300x216.png" alt="" /></a></p>
+
+<p>Di situ ada link menuju aplikasi kita. Silahkan diklik.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/klik-context-path.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/klik-context-path-300x214.png" alt="" /></a></p>
+
+<p>Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</p>
+
+<p>[gist id=794650 file=web.xml bump=4]</p>
+
+<p>Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml</p>
+
+<p>[gist id=794650 file=springmvc-context.xml bump=5]</p>
+
+<p>Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import.</p>
+
+<p>Pertama, arahkan workspace ke folder project-contoh.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-pilih-workspace.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-pilih-workspace-300x154.png" alt="" /></a></p>
+
+<p>Setelah Eclipse terbuka, kita pilih menu Import Project, untuk membuka 4 project yang tadi sudah kita buat.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-import-existing.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-import-existing-300x272.png" alt="" /></a></p>
+
+<p>Pilih folder induknya.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-select-root-directory.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-select-root-directory-272x300.png" alt="" /></a></p>
+
+<p>Selesai, semua project kita bisa dibuka. Bahkan kita bisa menjalankan project ui.web dengan cara klik kanan Run in Server. Ini bisa dilihat dari icon project tersebut yang berbentuk bola dunia.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-import-result.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-import-result-300x139.png" alt="" /></a></p>
+
+<p>Selesai sudah, mari kita <a href="http://endy.artivisi.com/blog/aplikasi/sharing-repository-git/">share dengan rekan yang lain</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Konsep Clustering]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Java/Linux/konsep-clustering/"/>
+    <updated>2011-01-30T04:15:14+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Java/Linux/konsep-clustering</id>
+    <content type="html"><![CDATA[<p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
+
+<p>Demikian pertanyaannya.</p>
+
+<blockquote></blockquote>
+
+<p>Ini sebetulnya dua hal yang berbeda.
+Load balancing ya membagi beban.
+Failover ya mencegah single point of failure.</p>
+
+<p>Load balancer terdiri dari satu balancer dan banyak worker.
+Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
+Bisa merata (round robin) bisa juga dengan bobot (weighted), misalnya worker X mendapat 2 kali worker Y karena dia specnya lebih tinggi.
+Atau bisa juga dynamic, artinya si LB akan mengetes kondisi semua worker, mana yang kira2 sedang idle itu yang dikasi.
+Mana yang sedang idle ini nanti ada lagi settingnya, apakah melihat CPU usage pakai SNMP, melihat ping response time, whatever.</p>
+
+<p>Failover minimal harus ada 2 titik.
+Kalo kita implement LB aja, point of failure (POF) nya adalah si LB.
+Begitu LB nya mati, ya udah semua worker gak bisa diakses.
+Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
+
+<p>Contoh aplikasi load balancer :</p>
+
+<blockquote><ul>
+<li><p>HAProxy</p></li>
+<li><p>ldirectord (Ultra Monkey)</p></li>
+<li><p>Pound</p></li>
+</ul>
+</blockquote>
+
+<p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
+
+<blockquote><ul>
+<li><p>Apache (mod_proxy_balancer)</p></li>
+<li><p>Nginx</p></li>
+<li><p>lighttpd</p></li>
+<li><p>bind (DNS Server)</p></li>
+</ul>
+</blockquote>
+
+<p>Contoh aplikasi failover :</p>
+
+<blockquote><ul>
+<li><p>heartbeat (Ultra Monkey)</p></li>
+<li><p>keepalived</p></li>
+</ul>
+</blockquote>
+
+<p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
+
+<blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
+Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
+
+<p>Tidak selalu, tergantung konfigurasinya.
+Ada konfigurasi sticky session.
+Artinya, pada hit pertama, si user akan diberikan penanda, biasanya berbentuk cookie.
+Pada hit berikutnya, LB akan melihat cookienya, dan mengarahkan ke server yang sebelumnya sudah mengurus si user ini.</p>
+
+<p>Ada juga konfigurasi non-sticky.
+Artinya tiap hit dianggap hit baru, dan didistribusikan ke semua server sesuai algoritma yang dipilih, round robin, weighted, atau dynamic, sesuai penjelasan di atas.</p>
+
+<p>Mau pilih yang mana? Ya tergantung kemampuan LB nya.
+Ada yang bisa 2-2 nya sehingga bisa pilih, dan ada juga yang rada stupid sehingga terpaksa pakai non-sticky.
+Istilahnya, LBnya layer berapa? Kalo layer 7 biasanya bisa sticky, kalo layer 4 ya gak bisa.
+Lebih jauh tentang urusan layer-layeran ini bisa dibaca <a href="http://blog.loadbalancer.org/why-layer-7-sucks/">di sini</a> dan <a href="http://1wt.eu/articles/2006_lb/">di sini</a></p>
+
+<p>Nah, apa impact sticky vs non-sticky?
+Ini pengaruhnya ke session data.
+Session data adalah data sementara masing-masing user.
+Karena sifatnya sementara, maka biasanya tidak disimpan secara persistent di tabel database.
+Contoh paling klasik adalah isi shopping cart.
+Itu barang belum diorder, tapi sudah dipilih, sehingga biasanya belum disimpan di database.</p>
+
+<p>Kalo pake non-sticky, si user pertama milih barang di server X.
+Pada saat dia pilih barang kedua, dilayani server Y.
+Karena pilihan pertama ada di server X, ya pas dia pilih barang kedua, cuma tercatat 1 barang padahal harusnya 2.</p>
+
+<p>Ini tidak terjadi kalo kita pakai sticky balancer.
+Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
+
+<p>Jadi, sticky atau non-sticky itu impactnya ke temporary data user, sering disebut dengan istilah session data atau user state.</p>
+
+<p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
+
+<blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
+
+<p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
+Secara umum, settingan standar appserver biasanya simpan data session di memori.
+Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain.
+Pada saat worker utama mati, request berikutnya akan diarahkan ke worker cadangannya, sehingga user gak kehilangan data belanjaan.
+Biasanya, satu state itu disimpan ke 2 worker saja, bukan direplikasi ke semua untuk alasan efisiensi bandwidth.</p>
+
+<p>Pada penjelasan di atas banyak sekali saya gunakan kata &#8216;biasanya&#8217;. Ini karena kapabilitas dan konfigurasi masing-masing merek appserver sangat berbeda sehingga sulit untuk menggeneralisir kondisinya.</p>
+
+<p>Lalu bagaimana?
+Saya biasanya mengambil pendekatan yang universal, yang jalan di semua appserver, sehingga tidak perlu pusing menghafal appserver apa bisa apa settingnya gimana.
+Teknik universalnya sederhana: aplikasi webnya dibuat stateless.
+Jangan ada simpan data di memori. Simpan semua di database, atau di distributed cache (misalnya memcached).</p>
+
+<p>Di Java, data yang ada di memori antara lain : session variable, static variable, context variable.
+Di PHP, CMIIW cuma session dan global variable aja.</p>
+
+<p>Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terhadap appserver apa bisa apa settingnya gimana.
+Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya.
+Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah.
+Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
+
+<p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Development Stack 2011]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/development-stack-2011/"/>
+    <updated>2011-01-25T20:33:18+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/development-stack-2011</id>
+    <content type="html"><![CDATA[<p>Posting ini adalah update dari <a href="http://endy.artivisi.com/blog/java/stack-2008-1/">posting tiga tahun yang lalu</a>. Tidak banyak yang berubah dalam stack ini, yang bisa berarti dua hal: pilihan tiga tahun yang lalu sudah tepat atau malas belajar selama 3 tahun ini.
+Mudah-mudahan alasannya yang pertama :D</p>
+
+<blockquote><p>Update : Gradle tidak jadi dipakai, karena kita tidak mau maintain 2 skillset. Maven 2 ternyata stabil dan bekerja sesuai harapan. Hudson terlibat kerusuhan dengan Oracle, akhirnya fork jadi Jenkins.</p></blockquote>
+
+<h3>Presentation Layer</h3>
+
+<ul>
+<li><p>Spring MVC</p></li>
+<li><p>SiteMesh</p></li>
+<li><p>Dojo Toolkit</p></li>
+<li><p>ExtJS</p></li>
+<li><p>Spring Security</p></li>
+<li><p>Jasper Report</p></li>
+<li><p>Jackson</p></li>
+</ul>
+
+
+<h3>Business Layer</h3>
+
+<ul>
+<li><p>Spring Framework</p></li>
+<li><p>Hibernate</p></li>
+</ul>
+
+
+<h3>Library lain yang sering digunakan</h3>
+
+<ul>
+<li><p>Logback</p></li>
+<li><p>Joda Time</p></li>
+<li><p>Velocity</p></li>
+<li><p>JPos</p></li>
+</ul>
+
+
+<h3>Infrastruktur</h3>
+
+<ul>
+<li><p>Version Control : Git + Gitosis</p></li>
+<li><p>Testing Tools : JUnit, DBUnit, JMeter, Sonar</p></li>
+<li><p>Issue Tracker : Redmine</p></li>
+<li><p>Build Tools : <del>Gradle</del>, Maven</p></li>
+<li><p>Continuous Integration : <del>Hudson</del> Jenkins</p></li>
+<li><p>OS Programmer : Ubuntu Desktop</p></li>
+<li><p>OS Server : Ubuntu Server, Debian</p></li>
+</ul>
+
+
+<h3>Deployment Target</h3>
+
+<ul>
+<li><p>Database Server : MySQL, Oracle</p></li>
+<li><p>Application Server : Tomcat, Glassfish</p></li>
+</ul>
+
+
+<p>Praktis perubahan yang terjadi hanyalah dari Subversion ganti menjadi Git.
+Nah, bagaimana menurut Anda? Pilihan tepat atau malas belajar?</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Sharing Repository Git]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/sharing-repository-git/"/>
+    <updated>2011-01-11T17:47:43+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/sharing-repository-git</id>
+    <content type="html"><![CDATA[<p>Skenario : selama ini kita coding di laptop sendiri saja. Kemudian ada kebutuhan untuk kolaborasi dengan orang lain melalui Git. Bagaimana caranya? Baiklah mari kita bahas di artikel ini.</p>
+
+<h2>Inisialisasi Repository Git</h2>
+
+<p>Pertama, kita inisialisasi dulu repository Git. Masuk ke dalam folder project dan ketikkan</p>
+
+<pre><code>git init
+</code></pre>
+
+<p>Git akan membuat repository kosong di dalam folder project, ditandai dengan adanya folder baru bernama .git</p>
+
+<p>Selanjutnya, kita akan memasukkan semua file dan folder project kita ke dalam repository. Yang harus dimasukkan adalah file source code, baik itu Java, HTML, XML, dan sebagainya. Yang tidak perlu dimasukkan adalah file hasil kompilasi atau hasil generate. Kita perlu mendaftarkan file yang tidak ingin disimpan dalam file konfigurasi yang bernama .gitignore</p>
+
+<p>File ini harus kita buat sendiri menggunakan text editor. Berikut contoh isi filenya, bila kita coding menggunakan Eclipse atau Netbeans</p>
+
+<p>[gist id=773975]</p>
+
+<p>Setelah kita setting ignore file, berikutnya kita masukkan semua file dan folder ke dalam antrian.</p>
+
+<pre><code>git add . 
+</code></pre>
+
+<p>Kemudian, simpan ke repository</p>
+
+<pre><code>git commit -m "commit pertama project XXX"
+</code></pre>
+
+<p>Project sudah tersimpan di repository Git di komputer lokal kita. Mari kita upload ke server, atau dikenal dengan istilah push.</p>
+
+<h2>Share Repository</h2>
+
+<p>Kita memerlukan server di mana kita memiliki ijin akses untuk melakukan push. Cara memperoleh ijin akses tidak dibahas pada artikel ini. Silahkan buat account di Github atau Gitorious. Bila ingin push ke repository perusahaan, minta informasinya pada admin Anda.</p>
+
+<p>Setelah kita mendapatkan URL server yang bisa kita gunakan, daftarkan sebagai remote. Berikut perintahnya.</p>
+
+<pre><code>git remote add &lt;namaremote&gt; &lt;URL&gt;
+</code></pre>
+
+<p>Contohnya seperti ini</p>
+
+<pre><code>git remote add github git@github.com:endymuhardin/project-terbaru-saya.git
+</code></pre>
+
+<p>Pastikan remotenya sudah terdaftar dengan perintah berikut</p>
+
+<pre><code>git remote -v
+</code></pre>
+
+<p>Terakhir, mari kita push dengan perintah berikut</p>
+
+<pre><code>git push &lt;namaremote&gt; &lt;namabranch&gt;
+</code></pre>
+
+<p>Contohnya</p>
+
+<pre><code>git push github master
+</code></pre>
+
+<p>Hore, project kita sudah naik ke server. Kita tinggal share URL tersebut ke rekan kerja kita.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Menggunakan Gist]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/menggunakan-gist/"/>
+    <updated>2011-01-09T03:40:16+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/menggunakan-gist</id>
+    <content type="html"><![CDATA[<p>Gist adalah fitur yang disediakan oleh Github. Fungsi dasarnya mirip dengan pastebin, yaitu kita bisa paste text di sana, dan disharing dengan orang lain. Keunggulan Gist adalah dia sudah memiliki kemampuan version control dengan Git. Sehingga kita bisa fork, clone, modifikasi, dan push lagi ke repo utama dengan seluruh history tersimpan di sana.</p>
+
+<p>Untuk bisa menggunakan Gist, kita harus memiliki account Github dulu. Setelah itu, kita bisa buat <a href="https://gist.github.com">gist di sini</a>.</p>
+
+<p>Cara membuatnya tidak sulit. Cukup entri nama file, keterangan, dan isi text yang mau dishare.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-create-gist.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-create-gist-300x204.png" alt="" /></a></p>
+
+<p>Setelah itu, tekan Create Public Gist. Gist kita akan siap digunakan.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-gist-created.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-gist-created-300x207.png" alt="" /></a></p>
+
+<p>Gist yang sudah dibuat bisa dipasang di blog. Caranya, klik tombol embed.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-embed-link.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-embed-link-300x205.png" alt="" /></a></p>
+
+<p>Nanti akan muncul textfield berisi tag HTML untuk dipasang di blog, kira-kira seperti ini tagnya:</p>
+
+<pre><code>&lt;script src="https://gist.github.com/770832.js?file=HelloWorld.java"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>Tag ini bisa langsung dipasang di blog kita. Hasilnya seperti di bawah ini.</p>
+
+<p>Kelemahan cara ini adalah dia membutuhkan javascript, dan isi filenya tidak terindeks oleh spider. Untuk mengatasinya, kita gunakan <a href="http://wordpress.org/extend/plugins/embed-github-gist/">plugin wordpress ini</a>.</p>
+
+<p>Setelah digunakan, kita cukup memasang tag khusus seperti dijelaskan di websitenya. Ini contoh hasilnya</p>
+
+<p>[gist id=770832]</p>
+
+<p>Sekilas tidak terlihat bedanya antara pakai plugin dan tidak. Tapi coba lihat source halaman ini, klik kanan kemudian View Source. Yang menggunakan plugin, source codenya benar-benar ada tulisannya. Sedangkan yang pakai tag script tidak ada source code hello worldnya.</p>
+
+<p>Nah, kalau sudah pakai ini, tidak perlu bingung lagi mewarnai source code di blog. Kalau mau revisi, tinggal edit aja di Github, dan otomatis di blog langsung terupdate.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalasi Git di Windows]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Lain2/instalasi-git-di-windows/"/>
+    <updated>2011-01-07T18:28:25+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Lain2/instalasi-git-di-windows</id>
+    <content type="html"><![CDATA[<p>Setelah kemarin kita bahas <a href="http://endy.artivisi.com/blog/lain/migrasi-subversion-ke-git/">migrasi di sisi server</a>, sekarang kita bahas instalasi di client. Kenapa yang dijelaskan hanya Windows, sedangkan Linux tidak? Well, ini karena di Linux instalasinya begitu mudah sehingga terlalu pendek kalau ingin dijadikan satu posting sendiri.</p>
+
+<p>Gak percaya? Ini caranya install di Ubuntu. Buka command prompt, dan ketik</p>
+
+<pre><code>sudo apt-get install git-core git-svn git-gui gitk
+</code></pre>
+
+<p>Sedikit konfigurasi standar.</p>
+
+<pre><code>git config --global user.name "Endy Muhardin"
+git config --global user.email "endy.muhardin@geemail.com"
+git config --global color.ui "true"
+</code></pre>
+
+<p>Kemudian, bila kita belum punya public key, silahkan bikin seperti <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">tutorial di sini</a>.</p>
+
+<p>Dan selesailah sudah. Seperti saya bilang sebelumnya, singkat dan sama sekali gak seru. Gak ada screenshotnya :D</p>
+
+<p>Nah, mari kita bahas instalasi di Windows.</p>
+
+<p>Pada intinya, langkah-langkahnya adalah sebagai berikut :</p>
+
+<ol>
+<li><p>Instalasi Putty : Ini kita perlukan untuk membuat public key. Public key digunakan untuk berinteraksi dengan repository git di server. Apa itu public key dan apa manfaatnya sedikit banyak sudah dibahas <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">di artikel ini</a>.</p></li>
+<li><p>Instalasi Git : Ini adalah aplikasi Git nya sendiri. Ada dua varian, Cygwin dan MSysGit. Kita akan gunakan yang lebih populer, yaitu MSysGit.</p></li>
+<li><p>Instalasi TortoiseGit : Seperti TortoiseSVN, ini adalah aplikasi GUI yang terintegrasi dengan Windows Explorer, sehingga pengelolaan repository dapat dilakukan di Windows Explorer seperti manipulasi file/folder biasa.</p></li>
+</ol>
+
+
+<h2>Instalasi Putty</h2>
+
+<p>Putty bisa diunduh <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">di sini</a>. Pilih saja versi installer, supaya tidak pusing.</p>
+
+<p>Putty ini akan kita gunakan untuk membuat pasangan public key dan private key. Caranya adalah menggunakan aplikasi PuttyGen. Jalankan PuttyGen, dan klik tombol Generate.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-ssh-generate-keypair.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-ssh-generate-keypair-300x290.png" alt="Generate keypair" /></a></p>
+
+<p>PuttyGen akan membuatkan public key dan private key. Save private keynya. Kita akan membutuhkan ini nanti. Klik tombol Save Private Key, dan simpan di folder mana saja.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-ssh-save-keypair.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-ssh-save-keypair-300x210.png" alt="" /></a></p>
+
+<p>Terakhir, copy-paste text public keynya. Ini akan kita perlukan untuk dipasang di server supaya kita bisa mengakses repository di server, misalnya Github atau repository kantor.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-ssh-export-public-key.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-ssh-export-public-key-300x236.png" alt="" /></a></p>
+
+<h2>Instalasi Git</h2>
+
+<p>Pertama, <a href="http://code.google.com/p/msysgit/">unduh dulu MSysGit</a>. Di websitenya ada banyak file yang bisa diunduh. Kita perlu yang Git, bukan msysgit. Nama filenya diawali Git, seperti ini: Git-1.7.3.1-preview20101002.exe. Ambil saja versi yang terbaru.</p>
+
+<p>Setelah diunduh, tentu kita jalankan. Berikut screenshot next-next seperti biasa.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-msysgit-install-welcome.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-msysgit-install-welcome-300x230.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-msysgit-install-component.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-msysgit-install-component-300x233.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-msysgit-install-path.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-msysgit-install-path-300x232.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-msysgit-install-crlf.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-msysgit-install-crlf-300x232.png" alt="" /></a></p>
+
+<h2>Instalasi TortoiseGit</h2>
+
+<p>TortoiseGit bisa <a href="http://code.google.com/p/tortoisegit/">diunduh di sini</a>.
+Setelah selesai mengunduh, lagi-lagi klik next-next.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-tortoisegit-install-welcome.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-tortoisegit-install-welcome-300x233.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-tortoisegit-install-sshclient.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-tortoisegit-install-sshclient-300x231.png" alt="" /></a></p>
+
+<p>Sampai di sini, instalasi Git sudah selesai. Tapi masih ada langkah tambahan supaya kita bisa melakukan clone dari repository server (misalnya Github).</p>
+
+<h2>Clone dari Github</h2>
+
+<p>Untuk bisa clone dari github, pertama kali kita harus punya account Github. Silahkan <a href="https://github.com/plans">daftar dulu</a>.</p>
+
+<p>Setelah punya account, login, dan kita akan melihat dashboard.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-github-dashboard.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-github-dashboard-300x208.png" alt="" /></a></p>
+
+<p>Klik account setting, dan masuk ke menu SSH Public Keys</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-github-add-pubkey.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-github-add-pubkey-300x206.png" alt="" /></a></p>
+
+<p>Pastekan public key yang sudah kita export menggunakan PuttyGen di atas. Setelah diadd, public key kita akan terdaftar. Kita boleh pasang public key banyak-banyak, karena biasanya satu public key mencerminkan satu komputer. Bisa saja kita punya PC dan juga Laptop.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-github-add-pubkey-completed.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-github-add-pubkey-completed-300x201.png" alt="" /></a></p>
+
+<p>Setelah public key didaftarkan, selanjutnya kita lihat repository yang kita punya.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-github-repositories.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-github-repositories-300x183.png" alt="" /></a></p>
+
+<p>Kalau belum punya repository, Anda bisa fork <a href="https://github.com/endymuhardin/belajarGit">repository belajarGit punya saya</a>, sehingga nanti Anda punya repo belajarGit sendiri.</p>
+
+<p>Setiap repository punya URL untuk melakukan clone. Copy paste URL clone repository.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-github-repo-belajarGit.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-github-repo-belajarGit-300x208.png" alt="" /></a></p>
+
+<p>Untuk melakukan clone, buka Windows Explorer, klik kanan, dan pilih Git Clone.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-tortoisegit-use-clone.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-tortoisegit-use-clone-300x208.png" alt="" /></a></p>
+
+<p>Masukkan URL yang tadi kita copy dari Github, dan load private key yang kita buat dengan PuttyGen.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-tortoisegit-clone-info.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-tortoisegit-clone-info-300x200.png" alt="" /></a></p>
+
+<p>Putty akan melakukan komunikasi dengan Github. Kalau kita belum pernah clone dari Github sebelumnya, Putty akan menanyakan apakah kita ingin menerima koneksi dari Github. Jawab saja Yes.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-tortoisegit-clone-save-host-key.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-tortoisegit-clone-save-host-key-300x210.png" alt="" /></a></p>
+
+<p>Setelah kita jawab Yes, TortoiseGit akan mendownload repository dari Github untuk kita pakai di local, yang lebih dikenal dengan istilah clone. Ini ditunjukkan dengan progress bar kura-kura salto. Jumlah kura-kura yang salto tergantung dari ukuran repository kita. Semakin besar repositorynya, semakin banyak kura-kura yang salto. Bersabarlah, dan tunggu sampai semua kura-kura selesai melakukan aksinya.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/06-tortoisegit-clone-complete.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/06-tortoisegit-clone-complete-300x211.png" alt="" /></a></p>
+
+<p>Sekarang repository sudah ada di local, dan siap digunakan. Bagaimana cara menggunakannya, stay tuned. Akan dibahas di posting berikutnya.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Migrasi Subversion ke Git]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Lain2/migrasi-subversion-ke-git/"/>
+    <updated>2011-01-03T06:02:23+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Lain2/migrasi-subversion-ke-git</id>
+    <content type="html"><![CDATA[<p>Di tahun yang baru ini, kami di ArtiVisi juga beralih menggunakan version control baru, yaitu Git.
+Menggantikan Subversion yang sudah kita gunakan sejak 2008.</p>
+
+<p>Ada banyak keunggulan Git dibandingkan Subversion, diantaranya:</p>
+
+<ul>
+<li><p>offline operation. Git adalah distributed/decentralized version control system (DVCS), artinya tidak membutuhkan server terpusat untuk bisa bekerja. Keunggulan ini berakibat pada keunggulan berikutnya, yaitu:</p></li>
+<li><p>commit sesuai task, bukan sesuai koneksi internet. Dulu, karena koneksi internet terbatas, programmer commit hanya pada saat ada internet. Akibatnya satu commit berisi perubahan untuk banyak task, tercampur aduk tidak jelas peruntukannya. DVCS memungkinkan programmer untuk commit walaupun tidak ada koneksi internet, dan melakukan sinkronisasi pada saat offline.</p></li>
+<li><p>fitur staging area di Git, memungkinkan kita untuk mengatur isi commit secara detail.</p></li>
+<li><p>fitur rebase untuk mengatur commit. Commit yang teratur akan memudahkan review.</p></li>
+<li><p>branch dan merge yang lebih baik daripada subversion. Karena branch dan merge mudah, maka kita bisa menerapkan berbagai teknik workflow dalam mengelola development.</p></li>
+<li><p>website social coding. Github dan Gitorious merupakan Facebook-nya para programmer. Untuk bisa terlibat di dalamnya, terlebih dulu kita harus bisa Git.</p></li>
+</ul>
+
+
+<p>Selain Git, ada juga DVCS lain seperti Mercurial (hg), Bazaar (bzr), dsb. Git dipilih karena :</p>
+
+<ul>
+<li><p>popularitas. Semakin populer, tutorial dan aplikasi pendukung semakin banyak, sehingga semakin nyaman digunakan. Saat ini yang paling populer cuma dua, yaitu git dan hg.</p></li>
+<li><p>local/named branch. Ini fitur penting, tapi entah kenapa tidak ada di core hg. Sepertinya ada di extension, tapi yang jelas merupakan workaround dan bukan didesain sejak awal. Tanpa named branch, pilihan workflow menjadi terbatas.</p></li>
+<li><p>Social coding Git (Github dan Gitorious) jauh lebih superior daripada Mercurial (Bitbucket)</p></li>
+</ul>
+
+
+<p>Beberapa faktor di atas adalah alasan kenapa Git yang dipilih.</p>
+
+<p>Baiklah, sekarang saatnya migrasi. Kita akan mengkonversi repository Subversion menjadi repository Git.
+Berikut langkah-langkah yang akan kita lakukan:</p>
+
+<ol>
+<li><p>Dump repository Subversion</p></li>
+<li><p>Restore lagi di laptop supaya cepat</p></li>
+<li><p>Buat authorsfile</p></li>
+<li><p>Buat ignore file</p></li>
+<li><p>Clone tanpa metadata</p></li>
+<li><p>Konversi branch</p></li>
+<li><p>Konversi tags</p></li>
+<li><p>Clone hasil konversi menjadi bare repository</p></li>
+</ol>
+
+
+<h2>Dump repository Subversion</h2>
+
+<p>Seperti biasa, sebelum melakukan apapun, lakukan backup dulu. Just in case.
+Perintahnya gampang.</p>
+
+<pre><code>svnadmin dump /path/ke/repository | bzip2 -c9 &gt; dump-repository-yyyyMMdd.dmp.bz2
+</code></pre>
+
+<h2>Restore lagi di laptop/PC supaya cepat</h2>
+
+<p>Langkah ini optional, kalau kita ingin melakukannya di komputer kita sendiri, bukan di server.
+Tapi sebaiknya dilakukan, karena nanti kita akan checkout beberapa kali yang pasti membutuhkan waktu lama jika dilakukan ke server.</p>
+
+<p>Perintah restore gampang.</p>
+
+<pre><code>bzcat dump-repository-yyyyMMdd.dmp.bz2 | svnadmin load /path/ke/repo/svn/di/lokal
+</code></pre>
+
+<h2>Buat authorsfile</h2>
+
+<p>Setelah kita memiliki repository Subversion, kita perlu mengambil daftar nama orang-orang yang pernah commit. Ini akan kita butuhkan pada waktu konversi. Nama committer ini diambil dari hasil checkout Subversion. Jadi mari kita checkout dulu.</p>
+
+<pre><code>svn checkout file:///path/ke/repo/svn/di/lokal checkout-project-svn
+</code></pre>
+
+<p>Karena lokal, harusnya hanya membutuhkan beberapa menit saja.</p>
+
+<p>Setelah dilakukan checkout, kita membutuhkan script untuk mengambil nama committer. Berikut isi scriptnya, simpan saja dengan nama extract-svn-authors.sh</p>
+
+<pre><code>#!/usr/bin/env bash
+authors=$(svn log -q | grep -e '^r' | awk 'BEGIN { FS = "|" } ; { print $2 }' | sort | uniq)
+for author in ${authors}; do
+  echo "${author} = NAME &lt;USER@DOMAIN&gt;";
+done
+</code></pre>
+
+<p>Jalankan script tersebut di dalam folder hasil checkout.</p>
+
+<pre><code>cd checkout-project-svn
+sh /path/ke/script/extract-svn-authors.sh &gt; nama-committers.txt 
+</code></pre>
+
+<p>Ini akan menghasilkan file nama-committers.txt yang berisi nama committer seperti ini :</p>
+
+<pre><code>endy = NAME &lt;USER@DOMAIN&gt;
+</code></pre>
+
+<p>Editlah file ini supaya mencerminkan nama dan email yang benar, seperti ini :</p>
+
+<pre><code>endy = Endy Muhardin &lt;endy.muhardin@geemail.com&gt;
+</code></pre>
+
+<h2>Buat ignore file</h2>
+
+<p>Dalam mengerjakan project, ada file-file yang ada di folder kerja, tapi tidak kita masukkan ke repository. Misalnya file hasil kompilasi, setting IDE, dan sebagainya. File dan folder hasil generate ini biasanya kita daftarkan di ignore list, supaya tidak ikut dicommit ke repository. Kita perlu mengkonversi format ignore di Subversion (svn property ignore) menjadi format ignore versi Git (yaitu file .gitignore).</p>
+
+<p>Untuk membuatnya, kita clone dulu repository Subversion menjadi repository Git. Ini dilakukan di folder yang berbeda dengan hasil checkout Subversion di langkah sebelumnya.</p>
+
+<pre><code>cd .. 
+git svn clone --stdlayout -A nama-committers.txt file:///path/ke/repo git-svn-migrasi-project-dengan-metadata
+</code></pre>
+
+<p>Setelah diclone, konversi ignore list nya.</p>
+
+<pre><code>cd git-svn-migrasi-project-dengan-metadata
+git svn show-ignore &gt; .gitignore
+</code></pre>
+
+<h2>Clone tanpa metadata</h2>
+
+<p>Selanjutnya, kita lakukan clone lagi. Kali ini tanpa menyertakan metadata, sehingga hasilnya bersih. Metadata ini digunakan bila kita ingin tetap commit ke repository Subversion, tapi ingin menggunakan Git sebagai frontend.</p>
+
+<p>Perintahnya mirip seperti sebelumnya, kali ini kita tambahkan opsi tanpa metadata.</p>
+
+<pre><code>cd .. 
+git svn clone --no-metadata --stdlayout -A nama-committers.txt file:///path/ke/repo git-svn-migrasi-project-tanpa-metadata
+</code></pre>
+
+<p>Ini akan menghasilkan folder git-svn-migrasi-project-tanpa-metadata berisi repository Subversion yang sudah dikonversi menjadi repository Git. Semua langkah selanjutnya akan dilakukan di dalam folder ini.</p>
+
+<p>Setelah selesai, kita masukkan file .gitignore ke repo Git yang baru ini.</p>
+
+<pre><code>cd git-svn-migrasi-project-tanpa-metadata
+cp ../git-svn-migrasi-project-dengan-metadata/.gitignore ./
+git add . 
+git commit -m "add ignore list"
+</code></pre>
+
+<h2>Konversi branch</h2>
+
+<p>Branch yang ada di Subversion harus kita konversi menjadi branch di Git.
+Berikut perintahnya.</p>
+
+<pre><code>git branch -r | grep -v tags | sed -rne 's, *([^@]+)$,\1,p' | while read branch; do echo "git branch $branch $branch"; done | sh
+</code></pre>
+
+<p>Verifikasi hasilnya dengan perintah ini.</p>
+
+<pre><code>git branch -a
+</code></pre>
+
+<p>Seharusnya semua branch yang ada di repository Subversion akan terlihat di dalam repository Git ini.</p>
+
+<h2>Konversi tags</h2>
+
+<p>Lakukan perintah berikut untuk mengkonversi tag Subversion menjadi tag Git.</p>
+
+<pre><code>git branch -r | sed -rne 's, *tags/([^@]+)$,\1,p' | while read tag; do echo "git tag $tag 'tags/${tag}^'; git branch -r -d tags/$tag"; done | sh
+</code></pre>
+
+<p>Verifikasi dengan perintah ini</p>
+
+<pre><code>git tag -l
+</code></pre>
+
+<p>Pastikan semua tag yang tadinya ada di repository Subversion sudah terdaftar di repository Git.</p>
+
+<h2>Clone hasil konversi menjadi bare repository</h2>
+
+<p>Setelah nama committer, ignore list, branch, dan tags berhasil kita pindahkan, inilah langkah terakhir. Kita clone sekali lagi menjadi repository bare supaya bisa dishare dengan orang lain. Biasanya repository bare ini kita publish dengan Gitosis, gitweb, atau aplikasi server lainnya.</p>
+
+<p>Perintah ini dilakukan di luar repository Git yang kita gunakan pada langkah sebelumnya.</p>
+
+<pre><code>cd .. 
+git clone --bare git-svn-migrasi-project-tanpa-metadata nama-project.git
+</code></pre>
+
+<p>Ini akan menghasilkan satu folder dengan nama nama-project.git berisi repository Git yang siap dishare.</p>
+
+<p>Demikian posting tahun baru. Semoga kita semua lebih sukses di tahun 2011 ini.</p>
+]]></content>
+  </entry>
+  
+</feed>

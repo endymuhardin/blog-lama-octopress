@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Backup Home Folder - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Seberapa penting file di komputer kita? Tentu tidak ternilai harganya. Tapi apakah kita melakukan backup secara terhadap file-file di komputer kita? &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/Linux/backup-home-folder/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Backup Home Folder</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-26T23:00:29+07:00" pubdate data-updated="true">Aug 26<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Seberapa penting file di komputer kita? Tentu tidak ternilai harganya. Tapi apakah kita melakukan backup secara terhadap file-file di komputer kita? Beberapa menit yang lalu, saya menjawab tidak untuk pertanyaan tersebut.</p>
+
+<p>Kenapa backup tidak dilakukan? Penyebab utamanya biasanya adalah karena merepotkan. Kita harus pilih file yang mau dibackup, membuka aplikasi backup, lalu menjalankannya. Walaupun cuma butuh waktu beberapa menit, tapi biasanya kita sering menunda dan akhirnya lupa.</p>
+
+<p>Cara paling efektif untuk melakukan backup rutin adalah dengan mengotomasinya. Effort untuk melakukan setup cukup sekali saja, selanjutnya backup akan berjalan otomatis tanpa kita sadari. Pada artikel ini, saya akan posting teknik backup yang saya gunakan.</p>
+
+<p>Sebelum kita mulai, terlebih dulu kita tentukan requirementnya, supaya jelas apa yang kita ingin capai. Saya ingin membackup folder tertentu di komputer saya (misalnya <em>/home/endy</em> dan <em>/opt/multimedia/Photos</em>). Backup ini dilakukan secara rutin (misalnya satu jam sekali, satu hari sekali, atau satu minggu sekali). Selain rutin, juga harus incremental. Artinya kalau saya punya backup hari ini jam 11, maka backup selanjutnya di jam 12 hanya menyimpan file yang berubah saja. Dengan demikian, saya bisa jalankan backupnya satu jam sekali dan tidak akan menyebabkan harddisk menjadi penuh dalam beberapa jam saja.</p>
+
+<p>Kalau kita cari di Google dengan keyword <em>ubuntu backup application</em>, ada banyak sekali aplikasi backup yang tersedia.
+Ada Unison, Bacula, SBackup, rdiff-backup, Deja Dup, dan <a href="http://davestechshop.net/ListOfFreeOpenSourceLinuxUbuntuBackupSoftware">entah apa lagi</a>. Walaupun demikian, seperti biasanya, saya akan gunakan aplikasi yang paling populer, universal (ada di mana-mana), dan bisa dijalankan dari command line (supaya bisa diotomasi dengan cron). Pilihannya tentu adalah <em>rsync</em>.</p>
+
+<p><em>rsync</em> adalah aplikasi untuk melakukan file transfer. Dia memiliki beberapa kelebihan, diantaranya :</p>
+
+<ul>
+<li><p>tersedia di semua *nix (misalnya Linux dan Mac)</p></li>
+<li><p>berbasis command line, sehingga bisa saya aplikasikan juga di server</p></li>
+<li><p>sudah teruji kehandalannya</p></li>
+<li><p>bisa resume (bila transfer putus di tengah jalan, tidak perlu ulang dari awal)</p></li>
+<li><p>data yang ditransfer bisa dikompres, supaya lebih cepat</p></li>
+<li><p>bisa mengirim data melalui ssh, sehingga keamanan data terjamin</p></li>
+<li><p>memiliki kemampuan hard linking sehingga bisa menghemat space (akan dijelaskan lebih lanjut)</p></li>
+</ul>
+
+
+<p>With great power, comes great complexity. Demikian kata pamannya Spiderman seandainya dia harus menggunakan <em>rsync</em>. Saking banyaknya opsi, sehingga kita bingung apa yang harus dipakai. Berikut adalah opsi rsync yang saya gunakan :</p>
+
+<ul>
+<li><p>a : archive. Opsi ini sama dengan kalau kita mengaktifkan opsi rlptgoD</p></li>
+<li><p>r : rekursif sampai ke subfolder terdalam</p></li>
+<li><p>l : symlink tetap dicopy sebagai symlink</p></li>
+<li><p>p : file permission disamakan dengan aslinya</p></li>
+<li><p>t : modification time (waktu terakhir update) disamakan dengan aslinya</p></li>
+<li><p>g : kepemilikan group disamakan dengan aslinya</p></li>
+<li><p>o : kepemilikan owner disamakan dengan aslinya</p></li>
+<li><p>D : file device dan special disamakan dengan aslinya</p></li>
+<li><p>force : folder kosong di tujuan dihapus walaupun ada isinya</p></li>
+<li><p>ignore-errors : lanjut terus walaupun ada error</p></li>
+<li><p>exclude-from : file text berisi daftar file/folder yang tidak perlu ditransfer</p></li>
+<li><p>link-dest : lihat ke folder yang disebutkan, kalau ada file yang sama, buat hard link</p></li>
+</ul>
+
+
+<p>Pada penjelasan di atas, beberapa kali disebutkan istilah hard-link. Di Linux, suatu file terdiri dari dua bagian : isi (content), dan nama. Satu content yang sama bisa saja memiliki dua nama yang berbeda di folder berbeda sehingga terlihat seolah-olah ada dua file.
+Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu content dan satu nama file coba.txt. Kita bisa membuat nama file baru yang isinya sama dengan perintah sebagai berikut</p>
+
+<p><em>__ln coba.txt halo.txt</em></p>
+
+<p>Perintah di atas akan membentuk file <em>halo.txt</em> yang isinya sama dengan <em>coba.txt</em>. Kalau kita edit <em>coba.txt</em>, maka isi file <em>halo.txt</em> juga akan berubah, karena mereka sebetulnya menunjuk ke benda yang sama.</p>
+
+<p>Dengan menggunakan hard-link ini, kita bisa menduplikasi file tanpa menduplikasi space di harddisk. Ini akan sangat berguna untuk membuat incremental backup, karena kita bisa membuat backup sesering mungkin tanpa memenuhi isi harddisk.</p>
+
+<p>Fitur ini kita gunakan pada <em>rsync</em> dengan opsi <em>link-dest</em>. Sebagai contoh, kita jalankan backup pertama kali dan menghasilkan folder <em>20110826-1100</em>. Pada waktu kita jalankan backup kedua, kita berikan opsi <em>link-dest=20110826-1100</em>. Saat akan mengisi folder yang baru (misalnya <em>20110826-1200</em>), <em>rsync</em> akan melihat ke folder <em>20110826-1100</em> dan memeriksa apakah file yang sama sudah ada. Bila sudah ada, maka <em>rsync</em> tidak akan menulis file baru, melainkan hanya akan membuat hard-link saja. Jadi, bila backup pertama berisi 100 file dengan total 10 GB, dan backup kedua berisi 99 file yang sama, dan 1 file saja yang berubah dengan ukuran 1 GB, maka total space yang terpakai adalah 10 GB (backup pertama) dan 1 GB (backup kedua), bukannya 20 GB.</p>
+
+<p>Setelah kita memahami opsi <em>rsync</em>, berikut adalah perintah yang kita gunakan</p>
+
+<p>[gist id=1172978 file=rsync-cmd.txt bump=1]</p>
+
+<p>File <em>rsync-exclude.txt</em> berisi folder yang tidak dibackup, punya saya isinya seperti ini :</p>
+
+<p>[gist id=1172978 file=rsync-exclude.txt bump=2]</p>
+
+<p><em>folder-backup-sebelumnya</em> perlu dihitung dulu. Caranya menggunakan perintah <em>ls -tr</em> yang akan menampilkan isi folder yang diurutkan berdasarkan modification time secara descending. Berikut contoh outputnya.</p>
+
+<p>[gist id=1172978 file=ls-ltr-output]</p>
+
+<p>Dari sini, kita cukup ambil yang paling atas menggunakan perintah <em>tail -1</em></p>
+
+<p>[gist id=1172978 file=ls-ltr-tail]</p>
+
+<p>Dengan bermodalkan pengetahuan tersebut, kita bisa membuat script seperti ini.</p>
+
+<p>[gist id=1172978 file=rsync-backup.sh bump=3]</p>
+
+<p>Untuk membackup folder <em>/home/endy</em> ke folder <em>/opt/downloads/backups</em>, kita jalankan seperti ini :</p>
+
+<p>[gist id=1172978 file=exec-backup.sh]</p>
+
+<p>Selanjutnya, kita bisa pasang di crontab dengan setting seperti ini, supaya dijalankan tiap tiga jam.</p>
+
+<p>[gist id=1172978 file=crontab.txt bump=2]</p>
+
+<p>Voila &#8230; folder home kita sudah terbackup secara otomatis tanpa kita sadari. Sepanjang menulis artikel ini, laptop saya sudah membackup dirinya sendiri sebanyak 3 kali :D</p>
+
+<p>Setelah membuat backup di harddisk laptop, tentunya kita ingin memindahkannya ke external harddisk supaya kita bisa mengosongkan lokasi backup di laptop.</p>
+
+<p>Berikut adalah perintah rsync yang digunakan.</p>
+
+<p>[gist id=1172978 file=copy-backup-to-external.sh]</p>
+
+<p>Dan ini adalah penjelasan terhadap opsi yang digunakan:</p>
+
+<ul>
+<li><p>P : sama dengan partial dan progress</p></li>
+<li><p>partial : file yang baru dicopy sebagian tetap disimpan agar bisa diresume</p></li>
+<li><p>progress : menampilkan progress report</p></li>
+<li><p>H : hard link dicopy sebagai hard link juga. Tanpa opsi ini, tiap hard link akan dibuatkan file baru sehingga boros space harddisk</p></li>
+</ul>
+
+
+<p>Perintah untuk transfer ke external harddisk ini tidak saya jalankan secara otomatis via cron, karena harddisknya belum tentu terpasang.</p>
+
+<p>Demikianlah artikel tentang backup rutin. Mudah-mudahan kita semua bisa terhindar dari musibah harddisk.</p>
+
+<h3>Referensi</h3>
+
+<ul>
+<li><p><a href="http://www.mikerubel.org/computers/rsync_snapshots">Easy Automated Snapshot-Style Backups with Linux and Rsync</a></p></li>
+<li><p><a href="http://www.hermann-uwe.de/blog/simple-backups-using-rsync">Simple backup using rsync</a></p></li>
+<li><p><a href="http://rsync.samba.org/examples.html">rsync examples</a></p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-26T23:00:29+07:00" pubdate data-updated="true">Aug 26<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/linux/'>Linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endymuhardin.github.com/blog/Linux/backup-home-folder/" data-via="endymuhardin" data-counturl="http://endymuhardin.github.com/blog/Linux/backup-home-folder/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/blog/Java/Manajemen/staged-deployment/" title="Previous Post: Staged Deployment">&laquo; Staged Deployment</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/blog/Java/monitoring-aplikasi-java/" title="Next Post: Monitoring Aplikasi Java">Monitoring Aplikasi Java &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

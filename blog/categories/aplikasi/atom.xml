@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Aplikasi | Living life and make it better]]></title>
+  <link href="http://endymuhardin.github.com/blog/categories/aplikasi/atom.xml" rel="self"/>
+  <link href="http://endymuhardin.github.com/"/>
+  <updated>2012-08-07T22:32:36+07:00</updated>
+  <id>http://endymuhardin.github.com/</id>
+  <author>
+    <name><![CDATA[Endy Muhardin]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Instalasi Redmine di Tomcat]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca/"/>
+    <updated>2011-08-07T04:06:01+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca</id>
+    <content type="html"><![CDATA[<p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
+
+<ul>
+<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
+<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
+<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
+<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
+Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
+Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
+
+<ul>
+<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
+<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
+</ul>
+
+
+<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
+
+<p>Mari kita mulai.</p>
+
+<h2>Instalasi JRuby</h2>
+
+<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
+
+<p>[gist id=1129237 file=install-jruby.sh]</p>
+
+<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
+Tulis baris berikut ini di dalam file ~/.bashrc</p>
+
+<p>[gist id=1129237 file=bashrc]</p>
+
+<p>Terakhir, test instalasi JRuby</p>
+
+<p>[gist id=1129237 file=test-jruby.sh]</p>
+
+<h2>Instalasi Paket Gem</h2>
+
+<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
+
+<ul>
+<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
+<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
+<li><p>jruby-openssl : supaya bisa melayani https</p></li>
+<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
+<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
+</ul>
+
+
+<p>Mari kita install</p>
+
+<p>[gist id=1129237 file=install-gem.sh bump=1]</p>
+
+<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
+
+<h2>Mengambil Redmine dari Subversion Repository</h2>
+
+<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
+Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
+
+<p>[gist id=1129237 file=checkout-redmine.sh]</p>
+
+<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
+Saya menggunakan konfigurasi development sebagai berikut :</p>
+
+<p>[gist id=1129237 file=database.yml]</p>
+
+<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
+
+<p>[gist id=1129237 file=create-database.sh]</p>
+
+<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
+
+<h2>Inisialisasi Redmine</h2>
+
+<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
+
+<p>[gist id=1129237 file=inisialisasi-session.sh]</p>
+
+<p>Setelah itu, inisialisasi skema database.</p>
+
+<p>[gist id=1129237 file=inisialisasi-skema-db.sh]</p>
+
+<p>Isi data awal.</p>
+
+<p>[gist id=1129237 file=inisialisasi-data-awal.sh]</p>
+
+<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
+
+<p>[gist id=1129237 file=start-webrick.sh]</p>
+
+<p>Hasilnya bisa kita browse di http://localhost:3000
+Kemudian kita bisa login dengan username admin dan password admin.</p>
+
+<h2>Konfigurasi Email</h2>
+
+<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
+Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
+
+<p>[gist id=1129237 file=configuration.yml]</p>
+
+<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
+
+<p>[gist id=1129237 file=install-action-mailer-tls.sh]</p>
+
+<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
+Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
+Kemudian pergi ke menu Administration > Settings > Email Notifications,
+kemudian klik link Send a test email di pojok kanan bawah.
+Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
+
+<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
+Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
+
+<h2>Generate WAR</h2>
+
+<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
+
+<p>[gist id=1129237 file=warble-config.sh]</p>
+
+<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
+
+<p>[gist id=1129237 file=warble.rb]</p>
+
+<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
+
+<p>[gist id=1129237 file=warble-generate.sh]</p>
+
+<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
+
+<p>[gist id=1129237 file=redmine-war-deploy.sh]</p>
+
+<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalasi Spket IDE]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Programming/instalasi-spket-ide/"/>
+    <updated>2011-07-07T02:16:13+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Programming/instalasi-spket-ide</id>
+    <content type="html"><![CDATA[<p>Beberapa minggu terakhir ini, saya mencari-cari cara terbaik untuk melakukan development dengan ExtJS.
+Tentunya fitur utama yang kita inginkan adalah autocomplete,
+sehingga tidak perlu bolak-balik membaca dokumentasi di websitenya.</p>
+
+<p>Setelah berhari-hari mencari, akhirnya saya menemukan <a href="http://www.spket.com">Spket IDE</a>.
+Di websitenya dinyatakan bahwa Spket sudah mendukung ExtJS versi 4, membuat saya tertarik untuk mencobanya.
+Sayangnya, petunjuk instalasi sulit didapat, sehingga harus trial-and-error.</p>
+
+<p>Di artikel ini, kita akan membahas petunjuk instalasi Spket IDE di Eclipse Indigo.</p>
+
+<h2>Klik menu Install New Software</h2>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/01.-Install-New-Software.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/01.-Install-New-Software.png" alt="" /></a></p>
+
+<h2>Masukkan Update Site Spket IDE</h2>
+
+<p>Tambahkan Update Site yang baru
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/02.-Add-Update-Site.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/02.-Add-Update-Site.png" alt="" /></a></p>
+
+<p>Update sitenya adalah http://www.spket.com/update/</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/03.-Lokasi-Update-Site-Spket.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/03.-Lokasi-Update-Site-Spket.png" alt="" /></a></p>
+
+<h2>Opsi Instalasi Spket</h2>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/04.-Centang-Semua-Opsi.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/04.-Centang-Semua-Opsi.png" alt="" /></a></p>
+
+<h2>Klik Next</h2>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/05.-Next-Terus.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/05.-Next-Terus.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/06.-Sit-Back-and-Relax.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/06.-Sit-Back-and-Relax.png" alt="" /></a></p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/07.-Ada-Warning-Lanjut-Saja.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/07.-Ada-Warning-Lanjut-Saja.png" alt="" /></a></p>
+
+<p>Ada warning, klik saja Yes.</p>
+
+<h2>Download Support ExtJS 4</h2>
+
+<p>Agar bisa mengenali ExtJS 4, kita harus <a href="http://forums.spket.com/viewtopic.php?f=6&amp;t=1866">mengunduh update terbaru dari forumnya</a>.
+Entah apa alasannya, tiap ada update baru, versi jarnya tidak dinaikkan dan update sitenya tidak diperbarui.
+Ini menyebabkan kita harus mengunduh file dari forum.</p>
+
+<p>Ada dua file yang harus diunduh, yaitu jar
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/08.-Download-jar-terbaru.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/08.-Download-jar-terbaru.png" alt="" /></a></p>
+
+<p>dan jsb
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/09.-Dukungan-Ext-4.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/09.-Dukungan-Ext-4.png" alt="" /></a>
+Hasilnya, kita akan memiliki dua file.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/13.-Hasil-donlod-dari-forum-spket.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/13.-Hasil-donlod-dari-forum-spket.png" alt="" /></a></p>
+
+<h2>Patch Eclipse</h2>
+
+<p>File jar akan kita pasang di folder plugins di tempat Eclipse terinstal.<br/>
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/11.-Folder-Plugin-Eclipse.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/11.-Folder-Plugin-Eclipse.png" alt="" /></a></p>
+
+<p>Ini akan menimpa file dengan nama sama.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/14.-Replace-dengan-yang-baru.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/14.-Replace-dengan-yang-baru.png" alt="" /></a></p>
+
+<h2>Patch ExtJS</h2>
+
+<p>Sedangkan file jsb akan kita pasang di folder ExtJS 4.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/15.-Masukkan-jsb-ke-folder-extjs.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/15.-Masukkan-jsb-ke-folder-extjs.png" alt="" /></a></p>
+
+<h2>Edit jsb</h2>
+
+<p>Sayangnya, file jsb ini juga masih ada bugnya. Dia salah menyebutkan nama file dalam folder pkgs.
+Kita harus edit, ganti <code>all.js</code> menjadi <code>classes.js</code>.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/16.-Edit-file-jsb-sesuai-nama-file.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/16.-Edit-file-jsb-sesuai-nama-file.png" alt="" /></a></p>
+
+<h2>Konfigurasi Spket</h2>
+
+<p>Selanjutnya, kita masuk ke menu preferences untuk melakukan konfigurasi.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/17.-Konfigurasi-Spket.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/17.-Konfigurasi-Spket.png" alt="" /></a>
+Masuk ke menu Spket - Javascript Profile
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/18.-Javascript-Profile.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/18.-Javascript-Profile.png" alt="" /></a>
+Tambah Profile baru, beri nama ExtJS
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/19.-Tambah-profile-baru.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/19.-Tambah-profile-baru.png" alt="" /></a>
+Di profile yang baru saja ditambahkan, Add Library dan pilih ExtJS
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/20.-Tambah-library-ExtJS.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/20.-Tambah-library-ExtJS.png" alt="" /></a>
+Setelah itu, Add File jsb yang sudah kita edit tadi.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/21.-Add-File-JSB.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/21.-Add-File-JSB.png" alt="" /></a>
+Lalu, set profile ExtJS menjadi default
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/22.-Set-Profile-ExtJS-sebagai-default.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/22.-Set-Profile-ExtJS-sebagai-default.png" alt="" /></a>
+Kemudian, pergi ke menu General - Editors - File Associations. Pilih file js, dan jadikan Spket sebagai editornya.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/23.-Set-file-associations.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/23.-Set-file-associations.png" alt="" /></a>
+Klik Ok, restart Eclipse.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/10.-Restart-Eclipse.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/10.-Restart-Eclipse.png" alt="" /></a></p>
+
+<h2>Code Completion</h2>
+
+<p>Sekarang kita bisa melakukan code completion pada saat memberi titik di depan object.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/24.-Autocomplete-method.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/24.-Autocomplete-method.png" alt="" /></a>
+Atau juga pada saat mengetik di dalam tanda kurung.
+<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/25.-Autocomplete-property.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/07/25.-Autocomplete-property.png" alt="" /></a></p>
+
+<p>Demikianlah cara instalasi Spket IDE di Eclipse.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Screencast]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/Linux/membuat-screencast/"/>
+    <updated>2011-06-28T01:03:23+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/Linux/membuat-screencast</id>
+    <content type="html"><![CDATA[<p>Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat bandwidth) menjadi multimedia (rakus bandwidth).</p>
+
+<p>Demi mengikuti perkembangan jaman, saya mengeksplorasi pembuatan tutorial dalam bentuk screencast. Ternyata hasilnya memuaskan. Dengan beberapa menit merekam screencast, informasi yang disampaikan sama dengan beberapa jam mengetik blog entry.</p>
+
+<p>Artikel ini saya tulis untuk mendokumentasikan langkah-langkah membuat screencast, mulai dari merekam screencast, sampai mempublikasikannya di blog.</p>
+
+<h2>Merekam video</h2>
+
+<p>Di Ubuntu ada dua aplikasi yang saya coba, yaitu Xvidcap dan Record My Desktop. Dua-duanya sama fungsinya dan tidak ada perbedaan yang signifikan. Setelah mencoba keduanya, pendapat saya adalah Record My Desktop lebih mudah digunakan. Jadi, inilah aplikasi yang saya pilih.</p>
+
+<p>Perlu diperhatikan kemampuan prosesor komputer Anda. Ini kaitannya dengan setting frame per second (fps). Bila fps melebihi kemampuan prosesor, video yang kita rekam akan terlihat lebih cepat dari sebenarnya. Di laptop saya, setting 15 fps akan menghasilkan video yang kira-kira 2x lebih cepat. Setelah trial and error, saya temukan bahwa 9 fps adalah setting yang tepat.</p>
+
+<p>Perbedaan yang utama di antara kedua aplikasi ini adalah format outputnya. Record My Desktop mengeluarkan format ogv sedangkan Xvidcap mengeluarkan format mpeg. Perbedaan format ini nantinya akan mempengaruhi langkah pemrosesan selanjutnya.</p>
+
+<h2>Merekam suara</h2>
+
+<p>Biasanya, saya merekam suara dalam proses yang terpisah, supaya tidak banyak ehm dan eee. Rekaman dibuat sambil menonton screencast yang sudah kita rekam. Setelah rekaman suara dibuat, bisa diedit dengan menggunakan aplikasi Audacity untuk menghilangkan noise, memotong bagian yang tidak penting, dan sebagainya.</p>
+
+<h2>Menggabungkan video dan audio</h2>
+
+<p>Selanjutnya, kita menggunakan aplikasi Avidemux untuk menggabungkan file audio dan file video menjadi satu file. Dengan aplikasi ini kita juga bisa mengedit video untuk menghilangkan bagian-bagian yang tidak perlu ataupun menyambung beberapa video menjadi satu.</p>
+
+<h2>Mempersiapkan format video untuk web</h2>
+
+<p>Ada berbagai format video yang tersedia. Masing-masing format memiliki dukungan browser yang berbeda-beda. Daftar lengkapnya bisa dilihat <a href="http://diveintohtml5.info/video.html#what-works">di sini</a></p>
+
+<p>Pada intinya, supaya bisa dilihat di berbagai browser, kita harus menyediakan file dengan format ogv, mp4, dan webm. Kita juga harus menyertakan poster dalam format jpg atau png supaya bisa ditampilkan dengan benar di browser.</p>
+
+<p>Ada beberapa script yang bisa digunakan, misalnya <a href="https://github.com/kwiliarty/vfe-sh">ini</a> atau <a href="http://brettterpstra.com/automating-html5-video-encodes/">ini</a></p>
+
+<p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
+
+<p>Konversi dari ogv menjadi mp4
+[gist id=1048657 file=ogv-to-mp4.sh]</p>
+
+<p>Konversi dari ogv menjadi webm
+[gist id=1048657 file=ogv-to-webm.sh]</p>
+
+<p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
+
+<p>Membuat poster
+[gist id=1048657 file=create-poster.sh]</p>
+
+<h2>Upload</h2>
+
+<p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
+[gist id=1048657 file=upload-to-server.sh]</p>
+
+<h2>Tampilkan di blog</h2>
+
+<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus <video>. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
+
+<p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Menghapus file secara permanen di Git]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/menghapus-file-secara-permanen-di-git/"/>
+    <updated>2011-04-03T05:06:42+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/menghapus-file-secara-permanen-di-git</id>
+    <content type="html"><![CDATA[<p>Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus satu file tertentu, sebetulnya file tersebut masih ada di repository dan bisa dimunculkan kembali kapan saja.</p>
+
+<p>Hal ini menimbulkan beberapa konsekuensi, diantaranya</p>
+
+<ul>
+<li><p>Ukuran repository menjadi besar. Ini terutama sangat terasa di Git, karena pada waktu clone, kita akan mengambil keseluruhan perubahan dari pertama hingga terakhir. Berbeda dengan Subversion, dimana kita hanya mendapat perubahan terakhir saja.</p></li>
+<li><p>File-file yang mengandung informasi rahasia --seperti misalnya password-- tidak terhapus secara sempurna, sehingga bisa disalahgunakan orang lain.</p></li>
+</ul>
+
+
+<p>Untuk itu, kita perlu cara untuk menghilangkan file ini secara permanen.</p>
+
+<p>Di Git, caranya adalah menggunakan perintah <code>git filter-branch</code> seperti <a href="http://help.github.com/removing-sensitive-data/">dijelaskan di sini</a>. Walaupun demikian, tutorial tersebut tidak menjelaskan bagaimana cara menghapus folder.</p>
+
+<p>Di ArtiVisi, <a href="https://github.com/dadang">Dadang</a> dan <a href="https://github.com/donraakan">Doni</a> mengalami kejadian tersebut, dimana folder konfigurasi Eclipse (.project, .classpath, .settings) dan file hasil kompilasi Maven (target) ikut serta dicommit. Ini menyulitkan fakir bandwidth yang ingin melakukan clone, karena ukuran reponya menjadi besar sekali. Karena itu, file dan folder tersebut harus dihapus secara permanen.</p>
+
+<p>Cara menghapusnya adalah sebagai berikut.</p>
+
+<h2>Pastikan versi repository di local dan di remote sudah sama</h2>
+
+<p>Ini bisa dilakukan dengan menggunakan perintah git pull dan git push. Selanjutnya, kita masuk ke folder kerja, dan memanggil perintah berikut.</p>
+
+<p>Perintah di atas akan memodifikasi seluruh commit untuk menghilangkan file dan folder tersebut. Konsekuensinya, seluruh downline Anda akan terpaksa melakukan clone ulang, karena ini sama saja mengganti repository tersebut dengan repository baru. Akibatnya, commit, push, pull, dan merge tidak akan berjalan dengan baik.</p>
+
+<p>Periksa kembali repository Git Anda setelah melakukan perintah di atas, pastikan semuanya baik-baik saja.
+Begitu yakin, kita push ke remote.</p>
+
+<p><code>
+git push origin master --force
+</code></p>
+
+<p>Setelah melakukan perintah di atas, file yang terhapus itu masih ada di object database Git kita di local, sehingga ukuran reponya masih belum berkurang secara signifikan.
+Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakukan clone ulang dari remote.</p>
+
+<p>Demikian cara membersihkan repository dari file yang tidak sengaja dicommit. Silahkan mencoba.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pemakaian Git sehari-hari]]></title>
+    <link href="http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari/"/>
+    <updated>2011-02-08T16:02:29+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Aplikasi/pemakaian-git-sehari-hari</id>
+    <content type="html"><![CDATA[<p>Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami beberapa istilah sebagai berikut:</p>
+
+<ul>
+<li><p>diff : perbedaan antara satu file dengan file lain
+biasanya diff dilakukan terhadap satu file yang sudah berubah isinya</p></li>
+<li><p>changeset : kumpulan diff</p></li>
+<li><p>working folder : folder kerja kita, berisi file yang (mungkin) sudah berubah sejak commit terakhir</p></li>
+<li><p>staging : tempat persiapan changeset yang akan dicommit</p></li>
+<li><p>commit : snapshot dari posisi folder dan file pada waktu tertentu</p></li>
+<li><p>tip : commit paling ujung</p></li>
+<li><p>head : nama lain tip</p></li>
+<li><p>branch : head yang diberi nama</p></li>
+<li><p>HEAD : head yang sedang aktif</p></li>
+<li><p>merge : menggabungkan lebih dari satu commit</p></li>
+</ul>
+
+
+<h2>Membuat Repository</h2>
+
+<p>Untuk bisa mulai bekerja, kita harus memiliki repository dulu. Ada dua kemungkinan, kita membuat repository baru, atau kita membuat clone dari repository yang sudah ada.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat repository baru</p>
+
+<p>git init</p>
+
+<p>membuat repository baru di folder project-baru</p>
+
+<p>git init project-baru</p>
+
+<p>membuat repository untuk dishare</p>
+
+<pre><code>git init --bare project-baru
+</code></pre>
+
+<p>copy repository lain</p>
+
+<p>git clone repo-url</p>
+
+<p>pilihan format URL</p>
+
+<p>file:///path/ke/repo : clone dari folder lokal</p>
+
+<p>/path/ke/repo : clone dari folder lokal, menggunakan hard link</p>
+
+<p>http://server/path/ke/repo : clone melalui protokol http</p>
+
+<p>username@server:path/ke/repo : clone melalui protokol ssh</p>
+
+<h2>Bekerja dengan Git</h2>
+
+<p>Berikut ini adalah perintah yang dilakukan selama sesi coding.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>Menambah file baru</p>
+
+<p>git add namafile</p>
+
+<p>Menghapus file</p>
+
+<p>git rm namafile</p>
+
+<p>Memasukkan perubahan di satu file ke staging area</p>
+
+<p>git add namafile</p>
+
+<p>memasukkan semua perubahan</p>
+
+<p>git add .</p>
+
+<p>memilih potongan kode yang akan dimasukkan</p>
+
+<p>git add -p</p>
+
+<p>memasukkan perubahan ke staging menggunakan menu</p>
+
+<p>git add -i</p>
+
+<p>melihat status perubahan file, mana yang masih di working dan mana yang sudah di staging</p>
+
+<p>git status</p>
+
+<p>mengeluarkan perubahan dari staging area</p>
+
+<pre><code>git reset -- namafile
+</code></pre>
+
+<p>melihat perubahan yang belum dimasukkan ke staging area</p>
+
+<p>git diff</p>
+
+<p>melihat perubahan yang akan dicommit (sudah ada di staging area)</p>
+
+<pre><code>git diff --staged
+</code></pre>
+
+<p>melihat perubahan antara working folder dan commit terakhir</p>
+
+<p>git diff HEAD</p>
+
+<p>melihat file mana saja yang berubah</p>
+
+<pre><code>git diff --name-status abc123..def456
+</code></pre>
+
+<p>melakukan commit, editor akan diaktifkan untuk mengisi keterangan</p>
+
+<p>git commit</p>
+
+<p>melakukan commit, langsung mengisi keterangan</p>
+
+<p>git commit -m "langsung isi keterangan di sini"</p>
+
+<p>commit langsung semua perubahan, tanpa melalui staging</p>
+
+<p>git commit -a</p>
+
+<p>melihat commit history</p>
+
+<p>git log</p>
+
+<p>log lima commit terakhir</p>
+
+<p>git log -5</p>
+
+<p>log hanya menampilkan summary</p>
+
+<pre><code>git log --oneline
+</code></pre>
+
+<p>tampilkan commit summary dari semua branch dengan graph hubungan antar commit</p>
+
+<pre><code>git log --oneline --all --graph
+</code></pre>
+
+<p>membuat commit baru yang berkebalikan dengan (undo) commit terakhir</p>
+
+<p>git revert HEAD</p>
+
+<p>undo 2 commit terakhir</p>
+
+<p>git revert HEAD~2</p>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging disamakan dengan HEAD, working tetap seperti semula. <br/>
+Ini adalah opsi defaultnya reset</p>
+
+<pre><code>git reset --mixed
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, isi working dan staging disamakan dengan commit-id tersebut</p>
+
+<pre><code>git reset --hard commit-id
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging dan working tidak disentuh. Tidak mengubah output git status</p>
+
+<pre><code>git reset --soft
+</code></pre>
+
+<p>membuat working dan staging sama dengan HEAD</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja paralel menggunakan branch</h2>
+
+<p>Branch memungkinkan kita bekerja secara paralel, misalnya ada tim yang menambah fitur, dan ada tim yang melakukan bug fix.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat branch baru</p>
+
+<p>git branch namabranch</p>
+
+<p>pindah ke branch tersebut</p>
+
+<p>git checkout namabranch</p>
+
+<p>bikin branch sambil pindah</p>
+
+<p>git checkout -b namabranch</p>
+
+<p>membuat tracking branch untuk branch bugfix di origin</p>
+
+<pre><code>git checkout --track origin/bugfix
+</code></pre>
+
+<p>membuat tracking branch dengan nama berbeda dengan remote</p>
+
+<p>git checkout -b myfix origin/bugfix</p>
+
+<p>membandingkan branch satu dengan lainnya</p>
+
+<p>git diff master..fitur-xx</p>
+
+<p>membandingkan branch dengan titik awal branch tersebut</p>
+
+<p>git diff master...fitur-xx</p>
+
+<p>menggabungkan branch satu dengan lainnya</p>
+
+<p>git checkout branch-tujuan</p>
+
+<p>git merge branch-yang-mau-diambil</p>
+
+<p>Mengedit konflik :</p>
+
+<ul>
+<li><p>edit konfliknya</p></li>
+<li><p>remove markernya</p></li>
+</ul>
+
+
+<p>git add namafile-yang-konflik</p>
+
+<p>git commit -m "merge fitur-xxx ke master"</p>
+
+<p>membatalkan merge yang konflik</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja dengan remote</h2>
+
+<p>Interaksi dengan remote repository</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>mendaftarkan remote repository</p>
+
+<p>git remote add namaremote url</p>
+
+<p>melihat daftar remote repository</p>
+
+<p>git remote -v</p>
+
+<p>menghapus remote repository</p>
+
+<p>git remote rm namaremote</p>
+
+<p>mengambil perubahan di remote</p>
+
+<p>git remote update</p>
+
+<p>mengambil perubahan di satu remote saja</p>
+
+<p>git remote update namaremote</p>
+
+<p>mengambil perubahan di remote, hapus branch di lokal yang sudah tidak ada di remote</p>
+
+<pre><code>git remote update --prune
+</code></pre>
+
+<p>mengambil perubahan sesuai refspec yang sudah dikonfigurasi</p>
+
+<p>git fetch namaremote</p>
+
+<p>mengambil perubahan kemudian dimerge ke branch lokal yang sesuai</p>
+
+<p>pull = fetch + merge</p>
+
+<p>git pull namaremote</p>
+
+<p>mengirim perubahan di lokal ke remote</p>
+
+<p>git push nama-remote nama-branch-lokal:nama-branch-remote</p>
+
+<p>mengirim perubahan di lokal ke remote, semua branch yang namanya bersesuaian akan dikirim</p>
+
+<p>git push nama-remote</p>
+
+<p>mengirim perubahan di branch lokal yang sedang aktif ke branch di remote dengan nama yang sama</p>
+
+<p>git push nama-remote HEAD</p>
+
+<p>menghapus branch di remote</p>
+
+<p>git push nama-remote :nama-branch-remote</p>
+
+<p>Demikianlah perintah-perintah Git yang kita gunakan sehari-hari. Melengkapi daftar perintah di atas, diagram berikut dapat membantu pemahaman kita tentang konsep dan operasi di Git.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git-300x284.png" alt="" /></a></p>
+]]></content>
+  </entry>
+  
+</feed>

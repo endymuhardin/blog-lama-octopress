@@ -1,0 +1,469 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Continuous Integration dengan Luntbuild - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
+kali ini kita akan menggunakan &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/Java/luntbuild/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Continuous Integration Dengan Luntbuild</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
+kali ini kita akan menggunakan <a href="http://luntbuild.javaforge.com/proj/summary.do?proj_id=70">Luntbuild</a>,
+Continuous Integration Tools yang konfigurasinya tidak menggunakan XML sama sekali.</p>
+
+<p>Sama seperti CruiseControl, untuk menjalankan Continuous Integration, kita memerlukan:</p>
+
+<ul>
+<li><p>Repository Subversion yang berisi source code, lengkap dengan folder trunk dan release</p></li>
+<li><p>Code Review, Unit Test, Integration Test, Coverage Test yang lengkap</p></li>
+<li><p>File build.xml yang memiliki target untuk menjalankan semua test</p></li>
+</ul>
+
+
+<p>Struktur folder repository juga masih sama seperti artikel sebelumnya. Kita tidak membuat baru,
+melainkan langsung menggunakan repository pada artikel sebelumnya.</p>
+
+<p>Untuk menjalankan Luntbuild, kita memerlukan:</p>
+
+<ul>
+<li><p>Luntbuild installer</p></li>
+<li><p>Apache Ant 1.7.0</p></li>
+<li><p>Apache Tomcat 5.5</p></li>
+<li><p>Java SDK 6.0</p></li>
+</ul>
+
+
+<p>Installer Luntbuild dapat diunduh <a href="http://luntbuild.javaforge.com/proj/doc.do?doc_id=35767">di sini</a>.</p>
+
+<p>Cara instalasinya tidak sulit, begitu kita dapatkan file instalasinya, buka command prompt, dan masuk ke folder tempat installer tersebut berada.
+Kemudian jalankan installernya.</p>
+
+<pre><code>&lt;code&gt;$ cd Downloads
+$ java -jar luntbuild-1.4.2-installer.jar 
+&lt;/code&gt;
+</code></pre>
+
+<p>Tampilan instalasi Luntbuild akan segera tampil. Klik saja Next untuk melewati Release Note dan License Agreement,
+sampai pada pertanyaan lokasi instalasi.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-install-dir.png" alt="Lokasi Instalasi Luntbuild" /></p>
+
+<p>Di komputer saya, saya pilih lokasi <code>/opt/luntbuild-1.4.2</code> sebagai lokasi instalasi.
+Klik Next, dan lanjutkan ke konfigurasi database.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-install-db.png" alt="Instalasi Database" /></p>
+
+<p>Di sini saya tidak mengubah setting apa-apa. Langsung saja lanjutkan sampai menemui pertanyaan username dan password administrator.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-install-password.png" alt="Setup Administrator Password" /></p>
+
+<p>Saya masukkan <code>luntbuild123</code> sebagai passwordnya.
+Kita juga akan ditanyai lokasi instalasi Tomcat agar Luntbuild bisa segera menginstal aplikasi webnya di sana.
+Entah apa yang terjadi, di komputer saya pilihan ini tidak berpengaruh apa-apa. Seharusnya installer akan membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code>.
+Setelah instalasi selesai saya tetap harus membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code> secara manual
+dan mengkopi semua isi <code>[LUNTBUILD_INSTALL]/web</code> ke dalamnya.</p>
+
+<p>Setelah semua layar berhasil dilalui, instalasi selesai. Kita bisa langsung jalankan Tomcat, dan browse ke http://localhost:8080/luntbuild.
+Jika instalasi berjalan benar, maka kita akan disambut oleh Luntbuild
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-frontpage.png" alt="Halaman Depan Luntbuild" /></p>
+
+<p>Secara default, kita login secara anonymous. Untuk bisa mengkonfigurasi project, kita harus logout dulu.
+Kita akan segera melihat halaman login.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-login.png" alt="Login Page" /></p>
+
+<p>Masukkan username luntbuild dan password luntbuild123, sesuai yang kita isikan pada waktu instalasi.
+Kita akan melihat daftar builder yang masih kosong.</p>
+
+<p>Segera klik tab Project, dan klik tombol New Project di kanan atas.
+User interface Luntbuild kurang intuitif, sehingga saya harus berusaha keras mencari tombol tersebut.
+Halaman New Project segera tampil.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-new-project.png" alt="Create New Project" /></p>
+
+<p>Masukkan nama project dan berikan keterangan, lalu Save.</p>
+
+<p>Selanjutnya, kita klik tab VCS.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-no-vc.png" alt="No VCS Yet" /></p>
+
+<p>Di tab ini kita melakukan konfigurasi untuk version control.
+Luntbuild mendukung berbagai merek version control.
+Pilih Subversion pada drop down yang tersedia.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-vcs-svn.png" alt="Add New Subversion Repo" /></p>
+
+<p>Untuk konfigurasi di komputer saya, isinya adalah sebagai berikut:</p>
+
+<ol>
+<li><p>Repository url base : svn://localhost</p></li>
+<li><p>Directory for trunk : trunk</p></li>
+<li><p>Directory for branches : kosongkan saja, karena project contoh ini tidak memiliki branch</p></li>
+<li><p>Directory for releases : releases/daily-build</p></li>
+<li><p>Username : endy. Ini adalah username yang digunakan Luntbuild untuk checkout dan membuat tag.
+Idealnya kita buatkan user khusus untuk Luntbuild</p></li>
+<li><p>Password : 123</p></li>
+<li><p>Quiet Period : kosongkan saja, ini tidak dibutuhkan untuk Subversion yang sudah mendukung atomic commit.</p></li>
+</ol>
+
+
+<p>Ada sedikit keanehan Luntbuild. Dia mengharuskan kita membuat modul.
+Kalau dia tidak menemukan modul, maka akan keluar pesan error.
+Oleh karena itu, kita klik New Module, lalu langsung saja save tanpa mengisi apa-apa.</p>
+
+<p>Hasil akhir dari tab VCS kita akan nampak seperti ini.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-vcs-svn-summary.png" alt="VCS Subversion" /></p>
+
+<p>Berikutnya, kita masuk ke tab berikutnya untuk konfigurasi Builder.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-no-builders.png" alt="No Builder Yet" /></p>
+
+<p>Satu project bisa memiliki banyak builder.
+Dengan builder, kita bisa mengatur sejauh mana kita ingin melakukan build.
+Contoh beberapa build yang mungkin digunakan adalah:</p>
+
+<ul>
+<li><p>Unit test: hanya menjalankan unit test saja, mungkin dijalankan setiap 1 jam sekali.</p></li>
+<li><p>Full test: menjalankan semua jenis test, dijalankan sebelum jam makan siang dan sore sebelum pulang</p></li>
+<li><p>Nightly/Daily build : dijalankan sekali sehari, selain menjalankan semua test, juga menghasilkan <em>jar atau </em>war.
+Jenis build ini biasanya dikonfigurasi untuk menghasilkan tag di version control apabila sukses.</p></li>
+</ul>
+
+
+<p>Klik tombol New Builder untuk mengkonfigurasi build. Karena kita menggunakan Ant, pilih Ant pada dropdown yang tersedia.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-ant-builder.png" alt="Ant Builder" /></p>
+
+<p>Pada contoh ini, kita akan mengkonfigurasi Build Jar.
+Sekali sudah paham konsepnya, tidak sulit untuk mengkonfigurasi jenis build yang lain.
+Berikut adalah nilai yang saya isikan:</p>
+
+<ol>
+<li><p>Name : Build Jar</p></li>
+<li><p>Command for Ant : /opt/apache-ant-1.7.0/bin/ant. Ini adalah path menuju Ant kita.</p></li>
+<li><p>Build script path : build.xml. Ini adalah nama file build.xml yang ada di project kita</p></li>
+<li><p>Build target : build-jar. Target Ant yang dipanggil pada saat build berjalan.
+Saya pilih target build-jar yang mengeksekusi semua test, kemudian membuat *.jar bila test tidak ada yang gagal.</p></li>
+<li><p>Field sisanya, biarkan saja sesuai default.</p></li>
+</ol>
+
+
+<p>Terakhir, kita mengkonfigurasi Schedule, alias jadwal. Ini menentukan kapan build dieksekusi.
+Untuk Build Jar yang sudah kita konfigurasi, kita ingin dia dijalankan setiap jam 01 dini hari, setiap hari.
+Berikut isian konfigurasinya.</p>
+
+<ol>
+<li><p>Name : Nightly Build</p></li>
+<li><p>Description : build setiap jam 01 dini hari</p></li>
+<li><p>Next build version : <code>nightly-${#currentDay=system.(year+"-"+numericMonth+"-"+dayOfMonth), #lastDay=project.var["day"].setValue(#currentDay), #dayIterator=project.var["dayIterator"].intValue, project.var["dayIterator"].setIntValue(#currentDay==#lastDay?#dayIterator+1:1), #currentDay}.${project.var["dayIterator"]}</code>.
+Ini adalah label yang akan diberikan untuk setiap build.
+String di atas akan menghasilkan label nightly-2007-08-17.1 bila dijalankan pada tanggal 17 Agustus 2007.</p></li>
+<li><p>Trigger Type: cron. Luntbuild menyediakan dua jenis trigger. Pertama, simple trigger yang berbasis interval.
+Dengan simple trigger, kita dapat menjadwalkan build untuk berjalan misalnya setiap dua jam, atau setiap 30 menit.
+Kedua, cron trigger, yang berbasis waktu. Dengan cron trigger, kita dapat menjalankan build setiap waktu tertentu,
+misalnya setiap Sabtu, atau setiap hari jam 1 pagi. Untuk menjalankan build setiap jam satu pagi, gunakan cron trigger
+dengan konfigurasi <code>0 0 1 * * ?</code>. Luntbuild menggunakan pustaka <a href="http://www.opensymphony.com/quartz/">Quartz</a> untuk melakukan penjadwalan ini.
+Lebih lanjut tentang konfigurasi jadwal Quartz dapat dilihat di <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html">websitenya</a>.</p></li>
+<li><p>Build necessary condition: vcsModified or dependencyNewer. Buat apa melakukan build kalau belum ada perubahan
+sejak terakhir kali build berjalan? Inilah maksud dari field ini. Dengan menyebutkan vcsModified, kita menjelaskan
+bahwa kalau tidak ada perubahan di dalam version control, tidak perlu lakukan build. Selain nilai ini, kita juga
+bisa menggunakan nilai always, yang artinya tetap build walaupun tidak ada yang commit.</p></li>
+<li><p>Associated builders. Di sini kita memilih builder mana yang ingin dijalankan.</p></li>
+<li><p>Associated post builder. Misalnya setelah build sukses dijalankan, kita ingin membuat installer yang siap diunduh.
+Kita bisa sebutkan hal tersebut di sini.</p></li>
+<li><p>Label strategy: Label if success. Hanya buat tag di version control bila build sukses.</p></li>
+<li><p>Notify strategy: notify if status change. Artinya, kirim pemberitahuan apabila status build berbeda dari sebelumnya,
+misalnya tadinya gagal menjadi sukses, atau sebaliknya.</p></li>
+</ol>
+
+
+<p>Demikian sebagian nilai yang harus diisikan. Untuk field yang tidak saya jelaskan, silahkan baca keterangannya atau ikuti saja default.</p>
+
+<p>Setelah semua konfigurasi selesai, kembali ke halaman depan untuk menyaksikan hasil pekerjaan kita.
+Di sana akan terpampang semua build yang sudah dikonfigurasi.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-builds.png" alt="Daftar build" /></p>
+
+<p>Kita bisa menjalankan build tersebut secara manual tanpa harus
+menunggu jatuh temponya. Biasanya kita lakukan build manual untuk mengetes konfigurasi.
+Build yang sedang berjalan ditandai dengan ikon roda gigi.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-building.png" alt="Building …" /></p>
+
+<p>Build yang gagal akan ditandai dengan warna merah, sedangkan build yang berhasil diwarnai hijau.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-build-success.png" alt="Build Successful" /></p>
+
+<p>Bila build gagal, tentunya kita ingin melihat apa yang terjadi. Klik build info untuk menampilkan informasinya.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-build-info.png" alt="Build Info" /></p>
+
+<p>Kurang detail? Buka saja lognya. Di sini akan terlihat di langkah yang mana build tersebut berhenti.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-build-log.png" alt="Build Log" /></p>
+
+<p>Demikianlah cara penggunaan Luntbuild.
+Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelola dengan baik dan teratur.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/java/'>Java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endymuhardin.github.com/blog/Java/luntbuild/" data-via="endymuhardin" data-counturl="http://endymuhardin.github.com/blog/Java/luntbuild/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/blog/Aplikasi/Java/Manajemen/cruise-control/" title="Previous Post: Cruise Control">&laquo; Cruise Control</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/blog/Java/Linux/konfigurasi-mod_jk/" title="Next Post: Konfigurasi mod_jk">Konfigurasi mod_jk &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Java | Living life and make it better]]></title>
+  <link href="http://endymuhardin.github.com/blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://endymuhardin.github.com/"/>
+  <updated>2012-08-07T22:32:36+07:00</updated>
+  <id>http://endymuhardin.github.com/</id>
+  <author>
+    <name><![CDATA[Endy Muhardin]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Konsep Dasar Log4j]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/konsep-dasar-log4/"/>
+    <updated>2012-07-30T20:59:00+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/konsep-dasar-log4</id>
+    <content type="html"><![CDATA[<p>Walaupun sudah dibuatkan <a href="http://endy.artivisi.com/blog/java/menggunakan-log4j">minibook</a>, tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.</p>
+
+<p>Ada beberapa komponen penting dalam aplikasi logging :</p>
+
+<ul>
+<li><p>logger : ini adalah yang kita gunakan di aplikasi untuk mengeluarkan pesan.
+tadinya System.out.println("Coba");
+diganti menjadi logger.info("Coba");</p></li>
+<li><p>appender : komponen yang bertugas menampilkan log message
+misalnya : console appender : menampilkan ke System.out
+File appender : menulis log ke file
+Rolling file appender : menulis ke file, lalu dirolling berdasarkan kriteria tertentu (size atau time)
+misalnya, setelah mencapai 1 MB, tulis ke file berbeda, atau tiap 1 jam ganti file</p></li>
+<li><p>category : ini adalah sumber log message, yaitu package atau realm.
+<strong>biasanya</strong> category == package
+Ini digunakan untuk memfilter log mana yang akan ditampilkan ke appender mana</p></li>
+</ul>
+
+
+<p>Selain 3 komponen itu, ada terminologi yang namanya level.
+Contoh level : error, warn, info, debug, trace
+Level ini berlaku bertingkat, jadi kalau kita bilang info, artinya info, warn, error.
+Kalau kita bilang debug, maka hasilnya debug, info, warn, error.</p>
+
+<p>Log message ditampilkan atau tidak, tergantung category dan level.</p>
+
+<p>Contoh kasus :
+Saya membuat aplikasi, berisi package com.artivisi.belajar.logging.
+Isinya ada 2 class, Coba dan Halo.</p>
+
+<p>Aplikasi saya ini menggunakan framework Spring, yang mana berisi package org.springframework, yang berisi banyak sub package, seperti org.springframework.core, org.springframework.jdbc, dsb.</p>
+
+<p>Untuk source code yang saya tulis sendiri (Coba dan Halo), saya ingin menampilkan level debug, karena masih fase development. Nantinya kalau sudah production, cukup level warn saja yang ditampilkan.
+Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilkan.</p>
+
+<p>Semua log message ditampilkan ke terminal, supaya mudah diamati.</p>
+
+<p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
+
+<p>[gist id=3205393]</p>
+
+<p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Monitoring Aplikasi Java]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java/"/>
+    <updated>2012-07-28T20:45:07+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/monitoring-aplikasi-java</id>
+    <content type="html"><![CDATA[<p>Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini disebut dengan transisi dari development menjadi operation.</p>
+
+<p>Salah satu aspek penting dalam fase operation adalah monitoring performance. Monitoring dilakukan untuk berbagai tujuan, diantaranya :</p>
+
+<ul>
+<li><p>Mengetahui karakteristik aplikasi dalam menggunakan resource. Informasi ini bisa kita gunakan untuk melakukan tuning performance</p></li>
+<li><p>Mengetahui karakteristik user dalam menggunakan aplikasi. Perilaku user ini berguna untuk menentukan waktu-waktu sibuk dan waktu-waktu idle, sehingga kita bisa melakukan capacity planning dengan akurat.</p></li>
+<li><p>Mengetahui berapa persen resource yang sudah terpakai, sehingga kita punya gambaran kapan harus melakukan upgrade, dan apa yang harus diupgrade</p></li>
+<li><p>Mendapatkan notifikasi secepat mungkin pada saat sistem mengalami gangguan</p></li>
+</ul>
+
+
+<p>Pada umumnya, monitoring dilakukan dengan memantau bagian-bagian dalam sistem, diantaranya :</p>
+
+<ul>
+<li><p>Dalam sistem operasi</p>
+
+<ul>
+<li><p>Jumlah proses</p></li>
+<li><p>CPU</p></li>
+<li><p>Memori</p></li>
+<li><p>Disk I/O</p></li>
+<li><p>Network I/O</p></li>
+</ul>
+</li>
+<li><p>Dalam aplikasi</p>
+
+<ul>
+<li><p>Jumlah thread</p></li>
+<li><p>Alokasi memori</p></li>
+<li><p>Class/method yang mengkonsumsi resource terbesar</p></li>
+<li><p>Class/method yang memakan waktu lama</p></li>
+<li><p>Untuk bahasa pemrograman yang berjalan di virtual machine (seperti Java, .NET, Ruby, dsb), kita juga perlu memantau perilaku Garbage Collector</p></li>
+</ul>
+</li>
+<li><p>Database Server</p>
+
+<ul>
+<li><p>Jumlah koneksi yang dibuka baik yang idle maupun yang aktif</p></li>
+<li><p>Query yang memakan waktu lama</p></li>
+<li><p>Tabel yang sering diakses</p></li>
+</ul>
+</li>
+</ul>
+
+
+<p>Dalam melakukan monitoring, ada banyak tools yang digunakan. Beberapa aplikasi opensource yang populer diantaranya :</p>
+
+<ul>
+<li><p>Nagios</p></li>
+<li><p>Icinga : ini adalah fork dari Nagios</p></li>
+<li><p>Zenoss</p></li>
+<li><p>Zabbix</p></li>
+<li><p>OpenNMS</p></li>
+<li><p>Hyperic</p></li>
+</ul>
+
+
+<p>Pada umumnya, semua aplikasi di atas memiliki fitur yang mirip-mirip, yaitu :</p>
+
+<ul>
+<li><p>SNMP Monitoring. SNMP adalah protokol yang populer, tersedia di sistem operasi, network hardware (switch, router, dsb), bahkan aplikasi (Java VM, database server, dsb)</p></li>
+<li><p>JMX Monitoring. JMX adalah protokol untuk memonitor aplikasi Java. Dengan menggunakan JMX, informasi yang diperoleh akan lebih rinci.</p></li>
+<li><p>Agent dan Agentless Monitoring. Agent adalah aplikasi kecil yang diinstal di server yang ingin dimonitor. Dengan agent, informasi yang dikumpulkan bisa lebih detail. Di lain sisi, tidak semua tempat bisa dipasangi agent (misalnya router). Umumnya aplikasi monitoring mendukung monitoring dengan agent maupun tanpa agent.</p></li>
+</ul>
+
+
+<p>Cara instalasi dari aplikasi di atas bisa dibaca di websitenya masing-masing. Yang akan kita bahas di sini adalah cara konfigurasi aplikasi Java, khususnya yang menggunakan framework Spring dan Hibernate, agar bisa dimonitor oleh aplikasi-aplikasi di atas.</p>
+
+<p>Pada prinsipnya, berikut adalah hal-hal yang perlu dilakukan :</p>
+
+<ol>
+<li><p>Menentukan metric atau jenis data yang akan dimonitor</p></li>
+<li><p>Mengaktifkan MBean agar metric tersebut dipublish melalui JMX</p></li>
+<li><p>Mengaktifkan JMX server agar bisa dihubungi dari aplikasi monitoring</p></li>
+</ol>
+
+
+<p>Aplikasi yang akan kita jadikan contoh kasus adalah template standar aplikasi web ArtiVisi, yang <a href="https://github.com/endymuhardin/belajar-restful">source codenya tersedia di Github</a>.</p>
+
+<h2>Menentukan metric</h2>
+
+<p>Beda jenis datanya, tentu beda juga cara pengumpulan data dan tools yang digunakan untuk mengolahnya.</p>
+
+<pre><code>    Metric
+    Metode Pengumpulan
+    Tools
+</code></pre>
+
+<p>CPU</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Memori</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Disk I/O</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Network</p>
+
+<p>SNMP atau Agent</p>
+
+<p>Nagios, Zenoss, dkk</p>
+
+<p>Tomcat Performance</p>
+
+<p>JMX</p>
+
+<p>Hyperic</p>
+
+<p>MySQL Performance</p>
+
+<p>Agent</p>
+
+<p>Hyperic</p>
+
+<p>Spring Beans</p>
+
+<p>Agent</p>
+
+<p>Javamelody</p>
+
+<p>Hibernate Statistics</p>
+
+<p>JMX</p>
+
+<p>Hyperic</p>
+
+<h2>Monitoring dengan JavaMelody</h2>
+
+<p>Untuk mengaktifkan monitoring menggunakan JavaMelody, ada beberapa langkah yang perlu kita lakukan, yaitu :</p>
+
+<ol>
+<li><p>Menambahkan jar JavaMelody</p></li>
+<li><p>Memasang AOP interceptor supaya bisa memonitor beans dalam Spring</p></li>
+<li><p>Mengaktifkan monitoring JavaMelody</p></li>
+</ol>
+
+
+<p>Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut :</p>
+
+<p>[gist id=3192086 file=pom.xml]</p>
+
+<p>Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml</p>
+
+<p>[gist id=3192086 file=applicationContext.xml]</p>
+
+<p>Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut</p>
+
+<p>[gist id=3192086 file=web.xml]</p>
+
+<p>Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring.</p>
+
+<p>Berikut adalah screenshotnya.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png" alt="JavaMelody-Charts" /></a></p>
+
+<h2>Mengaktifkan MBean</h2>
+
+<p>Selain menggunakan JavaMelody, kita juga bisa melakukan monitoring menggunakan JMX. Beruntung kita yang menggunakan Spring, JMX akan sangat mudah dikonfigurasi. Pada contoh berikut, kita akan mengaktifkan monitoring terhadap statistik Hibernate. Langkah-langkahnya adalah sebagai berikut :</p>
+
+<ol>
+<li><p>Mengaktifkan fitur statistik dalam Hibernate</p></li>
+<li><p>Mendeklarasikan MBean untuk memonitor statistik Hibernate</p></li>
+<li><p>Menginstankan JMX server (MBean Server)</p></li>
+</ol>
+
+
+<p>Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut :</p>
+
+<p>[gist id=3192099 file=hibernate-statistics.xml]</p>
+
+<p>Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean.</p>
+
+<p>[gist id=3192099 file=hibernateMBean.xml]</p>
+
+<p>[gist id=3192099 file=mbeanExporter.xml]</p>
+
+<p>Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru</p>
+
+<p>[gist id=3192099 file=mbean-server.xml]</p>
+
+<p>Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb.
+Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
+
+<p>Jalankan JConsole, dan pilih proses yang akan dimonitor.</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png" alt="jconsole-select-pid" /></a></p>
+
+<p>Tampilkan MBean Hibernate Statistics</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png" alt="jconsole-hibernate-statistics" /></a></p>
+
+<p>Kita bisa lihat bahwa statistik Hibernate sudah dapat diakses. Informasi ini juga bisa ditampilkan di aplikasi monitoring seperti OpenNMS, Hyperic, dan aplikasi lain yang support JMX.</p>
+
+<p>Selain itu, kalau kita sudah mengaktifkan JavaMelody seperti dijelaskan di atas, MBean ini juga bisa ditampilkan di url yang sama seperti screenshot di bawah</p>
+
+<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png" alt="javamelody-mbeans" /></a></p>
+
+<h2>Kesimpulan</h2>
+
+<p>Demikianlah hasil oprek-oprek sambil menunggu motor servis rutin. Dengan beberapa langkah sederhana, kita dapat memperoleh informasi lengkap tentang apa yang terjadi di aplikasi kita. Informasi ini selanjutnya dapat dijadikan pedoman untuk melakukan tuning performance. Selain itu, dengan menggunakan aplikasi pengolah data seperti <a href="http://code.google.com/p/rocksteady/">Rocksteady</a>, kita dapat membuat early warning system, yaitu suatu sistem yang dapat memprediksi terjadinya bencana dan memberikan notifikasi, sehingga kita bisa melakukan antisipasi.</p>
+
+<h2>Referensi</h2>
+
+<ul>
+<li><p><a href="http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html">JMX Homepage</a></p></li>
+<li><p><a href="http://visualvm.java.net/">VisualVM Homepage</a></p></li>
+<li><p><a href="http://java.sun.com/developer/technicalArticles/J2SE/jconsole.html">Cara menggunakan JConsole</a></p></li>
+<li><p><a href="http://dzone.com/snippets/spring-jmx-sample">Cara konfigurasi Spring dan Hibernate</a></p></li>
+<li><p><a href="http://nurkiewicz.blogspot.com/2011/03/jolokia-highcharts-jmx-for-human-beings.html">Menampilkan data dari JMX dengan Jolokia</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Staged Deployment]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/Manajemen/staged-deployment/"/>
+    <updated>2011-08-16T15:57:35+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/Manajemen/staged-deployment</id>
+    <content type="html"><![CDATA[<p>Staged Deployment</p>
+
+<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
+
+<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
+
+<ul>
+<li><p>development (komputer si programmer)</p></li>
+<li><p>testing (test server)</p></li>
+<li><p>production (live system)</p></li>
+</ul>
+
+
+<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
+
+<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
+
+<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
+
+<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
+
+<h2>Alternatif Solusi</h2>
+
+<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
+
+<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
+
+<p>[gist id=1134126 file=maven-profile.sh]</p>
+
+<p>atau</p>
+
+<p>[gist id=1134126 file=maven-env-var.sh]</p>
+
+<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
+
+<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
+
+<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
+
+<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
+
+<ul>
+<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
+<li><p>jdbc.testing.properties : digunakan di server test</p></li>
+<li><p>jdbc.production.properties : digunakan di live</p></li>
+</ul>
+
+
+<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
+[gist id=1134126 file=jdbc.properties]</p>
+
+<p>Kemudian, ini file jdbc.testing.properties :</p>
+
+<p>[gist id=1134126 file=jdbc.testing.properties]</p>
+
+<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
+
+<p>Terakhir, jdbc.production.properties</p>
+
+<p>[gist id=1134126 file=jdbc.production.properties]</p>
+
+<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
+
+<p>[gist id=1134126 file=applicationContext.xml]</p>
+
+<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
+
+<p>[gist id=1134126 file=context-loading.xml]</p>
+
+<p>Di sana kita melihat ada variabel ${stage}.
+Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
+
+<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
+
+<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
+
+<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
+
+<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
+
+<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
+
+<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
+
+<h2>Setting Environment Variabel</h2>
+
+<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
+
+<p>[gist id=1134126 file=startup.sh bump=1]</p>
+
+<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
+
+<p>[gist id=1134126 file=mvn-jetty-run.sh bump=2]</p>
+
+<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
+
+<p>[gist id=1134126 file=linux-env-var.sh bump=3]</p>
+
+<h2>Konfigurasi Logger</h2>
+
+<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
+
+<ul>
+<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
+<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
+
+<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
+
+<ul>
+<li><p>logback.xml : file konfigurasi utama</p></li>
+<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
+</ul>
+
+
+<p>Berikut isi file logback.xml.</p>
+
+<p>[gist id=1134126 file=logback.xml]</p>
+
+<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
+
+<p>[gist id=1134126 file=logback-variable.txt]</p>
+
+<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
+
+<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
+
+<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Tutorial ExtJS]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/PHP/tutorial-extjs/"/>
+    <updated>2011-06-21T20:15:31+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/PHP/tutorial-extjs</id>
+    <content type="html"><![CDATA[<p>Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang diikuti oleh programmer ArtiVisi dan sister company. Berikut adalah materi trainingnya.</p>
+
+<h2>Cara setup project ExtJS</h2>
+
+<p>[external-vfe name="01. Setup ExtJS" path="http://artivisi.com/~endy/videos/training-extjs/"]</p>
+
+<h2>Memahami Layout</h2>
+
+<p>[external-vfe name="02. ExtJS Layout" path="http://artivisi.com/~endy/videos/training-extjs/"]</p>
+
+<h2>Membuat Menubar</h2>
+
+<p>[external-vfe name="03. Klik Menu muncul Tab" path="http://artivisi.com/~endy/videos/training-extjs/"]</p>
+
+<h2>Membuat User Management Screen</h2>
+
+<p>[external-vfe name="04. Membuat User Management Screen" path="http://artivisi.com/~endy/videos/training-extjs/"]</p>
+
+<h2>Membuat Toolbar CRUD</h2>
+
+<p>[external-vfe name="05. Membuat Toolbar CRUD" path="http://artivisi.com/~endy/videos/training-extjs/"]</p>
+
+<p>Masih ada beberapa materi lanjutan yang belum sempat disampaikan, yaitu:</p>
+
+<ul>
+<li><p>Enable/Disable Form</p></li>
+<li><p>Save isi form ke server</p></li>
+<li><p>Query data dari server, tampilkan ke grid</p></li>
+</ul>
+
+
+<p>Kode program yang digunakan pada training ini dapat diikuti di <a href="https://github.com/endymuhardin/belajar-extjs">Github page saya</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Database Transaction]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/PHP/database-transaction/"/>
+    <updated>2011-02-14T04:14:22+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/PHP/database-transaction</id>
+    <content type="html"><![CDATA[<p>Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini,</p>
+
+<blockquote></blockquote>
+
+<p>halo rekan2 dba &amp; developer</p>
+
+<p>mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
+mau nanya, dalam implementasi real di aplikasi,
+contoh bussiness process/use case apa aja yang menggunakan transaction?
+kemudian contoh kasus rollbacknya gimana?</p>
+
+<p>Tadinya saya kurang semangat menjawab, karena asumsi saya, ini pertanyaan mendasar, dan pastilah banyak yang bisa menjawab secara benar dan tidak menyesatkan. Tapi apa lacur, saya membaca pertanyaan lanjutan seperti ini.</p>
+
+<blockquote><p>Ada yang pernah punya pengalaman pake software accounting tanpa feature
+transaction?</p></blockquote>
+
+<p>Dan jawabannya ternyata sangat mengerikan.</p>
+
+<blockquote><p>yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
+dan tidak menggunakan feature transaction...
+skrng sedang garap accounting lainnya untuk perusahan dagang, dan
+sudah direncakan tanpa feature transaction.</p></blockquote>
+
+<p>yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
+oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
+dipakai, beberapa tdk dipakai karena masalah internal mereka.
+dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.</p>
+
+<p>menurut singkat saya, jika peng-handle php nya sudah cukup
+menanggulangi masalah transaksi data, tidak harus menggunakan feature
+transaction pada database nya.
+karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
+pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
+oleh beberapa user, dan juga optimize database, dengan begitu menurut
+hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
+feature transaction yg sedikit memberatkan proses data.</p>
+
+<p>oya, untuk case mengharuskan memakai feature transaction itu misalnya
+pada kasus:
+- jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
+dihapus/update/input yg mengharuskan ada link data yg juga ikut
+terupdate/terhapus/terinput</p>
+
+<p>untuk yg sudah menggunakan feature transaction, silahkan saya juga
+menunggu tanggapan dan pengalamannya.</p>
+
+<p>What the @#$!
+Ini kalo meminjam istilah MUI, harus dibimbing untuk kembali ke jalan yang benar, tapi tidak boleh anarkis :D</p>
+
+<p>Salah satu poin penting dalam database transaction adalah atomic, yaitu beberapa perintah dianggap sebagai satu kesatuan.
+Kalau satu gagal, yang lain harus dibatalkan.</p>
+
+<p>Ini adalah fundamental dari pemrograman dengan menggunakan database relasional.</p>
+
+<p>Pada kasus apa perlu transaction?
+Ya pada semua kasus yang perlu atomic.
+Contohnya : header detail. Sekali insert, 1 header dan beberapa detail.
+Kalo pada waktu insert detail gagal, ya headernya harus diundo, kalo ngga ada header yang gantung tanpa detail sehingga datanya juga jadi salah.</p>
+
+<p>Sekarang balik saya tanya, aplikasi apa yang gak pake skema header detail?
+Kecuali aplikasi prakarya tugas sekolah, aplikasi bisnis <strong>pasti</strong> pake header detail.</p>
+
+<p>Itu masalah atomicity. Kemudian ada masalah isolation.
+Isolation ini artinya, transaction yang belum dicommit, tidak akan bisa dibaca oleh session lain.
+Contohnya gini, kita terima order 1000 item.
+Tentunya butuh waktu untuk menginsert 1000 record, misalnya butuh waktu 2 detik.
+Di dunia prosesor, 2 detik itu lama sekali, dan banyak hal bisa terjadi dalam rentang waktu tersebut.
+Nah, akan terjadi musibah, kalo kita ternyata ada fitur untuk menghitung jumlah order, katakan saja querynya seperti ini.</p>
+
+<pre><code>select sum(nilai) from t_order where tanggal = '2011-02-02'
+</code></pre>
+
+<p>yang berjalan di tengah-tengah proses insert tadi, misalnya pada waktu baru terinsert 53 order saja. Query hitung ini dijalankan oleh user lain. Suatu hal yang sangat umum terjadi, aplikasi diakses beberapa user berbarengan.</p>
+
+<p>Query ini akan menghasilkan nilai yang salah, karena 1000 order itu belum tentu sukses diinsert.
+Misalnya pada record ke 143 terjadi mati lampu, hardisk penuh, komputer hang, browser ketutup, laptop kesiram kopi, usernya menekan tombol cancel, validasi stok produk tidak cukup, atau whatever kejadian remeh-temeh yang umum terjadi dalam kehidupan sehari-hari, tentu akan terjadi kekacauan.
+Karena tidak atomic, maka kita tidak tau sudah berapa record yang terinsert, sehingga menyulitkan proses recovery. Order mana yang harus diinsert ulang, dan order mana yang sudah masuk?
+Karena tidak ada isolation, maka user yang menjalankan perhitungan order akan mendapat hasil yang tidak sahih kebenarannya.</p>
+
+<p>Seandainya saja kita menggunakan transaction dengan benar, maka pada waktu terjadi sesuatu pada waktu proses insert tadi, maka posisi database akan dikembalikan ke posisi sebelum insert dilakukan. Karena posisi sebelum insert kita tahu dengan pasti, maka recovery gampang.
+Insert ulang saja 1000 order tadi tanpa kecuali. Sederhana dan mudah.</p>
+
+<p>Jadi kalo ada di sini yang bilang bikin aplikasi bisnis tanpa transaction, maka itu adalah nonsense.
+Tidak peduli kalo sampe saat ini jalan lancar, maka itu hanyalah kebetulan belaka, dan kita tidak mau selamanya mengandalkan keberuntungan kan?
+Kalau sampai saat ini berjalan lancar, ya mungkin aplikasinya cuma dipakai 1 concurrent user saja dan itupun jarang-jarang pake.</p>
+
+<p>Nah, jadi transaction itu adalah fitur fundamental yang harus digunakan, sama seperti kalo kita keluar rumah ya harus pake celana.
+Di daerah lain sana orang kemana2 cuma pake koteka, dan saya tidak mau berdebat dengan mereka urusan celana.
+Jadi kalo masih ada yang bersikukuh bikin aplikasi bisnis gak pake transaction, ya silahkan, saya tidak mau berdebat urusan ini.
+Percuma berdebat sama orang yang gak pake celana ;p</p>
+
+<p>Selanjutnya, sebetulnya apa benar transaction itu memberatkan aplikasi?
+Hmm ... ini sebetulnya hanyalah mitos belaka.
+Yang mau mendebat silahkan sajikan benchmark antara non-transactional dan transactional.
+Kalo selisih performance cuma 100%, artinya kalo non-transactional cuma 2 kali lebih lemot, saya mendingan upgrade hardware daripada mengorbankan data integrity untuk gain performance yang tidak seberapa ini.</p>
+
+<p>Jadi, apa kita tidak boleh pakai MyISAM ?
+Tentu ada waktu dan tempatnya.
+Data2 read only seperti misalnya tabel kategori, master produk, bolehlah pake MyISAM.
+Tapi kalo sudah data header detail, ya harus InnoDB dan harus menggunakan transaction supaya atomic.</p>
+
+<p>Setelah kita menggunakan InnoDB, sebetulnya kita tidak bisa non-transactional.
+Kalo kita tidak begin dan commit secara explisit, sebenarnya untuk tiap SQL statement, itu dianggap satu transaction.
+Sehingga SQL seperti ini :</p>
+
+<pre><code>update table harga set nilai = nilai + 1000;
+</code></pre>
+
+<p>Sebetulnya akan dijalankan seperti ini ;</p>
+
+<pre><code>begin;
+update table harga set nilai = nilai + 1000;
+commit;
+</code></pre>
+
+<p>Ini namanya fitur autocommit. Di MySQL defaultnya dienable.</p>
+
+<p>Dengan adanya autocommit ini, justru kita akan lebih lemot kalo tidak menggunakan transaction secara benar.
+Contoh, insert 100 data produk.
+Kalo tanpa begin dan commit explisit, berarti ada 100 begin dan ada 100 commit, artinya 100 kali menjalankan transaction.
+Akan lebih efisien kalo kita lakukan explisit, seperti ini :</p>
+
+<pre><code>begin; 
+insert into table produk (kode) values ('P-001');
+... ulangi 99 kali lagi ..
+commit; 
+</code></pre>
+
+<p>Cara di atas hanya akan membutuhkan satu transaction saja.
+Jauh lebih efisien.</p>
+
+<p>Baiklah, ada beberapa pesan moral di artikel ini</p>
+
+<ol>
+<li><p>Header detail harus dioperasikan secara atomic</p></li>
+<li><p>Operasi yang belum selesai, tidak boleh dilihat session lain, sehingga untuk aplikasi multiuser, pasti butuh isolation</p></li>
+<li><p>Karena aplikasi bisnis umumnya multiuser, dan pasti punya skema header-detail, maka <strong>pasti harus</strong>menggunakan transaction</p></li>
+<li><p>Masalah performance di transaction umumnya mitos belaka, dan walaupun ada, tidak sebanding dengan mengabaikan integritas data</p></li>
+<li><p>Jangan lupa pakai celana kalau keluar rumah</p></li>
+</ol>
+
+
+<p>Pembaca setia blog saya tentu paham bahwa biasanya saya memberikan anjuran dengan kata-kata sebaiknya, tergantung situasi, dan istilah-istilah yang relatif. Tapi di artikel ini, banyak kata-kata pasti, harus, dan sejenisnya. Ini karena masalah transaction ini berkaitan dengan integritas data. Aplikasi yang kita buat haruslah bisa dipercaya untuk menghasilkan perhitungan yang benar. Tanpa menjaga integritas data dengan transaction, mustahil perhitungan yang benar bisa didapatkan.</p>
+
+<p>Lebih lanjut tentang masalah-masalah yang bisa terjadi, bisa lihat <a href="http://en.wikipedia.org/wiki/Database_transaction">di Wikipedia</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

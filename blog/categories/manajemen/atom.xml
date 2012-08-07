@@ -1,0 +1,790 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Manajemen | Living life and make it better]]></title>
+  <link href="http://endymuhardin.github.com/blog/categories/manajemen/atom.xml" rel="self"/>
+  <link href="http://endymuhardin.github.com/"/>
+  <updated>2012-08-07T22:32:36+07:00</updated>
+  <id>http://endymuhardin.github.com/</id>
+  <author>
+    <name><![CDATA[Endy Muhardin]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Staged Deployment]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/Manajemen/staged-deployment/"/>
+    <updated>2011-08-16T15:57:35+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/Manajemen/staged-deployment</id>
+    <content type="html"><![CDATA[<p>Staged Deployment</p>
+
+<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
+
+<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
+
+<ul>
+<li><p>development (komputer si programmer)</p></li>
+<li><p>testing (test server)</p></li>
+<li><p>production (live system)</p></li>
+</ul>
+
+
+<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
+
+<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
+
+<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
+
+<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
+
+<h2>Alternatif Solusi</h2>
+
+<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
+
+<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
+
+<p>[gist id=1134126 file=maven-profile.sh]</p>
+
+<p>atau</p>
+
+<p>[gist id=1134126 file=maven-env-var.sh]</p>
+
+<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
+
+<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
+
+<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
+
+<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
+
+<ul>
+<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
+<li><p>jdbc.testing.properties : digunakan di server test</p></li>
+<li><p>jdbc.production.properties : digunakan di live</p></li>
+</ul>
+
+
+<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
+[gist id=1134126 file=jdbc.properties]</p>
+
+<p>Kemudian, ini file jdbc.testing.properties :</p>
+
+<p>[gist id=1134126 file=jdbc.testing.properties]</p>
+
+<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
+
+<p>Terakhir, jdbc.production.properties</p>
+
+<p>[gist id=1134126 file=jdbc.production.properties]</p>
+
+<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
+
+<p>[gist id=1134126 file=applicationContext.xml]</p>
+
+<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
+
+<p>[gist id=1134126 file=context-loading.xml]</p>
+
+<p>Di sana kita melihat ada variabel ${stage}.
+Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
+
+<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
+
+<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
+
+<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
+
+<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
+
+<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
+
+<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
+
+<h2>Setting Environment Variabel</h2>
+
+<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
+
+<p>[gist id=1134126 file=startup.sh bump=1]</p>
+
+<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
+
+<p>[gist id=1134126 file=mvn-jetty-run.sh bump=2]</p>
+
+<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
+
+<p>[gist id=1134126 file=linux-env-var.sh bump=3]</p>
+
+<h2>Konfigurasi Logger</h2>
+
+<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
+
+<ul>
+<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
+<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
+
+<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
+
+<ul>
+<li><p>logback.xml : file konfigurasi utama</p></li>
+<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
+</ul>
+
+
+<p>Berikut isi file logback.xml.</p>
+
+<p>[gist id=1134126 file=logback.xml]</p>
+
+<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
+
+<p>[gist id=1134126 file=logback-variable.txt]</p>
+
+<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
+
+<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
+
+<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Meluruskan Mitos CMMI]]></title>
+    <link href="http://endymuhardin.github.com/blog/Manajemen/meluruskan-mitos-cmmi/"/>
+    <updated>2011-08-10T15:01:25+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Manajemen/meluruskan-mitos-cmmi</id>
+    <content type="html"><![CDATA[<p>Di milis manajemen proyek IT sedang rame diskusi tentang CMMI dan Scrum.
+Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam mitos dan 'FUDification'.</p>
+
+<p>Berikut adalah tanggapan saya tentang mitos yang berkembang mengenai CMMI, dicopy-paste dari posting milis dengan sedikit penyesuaian.</p>
+
+<p>Beberapa mitos yang akan diluruskan :</p>
+
+<ul>
+<li><p>CMMI adalah metodologi manajemen proyek yang cenderung waterfall</p></li>
+<li><p>CMMI mewajibkan kita bikin banyak dokumen</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan meluruskan mitos-mitos tersebut.</p>
+
+<h2>CMMI = metodologi, cenderung waterfall</h2>
+
+<p>CMMI bukanlah metodologi manajemen proyek seperti
+<a href="http://en.wikipedia.org/wiki/Scrum_(development">Scrum</a>), <a href="http://en.wikipedia.org/wiki/IBM_Rational_Unified_Process">IBM Rational Unified Process</a>, <a href="http://en.wikipedia.org/wiki/Extreme_Programming">XP</a>, apalagi <a href="http://en.wikipedia.org/wiki/Waterfall_model">Waterfall</a>.</p>
+
+<p>CMMI sebetulnya sudah pernah saya jelaskan <a href="http://endy.artivisi.com/blog/manajemen/apa-itu-cmmi/">di posting saya sebelumnya</a>.
+Tapi untuk lebih menyederhanakan lagi, kita bisa analogikan CMMI seperti akreditasi perguruan tinggi.
+Kalau kita mau daftar kuliah, biasanya kita cari tahu akreditasi kampus yang kita tuju.
+Semakin tinggi akreditasinya, semakin tinggi ekspektasi kita terhadap kualitas perguruan tinggi tersebut.
+<a href="http://ban-pt.kemdiknas.go.id/">Akreditasi perguruan tinggi</a> <a href="http://ban-pt.kemdiknas.go.id/index.php?option=com_content&amp;view=article&amp;id=57&amp;Itemid=63&amp;lang=in">ditentukan oleh banyak hal</a>, diantaranya :</p>
+
+<ul>
+<li><p>berapa jumlah dosen yang S3</p></li>
+<li><p>berapa karya ilmiah dan penelitian yang dihasilkan dalam satu periode</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Untuk menentukan suatu kampus mendapat level A, B, atau lainnya, maka ada tim assessor yang akan memeriksa apakah kampus tersebut sudah memenuhi apa yang dipersyaratkan.</p>
+
+<p>Demikian juga dengan CMMI, berisi seperangkat checklist yang bentuknya kira-kira seperti ini:</p>
+
+<pre><code>        Level
+        Process Area
+        Ok
+        Not Ok
+</code></pre>
+
+<p>2</p>
+
+<p>Requirement Management</p>
+
+<p>2</p>
+
+<p>Configuration Management</p>
+
+<p>2</p>
+
+<p>Measurement and Analysis</p>
+
+<p>2</p>
+
+<p>Project Planning</p>
+
+<p>2</p>
+
+<p>Project Management and Control</p>
+
+<p>2</p>
+
+<p>PPQA</p>
+
+<p>2</p>
+
+<p>Supplier Agreement Management</p>
+
+<p>Nah, checklist itu nanti akan dicentang sesuai dengan kapabilitas perusahaan yang diperiksa.</p>
+
+<p>Adapun urusan Scrum, Waterfall, XP, whatever metodologi yang kita gunakan,
+hanyalah mencakup sebagian saja dari CMMI.</p>
+
+<p>CMMI itu model untuk menggambarkan organisasi pembuat software yang mature. Apa itu mature? Salah satu karakteristiknya adalah konsistensi. Perusahaan yang gak mature, hasil kerjanya gak konsisten. Project A ontime, Project B molor 3 tahun. Project X bugnya dikit, Project Y isinya bug doang gak ada fiturnya.</p>
+
+<p>Kalau kita bisa mengeksekusi project dengan sukses, kita hanya bisa lulus CMMI level 2.
+Untuk bisa mendapatkan level 3, kita harus bisa mengeksekusi project dengan sukses <strong>secara konsisten</strong>.
+Untuk bisa konsisten, maka kita harus bisa menduplikasi project sukses ke seluruh perusahaan.
+Jadi, kalau kita sudah sukses pakai Scrum di project kita sekarang, tetap saja baru level 2.
+Hanya setelah kesuksesan Scrum bisa direplikasi di keseluruhan perusahaan, barulah bisa level 3.</p>
+
+<p>Seperti juga halnya replikasi resep McDonalds ke seluruh cabang, untuk bisa mereplikasi project sukses ke seluruh perusahaan,
+dibutuhkan kegiatan tambahan di level organisasi, misalnya :</p>
+
+<ul>
+<li><p>Menulis SOP (OPD)</p></li>
+<li><p>Membuat program pelatihan internal (OT)</p></li>
+<li><p>Selalu menganalisas prosedur yang sekarang berlaku, supaya bisa diimprove (OPF)</p></li>
+</ul>
+
+
+<p>Yang di dalam kurung adalah process area yang bersesuaian di CMMI.</p>
+
+<p>Berurusan dengan perusahaan yang mature akan mengurangi resiko di client.
+Apa itu resiko?
+Buat orang awam seperti kita, resiko adalah simply sekian persen
+kemungkinan adanya masalah di kemudian hari.
+Nah, ada perspektif finansial yang kita orang teknis biasanya gak kepikiran.
+Buat orang finance, persentase tersebut bisa diuangkan.
+Misalnya kita mau bikin aplikasi costnya 100 M, uangnya minjem ke bank.
+Karena pada dasarnya bank gak mau rugi, 100 M itu akan diasuransikan sama dia.
+Jadi kalo projectnya bubaran, kita gak sanggup bayar, hutangnya akan
+ditalangin sama asuransi.
+Asuransi akan lihat, kita pakai vendor siapa.
+Kalo vendornya gak mature (baca: resiko tinggi) maka premi asuransinya
+akan tinggi.
+Akibatnya, biaya pinjaman kita (cost of money) juga tinggi.
+Bisa aja kita bayar 100 M (pokok) + 20 M (bunga) + 20 M (asuransi)
+Padahal kalo vendornya mature, premi asuransinya cuma 5 M.</p>
+
+<p>Nah, jadi urusan resiko dan maturity ini bukan semata jargon2 aja,
+tapi ada duit beneran yang tersangkut di dalamnya.</p>
+
+<p>Demikianlah mitos pertama, CMMI bukan metodologi manajemen proyek, melainkan manajemen keseluruhan perusahaan.</p>
+
+<h2>CMMI mewajibkan kita bikin banyak dokumen</h2>
+
+<p>CMMI sama sekali tidak mengharuskan kita bikin dokumen apa-apa.</p>
+
+<p>Yang ada, kita harus :
+- <strong>melakukan</strong> project planning (level 2)
+- <strong>melakukan</strong> project monitoring &amp; control (level 2)
+- <strong>mendefinisikan</strong> project life cycle : bisa waterfall, scrum, spiral,
+cowboy programming juga boleh</p>
+
+<p>Planning : merencanakan apa yang akan dilakukan
+Monitoring : melihat kondisi aktual, apakah sesuai dengan plan
+Control : melakukan tindakan kalau kondisi aktual tidak sesuai dengan plan</p>
+
+<p>Nah, kita harus membuktikan bahwa kita benar2 melakukan apa yang disuruh.
+Gimana cara membuktikannya?
+Kita bisa :
+1. Tunjukin dokumen hardcopy, atau
+2. Tunjukin bahwa kita melakukan planning, monitoring, dan control di
+aplikasi yang kita pake (Redmine, planningpoker.com,
+pivotaltracker.com, basecamphq.com, fogbugz, whatever)</p>
+
+<p>Nah, dari 2 cara di atas, kalo kita <strong>benar-benar</strong> melakukan, akan
+lebih mudah menunjukkan yang #2.
+Tapi kalo akal2an, sebenarnya gak planning tapi mau ngakunya planning,
+akan lebih mudah memalsukan yang #1.
+Soalnya #2 gak bisa di-back-dated, sedangkan #1 bisa.</p>
+
+<p>Jadi, fokusnya lebih ke <strong>melakukan proses</strong>, bukan <strong>membuat dokumen</strong></p>
+
+<p>Kemudian, ada kesalah-kaprahan juga yang umum terjadi tentang planning.
+Planning itu tidak sekali saja lalu dipakai sepanjang project.
+Project plan harus mencerminkan kondisi yang terbaru dari project.
+Misalnya, kita bikin plan awal (versi 1) selesai 3 bulan.
+Ternyata waktu monitoring di akhir bulan 1, kita udah tau bahwa gak
+bakalan selesai dalam 2 bulan sisanya.
+Kita harus melakukan controlling terhadap projectnya.
+Tindakan control bisa macam2, bisa kita tambah orang biar tetap
+selesai dalam 3 bulan,
+bisa juga revisi plannya sehingga mencerminkan kondisi setelah 1 bulan berjalan.</p>
+
+<p>UUD 45 aja bisa diamandemen, masa project plan gak bisa :D</p>
+
+<p>Contoh lain, mengelola requirement (Requirement Management), Level 2.</p>
+
+<p>S.P 1.1 : Understand Requirement : kita harus memastikan bahwa
+requirement dipahami.
+Gimana cara membuktikannya?
+Kalo prosesnya beneran dijalanin, kita bisa tunjukkan email dari BA ke
+Client yang isinya
+mengkonfirmasi pemahaman BA tentang requirement yang diminta Client.
+Atau kalo seperti Scrum, Clientnya hadir di ruangan yang sama, gak
+nyatet apa2, rekaman audio juga boleh.
+Intinya, ada sesuatu yang bisa ditunjukkan ke auditor bahwa kita sudah
+Understanding Requirement.
+Kalo prosesnya palsu, artinya sebenarnya gak dilakukan, tapi mau lulus
+Level 2, maka dibuatlah dokumen palsu.
+Bentuknya biasanya review report, isinya item2 requirement, lalu nanti
+ada tandatangan client palsu.</p>
+
+<p>So, overhead dokumen (mis: review report) itu ada kalo kita memalsukan proses.</p>
+
+<p>Selama kita beneran menjalankan apa yang disuruh, pasti ada evidence
+bahwa kita menjalankan,
+entah itu bentuknya chat YM, email, Skype call, apalah terserah, tidak
+ada CMMI mewajibkan formatnya harus mp3 atau apa.</p>
+
+<p>SP 1.2 : Obtain Commitment to Requirement : semua pihak harus commit
+terhadap requirement yang sudah dibuat.
+Gimana cara membuktikan bahwa kita comply dengan SP ini?
+Paling gampang, BA kirim email ke Client, "Pak, di iterasi ini, kita
+kerjakan req #12, #14, sama #15 ya. #13 pending dulu aja"
+Client reply, "Ok"
+That's it, tunjukin emailnya ke auditor, beres.
+Kalo gak dijalanin, nanti ribet dikemudian hari, usernya client bilang
+A, bosnya user bilang A+, programmer bilang C, PM bilang lain lagi.
+Sekali lagi, selama prosesnya dilakukan, emailnya pasti ada.
+Kalo prosesnya palsu, atau clientnya gaptek gak kenal email, ya
+dibuatlah dokumen requirement sign off.
+Orang2 tandatangan. Dokumennya dijadikan evidence.</p>
+
+<p>SP 1.3 : Manage Requirement Changes : kalo requirement berubah, harus
+di-manage.
+Apa itu dimanage? Harus jelas :
+- apa yang berubah
+- siapa yang minta berubah
+- siapa yang approve
+- apa impactnya ke schedule/cost/effort/cuaca hari ini
+Apa buktinya? Email boleh, chat log boleh, rekaman cctv boleh.</p>
+
+<p>Ok, lalu kenapa semua harus ada evidence ??
+Auditor kita di Sigma dulu becandanya gini,
+In God We Trust, everybody else brings data.</p>
+
+<p>Jadi, CMMI = banyak dokumen hanyalah mitos belaka. Untuk bisa melakukan verifikasi, auditor tentu butuh melihat evidence. Di jaman modern seperti sekarang, evidence bentuknya tidak harus dokumen tertulis yang dibuat dengan aplikasi office.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Estimasi Proyek Software]]></title>
+    <link href="http://endymuhardin.github.com/blog/Manajemen/estimasi-proyek-software/"/>
+    <updated>2011-05-11T06:37:12+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Manajemen/estimasi-proyek-software</id>
+    <content type="html"><![CDATA[<blockquote><p>Saya ingin membuat aplikasi akunting, berapa lama dan berapa biayanya?</p></blockquote>
+
+<p>Demikian pertanyaan yang amat sering kita temui di profesi software developer.</p>
+
+<p>Topik estimasi proyek merupakan topik yang sulit. Steve McConnell menyebutnya Black Art,
+sehingga dia mengarang buku yang sangat bagus tentang topik ini,
+judulnya Software Estimation, Demystifying the Black Art.</p>
+
+<p>Menurut Steve, dalam membuat estimasi, ada 3 metode yang dilakukan, yaitu</p>
+
+<ul>
+<li><p>count</p></li>
+<li><p>compute</p></li>
+<li><p>judge</p></li>
+</ul>
+
+
+<p>Kita harus selalu berusaha count, karena ini yang paling akurat.
+Kalo ditanya berapa tinggi pohon, paling baik adalah ambil meteran dan ukur pohonnya.
+Dimana kita tidak bisa count, maka kita compute.
+Contohnya, di sebelah pohon ada pagar dan di atas pagar ada tiang lampu.
+Kita compute jumlah tinggi pagar dan tinggi tiang lampu, sehingga dapat tinggi pohon.
+Hanya kalau tidak ada cara lain, baru kita judge.
+Dikira2 tingginya berapa.</p>
+
+<p>Dalam kaitannya dalam estimasi, idealnya yang kita estimasi hanyalah project size.
+Metric lainnya akan kita compute dari project size ini.</p>
+
+<h2>Apa itu project size?</h2>
+
+<p>Project size merupakan ukuran suatu project.
+Dengan project size, kita bisa membandingkan dua aplikasi yang berbeda,
+misalnya aplikasi akunting dan aplikasi toko online.</p>
+
+<p>Ada banyak metric untuk mengukur ukuran project. Metric yang paling lazim digunakan
+adalah jumlah baris kode program, dalam bahasa Inggris disebut Source Lines of Code (SLOC)
+atau Non Commenting Source Code (NCSS).</p>
+
+<p>Walaupun SLOC sangat akurat dalam menentukan ukuran project, tapi jumlah baris kode sulit diperkirakan di awal project.
+Oleh karena itu, beberapa orang kreatif lalu mengarang metode baru yang disebut Function Point Calculation.
+Metode ini pada intinya adalah menghitung berapa screen input, screen output, jumlah tabel database, dan interaksinya dengan aplikasi lain.</p>
+
+<p>Setelah kita mendapatkan estimasi ukuran project, kita akan menggunakannya untuk mengestimasi effort, durasi, dan cost.</p>
+
+<p>Sebelum lebih jauh, mari kita jelaskan istilah-istilahnya.</p>
+
+<p>Effort, adalah kerja real yang kita lakukan dalam menyelesaikan project. Satuannya adalah mandays atau manhour.
+Misalnya suatu aplikasi diestimasi membutuhkan effort 10 mandays. Artinya aplikasi ini akan selesai bila dikerjakan 1 orang selama 10 hari terus menerus.
+Atau 5 hari bila ada 2 pekerja. Effort tidak mempertimbangkan libur ataupun cuti.</p>
+
+<p>Durasi (bahasa Inggrisnya schedule), adalah jangka waktu penyelesaian project. Ini biasanya dinyatakan dalam satuan hari kerja atau hari kalender.
+Bila durasi project dinyatakan 10 hari kalender, maka bila dimulai tanggal 1, akan selesai tanggal 10.</p>
+
+<p>Jadi, untuk mendapatkan durasi, kita harus punya asumsi berikut :</p>
+
+<ul>
+<li><p>berapa orang yang dipekerjakan</p></li>
+<li><p>berapa hari libur</p></li>
+<li><p>berapa alokasi waktu non-pekerjaan seperti meeting, presentasi, dsb</p></li>
+</ul>
+
+
+<p>Asumsi tersebut, digabungkan dengan estimasi effort, akan menghasilkan estimasi durasi.</p>
+
+<p>Setelah durasi didapatkan, menghitung estimasi cost mudah saja. Kita membutuhkan matriks gaji per role.
+Berapa gaji project manager, gaji programmer, dan role lain dalam setahun, termasuk THR, tunjangan kesehatan, benefit lain dan bonus.
+Bagilah dengan hari kerja setahun sehingga didapatkan nilai gaji sehari.
+Kemudian petakan penggunaan masing-masing role dalam schedule yang sudah kita estimasi, dan kita akan mendapat biaya personel.
+Tambahkan dengan biaya lain-lain seperti transport, komunikasi, dsb untuk mendapatkan biaya total.
+Masukkan juga faktor resiko project, misalnya kalau clientnya terkenal sulit ditagih, tentu perlu ada koefisien pengali.
+Karena tagihan macet sama dengan kita memberi hutang ke client.</p>
+
+<p>Nah, akhirnya biaya total sudah didapatkan, silahkan tambahkan profit yang diinginkan, buffer negosiasi, dan voila, dapatlah harga penawaran.</p>
+
+<p>Selesai? Belum dong :D</p>
+
+<p>Pembaca yang teliti tentu akan menemukan satu celah di penjelasan di atas. Bagaimana mengkonversi estimasi project size menjadi estimasi effort?
+Nah disinilah bedanya perusahaan besar kaya pengalaman dengan startup mahasiswa baru lulus. Perusahaan dengan jam terbang tinggi biasanya punya data historis.
+Dia punya data misalnya berapa mandays yang dibutuhkan programmer untuk membuat aplikasi dengan 3 tabel database.
+Tentunya data ini harus dikumpulkan, diolah, dan diupdate agar bisa dijadikan pedoman. Ini sebabnya tidak semua perusahaan besar punya data ini.
+Dengan bermodalkan data ini, perusahaan tinggal mengkonversi project size menjadi effort.
+Setidaknya ada dua jenis data yang kita butuhkan, yaitu berapa effort yang dibutuhkan untuk menyelesaikan satu baris kode, dan bagaimana distribusi effort selama fase project. Maksudnya, bila project kita diestimasi 100 mandays, berapa mandays habis di analisa, coding, testing, implementasi, dan maintenance.
+Selain itu, juga perlu ada matriks distribusi effort per role. Dengan adanya matriks ini, kita akan lebih mudah menkonversi effort menjadi durasi dan cost.</p>
+
+<p>Startup mahasiswa, karena tidak punya data, maka cuma bisa tebak-tebak buah manggis. Atau kalo mau sedikit ilmiah, bisa mengikuti cara kami di ArtiVisi waktu baru mulai dulu. Kita membuat aplikasi kecil, kemudian datanya dikumpulkan dan dijadikan pedoman.</p>
+
+<p>Jadi, kesimpulannya, begini metode estimasinya.</p>
+
+<p><strong>Kebutuhan Data</strong></p>
+
+<ol>
+<li><p>Tabel konversi size ke mandays</p></li>
+<li><p>Tabel gaji pegawai per role per hari</p></li>
+<li><p>Tabel distribusi effort per fase</p></li>
+<li><p>Tabel distribusi effort per role</p></li>
+</ol>
+
+
+<p>Flow Estimasi</p>
+
+<ol>
+<li><p>Estimasi Size</p></li>
+<li><p>Dari size, gunakan tabel #1 untuk mendapatkan effort</p></li>
+<li><p>Dari effort, gunakan tabel #3 untuk mendapatkan durasi</p></li>
+<li><p>Dari effort, gunakan tabel #4 untuk mendapatkan effort per personel</p></li>
+<li><p>Dari effort per personel, gunakan tabel #2 untuk menghitung biaya personel</p></li>
+<li><p>Gunakan durasi untuk menghitung biaya lain-lain</p></li>
+</ol>
+
+
+<p>Demikian metodologi untuk melakukan estimasi project software. Membuat estimasi saja tidak cukup, kita juga harus bisa mempresentasikan dan mempertahankannya dari negosiasi pihak lain. Ini akan dibahas di lain kesempatan.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Prototyping]]></title>
+    <link href="http://endymuhardin.github.com/blog/Java/Manajemen/prototyping/"/>
+    <updated>2010-07-07T01:41:17+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Java/Manajemen/prototyping</id>
+    <content type="html"><![CDATA[<p>Pada waktu kita melakukan requirement gathering, harapan kita adalah agar requirement yang kita dapatkan di fase requirement tidak jauh bergeser dari requirement final setelah project closing. Kalau pergeserannya jauh, akan mengakibatkan waktu dan biaya pengerjaan project menjadi molor dan akibatnya kedua belah pihak akan dirugikan.</p>
+
+<p>Pergeseran requirement ini bisa disebabkan beberapa hal, misalnya :</p>
+
+<ol>
+<li><p>business analyst (BA) kurang pengalaman, sehingga tidak bisa mengidentifikasi varian-varian skenario. Akibatnya terjadi banyak 'hidden requirement'</p></li>
+<li><p>business analyst kurang teliti, sehingga salah memahami penjelasan user</p></li>
+<li><p>Perubahan bisnis client, sehingga requirementnya juga berubah</p></li>
+<li><p>perbedaan persepsi antara user dan analyst atau programmer</p></li>
+</ol>
+
+
+<p>Untuk masalah 1 dan 2, solusinya adalah dengan mengganti BA dengan orang yang lebih berpengalaman. Newbie sebaiknya tidak menjadi BA. Bolehlah magang BA, tapi jangan diandalkan untuk jadi BA utama.</p>
+
+<p>Poin 3 juga biasanya tidak masalah. Client biasanya cukup tahu diri kalau terjadi hal ini, sehingga tidak keberatan dimintai charge tambahan.</p>
+
+<p>Nah untuk poin 4, biasanya sulit dideteksi sampai aplikasi kita deliver. Sering terjadi, usernya OK OK saja pada fase requirement, dan tiba-tiba pada waktu kita deliver aplikasinya, dia langsung bingung karena aplikasinya 'aneh'.</p>
+
+<p>Agar poin 4 ini tidak terjadi, sebaiknya kita melakukan prototyping. Bagaimana cara melakukan prototyping yang baik?</p>
+
+<p>Prototyping itu idealnya :</p>
+
+<ol>
+<li><p>Murah meriah dan cepat
+Dalam 1 hari kita harus bisa menggambar minimal 10 screen.
+Begitu usernya selesai ngomong/gambar di papan tulis, screennya juga harus langsung jadi.
+Jangan sampai effort untuk prototyping lebih besar dari effort untuk coding.</p></li>
+<li><p>Gampang diubah
+Tujuan prototype adalah supaya user bisa merasakan seperti apa aplikasinya nanti.
+Kalau dirasakan kurang sesuai, tentunya dia ingin mengubahnya.
+Nah, jangan sampai minta geser tombol aja harus nunggu 30 menit.</p></li>
+<li><p>Mirip aslinya.
+Kalo ini lebih ke sisi development.
+Biar efisien, begitu prototype sign off, kita bisa mulai paralel coding dan bikin user manual.
+Kalo prototypenya udah bener2 mirip, bisa langsung discreenshot dan dipasang di user manual.
+Jadi begitu aplikasi jadi, user manual juga selesai.</p></li>
+<li><p>Terlihat belum selesai
+Ini agak kontradiktif dengan tips #3. Kalau prototype kita sangat mirip aplikasi betulan, client akan memiliki persepsi bahwa aplikasinya sudah hampir selesai. Padahal belum ada coding sama sekali. Oleh karena itu, sangat penting kita tekankan ke client bahwa masih ada jangka waktu yang lama sebelum aplikasi betulannya selesai.</p></li>
+</ol>
+
+
+<p>Ada beberapa tools yang bisa digunakan untuk prototyping, yaitu</p>
+
+<h2><a href="http://www.netbeans.org">Netbeans</a></h2>
+
+<p>Untuk project aplikasi desktop, inilah yang biasa kami gunakan di ArtiVisi. Screen dapat dibuat dengan sangat cepat, lengkap dengan behavior standar seperti popup dialog, scroll table, dsb.</p>
+
+<p>Untuk project web, biasanya kita langsung coding di HTML dan Dojo, tentunya tanpa koneksi ke back end.</p>
+
+<p>Sebagai nilai tambah lain, setelah prototype di-approve client, programmer bisa langsung meneruskan coding.</p>
+
+<h2><a href="http://www.balsamiq.com/products/mockups">Balsamiq Mockup</a></h2>
+
+<p>Tools ini berbayar dan dijalankan menggunakan Adobe AIR.</p>
+
+<p><a href="http://pencil.evolus.vn/en-US/Home.aspx">Pencil</a>
+Tools ini lumayan bagus, dijalankan sebagai Firefox Add Ons. Sudah ada palette untuk berbagai UI component seperti combo box, text area, dsb. Setelah selesai menggambar, kita bisa langsung mengekspornya menjadi image.</p>
+
+<p>Berikut contoh mockup yang baru saja saya buat menggunakan Pencil.</p>
+
+<p>Ini versi 'bagus' yang mirip aslinya.</p>
+
+<p>[caption id="attachment_563" align="aligncenter" width="300" caption="Mockup Login Screen ala Windows XP"]<a href="http://endy.artivisi.com/blog/wp-content/uploads/2010/07/windows_login.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/07/windows_login-300x238.png" alt="Mockup Login Screen ala Windows XP" /></a>[/caption]</p>
+
+<p>Supaya client sadar bahwa ini adalah prototype, kita bisa gunakan versi yang coret-coretan.</p>
+
+<p>[caption id="attachment_564" align="aligncenter" width="300" caption="Mockup Versi Coretan"]<a href="http://endy.artivisi.com/blog/wp-content/uploads/2010/07/sketchy_login.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/07/sketchy_login-300x238.png" alt="Mockup Versi Coretan" /></a>[/caption]</p>
+
+<p>Source file untuk mockup di atas bisa <a href="http://endy.artivisi.com/downloads/contoh/mockup/pencil-demo.ep">diunduh di sini</a>.</p>
+
+<p>Demikianlah sedikit tips dan trik. Semoga bermanfaat.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Fase Requirement]]></title>
+    <link href="http://endymuhardin.github.com/blog/Manajemen/fase-requirement/"/>
+    <updated>2010-04-18T04:20:29+07:00</updated>
+    <id>http://endymuhardin.github.com/blog/Manajemen/fase-requirement</id>
+    <content type="html"><![CDATA[<p>Dari seluruh fase yang ada di project, fase Requirement Development adalah yang paling penting. Bila kita melakukan kegiatan requirement dengan asal-asalan, akibatnya antara lain :</p>
+
+<ul>
+<li><p>aplikasi sudah selesai dibuat, tapi tidak sesuai dengan keinginan user</p></li>
+<li><p>pada fase coding, banyak terjadi delay karena ternyata ada requirement yang belum jelas</p></li>
+<li><p>pada fase coding, banyak pekerjaan harus diulang karena salah memahami requirement</p></li>
+</ul>
+
+
+<p>Kenapa saya sebut dengan istilah Requirement Development, bukan Requirement Gathering seperti yang umum dipakai orang? Sebabnya adalah karena requirement yang baik itu tidak didapat dengan mudah. Tidak seperti memungut barang di jalanan (gathering), melainkan harus melalui proses yang iteratif (development). Kita tidak bisa mendapatkan requirement yang baik sekali jalan. Kita harus terus menerus melakukan investigasi, klarifikasi, verifikasi, agar requirement yang didapat benar-benar bagus kualitasnya.</p>
+
+<p>Pada artikel ini, kita akan membahas bagaimana cara membuat requirement yang baik.</p>
+
+<p>Sebelum ke masalah teknis, kita lihat dulu, kenapa kita harus melalui fase requirement? Kenapa tidak langsung coding saja? Kan customer ingin aplikasi jadi, bukan notulensi meeting dan setumpuk dokumen?</p>
+
+<h2>Tujuan Requirement</h2>
+
+<p>Kita melakukan requirement development karena kita ingin tahu apa yang ingin dibuat. Setelah mengetahui apa yang ingin dibuat, barulah kita bisa:</p>
+
+<ul>
+<li><p>memilih anggota tim yang tepat</p></li>
+<li><p>memperkirakan biaya dan waktu yang dibutuhkan untuk membuatnya</p></li>
+<li><p>memilih arsitektur dan teknologi yang sesuai</p></li>
+</ul>
+
+
+<p>Jadi, proses requirement membantu kita untuk melakukan project planning.
+Selain itu, proses requirement juga membantu kita mencegah project menjadi molor dan merugi. Kalau kita langsung terjun coding, maka akan banyak waktu terbuang untuk melakukan perubahan. Misalnya, kalau kita sudah coding, ternyata user minta tambahan satu field entry, maka kita terpaksa mengubah tampilan, skema database, format report, dokumentasi user (kalau sudah ada), dan mungkin banyak lagi. Tapi kalau perubahan ini dilakukan pada fase requirement, paling effortnya cuma mengubah dummy dan dokumentasi user story saja.</p>
+
+<p>Requirement juga bisa membantu kita mengendalikan perubahan dalam project, seperti kita akan lihat di bagian selanjutnya.</p>
+
+<p>Setelah kita tahu tujuannya, mari kita ke langkah pertama yang paling menentukan.</p>
+
+<h2>Identifikasi Usernya</h2>
+
+<p>Segera setelah project dimulai, kita akan segera dihujani jadwal meeting untuk membahas requirement. Nah di sini kita harus jeli. Mendengarkan user itu penting, tapi yang lebih penting lagi adalah menjawab pertanyaan, siapa usernya?</p>
+
+<p>Ada bermacam-macam jenis user, dan ini menentukan informasi apa yang ingin kita dengarkan, dan informasi mana yang kita abaikan.</p>
+
+<ul>
+<li><p>End User. Ini adalah user yang nantinya akan menggunakan aplikasi. Kita harus mendengarkan user ini, terutama dari sisi usability. Apakah aplikasi kita nyaman dipakai, mudah digunakan, indah dilihat, dan sebagainya. Tapi, jangan sekali-kali mengambil keputusan tentang proses bisnis dengan user ini. Jangan juga memutuskan untuk menambah/mengurangi fitur <strong>hanya</strong> berdasarkan pendapat user ini. Kita membutuhkan user selanjutnya, yaitu :</p></li>
+<li><p>Sponsor atau Client. Ini adalah orang yang akan membayar invoice untuk pembuatan aplikasi. Semua keputusan penting (proses bisnis dan list fitur adalah penting) harus disetujui Client. Dan jangan salah, seringkali pendapat End User tidak sama dengan pendapat Client. Misalnya, Client menginginkan suatu transaksi harus melalui approval supervisor, manager, dan direktur secara berjenjang. Tapi tentunya fitur ini akan memberatkan End User, karena ada banyak proses yang harus dilalui. Nah, tentunya Anda tahu siapa yang harus kita dengarkan. Nah, jadi kapan-kapan melakukan requirement development, cari tahu dulu siapa yang mengotorisasi bilyet giro :D</p></li>
+<li><p>Konsultan Internal. Seringkali di organisasi client, ada seseorang yang cukup senior dari sisi teknis. Bisa jadi dia adalah divisi IT di organisasi client, atau orang luar yang dipercaya oleh client. Apakah orang ini harus kita dengarkan pendapatnya? Tergantung dari seberapa besar pengaruhnya terhadap client. Kita bisa mengetes pengaruhnya dengan membuat satu fitur yang tidak sesuai dengan pendapat konsultan internal ini, dan lihat apa reaksi client. Kalau client setuju dengan kita, berarti pengaruhnya tidak besar, dan pendapat selanjutnya bisa kita diabaikan.</p></li>
+<li><p>Customer. Ada kalanya Client membeli aplikasi kita untuk dijual lagi ke orang lain. Nah orang lain ini disebut Customer. Sukses atau tidaknya project kita banyak ditentukan oleh berapa customer yang bisa didapatkan client. Jadi, penting juga untuk kita mengetahui profil customer (kalau ada). Apa business objective dari customer, sehingga bisa kita akomodasi dengan baik</p></li>
+</ul>
+
+
+<p>Baiklah, saya sudah memetakan, si A adalah End User, si B Client, si C konsultan internal, dan si D adalah customernya. Apakah sekarang sudah bisa kita mulai interviewnya? Ok ok .. mari kita suruh Business Analyst (BA) untuk melakukan tugasnya. Oh, tunggu dulu, BA belum direkrut? Bagaimana kualifikasinya?</p>
+
+<h2>Kualifikasi Business Analyst</h2>
+
+<p>Pertama, BA harus menguasai proses bisnis. Kalau kita ingin membuat aplikasi akunting, BAnya harus mengerti akuntansi. Aturan sederhana dan logis, tapi masih banyak saja perusahaan yang mengirim programmer untuk melakukan requirement development.</p>
+
+<p>Secara umum, BA harus sudah punya pengetahuan dasar dulu sebelum dia ketemu client. Kalau kita kirim programmer, maka dia bukan melakukan requirement development, tapi dia akan belajar bisnis proses ke client. Seperti kita akan lihat, ini pasti akan menimbulkan delay, karena :</p>
+
+<blockquote><p>Seorang BA harus bisa membedakan mana proses bisnis yang fundamental dan jarang berubah (karenanya boleh dihardcode), mana yang kondisional dan sering berubah (sehingga harus configurable)</p></blockquote>
+
+<p>Programmer yang belajar bisnis proses ke client tidak akan bisa membedakan ini. Sebagai contoh, mari kita lihat prosedur procurement.</p>
+
+<p>Proses bisnis fundamentalnya adalah, ada pengajuan (purchase request), kemudian dilanjutkan dengan minta quotation ke vendor (request for quotation), memilih vendor, baru melakukan pemesanan (purchase order).
+Ini adalah flow fundamental, dan boleh di-hardcode.</p>
+
+<p>Kemudian end user akan bilang, purchase request akan dilakukan oleh masing-masing dept, approval dilakukan manager, dst, dst. Siapa yang mengentri, siapa yang mengapprove, dan pada nilai transaksi berapa dia boleh approve, ini adalah kondisional dan harus bisa dikonfigurasi.</p>
+
+<p>Nah, seorang BA yang baik harus bisa membedakan kedua hal ini.</p>
+
+<p>Coba temani BA anda pada saat sesi interview dengan end user. Kalau dia pernah bilang begini,</p>
+
+<blockquote><p>Oh, di perusahaan Anda prosesnya begini ya? Biasanya yang umum dilakukan orang adalah seperti ini. Proses Anda kurang optimal karena blablabla. Apakah proses Anda mau berubah, atau aplikasi yang ingin ikut proses Anda dengan konsekuensi ABC?</p></blockquote>
+
+<p>Nah, kapan-kapan dia minta naik gaji, jangan buru-buru ditolak. Ini BA bagus. Dia menguasai bidangnya, dan tahu best practices.</p>
+
+<p>Banyak perusahaan yang ingin bikin produk dari project tapi tidak kunjung berhasil. Misalnya, ada client minta dibuatkan aplikasi gudang, trus manajemen mikir, "Wah kayaknya ini kalo dibikin jadi produk bakalan prospek". Tapi ternyata setelah project selesai, aplikasinya tidak applicable di perusahaan lain. Ini salah satu sebabnya adalah BA yang kurang pengalaman sehingga tidak tahu mana fitur yang generik berlaku umum dan mana yang spesifik hanya untuk perusahaan tertentu saja.</p>
+
+<p>Tahu bisnis proses saja masih kurang, BA yang baik juga paham usability. Seperti kita tahu, ada banyak cara untuk mengentri transaksi. Bisa dientri via screen, bisa upload file, bisa via HP, bisa import dari aplikasi lain, dsb. BA yang baik bisa memberikan rekomendasi pada programmer mengenai user experience. Bagaimana urutan screen, penempatan komponen, apakah pilihan tertentu disajikan dengan dropdown, radio, atau lookup.</p>
+
+<p>Kalau BAnya tidak paham usability, aplikasi kita akan benar secara proses bisnis, tapi tidak enak digunakan. Programmer tidak bisa menentukan usability, karena dia tidak tahu bagaimana biasanya end-user menggunakan fitur tertentu.</p>
+
+<p>Ok, BA saya sudah canggih, paham bisnis proses, tau best practices, dan pernah magang sama <a href="http://www.useit.com">Jakob Nielsen</a>. Bisa kita mulai interview user?</p>
+
+<h2>Interview User</h2>
+
+<p>Pada fase ini, biarkan saja BA menjalankan tugasnya. Dia akan berbicara dengan user, dan menanyakan hal-hal berikut:</p>
+
+<ul>
+<li><p>Flow global dari awal sampai akhir. Untuk aplikasi procurement, berarti dari request pembelian, sampai barang diterima.</p></li>
+<li><p>Flow detail untuk masing-masing tahap. Contohnya, bagaimana detail flow proses request pembelian</p></li>
+<li><p>Variasi skenario. Di sini BA akan mengidentifikasi percabangan dari tiap flow. Apa saja variasi skenarionya, perbedaan datanya, role user yang mengaksesnya, kondisi outputnya, dan sebagainya.</p></li>
+</ul>
+
+
+<p>Jangan lupa untuk meminta :</p>
+
+<ul>
+<li><p>Contoh report yang diinginkan</p></li>
+<li><p>Sampel data transaksi untuk kita test di internal</p></li>
+<li><p>Rumus atau formula perhitungan</p></li>
+</ul>
+
+
+<p>Tergantung clientnya, ada kemungkinan dia akan meminta perjanjian kerahasiaan sebelum mengeluarkan data-data di atas.</p>
+
+<p>Setelah interview, BA pulang ke kantor, dan akan membuat dokumentasi requirement.</p>
+
+<h2>Dokumentasi Requirement</h2>
+
+<p>Untuk apa kita membuat dokumentasi? Tujuannya adalah</p>
+
+<ul>
+<li><p>Untuk mengidentifikasi kalau ada hal yang kurang jelas, sehingga bisa langsung ditanyakan</p></li>
+<li><p>Sebagai bahan untuk verifikasi dengan user, apakah pemahaman kita sudah sama dengan yang dimaksud user.</p></li>
+<li><p>Sebagai pedoman untuk programmer</p></li>
+<li><p>Untuk mencegah project molor</p></li>
+</ul>
+
+
+<p>Lho, bagaimana bisa dokumen requirement mencegah project molor? Ya bisa saja, berikut alasannya</p>
+
+<ul>
+<li><p>Kalau ada kesalahan dan ditemukan pada fase ini, biaya perbaikannya jauh lebih kecil daripada kalau ditemukan pada fase coding. Misalnya ada kesalahan rumus perhitungan. Kalau kesalahan ini ditemukan pada fase requirement, paling biayanya cuma mengedit user story. Tapi kalau ditemukan pada waktu UAT, bisa-bisa butuh 2-3 hari untuk fixingnya. Ini <a href="http://www.stevemcconnell.com/articles/art08.htm">katanya Steve McConnell</a>, bukan bikin-bikinan saya.</p></li>
+<li><p>Setelah requirement disign off, semua perubahan harus melalui change procedure. Ini mencegah project molor karena user terus menerus berubah pikiran. Sekarang maunya A, besok B, lusa ganti lagi.</p></li>
+</ul>
+
+
+<p>Lalu, apa saja yang harus didokumentasikan? Daripada panjang lebar, silahkan lihat <a href="http://endy.artivisi.com/downloads/templates/user-story.pdf">template User Story ArtiVisi</a>. Di situ sudah kita siapkan form isian apa saja yang harus dicantumkan.</p>
+
+<p>Coba lihat dulu, supaya nyambung dengan pembahasan di bawah.</p>
+
+<blockquote><p>Lho kenapa ada flow pengetesan? Apa bedanya dengan test scenario?</p></blockquote>
+
+<p>Sama saja, yang kita maksud flow pengetesan memang adalah test scenario. Lalu apakah wajib dibuat pada fase requirement? Kami sangat menganjurkan untuk membuatnya, dengan alasan sebagai berikut:</p>
+
+<ul>
+<li><p>Dengan memikirkan bagaimana nanti pengetesannya, kualitas user story akan meningkat. BA terpaksa memikirkan step-by-step bagaimana aplikasi akan digunakan, apa inputnya, dan apa outputnya. Dengan memikirkan ini, semua variasi dan kebutuhan input, dan ekspektasi output mau tidak mau akan terpikirkan dan teridentifikasi sejak dini. Ini akan mengurangi requirement yang ambigu, tidak lengkap, atau tidak mungkin diimplementasikan</p></li>
+<li><p>Test scenario yang ditandatangani user merupakan exit strategy bagi vendor. Kalau client sudah setuju dengan skenario testnya, maka vendor cukup membuat aplikasi yang lulus test tersebut. Setelah lulus test, jangan ditambah-tambahi lagi. Ini akan mencegah programmer menambah fitur-fitur menarik namun tidak memiliki business value.</p></li>
+</ul>
+
+
+<p>Seperti bisa dilihat pada template, kita mengharuskan adanya screen prototype di dokumen requirement. Screen ini dirancang oleh BA (makanya dia harus paham usability), dan kalau mau, bisa dibuatkan dummy-nya. Dummy bisa dibuat dengan apapun teknologi yang murah dan cepat. Begitu desain screen jadi, seharusnya tidak lebih dari 2 jam waktu yang dibutuhkan untuk membuat dummy-nya, bahkan untuk screen kompleks sekalipun.</p>
+
+<p>Yang harus ada di desain screen adalah :</p>
+
+<ul>
+<li><p>Input field, harus jelas komponennya, apakah text, radio, dsb</p></li>
+<li><p>Contoh isian. Jangan membuat input kosong, buatlah seolah-olah sudah diisi user. Ini akan memudahkan pada saat presentasi</p></li>
+<li><p>Contoh output. Demikian juga dengan output hasil query, report, dsb. Jangan tampilkan tabel kosong. Isilah dengan data statis barang beberapa baris, agar user mempunyai gambaran bagaimana hasil akhirnya</p></li>
+</ul>
+
+
+<p>Tidak perlu repot-repot mengimplementasikan dummy ini. Semuanya adalah data statis yang langsung diketik apa adanya.</p>
+
+<p>Dokumen user story dan dummy dipresentasikan ke end user dan direvisi sesuai input. Pada fase ini, end user bebas membuat perubahan apapun yang diinginkan. Perubahan bebas untuk diakomodasi, asal jangan pernah melupakan siapa yang tandatangan otorisasi bilyet giro :D</p>
+
+<h2>Sign Off</h2>
+
+<p>Setelah semua user story diiterasi dengan end user sampai puas, maka tiba saatnya untuk melakukan feature-freeze. Semua dokumentasi requirement diupdate sehingga sesuai kondisi terakhir, lalu minta approval tertulis dari client. Ingatlah selalu, <strong>approval client, bukan end-user, bukan konsultan internal</strong>. Ini adalah aktivitas paling critical dan harus dilakukan. Segala usaha proses requirement akan percuma tanpa sign off client.</p>
+
+<h2>Change Management</h2>
+
+<p>Sebelum sign off, end user bebas mengajukan perubahan apapun. Setelah sign off, semua perubahan harus melalui change procedure. Intinya adalah, perubahan diajukan secara tertulis, diestimasi penambahan durasi dan costnya, lalu diajukan ke manajemen, baik vendor maupun client. Kalau salah satu pihak tidak setuju, maka perubahan tidak akan dijalankan.</p>
+
+<p>[caption id="attachment_510" align="aligncenter" width="724" caption="Prosedur Change Management"]<a href="http://endy.artivisi.com/blog/wp-content/uploads/2010/02/change-procedure_id.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/02/change-procedure_id-724x1024.png" alt="Prosedur Change Management" /></a>[/caption]</p>
+
+<p>Lebih jelas tentang informasi apa saja yang dibahas di change management, bisa melihat <a href="http://endy.artivisi.com/downloads/templates/change-request.pdf">template change request ArtiVisi</a>.</p>
+
+<p>Seperti kita lihat, di sini faktor sign off sangat berperan. Tanpa ada sign off, tidak ada batas kapan user bisa berubah seenaknya, dan kapan tidak boleh.</p>
+
+<p>Kalau change management dijalankan dengan baik, project akan lebih terkontrol. Walaupun ada kemunduran, kedua belah pihak sadar apa sebabnya. Semua perubahan diketahui manajemen, sehingga tidak ada bos yang tiba-tiba muncul dan bilang</p>
+
+<blockquote><p>Ini project kenapa gak beres-beres?</p></blockquote>
+
+<p>Kunci sukses change management adalah mulai dari awal, dan perhatikan hal kecil. Kita sebagai vendor sering mengabaikan prosedur ini dengan berbagai alasan, diantaranya</p>
+
+<ul>
+<li><p>Ah perubahannya terlalu kecil, kalo langsung diimplement cuma 5 menit, tapi kalo change procedure bisa 2 hari.</p></li>
+<li><p>Kita tidak mau terlihat birokratis seperti pegawai kelurahan perpanjang KTP</p></li>
+<li><p>Kita berbaik hati pada client, masa perubahan sedikit saja hitung-hitungan banget</p></li>
+</ul>
+
+
+<p>Ini merupakan kesalahan besar. Dengan memberlakukan change procedure bahkan untuk hal kecil, kita akan menimbulkan kesadaran di client bahwa kita mengelola project dengan ketat. Dengan demikian, mereka tidak sembarangan meminta perubahan. Client juga akan menyadari bahwa perubahan kecil saja akan berdampak pada keseluruhan project.</p>
+
+<p>Kalau kita memang ingin berbaik hati pada client, silahkan digratiskan. Tapi prosedur tetap dijalankan. Jadi kalo tiba-tiba ada bos client yang tanya seperti di atas, tinggal kita sodori binder berisi daftar change request yang sudah diapprove.</p>
+
+<p>Change procedure juga ada bonusnya, yaitu tidak banyak mengganggu programmer. Estimasi dan approval mostly dilakukan oleh business analyst dan project manager. Dan belum tentu juga client setuju. Kita akan menghemat banyak waktu, konsentrasi, dan pikiran programmer yang tidak perlu memikirkan usulan perubahan yang ternyata tidak disetujui.</p>
+
+<p>Di change request juga ada timing kapan change akan diberlakukan. Untuk menjaga konsentrasi dan ritme tim, PM bisa menggunakan opsi ini untuk menunda change ke iterasi selanjutnya.</p>
+
+<h2>Requirement Traceability</h2>
+
+<p>Yang satu ini titipan dari CMMI. Di process area Requirement Management, CMMI mengharuskan adanya <em>bidirectional traceability</em>. Artinya, setiap hal di requirement harus bisa ditelusuri dokumen desain mana yang membahasnya, baris kode mana yang mengimplementasikannya, test scenario mana yang memverifikasinya. Demikian juga sebaliknya (makanya disebut bidirectional), setiap baris kode, harus bisa ditelusuri requirement mana yang membutuhkannya.</p>
+
+<p>Ini ide yang bagus. Dengan melaksanakan ini, kita memastikan bahwa effort coding kita benar-benar efisien. Tidak ada effort terbuang percuma untuk fitur-fitur yang tidak perlu. Demikian juga sebaliknya, kita memastikan bahwa semua requirement sudah diimplementasikan dan tidak ada yang ketinggalan.</p>
+
+<p>Walaupun demikian, ide bagus belum tentu realistis di lapangan. Saat ini di ArtiVisi, kita baru bisa merelasikan antara baris kode dengan requirement dengan menggunakan Trac. Tapi tidak untuk dokumen lainnya seperti user manual, test scenario, dsb. Dan itupun tidak bidirectional.</p>
+
+<p>Kalau ingin tahu bagaimana ini diimplementasikan, silahkan lihat <a href="http://sourceforge.net/projects/osrmt/">aplikasi ini</a>.</p>
+
+<p>Oh iya, kalau kita sudah melakukan semua anjuran di artikel ini, lengkap dengan Requirement Traceability, kita sudah siap untuk diaudit untuk proses area Requirement Management (Maturity Level 2) dan Requirement Development (Maturity Level 3) :D</p>
+
+<p>Demikian penjelasan tentang fase requirement. Semoga bermanfaat.</p>
+]]></content>
+  </entry>
+  
+</feed>

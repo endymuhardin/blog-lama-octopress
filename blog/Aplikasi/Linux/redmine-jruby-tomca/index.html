@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Instalasi Redmine di Tomcat - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Ada berbagai cara instalasi Redmine, diantaranya: Dijalankan langsung dari command prompt dengan Webrick
+Dijalankan menggunakan Mongrel dan FastCGI &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Instalasi Redmine Di Tomcat</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-07T04:06:01+07:00" pubdate data-updated="true">Aug 7<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
+
+<ul>
+<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
+<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
+<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
+<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
+Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
+Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
+
+<ul>
+<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
+<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
+</ul>
+
+
+<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
+
+<p>Mari kita mulai.</p>
+
+<h2>Instalasi JRuby</h2>
+
+<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
+
+<p>[gist id=1129237 file=install-jruby.sh]</p>
+
+<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
+Tulis baris berikut ini di dalam file ~/.bashrc</p>
+
+<p>[gist id=1129237 file=bashrc]</p>
+
+<p>Terakhir, test instalasi JRuby</p>
+
+<p>[gist id=1129237 file=test-jruby.sh]</p>
+
+<h2>Instalasi Paket Gem</h2>
+
+<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
+
+<ul>
+<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
+<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
+<li><p>jruby-openssl : supaya bisa melayani https</p></li>
+<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
+<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
+</ul>
+
+
+<p>Mari kita install</p>
+
+<p>[gist id=1129237 file=install-gem.sh bump=1]</p>
+
+<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
+
+<h2>Mengambil Redmine dari Subversion Repository</h2>
+
+<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
+Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
+
+<p>[gist id=1129237 file=checkout-redmine.sh]</p>
+
+<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
+Saya menggunakan konfigurasi development sebagai berikut :</p>
+
+<p>[gist id=1129237 file=database.yml]</p>
+
+<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
+
+<p>[gist id=1129237 file=create-database.sh]</p>
+
+<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
+
+<h2>Inisialisasi Redmine</h2>
+
+<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
+
+<p>[gist id=1129237 file=inisialisasi-session.sh]</p>
+
+<p>Setelah itu, inisialisasi skema database.</p>
+
+<p>[gist id=1129237 file=inisialisasi-skema-db.sh]</p>
+
+<p>Isi data awal.</p>
+
+<p>[gist id=1129237 file=inisialisasi-data-awal.sh]</p>
+
+<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
+
+<p>[gist id=1129237 file=start-webrick.sh]</p>
+
+<p>Hasilnya bisa kita browse di http://localhost:3000
+Kemudian kita bisa login dengan username admin dan password admin.</p>
+
+<h2>Konfigurasi Email</h2>
+
+<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
+Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
+
+<p>[gist id=1129237 file=configuration.yml]</p>
+
+<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
+
+<p>[gist id=1129237 file=install-action-mailer-tls.sh]</p>
+
+<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
+Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
+Kemudian pergi ke menu Administration > Settings > Email Notifications,
+kemudian klik link Send a test email di pojok kanan bawah.
+Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
+
+<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
+Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
+
+<h2>Generate WAR</h2>
+
+<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
+
+<p>[gist id=1129237 file=warble-config.sh]</p>
+
+<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
+
+<p>[gist id=1129237 file=warble.rb]</p>
+
+<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
+
+<p>[gist id=1129237 file=warble-generate.sh]</p>
+
+<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
+
+<p>[gist id=1129237 file=redmine-war-deploy.sh]</p>
+
+<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-07T04:06:01+07:00" pubdate data-updated="true">Aug 7<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/aplikasi/'>Aplikasi</a>, <a class='category' href='/blog/categories/linux/'>Linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca/" data-via="endymuhardin" data-counturl="http://endymuhardin.github.com/blog/Aplikasi/Linux/redmine-jruby-tomca/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/blog/Aplikasi/Programming/instalasi-spket-ide/" title="Previous Post: Instalasi Spket IDE">&laquo; Instalasi Spket IDE</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/blog/Manajemen/meluruskan-mitos-cmmi/" title="Next Post: Meluruskan Mitos CMMI">Meluruskan Mitos CMMI &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
