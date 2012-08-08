@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Linux | Living life and make it better]]></title>
   <link href="http://endymuhardin.github.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://endymuhardin.github.com/"/>
-  <updated>2012-08-07T23:24:18+07:00</updated>
+  <updated>2012-08-08T13:33:39+07:00</updated>
   <id>http://endymuhardin.github.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -222,16 +222,27 @@ Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
 
 <p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
 
-<p>[gist id=1129237 file=install-jruby.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=install-jruby.sh'></script>
+<noscript><pre><code>cd /opt
+tar xzf ~/Downloads/jruby-bin-1.6.3.tar.gz
+chown -R endy.endy /opt/jruby-1.6.3
+ln -s jruby-1.6.3 jruby</code></pre></noscript></div>
+</p>
 
 <p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
 Tulis baris berikut ini di dalam file ~/.bashrc</p>
 
-<p>[gist id=1129237 file=bashrc]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=bashrc'></script>
+<noscript><pre><code>export JRUBY_HOME=/opt/jruby
+export PATH=$PATH:$JRUBY_HOME/bin</code></pre></noscript></div>
+</p>
 
 <p>Terakhir, test instalasi JRuby</p>
 
-<p>[gist id=1129237 file=test-jruby.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=test-jruby.sh'></script>
+<noscript><pre><code>jruby -v
+jruby 1.6.3 (ruby-1.8.7-p330) (2011-07-07 965162f) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]</code></pre></noscript></div>
+</p>
 
 <h2>Instalasi Paket Gem</h2>
 
@@ -248,7 +259,11 @@ Tulis baris berikut ini di dalam file ~/.bashrc</p>
 
 <p>Mari kita install</p>
 
-<p>[gist id=1129237 file=install-gem.sh bump=1]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=install-gem.sh'></script>
+<noscript><pre><code>gem install rack -v=1.1.1
+gem install rails -v=2.3.11
+gem install jruby-openssl activerecord-jdbcmysql-adapter warbler</code></pre></noscript></div>
+</p>
 
 <p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
 
@@ -257,7 +272,10 @@ Tulis baris berikut ini di dalam file ~/.bashrc</p>
 <p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
 Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
 
-<p>[gist id=1129237 file=checkout-redmine.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=checkout-redmine.sh'></script>
+<noscript><pre><code>cd ~/Downloads
+svn co http://redmine.rubyforge.org/svn/branches/1.2-stable redmine-1.2</code></pre></noscript></div>
+</p>
 
 <p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
 
@@ -266,11 +284,25 @@ Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala ri
 <p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
 Saya menggunakan konfigurasi development sebagai berikut :</p>
 
-<p>[gist id=1129237 file=database.yml]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=database.yml'></script>
+<noscript><pre><code>development:
+  adapter: jdbcmysql
+  database: redmine
+  host: localhost
+  username: redmine
+  password: redmine
+  encoding: utf8</code></pre></noscript></div>
+</p>
 
 <p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
 
-<p>[gist id=1129237 file=create-database.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=create-database.sh'></script>
+<noscript><pre><code>mysql -u root -p
+
+create database redmine character set utf8;
+create user 'redmine'@'localhost' identified by 'redmine';
+grant all privileges on redmine.* to 'redmine'@'localhost';</code></pre></noscript></div>
+</p>
 
 <p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
 
@@ -278,19 +310,28 @@ Saya menggunakan konfigurasi development sebagai berikut :</p>
 
 <p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
 
-<p>[gist id=1129237 file=inisialisasi-session.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-session.sh'></script>
+<noscript><pre><code>cd ~/Downloads/redmine-1.2
+rake generate_session_store</code></pre></noscript></div>
+</p>
 
 <p>Setelah itu, inisialisasi skema database.</p>
 
-<p>[gist id=1129237 file=inisialisasi-skema-db.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-skema-db.sh'></script>
+<noscript><pre><code>RAILS_ENV=development rake db:migrate</code></pre></noscript></div>
+</p>
 
 <p>Isi data awal.</p>
 
-<p>[gist id=1129237 file=inisialisasi-data-awal.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-data-awal.sh'></script>
+<noscript><pre><code>RAILS_ENV=development rake redmine:load_default_data</code></pre></noscript></div>
+</p>
 
 <p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
 
-<p>[gist id=1129237 file=start-webrick.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=start-webrick.sh'></script>
+<noscript><pre><code>jruby script/server webrick -e development</code></pre></noscript></div>
+</p>
 
 <p>Hasilnya bisa kita browse di http://localhost:3000
 Kemudian kita bisa login dengan username admin dan password admin.</p>
@@ -300,11 +341,26 @@ Kemudian kita bisa login dengan username admin dan password admin.</p>
 <p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
 Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
 
-<p>[gist id=1129237 file=configuration.yml]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=configuration.yml'></script>
+<noscript><pre><code># = Outgoing email settings
+development:
+    email_delivery:
+        delivery_method: :smtp
+        smtp_settings:
+            tls: true
+            address: &quot;smtp.gmail.com&quot;
+            port: 587
+            authentication: :plain
+            user_name: &quot;nama.kita@gmail.com&quot;
+            password: &quot;passwordgmailkita&quot;</code></pre></noscript></div>
+</p>
 
 <p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
 
-<p>[gist id=1129237 file=install-action-mailer-tls.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=install-action-mailer-tls.sh'></script>
+<noscript><pre><code>jruby script/plugin install git://github.com/collectiveidea/action_mailer_optional_tls.git
+</code></pre></noscript></div>
+</p>
 
 <p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
 Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
@@ -319,19 +375,36 @@ Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
 
 <p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
 
-<p>[gist id=1129237 file=warble-config.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=warble-config.sh'></script>
+<noscript><pre><code>warble config
+</code></pre></noscript></div>
+</p>
 
 <p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
 
-<p>[gist id=1129237 file=warble.rb]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=warble.rb'></script>
+<noscript><pre><code>Warbler::Config.new do |config|
+  config.dirs = %w(app config lib log vendor tmp extra files lang)
+  config.gems += [&quot;activerecord-jdbcmysql-adapter&quot;, &quot;jruby-openssl&quot;, &quot;i18n&quot;, &quot;rack&quot;]
+  config.webxml.rails.env = ENV['RAILS_ENV'] || 'development'
+end</code></pre></noscript></div>
+</p>
 
 <p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
 
-<p>[gist id=1129237 file=warble-generate.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=warble-generate.sh'></script>
+<noscript><pre><code>warble
+warning: application directory `lang' does not exist or is not a directory; skipping
+rm -f redmine-1.2.war
+Creating redmine-1.2.war</code></pre></noscript></div>
+</p>
 
 <p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
 
-<p>[gist id=1129237 file=redmine-war-deploy.sh]</p>
+<p><div><script src='https://gist.github.com/1129237.js?file=redmine-war-deploy.sh'></script>
+<noscript><pre><code>cp redmine-1.2.war /opt/apache-tomcat-7.0.12/webapps/redmine.war
+</code></pre></noscript></div>
+</p>
 
 <p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
 ]]></content>
@@ -375,24 +448,37 @@ Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
 <p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
 
 <p>Konversi dari ogv menjadi mp4
-[gist id=1048657 file=ogv-to-mp4.sh]</p>
+<div><script src='https://gist.github.com/1048657.js?file=ogv-to-mp4.sh'></script>
+<noscript><pre><code>ffmpeg -vcodec libx264 -vpre lossless_medium -i file-input.ogv file-output.mp4</code></pre></noscript></div>
+</p>
 
 <p>Konversi dari ogv menjadi webm
-[gist id=1048657 file=ogv-to-webm.sh]</p>
+<div><script src='https://gist.github.com/1048657.js?file=ogv-to-webm.sh'></script>
+<noscript><pre><code>ffmpeg -pass 1 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y tmp.webm
+
+rm tmp.webm
+
+ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y file-output.webm
+</code></pre></noscript></div>
+</p>
 
 <p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
 
 <p>Membuat poster
-[gist id=1048657 file=create-poster.sh]</p>
+<div><script src='https://gist.github.com/1048657.js?file=create-poster.sh'></script>
+<noscript><pre><code>ffmpeg -r 1 -t 1 -vframes 1 -i input-file.mp4  output-file.png</code></pre></noscript></div>
+</p>
 
 <h2>Upload</h2>
 
 <p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
-[gist id=1048657 file=upload-to-server.sh]</p>
+<div><script src='https://gist.github.com/1048657.js?file=upload-to-server.sh'></script>
+<noscript><pre><code>rsync -avz /path/to/video/folder user@example.com:/home/user/public_html/videos</code></pre></noscript></div>
+</p>
 
 <h2>Tampilkan di blog</h2>
 
-<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus <video>. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
+<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
 
 <p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
 ]]></content>

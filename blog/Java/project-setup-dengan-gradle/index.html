@@ -124,7 +124,10 @@
 
 <p>Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project.</p>
 
-<p>[gist id=794650 file=folder-structure.sh]</p>
+<div><script src='https://gist.github.com/794650.js?file=folder-structure.sh'></script>
+<noscript><pre><code>mkdir -p project-contoh/com.artivisi.contoh.{config,domain,service.impl,ui.springmvc,ui.web}/src/{main,test}/{java,resources}
+mkdir -p project-contoh/com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</code></pre></noscript></div>
+
 
 <p>Outputnya bisa kita lihat sebagai berikut</p>
 
@@ -176,11 +179,114 @@
 <p>Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle.
 Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle</p>
 
-<p>[gist id=794650 file=settings.gradle bump=1]</p>
+<div><script src='https://gist.github.com/794650.js?file=settings.gradle'></script>
+<noscript><pre><code>include &quot;com.artivisi.contoh.config&quot;
+include &quot;com.artivisi.contoh.domain&quot;
+include &quot;com.artivisi.contoh.service.impl&quot;
+include &quot;com.artivisi.contoh.ui.springmvc&quot;
+include &quot;com.artivisi.contoh.ui.web&quot;</code></pre></noscript></div>
+
 
 <p>Dan ini build file Gradle.</p>
 
-<p>[gist id=794650 file=build.gradle bump=2]</p>
+<div><script src='https://gist.github.com/794650.js?file=build.gradle'></script>
+<noscript><pre><code>springVersion = &quot;3.0.5.RELEASE&quot;
+springSecurityVersion = &quot;3.0.5.RELEASE&quot;
+slf4jVersion = &quot;1.6.1&quot;
+logbackVersion = &quot;0.9.27&quot;
+jodaTimeVersion = &quot;1.6.2&quot;
+sourceCompatibility = 1.6
+ 
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+ 
+    configurations {
+        all*.exclude group: &quot;commons-logging&quot;, module: &quot;commons-logging&quot;
+    }
+ 
+    repositories {
+        mavenCentral()
+    }
+ 
+    dependencies {
+        compile &quot;org.slf4j:jcl-over-slf4j:$slf4jVersion&quot;,
+                &quot;org.slf4j:jul-to-slf4j:$slf4jVersion&quot;
+                
+        runtime &quot;joda-time:joda-time:$jodaTimeVersion&quot;        
+                
+        runtime &quot;ch.qos.logback:logback-classic:$logbackVersion&quot;
+  
+        testCompile 'junit:junit:4.7'
+    }
+ 
+    group = 'com.artivisi.contoh'
+    version = '1.0-SNAPSHOT'
+    sourceCompatibility = 1.6
+    
+    task wrapper(type: Wrapper) {
+        gradleVersion = '0.9.1'
+        jarFile = 'wrapper/wrapper.jar'
+    }
+}
+
+project('com.artivisi.contoh.domain') {
+    dependencies { 
+        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
+     
+        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
+                &quot;org.springframework:spring-orm:$springVersion&quot;,
+                &quot;org.springframework:spring-jdbc:$springVersion&quot;
+                
+     
+    }
+}
+
+project('com.artivisi.contoh.service.impl') {
+    dependencies { 
+        compile project(':com.artivisi.contoh.domain')
+        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
+     
+        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
+                &quot;org.springframework:spring-orm:$springVersion&quot;,
+                &quot;org.springframework:spring-jdbc:$springVersion&quot;
+                
+     
+    }
+}
+
+project('com.artivisi.contoh.ui.springmvc') {
+    dependencies {
+        compile project(':com.artivisi.contoh.service.impl')
+     
+        compile &quot;org.springframework:spring-webmvc:$springVersion&quot;,
+                &quot;org.springframework:spring-aop:$springVersion&quot;
+     
+        compile &quot;org.springframework.security:spring-security-web:$springSecurityVersion&quot;,
+                &quot;org.springframework.security:spring-security-config:$springSecurityVersion&quot;
+     
+        compile &quot;javax.validation:validation-api:1.0.0.GA&quot;,
+                &quot;org.hibernate:hibernate-validator:4.0.2.GA&quot;
+     
+    }
+}
+
+project('com.artivisi.contoh.ui.web') {
+    apply plugin: 'war'
+    apply plugin: 'jetty'
+     
+    dependencies {
+        compile project(':com.artivisi.contoh.ui.springmvc')
+        runtime project(':com.artivisi.contoh.config')
+      
+        runtime &quot;javax.servlet:jstl:1.1.2&quot;,
+                &quot;taglibs:standard:1.1.2&quot;,
+                &quot;opensymphony:sitemesh:2.4.2&quot;
+     
+        providedCompile &quot;javax.servlet:servlet-api:2.5&quot;
+    }
+}</code></pre></noscript></div>
+
 
 <p>Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project.</p>
 
@@ -191,7 +297,9 @@ Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.grad
 
 <p>dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini.</p>
 
-<p>[gist id=794650 file=export-eclipse.sh bump=3]</p>
+<div><script src='https://gist.github.com/794650.js?file=export-eclipse.sh'></script>
+<noscript><pre><code>for d in */; do cd &quot;$d&quot;; gradle eclipse; cd ..; done</code></pre></noscript></div>
+
 
 <p>Untung saja pakai linux, jadi bisa coding di command prompt :D</p>
 
@@ -214,33 +322,118 @@ gradle jetty
 </code></pre>
 
 <p>Outputnya bisa kita lihat di browser, dengan port 8080.
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/jetty-run.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/jetty-run-300x216.png" alt="" /></a></p>
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/jetty-run-300x216.png" title="" ></p>
 
 <p>Di situ ada link menuju aplikasi kita. Silahkan diklik.
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/klik-context-path.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/klik-context-path-300x214.png" alt="" /></a></p>
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/klik-context-path-300x214.png" title="" ></p>
 
 <p>Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</p>
 
-<p>[gist id=794650 file=web.xml bump=4]</p>
+<div><script src='https://gist.github.com/794650.js?file=web.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;web-app version=&quot;2.5&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;&gt;
+
+    &lt;!-- Reads request input using UTF-8 encoding --&gt;
+    &lt;filter&gt;
+        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;encoding&lt;/param-name&gt;
+            &lt;param-value&gt;UTF-8&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;forceEncoding&lt;/param-name&gt;
+            &lt;param-value&gt;true&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filter&gt;
+
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+    
+    &lt;!-- Handles all requests into the application --&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+            &lt;param-value&gt;
+                /WEB-INF/springmvc-context.xml
+            &lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+&lt;/web-app&gt;</code></pre></noscript></div>
+
 
 <p>Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml</p>
 
-<p>[gist id=794650 file=springmvc-context.xml bump=5]</p>
+<div><script src='https://gist.github.com/794650.js?file=springmvc-context.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
+
+    &lt;!-- Scans the classpath of this application for @Components to deploy as beans --&gt;
+    &lt;context:component-scan base-package=&quot;com.artivisi.contoh.ui.web&quot; /&gt;
+
+    &lt;!-- Configures the @Controller programming model --&gt;
+    &lt;mvc:annotation-driven /&gt;
+    
+    &lt;!-- mengganti default servletnya Tomcat dan Jetty --&gt;
+    &lt;!-- ini diperlukan kalau kita mapping DispatcherServlet ke / --&gt;
+    &lt;!-- sehingga tetap bisa mengakses folder selain WEB-INF, misalnya img, css, js --&gt;
+    &lt;mvc:default-servlet-handler/&gt;
+
+    &lt;!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources/ directory --&gt;
+    &lt;mvc:resources mapping=&quot;/resources/**&quot; location=&quot;/resources/&quot; /&gt;
+
+    &lt;!-- Application Message Bundle --&gt;
+    &lt;bean id=&quot;messageSource&quot; class=&quot;org.springframework.context.support.ReloadableResourceBundleMessageSource&quot;&gt;
+        &lt;property name=&quot;basename&quot; value=&quot;/WEB-INF/messages/messages&quot; /&gt;
+        &lt;property name=&quot;cacheSeconds&quot; value=&quot;0&quot; /&gt;
+    &lt;/bean&gt;
+
+    &lt;!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory --&gt;
+    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;
+        &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/templates/jsp/&quot;/&gt;
+        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;/&gt;
+    &lt;/bean&gt;
+    
+    &lt;!-- Forwards requests to the &quot;/&quot; resource to the &quot;hello&quot; view --&gt;
+    &lt;mvc:view-controller path=&quot;/&quot; view-name=&quot;hello&quot;/&gt;
+
+&lt;/beans&gt;
+</code></pre></noscript></div>
+
 
 <p>Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import.</p>
 
 <p>Pertama, arahkan workspace ke folder project-contoh.
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-pilih-workspace.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-pilih-workspace-300x154.png" alt="" /></a></p>
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-pilih-workspace-300x154.png" title="" ></p>
 
 <p>Setelah Eclipse terbuka, kita pilih menu Import Project, untuk membuka 4 project yang tadi sudah kita buat.
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-import-existing.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-import-existing-300x272.png" alt="" /></a></p>
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-import-existing-300x272.png" title="" ></p>
 
 <p>Pilih folder induknya.
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-select-root-directory.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-select-root-directory-272x300.png" alt="" /></a></p>
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-select-root-directory-272x300.png" title="" ></p>
 
 <p>Selesai, semua project kita bisa dibuka. Bahkan kita bisa menjalankan project ui.web dengan cara klik kanan Run in Server. Ini bisa dilihat dari icon project tersebut yang berbentuk bola dunia.</p>
 
-<p><a href="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-import-result.png"><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-import-result-300x139.png" alt="" /></a></p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-import-result-300x139.png" title="" ></p>
 
 <p>Selesai sudah, mari kita <a href="http://endy.artivisi.com/blog/aplikasi/sharing-repository-git/">share dengan rekan yang lain</a>.</p>
 </div>
