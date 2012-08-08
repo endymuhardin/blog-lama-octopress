@@ -1,10 +1,9 @@
 ---
-comments: true
-date: 2006-04-28 18:48:55
 layout: page
-slug: about
-title: About
-wordpress_id: 61
+title: "about"
+comments: true
+sharing: true
+footer: true
 ---
 
 Endy Muhardin  
@@ -186,5 +185,4 @@ Software Developer, based in Jakarta, live in Bogor.
   * KCP Dewi Sartika Jakarta Timur
   * Acc# 0 7 0000 4860 255
   * Acc Name: Endy Muhardin
-
 
