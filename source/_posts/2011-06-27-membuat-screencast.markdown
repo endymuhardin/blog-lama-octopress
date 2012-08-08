@@ -57,15 +57,15 @@ Ada beberapa script yang bisa digunakan, misalnya [ini](https://github.com/kwili
 Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan : 
 
 Konversi dari ogv menjadi mp4 
-[gist id=1048657 file=ogv-to-mp4.sh]
+{% gist 1048657 ogv-to-mp4.sh %}
 
 Konversi dari ogv menjadi webm 
-[gist id=1048657 file=ogv-to-webm.sh]
+{% gist 1048657 ogv-to-webm.sh %}
 
 Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap. 
 
 Membuat poster 
-[gist id=1048657 file=create-poster.sh]
+{% gist 1048657 create-poster.sh %}
 
 
 
@@ -73,14 +73,14 @@ Membuat poster
 
 
 Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
-[gist id=1048657 file=upload-to-server.sh]
+{% gist 1048657 upload-to-server.sh %}
 
 
 
 ## Tampilkan di blog
 
 
-Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang [plugin External Video for Everybody](http://open.pages.kevinwiliarty.com/external-video-for-everybody/). Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus <video>. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya [JW Player](http://www.longtailvideo.com/players/jw-flv-player/)
+Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang [plugin External Video for Everybody](http://open.pages.kevinwiliarty.com/external-video-for-everybody/). Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya [JW Player](http://www.longtailvideo.com/players/jw-flv-player/)
 
 Sebagai penutup, bisa melihat [tutorial ini](http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/) yang saya gunakan sebagai titik awal eksplorasi saya. 
 

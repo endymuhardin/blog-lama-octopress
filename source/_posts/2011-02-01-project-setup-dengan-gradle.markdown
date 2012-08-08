@@ -44,7 +44,7 @@ Sebagai ketentuan lain, biasanya nama package selalu kita awali dengan com.artiv
 
 Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project. 
 
-[gist id=794650 file=folder-structure.sh]
+{% gist 794650 folder-structure.sh %}
 
 Outputnya bisa kita lihat sebagai berikut 
 
@@ -101,11 +101,11 @@ Outputnya bisa kita lihat sebagai berikut
 Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle. 
 Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle
 
-[gist id=794650 file=settings.gradle bump=1]
+{% gist 794650 settings.gradle %}
 
 Dan ini build file Gradle.
 
-[gist id=794650 file=build.gradle bump=2]
+{% gist 794650 build.gradle %}
 
 Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project. 
 
@@ -121,7 +121,7 @@ Karena saya menggunakan Eclipse, saya menambahkan metadata supaya projectnya bis
 
 dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini. 
 
-[gist id=794650 file=export-eclipse.sh bump=3] 
+{% gist 794650 export-eclipse.sh %} 
 
 Untung saja pakai linux, jadi bisa coding di command prompt :D 
 
@@ -166,11 +166,11 @@ Di situ ada link menuju aplikasi kita. Silahkan diklik.
 
 Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF
 
-[gist id=794650 file=web.xml bump=4]
+{% gist 794650 web.xml %}
 
 Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml
 
-[gist id=794650 file=springmvc-context.xml bump=5]
+{% gist 794650 springmvc-context.xml %}
 
 Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import. 
 

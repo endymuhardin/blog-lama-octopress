@@ -53,17 +53,17 @@ Mari kita mulai.
 
 Pertama, kita [Download JRuby](http://jruby.org/). Setelah itu, extract di folder yang diinginkan (contohnya /opt)
 
-[gist id=1129237 file=install-jruby.sh]
+{% gist 1129237 install-jruby.sh %}
 
 Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
 Tulis baris berikut ini di dalam file ~/.bashrc
 
-[gist id=1129237 file=bashrc]
+{% gist 1129237 bashrc %}
 
 
 Terakhir, test instalasi JRuby
 
-[gist id=1129237 file=test-jruby.sh]
+{% gist 1129237 test-jruby.sh %}
 
 
 
@@ -93,7 +93,7 @@ Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :
 
 Mari kita install
 
-[gist id=1129237 file=install-gem.sh bump=1]
+{% gist 1129237 install-gem.sh %}
 
 Semua paket sudah lengkap, mari kita lanjutkan ke
 
@@ -105,7 +105,7 @@ Semua paket sudah lengkap, mari kita lanjutkan ke
 Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
 Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.
 
-[gist id=1129237 file=checkout-redmine.sh]
+{% gist 1129237 checkout-redmine.sh %}
 
 Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.
 
@@ -119,11 +119,11 @@ Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsu
 Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
 Saya menggunakan konfigurasi development sebagai berikut :
 
-[gist id=1129237 file=database.yml]
+{% gist 1129237 database.yml %}
 
 Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.
 
-[gist id=1129237 file=create-database.sh]
+{% gist 1129237 create-database.sh %}
 
 Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.
 
@@ -135,19 +135,19 @@ Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi
 
 Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.
 
-[gist id=1129237 file=inisialisasi-session.sh]
+{% gist 1129237 inisialisasi-session.sh %}
 
 Setelah itu, inisialisasi skema database.
 
-[gist id=1129237 file=inisialisasi-skema-db.sh]
+{% gist 1129237 inisialisasi-skema-db.sh %}
 
 Isi data awal.
 
-[gist id=1129237 file=inisialisasi-data-awal.sh]
+{% gist 1129237 inisialisasi-data-awal.sh %}
 
 Setelah terisi, selanjutnya kita bisa test jalankan Redmine.
 
-[gist id=1129237 file=start-webrick.sh]
+{% gist 1129237 start-webrick.sh %}
 
 Hasilnya bisa kita browse di http://localhost:3000
 Kemudian kita bisa login dengan username admin dan password admin.
@@ -160,11 +160,11 @@ Kemudian kita bisa login dengan username admin dan password admin.
 Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
 Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.
 
-[gist id=1129237 file=configuration.yml]
+{% gist 1129237 configuration.yml %}
 
 Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan [di sini](http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/). 
 
-[gist id=1129237 file=install-action-mailer-tls.sh]
+{% gist 1129237 install-action-mailer-tls.sh %}
 
 Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
 Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
@@ -183,19 +183,19 @@ Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.
 
 Pertama, kita harus inisialisasi dulu konfigurasi warble.
 
-[gist id=1129237 file=warble-config.sh]
+{% gist 1129237 warble-config.sh %}
 
 Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.
 
-[gist id=1129237 file=warble.rb]
+{% gist 1129237 warble.rb %}
 
 Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.
 
-[gist id=1129237 file=warble-generate.sh]
+{% gist 1129237 warble-generate.sh %}
 
 File war yang dihasilkan tinggal kita deploy ke Tomcat
 
-[gist id=1129237 file=redmine-war-deploy.sh]
+{% gist 1129237 redmine-war-deploy.sh %}
 
 Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine
 
