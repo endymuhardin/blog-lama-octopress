@@ -101,10 +101,10 @@ Berikut adalah kode untuk memanggil HaloBean secara remote.
 Ada beberapa variabel yang perlu diperhatikan di sini, yaitu ejbHost, ejbPort, dan ejbName. Variabel ejbHost tentunya adalah komputer tempat EJB dideploy. Variabel ejbPort adalah port yang digunakan oleh Application Server untuk mempublish EJB. Port ini berbeda-beda tergantung merek application server dan cara deploymentnya. Karena saya menggunakan Netbeans untuk mendeploy ke Glassfish, maka saya harus cari tahu dulu berapa port yang digunakan Netbeans. 
 
 Caranya, login ke admin console Glassfish melalui Netbeans. Buka tab Services, klik kanan Glassfish, dan pilih View Admin Console. 
-[caption id="attachment_429" align="alignnone" width="308" caption="Glassfish Admin Console via Netbeans"]![Glassfish Admin Console via Netbeans](http://endy.artivisi.com/blog/wp-content/uploads/2009/06/netbeans-view-admin-console.png)[/caption]
+(http://endy.artivisi.com/blog/wp-content/uploads/2009/06/netbeans-view-admin-console.png)
 Browser akan terbuka dan menampilkan halaman login Glassfish. 
-[caption id="attachment_430" align="alignnone" width="400" caption="Login Screen Glassfish"]![Login Screen Glassfish](http://endy.artivisi.com/blog/wp-content/uploads/2009/06/glassfish-login.png)[/caption]
+(http://endy.artivisi.com/blog/wp-content/uploads/2009/06/glassfish-login.png)
 Setelah login, klik Application Server di panel kiri. Port yang digunakan akan ditampilkan di panel kanan, yaitu dengan nama IIOP Port(s). Coba-coba saja semuanya. Di komputer saya, port yang benar adalah 10275.
-[caption id="attachment_431" align="alignnone" width="400" caption="Port IIOP Glassfish"]![Port IIOP Glassfish](http://endy.artivisi.com/blog/wp-content/uploads/2009/06/glassfish-iiop-port.png)[/caption]
+(http://endy.artivisi.com/blog/wp-content/uploads/2009/06/glassfish-iiop-port.png)
 Variabel ejbName juga berbeda tergantung dari application server yang digunakan. Baca dokumentasi server Anda untuk memastikannya. 
 

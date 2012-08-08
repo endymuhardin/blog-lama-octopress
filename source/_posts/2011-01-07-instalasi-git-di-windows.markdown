@@ -62,13 +62,13 @@ Pada intinya, langkah-langkahnya adalah sebagai berikut :
 Putty bisa diunduh [di sini](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html). Pilih saja versi installer, supaya tidak pusing. 
 
 Putty ini akan kita gunakan untuk membuat pasangan public key dan private key. Caranya adalah menggunakan aplikasi PuttyGen. Jalankan PuttyGen, dan klik tombol Generate. 
-[![Generate keypair](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-ssh-generate-keypair-300x290.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-ssh-generate-keypair.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-ssh-generate-keypair-300x290.png Generate keypair %}
 
 PuttyGen akan membuatkan public key dan private key. Save private keynya. Kita akan membutuhkan ini nanti. Klik tombol Save Private Key, dan simpan di folder mana saja. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-ssh-save-keypair-300x210.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-ssh-save-keypair.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-ssh-save-keypair-300x210.png  %}
 
 Terakhir, copy-paste text public keynya. Ini akan kita perlukan untuk dipasang di server supaya kita bisa mengakses repository di server, misalnya Github atau repository kantor. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-ssh-export-public-key-300x236.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-ssh-export-public-key.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-ssh-export-public-key-300x236.png  %}
 
 
 
@@ -79,15 +79,15 @@ Pertama, [unduh dulu MSysGit](http://code.google.com/p/msysgit/). Di websitenya 
 
 Setelah diunduh, tentu kita jalankan. Berikut screenshot next-next seperti biasa. 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-msysgit-install-welcome-300x230.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-msysgit-install-welcome.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-msysgit-install-welcome-300x230.png  %}
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-msysgit-install-component-300x233.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-msysgit-install-component.png)
-
-
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-msysgit-install-path-300x232.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-msysgit-install-path.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-msysgit-install-component-300x233.png  %}
 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-msysgit-install-crlf-300x232.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-msysgit-install-crlf.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-msysgit-install-path-300x232.png  %}
+
+
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-msysgit-install-crlf-300x232.png  %}
 
 
 
@@ -98,9 +98,9 @@ Setelah diunduh, tentu kita jalankan. Berikut screenshot next-next seperti biasa
 TortoiseGit bisa [diunduh di sini](http://code.google.com/p/tortoisegit/). 
 Setelah selesai mengunduh, lagi-lagi klik next-next. 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-tortoisegit-install-welcome-300x233.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-tortoisegit-install-welcome.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-tortoisegit-install-welcome-300x233.png  %}
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-tortoisegit-install-sshclient-300x231.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-tortoisegit-install-sshclient.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-tortoisegit-install-sshclient-300x231.png  %}
 
 Sampai di sini, instalasi Git sudah selesai. Tapi masih ada langkah tambahan supaya kita bisa melakukan clone dari repository server (misalnya Github). 
 
@@ -113,37 +113,37 @@ Untuk bisa clone dari github, pertama kali kita harus punya account Github. Sila
 
 Setelah punya account, login, dan kita akan melihat dashboard. 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-github-dashboard-300x208.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-github-dashboard.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-github-dashboard-300x208.png  %}
 
 Klik account setting, dan masuk ke menu SSH Public Keys
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-github-add-pubkey-300x206.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-github-add-pubkey.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-github-add-pubkey-300x206.png  %}
 
 Pastekan public key yang sudah kita export menggunakan PuttyGen di atas. Setelah diadd, public key kita akan terdaftar. Kita boleh pasang public key banyak-banyak, karena biasanya satu public key mencerminkan satu komputer. Bisa saja kita punya PC dan juga Laptop. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-github-add-pubkey-completed-300x201.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-github-add-pubkey-completed.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-github-add-pubkey-completed-300x201.png  %}
 
 Setelah public key didaftarkan, selanjutnya kita lihat repository yang kita punya. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-github-repositories-300x183.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-github-repositories.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-github-repositories-300x183.png  %}
 
 
 Kalau belum punya repository, Anda bisa fork [repository belajarGit punya saya](https://github.com/endymuhardin/belajarGit), sehingga nanti Anda punya repo belajarGit sendiri. 
 
 Setiap repository punya URL untuk melakukan clone. Copy paste URL clone repository. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-github-repo-belajarGit-300x208.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-github-repo-belajarGit.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-github-repo-belajarGit-300x208.png  %}
 
 Untuk melakukan clone, buka Windows Explorer, klik kanan, dan pilih Git Clone. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-tortoisegit-use-clone-300x208.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-tortoisegit-use-clone.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-tortoisegit-use-clone-300x208.png  %}
 
 Masukkan URL yang tadi kita copy dari Github, dan load private key yang kita buat dengan PuttyGen. 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-tortoisegit-clone-info-300x200.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-tortoisegit-clone-info.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-tortoisegit-clone-info-300x200.png  %}
 
 Putty akan melakukan komunikasi dengan Github. Kalau kita belum pernah clone dari Github sebelumnya, Putty akan menanyakan apakah kita ingin menerima koneksi dari Github. Jawab saja Yes. 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-tortoisegit-clone-save-host-key-300x210.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-tortoisegit-clone-save-host-key.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/05-tortoisegit-clone-save-host-key-300x210.png  %}
 
 Setelah kita jawab Yes, TortoiseGit akan mendownload repository dari Github untuk kita pakai di local, yang lebih dikenal dengan istilah clone. Ini ditunjukkan dengan progress bar kura-kura salto. Jumlah kura-kura yang salto tergantung dari ukuran repository kita. Semakin besar repositorynya, semakin banyak kura-kura yang salto. Bersabarlah, dan tunggu sampai semua kura-kura selesai melakukan aksinya. 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/06-tortoisegit-clone-complete-300x211.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/06-tortoisegit-clone-complete.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/06-tortoisegit-clone-complete-300x211.png  %}
 
 Sekarang repository sudah ada di local, dan siap digunakan. Bagaimana cara menggunakannya, stay tuned. Akan dibahas di posting berikutnya. 
 

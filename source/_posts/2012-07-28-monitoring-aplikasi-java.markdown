@@ -192,7 +192,7 @@ Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasi
 
 Berikut adalah screenshotnya.
 
-[![JavaMelody-Charts](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png)](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2012/07/JavaMelody-Charts.png JavaMelody-Charts %}
 
 
 
@@ -224,17 +224,17 @@ Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.
 
 Jalankan JConsole, dan pilih proses yang akan dimonitor.
 
-[![jconsole-select-pid](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png)](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-select-pid.png jconsole-select-pid %}
 
 Tampilkan MBean Hibernate Statistics
 
-[![jconsole-hibernate-statistics](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png)](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2012/07/jconsole-hibernate-statistics.png jconsole-hibernate-statistics %}
 
 Kita bisa lihat bahwa statistik Hibernate sudah dapat diakses. Informasi ini juga bisa ditampilkan di aplikasi monitoring seperti OpenNMS, Hyperic, dan aplikasi lain yang support JMX. 
 
 Selain itu, kalau kita sudah mengaktifkan JavaMelody seperti dijelaskan di atas, MBean ini juga bisa ditampilkan di url yang sama seperti screenshot di bawah 
 
-[![javamelody-mbeans](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png)](http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2012/07/javamelody-mbeans.png javamelody-mbeans %}
 
 
 

@@ -764,4 +764,4 @@ git push nama-remote :nama-branch-remote
 
 Demikianlah perintah-perintah Git yang kita gunakan sehari-hari. Melengkapi daftar perintah di atas, diagram berikut dapat membantu pemahaman kita tentang konsep dan operasi di Git. 
 
-[![](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git-300x284.png)](http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git.png)
+{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git-300x284.png  %}
