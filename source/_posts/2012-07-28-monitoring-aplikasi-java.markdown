@@ -29,7 +29,7 @@ Salah satu aspek penting dalam fase operation adalah monitoring performance. Mon
   * Mendapatkan notifikasi secepat mungkin pada saat sistem mengalami gangguan
 
 
-
+<!--more-->
 
 
 Pada umumnya, monitoring dilakukan dengan memantau bagian-bagian dalam sistem, diantaranya : 

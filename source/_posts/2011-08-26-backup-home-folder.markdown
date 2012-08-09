@@ -19,7 +19,7 @@ Cara paling efektif untuk melakukan backup rutin adalah dengan mengotomasinya. E
 Sebelum kita mulai, terlebih dulu kita tentukan requirementnya, supaya jelas apa yang kita ingin capai. Saya ingin membackup folder tertentu di komputer saya (misalnya _/home/endy_ dan _/opt/multimedia/Photos_). Backup ini dilakukan secara rutin (misalnya satu jam sekali, satu hari sekali, atau satu minggu sekali). Selain rutin, juga harus incremental. Artinya kalau saya punya backup hari ini jam 11, maka backup selanjutnya di jam 12 hanya menyimpan file yang berubah saja. Dengan demikian, saya bisa jalankan backupnya satu jam sekali dan tidak akan menyebabkan harddisk menjadi penuh dalam beberapa jam saja.
 
 
-
+<!--more-->
 
 Kalau kita cari di Google dengan keyword _ubuntu backup application_, ada banyak sekali aplikasi backup yang tersedia.
 Ada Unison, Bacula, SBackup, rdiff-backup, Deja Dup, dan [entah apa lagi](http://davestechshop.net/ListOfFreeOpenSourceLinuxUbuntuBackupSoftware). Walaupun demikian, seperti biasanya, saya akan gunakan aplikasi yang paling populer, universal (ada di mana-mana), dan bisa dijalankan dari command line (supaya bisa diotomasi dengan cron). Pilihannya tentu adalah _rsync_.

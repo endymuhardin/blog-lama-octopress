@@ -11,7 +11,7 @@ categories:
 
 Walaupun sudah dibuatkan [minibook](http://endy.artivisi.com/blog/java/menggunakan-log4j), tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.
 
-
+<!--more-->
 
 Ada beberapa komponen penting dalam aplikasi logging : 
 
