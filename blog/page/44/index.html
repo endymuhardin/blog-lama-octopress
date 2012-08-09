@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221; &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/page/44/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Java/ruthless-testing-1/">Ruthless Testing 1</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-06-13T22:59:30+07:00" pubdate data-updated="true">Jun 13<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221;</p>
+
+<p>Nah, kalau begitu, pertanyaannya, apa saja yang sudah ditest?</p>
+
+<p>Jawaban orang biasanya bervariasi, tergantung nilai project, jumlah orang yang tersedia, dan juga tergantung tingkat kegaptekan si programmer terhadap teknologi testing yang tersedia.</p>
+
+<p>Testing minimal yang dilakukan biasanya adalah user testing. Jadi, ada user (atau programmer yang pura-pura jadi user) mencoba menggunakan aplikasi yang (katanya sih) sudah selesai. Biasanya fenomena ini akan berakhir dengan periode bugfix yang lebih lama daripada periode coding itu sendiri.</p>
+
+<p>Jadi, bagaimana tipsnya supaya user testing berjalan dengan lancar, minim bug, kalaupun ada, bisa diselesaikan dalam bilangan hari?</p>
+
+<p>Jawabannya adalah melaksanakan &#8220;ruthless testing&#8221;. Artinya testing secara kejam. Testing yang berlapis-lapis sehingga kalau ada programmer bandel yang membuat percabangan if terlalu dalam, akan langsung ketahuan.</p>
+
+<p>Bagaimana itu? Kita akan lihat sebentar lagi.</p>
+
+<p>Ada berapa jenis testing? Hmm .. menurut saya ada:</p>
+
+<ol>
+<li>Unit testing</li>
+<li>Integration testing</li>
+<li>Coverage testing</li>
+<li>Code compliance testing</li>
+<li>User/functional testing</li>
+<li>Performance testing</li>
+</ol>
+
+
+<p>Semua test ini harus dijalankan tanpa kecuali.</p>
+
+<p>What the !@#$? Banyak sekali? Apakah semua harus dijalankan? Wah, bisa-bisa kerjaan kita cuma ngurusin test doang? Bagaimana ini?</p>
+
+<p>Hmm.. jangan khawatir, semua bisa dijalankan dengan investasi minimal di awal project.
+Tips saya adalah:</p>
+
+<ol>
+<li><p>Alokasikan pembuatan test bersama-sama dengan construction. Jangan setelah construction. Jadi, wahai Project Managers, kalau merencanakan construction, tambahkan alokasi waktu untuk membuat test.</p></li>
+<li><p>Semua test harus otomatis dan bisa dijalankan dengan sekali perintah. Di project saya, semua test dijalankan cukup dengan:</p></li>
+</ol>
+
+
+<p><code>ant full-test</code></p>
+
+<p>Baiklah, mari kita lihat satu persatu secara lebih detail.</p>
+
+<h3>Unit Testing</h3>
+
+<p>Ini adalah testing di level paling detail dari aplikasi. Artinya, testing di level method/function. Misalnya saya punya kode seperti ini:</p>
+
+<pre><code>&lt;code&gt;
+public class DayCounter{
+  /**
+  * menghitung jumlah hari dalam bulan dan tahun yang diminta. 
+  * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.
+  * @param month bulan yang akan dihitung
+  * @param year tahun yang akan dihitung
+  * @return jumlah hari dalam bulan dan tahun bersangkutan
+  */
+  public int numDays(int month, int year) {
+    return 29;
+  }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Coba lihat contoh kode di atas? Salah bukan?
+Apapun yang kita masukkan, hasilnya pasti 29.
+Mari kita buktikan dengan unit test bahwa kode di atas salah.</p>
+
+<pre><code>&lt;code&gt;
+public class DayCounter extends junit.framework.TestCase{
+  public void testNumDays() {
+    DayCounter d = new DayCounter();
+    assertEquals(31, d.numDays(1,2000)); 
+  }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Pada waktu dijalankan, unit test tersebut akan menghasilkan tulisan FAILED</p>
+
+<p>Di Java, unit test dapat dilakukan secara otomatis dengan menggunakan <a href="http://ww.junit.org">JUnit</a>.</p>
+
+<h3>Integration Test</h3>
+
+<p>Sebagian besar aplikasi yang kita buat akan menggunakan database. Untuk itu, kita perlu mengetes apakah kode program kita dapat berinteraksi dengan database sesuai harapan.
+Mirip dengan JUnit, kita membuat unit test yang mengakses database. Misalnya, berikut kode programnya:</p>
+
+<pre><code>&lt;code&gt;
+public class DatabaseAccess{
+  /**
+  * memeriksa username dan password dalam database. 
+  * Method ini akan mencocokkan username dan password yang diberikan 
+  * dan yang terdaftar di database.
+  * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.
+  * @param username 
+  * @param password
+  * @return true kalau cocok, false kalau tidak cocok
+  */
+  public boolean checkLogin(String username, String password) {
+    String sql = "SELECT * FROM user WHERE username=? AND password=?"
+    // dst kode akses database    
+  }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Dan ini adalah kode untuk mengetesnya.</p>
+
+<pre><code>&lt;code&gt;
+public class DatabaseAccess extends junit.framework.TestCase{
+  public void testCheckLogin() {
+    DatabaseAccess db = new DatabaseAccess();
+
+    // asumsikan ada username endy dan password secret di database
+    assertTrue(db.checkLogin("endy", "secret"));
+
+    // coba dengan user sembarang, harusnya akan menghasilkan false
+    assertFalse(db.checkLogin("nobody", "gakada"));
+  }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Perhatikan bahwa kedua test di atas mengasumsikan bahwa kita punya database, terisi data endy:secret, dan tidak ada record nobody:gakada di dalam tabel user.
+Berarti, setiap dijalankan, kita harus memastikan asumsi di atas terpenuhi.
+Lalu, bagaimana cara menjalankannya secara otomatis? Gampang, gunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>.</p>
+
+<p>Dengan DBUnit, kita dapat me-reset kondisi database sesuai keinginan setiap kali test akan dijalankan.
+Caranya, kita harus buat test data, yaitu satu record berisi data endy:test dalam tabel user. Test data ini disimpan dalam file checkLogin.xml</p>
+
+<pre><code>&lt;code&gt;
+&lt;dataset&gt;
+  &lt;user id='1' 
+        username='endy'
+        password='secret'
+  /&gt;
+&lt;/dataset&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Sebelum test dimulai, pastikan database direset. Tambahkan method berikut di kode test:</p>
+
+<pre><code>&lt;code&gt;
+public class DatabaseAccess extends junit.framework.TestCase{
+  public void testCheckLogin() {
+    // reset database
+    prepareDatabase();
+
+    DatabaseAccess db = new DatabaseAccess();
+
+    // asumsikan ada username endy dan password secret di database
+    assertTrue(db.checkLogin("endy", "secret"));
+
+    // coba dengan user sembarang, harusnya akan menghasilkan false
+    assertFalse(db.checkLogin("nobody", "gakada"));
+  }
+
+  private void prepareDatabase(){
+    DatabaseOperation.CLEAN_INSERT.execute(dbConn, getTestData());
+  }
+
+  private IDataSet getTestData(){
+    return new FlatXmlDataSet(new FileInputStream("checkLogin.xml"));
+  }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Nah, DBUnit akan dengan senang hati me-reset isi <strong>database development</strong> Anda. Pastikan test tersebut dijalankan di DATABASE DEVELOPMENT, dan bukan DATABASE PRODUCTION.</p>
+
+<p>Sementara cukup sekian. Pada artikel selanjutnya, kita akan bahas tentang:
+3. Coverage Testing
+4. Code compliance testing
+5. User/functional testing
+6. Performance testing
+Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Aplikasi/game-oldies/">Game Oldies</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-30T23:55:50+07:00" pubdate data-updated="true">May 30<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Berangkat dari membaca <a href="http://www.saryada.com/2006/05/23/wow-transport-tycoon-deluxe-has-an-open-source-version/">blog teman</a> yang mengulas tentang <a href="http://www.tycoongames.net/downloadarea.html">Transport Tycoon Deluxe</a> yang sekarang ada <a href="http://www.openttd.org/">versi open sourcenya</a>, saya jadi teringat koleksi game oldies saya.</p>
+
+<p>Jaman saya SMU dulu, sekitar tahun 1994-1997, game favorit saya dan teman-teman adalah <a href="http://en.wikipedia.org/wiki/X-COM">UFO-Enemy Unknown</a>. Game ini berkisah tentang penyerbuan alien ke bumi. Dengan fitur yang cukup variatif, seperti kejar-kejaran pesawat alien, penyerbuan ke markas musuh, mempertahankan markas dari serbuan alien, dan riset teknologi, game ini terasa sangat canggih pada masa itu.</p>
+
+<p>Pada waktu mulai bermain, teknologi pasukan kita sangat minim. Seiring dengan seringnya bertempur, kita mulai mengkoleksi persenjataan alien. Persenjataan ini kemudian diteliti. Setelah penelitian selesai, kita bisa menggunakan senjata tersebut.</p>
+
+<p>Bukan cuma senjata, mayat dan pesawat alien juga diteliti, sehingga kalau kita sudah main cukup lama, semua teknologi alien bisa kita gunakan.</p>
+
+<p>Game yang sudah lama punah ini, tetap bisa dimainkan di masa kini dengan cara <a href="http://www.abandonia.com/games/38/download/UFOEnemyUnknown.htm">download dari abandonia</a>.</p>
+
+<p>Sekuelnya juga ada, yaitu <a href="http://www.abandonia.com/games/60/X-Com-TerrorFromTheDeep">Terror From The Deep</a> dan <a href="http://www.abandonia.com/games/307/X-Com-Apocalypse">Apocalypse</a>.</p>
+
+<p>Selain game itu, kami dulu juga suka memainkan <a href="http://www.abandonia.com/games/395/IncredibleMachine2">The Incredible Machine 2</a>. Ini adalah game puzzle, di mana kita disuruh mengkombinasikan alat-alat yang tersedia untuk memecahkan masalah yang diberikan. Alat-alat yang disediakan bermacam-macam, mulai dari balon zeppelin, anti gravitasi, motor listrik, blender, dan sebagainya.
+Sangat bermanfaat untuk mendongkrak kreativitas adik-adik kita di SD.</p>
+
+<p>Untuk memainkan game berbasis DOS ini, kita membutuhkan DOS Emulator. Saya biasa menggunakan <a href="http://dosbox.sourceforge.net">DosBox</a> dengan front-end <a href="http://members.home.nl/mabus/">D-Fend</a>.</p>
+
+<p>Dengan dos emulator ini, kita bisa juga menjalankan game yang bahkan lebih tua lagi seperti Digger.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Aplikasi/otomasi-transfer-file-dengan-winscp/">Otomasi Transfer File Dengan WinSCP</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-24T22:50:54+07:00" pubdate data-updated="true">May 24<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah sebelumnya kita mengotomasi backup untuk Subversion, baik <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">di Windows</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">di Linux</a>, masih ada sedikit PR yang tersisa.</p>
+
+<p>File backup yang dihasilkan oleh script masih berkeliaran di komputer yang sama dengan repository. Jadi kalau sempat terjadi bencana harddisk jebol, repository beserta backupnya akan musnah tanpa sisa.</p>
+
+<p>Solusi sementaranya adalah dengan cara rajin memindahkan file-file backup secara periodik ke komputer lain, untuk selanjutnya ditulis ke dalam CD/DVD.
+Tetapi, kegiatan copy-mengcopy setiap minggu sangat membosankan. Belum lagi kalau ternyata ada assignment mendadak sehingga kegiatan transfer file menjadi terlupakan.
+Solusi yang lebih <em>hi-tech</em> adalah dengan mengotomasi proses transfer file. Jadi, file backup yang sudah dihasilkan akan kita transfer secara otomatis ke komputer lain, kalau perlu komputer di negara lain.</p>
+
+<p>Untuk melakukan otomasi ini, kita membutuhkan aplikasi <a href="http://www.winscp.net">WinSCP</a>. Ini adalah aplikasi untuk mentransfer file antara komputer Windows dengan Linux. Sejak menggunakan aplikasi ini, saya tidak pernah lagi menggunakan Windows Sharing dan Samba Server untuk kebutuhan file transfer.</p>
+
+<p>Berikut caranya. Perhatikan bahwa konfigurasi saya adalah sebagai berikut:</p>
+
+<ul>
+<li><p>Repository Server: Windows 2000 Professional dengan WinSCP terinstal</p></li>
+<li><p>Backup Server: Linux OpenSuSE 10.0 dengan SSH server aktif [IP Address: 192.168.0.2]</p></li>
+<li><p>Username di Backup Server: backuponly</p></li>
+<li><p>Password di Backup Server: backuppasswd</p></li>
+<li><p>Folder yang mau dibackup: c:\Backup</p></li>
+<li><p>Folder tujuan: /home/endy/backup</p></li>
+</ul>
+
+
+<p>Salah satu keunggulan WinSCP adalah, selain bisa mengelola transfer secara GUI, dia juga memiliki kemampuan scripting, sehingga bisa dipanggil dari command prompt.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/05/winscp.png" alt="Screenshot WinSCP" /></p>
+
+<p>Berikut adalah script untuk mengotomasi proses copy folder C:\Backup dari Windows ke /home/endy/backup di Linux. Save sebagai <em>c:\upload-backup.txt</em></p>
+
+<pre><code>&lt;code&gt;# Modus batch, supaya WinSCP tidak tanya-tanya
+option batch on
+# Otomatis overwrite file yang sama
+option confirm off
+# Masukkan username dan password
+open backuponly:backuppasswd@192.168.0.2
+# Pindah ke folder backup
+cd /home/endy/backup
+# Upload folder C:\Backup seisinya
+put c:/Backup 
+# Disconnect
+close
+# Exit WinSCP
+exit
+&lt;/code&gt;
+</code></pre>
+
+<p>Dan berikut adalah bat script untuk mengeksekusi script di atas, save dengan nama <em>c:\backup-scp.bat</em>:</p>
+
+<pre><code>&lt;code&gt;"C:\Program Files\WinSCP3\winscp3.exe" /console /script=upload-backup.txt&lt;/code&gt;
+</code></pre>
+
+<p>Script backup-scp.bat siap dijalankan melalui Windows Scheduler, sebaiknya 10 menit setelah jadwal backup.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/45/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/43/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

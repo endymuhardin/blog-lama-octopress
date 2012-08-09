@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pertanyaan : Kalau kita punya komputer, upgrade hardware apa yang paling meningkatkan produktifitas ?? Jawaban 1 : Prosesor Jawaban 2 : Memori Saya &hellip;">
+  <meta name="description" content="Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -29,6 +29,9 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
 
   
 
@@ -79,7 +82,7 @@
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/ubuntu-dual-head/">Dual Head Ubuntu</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/log4j-spring-mvc/">Konfigurasi Lokasi Logfile Pada Spring MVC</a></h1>
       
     
     
@@ -96,1362 +99,334 @@
   
 
 
-<time datetime="2007-06-28T17:00:00+07:00" pubdate data-updated="true">Jun 28<span>th</span>, 2007</time>
+<time datetime="2009-07-15T19:38:18+07:00" pubdate data-updated="true">Jul 15<span>th</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Pertanyaan : Kalau kita punya komputer, upgrade hardware apa yang paling meningkatkan produktifitas ??</p>
+  <div class="entry-content"><p>Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya, di Windows kita mungkin mendeploy aplikasi kita di</p>
 
-<p>Jawaban 1 : Prosesor</p>
-
-<p>Jawaban 2 : Memori</p>
-
-<p>Saya tidak sependapat dengan kedua jawaban di atas. Prosesor lebih kencang atau memori memang meningkatkan kemampuan komputer. Tapi ada upgrade lain yang lebih signifikan efeknya, yaitu tambah monitor.</p>
-
-<p>Anda pernah menonton film Swordfish? Film ini bercerita tentang Stanley Jobson, pensiunan hacker yang dipaksa membobol bank demi menyelamatkan anaknya. Di film ini, Stanley diberikan komputer super canggih agar bisa membobol jaringan bank. Komputer tersebut memiliki enam screen.</p>
-
-<p>Mereka yang sudah pernah merasakan bekerja dengan dua (atau lebih) monitor pasti mengerti maksud saya. Bayangkan coding di satu screen dan melihat Java API di screen yang satu lagi. Atau membuat desain software (UML, ERD, dsb) di screen kanan sambil melihat dokumen analisa di screen kiri. Dan masih banyak kemungkinan lain yang bisa dilakukan. Bahkan <a href="http://money.cnn.com/2006/03/30/news/newsmakers/gates_howiwork_fortune/">Bill Gates bekerja dengan tiga monitor sekaligus</a>.</p>
-
-<p>Pada artikel ini, saya akan membahas tentang cara setup dua monitor di Ubuntu. Komputer yang saya gunakan adalah NEC Versa 3100. Walaupun berbeda di sisi teknis, cara ini juga bisa diterapkan di komputer lain yang menggunakan X.Org sebagai X servernya.</p>
-
-<p>Sebelum mulai, mari kita kenali dulu istilah-istilah yang ada di dalam konfigurasi X.Org.</p>
-
-<ul>
-<li><p>InputDevice : Ini adalah segala alat input seperti mouse, keyboard, touchscreen, pulpen elektronik, dan teman-temannya. Dalam satu file konfigurasi bisa dimasukkan banyak device.</p></li>
-<li><p>Device: Yang dimaksud device di sini adalah display adapter kita, atau lebih dikenal dengan istilah VGA Card. Bila kita memasang lebih dari satu VGA Card, maka harus ada konfigurasi Device yang sesuai agar VGA Card tersebut bisa berfungsi dengan baik.</p></li>
-<li><p>Monitor: Self Explanatory. Monitor adalah yang menampilkan output dari komputer.</p></li>
-</ul>
-
-
-<p>Untuk mengaktifkan dual head, kita membutuhkan dua monitor. Perlu diperhatikan bahwa kita belum tentu butuh lebih dari satu VGA Card, tergantung tipe yang kita gunakan. Di PC saya yang lainnya, saya menggunakan NVidia GForce yang memiliki tiga output: VGA, DVI, dan TV. Yang biasa kita gunakan di monitor CRT adalah VGA port, sedangkan beberapa tipe monitor LCD biasanya menyediakan kabel VGA dan juga DVI. TV Out tentunya kita sudah tahu bentuknya, seperti colokan dari DVD player itu lho ..</p>
-
-<p>Karena saya menggunakan notebook, maka saya memiliki dua output dari VGA, yang satu adalah LCD bawaan notebook tersebut, dan satu lagi VGA port yang biasa kita gunakan untuk presentasi.</p>
-
-<p>Jumlah VGA dan output port yang kita miliki sangat penting diketahui agar bisa mengkonfigurasi dual head dengan benar. Untuk mereka yang VGA outputnya cuma satu port terpaksa pasang satu card lagi agar bisa menggunakan dual head.</p>
-
-<p>Baiklah, mari kita masuk ke konfigurasi. Sebagai titik awal, berikut konfigurasi X.Org saya sebelum ada modifikasi apa-apa. Ini merupakan konfigurasi yang dibuatkan Ubuntu.</p>
-
-<pre><code>&lt;code&gt;# /etc/X11/xorg.conf (xorg X Window System server configuration file)
-#
-# This file was generated by dexconf, the Debian X Configuration tool, using
-# values from the debconf database.
-#
-# Edit this file with caution, and see the xorg.conf(5) manual page.
-# (Type "man xorg.conf" at the shell prompt.)
-#
-# This file is automatically updated on xserver-xorg package upgrades *only*
-# if it has not been modified since the last upgrade of the xserver-xorg
-# package.
-#
-# If you have edited this file but would like it to be automatically updated
-# again, run the following command:
-#   sudo dpkg-reconfigure -phigh xserver-xorg
-
-Section "Files"
-    FontPath    "/usr/share/fonts/X11/misc"
-    FontPath    "/usr/share/fonts/X11/cyrillic"
-    FontPath    "/usr/share/fonts/X11/100dpi/:unscaled"
-    FontPath    "/usr/share/fonts/X11/75dpi/:unscaled"
-    FontPath    "/usr/share/fonts/X11/Type1"
-    FontPath    "/usr/share/fonts/X11/100dpi"
-    FontPath    "/usr/share/fonts/X11/75dpi"
-    # path to defoma fonts
-    FontPath    "/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType"
-EndSection
-
-Section "Module"
-    Load    "i2c"
-    Load    "bitmap"
-    Load    "ddc"
-    Load    "dri"
-    Load    "extmod"
-    Load    "freetype"
-    Load    "glx"
-    Load    "int10"
-    Load    "vbe"
-EndSection
-
-Section "InputDevice"
-    Identifier  "Generic Keyboard"
-    Driver      "kbd"
-    Option      "CoreKeyboard"
-    Option      "XkbRules"  "xorg"
-    Option      "XkbModel"  "pc105"
-    Option      "XkbLayout" "us"
-EndSection
-
-Section "InputDevice"
-    Identifier  "Configured Mouse"
-    Driver      "mouse"
-    Option      "CorePointer"
-    Option      "Device"        "/dev/input/mice"
-    Option      "Protocol"      "ImPS/2"
-    Option      "ZAxisMapping"      "4 5"
-    Option      "Emulate3Buttons"   "true"
-EndSection
-
-Section "InputDevice"
-    Identifier  "Synaptics Touchpad"
-    Driver      "synaptics"
-    Option      "SendCoreEvents"    "true"
-    Option      "Device"        "/dev/psaux"
-    Option      "Protocol"      "auto-dev"
-    Option      "HorizScrollDelta"  "0"
-EndSection
-
-Section "InputDevice"
-    Driver      "wacom"
-    Identifier  "stylus"
-    Option      "Device"    "/dev/input/wacom"
-    Option      "Type"      "stylus"
-    Option      "ForceDevice"   "ISDV4"     # Tablet PC ONLY
-EndSection
-
-Section "InputDevice"
-    Driver      "wacom"
-    Identifier  "eraser"
-    Option      "Device"    "/dev/input/wacom"
-    Option      "Type"      "eraser"
-    Option      "ForceDevice"   "ISDV4"     # Tablet PC ONLY
-EndSection
-
-Section "InputDevice"
-    Driver      "wacom"
-    Identifier  "cursor"
-    Option      "Device"    "/dev/input/wacom"
-    Option      "Type"      "cursor"
-    Option      "ForceDevice"   "ISDV4"     # Tablet PC ONLY
-EndSection
-
-Section "Device"
-    Identifier  "Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller"
-    Driver      "i810"
-    BusID       "PCI:0:2:0"
-#   Option "ForceBIOS" "1920x1440=1280x768"
-EndSection
-
-Section "Monitor"
-    Identifier  "Generic Monitor"
-    Option      "DPMS"
-EndSection
-
-Section "Screen"
-    Identifier  "Default Screen"
-    Device      "Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller"
-    Monitor     "Generic Monitor"
-    DefaultDepth    24
-    SubSection "Display"
-        Depth       1
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       4
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       8
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       15
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       16
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       24
-        Modes       "1280x768"
-    EndSubSection
-EndSection
-
-Section "ServerLayout"
-    Identifier  "Default Layout"
-    Screen      "Default Screen"
-    InputDevice "Generic Keyboard"
-    InputDevice "Configured Mouse"
-    InputDevice     "stylus"    "SendCoreEvents"
-    InputDevice     "cursor"    "SendCoreEvents"
-    InputDevice     "eraser"    "SendCoreEvents"
-    InputDevice "Synaptics Touchpad"
-EndSection
-
-Section "DRI"
-    Mode    0666
-EndSection&lt;/code&gt;
+<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya
 </code></pre>
 
-<p>Perlu saya ingatkan untuk SELALU BACKUP konfigurasi awal Anda sebelum mengubah konfigurasi. Jadi bila terjadi kegagalan, kita selalu bisa kembali ke setting awal.</p>
+<p>Sedangkan di Linux, kita mendeploy aplikasi di</p>
 
-<h4>Penggantian Nama</h4>
-
-<p>Pertama, mari kita ganti dulu beberapa nama pada file konfigurasi di atas agar lebih mudah dimengerti. Yang perlu diganti adalah bagian Monitor dan Device. Saya ganti menjadi seperti ini.</p>
-
-<pre><code>&lt;code&gt;Section "Device"
-    Identifier  "Intel i915 LCD Output"
-    Driver      "i810"
-    BusID       "PCI:0:2:0"
-#   Option "ForceBIOS" "1920x1440=1280x768"
-EndSection
-
-Section "Monitor"
-    Identifier  "Default LCD"
-    Option      "DPMS"
-EndSection&lt;/code&gt;
+<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya
 </code></pre>
 
-<p>Artinya, device di atas mengacu pada output yang menuju LCD screen saya. Nama monitor juga diganti menjadi LCD agar lebih jelas.</p>
+<p>Dengan kemungkinan seperti di atas, bagaimana kita harus menulis konfigurasi log4j?
+Mudah, bila kita menggunakan Spring MVC.</p>
 
-<h4>Menambah Monitor</h4>
+<p>Kita bisa menggunakan <code>Log4jConfigListener</code> yang disediakan Spring. Class ini memungkinkan kita menggunakan variabel di konfigurasi log4j kita. Kita mendaftarkan class ini di dalam <code>web.xml</code>, sebelum <code>ContextLoaderListener</code>, seperti ini :</p>
 
-<p>Sekarang, kita tambah monitor dan juga port VGA output. Konfigurasinya adalah sebagai berikut.</p>
+<pre><code>    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
 
-<pre><code>&lt;code&gt;Section "Device"
-    Identifier  "Intel i915 External Output"
-    Driver      "i810"
-    BusID       "PCI:0:2:0"
-    Option "ForceBIOS" "1920x1440=1280x768"
-EndSection
-Section "Monitor"
-    Identifier  "External Monitor"
-    Option      "DPMS"
-EndSection
-&lt;/code&gt;
-</code></pre>
-
-<p>Karena ada tambahan output, kita perlu menjelaskan pada X.Org mana screen utama kita. Kalau kita tidak lakukan ini, maka bisa saja pada saat booting LCD screen saya blank, karena outputnya dikeluarkan ke monitor CRT yang belum tentu dipasang. Tambahkan nomor screen pada konfigurasi VGA Card seperti ini.</p>
-
-<pre><code>&lt;code&gt;Section "Device"
-    Identifier  "Intel i915 LCD Output"
-    Driver      "i810"
-    BusID       "PCI:0:2:0"
-#   Option "ForceBIOS" "1920x1440=1280x768"
-    Option "MonitorLayout" "CRT,LFP"
-    Screen      0
-EndSection
-Section "Device"
-    Identifier  "Intel i915 External Output"
-    Driver      "i810"
-    BusID       "PCI:0:2:0"
-    Option "ForceBIOS" "1920x1440=1280x768"
-    Screen      1
-EndSection
-&lt;/code&gt;
-</code></pre>
-
-<p>Dari konfigurasi di atas dapat terlihat bahwa screen utama (screen 0) adalah LCD Output. Di atas juga ada tambahan konfigurasi <code>MonitorLayout</code>. Ini ditambahkan agar secara default kedua output langsung aktif. Biasanya kalau kita pakai laptop, ada kombinasi tombol untuk mengaktifkan VGA Output, misalnya Fn+F5 atau Fn+F3. Nah, dengan opsi ini, VGA output langsung aktif tanpa harus menekan Fn+Something.</p>
-
-<h4>Konfigurasi Screen</h4>
-
-<p>Selanjutnya, kita akan mengkonfigurasi Screen. Screen adalah kombinasi antara Device dan Monitor. Artinya, konfigurasi ini akan menentukan VGA Output mana yang terhubung ke Monitor mana, berikut resolusi tampilannya. Karena tadi kita mengganti nama monitor dan VGA Output, maka kita harus sesuaikan konfigurasi Screen yang sudah ada. Berikut hasilnya.</p>
-
-<pre><code>&lt;code&gt;Section "Screen"
-    Identifier  "Default Screen"
-    Device      "Intel i915 LCD Output"
-    Monitor     "Default LCD"
-    DefaultDepth    24
-    SubSection "Display"
-        Depth       1
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       4
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       8
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       15
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       16
-        Modes       "1280x768"
-    EndSubSection
-    SubSection "Display"
-        Depth       24
-        Modes       "1280x768"
-    EndSubSection
-EndSection&lt;/code&gt;
-</code></pre>
-
-<p>dan selanjutnya, ini adalah tambahan untuk screen kedua kita.</p>
-
-<pre><code>&lt;code&gt;Section "Screen"
-    Identifier  "External Screen"
-    Device      "Intel i915 External Output"
-    Monitor     "External Monitor"
-    DefaultDepth    24
-    SubSection "Display"
-        Depth       1
-        Modes       "1024x768" "800x600"
-    EndSubSection
-    SubSection "Display"
-        Depth       4
-        Modes       "1024x768" "800x600"
-    EndSubSection
-    SubSection "Display"
-        Depth       8
-        Modes       "1024x768" "800x600"
-    EndSubSection
-    SubSection "Display"
-        Depth       16
-        Modes       "1024x768" "800x600"
-    EndSubSection
-    SubSection "Display"
-        Depth       16
-        Modes       "1024x768" "800x600"
-    EndSubSection
-    SubSection "Display"
-        Depth       24
-        Modes       "1024x768" "800x600"
-    EndSubSection
-EndSection&lt;/code&gt;
-</code></pre>
-
-<p>Kedua screen siap digunakan. Sekarang tinggal satu langkah terakhir.</p>
-
-<h4>ServerLayout</h4>
-
-<p>Kita perlu memberitahu X.Org screen mana yang ada di kiri, dan mana yang sebelah kanan. Gunanya agar mouse pointer kita bisa &#8216;menembus batas&#8217; dengan benar. Misalnya monitor CRT kita pasang di sebelah kiri laptop, maka seharusnya kalau mouse pointer digerakkan ke pinggir kiri LCD, dia akan muncul di pinggir kanan CRT.</p>
-
-<p>Berikut adalah konfigurasi ServerLayout.</p>
-
-<pre><code>&lt;code&gt;Section "ServerLayout"
-    Identifier  "Multihead Layout"
-    Screen      0 "Default Screen" 0 0
-    Screen      1 "External Screen" LeftOf "Default Screen"
-    InputDevice "Generic Keyboard"
-    InputDevice "Configured Mouse"
-    InputDevice     "stylus"    "SendCoreEvents"
-    InputDevice     "cursor"    "SendCoreEvents"
-    InputDevice     "eraser"    "SendCoreEvents"
-    InputDevice "Synaptics Touchpad"
-#   Option      "Xinerama" "true"
-EndSection&lt;/code&gt;
-</code></pre>
-
-<p>Pada konfigurasi di atas, saya menon-aktifkan opsi Xinerama. Kalau opsi ini dijalankan, kita akan memiliki desktop super lebar. Kita bisa drag satu window menembus batas. Tapi kalau opsi ini dimatikan, seolah-olah ada dua desktop yang terpisah, mouse pointer bisa tembus, tapi window aplikasi tidak.</p>
-
-<p>Kalau Anda menonton Swordfish, Stanley Jobson mendapatkan konfigurasi Xinerama. Ini dapat dilihat dari screensaver komet yang berjalan mengelilingi keenam screen yang tersedia. Tergantung kebutuhan, opsi ini bisa dinyalakan atau dimatikan.</p>
-
-<p>Setelah selesai, logout dari desktop. Untuk memastikan, restart X server dengan kombinasi tombol Ctrl+Alt+Backspace. Kalau segalanya berjalan lancar, dual head akan tampil di hadapan kita. Perlu diperhatikan, kadang resolusi layar tidak berjalan sesuai harapan. Kadang kita perlu reboot agar resolusinya benar.</p>
-
-<p>Demikian artikel kali ini, semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/konfigurasi-svn-http-di-opensuse-102/">Konfigurasi SVN-HTTP Di OpenSuSE 10.2</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-27T21:24:53+07:00" pubdate data-updated="true">Jun 27<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Artikel ini akan menjelaskan tentang konfigurasi Apache dan OpenLDAP di OpenSuSE 10.2 agar Subversion Repository yang kita miliki bisa diakses melalui protokol HTTP.</p>
-
-<p>Pertama, instal software yang dibutuhkan. Jalankan Yast dan instal paket-paket berikut:</p>
-
-<ul>
-<li><p>subversion</p></li>
-<li><p>apache2</p></li>
-<li><p>subversion-server</p></li>
-<li><p>yast2-http-server</p></li>
-</ul>
-
-
-<p>Setelah itu, modifikasi executable Subversion agar repository yang dihasilkan memiliki nilai umask yang tepat. Caranya dapat dilihat <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">di sini</a>.</p>
-
-<p>Lalu buat repository untuk percobaan, sebagai contoh saya akan membuat repository di folder <code>/opt/repository/repo-percobaan</code>.</p>
-
-<pre><code>&lt;code&gt;svnadmin create --fs-type fsfs /opt/repository/repo-percobaan&lt;/code&gt;
-</code></pre>
-
-<p>Selanjutnya, kita akan mengkonfigurasi Apache agar membaca folder tersebut dan memetakannya ke URL /svn. Jadi, bila kita mengakses <code>http://localhost/svn/repo-percobaan</code> di browser, Apache akan menampilkan isi repository kita.</p>
-
-<p>Caranya, buka Yast, kemudian masuk ke Network Services > HTTP Server.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/06/yast-http-server.png" alt="Yast Control Panel" /></p>
-
-<p>Ikuti wizard tanpa perubahan sampai layar terakhir. Setelah itu, klik Expert Configuration.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/06/yast-http-server5.png" alt="Expert Configuration" /></p>
-
-<p>Layar pertama adalah pilihan port yang dilayani Apache. Tambahkan port 443 untuk mengaktifkan SSL.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/06/yast-http-server7.png" alt="Port SSL" /></p>
-
-<p>Setelah itu, masuk ke tab Server Modules. Aktifkan module <code>dav</code>, <code>dav_fs</code>.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/06/yast-http-server8.png" alt="Apache Module" /></p>
-
-<p>Kita juga butuh modul tambahan untuk Subversion. Klik Add Module, tambahkan modul <code>dav_svn</code> dan <code>authz_svn</code>.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/06/yast-http-server9.png" alt="Add Subversion Module" /></p>
-
-<p>Selesai dengan Yast. Klik OK untuk menyimpan perubahan. Sekarang kita akan mengedit konfigurasi modul Subversion agar membaca folder repository kita.</p>
-
-<p>Buka file /etc/apache2/conf.d/subversion.conf. Di sana sudah disediakan template yang siap diedit sesuai kebutuhan. Untuk tahap pertama ini, ubah isi file tersebut menjadi seperti ini.</p>
-
-<pre><code>&lt;code&gt;&lt;IfModule mod_dav_svn.c&gt;
-&lt;Location /svn&gt;
-   DAV svn
-   SVNParentPath /opt/repository
-&lt;/Location&gt;
-
-&lt;/IfModule&gt;&lt;/code&gt;
-</code></pre>
-
-<p>Server ini akan digunakan untuk beberapa project sekaligus. Untuk setiap repository baru yang dibuat di kemudian hari, tidak perlu setting ulang Apache. Cukup buat folder repository baru di dalam <code>/opt/repository</code>.</p>
-
-<p>Save file tersebut, dan restart Apache melalui Yast. Repository sudah bisa dibaca. Arahkan browser Anda ke <code>http://localhost/svn/repo-percobaan</code>. Instalasi yang sukses akan menghasilkan tampilan seperti ini.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/06/yast-http-server11.png" alt="Browse Repository Content" /></p>
-
-<p>Silahkan baca <a href="http://endy.artivisi.com/blog/aplikasi/otentikasi-apache-menggunakan-ldap/">artikel ini</a> untuk mengaktifkan otentikasi melalui OpenLDAP.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/mp3-di-linux/">MP3 Di Linux</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-25T18:57:16+07:00" pubdate data-updated="true">Jun 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Distro Linux yang gratis umumnya tidak menyertakan dukungan MP3, Flash, DVD, dan berbagai format file non-open-source yang lainnya. Ini disebabkan karena format tersebut dilarang di beberapa negara, walaupun di Indonesia diperbolehkan. Ini merupakan masalah yang sudah banyak jawabannya. Bahkan beberapa distro populer sudah memudahkan cara instalasinya.</p>
-
-<p>Mari kita lihat dua distro populer, Ubuntu dan OpenSuSE.
-Pada Ubuntu Feisty, ada paket yang khusus untuk mengatasi masalah ini, namanya ubuntu-restricted-extras. Cukup buka command prompt, dan ketikkan</p>
-
-<pre><code>&lt;code&gt;sudo apt-get install ubuntu-restricted-extras&lt;/code&gt;
-</code></pre>
-
-<p>Paket ini ada di repository <code>multiverse</code>, jadi pastikan komputer Anda memiliki database dari repository tersebut.</p>
-
-<p>Paket ubuntu-restricted-extras ini memungkinkan kita untuk:</p>
-
-<ul>
-<li><p>Memainkan MP3</p></li>
-<li><p>Memainkan DVD</p></li>
-<li><p>Membuka website ber-Flash</p></li>
-<li><p>Membuka website ber-Java Applet</p></li>
-<li><p>Menggunakan font Arial, Trebuchet, dan font Windows lainnya</p></li>
-</ul>
-
-
-<p>Untuk OpenSuSE 10.2, kita harus tambahkan repository packman. Buka Yast, klik Installation Source. Nanti kita akan disuguhi berbagai pilihan protokol. Pilih protokol HTTP.</p>
-
-<p>Selanjutnya, kita akan ditanyai dua hal, nama server repository, dan folder tempat database paket berada. Masukkan ftp.uni-erlangen.de pada kolom nama server, dan /pub/mirrors/packman/suse/10.2 pada nama folder.</p>
-
-<p>Tidak, saya tidak salah ketik, protokolnya memang HTTP dan alamat servernya diawali dengan FTP. Kalau tidak percaya coba saja sendiri, atau lihat <a href="http://amarok.kde.org/wiki/MP3_on_openSUSE_10.2">di sini</a>.</p>
-
-<p>Setelah repository ditambah, Yast akan mendownload database aplikasi yang disediakan, untuk kemudian mengupdate database internalnya. Bila koneksi internet Anda lambat, bersabar sedikit.</p>
-
-<p>Begitu repository selesai ditambah, kita bisa buka menu Software Management, dan Search dengan keyword <code>libxine1</code>. Ini adalah library yang dibutuhkan agar Amarok bisa memainkan MP3. Amarok adalah aplikasi pemain musik (music player) di KDE.</p>
-
-<p>Instal libxine1, dan  Amarok akan segera bisa menyanyikan MP3.</p>
-
-<p>Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/ntfs-write-di-opensuse-102/">NTFS Write Di OpenSuSE 10.2</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-22T01:39:23+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di Ubuntu, menulis ke partisi NTFS sangat mudah. Cukup lakukan</p>
-
-<pre><code>sudo apt-get install ntfs-config
-</code></pre>
-
-<p>dan partisi NTFS siap ditulisi.</p>
-
-<p>Di OpenSuSE 10.2, tidak semudah ini. Secara default, repository OpenSuSE tidak mengandung <code>ntfs-3g</code>, paket yang dibutuhkan untuk menulis ke NTFS, yang siap digunakan. Oleh karena itu, beberapa orang memilih untuk mengkompilasi sendiri, salah satunya <a href="http://sugandi.blogspot.com/2007/01/how-to-write-to-ntfs-partition-on-linux.html">Oom Andi Sugandi</a>.</p>
-
-<p>Tetapi akhirnya saya menemukan cara yang mudah, tidak melibatkan kompilasi ulang. Berikut caranya.</p>
-
-<h3>Tambah Repository</h3>
-
-<p>Pertama, kita harus menggunakan repository milik Jan Engel***. Masuk ke Yast, dan pilih Installation Source. Kita akan menggunakan protokol FTP. Alamat servernya adalah <code>ftp-1.gwdg.de</code> dan folder repositorynya adalah <code>/pub/linux/misc/suser-jengelh/SUSE-10.2/</code>. Silahkan tambahkan entri tersebut dan klik OK. Yast akan segera memperbaharui database aplikasinya.</p>
-
-<h3>Instalasi Paket</h3>
-
-<p>Selanjutnya, kita bisa langsung menginstal paketnya. Dari Yast, buka Software Management, dan cari dengan keyword <code>ntfs</code>. Kita akan menemukan paket <code>ntfs-3g</code>. Instal paket tersebut.
-Yast akan meminta paket tambahan, yaitu <code>fuse</code>. Instal saja dua-duanya.</p>
-
-<h3>Edit fstab</h3>
-
-<p>Sebelum mengubah isi <code>/etc/fstab</code>, jangan lupa untuk melakukan umount pada partisi windows yang kita miliki.
-Agar partisi windows kita dimount secara otomatis pada saat boot, kita perlu mengedit file <code>/etc/fstab</code>. Temukan entri seperti ini,</p>
-
-<pre><code>/dev/sda1            /media/windows/C     ntfs    ro,users,gid=users,umask=0002,nls=utf8 0 0
-</code></pre>
-
-<p>dan ubah menjadi seperti ini</p>
-
-<pre><code>/dev/sda1            /media/windows/C     ntfs-3g    silent,unmask=0,locale=en_US.utf8 0 0
-</code></pre>
-
-<p>Setelah itu, kita bisa menguji coba dengan perintah <code>mount -a</code>. Di komputer saya muncul warning sebagai berikut.</p>
-
-<pre><code>WARNING: Deficient Linux kernel detected. Some driver features are
-         not available (swap file on NTFS, boot from NTFS by LILO), and
-         unmount is not safe unless it's made sure the ntfs-3g process
-         naturally terminates after calling 'umount'. If you wish this
-         message to disappear then you should upgrade to at least kernel
-         version 2.6.20, or request help from your distribution to fix
-         the kernel problem. The below web page has more information:
-         http://ntfs-3g.org/support.html#fuse26
-</code></pre>
-
-<p>Tapi warning ini tidak berbahaya.</p>
-
-<h3>Edit Boot Config</h3>
-
-<p>Selain fstab, ada satu file lagi yang harus diedit agar mounting otomatis berjalan lancar pada saat booting. Edit file <code>/etc/sysconfig/kernel</code>. Cari baris berikut</p>
-
-<pre><code>MODULES_LOADED_ON_BOOT=""
-</code></pre>
-
-<p>dan ganti menjadi seperti ini</p>
-
-<pre><code>MODULES_LOADED_ON_BOOT="fuse"
-</code></pre>
-
-<p>Partisi NTFS siap digunakan. Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/migrasi-linux/">Migrasi Linux</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-21T18:32:05+07:00" pubdate data-updated="true">Jun 21<span>st</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di kantor saya sekarang sedang terjadi euforia Linux. Hmm&#8230;. bukan euforia. Tampaknya histeria lebih tepat. Karena semua orang tampak histeris dan ingin sampai di kantor besok harinya dan menemukan semua Windows sudah tidak ada, dan semua orang bekerja normal dan gembira.</p>
-
-<p>Ini semua dipicu oleh razia software bajakan yang marak terjadi beberapa bulan ini. Beberapa perusahaan bahkan menerima surat dari Pak Sutanto yang gambar sampulnya saja sudah menakutkan. Bukannya kantor saya pakai bajakan, tapi dengan sekian ratus orang karyawan, masing-masingnya menggunakan paling tidak satu komputer, siapa yang tau kalau mereka instal ulang komputernya dengan aplikasi GPL (Glodok Public License) ??</p>
-
-<p>Jadilah akhirnya job desc saya bertambah satu, konsultan migrasi Linux, karena kebetulan di komputer dan notebook saya sudah tidak ada Windowsnya lagi. Berikut beberapa pengalaman yang bisa dibagi berkaitan dengan histeria migrasi ini. Siapa tau berikutnya kantor Anda yang dilanda demam pinguin.</p>
-
-<h3>Siapkan Install Server</h3>
-
-<p>Satu kali diminta instal, no problem. Dua kali, yah mau gimana lagi. Tiga kali?? That&#8217;s enough. Ubuntu memang mudah diinstal, tapi distro lain seperti OpenSuSE tidak senyaman Ubuntu. Untuk OpenSuSE, kita harus menunggui proses instalasi, dan mengganti CD pada waktunya.</p>
-
-<p>Bila Anda mengantisipasi akan menginstal lebih dari tiga komputer, segera deploy fitur instalasi melalui jaringan. Ini adalah investasi beberapa jam yang akan menyelamatkan beberapa puluh jam dari masa remaja Anda di kemudian hari.</p>
-
-<p>Semua distro Linux mendukung instalasi melalui jaringan, walaupun caranya berbeda-beda. Saya menyiapkan repository di jaringan lokal untuk beberapa distro utama, untuk kasus saya, Ubuntu dan OpenSuSE.</p>
-
-<p>Repository Ubuntu dapat dibuat dengan mudah menggunakan DVD Repository yang bisa didonlod di <a href="http://anak.kambing.vlsm.org/">kandang anak kambing</a>. Segera setelah DVD repository selesai didownload, aktifkan webserver Apache dan mount ISOnya ke folder yang dapat diakses orang banyak. Cara yang sama bisa dilakukan untuk distro OpenSuSE.</p>
-
-<p>Sebagai contoh, semua ISO tersebut saya mount ke folder <code>/home/endy/tmp/UbuntuRepo</code> dan <code>/home/endy/tmp/OpenSuSE</code>. Kemudian kedua folder tersebut saya publish melalui Apache. Berikut adalah konfigurasi <code>/etc/fstab</code> agar ISO tersebut dimount pada saat booting.</p>
-
-<pre><code>&lt;code&gt;# Ubuntu Repository DVDs
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-1_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD1 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-2_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD2 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-3_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD3 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-4_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD4 iso9660 loop,auto 0 0 
-
-# OpenSuSE CD
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD1.iso  /home/endy/tmp/OpenSuSE/CD1 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD2.iso  /home/endy/tmp/OpenSuSE/CD2 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD3.iso  /home/endy/tmp/OpenSuSE/CD3 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD4.iso  /home/endy/tmp/OpenSuSE/CD4 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD5.iso  /home/endy/tmp/OpenSuSE/CD5 iso9660 loop,auto 0 0 
-&lt;/code&gt;
-</code></pre>
-
-<p>Semakin banyak ISO yang dimount, semakin banyak juga loop device yang dibutuhkan. Instalasi Ubuntu standar cuma menyediakan 8 device loop, sehingga tidak cukup untuk memuat 4 ISO Ubuntu dan 5 ISO OpenSuSE.
-Untuk memeriksa berapa device loop yang tersedia, lihat di dalam <code>/dev/</code></p>
-
-<p>Untuk itu, device loop perlu ditambahkan. Di Ubuntu, tambahkan baris berikut di file <code>/etc/modprobe.d/options</code></p>
-
-<pre><code>&lt;code&gt;options loop max_loop=32 
-&lt;/code&gt;
-</code></pre>
-
-<p>agar pada saat booting kernel menyediakan 32 device loop.</p>
-
-<p>Selanjutnya, kita lakukan mapping agar folder /home/endy/tmp tersebut dipublish di http server. Cara termudah adalah dengan membuat symlink ke folder DocumentRoot (untuk keluarga Debian adalah /var/www).</p>
-
-<pre><code>&lt;code&gt;ln -s /var/www/UbuntuRepo /home/endy/tmp/UbuntuRepo
-ln -s /var/www/OpenSuSE /home/endy/tmp/OpenSuSE
-&lt;/code&gt;
-</code></pre>
-
-<p>Berikutnya, buat boot CD atau boot USB agar pada saat instalasi kita cukup mengarahkan ke jaringan. Saya biasanya memulai instalasi pada sore hari agar bisa ditinggal pulang.</p>
-
-<h3>Migrasi Email</h3>
-
-<p>Arsip email merupakan harta yang sangat penting di kehidupan perkantoran modern. Dia bisa digunakan sebagai amunisi audit, bahan berkelit, ataupun mencari referensi. Oleh karena itu, setelah migrasi biasanya user akan menanyakan, &#8220;Email lama saya mana??&#8221;.</p>
-
-<p>Email dari Outlook Express bukanlah masalah besar. Hampir semua mail client Linux seperti KMail, Thunderbird, dan Evolution sudah menyediakan fitur import. Yang paling bermasalah adalah Outlook 2003. Native import belum ada di semua mail client Linux pada saat tulisan ini dibuat. Jadi, kita harus lebih dalam menggali isi perut Google.</p>
-
-<p>Saya menemukan tiga metode yang bisa digunakan:</p>
-
-<ol>
-<li><p>Menggunakan Thunderbird</p></li>
-<li><p>Menggunakan File Sharing</p></li>
-<li><p>Menggunakan IMAP Server</p></li>
-</ol>
-
-
-<p>Cara mana yang dipilih tergantung dari ketersediaan ahli Linux di sekitar Anda. Kalau tidak ada ahli Linux sama sekali, gunakan cara pertama. Berikut adalah langkah-langkahnya.</p>
-
-<h4>Kebutuhan Software</h4>
-
-<ul>
-<li><p>MS Windows. Ya Anda membutuhkan komputer yang masih ada Windowsnya</p></li>
-<li><p>Mozilla Thunderbird untuk Windows</p></li>
-<li><p>Linux. Kalau Anda sudah menjadi korban migrasi, harusnya komputer Anda sudah terinstal Linux pada saat ini.</p></li>
-<li><p>Mozilla Thunderbird untuk Linux</p></li>
-</ul>
-
-
-<h4>Cara migrasi</h4>
-
-<p>Cara memindahkan email sangat mudah. Pembaca yang teliti tentunya sudah bisa menebak langkah-langkahnya hanya dengan melihat kebutuhan software di atas.</p>
-
-<ol>
-<li><p>Buka Thunderbird di Windows</p></li>
-<li><p>Import file *.pst Anda</p></li>
-<li><p>Buka setting Thunderbird, cari tahu di mana dia menyimpan emailnya</p></li>
-<li><p>Copy folder tersebut ke komputer Linux Anda</p></li>
-<li><p>Jalankan Thunderbird Linux, arahkan folder penyimpanan email ke folder hasil copy</p></li>
-<li><p>Restart Thunderbird</p></li>
-<li><p>Setelah ini, Anda bisa import hasilnya ke Evolution atau KMail, sesuai dengan pilihan</p></li>
-</ol>
-
-
-<p>Cara kedua melibatkan pembuatan folder sharing di suatu tempat. Pada dasarnya cara ini adalah otomasi dari cara pertama di atas, sehingga bisa digunakan untuk memigrasi banyak user sekaligus. Saya kurang merekomendasikan cara ini karena relatif sulit dan tidak intuitif. Bagi yang ingin tahu bisa langsung <a href="http://www.neotek.hu/en/o2e_en.html">lihat di websitenya</a>.</p>
-
-<p>Buat saya, instalasi Thunderbird berkali-kali kurang menyenangkan. Lagipula, terkesan kurang hi-tech. Berikut adalah cara ketiga. Untuk melakukan ini, Anda butuh ahli Linux yang mampu mengkonfigurasi email server berprotokol IMAP. Sebenarnya IMAP server ini bisa di mana saja, termasuk di Windows. Yang penting IMAP. Cara setting IMAP server tidak dibahas pada artikel ini.</p>
-
-<p>Berikut adalah langkah-langkah migrasi.</p>
-
-<ol>
-<li><p>Sebelum komputer Windows diformat, jalankan dulu Outlook 2003 untuk terakhir kalinya</p></li>
-<li><p>Buat akun email baru di Outlook, menggunakan akun yang sudah dibuatkan di IMAP server</p></li>
-<li><p>Copy email dari Local Folder Outlook ke folder IMAP</p></li>
-<li><p>Silahkan format Windowsnya dan install Linux</p></li>
-<li><p>Setelah berada di Linux, jalankan mail client apapun yang Anda sukai</p></li>
-<li><p>Buat akun email menggunakan akun di IMAP server</p></li>
-<li><p>Email Anda akan hadir tanpa suatu cacat apapun. Silahkan pindahkan ke folder lokal</p></li>
-</ol>
-
-
-<p>Saya sangat menyukai cara ketiga ini. Bisa memigrasi email orang banyak dengan singkat, dan user bisa diajari untuk melakukannya sendiri.</p>
-
-<p>Demikianlah beberapa tips singkat tentang migrasi Linux. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/vnstat/">vnStat</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-19T17:50:52+07:00" pubdate data-updated="true">Apr 19<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sekarang sedang marak layanan internet berbasis paket. Artinya, kita dikenakan biaya berdasarkan besar data yang kita konsumsi, baik kirim (uplink) maupun terima (downlink).</p>
-
-<p>Perbedaan cara penagihan tentunya juga mempengaruhi perilaku berinternet kita. Dengan layanan berbasis waktu, kita dapat membatasi pengeluaran dengan cara membatasi durasi berinternet. Nah, kalau berbasis paket, bagaimana cara mengendalikan pemakaian?</p>
-
-<p>Berbagai aplikasi open source dapat digunakan untuk memonitor pemakaian internet, salah satunya adalah <a href="http://humdi.net/vnstat/">vnStat</a>. Aplikasi kecil ini sangat mudah digunakan. Cukup instal, inisialisasi databasenya, dan lihat laporannya.</p>
-
-<h3>Instalasi vnStat</h3>
-
-<p>Instalasi, seperti biasa, sangat mudah. Di Ubuntu, cukup dengan satu baris.
-<code>sudo apt-get install vnstat</code></p>
-
-<p>Setelah terinstal, kita harus menginisialisasi database tempat data monitoring diletakkan. Di komputer saya, ada dua antarmuka jaringan, WiFi (eth1) dan kabel (eth2). Nantinya bila menggunakan modem ADSL, biasanya saya akan menggunakan antarmuka kabel (eth2) yang terhubung ke modem ADSL.</p>
-
-<p>Untuk menginisialisasi database, lakukan perintah berikut, sesuai dengan nama antarmuka yang akan dimonitor.</p>
-
-<pre><code>&lt;code&gt;sudo vnstat -u -i eth1
-sudo vnstat -u -i eth2&lt;/code&gt;
-</code></pre>
-
-<p>vnStat akan mengeluarkan pesan error tentang file database yang tidak ditemukan. Biarkan saja, karena filenya belum ada.</p>
-
-<p>Setelah itu, vnStat sudah bekerja di belakang layar. Untuk melihat pemakaian internet, kita harus menginstal satu aplikasi lagi, yaitu <a href="http://www.sqweek.com/sqweek/index.php?p=1">vnStat Front End</a>. Aplikasi ini kerjanya membaca database yang dihasilkan vnStat dan menampilkannya di web. Karena berbasis PHP, seharusnya tidak sulit untuk diinstal.</p>
-
-<h3>Instalasi vnStat FrontEnd</h3>
-
-<p>Instalasinya tidak sulit. Cukup download dari websitenya, dan extract di folder yang dikenali oleh Apache HTTPD. Di komputer saya, saya gunakan folder <code>/opt/lampp/htdocs/vnstat</code>.</p>
-
-<p>Edit file config.php sehingga menjadi seperti ini.</p>
-
-<pre><code>&lt;code&gt;
-// list of network interfaces monitored by vnStat
-$iface_list = array('eth1', 'eth2');
-$iface_title['eth1'] = 'Wireless';
-$iface_title['eth2'] = 'Wired';
-&lt;/code&gt;
-</code></pre>
-
-<p>Selanjutnya, browse ke http://localhost/vnstat. Kita akan mendapati data penggunaan jaringan kita seperti gambar di bawah.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/04/vnstat.png" alt="vnStat Front End Screenshot" /></p>
-
-<p>Selamat mencoba</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/Lain2/lowongan-programmer/">Lowongan Programmer</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-18T23:31:01+07:00" pubdate data-updated="true">Apr 18<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di tempat saya bekerja saat ini (BaliCamp), saya sedang membutuhkan anggota tim. Tidak butuh yang terlalu canggih, saya justru cari fresh graduate. Nantinya kandidat yang lolos akan ditempatkan di tim saya, mengembangkan aplikasi untuk mengelola software development process.</p>
-
-<p>Ada banyak nilai tambah yang bisa diperoleh dari pekerjaan ini, selain tentunya gaji dan fasilitas standar seperti layaknya karyawan lainnya. Biar saya jelaskan sedikit.</p>
-
-<p>Pertama, yang akan kita buat di sini adalah aplikasi manajemen proyek yang spesifik untuk software development. Artinya, kita nanti akan melihat secara langsung bagaimana proyek software dikelola dengan mengikuti kaidah <a href="http://www.sei.cmu.edu/cmmi/">CMMI</a>. Pengetahuan yang selama ini hanya dipelajari (sambil ngantuk) di kelas tentang RUP, XP, Waterfall, dsb akan dilihat langsung implementasinya di lapangan. Dan dibuatkan softwarenya. Jadi, dengan membuat aplikasi ini, kita jadi memahami bagaimana best-practices dalam pengelolaan proyek.</p>
-
-<p>Kedua, kita akan bekerja dengan menggunakan <a href="http://www.springframework.org">Spring Framework</a> dan <a href="http://www.hibernate.org">Hibernate</a>. Ini adalah dua framework utama dalam dunia Java. Anggota tim (yang nota bene adalah fresh graduate) akan mengikuti training tentang kedua teknologi ini. Saya sendiri yang akan memberikan trainingnya.</p>
-
-<p>Ketiga, dalam proses pembuatan aplikasi ini, kita akan menggunakan teknologi tercanggih yang tersedia di dunia open source. Kita akan <a href="http://endy.artivisi.com/blog/lain/presentasi-subversion/">menyimpan source-code dan dokumentasi proyek dalam Subversion</a>. Semua best-practices yang saya tulis di <a href="http://endy.artivisi.com/blog/lain/pesan-buku-subversion/">buku Subversion</a> akan diimplementasikan dalam proyek. Issue atau bug akan dikelola dengan bug tracker. Testing akan dilakukan di segala lini, sesuai dengan artikel yang pernah saya tulis di <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">sini</a>, <a href="http://endy.artivisi.com/blog/java/ruthless-testing-2/">sini</a>, <a href="http://endy.artivisi.com/blog/java/ruthless-testing-3/">sini</a>, dan <a href="http://endy.artivisi.com/blog/java/ruthless-testing-4/">sini</a>. Secara harian, <a href="http://cruisecontrol.sourceforge.net/">CruiseControl</a> akan mengambil semua source code terbaru dan melakukan daily build. Singkatnya, <a href="http://endy.artivisi.com/blog/manajemen/starter-kit/">semua persenjataan proyek</a> akan kita gunakan secara optimal.</p>
-
-<p>Jangan khawatir kalau merasa asing dengan berbagai teknologi tersebut. Akan ada sesi training khusus untuk itu. Lagi-lagi saya yang akan memberikan trainingnya.</p>
-
-<p>Baiklah, sekarang apa persyaratannya?</p>
-
-<p>Pelanggan blog ini tentunya sudah tahu kalau saya <a href="http://endy.artivisi.com/blog/life/pengetahuan-wajib-buat-programmer/">sangat pemilih dalam menentukan anggota tim</a>. Jadi, persiapkan diri dengan baik.</p>
-
-<p>Tidak seperti lowongan lainnya yang biasa Anda lihat di milis atau portal tenaga kerja, saya tidak mempermasalahkan latar belakang pendidikan. SMU ke atas boleh daftar. <a href="http://endy.artivisi.com/blog/life/ipk-tiarap/">IPK Anda Tiarap?? </a> Jangan khawatir, silahkan layangkan lamaran Anda. Tidak akan didiskriminasi.</p>
-
-<p>Persyaratan yang wajib dimiliki oleh peminat adalah:</p>
-
-<ol>
-<li><p>Konsep dasar OOP</p></li>
-<li><p>Dasar-dasar Java</p></li>
-<li><p>Pernah menggunakan minimal 2 (dua) bahasa pemrograman</p></li>
-<li><p>Konsep struktur data, misalnya tree, list</p></li>
-<li><p>Konsep relasional termasuk join dan subquery</p></li>
-<li><p>Mengerti SQL untuk minimal satu produk database</p></li>
-<li><p>HTML dan CSS</p></li>
-<li><p>Dasar-dasar jaringan komputer</p></li>
-<li><p>Bahasa Inggris (minimal membaca)</p></li>
-<li><p>Pernah membuat minimal satu aplikasi utuh (dari tampilan depan sampai ke database, lengkap dengan validasi) dengan minimal 4 (empat) tabel yang berelasi.</p></li>
-</ol>
-
-
-<p>Seperti layaknya lowongan pekerjaan yang lain, ada beberapa hal yang masuk kategori <em>lebih diutamakan bila menguasai</em> atau dalam istilah programmer, <em>nice to have</em>. Berikut daftarnya:</p>
-
-<ul>
-<li><p>Bisa menulis Ant buildfile</p></li>
-<li><p>Memiliki personal website (blog)</p></li>
-<li><p>Sehari-hari menggunakan Linux</p></li>
-</ul>
-
-
-<p>Lokasi kerja saat ini di Menara Dea, Kawasan Mega Kuningan, 10 menit berjalan kaki dari Mal Ambassador. Ada <strong>sedikit</strong> kemungkinan tim akan pindah ke Desa Sigma di German Centre, Bumi Serpong Damai.</p>
-
-<p>Berminat?? Silahkan klik Compose New Mail di aplikasi email Anda, dan attach resume dalam format PDF. Kemudian kirimkan ke endy [at] artivisi [dot] com atau emuhardin [at] balicamp [dot] com.</p>
-
-<p>Bila resume Anda meyakinkan, saya akan panggil untuk interview. Siapkan aplikasi yang pernah dibuat dalam CD, paket sedemikian rupa sehingga mudah diinstal. Sertakan semua file yang dibutuhkan. Nantinya saya akan sediakan PC kosong yang hanya berisi sistem operasi agar Anda bisa mendemokan aplikasi tersebut.</p>
-
-<p>Kalau ada pertanyaan, silahkan langsung posting komentar di bawah tulisan ini.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/remoting-dengan-spring/">Remoting Dengan Spring</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-17T00:49:19+07:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user atau pengguna aplikasi kita bukanlah orang, melainkan mesin. Dalam hal ini, aplikasi kita dapat disebut dengan aplikasi server yang menyediakan service bagi aplikasi client.</p>
-
-<p>Bagaimana caranya agar aplikasi kita dapat digunakan oleh aplikasi lain? Caranya tentunya dengan menyediakan antarmuka yang sesuai bagi masing-masing aplikasi client. Ada banyak bahasa yang dijadikan patokan dalam komunikasi antar aplikasi. Beberapa protokol yang umum digunakan adalah:</p>
-
-<ul>
-<li><p>CORBA</p></li>
-<li><p>RMI (khusus Java)</p></li>
-<li><p>SOAP</p></li>
-<li><p>XML-RPC</p></li>
-<li><p>Hessian</p></li>
-<li><p>Burlap</p></li>
-<li><p>dan masih banyak yang lainnya</p></li>
-</ul>
-
-
-<p>Dengan cara tradisional, menyediakan antarmuka untuk masing-masing protokol ini cukup rumit. Selain harus mengerti protokolnya, kita juga harus menulis banyak kode untuk memformat data kita mengikuti aturan yang ditetapkan protokol tersebut. Kita juga harus menulis kode program agar dapat menerima data dalam protokol yang kita ingin sediakan.</p>
-
-<p><a href="http://www.springframework.org">Spring Framework</a> menyediakan library pembantu bagi kita agar kita dapat menyediakan akses dalam protokol tersebut dengan mudah. Bagaimana caranya, mari kita bahas dalam artikel ini.</p>
-
-<p>Sebagai contoh sederhana, misalnya kita ingin menyediakan layanan untuk mengambil data Person. Untuk menyederhakan masalah, Person hanya mengandung data nama dan email saja.</p>
-
-<h3>Person.java</h3>
-
-<pre><code>package tutorial.remoting;
-
-public class Person implements java.io.Serializable {
-    private String name;
-    private String email;
-
-    public Person() {
-        this("", "");
-    }
-
-    public Person(String name, String email){
-        this.name = name;
-        this.email = email;
-    }
-
-    public String getName(){
-        return name;
-    }
-
-    public String getEmail(){
-        return email;
-    }
-
-    public String toString(){
-        return name + " : " + email;
-    }
-}
-</code></pre>
-
-<p>Perhatikan bahwa kita harus mendefinisikan Person sebagai object yang Serializable. Ini penting agar object ini bisa ditransfer melalui jaringan.</p>
-
-<p>Kemudian, kita sediakan interface yang mendefinisikan layanan yang ingin kita sediakan bagi aplikasi lain. Kita sebut saja interface ini sebagai PersonService.</p>
-
-<h3>PersonService.java</h3>
-
-<pre><code>package tutorial.remoting;
-
-import java.util.List;
-
-public interface PersonService {    
-    public Person get(int id);
-    public List getAllPerson();
-} 
-</code></pre>
-
-<p>PersonService ini nantinya bisa kita implementasi sesuai dengan kebutuhan. Kita bisa mengambil datanya dari database, dari phonebook handphone, atau bahkan dari aplikasi lain. Agar contoh kodenya lebih sederhana, kita buat saja implementasinya dengan ArrayList. Para pembaca nanti bisa mencoba dengan implementasi lain yang lebih hi-tech seperti Hibernate atau OpenJPA.</p>
-
-<p>Berikut adalah implementasi dari PersonService, kita sebut saja PersonServiceImpl.</p>
-
-<h3>PersonServiceImpl.java</h3>
-
-<pre><code>package tutorial.remoting.remote;
-
-import java.util.List;
-import java.util.ArrayList;
-
-import tutorial.remoting.Person;
-import tutorial.remoting.PersonService;
-
-public class PersonServiceImpl implements PersonService {
-
-    private List allPerson = new ArrayList();
-
-    public PersonServiceImpl(){
-        Person p = new Person("Endy Muhardin", "endy@artivisi.com");
-        Person p1 = new Person("Maya Mujawati", "moedja@yahoo.com");
-        allPerson.add(p);
-        allPerson.add(p1);
-    }
-
-    public Person get(int id){
-        if (id &gt;= allPerson.size()) return null;
-        return (Person) allPerson.get(id);
-    }
-
-    public List getAllPerson(){
-        return allPerson;
-    }
-} 
-</code></pre>
-
-<p>Seperti kita lihat di atas, tidak ada yang istimewa dengan kode program di atas. Bahkan validasi untuk field id pun tidak kita sediakan. Tentu saja kalau kita berikan masukan angka 2 atau lebih pada method public Person get(int id) akan terjadi ArrayIndexOutOfBoundException.</p>
-
-<p>Selesai sudah &#8230; sekarang kode tersebut dapat diakses oleh aplikasi lain.</p>
-
-<p>Apa?? Saya mendengar ada suara-suara kurang puas dari penonton.. Coba lebih keras??</p>
-
-<blockquote><p>Bagaimana cara mengaksesnya dari aplikasi client? Nampaknya belum ada kode program apa-apa untuk menyediakan layanan webservice. Mana bisa dibilang selesai?</p></blockquote>
-
-<p>Ok .. baiklah, memang ada satu langkah lagi. Yaitu mempublikasikan interface tersebut agar bisa diakses orang banyak. Kita akan sediakan akses melalui tiga protokol, yaitu:</p>
-
-<ol>
-<li><p>RMI</p></li>
-<li><p>Hessian</p></li>
-<li><p>Burlap</p></li>
-</ol>
-
-
-<blockquote><p>Tiga protokol?? Apa tidak terlalu ambisius? Nanti saya pusing baca kode sekian banyak.</p></blockquote>
-
-<p>Demikian terdengar komentar dari penonton. Hmm &#8230; penonton Indonesia memang terlalu banyak protes.</p>
-
-<p>Tenang saja. Kita akan gunakan Spring untuk mempublikasikan aplikasi kecil kita ini. Saya akan buktikan bahwa kodenya sedikit dan mudah dipahami. Sekarang, mari kita mulai dengan mempublikasikan protokol RMI. Di masa lalu, untuk menyediakan layanan ini, paling tidak kita harus:</p>
-
-<ol>
-<li><p>mengkompilasi stub</p></li>
-<li><p>mengkompilasi skeleton</p></li>
-<li><p>mengkonfigurasi Security setting</p></li>
-<li><p>menjalankan RMIRegistry</p></li>
-<li><p>mendaftarkan objek PersonServiceImpl ke RMIRegistry</p></li>
-<li><p>memberikan stub ke aplikasi client</p></li>
-</ol>
-
-
-<p>Sekarang tidak lagi. Kita cukup mendaftarkan interface PersonService, implementasi PersonServiceImpl di konfigurasi Spring. Berikut adalah isi file remote-ctx.xml</p>
-
-<h3>remote-ctx.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;
-    &lt;bean id="personServiceTarget" class="tutorial.remoting.remote.PersonServiceImpl"/&gt;
-
-    &lt;bean class="org.springframework.remoting.rmi.RmiServiceExporter"&gt;        
-        &lt;property name="serviceName" value="PersonRmiService"/&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;  
-        &lt;property name="registryPort" value="4321"/&gt;
-    &lt;/bean&gt;
-&lt;/beans&gt;
-</code></pre>
-
-<p>Hanya dengan membaca file XML di atas, kita sudah bisa menduga apa yang terjadi. Kita mempublikasikan layanan yang didefinisikan pada interface PersonService pada port 4321 dengan nama layanan PersonRmiService. Di sisi server, layanan ini akan disediakan oleh objek personServiceTarget yang merupakan instan dari class PersonServiceImpl. Kita memanfaatkan class RmiServiceExporter yang dimiliki Spring.</p>
-
-<p>Untuk menjalankan aplikasi kecil kita, buat sebuah class sederhana untuk mengaktifkan Spring Framework. Berikut adalah kode programnya.</p>
-
-<h3>PersonRmiService.java</h3>
-
-<pre><code>package tutorial.remoting.server;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-public class PersonRmiService {
-    public static void main(String[] xx) {
-        ApplicationContext ctx = 
-        new FileSystemXmlApplicationContext("webapp/WEB-INF/remote-ctx.xml");
-    }
-}
-</code></pre>
-
-<p>Silahkan jalankan class di atas. Asal classpath sudah disetting dengan benar, kita siap mengaksesnya dari client.
-Kita juga akan menggunakan bantuan dari Spring Framework untuk menemukan dan menginisialisasi layanan RMI yang berada di port 4321. Berikut adalah konfigurasi Spring di sisi client.</p>
-
-<h3>client-ctx.xml</h3>
-
-<pre><code>&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;    
-    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-&lt;/beans&gt;
-</code></pre>
-
-<p>Berikut adalah kode program untuk mengakses RMI service kita.</p>
-
-<h3>Main.java</h3>
-
-<pre><code>package tutorial.remoting.client;
-
-import java.util.List;
-
-import tutorial.remoting.PersonService;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-public class Main {
-    public static void main(String[] args){
-        // initialize application context
-        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
-
-        // accessing RMI service
-        System.out.println("======= Accessing RMI Service ==========");
-        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
-        List all1 = ps1.getAllPerson();
-        for(int i=0; i&lt;all1.size(); i++) {
-            System.out.println(all1.get(i));
-        }
-}
-</code></pre>
-
-<p>Perhatikan konsol, dan saksikan RMI service kita sudah dieksekusi dengan sukses.</p>
-
-<p>Sekarang, kita publikasikan melalui protokol <a href="http://www.caucho.com/resin-3.0/protocols/hessian.xtp">Hessian</a> dan <a href="http://www.caucho.com/resin-3.0/protocols/burlap.xtp">Burlap</a>. Protokol ini adalah hasil karya Caucho untuk mempublikasikan service di atas protokol HTTP. Hessian menggunakan format binary, sedangkan Burlap menggunakan format XML.</p>
-
-<p>Karena berbasis HTTP, maka kita perlu menggunakan HTTP Server yang mendukung Java (khususnya Servlet). Kita bisa gunakan Tomcat atau Jetty. Yang jelas, kita perlu mendeklarasikan servlet untuk melayani client. Deklarasi dibuat di dalam file web.xml sebagai berikut.</p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
-
-&lt;!DOCTYPE web-app PUBLIC
-    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd"&gt;
-
-&lt;web-app&gt;
-
-    &lt;context-param&gt;
-        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-        &lt;param-value&gt;
-            /WEB-INF/remote-ctx.xml
-        &lt;/param-value&gt;
-    &lt;/context-param&gt;
     &lt;listener&gt;
         &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
     &lt;/listener&gt;
-
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;2&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/remoting/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-
-    &lt;session-config&gt;
-        &lt;session-timeout&gt;10&lt;/session-timeout&gt;
-    &lt;/session-config&gt;
-
-
-&lt;/web-app&gt;
 </code></pre>
 
-<p>Kita membutuhkan satu file konfigurasi untuk mengkonfigurasi layanan Hessian dan Burlap. Berikut adalah isi file remoting-servlet.xml.</p>
+<p>Dengan adanya <code>Log4jConfigListener</code> ini, kita bisa menyebutkan lokasi konfigurasi log4j seperti ini :</p>
 
-<h3>remoting-servlet.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;
-    &lt;bean name="/PersonHessianService" class="org.springframework.remoting.caucho.HessianServiceExporter"&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
-    &lt;/bean&gt;
-
-
-    &lt;bean name="/PersonBurlapService" class="org.springframework.remoting.caucho.BurlapServiceExporter"&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
-    &lt;/bean&gt;
-
-    &lt;bean name="/PersonHttpInvokerService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
-    &lt;/bean&gt;
-
-
-&lt;/beans&gt;
+<pre><code>    &lt;context-param&gt;
+        &lt;param-name&gt;log4jConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;classpath:artivisi-log4j.properties&lt;/param-value&gt;
+    &lt;/context-param&gt;
 </code></pre>
 
-<p>Letakkan file remoting-servlet.xml ini di sebelah web.xml. Kita juga perlu mengikutkan file remote-ctx.xml yang kita buat untuk RMI di atas, karena deklarasi objek PersonServiceImpl ada di sana. Bila kita tidak ingin mengikutkan file ini, kita bisa memindahkan deklarasi objek tersebut ke dalam file remoting-servlet.xml.</p>
+<p>Isi <code>artivisi-log4j.properties</code> terlihat seperti ini :</p>
 
-<p>Sekarang kita bisa mengkompilasi dan mendeploy aplikasi webnya. Untuk mengaksesnya, ubah sedikit kode program di aplikasi client menjadi sebagai berikut.</p>
+<pre><code># Konfigurasi kategori
+log4j.rootLogger=INFO,fileout
 
-<h3>Main.java</h3>
+# File output
+log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileout.file=${webapp.root.path}/WEB-INF/logs/application.log
+log4j.appender.fileout.datePattern='.'yyyy-MM-dd
+log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
+</code></pre>
 
-<pre><code>package tutorial.remoting.client;
+<p>Perhatikan konfigurasi <code>log4j.appender.fileout.file</code>. Kita menggunakan variabel <code>${webapp.root.path}</code> yang akan diisi dengan nilai lokasi deployment aplikasi web kita. Variabel <code>${webapp.root.path}</code> ini didefinisikan dalam web.xml sebagai berikut :</p>
 
-import java.util.List;
+<pre><code>    &lt;context-param&gt;
+        &lt;param-name&gt;webAppRootKey&lt;/param-name&gt;
+        &lt;param-value&gt;webapp.root.path&lt;/param-value&gt;
+    &lt;/context-param&gt;
+</code></pre>
 
-import tutorial.remoting.PersonService;
+<p>Dengan konfigurasi ini, kita dapat meletakkan log output kita di</p>
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya\WEB-INF\logs\application.log
+</code></pre>
 
-public class Main {
-    public static void main(String[] args){
-        // initialize application context
-        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
+<p>bila kita mendeploy di Windows, dan di</p>
 
-        // accessing RMI service
-        System.out.println("======= Accessing RMI Service ==========");
-        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
-        List all1 = ps1.getAllPerson();
-        for(int i=0; i&lt;all1.size(); i++) {
-            System.out.println(all1.get(i));
-        }
+<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya/WEB-INF/logs/application.log
+</code></pre>
 
-        // accessing Hessian Service
-        System.out.println("======= Accessing Hessian Service ==========");
-        PersonService ps2 = (PersonService) ctx.getBean("personServiceHessian");
-        List all2 = ps2.getAllPerson();
-        for(int i=0; i&lt;all2.size(); i++) {
-            System.out.println(all2.get(i));
-        }
+<p>bila kita deploy di Linux.</p>
 
-        // accessing Burlap Service
-        System.out.println("======= Accessing Burlap Service ==========");
-        PersonService ps3 = (PersonService) ctx.getBean("personServiceBurlap");
-        List all3 = ps3.getAllPerson();
-        for(int i=0; i&lt;all3.size(); i++) {
-            System.out.println(all3.get(i));
-        }
+<p>Konfigurasi di atas bisa disederhanakan lagi bila kita mengikuti nilai default yang disediakan Spring, yaitu cukup seperti ini dalam <code>web.xml</code> :</p>
 
-        // accessing Http Invoker Service
-        System.out.println("======= Accessing Http Invoker Service ==========");
-        PersonService ps4 = (PersonService) ctx.getBean("personServiceHttpInvoker");
-        List all4 = ps4.getAllPerson();
-        for(int i=0; i&lt;all4.size(); i++) {
-            System.out.println(all4.get(i));
-        }
+<pre><code>    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+</code></pre>
+
+<p>Kemudian memberi nama file konfigurasi logger kita <code>log4j.properties</code> yang berada di top level dalam classpath, dan berisi seperti ini :</p>
+
+<pre><code># Konfigurasi kategori
+log4j.rootLogger=INFO,fileout
+
+# File output
+log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileout.file=${webapp.root}/WEB-INF/logs/application.log
+log4j.appender.fileout.datePattern='.'yyyy-MM-dd
+log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
+</code></pre>
+
+<p>Nilai variabel <code>${webapp.root}</code> secara default akan diisi dengan lokasi deployment tanpa harus mengkonfigurasi <code>webAppRootKey</code></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Java/spring-httpinvoker-sun-jre6-httpserver/">Menjalankan Spring HTTP Invoker Di Sun JRE 6 HTTP Server</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-07-03T21:41:28+07:00" pubdate data-updated="true">Jul 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dulu, kita sudah mencoba untuk <a href="http://endy.artivisi.com/blog/java/remoting-dengan-spring/">membuat remoting service dengan menggunakan Spring Framework</a>. Salah satu protokol yang digunakan adalah Spring HTTP Invoker. Untuk mempublish service dengan protokol ini, kita harus menggunakan servlet engine, misalnya Tomcat.</p>
+
+<p>Akan tetapi, Sun Microsystem merilis Java versi 6 yang sudah dilengkapi dengan HTTP Server sederhana. Dengan memanfaatkan fitur ini, kita tidak perlu lagi menggunakan Tomcat hanya untuk mempublish service dengan HTTP Invoker. Ini akan sangat bermanfaat untuk aplikasi kecil yang ingin dipanggil oleh aplikasi lain.</p>
+
+<p>Pada artikel ini, kita akan mempublish service dengan protokol HTTP Invoker pada HTTP Server yang disediakan oleh Sun JRE versi 6.</p>
+
+<p>Di Netbeans, kita akan membuat tiga project, yaitu</p>
+
+<ul>
+<li><p>remoting-shared : project ini menampung interface RemotingService, yang akan digunakan di client dan server</p></li>
+<li><p>remoting-server : project ini yang akan mempublish service. Implementasi RemotingService juga ada di sini</p></li>
+<li><p>remoting-client : project ini yang akan mengakses service yang dipublish remoting-server</p></li>
+</ul>
+
+
+<p>Berikut screenshot Netbeans. Project remoting-server dan remoting-client memiliki dependensi terhadap remoting-shared.</p>
+
+<p>Pertama, mari kita lihat dulu service interfacenya. Berikut adalah kode programnya.</p>
+
+<pre><code>package com.artivisi.tutorial.remoting.spring.service.api;
+
+public interface RemotingService {
+    public String halo(String nama);
+}
+</code></pre>
+
+<p>Kode program ini berada di project remoting-shared.</p>
+
+<p>Berikutnya, kita lihat dulu di sisi client. Kita cuma butuh satu class untuk menjalankan aplikasi, yaitu ClientLauncher sebagai berikut.</p>
+
+<pre><code>package com.artivisi.tutorial.remoting.spring.client;
+
+public class ClientLauncher {
+    private static final Logger log = Logger.getLogger(ClientLauncher.class.getName());
+    public static void main(String[] args) {
+        AbstractApplicationContext ctx = 
+                new ClassPathXmlApplicationContext("client-ctx.xml", ClientLauncher.class);
+        ctx.registerShutdownHook();
+
+        RemotingService service = (RemotingService) ctx.getBean("remotingService");
+
+        String msg = service.halo("endy");
+
+        log.info("Pesan dari server : "+msg);
     }
-} 
+}
 </code></pre>
 
-<p>Demikian juga dengan konfigurasi Spring di sisi client. Kita perlu menambahkan beberapa objek tambahan untuk mengakses layanan di berbagai protokol tersebut. Berikut adalah isi lengkap dari client-ctx.xml.</p>
+<p>ClientLauncher akan membaca client-ctx.xml yang isinya seperti ini.</p>
 
-<h3>client-ctx.xml</h3>
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"&gt;
 
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+    &lt;!--  proxy dengan protokol HTTP Invoker  --&gt;
+    &lt;bean id="remotingService"
+    class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"&gt;
+         &lt;property name="serviceUrl" 
+         value="http://localhost:9090/RemotingService"/&gt;
 
-&lt;beans&gt;    
-    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="personServiceHessian" class="org.springframework.remoting.caucho.HessianProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHessianService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="personServiceBurlap" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonBurlapService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="personServiceHttpInvoker" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHttpInvokerService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+         &lt;property name="serviceInterface"
+         value="com.artivisi.tutorial.remoting.spring.service.api.RemotingService"/&gt;
     &lt;/bean&gt;
 &lt;/beans&gt;
 </code></pre>
 
-<p>Aplikasi kecil kita sudah selesai. Setelah mendeploy aplikasi tersebut ke Servlet Container (Tomcat atau Jetty), kita dapat mengaksesnya melalui aplikasi client. Dengan tetap menggunakan remote-ctx.xml tanpa perubahan, selain menyediakan protokol Hessian dan Burlap, protokol RMI akan tetap tersedia.</p>
+<p>Seperti kita lihat di atas, client mengakses service yang ada di komputer lokal (localhost) di port 9090, dengan nama service RemotingService.</p>
 
-<h3>Bonus</h3>
+<p>Selanjutnya, mari kita implement project remoting-server. Di sini ada implementasi RemotingService sebagai berikut</p>
 
-<p>Pembaca yang teliti akan menemukan satu protokol tambahan pada contoh di atas, yaitu HttpInvoker. Ini adalah protokol khusus yang disediakan oleh Spring.</p>
+<pre><code>/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
-<p>Protokol Hessian dan Burlap tidak mendukung struktur objek secara sempurna. Dia akan mengalami kesulitan apabila objek yang kita kirim tidak sesederhana Person, misalnya memiliki List yang berisi objek lain. Agar bisa mengirim struktur objek yang sempurna, kita harus menggunakan RMI.</p>
+package com.artivisi.tutorial.remoting.spring.service.impl;
 
-<p>Tetapi sayangnya, protokol RMI kurang lazim. Dia membutuhkan port tersendiri yang mungkin saja diblok oleh administrator jaringan, sehingga tidak sefleksibel HTTP.</p>
+@Service("remotingService")
+public class RemotingServiceImpl implements RemotingService {
+    Logger log = Logger.getLogger(RemotingServiceImpl.class.getName());
 
-<p>SpringHttpInvoker menjembatani keterbatasan ini. Kita bisa mengirim objek kompleks secara utuh di atas protokol HTTP dengan menggunakan SpringHttpInvoker.</p>
+    public String halo(String nama) {
+        log.info("Terima dari client : "+nama);
+        return "Halo, "+nama;
+    }
 
-<p>Demikian &#8230; semoga bermanfaat.</p>
+}
+</code></pre>
+
+<p>Kemudian ada class untuk menjalankan aplikasi di sisi server. Berikut ServerLauncher.</p>
+
+<pre><code>package com.artivisi.tutorial.remoting.spring.server;
+
+public class ServerLauncher {
+    public static void main(String[] args) {
+        AbstractApplicationContext ctx =
+                new ClassPathXmlApplicationContext("server-ctx.xml", ServerLauncher.class);
+        ctx.registerShutdownHook();
+    }
+}
+</code></pre>
+
+<p>ServerLauncher membaca file konfigurasi server-ctx.xml. Inilah isinya.</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-2.5.xsd"&gt;
+
+    &lt;!-- menginstankan Sun HttpServer dalam JRE 6 --&gt;
+    &lt;bean class="org.springframework.remoting.support.SimpleHttpServerFactoryBean"&gt;
+        &lt;property name="contexts"&gt;
+            &lt;map&gt;
+                &lt;entry key="/RemotingService" value-ref="remotingServiceHttpInvoker"/&gt;
+            &lt;/map&gt;
+        &lt;/property&gt;
+        &lt;property name="port" value="9090" /&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Pada blok konfigurasi pertama, kita menginstankan Sun HttpServer yang ada di JRE 6. HttpServer ini akan berjalan di port 9090, sesuai dengan yang kita konfigurasi di sisi client. Di sana terlihat bahwa URL /RemotingService akan ditangani oleh remotingServiceHttpInvoker. Berikut konfigurasinya</p>
+
+<pre><code>    &lt;!--  publish service dengan protokol HttpInvoker  --&gt;
+    &lt;bean id="remotingServiceHttpInvoker" 
+          class="org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter"
+          p:service-ref="remotingService"
+          p:serviceInterface="com.artivisi.tutorial.remoting.spring.service.api.RemotingService"
+     /&gt;
+</code></pre>
+
+<p>Selanjutnya, kita suruh Spring mendeteksi implementasi service kita secara otomatis, yaitu class yang ada anotasi @Service.</p>
+
+<pre><code>     &lt;context:component-scan base-package="com.artivisi"/&gt;
+</code></pre>
+
+<p>Berikut adalah dependensi pustaka di project client.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2009/07/remoting-library-client-300x220.png" title="Library untuk Project Client" ></p>
+
+<p>Dan ini untuk di server.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2009/07/remoting-library-server-300x234.png" title="Library untuk Project Server" ></p>
+
+<p>Keseluruhan project akan terlihat seperti ini.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2009/07/remoting-folder-structure-231x300.png" title="Struktur Folder semua Project" ></p>
+
+<p>Semua library dapat diambil dari <a href="http://www.springsource.org/download">distribusi Spring Framework</a> dan <a href="http://www.springsource.com/repository/app/">Repository SpringSource</a>.</p>
+
+<p>Coba jalankan ServerLauncher, kita akan melihat log seperti ini.</p>
+
+<pre><code>Jul 3, 2009 2:57:25 PM org.springframework.context.support.AbstractApplicationContext prepareRefresh
+INFO: Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@be2358: display name [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]; startup date [Fri Jul 03 14:57:25 WIT 2009]; root of context hierarchy
+Jul 3, 2009 2:57:26 PM org.springframework.beans.factory.xml.XmlBeanDefinitionReader loadBeanDefinitions
+INFO: Loading XML bean definitions from class path resource [server-ctx.xml]
+Jul 3, 2009 2:57:26 PM org.springframework.context.support.AbstractApplicationContext obtainFreshBeanFactory
+INFO: Bean factory for application context [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]: org.springframework.beans.factory.support.DefaultListableBeanFactory@f11404
+Jul 3, 2009 2:57:26 PM org.springframework.beans.factory.support.DefaultListableBeanFactory preInstantiateSingletons
+INFO: Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@f11404: defining beans [org.springframework.remoting.support.SimpleHttpServerFactoryBean#0,remotingServiceHttpInvoker,remotingService,org.springframework.context.annotation.internalCommonAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor]; root of factory hierarchy
+Jul 3, 2009 2:57:27 PM org.springframework.remoting.support.SimpleHttpServerFactoryBean afterPropertiesSet
+INFO: Starting HttpServer at address 0.0.0.0/0.0.0.0:9090
+</code></pre>
+
+<p>Lalu jalankan ClientLauncher, inilah log yang muncul.</p>
+
+<pre><code>Jul 3, 2009 2:58:12 PM org.springframework.context.support.AbstractApplicationContext prepareRefresh
+INFO: Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@be2358: display name [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]; startup date [Fri Jul 03 14:58:12 WIT 2009]; root of context hierarchy
+Jul 3, 2009 2:58:12 PM org.springframework.beans.factory.xml.XmlBeanDefinitionReader loadBeanDefinitions
+INFO: Loading XML bean definitions from class path resource [client-ctx.xml]
+Jul 3, 2009 2:58:13 PM org.springframework.context.support.AbstractApplicationContext obtainFreshBeanFactory
+INFO: Bean factory for application context [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]: org.springframework.beans.factory.support.DefaultListableBeanFactory@d2906a
+Jul 3, 2009 2:58:13 PM org.springframework.beans.factory.support.DefaultListableBeanFactory preInstantiateSingletons
+INFO: Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@d2906a: defining beans [remotingService]; root of factory hierarchy
+Jul 3, 2009 2:58:13 PM com.artivisi.tutorial.remoting.spring.client.ClientLauncher main
+INFO: Pesan dari server : Halo, endy
+</code></pre>
+
+<p>Setelah ClientLauncher dijalankan, di log server akan muncul informasi sebagai berikut.</p>
+
+<pre><code>INFO: Terima dari client : endy
+</code></pre>
+
+<p>Demikianlah cara menggunakan embedded HttpServer. Selamat mencoba.</p>
 </div>
   
   
@@ -1465,7 +440,7 @@ public class Main {
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Life/Manajemen/nyambi-bolehkah/">Nyambi, Bolehkah??</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/postgresql-sequence-hibernate/">PostgreSQL Sequence Dengan Hibernate</a></h1>
       
     
     
@@ -1482,343 +457,78 @@ public class Main {
   
 
 
-<time datetime="2007-04-03T00:52:44+07:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2007</time>
+<time datetime="2009-06-22T22:08:58+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Posting ini saya tulis karena di milis JUG sedang rame membahas tentang boleh tidaknya karyawan nyambi. Sepanjang karir saya, urusan nyambi telah menjadi bagian hidup tak terpisahkan dari perkembangan pribadi saya. Jadi baiklah mari kita bahas sedikit tentang urusan nyambi ini.</p>
+  <div class="entry-content"><p>Menggunakan PostgreSQL Sequence dengan Hibernate</p>
 
-<blockquote><p>Disclaimer : Pernyataan di bawah ini merupakan opini pribadi dan bukan merupakan sikap resmi perusahaan yang saat ini mempekerjakan saya.</p></blockquote>
+<p>Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang dibuat PostgreSQL.</p>
 
-<p>Mari pertama kita bedakan antara masalah legal dan masalah etis.</p>
+<p>Bila kita membuat Hibernate mapping untuk entity class sebagai berikut:</p>
 
-<p>Yang menurut saya tidak legal (haram) :</p>
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue
+    private Integer id;
 
-<ul>
-<li><p>Nyambi di jam kantor (ngerjain project lain2 di kantor)</p></li>
-<li><p>Pakai resource kantor untuk project lain (telp, internet, komputer, dsb), <strong>tanpa sepengetahuan atasan</strong></p></li>
-</ul>
+    private String name;
 
-
-<p>Yang menurut saya legal :</p>
-
-<ul>
-<li>Pagi datang ontime, sore tenggo, sampe rumah ngerjain project lain.</li>
-</ul>
-
-
-<p>Nah, kalo urusan etis, ini rada sulit juga, soalnya urusan kepantasan ini tergantung pendidikan yang diberikan orangtua masing-masing.</p>
-
-<p>Yang menurut saya kurang etis:</p>
-
-<ul>
-<li><p>Berebut pasar dengan kantor. Misal: kantornya terima project dengan kisaran nilai 100-500 juta, eh kita juga terima project dengan nilai 150jt. Lebih tidak etis lagi kalo ikut tendernya saingan.</p></li>
-<li><p>Ngerjain project sampingan sampe begadang, akibatnya pas ngantor ngantuk dan gak konsen.</p></li>
-<li><p>Yang ini dari sisi kantor. Mempekerjakan karyawan lembur sampai nginap, tanpa uang lembur. Padahal kalo si karyawan pulang, dia bisa dapat tambahan uang dari waktu miliknya.</p></li>
-</ul>
-
-
-<p>Yang menurut saya etis:</p>
-
-<ul>
-<li><p>Mengerjakan produk/project yang sama, tapi beda segmen. Misalnya kantor terima project Java 100-500 jt. Kalo dibawah itu dia gak terima karena gak nutup biaya. Nah, kita terima project 10 jt,  yang kalo dikasi ke kantor pun gak diterima. It&#8217;s fine &#8230; asal tidak ilegal.</p></li>
-<li><p>Mengkomersilkan sisi lain teknologi, misalnya di kantor coding, di luar ngasi training atau nulis buku.</p></li>
-</ul>
-
-
-<p>Sebenarnya kalo kita tanpa ada unsur paranoid, karyawan nyambi ada juga untungnya bagi perusahaan.</p>
-
-<p>Misalnya, di kampus tempat saya ngajar dulu, dosen itu dianjurkan untuk nulis buku, walaupun dikerjakan menggunakan resource kantor (waktu, komputer, internet). Saya tanya kenapa? Teman saya sesama dosen bilang,</p>
-
-<blockquote><p>kalo ada buku yang ditulis dosen, maka itu bisa meningkatkan image kampusnya.</p></blockquote>
-
-<p>Demikian juga apabila kita sering nulis blog, aktif di milis, banyak ngarang buku, sering masuk e-lifestyle, dsb. Perusahaan yang berpikiran maju akan dapat melihat manfaat dari ini, misalnya menggunakan resume karyawan tersebut untuk tender, atau diiklankan pada waktu pitching project.</p>
-
-<p>Nah, menurut saya, selain yang legal/ilegal, tidak ada hitam putih di sini.
-Yang paling penting adalah saling keterbukaan dan kesepakatan.</p>
-
-<p>Saya sendiri selama ini berterus terang pada perusahaan tentang kegiatan komersil lain yang saya lakukan. Bila ada konflik kepentingan ya kita rundingkan.
-Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisah untuk menjalani hidup masing-masing.</p>
-
-<p>Untungnya selama ini saya tidak mengalami masalah dengan keterbukaan ini. Pada perusahaan sebelumnya, bahkan saya bisa nyambi ngajar di kampus di jam kantor, dengan dispensasi khusus.</p>
-
-<p>Jadi, jangan dulu pesimis bahwa nyambi itu haram. Coba saja diskusikan dengan kantor Anda. Siapa tau boleh, dengan kompromi tertentu :D.</p>
-
-<p>Demikian pendapat saya &#8230;</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/intro-jsf/">Intro JSF</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-03-31T00:05:58+07:00" pubdate data-updated="true">Mar 31<span>st</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/intro-icefaces/">postingan kemarin</a>, kita telah melihat bagaimana membuat aplikasi web dengan ICEFaces, yang notabene dijalankan di atas framework JSF. Tapi JSF sendiri itu apa?</p>
-
-<p>Java Server Faces (JSF) adalah salah satu teknologi terbaru dalam pengembangan aplikasi web. Teknologi ini distandarisasi oleh Sun sehingga dukungan terhadapnya akan disediakan para vendor server.</p>
-
-<p>Sebenarnya apa itu JSF? Berdasarkan <a href="http://java.sun.com/j2ee/1.4/docs/tutorial/doc/JSFIntro3.html">penjelasan dari Sun</a>, JSF terdiri dari:</p>
-
-<ul>
-<li><p>Kumpulan komponen UI (tentunya berbasis web)</p></li>
-<li><p>Pengaturan flow navigasi</p></li>
-<li><p>Mekanisme event handling (seperti layaknya aplikasi desktop)</p></li>
-<li><p>Halaman web</p></li>
-<li><p>Server side objects</p></li>
-</ul>
-
-
-<p>Karena sifatnya yang merupakan spesifikasi resmi dari Sun, di masa depan akan banyak vendor yang menyediakan dukungan terhadap framework ini, sehingga kita bisa mengharapkan adanya:</p>
-
-<ul>
-<li><p>Visual Editor untuk halaman web</p></li>
-<li><p>Visual Editor untuk mengatur aliran navigasi</p></li>
-<li><p>Komponen siap pakai yang sudah AJAX-enabled</p></li>
-</ul>
-
-
-<p>Saat tulisan ini dibuat, sepertinya editor visual yang terbaik untuk JSF masih dipegang Netbeans. Sayangnya berdasarkan pengalaman sekilas saya, editor visual ini sangat &#8216;menjajah&#8217;. Agar kita bisa mengedit halaman web dan navigasi secara visual, kita harus banyak <em>extends</em> class Netbeans.</p>
-
-<p>Mudah-mudahan di masa depan dukungan tools akan semakin banyak, terutama dari Eclipse atau IDEA.</p>
-
-<p>Baiklah, para pembaca tentunya sudah tidak sabar ingin melihat, seperti apa kodenya. Pada artikel ini, kita hanya akan membahas tentang:</p>
-
-<ol>
-<li><p>konfigurasi awal</p></li>
-<li><p>membuat dua halaman, dan</p></li>
-<li><p>menghubungkan keduanya dengan konfigurasi navigasi</p></li>
-</ol>
-
-
-<p>Kita akan menggunakan <a href="https://javaserverfaces.dev.java.net/">implementasi JSF yang disediakan Sun</a>, saat artikel ini ditulis, rilis terbaru adalah 1.2.</p>
-
-<p>Selain hasil karya Sun, kita juga bisa menggunakan <a href="http://myfaces.apache.org">JSF terbitan Apache</a>.</p>
-
-<p>Mari langsung coding.</p>
-
-<p>Kita akan hanya akan membuat dua halaman:</p>
-
-<ol>
-<li><p>Registrasi User</p></li>
-<li><p>Konfirmasi Registrasi</p></li>
-</ol>
-
-
-<p>tanpa business logic sama sekali. Halaman pertama berisi form registrasi, yang bila di-klik tombol Register-nya, user akan diarahkan ke halaman kedua. Untuk validasi dan akses database akan dibahas dalam artikel terpisah.</p>
-
-<p>Halaman pertama tampak seperti ini.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/03/jsf-register.png" alt="Halaman Registrasi" /></p>
-
-<p>Sedangkan halaman kedua tampak seperti ini.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/03/jsf-confirm.png" alt="Halaman Konfirmasi" /></p>
-
-<p>Kode untuk halaman pertama adalah sebagai berikut.</p>
-
-<h3>register.jsp</h3>
-
-<pre><code>&lt;code&gt;&lt;%@page contentType="text/html"%&gt;
-&lt;%@page pageEncoding="UTF-8"%&gt;
-&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;
-&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd"&gt;
-
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
-        &lt;title&gt;:: Pendaftaran User ::&lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-
-    &lt;h1&gt;Silahkan masukkan data Anda di sini&lt;/h1&gt;
-    &lt;h:form&gt;
-    &lt;table border="0"&gt;        
-        &lt;tbody&gt;
-            &lt;tr&gt;
-                &lt;td&gt;Nama Lengkap&lt;/td&gt;
-                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;td&gt;Username&lt;/td&gt;
-                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;td&gt;Email&lt;/td&gt;
-                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;td&gt;Password&lt;/td&gt;
-                &lt;td&gt;&lt;h:inputSecret value="password"/&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;td&gt;Password (ulangi)&lt;/td&gt;
-                &lt;td&gt;&lt;h:inputSecret value="password2"/&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr&gt;
-                &lt;td&gt; &lt;/td&gt;
-                &lt;td&gt;&lt;h:commandButton type="submit" value="Daftar" action="register"/&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-        &lt;/tbody&gt;
-    &lt;/table&gt;
-    &lt;/h:form&gt;
-
-    &lt;/body&gt;
-&lt;/html&gt;
-&lt;/code&gt;
+    // getter dan setter    
+}
 </code></pre>
 
-<p>Perhatikan kode program untuk menampilkan tombol. Di sana ada atribut <code>action</code> yang bernilai <code>register</code>. Atribut <code>action</code> ini nantinya akan digunakan di konfigurasi navigasi di bawah.</p>
+<p>kemudian menyuruh Hibernate untuk menggenerate DDL ke PostgreSQL, maka kita akan mendapatkan hasil sebagai berikut.</p>
 
-<p>Sedangkan halaman kedua isinya HTML biasa, sebagai berikut.</p>
-
-<h3>confirmation.jsp</h3>
-
-<pre><code>&lt;code&gt;&lt;%@page contentType="text/html"%&gt;
-&lt;%@page pageEncoding="UTF-8"%&gt;
-
-
-&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd"&gt;
-
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
-        &lt;title&gt;:: Konfirmasi Pendaftaran ::&lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-
-    &lt;h1&gt;Registrasi Berhasil !!&lt;/h1&gt;
-
-    &lt;/body&gt;
-&lt;/html&gt;
-&lt;/code&gt;
+<pre><code>create table example (id int4 not null, name varchar(255), primary key (id))
+create sequence example_id_seq
 </code></pre>
 
-<p>Kedua halaman tersebut akan diakses dengan URL :</p>
+<p>Artinya, Hibernate akan membuat sequence bernama example_id_seq dan menggunakannya untuk menghasilkan id.</p>
 
-<ol>
-<li><p>http://localhost:8080/HelloJSF/register.jsf</p></li>
-<li><p>http://localhost:8080/HelloJSF/confirmation.jsf</p></li>
-</ol>
+<p>Skema yang dihasilkan ini berbeda dengan skema yang biasa digunakan DBA PostgreSQL dalam membuat tabel, yaitu seperti ini</p>
 
-
-<p>Perhatikan bahwa kita mengakses halaman tersebut dengan URL <em>.jsf, padahal nama file sebenarnya adalah </em>.jsp.</p>
-
-<p>Jadi, yang terjadi di sini adalah, kita menyerahkan pemrosesan semua URL berakhiran jsf kepada servlet JSF.</p>
-
-<p>Oleh karena itu, kita perlu mendefinisikan Servlet JSF dan URL Mapping tersebut pada <code>web.xml</code>.</p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
-        &lt;param-value&gt;client&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-        &lt;/servlet&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;*.jsf&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;session-config&gt;
-        &lt;session-timeout&gt;
-            30
-        &lt;/session-timeout&gt;
-    &lt;/session-config&gt;
-&lt;/web-app&gt;
-&lt;/code&gt;
+<pre><code>CREATE TABLE example (id serial, name text)
 </code></pre>
 
-<p>Isi <code>web.xml</code> sudah dijelaskan pada <a href="http://endy.artivisi.com/blog/java/intro-icefaces/">artikel sebelumnya tentang ICEFaces</a>.</p>
+<p>Bila kita menggunakan mapping di atas ke skema tabel dengan id bertipe serial ini, kita akan mendapatkan exception sebagai berikut.</p>
 
-<p>Selanjutnya, mari kita lihat konfigurasi navigasinya, yang menyatakan:</p>
-
-<blockquote><p>bila tombol Daftar ditekan, bukalah halaman <code>confirmation.jsp</code></p></blockquote>
-
-<p>Konfigurasi tersebut ditulis di dalam file <code>faces-config.xml</code> sebagai berikut.</p>
-
-<h3>faces-config.xml</h3>
-
-<pre><code>&lt;code&gt;&lt;?xml version='1.0' encoding='UTF-8'?&gt;
-
-&lt;faces-config version="1.2" 
-    xmlns="http://java.sun.com/xml/ns/javaee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd"&gt;
-        &lt;navigation-rule&gt;            
-            &lt;from-view-id&gt;/register.jsp&lt;/from-view-id&gt;
-            &lt;navigation-case&gt;
-                &lt;from-outcome&gt;register&lt;/from-outcome&gt;
-                &lt;to-view-id&gt;/confirmation.jsp&lt;/to-view-id&gt;
-            &lt;/navigation-case&gt;
-        &lt;/navigation-rule&gt;
-&lt;/faces-config&gt;
-&lt;/code&gt;
+<pre><code>SEVERE: ERROR: relation "hibernate_sequence" does not exist
+Exception in thread "main" org.hibernate.exception.SQLGrammarException: could not get next sequence value
+Caused by: org.postgresql.util.PSQLException: ERROR: relation "hibernate_sequence" does not exist
 </code></pre>
 
-<p>Pada konfigurasi di atas, kita mendefinisikan view bernama <code>register.jsp</code>, yaitu halaman registrasi kita. Kemudian ada navigation case, yang merupakan aturan navigasi untuk halaman <code>register.jsp</code> tersebut. Bila dihasilkan action <code>register</code>, tampilkan halaman <code>confirmation.jsp</code>.</p>
+<p>Ini disebabkan karena mapping di atas akan mencari sequence bernama hibernate_sequence yang tidak ada kalau kita membuat tabel dengan id serial.</p>
 
-<p>Action register ini didapat dari nilai atribut action pada komponen tombol Daftar di dalam file <code>register.jsp</code>.</p>
+<p>Solusinya adalah dengan menggunakan Hibernate Annotation Extension, yaitu anotasi @GenericGenerator seperti ini.</p>
 
-<p>Di masa yang akan datang, nantinya konfigurasi navigasi ini akan diedit dengan visual editor. Sehingga kita bisa langsung drag-and-drop halaman, kemudian menggambar panah dari halaman <code>register.jsp</code> ke <code>confirmation.jsp</code> dengan tulisan &#8216;register&#8217;.</p>
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pg_seq")
+    @GenericGenerator(name="pg_seq", strategy="sequence", parameters={
+        @Parameter(name="sequence", value="example_id_seq")
+    })
+    private Integer id;
 
-<p>Aplikasi HelloJSF siap dideploy. Struktur folder lengkapnya tampak seperti ini.</p>
+    private String name;
+}
+</code></pre>
 
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/03/hellojsf-folder.png" alt="Struktur Folder Aplikasi HelloJSF" /></p>
+<p>Nama sequence diambil dari sequence yang dibuatkan PostgreSQL pada saat kita melakukan create table.
+Nama sequence ini bisa dilihat dengan mengetikkan \d example, yang akan menghasilkan output sebagai berikut.</p>
 
-<p>Pembaca yang teliti akan segera bertanya,</p>
+<pre><code>\d example
+                          Table "public.example"
+ Column |  Type   |                       Modifiers                       
+--------+---------+-------------------------------------------------------
+ id     | integer | not null default nextval('example_id_seq'::regclass)
+ name   | text    | 
+</code></pre>
 
-<blockquote><p>Apa tidak kurang? Mana <em>.jar nya? Tidak ada </em>.jar apa-apa di sana!</p></blockquote>
-
-<p>Itu karena saya mendeploy ke Sun Application Server yang terbundle bersama Netbeans Enterprise Pack. Kalau saja kita deploy ke Tomcat atau Jetty, tentu lain ceritanya. Kita harus melihat dokumentasi masing-masing merek server.</p>
-
-<p>Demikian perkenalan kita dengan JSF. Lain waktu kita akan sambung dengan kemampuan JSF yang lainnya.</p>
+<p>Barulah setelah itu kita bisa menyimpan object ke database dengan mulus.</p>
 </div>
   
   
@@ -1860,6 +570,26 @@ Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisa
     
       <li class="post">
         <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
       </li>
     
   </ul>
@@ -1913,6 +643,15 @@ Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisa
 
 
 
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
 
 
   
@@ -1930,7 +669,24 @@ Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisa
 
 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
 
 
 

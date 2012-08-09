@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada posting sebelumnya, saya telah membahas tentang cara instalasi Ivy, dan juga sedikit pengantar tentang apa itu Ivy. Ivy adalah dependency &hellip;">
+  <meta name="description" content="Posting ini adalah update dari posting tiga tahun yang lalu. Tidak banyak yang berubah dalam stack ini, yang bisa berarti dua hal: pilihan tiga tahun &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -29,6 +29,9 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
 
   
 
@@ -79,7 +82,7 @@
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/Manajemen/ant-ivy-2/">Build Management Dengan Ivy</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/development-stack-2011/">Development Stack 2011</a></h1>
       
     
     
@@ -96,103 +99,72 @@
   
 
 
-<time datetime="2008-09-08T16:48:29+07:00" pubdate data-updated="true">Sep 8<span>th</span>, 2008</time>
+<time datetime="2011-01-25T20:33:18+07:00" pubdate data-updated="true">Jan 25<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-1">posting sebelumnya</a>, saya telah membahas tentang <a href="http://endy.artivisi.com/blog/java/ant-ivy-1">cara instalasi Ivy</a>, dan juga sedikit pengantar tentang apa itu Ivy.</p>
+  <div class="entry-content"><p>Posting ini adalah update dari <a href="http://endy.artivisi.com/blog/java/stack-2008-1/">posting tiga tahun yang lalu</a>. Tidak banyak yang berubah dalam stack ini, yang bisa berarti dua hal: pilihan tiga tahun yang lalu sudah tepat atau malas belajar selama 3 tahun ini.
+Mudah-mudahan alasannya yang pertama :D</p>
 
-<p>Ivy adalah dependency management tools. Dia mampu menangani dependensi antar modul dalam aplikasi. Tentunya penjelasan ini sangat abstrak. Baiklah mari kita lihat problem apa yang kita hadapi dalam membuat aplikasi, dan bagaimana Ivy menyelesaikan problem tersebut.</p>
+<blockquote><p>Update : Gradle tidak jadi dipakai, karena kita tidak mau maintain 2 skillset. Maven 2 ternyata stabil dan bekerja sesuai harapan. Hudson terlibat kerusuhan dengan Oracle, akhirnya fork jadi Jenkins.</p></blockquote>
 
-<blockquote><p>Peringatan : Bukan untuk pemula !!!</p></blockquote>
-
-<p>Rangkaian artikel ini diperuntukkan untuk Senior Developer, Team Leader, atau Architect.</p>
-
-<p>Saya asumsikan pembaca sudah mahir menggunakan Ant, Linux, dan memiliki bandwidth yang besar.</p>
-
-<h3>Studi Kasus</h3>
-
-<p>Untuk contoh kasus, mari kita buat aplikasi sederhana dengan Spring MVC 2.5. Aplikasi ini bisa didonlod <a href="http://code.google.com/p/hello-spring-25">di sini</a>.</p>
-
-<p>Aplikasi sederhana ini terdiri dari 3 bagian utama, yaitu:</p>
+<h3>Presentation Layer</h3>
 
 <ul>
-<li><p>Domain Model</p></li>
-<li><p>Kode Akses Database (DAO)</p></li>
-<li><p>Tampilan (UI)</p></li>
+<li><p>Spring MVC</p></li>
+<li><p>SiteMesh</p></li>
+<li><p>Dojo Toolkit</p></li>
+<li><p>ExtJS</p></li>
+<li><p>Spring Security</p></li>
+<li><p>Jasper Report</p></li>
+<li><p>Jackson</p></li>
 </ul>
 
 
-<p>Hubungan dependensi antara ketiga bagian ini dapat digambarkan sebagai berikut:</p>
+<h3>Business Layer</h3>
 
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/dep-before.png" title="" ></p>
+<ul>
+<li><p>Spring Framework</p></li>
+<li><p>Hibernate</p></li>
+</ul>
 
-<p>Tanda panah dibaca sebagai &#8220;tergantung kepada&#8221;. Contohnya, modul DAO tergantung kepada modul Domain Model, sehingga untuk mengkompilasi modul DAO, kita harus punya modul Domain Model. Sebaliknya, untuk mengkompilasi modul Domain Model, kita tidak butuh modul DAO.</p>
 
-<h3>Dependensi, Pembagian Tim, dan Penjadwalan</h3>
+<h3>Library lain yang sering digunakan</h3>
 
-<p>Ketergantungan antar modul ini perlu dipertimbangkan dengan seksama, karena dari desain ketergantungan ini, kita dapat menentukan pembagian tim yang efisien. Idealnya masing-masing tim development dapat bekerja secara paralel dan tidak saling menunggu tim lain selesai.</p>
+<ul>
+<li><p>Logback</p></li>
+<li><p>Joda Time</p></li>
+<li><p>Velocity</p></li>
+<li><p>JPos</p></li>
+</ul>
 
-<p>Dengan skema dependensi seperti di atas, pembagian tugas antar tim kita tidak efisien, karena tim DAO harus menunggu tim DM selesai, baru dia dapat mulai. Demikian juga, tim UI harus menunggu tim DM dan juga tim DAO selesai, baru dia dapat mulai. Ini dapat dilihat di project schedule berikut.</p>
 
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/sch-before.png" title="" ></p>
+<h3>Infrastruktur</h3>
 
-<p>Dengan schedule seperti ini, kita membutuhkan 11 minggu untuk development, karena modul UI dan DAO yang membutuhkan waktu lama harus dikerjakan secara serial.</p>
+<ul>
+<li><p>Version Control : Git + Gitosis</p></li>
+<li><p>Testing Tools : JUnit, DBUnit, JMeter, Sonar</p></li>
+<li><p>Issue Tracker : Redmine</p></li>
+<li><p>Build Tools : <del>Gradle</del>, Maven</p></li>
+<li><p>Continuous Integration : <del>Hudson</del> Jenkins</p></li>
+<li><p>OS Programmer : Ubuntu Desktop</p></li>
+<li><p>OS Server : Ubuntu Server, Debian</p></li>
+</ul>
 
-<p>Agar kita dapat bekerja secara paralel, kita dapat mengatur ulang dependensi sebagai berikut.</p>
 
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/dep-after.png" title="" ></p>
+<h3>Deployment Target</h3>
 
-<p>Kita menambahkan modul baru, yaitu DAO-API dan DAO-Impl. Modul DAO-API ini berisi interface dari modul DAO, tanpa implementasi. Implementasinya berada di modul DAO-Impl.</p>
+<ul>
+<li><p>Database Server : MySQL, Oracle</p></li>
+<li><p>Application Server : Tomcat, Glassfish</p></li>
+</ul>
 
-<p>Pembagian yang baru ini didasarkan pada waktu pengembangan dari masing-masing modul. Modul DM dan DAO-API bisa dikembangkan dengan cepat, karena hanya berisi struktur data dan deklarasi method saja. Modul UI dan DAO-Impl butuh waktu lama, karena relatif kompleks dan membutuhkan banyak test.</p>
 
-<p>Dengan skema baru, project schedule menjadi seperti ini.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/sch-after.png" title="" ></p>
-
-<p>Dengan skema di atas, kita dapat mengalokasikan agar tim DAO dan tim UI bersama-sama mengerjakan modul Domain Model dan DAO-API. Setelah selesai, tim UI dapat mengerjakan modul UI secara paralel dengan tim DAO yang mengerjakan modul DAO-Impl.</p>
-
-<p>Durasi development dapat dikurangi menjadi 7 minggu saja.</p>
-
-<h3>Masalah dalam implementasi</h3>
-
-<p>Ok, kita sudah mendesain dependensi sedemikian rupa, sehingga bisa meminimasi idle time. Berarti kita sudah menjadi Development Team Leader yang canggih &#8230; benar??</p>
-
-<p>Belum, yang kita lakukan ini baru setengah jalan. Mengelola tim yang bekerja paralel itu bukan pekerjaan yang mudah. Desain dependensi yang baik memungkinkan tim bekerja paralel. Tapi butuh perangkat tambahan agar mereka bisa berkoordinasi secara efisien.</p>
-
-<p>Masalah terbesar dengan project multi-modul ini adalah bagaimana mengelola perubahan (Change Management). Developer yang berpengalaman pasti sudah tahu bahwa keinginan end-user selalu berubah. Perubahan ini menjadi masalah bila terjadi di modul yang digantungi banyak modul lain.</p>
-
-<p>Contohnya, pada assessment awal, kita sudah mendefinisikan bahwa class Person memiliki tiga property, yaitu id, nama, dan tanggalLahir. Class Person ini kita tempatkan di modul Domain Model, yang digunakan oleh semua modul lain. Katakan saja misalnya kita rilis dengan versi 1.0.</p>
-
-<p>Ternyata peta persaingan bisnis aplikasi contact berubah. Perusahaan pesaing menyediakan aplikasi yang tidak hanya menyimpan tanggal lahir, tapi juga nomer handphone. Tentunya kita harus buru-buru mengupgrade aplikasi (yang belum selesai dikerjakan) agar juga memuat data nomer handphone.</p>
-
-<p>Nah, bagaimana mengelola perubahan ini agar kedua tim yang sedang bekerja (DAO-Impl dan UI) dapat menyesuaikan diri dengan mudah?</p>
-
-<p>Implementasi yang paling sederhana bisa dilakukan dengan USB Flashdisk. Compile saja modul DM, kemudian copy ke flashdisk. Edarkan flashdisk tersebut ke seluruh tim &#8230; masalah selesai.</p>
-
-<p>Cara flashdisk, walaupun bisa dilakukan, tapi tidak scalable. Jika dependensinya rumit (misalnya membuat aplikasi ERP), kita harus membuat satu departemen khusus untuk mengedarkan flashdisk.</p>
-
-<p>Nah, inilah gunanya Ivy. Dengan Ivy, kita bisa membuat perubahan di class Person, kemudian menyuruh Ivy untuk mempublikasikannya ke lokasi tertentu dengan versi 1.1. Begitu tim lain melakukan kompilasi, Ivy secara otomatis akan mendeteksi bahwa ada update terbaru di modul Domain Model, mendownload versi terbaru, menghapus versi yang lama, baru melakukan kompilasi.</p>
-
-<p>Ivy dapat mengelola dependensi antar modul dalam internal perusahaan, maupun dependensi dengan pustaka open-source. Contoh aplikasi kita di atas menggunakan pustaka dari <a href="http://www.springframework.org">Spring Framework</a>, <a href="http://www.mysql.org">MySQL</a>, <a href="http://velocity.apache.org">Velocity</a>, dan SiteMesh. Masing-masing pustaka tersebut memiliki dependensi lagi terhadap pustaka lain, misalnya <a href="http://commons.apache.org">Apache Commons</a> dan <a href="http://logging.apache.org/log4j">Log4J</a>.</p>
-
-<p>Dengan menggunakan Ivy, kita hanya perlu mendeklarasikan dependensi langsung, yaitu Spring Framework, MySQL, Velocity, dan SiteMesh. Selanjutnya Ivy akan mencari tahu semua dependensi level kedua terhadap Jakarta Commons dan Log4J. Begitu kita melakukan kompilasi, Ivy akan terlebih dulu mengunduh semua dependensi dari internet, melakukan setting CLASSPATH, baru melakukan kompilasi.</p>
-
-<p>Ivy juga memiliki fitur configuration. Dengan fitur ini, kita bisa membedakan dependensi untuk kompilasi, melakukan test, atau mendeploy aplikasi ke production.</p>
-
-<p>Contohnya, bila kita menggunakan database, kita tidak perlu mendownload *.jar apapun untuk melakukan kompilasi. Pada saat kita test di IDE sendiri, kita gunakan database HSQLDB supaya ringan dan cepat. Untuk test oleh tim tester, kita gunakan database MySQL. Akhirnya, untuk UAT dan production, kita gunakan database Oracle.</p>
-
-<p>Contoh lain, kita bisa mendefinisikan konfigurasi deployment dan delivery. Untuk deployment, kita menginstal aplikasi di tempat client. Tentunya kita hanya butuh <em>.jar saja. Lain halnya dengan delivery. Selain </em>.jar, kita juga harus memuat source code, javadoc, manual penggunaan, dan lainnya ke dalam DVD untuk diserah-terimakan dengan client.</p>
-
-<p>Dengan menggunakan fitur configuration Ivy, kita dapat mendefinisikan berbagai kombinasi artifak yang dibutuhkan untuk berbagai situasi.</p>
-
-<p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-3/">artikel selanjutnya</a>, kita akan mulai membuat modul Domain Model. Seluruh modul yang dibuat dalam rangkaian artikel ini bisa dibuat dengan Text Editor biasa. Tidak perlu IDE canggih semacam Netbeans, Eclipse, atau IDEA.</p>
-
-<p>Stay tuned.</p>
+<p>Praktis perubahan yang terjadi hanyalah dari Subversion ganti menjadi Git.
+Nah, bagaimana menurut Anda? Pilihan tepat atau malas belajar?</p>
 </div>
   
   
@@ -206,7 +178,7 @@
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/login-ssh-dengan-private-key/">Login Ssh Dengan Private Key</a></h1>
+        <h1 class="entry-title"><a href="/blog/Aplikasi/sharing-repository-git/">Sharing Repository Git</a></h1>
       
     
     
@@ -223,122 +195,72 @@
   
 
 
-<time datetime="2008-09-05T22:45:03+07:00" pubdate data-updated="true">Sep 5<span>th</span>, 2008</time>
+<time datetime="2011-01-11T17:47:43+07:00" pubdate data-updated="true">Jan 11<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis.</p>
+  <div class="entry-content"><p>Skenario : selama ini kita coding di laptop sendiri saja. Kemudian ada kebutuhan untuk kolaborasi dengan orang lain melalui Git. Bagaimana caranya? Baiklah mari kita bahas di artikel ini.</p>
 
-<p>Ada berbagai cara kita memindahkan file dari satu komputer ke komputer lain, diantaranya:</p>
+<h2>Inisialisasi Repository Git</h2>
 
-<ul>
-<li><p>Menggunakan USB Flashdisk</p></li>
-<li><p>Windows File Sharing</p></li>
-<li><p>NFS</p></li>
-<li><p>FTP atau SFTP</p></li>
-<li><p>SCP</p></li>
-<li><p>dan sebagainya</p></li>
-</ul>
+<p>Pertama, kita inisialisasi dulu repository Git. Masuk ke dalam folder project dan ketikkan</p>
 
-
-<p>Cara pertama jelas tidak bisa diotomasi.</p>
-
-<p>Cara kedua sampai keempat mengharuskan kita membuka write access tanpa password di komputer tujuan supaya bisa otomatis. Kalau ada passwordnya kan harus ada seseorang yang mengetik password tersebut. Jadi agak sulit mengotomasinya.</p>
-
-<p>Oleh karena itu, kita akan membahas cara kelima, yaitu SCP. SCP &#8211;atau Secure Copy&#8211; adalah mekanisme copy file melalui protokol SSH. File yang dikirim terenkripsi. Untuk dapat masuk ke komputer tujuan, kita harus melakukan otentikasi. Jadi ini adalah cara yang relatif aman untuk mengirim file.</p>
-
-<p>Tunggu dulu, katanya mau otomatis, tapi kok harus otentikasi?? Berarti harus ada yang mengetik password dong &#8230;.</p>
-
-<p>Tidak juga, makanya saya menggunakan istilah otentikasi, bukan password. SSH dapat melakukan otentikasi dengan password maupun private key. Pada artikel ini, kita akan membahas tentang otentikasi private key.</p>
-
-<p>Artikel ini dibuat menggunakan Ubuntu Hardy dengan openssh sudah terinstal.</p>
-
-<p>Ada beberapa langkah yang harus kita lakukan, yaitu:</p>
-
-<ol>
-<li><p>Membuat private key di komputer pengirim</p></li>
-<li><p>Mengirim public key ke komputer tujuan</p></li>
-<li><p>Registrasi public key di komputer tujuan</p></li>
-</ol>
-
-
-<p>Sebelum mulai, kita tentukan dulu studi kasusnya.</p>
-
-<blockquote><p>Di tengah pertarungan dengan Pain, guru genit Jiraiya tiba-tiba berhasil menemukan kelemahan musuhnya. Dia ingin mengirim file berisi informasi tersebut ke sang Hokage seksi, yaitu Tsunade. Rencananya, dia akan login ke server di markas dengan username Tsunade dan menyimpan file tersebut di folder <code>/home/tsunade/important</code>.</p></blockquote>
-
-<p>Tentunya Tsunade tidak akan memberitahukan passwordnya kepada Jiraiya, mengingat tabiatnya yang genit. Sebagai gantinya, dia mendaftarkan public key Jiraiya ke user accountnya di server, sehingga Jiraiya bisa login sebagai Tsunade, tanpa Tsunade harus memberitahukan passwordnya kepada Jiraiya.</p>
-
-<p>Pada cerita di atas, kita punya dua komputer, yaitu laptopnya Jiraiya yang dibawanya kemanapun pergi, dan server di markas. Kita juga punya dua user, yaitu Jiraiya dan Tsunade.</p>
-
-<p>Agar bisa melakukan public key authentication, tentunya hal pertama yang harus dilakukan adalah membuat public key.</p>
-
-<h3>Membuat public key</h3>
-
-<p>Jiraiya harus membuat public key di laptopnya sendiri. Public key selalu berpasangan dengan private key. Untuk membuat public key, Jiraiya mengetik perintah berikut di terminal.</p>
-
-<pre><code>ssh-keygen
+<pre><code>git init
 </code></pre>
 
-<p>Perintah tersebut akan menanyakan password untuk membuka private key. Jiraiya memilih tidak memberikan password. Sebetulnya ini kurang aman, karena kalau ada orang lain yang berhasil mendapatkan file private key, dia bisa login ke server di markas tanpa hambatan.</p>
+<p>Git akan membuat repository kosong di dalam folder project, ditandai dengan adanya folder baru bernama .git</p>
 
-<p>Tapi mau bagaimana lagi, hidup sebagai ninja sangat berbahaya. Kita tidak tahu apakah setelah pertarungan kita masih punya tangan untuk mengetik password.</p>
+<p>Selanjutnya, kita akan memasukkan semua file dan folder project kita ke dalam repository. Yang harus dimasukkan adalah file source code, baik itu Java, HTML, XML, dan sebagainya. Yang tidak perlu dimasukkan adalah file hasil kompilasi atau hasil generate. Kita perlu mendaftarkan file yang tidak ingin disimpan dalam file konfigurasi yang bernama .gitignore</p>
 
-<p>Tekan enter beberapa kali sampai selesai. Berikut output yang dihasilkan.</p>
+<p>File ini harus kita buat sendiri menggunakan text editor. Berikut contoh isi filenya, bila kita coding menggunakan Eclipse atau Netbeans</p>
 
-<pre><code>Generating public/private rsa key pair.
-Enter file in which to save the key (/home/jiraiya/.ssh/id_rsa): 
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
-Your identification has been saved in /home/jiraiya/.ssh/id_rsa.
-Your public key has been saved in /home/jiraiya/.ssh/id_rsa.pub.
-The key fingerprint is:
-6f:7c:e2:52:f1:14:5d:2c:7f:3a:53:5e:fe:7f:98:9c jiraiya@laptop
+<p>[gist id=773975]</p>
+
+<p>Setelah kita setting ignore file, berikutnya kita masukkan semua file dan folder ke dalam antrian.</p>
+
+<pre><code>git add . 
 </code></pre>
 
-<p>Selanjutnya, kita harus kirimkan file public key ke Tsunade agar didaftarkan di accountnya. File public key ini bisa ditemukan di folder <code>/home/jiraiya/.ssh/</code> dengan nama <code>id_rsa.pub</code>. Public key bisa dikirim melalui media apapun, misalnya email, usb flashdisk, burung hantu, maupun burung merpati.</p>
+<p>Kemudian, simpan ke repository</p>
 
-<h3>Registrasi Public Key</h3>
-
-<p>Singkat kata, Tsunade telah menerima public key dari Jiraiya. Dia harus mendaftarkannya di accountnya agar Jiraiya bisa login.</p>
-
-<p>Tsunade harus login dulu ke server dan menaruh file public key tersebut di sana. Misalnya dia letakkan di folder <code>/home/tsunade/</code> dan nama filenya diubah menjadi <code>jiraiya_id_rsa.pub</code>.</p>
-
-<p>Untuk meregistrasinya, Tsunade menggunakan perintah berikut di terminal.</p>
-
-<pre><code>cat /home/tsunade/jiraiya_id_rsa.pub &gt;&gt; /home/tsunade/.ssh/authorized_keys
+<pre><code>git commit -m "commit pertama project XXX"
 </code></pre>
 
-<p>Setelah itu, public key tidak lagi diperlukan, sehingga bisa dihapus.</p>
+<p>Project sudah tersimpan di repository Git di komputer lokal kita. Mari kita upload ke server, atau dikenal dengan istilah push.</p>
 
-<pre><code>rm /home/tsunade/jiraiya_id_pub
+<h2>Share Repository</h2>
+
+<p>Kita memerlukan server di mana kita memiliki ijin akses untuk melakukan push. Cara memperoleh ijin akses tidak dibahas pada artikel ini. Silahkan buat account di Github atau Gitorious. Bila ingin push ke repository perusahaan, minta informasinya pada admin Anda.</p>
+
+<p>Setelah kita mendapatkan URL server yang bisa kita gunakan, daftarkan sebagai remote. Berikut perintahnya.</p>
+
+<pre><code>git remote add &lt;namaremote&gt; &lt;URL&gt;
 </code></pre>
 
-<p>Selesai sudah konfigurasi di server, sekarang kita kembali ke pertarungan Jiraiya vs Pain.</p>
+<p>Contohnya seperti ini</p>
 
-<h3>Login dengan public key</h3>
-
-<blockquote><p>Sesaat sebelum Jiraiya menekan tombol Send di Mozilla Thunderbird, Pain mendaratkan serangan mematikan ke Jiraiya, sehingga ybs tidak dapat menggerakkan tangannya. Jiraiya membatin, &#8220;Untung saja saya sudah setup public key di server dengan account Tsunade. Baiklah, mari kita scp saja.&#8221;</p></blockquote>
-
-<p>Untuk mengirim file tersebut melalui scp dengan public key, berikut adalah perintahnya</p>
-
-<pre><code>scp -i /path/menuju/private/key username@komputer-tujuan:folder-tujuan
+<pre><code>git remote add github git@github.com:endymuhardin/project-terbaru-saya.git
 </code></pre>
 
-<p>Jadi, untuk mengirim file <code>pain-secret.txt</code> ke server dengan username tsunade, Jiraiya menggunakan perintah berikut</p>
+<p>Pastikan remotenya sudah terdaftar dengan perintah berikut</p>
 
-<pre><code>scp -i /home/jiraiya/.ssh/id_rsa pain-secret.txt tsunade@server:/home/tsunade/important/
+<pre><code>git remote -v
 </code></pre>
 
-<p>File akan segera terkirim tanpa harus mengetik password.</p>
+<p>Terakhir, mari kita push dengan perintah berikut</p>
 
-<p>Lebih lanjut tentang ssh dengan public/private key bisa dibaca <a href="http://www.debuntu.org/ssh-key-based-authentication">di sini</a>.</p>
+<pre><code>git push &lt;namaremote&gt; &lt;namabranch&gt;
+</code></pre>
 
-<p>Lebih lanjut tentang nasib Jiraiya bisa dibaca <a href="http://narutochaos.com/download/10/429">di sini</a>.</p>
+<p>Contohnya</p>
 
-<p>Selamat mencoba</p>
+<pre><code>git push github master
+</code></pre>
+
+<p>Hore, project kita sudah naik ke server. Kita tinggal share URL tersebut ke rekan kerja kita.</p>
 </div>
   
   
@@ -352,7 +274,7 @@ The key fingerprint is:
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Lain2/Linux/backup-trac/">Backup Trac</a></h1>
+        <h1 class="entry-title"><a href="/blog/Aplikasi/menggunakan-gist/">Menggunakan Gist</a></h1>
       
     
     
@@ -369,1053 +291,45 @@ The key fingerprint is:
   
 
 
-<time datetime="2008-09-04T19:41:14+07:00" pubdate data-updated="true">Sep 4<span>th</span>, 2008</time>
+<time datetime="2011-01-09T03:40:16+07:00" pubdate data-updated="true">Jan 9<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p><a href="http://endy.artivisi.com/blog/linux/instalasi-trac">Trac sudah terinstal</a>, sekarang harus diamankan melalui prosedur backup.</p>
+  <div class="entry-content"><p>Gist adalah fitur yang disediakan oleh Github. Fungsi dasarnya mirip dengan pastebin, yaitu kita bisa paste text di sana, dan disharing dengan orang lain. Keunggulan Gist adalah dia sudah memiliki kemampuan version control dengan Git. Sehingga kita bisa fork, clone, modifikasi, dan push lagi ke repo utama dengan seluruh history tersimpan di sana.</p>
 
-<p>Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau tidak begitu, pasti tidak akan dijalankan. Jadi, selain kegiatan memburn CD, kegiatan backup lainnya harus diotomasi.</p>
+<p>Untuk bisa menggunakan Gist, kita harus memiliki account Github dulu. Setelah itu, kita bisa buat <a href="https://gist.github.com">gist di sini</a>.</p>
 
-<p>Di website Trac sudah dijelaskan tentang <a href="http://trac.edgewall.org/wiki/TracBackup">cara melakukan backup terhadap instalasi Trac</a>. Kita hanya perlu membuat script sedikit supaya bisa membackup seluruh project dalam folder parent trac, dan mengkompresnya.</p>
+<p>Cara membuatnya tidak sulit. Cukup entri nama file, keterangan, dan isi text yang mau dishare.</p>
 
-<p>Berikut scriptnya, seperti biasa, menggunakan Ruby.</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-create-gist-300x204.png" title="" ></p>
 
-<p>Script ini diadaptasi dari <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">script sebelumnya untuk backup Subversion repo</a>.</p>
+<p>Setelah itu, tekan Create Public Gist. Gist kita akan siap digunakan.</p>
 
-<p>Berikut scriptnya</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-gist-created-300x207.png" title="" ></p>
 
-<pre><code>require 'zlib'
-require 'fileutils' 
+<p>Gist yang sudah dibuat bisa dipasang di blog. Caranya, klik tombol embed.</p>
 
-if ARGV.length &lt; 2
-  puts "Usage : ruby trac-backup.rb &lt;Trac Parent folder&gt; &lt;backupfolder&gt;"
-  exit
-end
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-embed-link-300x205.png" title="" ></p>
 
-# some configuration
-trac_parent_path = ARGV[0]
-backup_folder = ARGV[1]
+<p>Nanti akan muncul textfield berisi tag HTML untuk dipasang di blog, kira-kira seperti ini tagnya:</p>
 
-# variable initialization
-current_date = Time.now.strftime("%Y%m%d")
-
-Dir.foreach(trac_parent_path) { |trac|
-    next if('.' == trac || '..' == trac)
-    puts "Start to process folder : "+trac
-
-    puts "Performing trac hotcopy"
-    project_name = trac_parent_path + File::SEPARATOR + trac
-    dumpfile_folder = trac + '-' +current_date
-    dumpfile = backup_folder + File::SEPARATOR + dumpfile_folder
-
-    `trac-admin #{project_name} hotcopy #{dumpfile}`
-
-    puts "Compressing dumpfile"
-    `tar czf #{backup_folder}/#{dumpfile_folder}.tar.gz -C #{backup_folder} #{dumpfile_folder}`
-
-    puts "Deleting uncompressed backup"
-    FileUtils.rm_r dumpfile
-}
+<pre><code>&lt;script src="https://gist.github.com/770832.js?file=HelloWorld.java"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>Save dengan nama <code>trac-backup.rb</code>.</p>
+<p>Tag ini bisa langsung dipasang di blog kita. Hasilnya seperti di bawah ini.</p>
 
-<p>Warning, kode di atas tidak bisa dijalankan di Windows, karena menggunakan command line tar untuk mengkompres file. Jika Anda ingin menggunakan di Windows, silahkan gunakan TugZIP seperti <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">contoh ini</a>.</p>
+<p>Kelemahan cara ini adalah dia membutuhkan javascript, dan isi filenya tidak terindeks oleh spider. Untuk mengatasinya, kita gunakan <a href="http://wordpress.org/extend/plugins/embed-github-gist/">plugin wordpress ini</a>.</p>
 
-<p>Untuk menjalankannya, cukup panggil dari command prompt.</p>
+<p>Setelah digunakan, kita cukup memasang tag khusus seperti dijelaskan di websitenya. Ini contoh hasilnya</p>
 
-<pre><code>ruby trac-backup.rb /var/lib/trac /folder/tempat/backup
-</code></pre>
+<p>[gist id=770832]</p>
 
-<p>Supaya fully-automated, daftarkan di cron. Buka editor crontab.</p>
+<p>Sekilas tidak terlihat bedanya antara pakai plugin dan tidak. Tapi coba lihat source halaman ini, klik kanan kemudian View Source. Yang menggunakan plugin, source codenya benar-benar ada tulisannya. Sedangkan yang pakai tag script tidak ada source code hello worldnya.</p>
 
-<pre><code>crontab -e
-</code></pre>
-
-<p>Kemudian ketikkan entri sebagai berikut</p>
-
-<pre><code>0 23 * * 5 /usr/bin/ruby /full/path/ke/trac-backup.rb /var/lib/trac /full/path/ke/folder/backup
-</code></pre>
-
-<p>Backup akan dijalankan setiap jam 23.00 pada hari Jumat. Lebih lanjut tentang cron bisa <a href="http://bandung.linux.or.id/node/24">dibaca di sini</a>. Jika bingung dengan formatnya, bisa gunakan <a href="http://www.htmlbasix.com/crontab.shtml">generator crontab online</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/instalasi-trac/">Instalasi Trac</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-03T23:54:21+07:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Mulai beberapa minggu ini, ArtiVisi kebanjiran project. Ini tentu harus dikelola dengan baik. Semua orang harus bekerja se-efisien mungkin. Menjadi tugas saya sebagai manager untuk memudahkan orang-orang bekerja.</p>
-
-<p>Opa Abe Lincoln pernah bilang gini, jauh sebelum mas Barry masuk sekolah di SD Besuki, Menteng.</p>
-
-<blockquote><p>If I had eight hours to chop down a tree, I&#8217;d spend six hours sharpening my axe</p></blockquote>
-
-<p>So be it &#8230;.</p>
-
-<p>Hal pertama yang harus dilakukan sebelum mulai bekerja adalah mempersiapkan environment. Ada beberapa tools yang dapat digunakan untuk mempercepat kegiatan software development, terutama di Java. Ini pernah saya bahas di <a href="http://endy.artivisi.com/blog/manajemen/starter-kit/">artikel ini</a>.</p>
-
-<p><a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">Subversion sudah terinstal</a> sejak hari pertama ArtiVisi buka warung. Bahkan sebelum websitenya jadi, repository sudah siap digunakan dan <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">diamankan melalui prosedur backup</a>. Ant-Ivy juga sudah terinstal dan terkonfigurasi. Tinggal menunggu terisi dengan *.jar external dari <a href="http://www.ibiblio.org/maven/">repository ibiblio</a> dan <a href="http://www.springsource.com/repository/">repository springsource</a>.</p>
-
-<p>Hal berikutnya adalah mempersiapkan bug tracker dan project management tools. Karena saya menggunakan Eclipse, maka kriteria pemilihan bug tracker tentu saja adalah kompatibilitasnya dengan <a href="http://www.eclipse.org/mylyn/">Mylyn</a>. <a href="http://www.bugzilla.org/">Bugzilla</a> cuma bisa untuk bug-tracker, jadi saya pilih saja <a href="http://trac.edgewall.org/">Trac</a>.</p>
-
-<p>Berikut langkah instalasi di Ubuntu Gutsy Server.</p>
-
-<h3>Instalasi Trac</h3>
-
-<p>Instalasi Trac tidak sulit, cukup satu baris perintah saja.</p>
-
-<pre><code>sudo apt-get install trac libapache2-mod-python python-setuptools
-</code></pre>
-
-<p>Selanjutnya, kita konfigurasi VirtualHost Apache. Saya buatkan satu subdomain khusus yang namanya trac.artivisi.com. Jadi, kita buat file <code>/etc/apache2/sites-available/trac.artivisi.com</code>.</p>
-
-<p>Subdomain ini nantinya akan menampung data Trac untuk banyak project. Jadi, kita harus mengkonfigurasi parent path yang menyatakan folder tempat data trac untuk masing-masing project disimpan.</p>
-
-<p>Berikut isi filenya.</p>
-
-<pre><code> &lt;Location /trac&gt;
-
-    SetHandler mod_python
-    PythonHandler trac.web.modpython_frontend
-    PythonOption TracEnvParentDir /var/lib/trac
-    PythonOption TracUriRoot /trac
-
- &lt;/Location&gt;
-</code></pre>
-
-<p>Selanjutnya, kita konfigurasi otentikasinya supaya mengacu ke LDAP tempat menyimpan username dan password Subversion. Jadi username dan password untuk svn commit sama dengan untuk login ke Trac.</p>
-
-<pre><code> &lt;LocationMatch "/trac/[^/]+/login"&gt;
-
-    AuthType Basic
-    AuthName "ArtiVisi Trac Server"
-
-    AuthBasicProvider ldap
-        AuthLDAPURL url-ldap-server
-    AuthLDAPBindDN dn-untuk-apache-login-di-ldap
-    AuthLDAPBindPassword password-dn-tersebut
-
-    AuthzLDAPAuthoritative off
-
-    Require valid-user
-
- &lt;/LocationMatch&gt;
-</code></pre>
-
-<p>Sekarang konfigurasi Apache sudah selesai. Jangan lupa me-restart apache.</p>
-
-<pre><code>sudo /etc/init.d/apache2/restart
-</code></pre>
-
-<p>Berikutnya, membuat project baru.</p>
-
-<h3>Membuat Project</h3>
-
-<p>Misalnya kita ingin membuat project bernama hello-world. Sebagai root, masuk ke folder /var/lib/trac. Kemudian buat projectnya. Jangan lupa tambahkan user administratornya sekaligus.Terakhir, ganti kepemilikan folder sesuai dengan user yang digunakan proses webserver.</p>
-
-<pre><code>sudo -i
-cd /var/lib/trac
-trac-admin hello-world initenv
-trac-admin hello-world permission add endy TRAC_ADMIN
-chown -R www-data.www-data hello-world
-</code></pre>
-
-<p>Langkah di atas akan menginisialisasi Trac dengan satu username &#8211;yaitu endy&#8211; sebagai administrator. Selanjutnya, kita edit konfigurasinya agar setiap perubahan bug/task akan mengirim notifikasi ke email. Edit file /var/lib/trac/hello-world/conf/trac.ini</p>
-
-<pre><code>smtp_enabled = true
-smtp_default_domain = artivisi.com
-smtp_from_name = ArtiVisi Trac Server
-smtp_from = artivisi.dev@gmail.com
-smtp_replyto = artivisi.dev@gmail.com
-
-smtp_server = smtp.gmail.com
-smtp_port = 587
-smtp_user = artivisi.dev
-smtp_password = rahasia_dong
-use_tls = true
-</code></pre>
-
-<p>Pada konfigurasi di atas, kita menggunakan Gmail yang gratis dan mudah. Kita buat account di Gmail bernama artivisi.dev dan kita berikan password rahasia_dong.</p>
-
-<p>Selesai sudah. Sekarang silahkan browse ke URLnya.</p>
-
-<h3>Plugin WebAdmin</h3>
-
-<p>Sebagai tambahan, kita bisa menambahkan plugin webadmin supaya kita bisa menambah user dan mengatur permission melalui interface web.</p>
-
-<p>Ubuntu secara default menginstal Trac versi 0.10, jadi kita harus menginstal plugin WebAdmin secara manual. Di versi 0.11 Trac sudah menyertakan WebAdmin secara default.</p>
-
-<p>Instalasi dijalankan langsung dari subversion repository.</p>
-
-<pre><code>sudo easy_install http://svn.edgewall.org/repos/trac/sandbox/webadmin/
-</code></pre>
-
-<p>Untuk menjalankan plugin, kita perlu membuat file <code>/etc/trac/trac.ini</code>. Berikut isinya.</p>
-
-<pre><code>[components]
-webadmin.* = enabled
-</code></pre>
-
-<p>Voila, nanti akan muncul tombol admin setelah kita login.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ant-ivy-1/">Instalasi Ant Ivy</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-03T18:54:15+07:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://ant.apache.org">Ant</a>, adalah tools untuk mengotomasi kegiatan build di Java. Seperti kita tahu, dari mulai source code diketik sampai bisa digunakan user, ada beberapa kegiatan yang harus dilakukan, misalnya:</p>
-
-<ol>
-<li><p>Bersihkan sisa-sisa kompilasi terdahulu</p></li>
-<li><p>Setting CLASSPATH</p></li>
-<li><p>Kompilasi</p></li>
-<li><p>Masukkan artifak lain ke CLASSPATH sesuai kebutuhan (<em>.properties, </em>.xml)</p></li>
-<li><p>Jalankan automated test</p></li>
-<li><p>Kompilasi Javadoc</p></li>
-<li><p>Paket menjadi <em>jar atau </em>war</p></li>
-<li><p>Deploy ke server (bila perlu)</p></li>
-</ol>
-
-
-<p>Rangkaian kegiatan ini disebut dengan proses build.</p>
-
-<p>Jika kegiatan ini dilakukan secara manual, tentu saja masa muda kita akan habis untuk melakukan build dan tidak akan sempat menulis kode program.</p>
-
-<p>Kita bisa memudahkan proses build dengan bantuan IDE. Tinggal klik Clean and Build, langsung beres. Tapi kita tahu bahwa masing-masing orang memiliki IDE favorit masing-masing. Jadi langkah-langkah build bisa jadi berbeda di masing-masing IDE. Selain itu, build dengan IDE tidak otomatis. Harus ada seseorang yang menekan tombol Clean and Build. Tentu saja hal ini mencegah kita untuk melakukan otomasi penuh semacam Continuous Integration.</p>
-
-<p>Ada dua tools yang biasa digunakan untuk build, yaitu Ant dan <a href="http://maven.apache.org">Maven</a>. Maven memiliki kelebihan dibanding Ant, yaitu dia:</p>
-
-<ul>
-<li><p>mampu mengelola dependensi</p></li>
-<li><p>membuatkan website</p></li>
-<li><p>melakukan kegiatan lain yang fancy, seperti menjalankan webserver (mvn:jetty), unit test, dan lain sebagainya</p></li>
-</ul>
-
-
-<p>dan fitur-fitur lain yang bisa dilihat <a href="http://maven.apache.org/what-is-maven.html">di sini</a> dan <a href="http://maven.apache.org/maven-features.html">di sini</a>.</p>
-
-<p>Maven sangat powerful, tapi seperti sudah sering saya katakan,</p>
-
-<blockquote><p>with great power, comes great complexity</p></blockquote>
-
-<p>Maven relatif sulit dipelajari dan <a href="http://bluxte.net/blog/2006-04/27-06-50.html">banyak mengandung black-magic</a> (baca: banyak mengandung undocumented behavior). Selain itu, Maven juga <a href="http://www.bearaway.org/wp/?p=518">tidak reliable</a>, dibuktikan dengan <a href="http://svn.apache.org/repos/asf/cocoon/trunk/README.txt">dokumentasi cara melakukan build untuk salah satu project open source terkenal Cocoon</a>.</p>
-
-<p>Dengan berbagai plus-minus di atas, akhirnya saya memutuskan untuk menggunakan Ant ditambah dengan <a href="http://ant.apache.org/ivy">Ivy</a> saja. Toh sebenarnya kami di ArtiVisi cuma butuh dependency management saja. Ivy lebih mudah dipelajari, dan hei &#8230; <a href="http://www.springsource.com/beta/applicationplatform">contoh aplikasi SpringSource Application Platform (SSAP)</a> di-build menggunakan Ivy.</p>
-
-<p>Sekedar informasi, contoh aplikasi Petclinic SSAP cukup kompleks. Aplikasi tersebut memiliki banyak konfigurasi yang dapat dipilih, antara lain:</p>
-
-<ul>
-<li><p>Framework akses database : JDBC, JPA, Hibernate, atau Eclipselink</p></li>
-<li><p>Database provider : HSQLDB atau MySQL</p></li>
-</ul>
-
-
-<p>Dengan banyak kombinasi tersebut, pengelolaan dependency dan proses build menjadi rumit. Domain modelnya saja digunakan oleh banyak modul lain. Belum lagi dependency terhadap pustaka external seperti Hibernate dan Eclipselink. Akan ada banyak konfigurasi untuk compile, test, dan deployment.</p>
-
-<p>Aplikasi contoh tersebut sudah mencerminkan kemampuan Ivy untuk mengelola project dengan banyak relasi ke project lainnya. Dan faktor yang paling penting, <strong>Ivy mudah dipelajari</strong>. Kita akan buktikan dalam beberapa posting berikutnya.</p>
-
-<p>Lebih jauh tentang dependency management akan dibahas pada posting selanjutnya tentang Ivy. Untuk sekarang, kita akan bahas cara instalasinya.</p>
-
-<h3>Instalasi Ant</h3>
-
-<p>Pertama, kita harus menginstal Ant dulu. Karena saya menggunakan Ubuntu, instalasi tidak terlalu sulit. Cukup ketikkan perintah berikut di command prompt.</p>
-
-<pre><code>sudo apt-get install ant ant-optional
-</code></pre>
-
-<p>Atau jika Anda alergi dengan command prompt, bisa menggunakan System > Administration > Synaptic Package Manager.</p>
-
-<p>Selain cara otomatis seperti di atas, kita juga bisa menginstal secara manual. Caranya, <a href="http://ant.apache.org/bindownload.cgi">donlod Ant</a>, kemudian extract. Masukkan path menuju folder bin di dalam hasil extract ke dalam environment variable PATH.</p>
-
-<p>Kemudian, test instalasi dengan mengetik perintah <code>ant -v</code> di command prompt. Berikut hasilnya di komputer saya:</p>
-
-<pre><code>endy@kintoun:~$ ant -v
-Apache Ant version 1.7.0 compiled on August 29 2007
-Buildfile: build.xml does not exist!
-Build failed
-</code></pre>
-
-<p>Baiklah, kita sudah mendapatkan Ant versi 1.7.0. Selanjutnya, instalasi Ivy.</p>
-
-<h3>Instalasi Ivy</h3>
-
-<p>Pertama, tentunya <a href="http://ant.apache.org/ivy/download.html">download dulu Ivy-nya</a>. Pada saat artikel ini ditulis, versi terbaru adalah 2.0.0-beta2. Jangan khawatir dengan status beta, karena menurut pengalaman saya, versi ini cukup stabil.</p>
-
-<p>Setelah donlod, kemudian extract. Kita membutuhkan file berikut :</p>
-
-<ul>
-<li><p>ivy-2.0.0-beta2.jar</p></li>
-<li><p>ivy-core-2.0.0-beta2</p></li>
-</ul>
-
-
-<p>dan satu file lagi bila kita ingin mengakses repository melalui ssh.</p>
-
-<ul>
-<li>lib/jsch-0.1.25.jar</li>
-</ul>
-
-
-<p>Masukkan file tersebut ke lokasi instalasi Ant, dalam folder lib. Bila Anda menggunakan Ubuntu seperti saya, dan menginstal Ant menggunakan Synaptic, apt-get, atau aptitude, maka lokasi instalasi Ant ada di</p>
-
-<pre><code>/usr/share/ant
-</code></pre>
-
-<p>Instalasi Ivy selesai.</p>
-
-<p>Dengan menggunakan Ivy, kita dapat mengelola proyek raksasa (terdiri dari banyak modul, dikerjakan oleh puluhan tim) dengan lebih mudah.</p>
-
-<p>Bagaimana cara menggunakannya? Tunggu posting selanjutnya :D
-  *[IDE]: Integrated Development Environment</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Lain2/klikbca-bisnis-di-ubuntu/">KlikBCA Bisnis Di Ubuntu</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-08-27T20:12:48+07:00" pubdate data-updated="true">Aug 27<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah menjadi pengusaha, KlikBCA saya berganti, dari Individual menjadi Bisnis. Hmm &#8230; tentunya KlikBCA ini juga harus bisa diakses via Linux.</p>
-
-<p>Untuk mengakses KlikBCA Bisnis, kita harus dial up VPN dulu. BCA menyediakan installer untuk VPN dialer versi Windows.</p>
-
-<p>Google punya google, dapat link <a href="http://blogindra.sanjaya.org/2007/01/menggunakan-klikbca-bisnis-di-ubuntu.html">ini</a> dan <a href="http://linux.or.id/node/1418">ini</a>. Tapi keduanya ternyata tidak menyelesaikan masalah. Ada beberapa hal yang kurang jelas. Mudah-mudahan posting ini bisa menjelaskan semuanya sehingga kita semua bisa berbisnis dengan BCA menggunakan Ubuntu Linux.</p>
-
-<p>Pertama, kita tetap butuh komputer Windows. Di komputer Windows ini, kita instal aplikasi KlikBCA Dialer. Tujuan utamanya adalah mendapatkan informasi koneksi VPN yang sebagian ada dalam file <code>KlikBCA Bisnis.pcf</code>. File ini bisa kita dapatkan di CD Installer, tapi ternyata formatnya berbeda dengan yang sudah terinstal. So, instal dulu dialernya, kemudian buka file <code>KlikBCA Bisnis.pcf</code> dengan text editor.</p>
-
-<p>Kita butuh beberapa informasi dari file ini, yaitu:</p>
-
-<ol>
-<li><p>Host : Ini adalah nama komputer VPN Server</p></li>
-<li><p>GroupName</p></li>
-</ol>
-
-
-<p>Kedua, kita butuh aplikasi kecil untuk mendekripsi field <code>enc_GroupPwd</code> dalam file <code>KlikBCA Bisnis.pcf</code>. Aplikasi tersebut bisa <a href="http://newgre.net/passwordrevealer">diunduh di sini</a>. Kopikan ke komputer Windows yang sudah terinstal dialer, dan jalankan. Nanti kita akan ditanya Profile mana yang mau didekripsi. Pilih saja <code>KlikBCA Bisnis.pcf</code>. Nanti dia akan menampilkan Group Password yang sudah terdekripsi.</p>
-
-<p>Selesai dengan Windows, silahkan diformat menjadi Ubuntu.</p>
-
-<p>Ketiga, instal dulu VPN Client dan interface Network Managernya.</p>
-
-<pre><code>sudo apt-get install vpnc network-manager-vpnc
-</code></pre>
-
-<p>Keempat, kita konfigurasi Network Manager Applet. Network Manager Applet adalah icon kecil di taskbar atas, sebelah kanan. Berikut contohnya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/netman-applet.png" title="" >
-<em>Gambar diambil dari <a href="http://www.gnome.org/projects/NetworkManager/">sini</a></em>.</p>
-
-<p>Pilih VPN Connections - Configure VPN. Nanti akan tampil daftar jaringan VPN yang sudah ada. Karena kita belum mengkonfigurasi, tentunya ini masih kosong.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/add-vpn.png" title="" ></p>
-
-<p>Selanjutnya, klik Add untuk menambah jaringan VPN baru. Wizardnya akan muncul.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/01-create-vpn.png" title="" ></p>
-
-<p>Kita akan disajikan pilihan VPN client yang tersedia. Pilih Cisco compatible.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/02-choose-protocol.png" title="" ></p>
-
-<p>Masukkan data-data sesuai dengan isi file <code>KlikBCA Bisnis.pcf</code>.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/02a-gateway.png" title="" ></p>
-
-<p>Dalam tab pertama, isikan:</p>
-
-<ul>
-<li><p>Gateway : Sesuai isi field Host</p></li>
-<li><p>Group Name : Sesuai isi field GroupName</p></li>
-</ul>
-
-
-<p>Klik tab Optional, lalu centang Override user name.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/02b-username.png" title="" ></p>
-
-<p>Isikan Corporate Id + User Id yang diberikan BCA pada Anda. Kedua ID digabungkan tanpa spasi dan diisikan di textfield Override user name.</p>
-
-<p>Selesai konfigurasi, sekarang jika ingin connect, klik pada network manager applet : VPN Connections - KlikBCA Bisnis. Nanti akan muncul pertanyaan password dan group password.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/08/04-authenticate-vpn.png" title="" ></p>
-
-<p>Password diisi dengan respon dari KeyBCA APPLI 1. Group password diisi dengan hasil dekripsi Group Password. Group password boleh disimpan di keyring, karena nilainya tidak berubah-ubah. Tapi password tidak perlu disimpan, karena nilainya berubah sesuai KeyBCA APPLI 1.</p>
-
-<p>Kalau semua nilai yang diisikan benar, maka setelah menunggu sepeminuman teh, Anda akan segera terhubung ke VPN BCA. Ini ditandai dengan adanya tanda gembok pada network manager applet.</p>
-
-<p>Untuk menyudahi koneksi VPN, bila Anda sudah selesai menggunakan KlikBCA Bisnis, klik lagi network manager applet : VPN Connections - Disconnect VPN.</p>
-
-<p>Beberapa linux user belum merasa macho kalau tidak mengedit text file. No problem, jika ingin connect via command line, begini caranya.</p>
-
-<p>Buat file <code>/etc/vpnc/default.conf</code>. Isinya sebagai berikut:</p>
-
-<pre><code>IPSec gateway &lt;masukkan isi field Host&gt;
-IPSec ID &lt;masukkan isi field GroupName&gt;
-IPSec secret &lt;masukkan hasil dekripsi Group Password&gt;
-Xauth username &lt;masukkan CorporateID digabung dengan UserID&gt;
-</code></pre>
-
-<p>Selesai konfigurasi. Sekarang dial dengan cara menjalankan:</p>
-
-<pre><code>sudo vpnc-connect
-</code></pre>
-
-<p>Nanti dia akan minta password. Masukkan respon APPLI 1 KeyBCA.</p>
-
-<p>Untuk mengakhiri koneksi VPN, jalankan:</p>
-
-<pre><code>sudo vpnc-disconnect
-</code></pre>
-
-<p>Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/menggunakan-log4j/">Menggunakan Log4J</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-07-19T14:21:26+07:00" pubdate data-updated="true">Jul 19<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Menggunakan log4j</p>
-
-<p>Pada waktu SMU dulu, saya dan teman-teman saya membentuk grup band. Sebagai band amatiran, kami hanya tampil kalau ada pentas seni di sekolah, atau kalau ada acara tujuh-belasan di lapangan dekat rumah. Yang ingin tampil di event tersebut tidak hanya band kami, tapi juga puluhan band amatir lainnya. Karena demand jauh melebihi supply, seringkali kami justru harus membayar uang pendaftaran agar bisa tampil.</p>
-
-<p>Sama dengan band remaja pada umumnya, kami punya impian menjadi rock-star. Tidak usah mengeluarkan album dulu lah &#8230; setidaknya kami dibayar setiap kali tampil. Bukannya malah membayar.</p>
-
-<p>Suatu ketika, pemain bas kami mengajak kami berkenalan dengan salah satu sepupunya yang juga punya band. Tidak seperti kami yang amatiran, band sepupu ini lebih profesional. Mereka sudah punya slot tampil rutin di beberapa kafe, yang tentu saja &#8230; dibayar :D</p>
-
-<p>Setelah ngobrol kesana-sini, akhirnya kami diajak untuk datang ke kafe dan menonton penampilan mereka.</p>
-
-<p>Sesampainya di lokasi, terlihat jelas perbedaan level antara kami dan mereka. Band kami, sebelum tampil, semua anggotanya deg-degan dan gugup. Topik pembicaraan adalah tentang lagu yang dimainkan. Kami saling mengingatkan berapa kali harus mengulang refrain, berapa bar sesi gitar solo, pada ketukan berapa vokalis harus masuk, dan hal-hal sejenisnya. Dan tentunya, orang gemetaran tidak mungkin bercanda.</p>
-
-<p>Berbeda keadaannya dengan band sepupu tersebut. Begitu datang, mereka berhaha-hihi dengan gembira. Pada waktu kami mendekat, terdengar jelas bahwa topik pembicaraan bukanlah tentang teknis musik yang akan dimainkan, melainkan urusan &#8230;.. kostum !!!</p>
-
-<p>Mereka sudah sedemikian terbiasa tampil di panggung, sehingga bermusik sudah seperti bernafas. Tidak perlu berpikir lagi. Oleh karena itu mereka bisa dengan tenang memikirkan kostum.</p>
-
-<p>Lalu apa hubungannya band kafe dengan <a href="http://logging.apache.org/log4j">Log4J</a>?</p>
-
-<p>Programmer pemula akan sangat concern dengan urusan algoritma, design pattern, normalisasi database, dan hal-hal teknis pemrograman. Programmer kawakan, sudah tidak lagi mengkhawatirkan hal-hal tersebut. Bukan karena tidak penting, tapi karena hal teknis tersebut sudah menjadi bagian dari dirinya. Coding sudah seperti bernafas. No mind .. demikian menurut Tom Cruise dalam film The Last Samurai.</p>
-
-<p>Lalu apa yang dipikirkan programmer kawakan? Dia memikirkan pengguna aplikasinya. Bukan end-user atau operator, karena itu juga sudah refleks terpikirkan. Melainkan system administrator, first level technical support, dan maintainer programmer (programmer generasi kedua yang akan menambahkan fitur atau melakukan troubleshoot).</p>
-
-<p>Untuk kepentingan tersebut, maka yang harus dipikirkan adalah log message dan exception handling. Log message sangat dibutuhkan oleh sysdamin untuk mendeteksi masalah sedini mungkin. First level technical support juga harus membuat keputusan apakah masalah bisa diselesaikan melalui restart, atau butuh coding tambahan?</p>
-
-<p>Nah, untuk itu kita harus mempertimbangkan :</p>
-
-<ol>
-<li><p>Di titik mana harus menaruh log</p></li>
-<li><p>Informasi apa yang harus ditulis di log</p></li>
-<li><p>Di mana harus menulis log: konsol, file, database, syslog, Event Viewer?</p></li>
-<li><p>Bagaimana harus memformat log message agar mudah ditelusuri?</p></li>
-<li><p>Bagaimana memfilter log agar menampilkan hanya severity tertentu?</p></li>
-<li><p>Bagaimana memfilter log agar hanya meliput modul tertentu?</p></li>
-</ol>
-
-
-<p>Beruntung bagi programmer Java, kita hanya perlu memikirkan nomer 1 dan 2. Sisanya sudah disediakan oleh logging framework seperti <a href="http://logging.apache.org/log4j">log4j</a>.</p>
-
-<p>Lalu bagaimana cara menggunakan log4j? Pelajari di <a href="http://endy.muhardin.googlepages.com/minibook-log4j.pdf">Minibook Log4J</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/road-to-java-se/">Road to Java SE</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-07-13T17:56:34+07:00" pubdate data-updated="true">Jul 13<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Belajar bahasa pemrograman mirip dengan belajar bahasa manusia. Bahasa pertama adalah yang paling sulit. Ini disebabkan karena kita belum paham istilah-istilah yang digunakan, pola umum menyusun kata, dan ungkapan-ungkapan khusus yang biasa digunakan dalam bahasa tertentu.</p>
-
-<p>Mari kita ingat waktu pertama kali belajar bahasa Inggris (bahasa Indonesia tidak dihitung, karena kita sudah bisa dari kecil). Pertama kali, kita sama sekali tidak tahu vocabulary. Kemudian kita belajar tentang susunan kata, Subjek-Predikat-Objek. Belajar kalimat aktif dan pasif.</p>
-
-<p>Demikian juga dengan bahasa pemrograman. Bahasa pertama selalu paling sulit. Setelah kita menguasai satu bahasa, belajar bahasa berikutnya tidak sesulit yang pertama. Misalnya kita butuh waktu enam bulan untuk menguasai Java, maka untuk belajar PHP mungkin cuma butuh 2 bulan.</p>
-
-<p>Dengan asumsi kita sama sekali belum pernah mengenal bahasa pemrograman, berikut adalah peta jalan untuk belajar bahasa pemrograman Java.</p>
-
-<p>Pertama, kita kumpulkan dulu perlengkapan belajarnya. Kita membutuhkan:</p>
-
-<ul>
-<li><p>Java SDK</p></li>
-<li><p>Java Tutorial dari Sun</p></li>
-<li><p>Javadoc API</p></li>
-<li><p>Text Editor yang bisa memberi warna (syntax highlighting)</p></li>
-</ul>
-
-
-<p>Pada tahap ini, jangan menggunakan editor canggih &#8211;biasa disebut Integrated Development Environment (IDE)&#8211; macam Eclipse, Netbeans, dan lainnya. IDE memiliki fitur yang canggih dan juga kompleks. Di awal masa belajar, kita ingin belajar tentang bahasa Java, bukan penggunaan tombol dan wizard.</p>
-
-<p>Setelah itu, instal Java SDK. Tergantung metode instalasi Anda, mungkin Anda perlu mengatur environment variabel JAVA_HOME dan PATH. JAVA_HOME mengarah ke folder tempat instalasi Java SDK, sedangkan PATH mengarah pada folder bin di dalam lokasi JAVA_HOME.</p>
-
-<p>Untuk mengetes apakah instalasi Anda sudah berhasil, coba ketik perintah berikut di command prompt:</p>
-
-<pre><code>javac -version
-</code></pre>
-
-<p>Bila keluar pesan error &#8220;perintah javac tidak ditemukan&#8221; berarti environment variabel masih belum diatur dengan benar.</p>
-
-<p>Perhatikan bahwa setelah mengatur environment variabel, kita harus merestart command prompt. Command prompt baik di Windows maupun Linux tidak dapat mendeteksi perubahan environment variabel secara instan.</p>
-
-<p>Selanjutnya, buat kode program sederhana. Dalam semua bahasa pemrograman, kode ini disebut HelloWorld. Kode program ini hanya mencetak tulisan <strong>Hello World</strong> ke layar komputer.</p>
-
-<p>Coba kompilasi dan jalankan program HelloWorld tersebut. Dari sini Anda akan mengetahui beberapa konsep, yaitu:</p>
-
-<ul>
-<li><p>Cara kompilasi kode program Java</p></li>
-<li><p>Cara menjalankan aplikasi Java</p></li>
-<li><p>Konsep CLASSPATH</p></li>
-</ul>
-
-
-<p>Begitu kita sudah bisa mengkompilasi dan menjalankan kode program Java, kita bisa mulai belajar prinsip umum pemrograman. Prinsip ini sama di semua bahasa pemrograman, walaupun cara penulisannya berbeda. Berikut prinsip-prinsip yang perlu dipelajari:</p>
-
-<ol>
-<li><p>Anatomi aplikasi. Di Java, aplikasi terdiri dari banyak package, satu package berisi banyak class, satu class berisi banyak property dan method, satu method terdiri dari banyak statement.</p></li>
-<li><p>Menggunakan variabel</p></li>
-<li><p>Macam-macam tipe data</p></li>
-<li><p>Operator</p></li>
-<li><p>Statement, Comment, Expression</p></li>
-<li><p>Method, function, atau procedure. Istilah mana yang digunakan tergantung bahasa yang dipelajari</p></li>
-<li><p>Penggunaan variabel sebagai argumen dan return value. Pelajari juga pass-by-value vs pass-by-reference dan scope variabel</p></li>
-<li><p>Control Flow, meliputi percabangan menggunakan if-else dan switch, dan perulangan dengan while atau for.Ketahui juga keyword control flow seperti break, return, dan exit.</p></li>
-<li><p>Setelah mahir menggunakan variabel skalar, pelajari variabel majemuk. Variabel majemuk ini ada di semua bahasa pemrograman. Biasanya ada dua kategori dasar, yaitu yang menggunakan indeks numerik dan indeks non-numerik. Di PHP variabel majemuk berindeks numerik disebut dengan numeric-array, sedangkan yang berindeks non-numerik disebut associative-array. Di Java pilihan lebih banyak. Untuk indeks numerik ada List dan array. Sedangkan indeks non-numerik diwakili oleh Map. Java juga punya variabel majemuk yang dinamakan Set, yang tidak memiliki indeks berurut, tapi bisa digunakan untuk mencegah elemen yang duplikat. Pelajari konsep, implementasi, dan penggunaannya.</p></li>
-</ol>
-
-
-<p>Beberapa latihan yang dapat digunakan untuk memahami prinsip dasar ini antara lain:</p>
-
-<ul>
-<li><p>Hitung jumlah hari dalam bulan dan tahun tertentu</p></li>
-<li><p>Tampilkan nama sendiri secara berulang sebanyak jumlah hurufnya</p></li>
-<li><p>Hitung faktorial</p></li>
-<li><p>Deret Fibonacci</p></li>
-<li><p>dan sebagainya</p></li>
-</ul>
-
-
-<p>Salah satu keunggulan Java adalah dukungannya terhadap Object Oriented Programming. Sekarang, setelah menguasai cara kerja bahasa pemrograman melalui prinsip-prinsip di atas, kita belajar tentang bagaimana mendesain aplikasi dengan menggunakan prinsip orientasi objek.</p>
-
-<p>Langkah-langkah belajar OOP adalah:</p>
-
-<ol>
-<li><p>Belajar apa itu class dan apa itu object. Kalau di Java, ketahui perbedaan antara class dan instance. Perbedaan antara static variable dan instance variable.</p></li>
-<li><p>Encapsulation</p></li>
-<li><p>Inheritance</p></li>
-<li><p>Polymorphism</p></li>
-<li><p>Banyak orang mengalami kesulitan dalam menjelaskan, apalagi mempelajari encapsulation, inheritance, dan polymorphism. Berdasarkan pengalaman saya, design pattern dapat digunakan untuk membantu pemahaman ketiga konsep OO tersebut. Gunakan Strategy pattern untuk memahami polymorphism, Factory pattern untuk memahami encapsulation, dan Template Method untuk memahami Inheritance. Cukup dengan tiga pattern ini, seharusnya konsep OO sudah bisa dipahami dengan baik</p></li>
-</ol>
-
-
-<p>Beberapa bahasa pemrograman seperti Java, Ruby, C# memiliki fitur Exception Handling. Pelajari fitur ini. Khusus Java, pelajari bedanya Error, Checked Exception, dan Unchecked Exception. Yang lebih penting, kenali karakteristik masing-masing dan kapan harus menggunakannya.</p>
-
-<p>Semua bahasa pemrograman modern sudah memiliki infrastruktur Input/Output Stream. I/O Stream ini digunakan untuk membaca dan menulis data ke berbagai tujuan, misalnya file, jaringan, object, dan sebagainya. Dengan menggunakan I/O Stream, teknik baca/tulis file mirip dengan terima/kirim data dari jaringan.</p>
-
-<p>Sebagai latihan, coba buat aplikasi chatting sederhana.</p>
-
-<p>Terakhir, pelajari fitur-fitur Java yang advanced, seperti:</p>
-
-<ul>
-<li><p>Multithreading</p></li>
-<li><p>Reflections API</p></li>
-<li><p>Annotations</p></li>
-<li><p>Generics</p></li>
-<li><p>Enum</p></li>
-</ul>
-
-
-<p>Kalau sudah sampai di sini, pengetahuan Anda sudah cukup untuk meneruskan sendiri. Bila ingin membuat aplikasi bisnis, pelajari JDBC, kemudian ikuti <a href="http://endy.artivisi.com/blog/java/road-to-java-ee/">Road to Java EE</a>. Bila ingin membuat aplikasi daemon seperti web server atau sms gateway, dalami multithreading, classloading, socket programming, dan lainnya. Bila ingin konsentrasi di mobile, pelajari Java ME.</p>
-
-<p>Demikian panduan singkat untuk belajar bahasa pemrograman Java. Tidak ada yang instan di dunia ini, termasuk belajar bahasa pemrograman. Bila Anda sama sekali belum pernah coding, Anda butuh waktu paling tidak 6 bulan untuk menguasai Java. Bila sudah pernah menggunakan bahasa non-OOP, butuh waktu sekitar 2-3 bulan. Perkiraan waktu ini sekedar gambaran saja, mungkin juga ada yang 2 minggu sudah bisa, atau 2 tahun masih belum bisa. Tergantung kondisi.</p>
-
-<p>Setelah menguasai bahasanya, selanjutnya menguasai (Application Programming Interface) API yang dibutuhkan untuk menyelesaikan pekerjaan. Kemudian masih ada framework untuk membantu pembuatan aplikasi. Jangan lupa, kita masih harus belajar menggunakan tools seperti IDE, Ant, Maven, JUnit, Subversion, agar kita bisa bekerja secara efektif dan efisien.</p>
-
-<p>Selamat belajar Java.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Life/Manajemen/wirausaha/">Wirausaha</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-07-04T18:01:08+07:00" pubdate data-updated="true">Jul 4<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tiga bulan yang lalu, tepatnya Februari 2008, saya membuat keputusan signifikan sepanjang kehidupan saya.
-Yaitu berpindah sisi meja, dari menerima gaji, menjadi memberi gaji alias mendirikan perusahaan sendiri. Padahal kantor tempat saya bekerja merupakan perusahaan terkenal, posisi saya strategis dan menantang, dan lingkungan kerjanya menyenangkan.</p>
-
-<p>Perubahan ini, terutama bagi mereka yang sudah cukup lama bekerja di perusahaan dan sudah berkeluarga, merupakan hal yang menakutkan.
-Pada waktu kita masih single, kalau ada kesulitan keuangan, yang menderita cukup diri sendiri saja. Sedangkan bila kita sudah berkeluarga, bokek bisa berakibat fatal bagi istri dan anak. Saya pernah mengalami masa melarat dulu di Surabaya sekitar tahun 2001-2002. Saking bokeknya, kami (saya dan teman-teman serumah) tidak punya uang untuk membeli lauk. Hanya ada nasi. Akhirnya, kami memetik daun kelor yang tumbuh di pekarangan dan merebusnya sebagai teman nasi. Jika ada yang memiliki ilmu kebatinan, pasti akan luntur seketika :p. Setelah berkeluarga, tentunya kita ingin memastikan bahwa jangan sampai anggota keluarga kita terpaksa makan sayur daun kelor.</p>
-
-<p>Tidak sedikit teman-teman yang bertanya bagaimana cara melakukan peralihan dari karyawan menjadi wirausahawan dengan mulus. Yah, saat ini saya juga masih belum menjadi pengusaha sukses. Masih berjuang. Tapi ada sedikit pengalaman yang bisa saya ceritakan pada mereka-mereka yang ingin mengikuti jejak saya.</p>
-
-<p>Di jaman serba sulit seperti ini, akan lebih baik jika kita bisa mandiri menciptakan lapangan pekerjaan sendiri. Jadi, semakin banyak pengusaha, semakin cepat Indonesia akan bangkit dari keterpurukan nasional.</p>
-
-<p>Kerja kantoran dulu kemudian buka usaha sendiri berbeda dengan lulus sekolah dan langsung buka usaha. Masing-masing ada plus-minusnya.</p>
-
-<p>Jika kita langsung buka usaha, kita biasanya akan:</p>
-
-<ul>
-<li><p>terbiasa dengan kondisi finansial yang tidak menentu. Kadang kaya raya, kadang melarat.</p></li>
-<li><p>memiliki jiwa sales (ini adalah karakteristik penting yang akan saya bahas lebih lanjut nanti)</p></li>
-<li><p>berorientasi hasil, bukan jam kerja</p></li>
-<li><p>miskin pengalaman, sehingga usaha sulit maju</p></li>
-</ul>
-
-
-<p>Sebaliknya, bila kita jadi karyawan dulu, biasanya kita:</p>
-
-<ul>
-<li><p>terbiasa gajian di akhir bulan dengan jumlah fixed.</p></li>
-<li><p>naluri pemburu kurang terasah, kecuali yang bekerja di lini penjualan</p></li>
-<li><p>berorientasi jam kerja, lewat jam kantor masih kerja, hitung lembur</p></li>
-<li><p>sudah mengenal sistem birokrasi kantoran dengan hirarki kekuasaan dan wewenang</p></li>
-<li><p>terbiasa dengan prosedur yang baku (bila bekerja di perusahaan yang rapi)</p></li>
-</ul>
-
-
-<p>Masing-masing starting-position memiliki plus minusnya. Yang akan kita bahas sekarang adalah start dari posisi karyawan. Mungkin lain waktu kita akan bahas tentang start langsung jadi pengusaha.</p>
-
-<p>Untuk bisa beralih dengan mulus, ada beberapa persiapan terutama dari aspek pola pikir dan gaya hidup.</p>
-
-<p>Pola pikir yang dibutuhkan adalah:</p>
-
-<ul>
-<li><p>Orientasi terhadap hasil</p></li>
-<li><p>Sense of urgency</p></li>
-<li><p>Kepekaan terhadap peluang</p></li>
-</ul>
-
-
-<p>Sedangkan gaya hidup yang dibutuhkan adalah:</p>
-
-<ul>
-<li><p>Multiple Stream of Income (MSI).</p></li>
-<li><p>Aktif di komunitas, baik fisik maupun maya.</p></li>
-</ul>
-
-
-<p>Mari kita bahas satu persatu.</p>
-
-<h3>Orientasi Hasil</h3>
-
-<p>Bila kita menjadi karyawan swasta &#8211;apalagi di industri IT&#8211;, kita sulit untuk santai. Selalu ada atasan yang memantau kinerja kita. Terlihat chatting atau browsing, pasti akan langsung diajak diskusi mengenai pemanfaatan jam kerja yang efisien. Dengan demikian, performa kita akan selalu kinclong, karena dimonitor dan diingatkan sepanjang waktu.</p>
-
-<p>Lain halnya bila kita menjadi wirausahawan. Tidak ada lagi atasan yang memantau kinerja kita dan mengingatkan bila kita mulai tidak fokus. Mau berpola hidup PNS, monggo. Mau sampai di kantor jam 11 pulang jam 14, silahkan.</p>
-
-<p>Ini merupakan tantangan bagi kita. Kita harus memacu diri sendiri untuk menghasilkan sesuatu. Bila kita programmer, harus menghasilkan kode program. Bila kita instruktur pelatihan, harus menghasilkan modul pelatihan dan slide presentasi. Tanpa orientasi terhadap hasil, dapur bisa berhenti ngebul.</p>
-
-<h3>Sense of Urgency</h3>
-
-<p>Mirip dengan orientasi hasil, di lingkungan karyawan kita memiliki atasan yang rajin menagih hasil kerja kita. Setelah hasil kerja kita serahkan, biasanya akan diperiksa dulu sebelum kita berikan pada client.</p>
-
-<p>Berbeda halnya bila kita berwirausaha. Bila kita tidak memiliki sense of urgency, semua delivery ke client akan terlambat dan berkualitas rendah, karena tidak ada yang menagih dan memeriksa pekerjaan kita.</p>
-
-<p>Kedua hal ini, orientasi hasil dan sense of urgency sepintas nampak seperti hal sepele dan sudah menjadi kondisi yang umum. Tapi walaupun ini terkesan common sense, tapi ternyata sangat berat dilakukan tanpa adanya atasan yang mengawasi. Penguasaan kita terhadap dua hal ini akan menentukan apakah kita bermental bos atau karyawan. Tanpa kedua hal ini, walaupun kita menjadi karyawan, sulit untuk meningkatkan karir di kantor.</p>
-
-<h3>Kepekaan terhadap peluang</h3>
-
-<p>Sebagai karyawan, bila tidak berada di departemen business development, marketing, atau sales, biasanya kita tidak mampu mengenali peluang bisnis. Kepekaan terhadap peluang adalah suatu kemampuan yang harus dilatih terus menerus, mirip seperti kemampuan mendesain aplikasi.</p>
-
-<p>Saat belum terlatih, kita tidak bisa melihat peluang bisnis, bahkan walaupun sudah disodorkan di depan mata. Berikutnya, kita bisa mengenali peluang, tapi belum bisa membedakan mana yang angin surga dan mana peluang betulan. Bila sudah mahir, kita bisa mengendus dari sekian banyak peluang, mana yang akan menghasilkan imbal hasil yang paling menguntungkan.</p>
-
-<p>Inilah yang saya sebut di atas &#8220;memiliki jiwa sales&#8221;. Sebagai pendiri perusahaan, tugas utama kita adalah mendatangkan bisnis ke dalam perusahaan. Menjadi seorang deal-maker. Bila perusahaan kita tidak mendapat project, karyawan tidak ada kerjaan, ini adalah tanggung jawab founder.</p>
-
-<p>Tanpa kemampuan ini, perusahaan tidak akan jalan, tidak peduli sepintar apapun programmer yang dimiliki. No sales, no company.</p>
-
-<h3>Multiple Stream of Income</h3>
-
-<p>Sebagai karyawan yang loyal, biasanya kita hanya memiliki satu sumber penghasilan, yaitu gaji. Kondisi ini menyulitkan kita bila tiba-tiba ingin banting setir menjadi pengusaha. Seperti kita tahu, menjadi pengusaha penuh dengan ketidakpastian income. Kadang panen raya, kadang paceklik. Tidak ada bisnis yang terus menerus sukses. Bila Anda percaya ada bisnis yang tidak bisa gagal, hati-hati, bisa jadi Anda akan masuk koran sebagai investor blue energy yang ternyata palsu.</p>
-
-<p>Untuk mengatasi perbedaan suasana ini, saya anjurkan untuk membiasakan diri mencari penghasilan tambahan di luar gaji. Setidaknya selama dua sampai tiga tahun, cobalah untuk mencari penghasilan diluar gaji. Tentunya dilakukan dengan <a href="http://endy.artivisi.com/blog/life/nyambi-bolehkah/">cara yang profesional dan etis</a>. Bila sumber penghasilan kita sudah lebih dari satu, maka kita sudah memiliki Multiple Stream of Income (MSI).</p>
-
-<p>Ada beberapa keuntungan yang didapat dari MSI ini. Pertama, terutama bagi eks-karyawan, ini akan menghilangkan paradigma kita bahwa yang namanya penghasilan hanyalah dari gaji bulanan. Kedua, ini akan mengasah kepekaan kita terhadap peluang bisnis. Ketiga, ini akan melatih kita berorientasi hasil dan memiliki sense of urgency. Keempat, ini akan menambah keyakinan diri bahwa tanpa gaji rutin kita tetap bisa survive.</p>
-
-<p>Saya sendiri sudah memiliki MSI sejak lulus kuliah. Dua tahun terakhir sebelum saya benar-benar berhenti jadi karyawan, saya mulai mencatat income saya, baik dari gaji maupun dari yang lainnya. Di akhir tahun pertama, proporsi pendapatan gaji dengan non-gaji berbanding 85:15. Di tahun kedua, proporsinya naik menjadi 65:35. Artinya, hanya dengan menggunakan 10-15% waktu, saya mampu menghasilkan 35% penghasilan tahunan saya.</p>
-
-<p>Kemudian hal ini saya bicarakan dengan keluarga. Siapkah mereka hidup dengan hanya 35% saja dari income biasa? Tentunya dengan imbalan waktu yang lebih fleksibel untuk keluarga dan potensi penghasilan yang tidak terbatas.</p>
-
-<p>Alhamdulillah keluarga saya menyatakan siap berjuang bersama. Saat ini, setelah lima bulan berjuang, rata-rata income saya sudah lebih dari gaji semasa kerja dulu. Tidak ada yang instan. Pada masa awal dulu, kami hidup prihatin dan mengencangkan ikat pinggang.</p>
-
-<p>Paradigma MSI ini akan menjadi lebih penting setelah kita memiliki usaha sendiri. Bila kita mengerjakan project software development, harus selalu ada lebih dari satu project yang berjalan bersamaan. Bila kita mengadakan pelatihan, harus ada pemasukan dari sesi training, lisensi materi pelatihan, dan penjualan buku atau sampel kode program.</p>
-
-<h3>Aktif di komunitas</h3>
-
-<p>Rasulullah bersabda bahwa silaturahmi akan membuka pintu rejeki. Brian Tracy dan Robert Kiyosaki mengatakan bahwa aliran kas masuk berbanding lurus dengan komunikasi keluar. Hasilnya mungkin tidak terlihat langsung, tapi bisa terasakan dampaknya.</p>
-
-<p>Di ArtiVisi, kita mengikuti filosofi tersebut. Saya dan Ifnu aktif mengisi blog dan berkontribusi di milis Java. Motif utamanya tentu saja sedekah ilmu dan mencari pahala. Kalau kemudian ada project yang datang dari komunitas, kami anggap itu sebagai bonus dan juga konsekuensi logis dari aktifitas tersebut.</p>
-
-<p>Demikianlah sedikit sharing pengalaman mendirikan perusahaan baru. Masih panjang jalan yang harus ditempuh untuk membesarkan perusahaan yang baru seumur jagung ini. Di atas semua usaha, tentunya doa memiliki peranan yang paling penting.</p>
-
-<p>Harapan saya, dengan artikel ini akan banyak pengusaha baru yang bisa membuka banyak lapangan kerja. Di satu sisi, banyak training centre dan software development company memang akan menambah saingan ArtiVisi. Tapi di sisi lain, kami jadi bisa berjualan lisensi materi pelatihan, project management training, dan consulting kepada para kompetitor.</p>
-
-<p>Ayo jadi pengusaha !!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Manajemen/apa-itu-cmmi/">Apa Itu CMMI?</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-06-18T01:17:17+07:00" pubdate data-updated="true">Jun 18<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di <a href="http://tech.groups.yahoo.com/group/appli-member">milis Asosiasi Pengembang Perangkat Lunak Indonesia (APPLI)</a> ramai dibahas mengenai standarisasi dalam pengembangan perangkat lunak. Salah satu standar yang populer digunakan adalah CMMI (Capability Maturity Model Integration) yang dikembangkan oleh Carnegie-Mellon University, untuk lebih tepatnya dalam departemen Software Engineering Institute. Selain itu, ada juga blog <a href="http://arian75.wordpress.com/2008/06/16/sei-cmmi-maturity-apakah-ada-perusahaan-it-indonesia-yang-mendapatkannya/">ini</a> dan <a href="http://santus.wordpress.com/2008/02/04/cmmi-what-is-it-for/">ini</a> yang membahas tentang CMMI.</p>
-
-<p>Dengan adanya standar, organisasi dapat berkembang dengan lebih terarah. Semua anggota organisasi mulai dari programmer, analis, tester, manajer, dan direktur menjadi tahu apa ruang lingkup pekerjaannya. Apa yang harus disediakan bagi pihak lain, dan juga apa yang bisa diharapkan dari departemen lain. Dengan demikian, tidak banyak effort yang terbuang karena miskomunikasi atau kurang koordinasi.</p>
-
-<p>Sayangnya, dunia enterpreneur IT di Indonesia masih jarang yang hirau terhadap masalah standarisasi ini. Berbagai alasan dikemukakan, antara lain:</p>
-
-<ul>
-<li><p>Tidak mengerti bahasa Inggris</p></li>
-<li><p>Standar luar negeri tidak cocok untuk kondisi lokal</p></li>
-<li><p>Standar membuat organisasi monoton dan membosankan</p></li>
-<li><p>dan segudang alasan lainnya</p></li>
-</ul>
-
-
-<p>Menurut saya, segala alasan itu cuma pembenaran saja untuk sifat malas belajar. Sebagai praktisi IT, tentunya kita sadar bahwa dunia tempat kita hidup sekarang (internet) dibangun di atas standar. Untuk bisa browsing, kita menggunakan protokol HTTP. Memeriksa email, menggunakan protokol POP3, IMAP, dan SMTP. Chatting, menggunakan protokol IRC, XMPP. Voice chat, menggunakan protokol SIP.</p>
-
-<p>Protokol adalah nama lain dari standar. So, standar membuat hidup kita menjadi lebih baik. Setidaknya, standar apapun lebih baik daripada tanpa standar. Melalui artikel ini, mudah-mudahan para praktisi tergerak untuk setidaknya mempelajari dulu standar sebelum mengeluarkan vonis &#8220;tidak perlu&#8221; atau &#8220;tidak sesuai&#8221;.</p>
-
-<p>Sekarang, mari kita lihat standarisasi dalam pengembangan perangkat lunak. Standar yang populer dan cukup saya kuasai adalah CMMI, jadi mari kita bahas tentang CMMI. Kebetulan saya pernah ikutan mengantarkan BaliCamp meraih CMMI Maturity Level 3.</p>
-
-<h3>Apa itu CMMI</h3>
-
-<p>CMMI adalah singkatan dari Capability Maturity Model Integration. Ini adalah kerangka kerja (framework) yang bisa digunakan untuk mengembangkan proses di dalam perusahaan.</p>
-
-<p>Apa itu proses? Proses adalah cara kita melakukan suatu tugas. Misalnya, membuat proposal, menganalisa kebutuhan client, membuat kode program, dan kegiatan lainnya. Semua tata laksana kegiatan tersebut dikenal dengan nama proses atau prosedur.</p>
-
-<p>CMMI membantu kita untuk memperbaiki proses di perusahaan/organisasi kita. Dengan membaiknya proses, diharapkan produk yang dihasilkan akan ikut menjadi baik.</p>
-
-<p>CMMI dirumuskan oleh Software Engineering Institute di Carnegie Mellon University. Para peneliti di SEI telah mengamati proyek pembangunan perangkat lunak di seluruh dunia, mulai dari proyek kecil sampai proyek raksasa. Organisasi yang diteliti meliputi NASA, IBM, dan kontraktor Departemen Pertahanan Amerika Serikat. Pengalaman yang dimiliki organisasi tersebut dirangkum dalam seperangkat aturan yang disebut CMMI. Nah, apakah perusahaan kita sudah lebih canggih daripada organisasi di atas, dalam hal mengelola proyek software? Kalau belum, mari kita belajar dari mereka.</p>
-
-<h3>Apa sih isinya CMMI ??</h3>
-
-<p>CMMI terdiri dari rangkaian practices. Dalam rangkaian practices ini ada rambu-rambu atau rekomendasi yang dapat diikuti. Practices dalam CMMI dibagi menjadi dua, yaitu Generic Practices (GP) dan Specific Practices (SP).</p>
-
-<p>Bila kita sudah mengimplementasikan practices dengan sempurna, kita dianggap sudah memenuhi Goals. Sama seperti practices, ada Generic Goals (GG) dan Specific Goals (SG).</p>
-
-<p>SG dan SP dikelompokkan menjadi Process Area (PA). Total ada 22 Process Area dalam CMMI for Development versi 1.2.</p>
-
-<p>Daftar PA, GG, SG, GP, dan SP dapat dilihat di spesifikasi CMMI yang bisa didonlod gratis <a href="http://www.sei.cmu.edu/publications/documents/06.reports/06tr008.html">di sini</a>.</p>
-
-<h3>Apa hubungannya CMMI dengan standarisasi ISO</h3>
-
-<p>CMMI dan ISO sama-sama standar yang digunakan untuk menilai proses suatu organisasi. Kalau kita programmer Java, kita punya sertifikasi SCJP, SCWD, SCBCD, dan sebagainya. Nah, anggap saja CMMI atau ISO ini adalah sertifikasinya perusahaan.</p>
-
-<p>Kalau di SCJP yang dinilai adalah penguasaan kita terhadap bahasa pemrograman Java, maka di ISO/CMMI yang dinilai adalah penguasaan perusahaan terhadap prosesnya sendiri.</p>
-
-<p>Perbedaan CMMI dan ISO terletak pada ketelitiannya. Bila kita ingin perusahaan kita mendapat sertifikasi ISO, perusahaan kita harus memiliki Standard Operating Procedure (SOP) yang tertulis. Kemudian kita harus membuktikan pada badan sertifikasi bahwa SOP tersebut kita jalankan dengan baik. Apa saja yang kita tulis dalam SOP bebas terserah kita. ISO tidak mengatur sampai ke tingkat itu.</p>
-
-<p>Berbeda dengan CMMI, selain kita punya SOP, dia punya aturan khusus tentang isi SOP. Misalnya, kalau kita melakukan analisa kebutuhan (requirement gathering), ada beberapa aturan yang harus diikuti, misalnya:</p>
-
-<ul>
-<li><p>Pernyataan kebutuhan user harus dicatat</p></li>
-<li><p>Pernyataan kebutuhan harus dikonfirmasi ke user</p></li>
-<li><p>Pernyataan kebutuhan harus disetujui kedua pihak</p></li>
-<li><p>Kalau ada perubahan, harus dicatat</p></li>
-<li><p>Antara kebutuhan dan software yang dideliver, harus bisa dilacak bolak-balik</p></li>
-</ul>
-
-
-<p>Singkatnya, kalau kita lulus ISO, belum tentu lulus CMMI. Sebaliknya, kalau kita lulus CMMI, besar kemungkinan kita akan langsung lulus ISO bila ikut sertifikasinya.</p>
-
-<h3>Apa yang dimaksud Maturity Level ??</h3>
-
-<p>Tujuan awal dirumuskannya CMMI sebenarnya adalah untuk mendukung proses tender di lingkungan Departemen Pertahanan Amerika Serikat (US-DoD). Mereka ingin memiliki sistem penilaian terhadap semua vendor yang mengajukan proposal. Untuk itu dirumuskanlah sistem penilaian vendor berupa Maturity Level (ML).</p>
-
-<p>Maturity Level di CMMI ada 5, mulai dari yang terendah ML 1, sampai yang paling canggih ML 5. Bila perusahaan kita sudah ML-5, maka kita bisa ikut dalam tender proyek software rudal Patriot. Begitu kira-kira.</p>
-
-<p>Setiap ML memiliki seperangkat PA yang harus dipenuhi agar kita berhak menggunakan titel ML tersebut. Sebagai contoh, bila kita ingin lulus ML-2, maka kita harus mengimplementasikan 7 PA. Untuk mencapai ML-3, kita harus mengimplementasikan 7 PA dari ML-2 ditambah dengan 11 PA dari ML-3. Demikian seterusnya, sehingga ML-5 yang sudah mengimplementasikan 22 PA.</p>
-
-<p>Bila kita sama sekali belum mengimplementasikan apa-apa, perusahaan kita dikategorikan sebagai ML-1. Level ini diadakan sebagai hiburan bagi perusahaan yang sudah ikut SCAMPI Class A, tapi tidak lulus bahkan di ML-2. Well, ML-1 kedengarannya lebih baik daripada No-ML atau ML-0 :p</p>
-
-<p>Daftar lengkap PA per ML bisa dilihat di <a href="http://www.sei.cmu.edu/publications/documents/06.reports/06tr008.html">spesifikasi CMMI</a>.</p>
-
-<h3>Perusahaan saya ingin mendapat ML-5, bagaimana caranya?</h3>
-
-<p>Pertama, tentunya perusahaan kita harus memenuhi semua persyaratan mulai dari ML-2 sampai ML-5. Perusahaan kita harus sudah punya SOP yang mengatur semua proses sesuai aturan CMMI. Bila ada aturan yang tidak kita pahami, kita bisa datangkan konsultan untuk menjelaskan.</p>
-
-<p>Setelah ada SOP tersebut, setiap orang dalam perusahaan harus memahami dan menjalankannya dengan benar. Setelah kita yakin bahwa perusahaan kita mampu, kita mendatangkan appraiser atau auditor untuk memeriksa proses kita.</p>
-
-<p>Kegiatan appraisal ini disebut dengan SCAMPI. Ada macam-macam SCAMPI, tapi yang berhak mengeluarkan peringkat ML hanyalah SCAMPI Class A.</p>
-
-<p>Dalam SCAMPI, Lead Appraiser(LA) akan merekrut beberapa orang dari perusahaan kita untuk membantunya mengaudit. Tim auditor ini disebut Appraisal Team Member (ATM). Perusahaan kita juga juga harus menyediakan tim yang akan diwawancarai oleh ATM, yang disebut dengan Functional Area Representative (FAR).</p>
-
-<p>FAR merupakan perwakilan dari berbagai departemen dalam organisasi. Mungkin nantinya akan ada kelompok FAR dari procurement, tim project, network administrator, programmer, tester, dan lainnya.</p>
-
-<p>ATM dibutuhkan untuk menterjemahkan aturan CMMI ke dalam SOP perusahaan. Misalnya, dalam CMMI ada aturan mengenai analisa kebutuhan, yaitu process area Requirement Management (REQM) dan Requirement Development (RD). Process area ini di perusahaan A mungkin diimplementasikan dengan dokumen Software Requirement Specification (SRS), tapi di perusahaan B mungkin namanya User Requirement Specification (URS), dan di perusahaan C berupa Use Case Diagram dan User Stories. Nah, tugas ATM adalah menjembatani antara istilah CMMI dan istilah internal perusahaan.</p>
-
-<p>Wawancara ATM tidak aneh-aneh. Untuk setiap proses area, mereka akan tanya apakah FAR sudah mengimplementasikan. Bila sudah, mana buktinya. Bukti ini bisa berupa hard-copy, bisa juga soft-copy. Kita bisa mengajukan email sebagai evidence. Bahkan kita juga bisa menunjukkan log Subversion atau item bug dalam aplikasi bug tracker.</p>
-
-<p>Dalam sintaks Java 5, proses appraisal dalam SCAMPI Class A bisa digambarkan sebagai berikut.</p>
-
-<pre><code>int level = 1;
-
-appraisal:
-for(int i=1; i&lt;=5; i++) {
-    List allProcessAreas = maturityLevel[i].getProcessAreas();
-    for(ProcessArea pa : allProcessAreas) {
-        for(GenericPractice gp : allGenericPractices) {
-            if(!far.isImplement(pa, gp) { break appraisal; }
-        }
-
-        for(SpecificPractice sp : pa.getSpecificPractices()) {
-            if(!far.isImplement(sp)) { break appraisal; }
-        }
-
-        level++;
-    }
-}
-</code></pre>
-
-<p>Berdasarkan hasil wawancara FAR oleh ATM, LA akan memutuskan ML berapa yang pantas untuk perusahaan kita.</p>
-
-<p>Semua hasil SCAMPI Class A akan dilaporkan pada SEI dan akan <a href="http://sas.sei.cmu.edu/pars/pars.aspx">dipublikasikan di internet</a>. Sebagai contoh, kita bisa melihat <a href="http://sas.sei.cmu.edu/pars/pars_detail.aspx?a=7546">hasil appraisal BaliCamp pada tahun 2006</a>.</p>
-
-<p>Sayangnya, sampai sekarang belum ada appraiser lokal. Jadi kita harus mendatangkan appraiser dari luar negeri.</p>
-
-<p>Informasi lebih rinci mengenai SCAMPI dapat dilihat <a href="http://www.sei.cmu.edu/publications/documents/06.reports/06hb002.html">di spesifikasi resminya</a>. Di sana ada penjelasan rinci tentang apa saja syarat menjadi ATM, bagaimana proses interview dilakukan, dan bagaimana cara memutuskan apakah suatu evidence sudah memenuhi syarat atau belum.</p>
-
-<h3>Apa yang dimaksud Continuous Representation?</h3>
-
-<p>Perusahaan mengadopsi CMMI untuk berbagai tujuan. Ada yang bermotif marketing, yaitu meraih ML tertentu dengan harapan akan mendapat project dari US-DoD, ataupun simply memperkeren Company Profile. Sama saja dengan kita ambil SCJP.</p>
-
-<p>Ada juga yang memang berniat meningkatkan kualitas prosesnya. Mengadopsi CMMI dengan harapan perusahaan akan menjadi lebih baik.</p>
-
-<p>Kita kesampingkan dulu motif marketing. Mari kita lihat motif peningkatan kualitas. Ada beberapa pendekatan untuk mengadopsi CMMI. Kita bisa mengadopsi per ML, misalnya tahun ini ML-3, berikutnya ML-4, dan seterusnya. Atau bisa juga kita hanya memfokuskan perbaikan pada satu process area tertentu saja, misalnya Requirement Management, atau Risk Management.</p>
-
-<p>Bila kita berorientasi ML, maka kita mengambil pendekatan Staged Representation. Sedangkan bila kita berorientasi PA, maka kita mengambil pendekatan Continuous Representation.</p>
-
-<h3>Bila perusahaan saya sudah ML-5, apakah perusahaan akan menjadi monoton dan membosankan? Apakah karyawannya akan menjadi seperti robot belaka??</h3>
-
-<p>Bagi programmer seperti saya dan Anda, kreativitas dan improvisasi adalah kenikmatan kerja yang utama. Itulah yang membuat kita memilih profesi software developer. Oleh karena itu, wajar bila kita mengkhawatirkan masalah ini.</p>
-
-<p>Well, saya sudah pernah mengantarkan BaliCamp meraih ML-3, dan ikut terlibat dalam persiapan mencapai ML-5. Jadi, yang akan saya ceritakan ini adalah pengalaman nyata, bukan FUD (Fear, Uncertainty, Doubt).</p>
-
-<p>Sebagai programmer yang terlibat dalam project, hal yang paling menyebalkan bagi kita bukanlah kesulitan teknis atau kerumitan algoritma. Semakin sulit, semakin menantang bagi kita. Hal yang paling menyebalkan adalah perubahan requirement di tengah jalan. Fitur yang kita implementasi dengan susah payah, bertampilan Web 2.0, menggunakan teknologi AJAX, tiba-tiba divonis client, &#8220;Ini bukan yang saya mau, GANTI !!!&#8221;.</p>
-
-<p>Atau mungkin tidak se-ekstrim itu. End-user hanya minta geser tombol sedikit, tambah fitur sedikit, dan sedikit-sedikit lainnya, yang lama-lama tentunya akan menjadi bukit. Tiba-tiba, project sudah telat 2 bulan, dan fitur baru 50% terimplementasi. Bukan karena kita codingnya lama, tapi karena user minta perubahan melulu.</p>
-
-<p>Nah, urusan perubahan requirement ini wajib hukumnya untuk dikelola dengan baik. Diatur dalam process area Requirement Management (REQM) yang ada di ML-2 dalam SP 1.3. Kalau perusahaan kita mengimplementasi REQM dengan baik, kita sebagai programmer akan lebih tenang hidupnya. Semua perubahan terhadap aplikasi yang sedang dibuat harus melalui rangkaian prosedur untuk memastikan perubahan tersebut benar-benar diinginkan dan sudah dipertimbangkan konsekuensinya. End-user tidak akan semena-mena meminta perubahan, tapi harus melalui persetujuan atasannya dan atasan kita. Dengan demikian, perubahan yang sampai pada programmer sudah pasti adalah perubahan yang penting, bukan hanya menurut end-user, tapi juga menurut sponsor project. Bahkan, adanya prosedur ini saja sudah cukup untuk membatasi <em>liarnya imajinasi</em> end-user.</p>
-
-<p>Ini hanya satu contoh saja bagaimana implementasi CMMI memudahkan hidup kita sebagai programmer. Silahkan baca-baca spesifikasinya untuk mengetahui aturan-aturan lainnya. Secara umum, CMMI sama sekali tidak menyinggung tentang teknologi, IDE, tools, bahasa pemrograman yang digunakan. Bahkan kegiatan coding sendiri cuma dibahas dalam 2 PA dari 22 yang ada, yaitu Technical Solution dan Product Integration.</p>
-
-<p>Technical Solution mengharuskan kita untuk mengidentifikasi alternatif pendekatan yang tersedia. Kemudian dari alternatif tersebut, kita pilih yang paling baik, berdasarkan kriteria yang kita tentukan sendiri. Jadi tidak boleh langsung coding, melainkan harus mikir dulu.</p>
-
-<p>ML-4 dan ML-5 banyak menitikberatkan pada analisa kuantitatif dan continuous improvement. Sukakah anda terlibat dalam project yang selesai tepat waktu, tidak lembur, libur pada hari Sabtu-Minggu? Nah, kalau sudah ML-5, project seperti ini bukan lagi impian, tapi sudah menjadi hal yang biasa. Delay dalam project sudah bisa diketahui sejak dini. Dari mulai telat 1 hari, project manager sudah bisa tahu dan mengambil tindakan antisipasi seperti minta pengunduran jadwal, mengurangi requirement, dan sebagainya.</p>
-
-<p>Sebagai programmer, tidak banyak perubahan yang kita rasakan selain project menjadi lebih tenang dan teratur. Yang paling besar terkena dampak implementasi CMMI adalah Project Manager. Tiba-tiba saja dia akan diharuskan membuat banyak dokumen dan menyediakan data. Pekerjaan administratifnya akan menjadi jauh lebih banyak.</p>
-
-<p>Tentunya hal ini bisa diatasi dengan otomasi proses. Begitu prosesnya sudah rapi, kegiatan administrasi bisa di-online-kan. Masalah versioning dokumen bisa diatasi dengan Subversion. Daftar resiko project, task management, bug report, bisa diotomasi dengan Bug/Issue Tracker. Lagipula, bila perusahaan kita bergerak di bidang IT, tentunya persenjataan seperti itu sudah seharusnya menjadi lifestyle kita.</p>
-
-<p>Demikianlah penjelasan singkat tentang CMMI. Lain waktu kita akan bahas satu persatu Process Area yang ada.</p>
-
-<p>Semoga bermanfaat.</p>
+<p>Nah, kalau sudah pakai ini, tidak perlu bingung lagi mewarnai source code di blog. Kalau mau revisi, tinggal edit aja di Github, dan otomatis di blog langsung terupdate.</p>
 </div>
   
   
@@ -1457,6 +371,26 @@ for(int i=1; i&lt;=5; i++) {
     
       <li class="post">
         <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
       </li>
     
   </ul>
@@ -1510,6 +444,15 @@ for(int i=1; i&lt;=5; i++) {
 
 
 
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
 
 
   
@@ -1527,7 +470,24 @@ for(int i=1; i&lt;=5; i++) {
 
 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
 
 
 

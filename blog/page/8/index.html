@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Bila kita ingin mempublish komputer di internet, hal pertama yang kita pikirkan adalah firewall. Bagaimana membatasi akses hanya ke port-port yang &hellip;">
+  <meta name="description" content="Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -29,6 +29,9 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
 
   
 
@@ -79,7 +82,7 @@
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/Linux/gutsy-shorewall/">Konfigurasi Shorewall Di Ubuntu Gutsy</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/mendebug-database-production/">Mendebug Database Production</a></h1>
       
     
     
@@ -96,134 +99,310 @@
   
 
 
-<time datetime="2007-12-27T23:51:27+07:00" pubdate data-updated="true">Dec 27<span>th</span>, 2007</time>
+<time datetime="2010-06-30T14:44:11+07:00" pubdate data-updated="true">Jun 30<span>th</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Bila kita ingin mempublish komputer di internet, hal pertama yang kita pikirkan adalah firewall. Bagaimana membatasi akses hanya ke port-port yang kita ijinkan.</p>
+  <div class="entry-content"><p>Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di environment development karena berbagai hal, misalnya variasi data, jumlah data, dan sebagainya.</p>
 
-<p>Di Linux, firewall diimplementasikan dengan menggunakan aplikasi iptables. Aplikasi ini sangat powerful dan canggih. Menurut Peter Parker, with great power comes great responsibility. Akan tetapi, menurut saya, with great power comes great complexity. Untuk bisa mengoperasikan iptables dengan benar, setidaknya kita harus memahami konsep chain dan table. Setelah itu, baru kita bisa belajar tentang jenis-jenis protokol, state, port, dan hal-hal TCP/IP lainnya.</p>
+<p>Langkah pertama ketika kita mengetahui ada bug tentunya adalah melokalisir masalah. Pada kondisi mana saja bug tersebut muncul. Setelah itu, kita dapat memfokuskan pencarian masalah di lokasi tersebut. Ini lebih efisien daripada kita harus menelusuri keseluruhan sistem.</p>
 
-<p>Menjelaskan konsep ini saja butuh waktu setidaknya setengah hari pada rata-rata orang yang sudah memahami konsep dasar jaringan komputer. Daripada saya bolak-balik menjelaskan konsep chain dan table, baiklah kita cari saja aplikasi front end yang sederhana.</p>
+<p>Misalnya kita sudah berhasil melokalisir masalah, yaitu transaksi di bulan tertentu. Langkah selanjutnya adalah memindahkan data production di lokasi tersebut ke environment development. Ini kita lakukan supaya kita bebas bereksperimen dengan data tersebut tanpa khawatir membahayakan data production.</p>
 
-<p>Untungnya di Ubuntu tidak kekurangan aplikasi front end untuk iptables. Untuk komputer personal, kita bisa gunakan <a href="http://www.fs-security.com/">Firestarter</a>. Aplikasi ini sangat mudah digunakan. Tinggal jalankan wizardnya, dan dia akan segera mendeteksi segala perangkat jaringan yang kita miliki. Beri tahu Firestarter mana perangkat yang terhubung ke internet, dan mana perangkat yang terhubung ke jaringan lokal. Kemudian tentukan layanan atau port berapa yang ingin kita buka. Selesai sudah. Begitu mudah.</p>
+<p>Masalahnya, tools backup database yang tersedia biasanya tidak bisa digunakan untuk mengambil sebagian data. Walaupun bisa (mysqldump menyediakan opsi where untuk membatasi record yang diambil), biasanya terbatas hanya di satu tabel saja. Sedangkan untuk bisa merestore-nya di development, kita butuh semua relasinya.</p>
 
-<p>Selain Firestarter, kita juga bisa menggunakan <a href="http://www.simonzone.com/software/guarddog/">GuardDog</a>.</p>
+<p>Sebagai contoh, coba lihat skema berikut.</p>
 
-<p>Sayangnya, kali ini saya ingin menginstal di server. Firestarter walaupun ampuh tapi kurang sesuai, karena dia berbasis GUI. Harus install Gnome dulu, kemudian kalau mau setting harus menggunakan X tunneling agar Firestarter bisa tampil di komputer yang me-remote.</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/diagram-er-payment.png" title="" ></p>
 
-<p>Setelah tanya kanan kiri, <a href="http://linux2.arinet.org">Bos Ari</a> memberikan petuah agar sebaiknya saya pakai <a href="http://www.shorewall.net/">Shorewall</a> saja. Selain Shorewall, masih ada beberapa alternatif, seperti <a href="http://rocky.molphys.leidenuniv.nl/">Arno&#8217;s Firewall</a> yang direkomendasikan <a href="http://www.antonraharja.web.id">Anton</a>. Tapi melihat sekilas dari tutorialnya, nampaknya Shorewall adalah yang paling intuitif untuk digunakan.</p>
+<p>Untuk mengambil data payment, tentunya kita juga harus menarik data lain yang berelasi dengannya, yaitu di tabel grup loket, loket, payment value, payment info dan fee loket. Ini sangat sulit dilakukan, apalagi kalau data payment tersebut jumlahnya ratusan ribu record.</p>
 
-<p>Baiklah, mari kita install dan konfigurasi Shorewall. Sebagai gambaran, komputer yang ingin saya bentengi cuma memiliki satu kartu jaringan yang langsung terhubung ke internet. Saya ingin membuka layanan SSH di port 22 dan HTTP di port 80.</p>
+<p>Untunglah ada tools untuk mengatasi masalah ini, namanya <a href="http://jailer.sourceforge.net/">Jailer</a>. Dengan menggunakan Jailer, kita dapat menentukan tabel mana yang akan diambil datanya (payment), kriteria pengambilan (bulan tertentu saja), dan relasi mana saja yang ingin kita ambil. Hasilnya adalah satu set data lengkap dengan dependensinya yang bisa kita restore di development.</p>
 
-<p>Langkah pertama tentunya adalah menginstal Shorewall. Di Ubuntu tidak sulit, langsung saja</p>
+<h2>Persiapan Jailer</h2>
 
-<pre><code>&lt;code&gt; sudo apt-get install shorewall &lt;/code&gt;
+<p>Pertama, tentunya kita unduh dulu Jailer di websitenya. Jangan lupa teriakkan, &#8220;Hidup Open Source !!!&#8221;, karena aplikasi ini tersedia secara gratis berkat gerakan open source.</p>
+
+<p>Setelah berhasil diunduh, extract ke folder tertentu. Jailer tidak menyertakan driver untuk koneksi ke database, sehingga kita harus sediakan sendiri. Karena saya menggunakan MySQL, saya masukkan file mysql-connector.jar ke dalam folder lib. Kita mengikutkan driver database ke folder Jailer karena nantinya folder ini akan kita pack dan upload ke server production.</p>
+
+<p>Jailer ini akan kita jalankan di mesin development yang sudah terisi skema database. Kita akan coba dulu ambil data di development, kalau sudah sukses baru kita jalankan di production.</p>
+
+<p>Ada dua script untuk menjalankan jailer, yaitu jailerGUI dan jailer. jailerGUI digunakan untuk mendesain pengambilan data, sedangkan jailer adalah antarmuka command line untuk menjalankan pengambilan data. Karena kita ingin mendesain proses pengambilannya, kita gunakan jailerGUI.</p>
+
+<pre><code>$ sh jailerGUI.sh
 </code></pre>
 
-<p>Shorewall akan segera terinstal, tapi tidak aktif. Kita harus mengkonfigurasi dulu, baru kemudian mengaktifkannya.</p>
+<p>Berikut adalah tampilan awal Jailer.</p>
 
-<p>Konfigurasi Shorewall ada di folder <code>/etc/shorewall</code>.</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/01-jailer-welcome-300x206.png" title="Jailer Welcome Page" ></p>
 
-<p>Setelah Shorewall terinstal, pertama kita tentukan dulu jaringan yang terhubung ke komputer kita. Untuk kasus saya tidak sulit, cuma ada satu jaringan terhubung ke eth0.</p>
+<p>Jailer memberitahu kita bahwa belum ada data model yang bisa dikerjakan, dan menyarankan kita untuk menganalisa database. Klik Analyze Database. Selanjutnya Jailer akan meminta informasi cara koneksi ke database.</p>
 
-<p>Jaringan komputer, dalam dunia Shorewall disebut dengan istilah zone. Konfigurasinya ditulis di file bernama <code>zones</code>. Karena kita cuma punya satu jaringan, yaitu internet, berikut adalah isi file tersebut.</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/02-analyze-db-300x134.png" title="Analyze Database" ></p>
 
-<pre><code>&lt;code&gt;fw    firewall
-net ipv4
-&lt;/code&gt;
+<p>Isikan informasi koneksi database dan driver yang digunakan. Driver yang kita gunakan adalah yang tadi sudah kita copy ke folder lib.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/03-mysql-connectorj-300x128.png" title="Konfigurasi MySQL" ></p>
+
+<p>Klik OK untuk menganalisa database.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/04-connect-to-db-300x212.png" title="Koneksi ke database" ></p>
+
+<p>Setelah itu, Jailer akan menghubungi database untuk mengambil informasi. Lognya akan ditampilkan di log output. Jailer akan memberi tahu kita tabel-tabel yang tidak ada primary keynya. Jailer tidak dapat memproses tabel tanpa primary key.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/05-autodetect-result-300x233.png" title="Hasil Autodetect" ></p>
+
+<p>Klik tabel yang berwarna merah, dan definisikan primary keynya. Primary key yang kita definisikan di sini hanya digunakan Jailer, sehingga tidak perlu khawatir skema aslinya akan berubah.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/06-edit-table-pk-300x200.png" title="Add Primary Key" ></p>
+
+<p>Setelah itu, klik OK. Jailer akan menampilkan screen Extraction Model Editor. Pilih tabel payment, di dropdown subject, karena inilah tabel yang akan kita gunakan sebagai pusat extraction.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/07-payment-relasi-300x206.png" title="Pilih tabel yang ingin diimport" ></p>
+
+<p>Jailer mendeteksi relasi antar tabel berdasarkan constraint foreign key yang kita pasang di database. Kadangkala ada tabel-tabel yang berelasi, namun tidak ada constraintnya. Entah karena malas mendefinisikan, atau memang sengaja tidak dikaitkan. Kita bisa mendaftarkan relasi tanpa constraint ini dengan membuka lagi Data Model Editor, kemudian klik Add di kotak Association sebelah kanan.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/08-relasi-non-fk-300x234.png" title="Relasi non Foreign Key" ></p>
+
+<p>Setelah diklik OK, maka skema relasi di Extraction Model Editor akan berubah sesuai relasi yang ditambahkan. Sama dengan definisi primary key di atas, relasi ini hanya disimpan oleh Jailer dan tidak diaplikasikan ke skema database.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/09-payment-relasi-2-300x168.png" title="Relasi Payment - Loket" ></p>
+
+<p>Kita perlu mendefinisikan batasan record payment yang akan diambil, yaitu yang terjadi di bulan Juni 2010. Dalam bentuk SQL, berikut adalah query yang digunakan</p>
+
+<pre><code>select * from payment where date_format(paid_date, '%Y-%m') = '2010-06'
 </code></pre>
 
-<p>Shorewall ingin menaruh dirinya sendiri ke dalam zone terpisah. Oleh karena itu kita punya dua zone di file tersebut, yaitu net dan fw. <code>ipv4</code> adalah jenis zone. Ada tiga jenis zone dalam shorewall, yaitu ipv4, firewall, dan ipsec. Bila kita menggunakan koneksi terenkripsi, kita bisa menggunakan opsi ipsec.</p>
+<p>Kita ambil expression setelah where dan pasang di textfield where dalam Extraction Model Editor.</p>
 
-<p>Zone dan device dihubungkan di file yang namanya <code>interfaces</code>. Isinya adalah sebagai berikut</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/10-payment-where-300x206.png" title="Restriction" ></p>
 
-<pre><code>&lt;code&gt;net     eth0            detect          tcpflags,logmartians,nosmurfs,norfc1918&lt;/code&gt;
+<p>Simpan dulu extraction modelnya.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/11-save-extraction-300x208.png" title="Save Extraction" ></p>
+
+<p>Beri nama yang representatif, misalnya payment-201006. Jailer akan menyimpan extraction model ini dalam format csv. Kalau sudah memahami formatnya, kita bisa membuatnya dengan text editor tanpa GUI (kalau mau).</p>
+
+<p>Setelah tersimpan, kita bisa klik Export Data sehingga memunculkan dialog berikut.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/12-data-export-300x283.png" title="Export Data" ></p>
+
+<p>Di screen tersebut kita bisa mengatur konfigurasi pengambilan data. Bagi saya, nilai defaultnya sudah memadai sehingga tidak ada yang diubah.</p>
+
+<p>Di box paling bawah ada command line yang bisa kita copy-paste untuk dijalankan tanpa GUI. Copy saja isinya ke text file untuk digunakan nanti.</p>
+
+<p>Yang harus kita isi di screen ini adalah textfield Into. Ini adalah nama file yang akan menampung script SQL berisi data yang diinginkan. Isi saja dengan nama payment-201006.sql.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/13-export-into-300x205.png" title="Export Into File" ></p>
+
+<p>Setelah itu, klik Export Data. Jailer akan segera bekerja dan menampilkan hasilnya dalam bentuk tree.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/14-export-result-300x168.png" title="Hasil Export" ></p>
+
+<p>Di situ kita bisa lihat berapa row yang akan diambil dari masing-masing tabel.
+Seperti kita lihat, cukup signifikan, yaitu 2000an record. Ini disebabkan karena jailer mengambil record secara rekursif tanpa ada batasan.</p>
+
+<p>Setelah dianalisa, kita hanya ingin mengambil tabel-tabel yang berkaitan langsung, yaitu payment, payment_info, payment_value, dan fee_loket. Sedangkan tabel sisanya dapat diabaikan karena bersifat pelengkap atau master data yang sudah ada di database development.</p>
+
+<p>Dengan melihat ke tree-nya, kita bisa memutus relasi fee_loket ke loket, karena dari situlah semua data lain akan ikut terbawa.</p>
+
+<p>Tutup screennya, dan kembali ke Extraction Model Editor.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/15-restricted-dependency-300x168.png" title="Membatasi Relasi" ></p>
+
+<p>Di kotak Association, expand node yang ingin kita putuskan, yaitu fee loket. Klik relasi loket, dan centang checkbox disabled di pojok kiri bawah. Setelah itu, jalankan lagi Export Data.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/16-restricted-dependency-warning-300x153.png" title="Warning Restricted Dependency" ></p>
+
+<p>Jailer akan mengingatkan bahwa dengan membatasi dependensi, referential integrity akan rusak, karena relasi foreign key dari fee_loket ke loket akan terputus. Klik saja Yes, karena di database development kita tabel loket sudah terisi lengkap.</p>
+
+<p>Inilah hasilnya</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/17-restricted-export-result-300x82.png" title="Hasil Export setelah dibatasi" ></p>
+
+<p>Seperti kita lihat di atas, kita cuma mendapatkan 84 record dan pengambilan data berhenti di tabel fee_loket.
+Periksa output payment-201006.sql di folder Jailer untuk memastikan hasilnya sudah benar.</p>
+
+<p>Setelah sukses dijalankan di database development, compress lagi jailer yang sudah dimodifikasi barusan dan upload ke server production. Setibanya di server production, extract, kemudian jalankan script yang tadi kita copy-paste.</p>
+
+<p>Kalau baru pertama kali dijalankan, script ini akan menimbulkan error sebagai berikut :</p>
+
+<pre><code>$ ./export-payment-201006.sh 
+2010-06-28 14:15:08,114 [main] INFO   - Jailer 3.4.5
+2010-06-28 14:15:08,117 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
+2010-06-28 14:15:08,119 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
+2010-06-28 14:15:08,700 [main] INFO   - begin guessing SQL dialect
+2010-06-28 14:15:08,711 [main] INFO   - end guessing SQL dialect
+2010-06-28 14:15:08,718 [main] ERROR  - Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
+java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
+    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:122)
+    at net.sf.jailer.Jailer.export(Jailer.java:1142)
+    at net.sf.jailer.Jailer.jailerMain(Jailer.java:1064)
+    at net.sf.jailer.Jailer.jailerMain(Jailer.java:989)
+    at net.sf.jailer.Jailer.main(Jailer.java:967)
+Caused by: java.sql.SQLException: "Table 'ppobgsp_test.JAILER_GRAPH' doesn't exist" in statement "Insert into JAILER_GRAPH(id, age) values (2104021762, 1)"
+    at net.sf.jailer.database.Session.executeUpdate(Session.java:470)
+    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:120)
+    ... 4 more
+Error: java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
+2010-06-28 14:15:08,724 [main] ERROR  - working directory is /opt/downloads/java/tools/test/integration-test/jailer
 </code></pre>
 
-<p>Kolom pertama menyatakan bahwa zone <code>net</code> dilayani oleh kartu jaringan <code>eth0</code> yang disebutkan di kolom kedua. Selain kartu jaringan, kita juga bisa mendaftarkan perangkat lain seperti modem.</p>
+<p>Ini disebabkan karena Jailer ternyata membuat beberapa tabel di database untuk kebutuhan internalnya. Ini dapat dilihat pada database development kita.</p>
 
-<p>Kolom ketiga adalah konfigurasi broadcast. Satu perangkat jaringan bisa saja memiliki banyak IP address, atau terhubung dengan koneksi peer to peer. Dengan demikian satu perangkat bisa memiliki banyak alamat broadcast. Untuk memudahkan konfigurasi, kita bisa suruh Shorewall mencari alamat broadcast yang sesuai. Inilah arti dari konfigurasi <code>detect</code>.</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/06/18-jailer-tables-300x226.png" title="Tabel Internal Jailer" ></p>
 
-<p>Kolom terakhir paling kanan memuat opsi. Banyak opsi yang disediakan, saya cuma jelaskan opsi yang digunakan di atas saja.</p>
+<p>Untuk menggenerate tabel di atas, kita jalankan jailer dengan opsi create-ddl. Ini akan menghasilkan SQL di layar. SQL ini harus kita jalankan di database production supaya tabelnya terbentuk.</p>
 
-<ul>
-<li>tcpflags : ini memeriksa paket-paket yang memiliki kombinasi flags tidak lazim.</li>
-<li>logmartians : ini artinya kita akan mencatat paket yang alamat asalnya aneh.</li>
-<li>nosmurfs : ini mengatasi paket yang alamat asalnya sama dengan alamat broadcast.</li>
-<li>norfc1918 : ini artinya kita akan mengabaikan semua paket dari dan menuju alamat private yang disebutkan di RFC 1918. Contoh alamat private antara lain adalah 192.168.0.1</li>
-</ul>
+<pre><code>$ sh jailer.sh create-ddl
+DROP TABLE JAILER_ENTITY;
+DROP TABLE JAILER_DEPENDENCY;
+DROP TABLE JAILER_SET;
+DROP TABLE JAILER_GRAPH;
+DROP TABLE JAILER_CONFIG;
+DROP TABLE JAILER_TMP;
+
+CREATE TABLE JAILER_CONFIG
+(
+   jversion        VARCHAR(20),
+   jkey            VARCHAR(200),
+   jvalue          VARCHAR(200)
+) ;
+
+INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'magic', '837065098274756382534403654245288');
+
+CREATE TABLE JAILER_GRAPH
+(
+   id              INTEGER NOT NULL,
+   age             INTEGER NOT NULL
+
+--   ,CONSTRAINT jlr_pk_graph PRIMARY KEY(id)
+) ;
+
+CREATE TABLE JAILER_ENTITY
+(
+   r_entitygraph   INTEGER NOT NULL,
+
+   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT ,
+   birthday        INTEGER NOT NULL,
+   type            VARCHAR(120) NOT NULL,
+
+   PRE_PK0 BIGINT , PRE_PK1 VARCHAR(255) , PRE_PK2 VARCHAR(255) , PRE_PK3 INT , PRE_PK4 VARCHAR(255) , PRE_PK5 BIGINT ,
+   PRE_TYPE        VARCHAR(120),
+   orig_birthday   INTEGER,
+   association     INTEGER
+
+-- ,  CONSTRAINT jlr_fk_graph_e FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
+) ;
+
+CREATE INDEX jlr_enty_brthdy ON JAILER_ENTITY (r_entitygraph, birthday, type) ;
+CREATE INDEX jlr_enty_upk1 ON JAILER_ENTITY (r_entitygraph , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
 
 
-<p>Setelah selesai dengan zone dan interface, kita menentukan kebijakan global atau policy. Kebijakan ini berlaku apabila tidak ada aturan yang spesifik terhadap suatu paket. Biasanya, kebijakan global yang kita gunakan adalah:</p>
+CREATE TABLE JAILER_SET
+(
+   set_id          INTEGER NOT NULL,
+   type            VARCHAR(120) NOT NULL,
+   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT 
+) ;
 
-<ul>
-<li>mesin kita ini boleh menghubungi siapa saja. Semua paket keluar diijinkan (ACCEPT)</li>
-<li>paket yang berasal dari luar menuju firewall akan diabaikan (DROP)</li>
-<li>paket yang berasal dari luar menuju komputer dibalik firewall akan diabaikan (DROP)</li>
-<li>selain itu, tolak semua (REJECT)</li>
-</ul>
+CREATE INDEX jlr_pk_set1 ON JAILER_SET (set_id , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
 
 
-<p>Konfigurasi kebijakan di atas ditulis di file bernama <code>policy</code>. Berikut isinya</p>
+CREATE TABLE JAILER_DEPENDENCY
+(
+   r_entitygraph   INTEGER NOT NULL,
+   assoc           INTEGER NOT NULL,
+   depend_id       INTEGER NOT NULL,
+   traversed       INTEGER,
+   from_type       VARCHAR(120) NOT NULL,
+   to_type         VARCHAR(120) NOT NULL,
+   FROM_PK0 BIGINT , FROM_PK1 VARCHAR(255) , FROM_PK2 VARCHAR(255) , FROM_PK3 INT , FROM_PK4 VARCHAR(255) , FROM_PK5 BIGINT ,
+   TO_PK0 BIGINT , TO_PK1 VARCHAR(255) , TO_PK2 VARCHAR(255) , TO_PK3 INT , TO_PK4 VARCHAR(255) , TO_PK5 BIGINT    
 
-<pre><code>&lt;code&gt;#SOURCE       DEST        POLICY      LOG LEVEL   LIMIT:BURST
-$FW     net     ACCEPT
-net     $FW     DROP        info
-net     all     DROP        info
-# The FOLLOWING POLICY MUST BE LAST
-all     all     REJECT      info
-#LAST LINE -- ADD YOUR ENTRIES ABOVE THIS LINE -- DO NOT REMOVE&lt;/code&gt;
+-- ,  CONSTRAINT jlr_fk_graph_d FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
+) ;
+
+CREATE INDEX jlr_dep_from1 ON JAILER_DEPENDENCY (r_entitygraph, assoc , FROM_PK0, FROM_PK1, FROM_PK2, FROM_PK3, FROM_PK4, FROM_PK5) ;
+
+CREATE INDEX jlr_dep_to1 ON JAILER_DEPENDENCY (r_entitygraph , TO_PK0, TO_PK1, TO_PK2, TO_PK3, TO_PK4, TO_PK5) ;
+
+
+CREATE TABLE JAILER_TMP 
+(
+    c1 INTEGER, 
+    c2 INTEGER
+) ;
+
+INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547784');
 </code></pre>
 
-<p>Terakhir, baru kita buat pengecualian terhadap kebijakan di atas. Seperti disebutkan di awal artikel, saya ingin membuka akses untuk web server di port 80 dan ssh server di port 22. Sebagai tambahan pengamanan untuk mencegah flooding, kita juga akan menolak paket ping yang masuk. Tapi kita ingin tetap bisa ping keluar.</p>
+<p>Setelah tabelnya siap, jalankan kembali script yang error di atas. Berikut outputnya.</p>
 
-<p>Shorewall sudah punya konfigurasi standar (disebut dengan istilah macro) untuk aplikasi server yang umum digunakan. Kita tulis aturan ini di file <code>rules</code>. Berikut isinya</p>
-
-<pre><code>&lt;code&gt;Ping/REJECT   net     $FW
-
-# Permit all ICMP traffic FROM the firewall TO the net zone
-ACCEPT      $FW     net     icmp
-
-# Open SSH Service
-SSH/ACCEPT  net     $FW
-
-# Open Web Server
-Web/ACCEPT  net     $FW&lt;/code&gt;
+<pre><code>$ ./export-payment-201006.sh 
+2010-06-28 14:12:31,175 [main] INFO   - Jailer 3.4.5
+2010-06-28 14:12:31,190 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
+2010-06-28 14:12:31,191 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
+2010-06-28 14:12:32,850 [main] INFO   - SQL dialect is MYSQL
+2010-06-28 14:12:32,925 [main] INFO   - gather statistics after 0 inserted rows...
+2010-06-28 14:12:32,966 [main] INFO   - reading file 'renew.sql'
+2010-06-28 14:12:32,966 [main] INFO   - 0 statements (100%)
+2010-06-28 14:12:32,967 [main] INFO   - successfully read file 'renew.sql'
+2010-06-28 14:12:32,977 [main] INFO   - exporting payment Where date_format(paid_date,'%Y-%m') = '2010-06'
+2010-06-28 14:12:33,028 [main] INFO   - day 1, progress: payment
+2010-06-28 14:12:33,039 [main] INFO   - starting 4 jobs
+2010-06-28 14:12:33,040 [main] INFO   - gather statistics after 3 inserted rows...
+2010-06-28 14:12:33,041 [main] INFO   - reading file 'renew.sql'
+2010-06-28 14:12:33,042 [main] INFO   - 0 statements (100%)
+2010-06-28 14:12:33,042 [main] INFO   - successfully read file 'renew.sql'
+2010-06-28 14:12:33,047 [main] INFO   - resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,105 [main] INFO   - 66 entities found resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,105 [main] INFO   - resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,126 [main] INFO   - 0 entities found resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,126 [main] INFO   - resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,129 [main] INFO   - 3 entities found resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,131 [main] INFO   - resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,142 [main] INFO   - 12 entities found resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,143 [main] INFO   - executed 4 jobs
+2010-06-28 14:12:33,143 [main] INFO   - day 2, progress: payment_info, fee_loket, payment_value
+2010-06-28 14:12:33,144 [main] INFO   - skip reversal association payment_info -&gt; payment
+2010-06-28 14:12:33,144 [main] INFO   - skip reversal association fee_loket -&gt; payment
+2010-06-28 14:12:33,147 [main] INFO   - skip reversal association payment_value -&gt; payment
+2010-06-28 14:12:33,147 [main] INFO   - starting 1 jobs
+2010-06-28 14:12:33,148 [main] INFO   - executed 1 jobs
+2010-06-28 14:12:33,149 [main] INFO   - exported payment Where date_format(paid_date,'%Y-%m') = '2010-06'
+2010-06-28 14:12:33,149 [main] INFO   - total progress: payment_info, payment, fee_loket, payment_value
+2010-06-28 14:12:33,149 [main] INFO   - export statistic:
+2010-06-28 14:12:33,169 [main] INFO   - Exported Rows:     84
+2010-06-28 14:12:33,169 [main] INFO   -     fee_loket                      3
+2010-06-28 14:12:33,169 [main] INFO   -     payment                        3
+2010-06-28 14:12:33,172 [main] INFO   -     payment_info                   66
+2010-06-28 14:12:33,172 [main] INFO   -     payment_value                  12
+2010-06-28 14:12:33,173 [main] INFO   - writing file 'payment-201006.sql'...
+2010-06-28 14:12:33,178 [main] INFO   - independent tables: payment
+2010-06-28 14:12:33,179 [main] INFO   - starting 1 jobs
+2010-06-28 14:12:33,380 [main] INFO   - executed 1 jobs
+2010-06-28 14:12:33,380 [main] INFO   - independent tables: payment_info, fee_loket, payment_value
+2010-06-28 14:12:33,384 [main] INFO   - starting 3 jobs
+2010-06-28 14:12:33,447 [main] INFO   - executed 3 jobs
+2010-06-28 14:12:33,447 [main] INFO   - cyclic dependencies for: 
+2010-06-28 14:12:33,447 [main] INFO   - starting 0 jobs
+2010-06-28 14:12:33,448 [main] INFO   - executed 0 jobs
+2010-06-28 14:12:33,448 [main] INFO   - gather statistics after 84 inserted rows...
+2010-06-28 14:12:33,450 [main] INFO   - reading file 'renew.sql'
+2010-06-28 14:12:33,450 [main] INFO   - 0 statements (100%)
+2010-06-28 14:12:33,454 [main] INFO   - successfully read file 'renew.sql'
+2010-06-28 14:12:33,456 [main] INFO   - starting 0 jobs
+2010-06-28 14:12:33,467 [main] INFO   - executed 0 jobs
+2010-06-28 14:12:33,486 [main] INFO   - file 'payment-201006.sql' written.
 </code></pre>
 
-<p><code>Ping/REJECT</code>, <code>SSH/ACCEPT</code> dan <code>Web/ACCEPT</code> di atas adalah macro. Sebetulnya kita juga bisa membuka akses webserver di port 80 tanpa macro dengan konfigurasi seperti ini</p>
+<p>Selesai sudah, data yang kita inginkan ada di file payment-201006.sql, siap diunduh dan dijalankan di database development.</p>
 
-<pre><code>&lt;code&gt;ACCEPT    net       $FW             tcp  80&lt;/code&gt;
-</code></pre>
-
-<p>Tapi biasanya ada beberapa layanan yang membuka beberapa port sekaligus, misalnya FTP. Daripada harus menghafalkan port berapa saja yang harus dibuka untuk FTP, akan lebih mudah kalau kita gunakan macro <code>FTP/ACCEPT</code></p>
-
-<p>Selanjutnya, kita edit file shorewall.conf. Ini adalah konfigurasi global. Isi konfigurasi yang disediakan Ubuntu Gutsy sudah cukup bagus. Saya cuma mengubah baris ini</p>
-
-<p><code>STARTUP_ENABLED=No</code></p>
-
-<p>menjadi</p>
-
-<p><code>STARTUP_ENABLED=Yes</code></p>
-
-<p>Selain itu, juga ada satu file lagi, yaitu <code>/etc/default/shorewall</code>. Ganti baris</p>
-
-<p><code>startup=0</code></p>
-
-<p>menjadi</p>
-
-<p><code>startup=1</code></p>
-
-<p>Semuanya sudah siap. Silahkan nyalakan firewall Anda.</p>
-
-<pre><code>&lt;code&gt;sudo /etc/init.d/shorewall start&lt;/code&gt;
-</code></pre>
-
-<p>Oh iya, berhati-hatilah kalau menginstal shorewall secara remote. Salah konfigurasi bisa menyebabkan kita terkunci di luar.</p>
+<p>Semoga bermanfaat, kalau ada yang kurang jelas, silahkan baca <a href="http://jailer.sourceforge.net/exporting-data.htm">tutorial resminya</a>.</p>
 </div>
   
   
@@ -237,7 +416,7 @@ Web/ACCEPT  net     $FW&lt;/code&gt;
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/aplikasi-web-spring25-3/">Aplikasi Web Dengan Spring 2.5 [Bagian 3]</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/PHP/tuning-performance/">Tuning Performance</a></h1>
       
     
     
@@ -254,297 +433,82 @@ Web/ACCEPT  net     $FW&lt;/code&gt;
   
 
 
-<time datetime="2007-12-21T21:07:10+07:00" pubdate data-updated="true">Dec 21<span>st</span>, 2007</time>
+<time datetime="2010-05-05T15:24:18+07:00" pubdate data-updated="true">May 5<span>th</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, dan menu navigasi.</p>
+  <div class="entry-content"><p>Setelah aplikasi dicoding dengan benar, biasanya langkah berikutnya adalah tuning performance. Hal ini banyak ditanyakan di berbagai milis pemrograman yang saya ikuti. Agar tidak berkali-kali menulis jawaban yang sama, berikut artikel tentang metodologi saya dalam melakukan tuning performance aplikasi.</p>
 
-<p>Ada beberapa cara untuk memasang header dan footer tanpa duplikasi kode. Cara paling sederhana tentunya dengan menggunakan include di setiap halaman. Contohnya kira-kira seperti ini.</p>
+<h2>0. Miliki tujuan yang jelas</h2>
 
-<h3>personlist.html</h3>
+<p>Misalnya :
+Mampu menghandle 100 request/detik dengan response time &lt; 2 detik
+dengan 1 juta record di database. Bisa jadi pada tahap ini, ternyata keputusannya adalah tidak perlu tuning, karena performance aplikasi yang sekarang sudah memenuhi keinginan.</p>
 
-<pre><code>#parse("header.html")
+<h2>1. Pastikan aplikasinya berjalan benar</h2>
 
+<p>Make it right, then make it fast.
+Gak ada gunanya mentuning aplikasi buggy.
+Kita juga harus punya perangkat pengetes yang lengkap.
+Supaya nanti setelah tuning, bisa dipastikan bahwa tuningnya tidak menimbulkan bug baru.</p>
 
-&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
-    &lt;tr&gt;
-        &lt;th&gt;Name&lt;/th&gt;
-        &lt;th&gt;Email&lt;/th&gt;
-        &lt;th&gt; &lt;/th&gt;
-    &lt;/tr&gt;
-    #foreach($person in $personList)
-    &lt;tr&gt;
-        &lt;td&gt;$person.Name&lt;/td&gt;
-        &lt;td&gt;$person.Email&lt;/td&gt;
-        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
-            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-    #end
-&lt;/table&gt;
+<h2>2. Pasang monitor di aplikasi</h2>
 
+<p>Misalnya :
+- CPU usage
+- Memory usage
+- Aktifitas harddisk
+- Aktifitas database</p>
 
-#parse("footer.html")
-</code></pre>
+<p>Di linux, CPU dan Memory usage bisa <a href="http://www.linuxforums.org/articles/using-top-more-efficiently_89.html">dipantau dengan top</a>,
+sedangkan aktifitas harddisk dengan <a href="http://royontechnology.blogspot.com/2007/06/using-iostat-for-monitoring-disk.html">iostat</a>.
+Di MySQL, aktifitas database bisa dimonitor dengan perintah <a href="http://dev.mysql.com/doc/refman/5.1/en/show-processlist.html">show processlist</a>.</p>
 
-<h3>header.html</h3>
+<h2>3. Setelah monitor siap, penyiksaan dimulai</h2>
 
-<p>berisi kira-kira seperti ini</p>
+<p>Berikan load yang tinggi ke aplikasi dengan menggunakan tools penyiksaan seperti misalnya <a href="http://jakarta.apache.org/jmeter/">JMeter</a>.
+Tingkatkan terus loadnya sampai response time tidak lagi memenuhi syarat.
+Misalnya, pada 30 request/detik, response time menjadi 10 detik.</p>
 
-<pre><code>&lt;html&gt;
-  &lt;head&gt;
-    &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-    &lt;title&gt;:: List of All Person ::&lt;/title&gt;
-  &lt;/head&gt;
+<h2>4. Cari bottlenecknya</h2>
 
-  &lt;body&gt;
-</code></pre>
+<p>Amati monitor, aspek mana yang overload.
+Apakah CPU, I/O, atau memori.
+Perhatikan juga aktifitas database untuk mencari penyebabnya.</p>
 
-<p>dan</p>
+<h2>5. Lakukan tuning</h2>
 
-<h3>footer.html</h3>
+<p>Silahkan dioprek dengan metode trial and error.
+Biasanya pada tahap ini saya mencari kolom mana yang perlu diindex,
+bagian mana di source code yang perlu diperbaiki,
+atau konfigurasi seperti apa yang optimal.</p>
 
-<pre><code>&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+<h2>6. Test lagi</h2>
 
-<p>Saya sendiri kurang suka dengan pendekatan seperti ini, karena:</p>
+<p>Setelah dioprek, jalankan lagi tools penyiksaan.
+Kalau langkah no #5 benar, biasanya bottlenecknya akan pindah.
+Misalnya, tadinya CPU maxed out 100%, setelah tuning jadi santai 10%,
+tapi memory usage jadi 80%.</p>
 
-<ul>
-<li>kita terpaksa membuat halaman html yang tidak lengkap. Di header.html tidak ada tutup body dan di footer.html tidak ada tag pembuka body.</li>
-<li>perintah include untuk header dan footer akan diulangi di setiap halaman.</li>
-</ul>
+<h2>7. Ulangi langkah #5 dan #6</h2>
 
+<p>Ulangi terus tuning dan test sampai aplikasi memenuhi tujuan yang diset di langkah #0.
+Inilah pentingnya langkah #0, supaya kita tahu kapan harus berhenti.</p>
 
-<p>Ada cara yang lebih baik, yaitu menggunakan decorator.</p>
+<p>Beberapa hal yang harus diingat dalam tuning performance:</p>
 
-<p>Pustaka decorator di Java cukup banyak, antara lain:</p>
+<ol>
+<li><p>Tidak ada pil ajaib, masing-masing kasus berbeda. Kadang masalahnya ada di index database, kadang di prosesor, dsb.</p></li>
+<li><p>Jangan main tebak-tebakan, semua keputusan harus berdasarkan hasil monitoring. Soalnya seringkali tebakan kita salah.</p></li>
+<li><p>Jangan lupakan maintenance source code. Proses tuning mungkin saja akan membuat source code menjadi kompleks dan sulit dibaca. Jangan sampai kita mengorbankan kerapian coding demi sedikit peningkatan performance. Lebih baik upgrade hardware daripada mengotori source code.</p></li>
+<li><p>Tahu kapan harus berhenti. Tuning merupakan pekerjaan yang menarik, mirip seperti bermain game. Oleh karena itu penting bagi kita untuk punya tujuan. Begitu tujuan dicapai, segera berhenti. Lebih baik menambah fitur yang memiliki business value daripada terus menerus berkutat dengan performance.</p></li>
+</ol>
 
-<ul>
-<li>SiteMesh</li>
-<li>Tiles</li>
-<li>Facelets</li>
-</ul>
 
-
-<p>Tiles tadinya adalah decorator khusus untuk framework Struts. Tapi seiring dengan populernya penggunaan decorator, maka Tiles direfactor sehingga dapat berdiri sendiri tanpa Struts. Saat artikel ini ditulis, baik Tiles maupun penerusnya Tiles 2 cuma bisa digunakan untuk JSP. Jadi tidak bisa kita terapkan untuk aplikasi kita yang menggunakan Velocity.</p>
-
-<p>Facelets bukan hanya sekedar decorator. Dia adalah teknologi templating untuk JSF. Jadi posisinya kurang lebih mirip dengan Velocity, yaitu template engine. Decorator hanyalah salah satu fitur tambahan Facelets. Sayangnya Facelets hanya bisa digunakan untuk JSF.</p>
-
-<p>Sitemesh adalah decorator independen. Tidak terikat dengan framework apa-apa. Dia juga mendukung JSP, Freemarker, dan Velocity. Kita akan menggunakan SiteMesh pada artikel ini.</p>
-
-<p>SiteMesh bekerja secara transparan. Pada saat membuat halaman aplikasi, kita bisa langsung coding seperti biasa. Tidak ada perubahan kode HTML di dalam template Velocity. Ketika dideploy, SiteMesh akan mencegat semua respon yang dikirim appserver ke browser dan menambahkan header dan footer.</p>
-
-<p>Sebagai contoh,</p>
-
-<h3>personlist.html</h3>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-&lt;title&gt;:: List of All Person ::&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
-    &lt;tr&gt;
-        &lt;th&gt;Name&lt;/th&gt;
-        &lt;th&gt;Email&lt;/th&gt;
-        &lt;th&gt; &lt;/th&gt;
-    &lt;/tr&gt;
-    #foreach($person in $personList)
-    &lt;tr&gt;
-        &lt;td&gt;$person.Name&lt;/td&gt;
-        &lt;td&gt;$person.Email&lt;/td&gt;
-        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
-            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-    #end
-&lt;/table&gt;
-
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Seperti kita lihat, tidak ada kode khusus. Kodenya sama persis dengan artikel sebelumnya.</p>
-
-<p>Ini adalah decoratornya, kita beri nama main.html.</p>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-
-&lt;link href="${base}/css/main.css" rel="stylesheet" type="text/css" /&gt;
-&lt;link href="${base}/css/layout.css" rel="stylesheet" type="text/css" /&gt;
-
-&lt;title&gt;${title}&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;div id="header"&gt;
-&lt;h1&gt;Hello Spring 2.5&lt;/h1&gt;
-&lt;h2&gt;Tutorial Spring 2.5 Annotation Configuration&lt;/h2&gt;
-&lt;/div&gt;
-
-&lt;div id="top-bar"&gt;
-&lt;ul&gt;
-    &lt;li&gt;hola, endymuhardin&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;help&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;logout&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;div id="menu-bar"&gt;
-&lt;ul&gt;
-    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;manage person&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;generate report&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;prevent global warming&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;div id="main"&gt;
-
-&lt;div id="sidebar"&gt;
-
-&lt;h1&gt;Manage Person&lt;/h1&gt;
-&lt;ul&gt;
-    &lt;li&gt;&lt;a href="${base}/tutorial/personform"&gt;add person&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;list of person&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;/div&gt;
-
-&lt;div id="content"&gt;
-
-${body}
-
-&lt;/div&gt;
-
-
-&lt;/div&gt;
-
-
-&lt;div id="footer"&gt;
-
-&lt;div id="copyright"&gt;Copyright &amp;copy; 2008 :: ArtiVisi Intermedia
-::&lt;/div&gt;
-
-&lt;div id="company-logo"&gt;Company Logo&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Ada beberapa tag khusus yang digunakan dalam decorator kita, yaitu</p>
-
-<ul>
-<li>${base}</li>
-<li>${title}</li>
-<li>${body}</li>
-</ul>
-
-
-<p>Ini adalah variabel yang disediakan SiteMesh untuk kita. ${base} adalah path menuju aplikasi web kita. Kita menggunakan ${base} untuk membuat URL yang lengkap. Variabel ini sangat berguna agar aplikasi kita bisa dideploy ke berbagai context.</p>
-
-<p>Pada saat mendekorasi, SiteMesh akan membaca respon HTML yang dikeluarkan appserver dan mengambil isi tag title dan body, kemudian memasangnya di tempat kita menaruh tag ${title} dan ${body}. Setelah itu, barulah keseluruhan respon yang sudah didekorasi akan dikirim ke client.</p>
-
-<p>Kita sudah punya halaman yang akan ditampilkan (personlist.html) dan decoratornya (main.html). Untuk menggabungkan keduanya, kita harus memasang SiteMesh sebagai Servlet Filter. Servlet Filter memiliki kemampuan untuk mencegat baik request maupun response. Kita mendaftarkan filter di web.xml. Berikut deklarasi filter SiteMesh berikut mappingnya.</p>
-
-<pre><code>&lt;filter&gt;
-  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
-  &lt;filter-class&gt;com.opensymphony.module.sitemesh.filter.PageFilter&lt;/filter-class&gt;
-&lt;/filter&gt;   
-
-
-&lt;filter-mapping&gt;
-  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
-  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;
-</code></pre>
-
-<p>Selain itu, kita juga perlu memasang servlet SiteMesh. Servlet ini yang akan mencegat semua pemanggilan template velocity, yaitu semua file yang berakhiran *.html. Berikut adalah deklarasi servlet berikut mappingnya.</p>
-
-<pre><code>&lt;servlet&gt;
-  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
-  &lt;servlet-class&gt;com.opensymphony.module.sitemesh.velocity.VelocityDecoratorServlet&lt;/servlet-class&gt;
-&lt;/servlet&gt;
-
-&lt;servlet-mapping&gt;
-  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
-  &lt;url-pattern&gt;*.html&lt;/url-pattern&gt;
-&lt;/servlet-mapping&gt;
-</code></pre>
-
-<p>Selanjutnya, kita harus memberi tahu SiteMesh di mana kita meletakkan decorator dan URL apa saja yang ingin didekorasi. Biasanya kita punya beberapa decorator yang berbeda untuk (misalnya):</p>
-
-<ul>
-<li>halaman utama. Lengkap dengan menubar, header, dan footer</li>
-<li>halaman login. Tanpa menubar, header, dan footer</li>
-<li>tampilan siap print. Tanpa warna-warni.</li>
-</ul>
-
-
-<p>Sebagai contoh, kita cuma akan menggunakan satu decorator, yaitu main.html. Decorator ini berlaku untuk semua request. Berikut konfigurasinya.</p>
-
-<pre><code>&lt;decorators defaultdir="/WEB-INF/decorators"&gt;
-  &lt;decorator name="default" page="main.html"&gt;
-    &lt;pattern&gt;/*&lt;/pattern&gt;
-  &lt;/decorator&gt;
-&lt;/decorators&gt;
-</code></pre>
-
-<p>File ini diletakkan di dalam folder WEB-INF, bersama-sama dengan web.xml.</p>
-
-<p>Pada konfigurasi decorator tersebut, kita jelaskan bahwa semua request (/*) akan dicegat dan didekorasi dengan main.html yang ada di folder /WEB-INF/decorators.</p>
-
-<p>Terakhir, kita lengkapi pustaka yang dibutuhkan. Jar yang dibutuhkan adalah:</p>
-
-<ul>
-<li>sitemesh.jar</li>
-<li>commons-digester.jar</li>
-<li>velocity-tools-view.jar</li>
-</ul>
-
-
-<p>Perhatikan bahwa velocity-tools-view.jar ini sudah mengandung velocity-tools-generic.jar yang kita gunakan pada artikel sebelumnya. Jadi pastikan bahwa kita tidak lupa membuang velocity-tools-generic.jar.</p>
-
-<p>Selesai sudah. Mudah bukan?</p>
-
-<p>Contoh ini sudah dipublish di GoogleCode, Anda bisa mengunduh:</p>
-
-<ul>
-<li><a href="http://hello-spring-25.googlecode.com/files/hello-spring-25-sitemesh.tar.bz2">keseluruhan project folder</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh.war">File *.war yang siap deploy</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh-winstone.jar">File *.jar yang siap dijalankan secara standalone</a></li>
-</ul>
-
-
-<p>Atau Anda juga bisa menggunakan Subversion untuk menarik keseluruhan project folder, dengan perintah:</p>
-
-<pre><code>svn export http://hello-spring-25.googlecode.com/svn/trunk/ hello-spring-25-read-only 
-</code></pre>
-
-<p>Setelah project folder diperoleh, dibutuhkan database MySQL dengan konfigurasi sebagai berikut:</p>
-
-<ul>
-<li>nama database : belajar</li>
-<li>username : belajar</li>
-<li>password : java</li>
-</ul>
-
-
-<p>Tabel T_PERSON yang digunakan pada contoh ini dapat dibuat dengan menggunakan script sql yang ada di folder src/sql/mysql-schema.sql.</p>
-
-<p>Untuk menjalankan aplikasi ini, dibutuhkan Ant 1.7.0 dan Java 6. Cukup ketik ant run di konsol. Kemudian browse ke http://localhost:8080/</p>
-
-<p>Selamat mencoba</p>
+<p>Demikian sekilas tentang tuning. Semoga bermanfaat.</p>
 </div>
   
   
@@ -558,7 +522,7 @@ ${body}
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/svn-commit-email/">Mengaktifkan Commit Email Subversion</a></h1>
+        <h1 class="entry-title"><a href="/blog/Manajemen/fase-requirement/">Fase Requirement</a></h1>
       
     
     
@@ -575,1737 +539,214 @@ ${body}
   
 
 
-<time datetime="2007-12-07T22:22:59+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+<time datetime="2010-04-18T04:20:29+07:00" pubdate data-updated="true">Apr 18<span>th</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota tim yang lain. Beberapa keuntungan dari pelaksanaan Peer Review antara lain:</p>
+  <div class="entry-content"><p>Dari seluruh fase yang ada di project, fase Requirement Development adalah yang paling penting. Bila kita melakukan kegiatan requirement dengan asal-asalan, akibatnya antara lain :</p>
 
 <ul>
-<li>meningkatnya collective code ownership. Semua anggota tim akan merasa memiliki.</li>
-<li>membantu penyebaran pengetahuan dan pengalaman. Kode yang kurang optimal akan dikomentari di ruang publik (milis developer), sehingga semua anggota akan mendapat pencerahan.</li>
-<li>meningkatkan kualitas kode program secara keseluruhan. Bila setiap commit direview, anggota tim akan mendapat peer pressure untuk tidak mengulangi kesalahan yang pernah dibahas. Kalau ada kode yang kurang optimal, feedback akan datang dengan cepat, sehingga kualitas yang rendah tidak akan terakumulasi.</li>
+<li><p>aplikasi sudah selesai dibuat, tapi tidak sesuai dengan keinginan user</p></li>
+<li><p>pada fase coding, banyak terjadi delay karena ternyata ada requirement yang belum jelas</p></li>
+<li><p>pada fase coding, banyak pekerjaan harus diulang karena salah memahami requirement</p></li>
 </ul>
 
 
-<p>Baiklah, sekarang kita sudah tahu manfaat praktek peer review. Sama seperti kita tahu kalau lari pagi itu sehat. Tapi seperti halnya lari pagi, banyak orang yang tidak melakukannya.</p>
+<p>Kenapa saya sebut dengan istilah Requirement Development, bukan Requirement Gathering seperti yang umum dipakai orang? Sebabnya adalah karena requirement yang baik itu tidak didapat dengan mudah. Tidak seperti memungut barang di jalanan (gathering), melainkan harus melalui proses yang iteratif (development). Kita tidak bisa mendapatkan requirement yang baik sekali jalan. Kita harus terus menerus melakukan investigasi, klarifikasi, verifikasi, agar requirement yang didapat benar-benar bagus kualitasnya.</p>
 
-<p>Salah satu alasan peer review tidak dilakukan adalah semakin banyak kode program, semakin sulit reviewnya. Mau mulai dari mana? Apa kode yang kemarin sudah direview perlu dilihat lagi?</p>
+<p>Pada artikel ini, kita akan membahas bagaimana cara membuat requirement yang baik.</p>
 
-<p>Masalah yang sama dihadapi oleh seluruh pengembang aplikasi open source di seluruh dunia. Dan mereka sudah punya solusinya, yaitu commit email.</p>
+<p>Sebelum ke masalah teknis, kita lihat dulu, kenapa kita harus melalui fase requirement? Kenapa tidak langsung coding saja? Kan customer ingin aplikasi jadi, bukan notulensi meeting dan setumpuk dokumen?</p>
 
-<p>Prinsipnya sederhana. Kita pasang trigger di version control. Setiap kali ada yang commit, trigger tersebut akan melihat apa yang baru saja dicommit. Kemudian membandingkannya dengan versi sebelumnya. Hasil perbandingan kemudian dikirim ke milis developer supaya bisa dilihat orang banyak.</p>
+<h2>Tujuan Requirement</h2>
 
-<p>Dengan commit email ini, reviewer tidak perlu melihat keseluruhan kode program, tapi cukup yang berubah saja. Ini akan sangat meringankan kegiatan review.</p>
-
-<p>Subversion sudah mempaketkan script trigger untuk commit email. Di <a href="http://subversion.tigris.org/tools_contrib.html">halaman Tools &amp; Contrib</a> ada beberapa script untuk keperluan ini.</p>
-
-<p>Saya menggunakan <a href="http://svn.collab.net/repos/svn/trunk/tools/hook-scripts/commit-email.pl.in">commit script yang dibuat dengan Perl</a>. Sebelum dipakai, script ini harus diedit sedikit, di bagian SMTP server.</p>
-
-<p><code>$smtp_server = "127.0.0.1";</code></p>
-
-<p>dan bagian path menuju perintah svnlook.</p>
-
-<p><code>my $svnlook = "@SVN_BINDIR@/svnlook";</code></p>
-
-<p>Kalau di Windows, <code>svnlook</code> ada di <code>C:\Program Files\Subversion\bin</code>, sedangkan kalau di Linux biasanya ada di <code>/usr/bin</code>.</p>
-
-<p>Selanjutnya, kita harus menyuruh Subversion untuk menjalankan file ini pada saat ada orang commit. Caranya mudah, masuk ke folder repository Subversion, di dalam folder hooks.</p>
-
-<p>Untuk Linux mudah, cukup rename <code>post-commit.tmpl</code> menjadi <code>post-commit</code>, dan ganti modenya menjadi executable.</p>
-
-<p><code>chmod +x post-commit</code></p>
-
-<p>Kemudian edit sedikit untuk memasukkan beberapa parameter:</p>
+<p>Kita melakukan requirement development karena kita ingin tahu apa yang ingin dibuat. Setelah mengetahui apa yang ingin dibuat, barulah kita bisa:</p>
 
 <ul>
-<li>Recipient : penerima commit email. Biasanya ini saya arahkan ke milis developer</li>
-<li>Subject : subject pada email yang dikirim</li>
-<li>Reply To : kalau penerima email menekan tombol Reply, inilah alamat yang akan muncul di field To</li>
-<li>Host : nama host otomatis yang akan ditambahkan ke nama user yang commit. Misalnya username yang commit endy, dan hostnya artivisi.com, maka nama pengirim otomatis menjadi endy@artivisi.com</li>
+<li><p>memilih anggota tim yang tepat</p></li>
+<li><p>memperkirakan biaya dan waktu yang dibutuhkan untuk membuatnya</p></li>
+<li><p>memilih arsitektur dan teknologi yang sesuai</p></li>
 </ul>
 
 
-<p>Berikut isi dari file post-commit saya</p>
+<p>Jadi, proses requirement membantu kita untuk melakukan project planning.
+Selain itu, proses requirement juga membantu kita mencegah project menjadi molor dan merugi. Kalau kita langsung terjun coding, maka akan banyak waktu terbuang untuk melakukan perubahan. Misalnya, kalau kita sudah coding, ternyata user minta tambahan satu field entry, maka kita terpaksa mengubah tampilan, skema database, format report, dokumentasi user (kalau sudah ada), dan mungkin banyak lagi. Tapi kalau perubahan ini dilakukan pada fase requirement, paling effortnya cuma mengubah dummy dan dokumentasi user story saja.</p>
 
-<pre><code>&lt;code&gt;#!/bin/sh
-REPOS="$1"
-REV="$2"
+<p>Requirement juga bisa membantu kita mengendalikan perubahan dalam project, seperti kita akan lihat di bagian selanjutnya.</p>
 
-RECIPIENT=devteam@artivisi.com
-SUBJECT=automated-commit-email
-REPLY_TO=devteam@artivisi.com
-HOST=artivisi.com
+<p>Setelah kita tahu tujuannya, mari kita ke langkah pertama yang paling menentukan.</p>
 
-$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT
-&lt;/code&gt;
-</code></pre>
+<h2>Identifikasi Usernya</h2>
 
-<p>Untuk di Windows, kita harus membuat file <code>post-commit.bat</code>, di folder hooks juga. Berikut isi dari <code>post-commit.bat</code></p>
+<p>Segera setelah project dimulai, kita akan segera dihujani jadwal meeting untuk membahas requirement. Nah di sini kita harus jeli. Mendengarkan user itu penting, tapi yang lebih penting lagi adalah menjawab pertanyaan, siapa usernya?</p>
 
-<pre><code>&lt;code&gt;@ECHO OFF
-
-SET RECIPIENT=devteam@artivisi.com
-SET SUBJECT=automated-commit-email
-SET REPLY_TO=devteam@artivisi.com
-SET HOST=artivisi.com
-
-SET PERL=c:\usr\bin\perl
-SET REPOS=%1
-SET REV=%2
-
-%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%
-&lt;/code&gt;
-</code></pre>
-
-<p>Tentunya kita harus menginstal dulu <a href="http://www.activestate.com/store/productdetail.aspx?prdGuid=81fbce82-6bd5-49bc-a915-08d58c2648ca">Perl untuk Windows</a> agar script ini bisa berjalan.</p>
-
-<p>Selamat mencoba</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/konfigurasi-anotasi-vs-xml/">Annotation Dan XML</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-07T21:30:47+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Salah satu <a href="http://endy.artivisi.com/blog/java/akses-database-spring25/#comment-9582">komentator bertanya seperti ini</a>,</p>
-
-<blockquote><p>kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring membuat kontrol kita lebih sentralisasi, sehingga lebih mudah dimaintain ?</p></blockquote>
-
-<p>Hmm&#8230; saya tidak ingin terlibat flame war annotation vs xml. Masing-masing memiliki plus minusnya. Ada saatnya kita memakai annotation dan ada saatnya XML lebih tepat. Mari kita bahas.</p>
-
-<p>Beberapa waktu yang lalu, saya pernah ditugaskan untuk memeriksa aplikasi finansial yang error. Pada salah satu halaman, bila tombol Submit ditekan, aplikasi akan hang. Aplikasi ini dibuat menggunakan teknologi VB 6 (RIP) untuk komponen akses database, ASP untuk tampilan, dan Stored Procedure MS-SQL Server 2005 untuk sebagian logika bisnis.</p>
-
-<p>Setelah memasukkan trace statement ke dalam Stored Procedure (ternyata bukan hal yang mudah, tidak semudah menyisipkan System.out.println(), terlihat penyebabnya karena ada cyclic dependency antar transaksi database. Transaksi A mencoba mengurangi saldo, tapi sebelumnya memeriksa posisi saldo, kalau-kalau tidak mencukupi. Pemeriksaan saldo dilakukan melalui transaksi B. Transaksi B mencoba melihat tabel saldo, yang ternyata sudah dikunci oleh transaksi A. Ya sampai kapanpun transaksi A dan B akan saling menunggu.</p>
-
-<p>Baiklah, masalah sudah ditemukan, saatnya untuk memperbaiki. Memperbaiki jauh lebih mudah daripada menemukan bug, kan?</p>
-
-<p>Sayangnya tidak demikian. Ada berbagai faktor, salah satunya yang paling signifikan adalah saya awam dengan teknologi Microsoft. Saya sama sekali tidak mengerti bagaimana cara mengatur transaksi di VB dan Stored Procedure.</p>
-
-<p>Akhirnya setelah google kesana kemari, saya menemukan empat cara untuk melakukan setting transaksi:</p>
+<p>Ada bermacam-macam jenis user, dan ini menentukan informasi apa yang ingin kita dengarkan, dan informasi mana yang kita abaikan.</p>
 
 <ul>
-<li>coding di VB</li>
-<li>coding di Stored Procedure</li>
-<li>konfigurasi class properties di VB</li>
-<li>konfigurasi di COM service pada Control Panel Windows</li>
+<li><p>End User. Ini adalah user yang nantinya akan menggunakan aplikasi. Kita harus mendengarkan user ini, terutama dari sisi usability. Apakah aplikasi kita nyaman dipakai, mudah digunakan, indah dilihat, dan sebagainya. Tapi, jangan sekali-kali mengambil keputusan tentang proses bisnis dengan user ini. Jangan juga memutuskan untuk menambah/mengurangi fitur <strong>hanya</strong> berdasarkan pendapat user ini. Kita membutuhkan user selanjutnya, yaitu :</p></li>
+<li><p>Sponsor atau Client. Ini adalah orang yang akan membayar invoice untuk pembuatan aplikasi. Semua keputusan penting (proses bisnis dan list fitur adalah penting) harus disetujui Client. Dan jangan salah, seringkali pendapat End User tidak sama dengan pendapat Client. Misalnya, Client menginginkan suatu transaksi harus melalui approval supervisor, manager, dan direktur secara berjenjang. Tapi tentunya fitur ini akan memberatkan End User, karena ada banyak proses yang harus dilalui. Nah, tentunya Anda tahu siapa yang harus kita dengarkan. Nah, jadi kapan-kapan melakukan requirement development, cari tahu dulu siapa yang mengotorisasi bilyet giro :D</p></li>
+<li><p>Konsultan Internal. Seringkali di organisasi client, ada seseorang yang cukup senior dari sisi teknis. Bisa jadi dia adalah divisi IT di organisasi client, atau orang luar yang dipercaya oleh client. Apakah orang ini harus kita dengarkan pendapatnya? Tergantung dari seberapa besar pengaruhnya terhadap client. Kita bisa mengetes pengaruhnya dengan membuat satu fitur yang tidak sesuai dengan pendapat konsultan internal ini, dan lihat apa reaksi client. Kalau client setuju dengan kita, berarti pengaruhnya tidak besar, dan pendapat selanjutnya bisa kita diabaikan.</p></li>
+<li><p>Customer. Ada kalanya Client membeli aplikasi kita untuk dijual lagi ke orang lain. Nah orang lain ini disebut Customer. Sukses atau tidaknya project kita banyak ditentukan oleh berapa customer yang bisa didapatkan client. Jadi, penting juga untuk kita mengetahui profil customer (kalau ada). Apa business objective dari customer, sehingga bisa kita akomodasi dengan baik</p></li>
 </ul>
 
 
-<p>Waduh &#8230; ini mimpi buruk. Berarti ada banyak kombinasi yang harus dicoba. Saya yakin para MVP pasti dengan cepat bisa memilih, tapi saya hanyalah seorang programmer Java. Mana saya tahu hal beginian.</p>
+<p>Baiklah, saya sudah memetakan, si A adalah End User, si B Client, si C konsultan internal, dan si D adalah customernya. Apakah sekarang sudah bisa kita mulai interviewnya? Ok ok .. mari kita suruh Business Analyst (BA) untuk melakukan tugasnya. Oh, tunggu dulu, BA belum direkrut? Bagaimana kualifikasinya?</p>
 
-<p>Dari kejadian ini, saya mendapat pelajaran penting. Pengaturan transaksi haruslah dekat dengan kode yang melakukan transaksi. Alasannya, kode program yang mengakses database sangat erat hubungannya dengan pengaturan transaksi. Tidak mungkin kita menulis kode untuk transfer antar rekening tapi menon-aktifkan transaksi database.</p>
+<h2>Kualifikasi Business Analyst</h2>
 
-<p>Kode seperti ini mudah dipahami dan mudah didebug.</p>
+<p>Pertama, BA harus menguasai proses bisnis. Kalau kita ingin membuat aplikasi akunting, BAnya harus mengerti akuntansi. Aturan sederhana dan logis, tapi masih banyak saja perusahaan yang mengirim programmer untuk melakukan requirement development.</p>
 
-<pre><code>@Transactional(readOnly=false)
-public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
-  asal.credit(jumlah);
-  tujuan.debet(jumlah);
-}
-</code></pre>
+<p>Secara umum, BA harus sudah punya pengetahuan dasar dulu sebelum dia ketemu client. Kalau kita kirim programmer, maka dia bukan melakukan requirement development, tapi dia akan belajar bisnis proses ke client. Seperti kita akan lihat, ini pasti akan menimbulkan delay, karena :</p>
 
-<p>Kode seperti ini perlu banyak Alt-Tab untuk mendebugnya.</p>
+<blockquote><p>Seorang BA harus bisa membedakan mana proses bisnis yang fundamental dan jarang berubah (karenanya boleh dihardcode), mana yang kondisional dan sering berubah (sehingga harus configurable)</p></blockquote>
 
-<p>Di Java:</p>
+<p>Programmer yang belajar bisnis proses ke client tidak akan bisa membedakan ini. Sebagai contoh, mari kita lihat prosedur procurement.</p>
 
-<pre><code>public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
-  asal.credit(jumlah);
-  tujuan.debet(jumlah);
-}
-</code></pre>
+<p>Proses bisnis fundamentalnya adalah, ada pengajuan (purchase request), kemudian dilanjutkan dengan minta quotation ke vendor (request for quotation), memilih vendor, baru melakukan pemesanan (purchase order).
+Ini adalah flow fundamental, dan boleh di-hardcode.</p>
 
-<p>Di XML</p>
+<p>Kemudian end user akan bilang, purchase request akan dilakukan oleh masing-masing dept, approval dilakukan manager, dst, dst. Siapa yang mengentri, siapa yang mengapprove, dan pada nilai transaksi berapa dia boleh approve, ini adalah kondisional dan harus bisa dikonfigurasi.</p>
 
-<pre><code>&lt;property name="transactionAttributes"&gt;
-  &lt;props&gt;
-    &lt;prop key="transfer*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
-  &lt;/props&gt;
-&lt;/property&gt;
-</code></pre>
+<p>Nah, seorang BA yang baik harus bisa membedakan kedua hal ini.</p>
 
-<p>Bedakan antara cara melakukan transaksi, dan cara melakukan konfigurasi. Di Java, kita bisa memilih beberapa cara transaksi:</p>
+<p>Coba temani BA anda pada saat sesi interview dengan end user. Kalau dia pernah bilang begini,</p>
+
+<blockquote><p>Oh, di perusahaan Anda prosesnya begini ya? Biasanya yang umum dilakukan orang adalah seperti ini. Proses Anda kurang optimal karena blablabla. Apakah proses Anda mau berubah, atau aplikasi yang ingin ikut proses Anda dengan konsekuensi ABC?</p></blockquote>
+
+<p>Nah, kapan-kapan dia minta naik gaji, jangan buru-buru ditolak. Ini BA bagus. Dia menguasai bidangnya, dan tahu best practices.</p>
+
+<p>Banyak perusahaan yang ingin bikin produk dari project tapi tidak kunjung berhasil. Misalnya, ada client minta dibuatkan aplikasi gudang, trus manajemen mikir, &#8220;Wah kayaknya ini kalo dibikin jadi produk bakalan prospek&#8221;. Tapi ternyata setelah project selesai, aplikasinya tidak applicable di perusahaan lain. Ini salah satu sebabnya adalah BA yang kurang pengalaman sehingga tidak tahu mana fitur yang generik berlaku umum dan mana yang spesifik hanya untuk perusahaan tertentu saja.</p>
+
+<p>Tahu bisnis proses saja masih kurang, BA yang baik juga paham usability. Seperti kita tahu, ada banyak cara untuk mengentri transaksi. Bisa dientri via screen, bisa upload file, bisa via HP, bisa import dari aplikasi lain, dsb. BA yang baik bisa memberikan rekomendasi pada programmer mengenai user experience. Bagaimana urutan screen, penempatan komponen, apakah pilihan tertentu disajikan dengan dropdown, radio, atau lookup.</p>
+
+<p>Kalau BAnya tidak paham usability, aplikasi kita akan benar secara proses bisnis, tapi tidak enak digunakan. Programmer tidak bisa menentukan usability, karena dia tidak tahu bagaimana biasanya end-user menggunakan fitur tertentu.</p>
+
+<p>Ok, BA saya sudah canggih, paham bisnis proses, tau best practices, dan pernah magang sama <a href="http://www.useit.com">Jakob Nielsen</a>. Bisa kita mulai interview user?</p>
+
+<h2>Interview User</h2>
+
+<p>Pada fase ini, biarkan saja BA menjalankan tugasnya. Dia akan berbicara dengan user, dan menanyakan hal-hal berikut:</p>
 
 <ul>
-<li>Local Transaction: mengelola transaksi melalui java.sql.Connection dalam source code</li>
-<li>Programmatic Transaction: mengambil object Transaction dari JTS provider, kemudian menggunakannya untuk commit/rollback. Ini juga dilakukan dalam source code.</li>
-<li>Declarative Transaction: mengatur transaksi melalui konfigurasi.</li>
+<li><p>Flow global dari awal sampai akhir. Untuk aplikasi procurement, berarti dari request pembelian, sampai barang diterima.</p></li>
+<li><p>Flow detail untuk masing-masing tahap. Contohnya, bagaimana detail flow proses request pembelian</p></li>
+<li><p>Variasi skenario. Di sini BA akan mengidentifikasi percabangan dari tiap flow. Apa saja variasi skenarionya, perbedaan datanya, role user yang mengaksesnya, kondisi outputnya, dan sebagainya.</p></li>
 </ul>
 
 
-<p>Kalau kita pilih declarative transaction, ada beberapa cara konfigurasinya:</p>
+<p>Jangan lupa untuk meminta :</p>
 
 <ul>
-<li>Melalui XML</li>
-<li>Melalui Annotation</li>
+<li><p>Contoh report yang diinginkan</p></li>
+<li><p>Sampel data transaksi untuk kita test di internal</p></li>
+<li><p>Rumus atau formula perhitungan</p></li>
 </ul>
 
 
-<p>Yang mana yang paling dekat dengan source code yang bertransaksi? Tentu saja annotation.</p>
+<p>Tergantung clientnya, ada kemungkinan dia akan meminta perjanjian kerahasiaan sebelum mengeluarkan data-data di atas.</p>
 
-<p>Ok, sudah jelas mengenai transaction, sebaiknya di annotation saja.</p>
+<p>Setelah interview, BA pulang ke kantor, dan akan membuat dokumentasi requirement.</p>
 
-<p>Berikutnya, deklarasi DAO. Sebelumnya kita melakukan deklarasi DAO di XML. Yang biasa saya lakukan kalau ada DAO baru biasanya sama:</p>
+<h2>Dokumentasi Requirement</h2>
+
+<p>Untuk apa kita membuat dokumentasi? Tujuannya adalah</p>
 
 <ul>
-<li>copy paste deklarasi DAO di atasnya</li>
-<li>ganti bean id</li>
-<li>ganti nama class</li>
+<li><p>Untuk mengidentifikasi kalau ada hal yang kurang jelas, sehingga bisa langsung ditanyakan</p></li>
+<li><p>Sebagai bahan untuk verifikasi dengan user, apakah pemahaman kita sudah sama dengan yang dimaksud user.</p></li>
+<li><p>Sebagai pedoman untuk programmer</p></li>
+<li><p>Untuk mencegah project molor</p></li>
 </ul>
 
 
-<p>Beres. Tidak ada added value di sini. Deklarasi manual di XML tidak membuat konfigurasi Spring jadi lebih mudah dipahami. Juga tidak membuat kita makin pintar. Ini adalah overhead pemrograman dengan Spring. Boilerplate code. Kode yang ditulis hanya untuk memuaskan framework.</p>
-
-<p>Jadi, lebih baik kalau kita suruh Spring autodetect saja dari annotation @Repository.</p>
-
-<p>Bagaimana dengan relasi dengan datasource? Bukankah kalau di XML jadi terlihat DAO mana menggunakan DataSource mana?</p>
-
-<p>Hmm &#8230; untuk kasus datasource, ada dua kemungkinan:</p>
+<p>Lho, bagaimana bisa dokumen requirement mencegah project molor? Ya bisa saja, berikut alasannya</p>
 
 <ul>
-<li>menggunakan satu datasource</li>
-<li>menggunakan lebih dari satu datasource</li>
+<li><p>Kalau ada kesalahan dan ditemukan pada fase ini, biaya perbaikannya jauh lebih kecil daripada kalau ditemukan pada fase coding. Misalnya ada kesalahan rumus perhitungan. Kalau kesalahan ini ditemukan pada fase requirement, paling biayanya cuma mengedit user story. Tapi kalau ditemukan pada waktu UAT, bisa-bisa butuh 2-3 hari untuk fixingnya. Ini <a href="http://www.stevemcconnell.com/articles/art08.htm">katanya Steve McConnell</a>, bukan bikin-bikinan saya.</p></li>
+<li><p>Setelah requirement disign off, semua perubahan harus melalui change procedure. Ini mencegah project molor karena user terus menerus berubah pikiran. Sekarang maunya A, besok B, lusa ganti lagi.</p></li>
 </ul>
 
 
-<p>Untuk kasus pertama, biasanya sebagian aplikasi seperti ini, tidak perlu ada deklarasi eksplisit untuk injeksi dataSource. Lha wong cuma satu, apanya yang ambigu? @Autowired saja semuanya.</p>
+<p>Lalu, apa saja yang harus didokumentasikan? Daripada panjang lebar, silahkan lihat <a href="http://endy.artivisi.com/downloads/templates/user-story.pdf">template User Story ArtiVisi</a>. Di situ sudah kita siapkan form isian apa saja yang harus dicantumkan.</p>
 
-<p>Untuk kasus kedua, mau tidak mau memang harus XML. Soalnya @Autowired by type tidak akan bisa, karena ada lebih dari satu bean bertipe DataSource.</p>
+<p>Coba lihat dulu, supaya nyambung dengan pembahasan di bawah.</p>
 
-<p>Sekarang kita lihat, apa yang tertinggal di konfigurasi XML, setelah banyak hal kita pindahkan ke annotation:</p>
+<blockquote><p>Lho kenapa ada flow pengetesan? Apa bedanya dengan test scenario?</p></blockquote>
+
+<p>Sama saja, yang kita maksud flow pengetesan memang adalah test scenario. Lalu apakah wajib dibuat pada fase requirement? Kami sangat menganjurkan untuk membuatnya, dengan alasan sebagai berikut:</p>
 
 <ul>
-<li>deklarasi datasource</li>
-<li>deklarasi transaction manager</li>
+<li><p>Dengan memikirkan bagaimana nanti pengetesannya, kualitas user story akan meningkat. BA terpaksa memikirkan step-by-step bagaimana aplikasi akan digunakan, apa inputnya, dan apa outputnya. Dengan memikirkan ini, semua variasi dan kebutuhan input, dan ekspektasi output mau tidak mau akan terpikirkan dan teridentifikasi sejak dini. Ini akan mengurangi requirement yang ambigu, tidak lengkap, atau tidak mungkin diimplementasikan</p></li>
+<li><p>Test scenario yang ditandatangani user merupakan exit strategy bagi vendor. Kalau client sudah setuju dengan skenario testnya, maka vendor cukup membuat aplikasi yang lulus test tersebut. Setelah lulus test, jangan ditambah-tambahi lagi. Ini akan mencegah programmer menambah fitur-fitur menarik namun tidak memiliki business value.</p></li>
 </ul>
 
 
-<p>Kedua hal ini tidak logis bila kita pindahkan ke annotation. Dua-duanya adalah konfigurasi, sangat mungkin berubah tergantung strategi deployment. Bila kita mengelola koneksi database melalui application server, maka kita akan menggunakan JNDI. Bila kita deploy di <a href="http://winstone.sourceforge.net">Winstone</a>, maka kita tidak menggunakan JTA, jadi transaction manager menggunakan LocalTransactionManager.</p>
+<p>Seperti bisa dilihat pada template, kita mengharuskan adanya screen prototype di dokumen requirement. Screen ini dirancang oleh BA (makanya dia harus paham usability), dan kalau mau, bisa dibuatkan dummy-nya. Dummy bisa dibuat dengan apapun teknologi yang murah dan cepat. Begitu desain screen jadi, seharusnya tidak lebih dari 2 jam waktu yang dibutuhkan untuk membuat dummy-nya, bahkan untuk screen kompleks sekalipun.</p>
 
-<p>Setelah selesai dengan isu backend, mari sekarang kita bahas presentation layer. Ada beberapa anotasi di sini:</p>
+<p>Yang harus ada di desain screen adalah :</p>
 
 <ul>
-<li>@Controller : untuk menandai class Controller</li>
-<li>@RequestMapping : untuk mapping URL atau Request Method ke handlernya</li>
-<li>@RequestParam : untuk mem-bind request parameter ke variabel</li>
-<li>@ModelAttribute : untuk mem-bind object ke request attribute</li>
-<li>@SessionAttribute : untuk mem-bind object ke session attribute</li>
+<li><p>Input field, harus jelas komponennya, apakah text, radio, dsb</p></li>
+<li><p>Contoh isian. Jangan membuat input kosong, buatlah seolah-olah sudah diisi user. Ini akan memudahkan pada saat presentasi</p></li>
+<li><p>Contoh output. Demikian juga dengan output hasil query, report, dsb. Jangan tampilkan tabel kosong. Isilah dengan data statis barang beberapa baris, agar user mempunyai gambaran bagaimana hasil akhirnya</p></li>
 </ul>
 
 
-<p>@Controller sama dengan @Repository. Keberadaannya menghilangkan boilerplate deklarasi di XML. Menurut saya, ini sangat mengurangi clutter dan duplikasi di XML.</p>
+<p>Tidak perlu repot-repot mengimplementasikan dummy ini. Semuanya adalah data statis yang langsung diketik apa adanya.</p>
 
-<p>@RequestMapping, saya 50:50 di sini.</p>
+<p>Dokumen user story dan dummy dipresentasikan ke end user dan direvisi sesuai input. Pada fase ini, end user bebas membuat perubahan apapun yang diinginkan. Perubahan bebas untuk diakomodasi, asal jangan pernah melupakan siapa yang tandatangan otorisasi bilyet giro :D</p>
 
-<p>Di satu sisi, seharusnya kita tidak mengikat handler method dengan URL pattern, supaya kita bisa mengganti skema URL sesuai trend terbaru (RESTful, etc) atau sebaliknya, supaya bisa mengganti handler method tanpa mengubah URL.</p>
+<h2>Sign Off</h2>
 
-<p>Tapi di sisi lain, saya ingin menggunakan Convention over Configuration ala <a href="http://rubyonrails.org">Rails</a>. Yaitu nama view otomatis diambil dari request URL. Ini benar-benar mengurangi jumlah konfigurasi yang harus ditulis. Lagipula, seberapa sering sih kita mengganti pasangan URL-Handler?</p>
+<p>Setelah semua user story diiterasi dengan end user sampai puas, maka tiba saatnya untuk melakukan feature-freeze. Semua dokumentasi requirement diupdate sehingga sesuai kondisi terakhir, lalu minta approval tertulis dari client. Ingatlah selalu, <strong>approval client, bukan end-user, bukan konsultan internal</strong>. Ini adalah aktivitas paling critical dan harus dilakukan. Segala usaha proses requirement akan percuma tanpa sign off client.</p>
 
-<p>Jadi untuk @RequestMapping, posisi saya adalah, tergantung situasi. Ada saatnya mapping di XML, dan ada saatnya mapping dengan annotation.</p>
+<h2>Change Management</h2>
 
-<p>@RequestParam, @ModelAttribute, dan @SessionAttribute setahu saya tidak punya padanan XML. Ini adalah anotasi untuk memudahkan coding saja. Jadi tidak perlu diperdebatkan apakah sebaiknya di XML saja.</p>
+<p>Sebelum sign off, end user bebas mengajukan perubahan apapun. Setelah sign off, semua perubahan harus melalui change procedure. Intinya adalah, perubahan diajukan secara tertulis, diestimasi penambahan durasi dan costnya, lalu diajukan ke manajemen, baik vendor maupun client. Kalau salah satu pihak tidak setuju, maka perubahan tidak akan dijalankan.</p>
 
-<p>Yah, begitulah sekilas perbandingan antara konfigurasi melalui anotasi dan XML. Sepertinya menambah bingung. Tapi jangan khawatir, untuk bisa mengerti harus bingung dulu.</p>
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/02/change-procedure_id-724x1024.png" title="Prosedur Change Management" ></p>
 
-<p>Semoga bermanfaat.</p>
+<p>Lebih jelas tentang informasi apa saja yang dibahas di change management, bisa melihat <a href="http://endy.artivisi.com/downloads/templates/change-request.pdf">template change request ArtiVisi</a>.</p>
 
-<p>:D</p>
-</div>
-  
-  
+<p>Seperti kita lihat, di sini faktor sign off sangat berperan. Tanpa ada sign off, tidak ada batas kapan user bisa berubah seenaknya, dan kapan tidak boleh.</p>
 
+<p>Kalau change management dijalankan dengan baik, project akan lebih terkontrol. Walaupun ada kemunduran, kedua belah pihak sadar apa sebabnya. Semua perubahan diketahui manajemen, sehingga tidak ada bos yang tiba-tiba muncul dan bilang</p>
 
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/aplikasi-web-spring25-2/">Aplikasi Web Dengan Spring 2.5 [Bagian 2]</a></h1>
-      
-    
-    
-      <p class="meta">
-        
+<blockquote><p>Ini project kenapa gak beres-beres?</p></blockquote>
 
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-06T18:27:16+07:00" pubdate data-updated="true">Dec 6<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring, cara menyuplai data ke form, melakukan validasi, dan memproses form ketika tombol Submit ditekan.</p>
-
-<p>Kita akan menggunakan template yang sama untuk pengeditan Person yang sudah ada maupun pendaftaran Person baru. Templatenya bernama personform.html. Berikut kodenya.</p>
-
-<h3>personform.html</h3>
-
-<pre><code>&lt;html&gt;
-
-&lt;head&gt;
-&lt;title&gt;:: Edit Person ::&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-&lt;form method="POST"&gt;
-&lt;input type="hidden" name="id" value="$!person.Id"&gt;
-
-&lt;table&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Nama&lt;/td&gt;
-    &lt;td&gt;&lt;input type="text" name="name" value="$!person.Name"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Email&lt;/td&gt;
-    &lt;td&gt;&lt;input type="text" name="email" value="$!person.Email"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td colspan="2"&gt;&lt;input type="submit" value="Save"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;/form&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-</code></pre>
-
-<p>Kita melihat ada variabel yang agak berbeda pada contoh di atas, yaitu $!person. Ini merupakan variabel opsional dalam Velocity. Bila variabel $person tidak ada isinya, Velocity akan menampilkan apa adanya, yaitu $person ke halaman web. Kita ingin bila $person null, jangan tampilkan apa-apa. Untuk itu, kita mengubah variabel $person menjadi $!person.</p>
-
-<p>Kalau dijadikan kode Java, kira-kira $!person sama dengan ini:</p>
-
-<pre><code>String personName;
-if(person != null &amp;&amp; person.getName() != null) {
-  personName = person.getName();
-} else {
-  personName = "";
-}
-</code></pre>
-
-<p>Variabel $!person ini digunakan karena form ini menangani New Person dan juga Edit Person. Untuk kasus Edit Person, kita dapat memberikan object person yang sudah ada di database. Sedangkan untuk New Person, objectnya belum ada atau null. Dengan $!person, kita dapat menangani kedua skenario ini.</p>
-
-<p>Berikut kerangka class PersonFormController.</p>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-@RequestMapping("/personform")
-public class PersonFormController { 
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(final PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
-
-  }
-
-  @RequestMapping(method = RequestMethod.POST)
-  public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
-
-  }
-}
-</code></pre>
-
-<p>Ada dua method di sini, yaitu displayForm dan processForm. Yang satu untuk menampilkan form, dan satu lagi untuk memproses hasil submit. Nama method bebas saja, tidak ada aturan yang harus dipatuhi.</p>
-
-<p>Kedua method dimapping ke request /personform. Dengan demikian, request ke <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> akan memanggil class PersonFormController. Di dalam form htmlnya juga action setelah submit dikosongkan. Artinya, kalau dia disubmit, form tersebut akan memanggil URL yang sama dengan yang memanggilnya.</p>
-
-<p>Tetapi, bagaimana kita memilih kapan harus mendisplay form dan memproses form? Kita membedakannya dengan memasang annotation <code>@RequestMapping</code> dengan parameter <code>RequestMethod</code>. Bila requestnya GET (terjadi bila kita mengetik <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> di browser dan menekan Enter), maka jalankan method displayForm. Tapi bila requestnya POST (terjadi bila kita menekan tombol Submit di <code>personform.html</code>), maka jalankan method processForm.</p>
-
-<p>Sekarang mari kita isi method displayForm. Berikut isinya</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.GET)
-public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
-  Person person = personDao.getById(id);
-
-  if (person == null) person = new Person();
-
-  return new ModelMap(person);
-}
-</code></pre>
-
-<p>Di sini kita melakukan binding untuk request parameter person_id. Berbeda dengan tampilan detail pada artikel sebelumnya, di form ini parameter person_id belum tentu ada. Bila kita membuat object Person baru, field id akan berisi null. Untuk itu, kita berikan parameter required yang bernilai false pada anotasi @RequestMapping.</p>
-
-<p>Logika pada method ini tidak rumit. Ambil object Person dari database berdasarkan id. Kalau tidak ada, berikan saja object baru.</p>
-
-<p>Method ini bisa langsung dicoba dengan mengakses personform dengan memberikan parameter person_id, misalnya dengan URL http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100. Tentunya kita harus memiliki record di tabel T_PERSON dengan id 100. Kalau codingnya benar, maka akan tampil form yang terisi dengan data record tersebut.</p>
-
-<p>Berikutnya, kita akan implementasi method untuk memproses form. Berikut isi method processForm</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.POST)
-public String processForm(@ModelAttribute("person") Person person) {
-  personDao.save(person);
-  return "redirect:personlist";
-}
-</code></pre>
-
-<p>Mudah kan? Cukup gunakan personDao untuk menyimpan object ke database, kemudian redirect ke halaman personlist.</p>
-
-<p>Begitu saja? Tidak ada yang lupa?</p>
-
-<p>Ya untuk memproses form begitu saja langkahnya, tidak perlu susah-susah.</p>
-
-<p>Bagaimana dengan validasi? Mana ada form tanpa validasi.</p>
-
-<p>Baiklah, mari kita tambahkan kode validasi. Untuk itu, method processForm perlu dimodifikasi menjadi seperti ini</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.POST)
-public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
-  new PersonValidator().validate(person, result);
-  if (result.hasErrors()) {
-    return "personform";
-  } else {
-    personDao.save(person);
-    status.setComplete();
-    return "redirect:personlist";
-  }
-}
-</code></pre>
-
-<p>Tidak terlalu rumit, kan? Cukup buat class PersonValidator, kemudian jalankan method validate dengan input object person yang ingin divalidasi, dan object result untuk menampung error validasi bila ada.</p>
-
-<p>Selanjutnya, kita periksa object result. Bila ada errornya, kembali ke form. Bila tidak ada, langsung save dengan personDao, set status menjadi complete, dan redirect ke personlist.</p>
-
-<p>Isi class PersonValidator juga tidak banyak. Berikut kodenya.</p>
-
-<pre><code>package tutorial.spring25.validator;
-public class PersonValidator {
-
-  private static final String EMAIL_FORMAT = ".*@.*\\.com";
-
-  public void validate(Person person, Errors errors) {
-    // field nama harus diisi
-    if(!StringUtils.hasText(person.getName())) {
-      errors.rejectValue("name", "required", "nama harus diisi");
-    }
-
-    // bila field email diisi, formatnya harus benar
-    if (StringUtils.hasLength(person.getEmail()) &amp;&amp; !person.getEmail().matches(EMAIL_FORMAT) ) {
-      errors.rejectValue("email", "email.format", "format email salah");
-    }
-  }
-}
-</code></pre>
-
-<p>Mudah bukan?</p>
-
-<p>Para penggemar framework berbasis komponen (seperti Tapestry atau JSF) mungkin bertanya, untuk apa saya belajar lagi Spring MVC? Sepertinya tidak lebih mudah.</p>
-
-<p>Coba perhatikan URL yang kita gunakan:</p>
+<p>Kunci sukses change management adalah mulai dari awal, dan perhatikan hal kecil. Kita sebagai vendor sering mengabaikan prosedur ini dengan berbagai alasan, diantaranya</p>
 
 <ul>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personlist</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/persondetail?person_id=100</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100</p></li>
+<li><p>Ah perubahannya terlalu kecil, kalo langsung diimplement cuma 5 menit, tapi kalo change procedure bisa 2 hari.</p></li>
+<li><p>Kita tidak mau terlihat birokratis seperti pegawai kelurahan perpanjang KTP</p></li>
+<li><p>Kita berbaik hati pada client, masa perubahan sedikit saja hitung-hitungan banget</p></li>
 </ul>
 
 
-<p>Semuanya bersih dan <em>bookmarkable</em>. Dengan Spring MVC kita bisa mengatur URL sesuai keinginan.</p>
+<p>Ini merupakan kesalahan besar. Dengan memberlakukan change procedure bahkan untuk hal kecil, kita akan menimbulkan kesadaran di client bahwa kita mengelola project dengan ketat. Dengan demikian, mereka tidak sembarangan meminta perubahan. Client juga akan menyadari bahwa perubahan kecil saja akan berdampak pada keseluruhan project.</p>
 
-<p>Selanjutnya, coba perhatikan kode Java kita. Jangankan lokasi template Velocity kita, bahkan dia tidak tahu menahu kalau kita pakai Velocity. Tugas kode Java cuma menerima input dan mengembalikan data. Terserah data itu mau diformat seperti apa. Dia tidak peduli teknologi view yang digunakan.</p>
+<p>Kalau kita memang ingin berbaik hati pada client, silahkan digratiskan. Tapi prosedur tetap dijalankan. Jadi kalo tiba-tiba ada bos client yang tanya seperti di atas, tinggal kita sodori binder berisi daftar change request yang sudah diapprove.</p>
 
-<p>Implikasinya, selama data yang disuplai tidak berubah, hanya dengan mengubah konfigurasi kita dapat mengubah tampilan. Tentunya kita harus menyediakan template yang sesuai.</p>
+<p>Change procedure juga ada bonusnya, yaitu tidak banyak mengganggu programmer. Estimasi dan approval mostly dilakukan oleh business analyst dan project manager. Dan belum tentu juga client setuju. Kita akan menghemat banyak waktu, konsentrasi, dan pikiran programmer yang tidak perlu memikirkan usulan perubahan yang ternyata tidak disetujui.</p>
 
-<p>Kita bisa membuat template dengan teknologi yang lain, misalnya JSP, Freemarker, atau Jasper Report. Kita juga bisa merender tampilan tidak hanya dalam format HTML, tapi juga PDF, XLS, XML, JSON, plain-text, atau mengkonversinya menjadi grafik SVG.</p>
+<p>Di change request juga ada timing kapan change akan diberlakukan. Untuk menjaga konsentrasi dan ritme tim, PM bisa menggunakan opsi ini untuk menunda change ke iterasi selanjutnya.</p>
 
-<p>Kelebihan lainnya, kita mengendalikan secara penuh output HTML aplikasi kita. Implikasinya, kita bisa menerapkan teknik-teknik teruji dalam protokol HTTP seperti <a href="http://www.mnot.net/cache_docs/">Cache Control pada HTTP Header</a>.</p>
+<h2>Requirement Traceability</h2>
 
-<p>Atau kita bisa manfaatkan <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">HTTP Response Code</a> <em>304 Not Modified</em> untuk memberi tahu client bahwa halaman yang dia akses belum berubah sejak terakhir diakses, sehingga client tidak mendownload lagi keseluruhan page, melainkan langsung menampilkan local cache-nya.</p>
+<p>Yang satu ini titipan dari CMMI. Di process area Requirement Management, CMMI mengharuskan adanya <em>bidirectional traceability</em>. Artinya, setiap hal di requirement harus bisa ditelusuri dokumen desain mana yang membahasnya, baris kode mana yang mengimplementasikannya, test scenario mana yang memverifikasinya. Demikian juga sebaliknya (makanya disebut bidirectional), setiap baris kode, harus bisa ditelusuri requirement mana yang membutuhkannya.</p>
 
-<p>Teknik seperti ini sederhana, mudah, sudah teruji di lapangan, berlaku untuk berbagai bahasa pemrograman, dan sangat efektif. Hanya dengan mengubah HTTP response code, kita bisa menghemat bandwidth dan mengurangi load application server. Sayangnya teknik ini belum tentu dapat digunakan pada framework yang terlalu canggih. Spring MVC memungkinkan kita untuk memanipulasi HTTP response dengan mudah kalau kita mau.</p>
+<p>Ini ide yang bagus. Dengan melaksanakan ini, kita memastikan bahwa effort coding kita benar-benar efisien. Tidak ada effort terbuang percuma untuk fitur-fitur yang tidak perlu. Demikian juga sebaliknya, kita memastikan bahwa semua requirement sudah diimplementasikan dan tidak ada yang ketinggalan.</p>
 
-<p>Source code untuk rangkaian artikel ini sudah dipublish di GoogleCode. Anda bisa:</p>
+<p>Walaupun demikian, ide bagus belum tentu realistis di lapangan. Saat ini di ArtiVisi, kita baru bisa merelasikan antara baris kode dengan requirement dengan menggunakan Trac. Tapi tidak untuk dokumen lainnya seperti user manual, test scenario, dsb. Dan itupun tidak bidirectional.</p>
 
-<ul>
-<li><a href="http://code.google.com/p/hello-spring-25/source">Checkout project</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.war">Download WAR</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-winstone.jar">Download JAR</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.tar.bz2"> Download keseluruhan project folder</a></li>
-</ul>
+<p>Kalau ingin tahu bagaimana ini diimplementasikan, silahkan lihat <a href="http://sourceforge.net/projects/osrmt/">aplikasi ini</a>.</p>
 
+<p>Oh iya, kalau kita sudah melakukan semua anjuran di artikel ini, lengkap dengan Requirement Traceability, kita sudah siap untuk diaudit untuk proses area Requirement Management (Maturity Level 2) dan Requirement Development (Maturity Level 3) :D</p>
 
-<p>Jangan lupa membaca <a href="http://code.google.com/p/hello-spring-25/">instruksi untuk menjalankannya</a>.</p>
-
-<p>Demikian sekilas tentang framework Spring MVC. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/aplikasi-web-spring25-1/">Aplikasi Web Dengan Spring 2.5 [Bagian 1]</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-05T20:35:16+07:00" pubdate data-updated="true">Dec 5<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah pada <a href="http://endy.artivisi.com/blog/java/akses-database-spring25">artikel sebelumnya</a> kita berhasil mengakses database, kali ini kita akan membuat tampilan berbasis web yang menggunakan kode program kita kemarin.</p>
-
-<p>Fiturnya tidak terlalu sulit, dari tabel T_PERSON kemarin kita akan buatkan beberapa tampilan untuk mengelola data Person. Tampilan yang akan kita sediakan adalah:</p>
-
-<ul>
-<li>daftar semua Person</li>
-<li>informasi Person yang dipilih</li>
-<li>form untuk membuat object Person baru</li>
-<li>form untuk mengedit object Person yang sudah ada</li>
-</ul>
-
-
-<p>Sebelum kita mulai, ada baiknya kita mengetahui cara kerja Spring dalam mengelola aplikasi web. Sequence diagram berikut akan memudahkan pemahaman kita.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/12/spring-mvc-sequence.png" alt="Alur kerja Spring MVC" /></p>
-
-<p>Seperti kita lihat pada gambar, semua request akan diterima oleh DispatcherServlet. Mereka yang pernah membaca buku Core J2EE Pattern akan segera mengenali jurus ini, yang sering disebut dengan istilah FrontController. DispatcherServlet akan menyuruh handler mapping untuk memilih class yang akan menangani request. Ada beberapa implementasi handler mapping, diantaranya:</p>
-
-<ul>
-<li>BeanNameUrlHandlerMapping</li>
-<li>SimpleUrlHandlerMapping</li>
-<li>ControllerClassNameHandlerMapping</li>
-</ul>
-
-
-<p>Class yang menangani request disebut dengan istilah Controller. Class Controller ini yang akan kita tulis sendiri. Spring menyediakan beberapa superclass Controller yang bisa kita subclass untuk mengurangi kode yang harus ditulis. Beberapa superclass yang disediakan Spring antara lain:</p>
-
-<ul>
-<li>Controller</li>
-<li>MultiActionController</li>
-<li>SimpleFormController</li>
-<li>AbstractWizardController</li>
-</ul>
-
-
-<p>Selain membuat turunan dari superclass di atas, kita juga bisa membuat class biasa yang dilengkapi dengan annotation. Pada artikel  ini kita tidak akan membuat turunan apa-apa, karena semua bisa dikerjakan dengan annotation.</p>
-
-<p>Tanggung jawab controller selain memproses request adalah menentukan nama template yang akan digunakan untuk menampilkan hasil pemrosesan controller. Spring menyebut template ini dengan istilah View. Kita cuma perlu menyebutkan nama View dan Spring yang akan mencarikan file template yang sesuai dan kemudian mengisi datanya. Proses mencarikan template ini ditangani oleh ViewResolver. Ada beberapa implementasi ViewResolver, antara lain untuk memproses template berjenis:</p>
-
-<ul>
-<li>JSP dan JSTL</li>
-<li>Freemarker atau Velocity</li>
-<li>XML dengan XSLT</li>
-<li>Jasper Report</li>
-<li>Document View (PDF dan XLS)</li>
-</ul>
-
-
-<p>Sekarang setelah kita mengetahui arsitektur umum dari aplikasi web Spring, kita bisa segera coding. Class-class yang akan kita buat adalah:</p>
-
-<ul>
-<li>PersonController. Class ini akan menangani tampilan daftar Person dan detail Person.</li>
-<li>PersonFormController. Class ini akan menangani tampilan pengeditan object Person, baik yang belum terdaftar maupun yang sudah ada di dalam database.</li>
-</ul>
-
-
-<p>File konfigurasi yang akan kita buat adalah:</p>
-
-<ul>
-<li>web.xml. Ini adalah konfigurasi standar untuk semua aplikasi web dengan Java.</li>
-<li>tutorial-servlet.xml. Ini adalah konfigurasi DispatcherServlet untuk menampung deklarasi HandlerMapping, Controller, dan ViewResolver.</li>
-</ul>
-
-
-<p>Untuk menampilkan halaman web, kita akan menggunakan template engine <a href="http://velocity.apache.org">Velocity</a>. Velocity adalah template engine yang kecil dan ringan, tapi fiturnya cukup lengkap dan mudah digunakan. Saya lebih suka menggunakan Velocity daripada JSP, karena JSP membutuhkan kompilasi menjadi Servlet dan kemudian menjadi bytecode. Ini menyebabkan halaman JSP lebih sulit didebug bila terjadi error. Selain itu, kompilasi JSP membutuhkan dua kompiler, satu untuk JSP ke Servlet, dan satu lagi untuk Servlet menjadi bytecode. Dengan demikian, kita harus menginstal JDK di server. Tanpa JSP, kita dapat menggunakan Servlet container yang ringan dan kecil seperti <a href="http://jetty.mortbay.org">Jetty</a> atau <a href="http://winstone.sourceforge.net">Winstone</a> dan tidak perlu menginstal JDK, cukup JRE saja.</p>
-
-<p>Template untuk menampilkan daftar orang dibuat dalam HTML yang sudah disisipi kode Velocity, disimpan dengan nama <code>personlist.html</code>. Kodenya terlihat seperti ini.</p>
-
-<h3>personlist.html</h3>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;:: List of All Person ::&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
-  &lt;tr&gt;
-    &lt;th&gt;Name&lt;/th&gt;
-    &lt;th&gt;Email&lt;/th&gt;
-    &lt;th&gt; &lt;/th&gt;
-  &lt;/tr&gt;
-
-  #foreach($person in $personList)
-  &lt;tr&gt;
-    &lt;td&gt;$person.Name&lt;/td&gt;
-    &lt;td&gt;$person.Email&lt;/td&gt;
-    &lt;td&gt;
-      &lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | 
-      &lt;a href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;
-    &lt;/td&gt;
-  &lt;/tr&gt;
-#end
-
-&lt;/table&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Kode yang diawali dengan tanda # merupakan perintah dalam Velocity. Dengan menggunakan perintah <code>#foreach</code>, kita melakukan looping untuk setiap baris record.</p>
-
-<p>Kode yang diawali tanda $ merupakan variabel dalam Velocity. Isi variabel ini nantinya akan kita sediakan melalui controller Spring.</p>
-
-<p>Untuk menampilkan detail informasi Person, kita buat <code>persondetail.html</code>. Kodenya seperti ini.</p>
-
-<h3>persondetail.html</h3>
-
-<pre><code>&lt;html&gt;
-
-&lt;head&gt;
-&lt;title&gt;:: $person.Name's Detail Info ::&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-&lt;table&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Nama&lt;/td&gt;
-    &lt;td&gt;$person.Name&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Email&lt;/td&gt;
-    &lt;td&gt;$person.Email&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-</code></pre>
-
-<p>Sekarang mari kita isi template tersebut dengan data yang dibutuhkannya. Template <code>personlist.html</code> membutuhkan data List<Person> dengan nama variabel personList, sedangkan <code>persondetail.html</code> membutuhkan data Person dengan nama variabel person.</p>
-
-<p>Pertama, kita akan mengisi <code>personlist.html</code>. Template ini akan disuplai oleh PersonController, melalui method yang bernama list. Berikut kode programnya.</p>
-
-<h3>PersonController.java</h3>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-public class PersonController {
-
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping("/personlist")
-  public ModelMap list(){
-    return new ModelMap(personDao.getAll());
-  }
-}
-</code></pre>
-
-<p>Mudah bukan? Cukup panggil method personDao.getAll, kemudian masukkan hasilnya ke dalam ModelMap.</p>
-
-<p>Kita melihat beberapa annotation pada kode ini. Annotation <code>@Controller</code> merupakan penanda bagi Spring bahwa class ini adalah sebuah Controller. Kelas yang memiliki annotation ini akan dipindai pada saat start-up dan diregistrasi ke <code>ApplicationContext</code>. Annotation <code>@Autowired</code> menyuruh Spring untuk menginjeksikan object <code>PersonDao</code>. Dengan annotation <code>@RequestMapping</code>, kita menentukan bahwa request menuju ke <code>http://namaserver:port/namaaplikasi/namaservlet/personlist</code> akan ditangani oleh method ini.</p>
-
-<p>Pada saat dideploy, <code>DispatcherServlet</code> milik Spring akan menemukan dan memanggil method ini. Kemudian, dia akan menerima hasilnya berupa ModelMap untuk kemudian diserahkan ke ViewHandler Velocity untuk digabungkan dengan template dan menghasilkan halaman HTML.</p>
-
-<p>Object yang kita berikan pada ModelMap akan diberi nama oleh Spring secara otomatis. Karena kita mensuplai object dengan tipe <code>List&lt;Person&gt;</code>, maka Spring akan memberikan nama <code>personList</code>. Demikian juga pada controller berikutnya kita akan memberikan object bertipe <code>Person</code> ke controller, Spring akan memberikan nama person pada object tersebut. Dengan nama itulah (<code>$person</code>) kita mengaksesnya di template Velocity.</p>
-
-<p>Cukup satu dulu implementasi kita. Sekarang tiba saatnya konfigurasi. Aplikasi kita akan dideploy dengan nama context <code>tutorial-spring25</code>. Di dalamnya, kita akan memasang <code>DispatcherServlet</code> yang akan mengambil semua request dengan path /tutorial/*. Jadi, method <code>public ModelMap list</code> akan diakses melalui URL <code>http://localhost:8080/tutorial-spring25/tutorial/personlist</code>.</p>
-
-<p>Konfigurasi pertama ada di web.xml. Di sini kita akan mengkonfigurasi <code>DispatcherServlet</code> dan mendaftarkan <code>applicationContext.xml</code>. Berikut isi <code>web.xml</code></p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
-&lt;web-app version="2.4" 
-         xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
-         http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"&gt;
-
-  &lt;display-name&gt;Tutorial Spring&lt;/display-name&gt;
-
-  &lt;description&gt;Tutorial Spring 2.5&lt;/description&gt;
-
-  &lt;context-param&gt;
-    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-    &lt;param-value&gt;classpath:applicationContext.xml&lt;/param-value&gt;
-  &lt;/context-param&gt;
-
-  &lt;listener&gt;
-    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-  &lt;/listener&gt;
-
-  &lt;servlet&gt;
-    &lt;servlet-name&gt;tutorial&lt;/servlet-name&gt;
-    &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-  &lt;/servlet&gt;
-
-  &lt;servlet-mapping&gt;
-    &lt;servlet-name&gt;tutorial&lt;/servlet-name&gt;
-    &lt;url-pattern&gt;/tutorial/*&lt;/url-pattern&gt;
-  &lt;/servlet-mapping&gt;
-
-  &lt;welcome-file-list&gt;
-    &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
-  &lt;/welcome-file-list&gt;
-
-&lt;/web-app&gt;
-</code></pre>
-
-<p><code>ApplicationContext</code> yang berisi konfigurasi database dan transaksi, yang dibahas pada artikel sebelumnya, didaftarkan melalui context-param. File konfigurasinya, <code>applicationContext.xml</code> disimpan di classpath, yaitu di folder <code>WEB-INF/classes</code>. Oleh karena itu, kita tulis pathnya <code>classpath:applicationContext.xml</code></p>
-
-<p><code>ApplicationContext</code> ini harus diaktifkan pada saat aplikasi web dideploy dan dinon-aktifkan pada saat aplikasi web di-undeploy. Untuk itu, kita harus memasang <code>ContextLoaderListener</code> untuk memonitor aktifitas aplikasi web.</p>
-
-<p>Selanjutnya, kita daftarkan <code>DispatcherServlet</code> dengan nama <code>tutorial</code>. Spring akan mencari file bernama <code>tutorial-servlet.xml</code> sebagai file konfigurasi <code>DispatcherServlet</code> ini di dalam folder <code>WEB-INF</code>. <code>DispatcherServlet</code> tutorial akan dimapping untuk menangani semua request dengan pola <code>/tutorial/*</code></p>
-
-<p>Sekarang, mari kita lihat isi <code>tutorial-servlet.xml</code>.</p>
-
-<h3>tutorial-servlet.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans 
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-       http://www.springframework.org/schema/context 
-       http://www.springframework.org/schema/context/spring-context-2.5.xsd"&gt;
-
-  &lt;context:component-scan base-package="tutorial.spring25.ui.springmvc" /&gt;
-
-  &lt;bean id="velocityConfig"
-        class="org.springframework.web.servlet.view.velocity.VelocityConfigurer"&gt;
-    &lt;property name="resourceLoaderPath" value="/WEB-INF/templates/velocity/" /&gt;
-  &lt;/bean&gt;
-
-  &lt;bean id="viewResolver"
-        class="org.springframework.web.servlet.view.velocity.VelocityViewResolver"&gt;
-    &lt;property name="cache" value="true" /&gt;
-    &lt;property name="prefix" value="" /&gt;
-    &lt;property name="suffix" value=".html" /&gt;
-  &lt;/bean&gt;
-
-&lt;/beans&gt;
-</code></pre>
-
-<p>Pertama, kita konfigurasi Spring agar memindai isi package <code>tutorial.spring25.ui.springmvc</code> dan mendaftarkan semua class yang beranotasi <code>@Controller</code>.
-Kedua, kita mengkonfigurasi <code>VelocityConfigurer</code> untuk mencari template di dalam folder <code>WEB-INF/templates/velocity</code>.
-Terakhir, kita melakukan konfigurasi <code>VelocityViewResolver</code> untuk menerjemahkan nama view menjadi nama file template. Misalnya kita memberikan nama view <code>personlist</code>, maka <code>VelocityViewResolver</code> akan memberikan file <code>WEB-INF/templates/velocity/personlist.html</code>.</p>
-
-<p>Pembaca yang teliti akan segera protes, &#8220;Kita kan tidak pernah menyebutkan nama view di dalam Controller. Lalu dari mana nama view itu didapatkan?&#8221;</p>
-
-<p>Baiklah, mari lihat lagi method tersebut.</p>
-
-<h3>Method list</h3>
-
-<pre><code>  @RequestMapping("/personlist")
-  public ModelMap list(){
-    return new ModelMap(personDao.getAll());
-  }
-</code></pre>
-
-<p>Method tersebut dimapping untuk menerima request <code>http://localhost:8080/tutorial-spring25/tutorial/personlist</code>. Kalau kita tidak melakukan konfigurasi apa-apa, Spring secara default akan menganggap nama request sama dengan nama view. Jadi method di atas akan menghasilkan nama view <code>personlist</code>.</p>
-
-<p>Setelah semua konfigurasi di atas selesai, kita bisa langsung membuat paket war untuk dideploy.</p>
-
-<p>Berikutnya, kita akan membuat tampilan informasi detail per Person. Untuk ini, kita membutuhkan parameter <code>person\_id</code> yang ingin ditampilkan. Sehingga bila kita ingin menampilkan Person dengan id 100, URLnya adalah <code>http://localhost/tutorial-spring25/tutorial/persondetail?person\_id=100</code></p>
-
-<p>Class <code>PersonController</code> yang sudah ditambahi method detail tampak seperti ini.</p>
-
-<h3>PersonController.java</h3>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-public class PersonController {
-
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping("/personlist")
-  public ModelMap list(){
-    return new ModelMap(personDao.getAll());
-  }
-
-  @RequestMapping("/persondetail")
-  public ModelMap detail(@RequestParam("person_id") Long personId){
-    return new ModelMap(personDao.getById(personId));
-  }
-}
-</code></pre>
-
-<p>Untuk mengambil parameter<code>person\_id</code>, kita tinggal membuat method parameter biasa yang dilengkapi annotation <code>@RequestParam</code>. Konversi tipe data akan dilakukan oleh Spring. Dengan kata lain, kode ini</p>
-
-<pre><code>@RequestParam("person_id") Long personId
-</code></pre>
-
-<p>sama dengan ini</p>
-
-<pre><code>Long personId = Long.valueOf(httpRequest.getParameter("person_id"));
-</code></pre>
-
-<p>bedanya, kita tidak perlu mengimport <code>javax.servlet.HttpServletRequest</code>.</p>
-
-<p>Setelah selesai, redeploy aplikasi dan coba akses <code>http://localhost/tutorial-spring25/tutorial/personlist</code>. Dari sana, klik link view. Tampilan detail dari object Person yang dipilih akan segera terlihat.</p>
-
-<p>Demikianlah bagian kedua dari seri Spring 2.5. Pada <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-2/">artikel selanjutnya</a>, kita akan melihat cara mengimplementasikan form untuk mengedit object Person yang sudah ada, maupun membuat object Person yang baru.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/akses-database-spring25/">Akses Database Dengan Spring 2.5</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-03T21:12:07+07:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Akses database dengan Spring 2.5</p>
-
-<p>Spring 2.5 baru saja keluar. Rilis kali ini membawa penambahan fitur yang cukup signifikan di sisi konfigurasi. Dalam Spring yang baru ini, kita bisa mengkonfigurasi aplikasi melalui annotation. Suatu hal yang sangat bermanfaat untuk mengurangi jumlah baris kode XML kita.</p>
-
-<p>Sebetulnya tidak ada yang salah dengan XML. Walaupun demikian, ada beberapa hal yang menurut saya kurang tepat kalau dikonfigurasi melalui XML, diantaranya:</p>
-
-<ul>
-<li>konfigurasi transaction</li>
-<li>deklarasi bean standar</li>
-</ul>
-
-
-<p>Konfigurasi transaction biasanya tergantung dari kode program yang ingin ber-transaction. Bila kita konfigurasi di XML, maka untuk memikirkan satu logika akses database, kita harus melihat di dua tempat yang berbeda; file java dan file XML. Menurut pendapat saya, fitur declarative transaction walaupun kelihatannya mirip konfigurasi, tapi pada dasarnya adalah logika aplikasi. Tempatnya bukan di konfigurasi XML, tapi di kode Java.</p>
-
-<p>Di Spring, kita harus mendaftarkan object aplikasi kita ke dalam object ApplicationContext agar bisa dikelola oleh Spring. Pada rilis sebelumnya, pendaftaran ini dilakukan dalam file XML. Cara ini memiliki incremental cost yang tinggi. Bila kita punya 100 object yang ingin dikelola, maka kita harus punya 100 deklarasi di konfigurasi XML Spring. Sekarang kita bisa menandai object yang akan dikelola Spring melalui annotation. Jadi walaupun ada 100 object, konfigurasi XML kita tidak bertambah.</p>
-
-<p>Ok, cukup berteori. Saatnya melihat contoh kode.</p>
-
-<p>Pada artikel kali ini, kita akan membuat kode akses database untuk class Person. Class ini tidak istimewa, cuma POJO biasa dengan tiga property: id, name, dan email. Berikut kodenya.</p>
-
-<h3>Person.java</h3>
-
-<pre><code>package tutorial.spring25.model;
-public class Person {
-  private Long id;
-  private String name;
-  private String email;
-}
-</code></pre>
-
-<p>Jangan lupa membuat getter dan setter.</p>
-
-<p>Class ini akan kita simpan di database dalam tabel bernama T_PERSON. Berikut definisinya untuk database MySQL.</p>
-
-<h3>MySQL-schema.sql</h3>
-
-<pre><code>create table T_PERSON (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT, 
-  name VARCHAR(255), 
-  email VARCHAR(255)
-);
-</code></pre>
-
-<p>Operasi database yang akan kita buat dijelaskan oleh interface PersonDao, sebagai berikut.</p>
-
-<h3>PersonDao.java</h3>
-
-<pre><code>package tutorial.spring25.dao
-public interface PersonDao {
-  public List&lt;person&gt; getAll();
-  public Person getById(Long id);
-  public void save(Person p);
-}
-</code></pre>
-
-<p>Untuk tahap pertama, kita akan lihat cara mengakses database dengan JDBC helper yang disediakan Spring. Akses database dengan Hibernate akan dijelaskan pada artikel terpisah.</p>
-
-<p>Berikut adalah kerangka implementasi PersonDao dengan JDBC helper dari Spring.</p>
-
-<h3>PersonDaoSpringJdbc.java</h3>
-
-<pre><code>package tutorial.spring25.dao.springjdbc;
-
-@Repository("personDao")
-@Transactional(readOnly=true)
-public class PersonDaoSpringJdbc implements PersonDao { 
-    @Autowired
-    public void setDataSource(final DataSource dataSource) {
-
-    }
-
-    @Override
-    public List&lt;person&gt; getAll() {
-        return null;
-    }
-
-    @Override
-    public Person getById(final Long id) {
-        return null;
-    }
-
-    @Override
-    @Transactional(readOnly=false)
-    public void save(final Person person) {
-
-    }
-}
-</code></pre>
-
-<p>Ada beberapa hal yang baru pada kode di atas. Kita melihat ada annotation @Repository, @Transactional, dan @Autowired.</p>
-
-<p>Annotation @Repository memberi tahu pada Spring bahwa class ini adalah salah satu @Component dalam aplikasi kita. Semua @Component akan dipindai pada waktu inisialisasi dan kemudian diregistrasi ke dalam object ApplicationContext milik Spring. Selain @Repository, @Component juga memiliki turunan @Service dan @Controller. @Service biasanya digunakan untuk menandai class-class facade atau business delegate. Sedangkan @Controller digunakan untuk aplikasi web. @Service dan @Controller akan kita bahas di artikel terpisah.</p>
-
-<p>Annotation @Transactional menandakan bahwa semua method dalam class ini akan dijalankan dalam transaksi database. Kita memberikan nilai readOnly=true pada deklarasi class, menandakan bahwa secara default transaksi hanya digunakan untuk mengambil data dari database. Perhatikan method save. Pada method ini, kita akan memasukkan atau mengubah data dalam database. Untuk satu method ini, kita membutuhkan transaksi yang tidak readOnly. Karena itu, kita override konfigurasi default dengan cara memberikan annotation @Transactional(readOnly=false).</p>
-
-<p>Sekarang mari kita lihat konfigurasi Application Context.</p>
-
-<h3>applicationContext.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:aop="http://www.springframework.org/schema/aop"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:jee="http://www.springframework.org/schema/jee"
-    xmlns:tx="http://www.springframework.org/schema/tx"
-    xsi:schemaLocation="
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"&gt;
-
-    &lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
-    &lt;context:annotation-config/&gt;
-    &lt;context:component-scan base-package="tutorial.spring25"/&gt; &lt;!-- tidak perlu deklarasi masing2 DAO --&gt;
-    &lt;tx:annotation-driven /&gt; &lt;!-- tidak perlu deklarasi transaction setting per method --&gt;
-
-    &lt;bean id="dataSource"
-        class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-        destroy-method="close" 
-        p:driverClassName="${jdbc.driver}"
-        p:url="${jdbc.url}" 
-        p:username="${jdbc.username}"
-        p:password="${jdbc.password}" /&gt;
-
-    &lt;bean id="transactionManager"
-        class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
-        p:dataSource-ref="dataSource" /&gt;
-
-&lt;/beans&gt;
-</code></pre>
-
-<p>Seperti kita lihat di atas, kita tidak lagi membutuhkan deklarasi untuk object personDao seperti pada Spring sebelumnya. Kita juga tidak perlu membuat konfigurasi transaksi untuk masing-masing method dalam PersonDao. Sebagai gambaran, kita menghilangkan beberapa baris yang seperti ini.</p>
-
-<h3>Konfigurasi DAO dan Transaksi</h3>
-
-<pre><code>&lt;bean id="personDaoImpl" class="tutorial.spring25.dao.springjdbc.PersonDaoSpringJdbc"&gt;
-    &lt;property name="dataSource" ref="dataSource"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="personDao" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"&gt;
-    &lt;property name="target" ref="personDao"&gt;&lt;/property&gt;
-    &lt;property name="transactionManager" ref="transactionManager"&gt;&lt;/property&gt;
-    &lt;property name="transactionAttributes"&gt;
-        &lt;props&gt;
-            &lt;prop key="*"&gt;PROPAGATION_REQUIRED,readOnly&lt;/prop&gt;
-            &lt;prop key="save*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
-        &lt;/props&gt;
-    &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Semakin banyak class DAO kita, deklarasinya juga akan semakin banyak. Pada aplikasi skala menengah, jumlah DAO bisa mencapai ratusan. Bisa dibayangkan dampaknya terhadap file xml tersebut. Dengan mencantumkan satu baris seperti ini,</p>
-
-<pre><code>&lt;context:component-scan base-package="tutorial.spring25"/&gt;
-</code></pre>
-
-<p>Spring dapat secara otomatis memeriksa seluruh package tutorial.spring dan mendaftarkan semua class yang memiliki annotation @Component, @Repository, @Service, dan @Controller.</p>
-
-<p>Kita sudah lihat bagaimana keseluruhan kode program ditulis. Kecuali implementasi sebenarnya tentu saja. Sebelum melihat secara detail bagaimana kode program untuk INSERT dan SELECT, terlebih dulu kita lihat bagaimana class PersonDaoSpringJdbc ini digunakan.</p>
-
-<p>Daripada menggunakan cara yang kurang berwawasan (menggunakan method main), saya akan mengambil pendekatan yang lebih berpendidikan, yaitu menggunakan Unit Test. Lihat <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel saya tentang Unit Test dan Integration Test</a> untuk memahami kode berikut.</p>
-
-<p>Ini adalah kerangka class test untuk PersonDaoSpringJdbc. Class ini dibuat dengan menggunakan JUnit 4. Isinya masih belum lengkap. Kita akan lengkapi sambil jalan.</p>
-
-<h3>PersonDaoSpringJdbcTest.java</h3>
-
-<pre><code>package test.spring25.dao.springjdbc
-public class PersonDaoSpringJdbcTest {
-
-  private static final ApplicationContext applicationContext;
-  private static final DataSource dataSource;
-  private static final PersonDao personDao;
-
-  @BeforeClass public static void init(){}
-  @Before public void resetDatabase(){}
-
-  @Test public void testGetById(){}
-  @Test public void testGetAll(){}
-  @Test public void testSave(){}
-}
-</code></pre>
-
-<p>Seperti kita lihat, kita sudah menggunakan annotation untuk menandai method test dan inisialisasi. Penjelasan tentang JUnit 4 akan dibahas pada artikel terpisah.</p>
-
-<p>Sekarang kita lihat isi masing-masing method. Method init isinya seperti ini.</p>
-
-<pre><code>@BeforeClass public static void init(){
-  ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-  dataSource = (DataSource) ctx.getBean("dataSource");
-  personDao = (PersonDao) ctx.getBean("personDao");
-}
-</code></pre>
-
-<p>Method resetDatabase dijalankan sebelum masing-masing test method. Fungsinya untuk menghapus isi tabel T_PERSON dan mengisi sampel data sesuai yang kita inginkan. Ini dilakukan menggunakan DBUnit. Isinya sebagai berikut</p>
-
-<pre><code>@Before public void resetDatabase() throws Exception {
-  final Connection conn = ds.getConnection();
-  DatabaseOperation.CLEAN_INSERT.execute(new DatabaseConnection(conn), new FlatXmlDataSet(new FileInputStream("fixtures/person.xml")));
-  conn.close();
-}
-</code></pre>
-
-<p>Method ini akan menggunakan sampel data yang ada di file person.xml. Isinya seperti ini,</p>
-
-<pre><code>&lt;dataset&gt;
-  &lt;T_PERSON
-    id="100"
-    name="Endy Muhardin"
-    email="endy.muhardin@gmail.com" 
-  /&gt;
-&lt;/dataset&gt;
-</code></pre>
-
-<p>Cukup satu record saja.</p>
-
-<p>Pertama kali, kita akan implementasi method getById. Isi testnya tidak rumit. Cukup jalankan method getById dan periksa hasilnya.</p>
-
-<pre><code>@Test public void testGetById() throws Exception {
-  Person endy = personDao.getById(100L);
-  assertEquals("Endy Muhardin", endy.getName());
-  assertEquals("endy.muhardin@gmail.com", endy.getEmail());
-}
-</code></pre>
-
-<p>Implementasi getById dalam PersonDaoSpringJdbc seperti ini.</p>
-
-<pre><code>public Person getById(Long id) {
-  return simpleJdbcTemplate.queryForObject("select * from T_PERSON where id=?", new PersonMapper(), id);
-}
-</code></pre>
-
-<p>Cukup satu baris saja.</p>
-
-<p>Method ini membutuhkan class PersonMapper untuk mengkonversi object ResultSet menjadi object Person. Class ini dibuat menjadi static final inner class dalam PersonDaoSpringJdbc.</p>
-
-<pre><code>public class PersonDaoSpringJdbc implements PersonDao {
-  private static final class PersonMapper implements ParameterizedRowMapper&lt;Person&gt;{
-    @Override
-    public Person mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-      final Person result = new Person();
-      result.setId(rs.getLong("id"));
-      result.setName(rs.getString("name"));
-      result.setEmail(rs.getString("email"));
-      return result;
-    }
-  }
-}
-</code></pre>
-
-<p>Selanjutnya, kita akan implementasikan method getAll. Berikut test methodnya.</p>
-
-<pre><code>@Test public void testGetAll() throws Exception {
-  List&lt;Person&gt; result = personDao.getAll();
-  assertEquals(1, result.size());
-  Person endy = result.get(0);
-  assertEquals("Endy Muhardin", endy.getName());
-  assertEquals("endy.muhardin@gmail.com", endy.getEmail());
-}
-</code></pre>
-
-<p>Dan ini implementasi dari method getAll.</p>
-
-<pre><code>public List&lt;Person&gt; getAll() {
-  return simpleJdbcTemplate.query("select * from T_PERSON", new PersonMapper(), new HashMap&lt;String, String&gt;());
-}
-</code></pre>
-
-<p>Terakhir, mari kita implementasi method save. Method testnya sedikit lebih panjang, karena untuk yakin akan hasilnya, kita harus melakukan query ke database dengan JDBC murni.</p>
-
-<pre><code>@Test public void testSave() throws Exception {
-  Person dhiku = new Person();
-  dhiku.setName("Hadikusuma Wahab");
-  dhiku.setEmail("dhiku@gmail.com");
-  assertNull(dhiku.getId());
-  personDao.save(dhiku);
-  assertNotNull(dhiku.getId());
-
-  final Connection conn = ds.getConnection();
-  final PreparedStatement ps = conn.prepareStatement("select * from T_PERSON where id=?");
-  ps.setLong(1, dhiku.getId());
-  final ResultSet rs = ps.executeQuery();
-  assertTrue(rs.next());
-
-  assertEquals(dhiku.getName(), rs.getString("name"));
-  assertEquals(dhiku.getEmail(), rs.getString("email"));
-
-  ps.close();
-  rs.close();
-  conn.close();
-}
-</code></pre>
-
-<p>Untungnya implementasi method save juga hanya satu baris.</p>
-
-<pre><code>@Transactional(readOnly=false)
-public void save(final Person person) {
-  person.setId(simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(person)).longValue());
-}
-</code></pre>
-
-<p>Ada beberapa hal yang perlu dijelaskan dari kode di atas.
-Pertama, kita perlu mengaktifkan transaksi database untuk mengubah isi database. Kita lakukan dengan @Transactional(readOnly=false).</p>
-
-<p>Kedua, kita bisa menggunakan fitur terbaru Spring JDBC, yaitu SimpleJdbcInsert. Fitur ini mampu melihat ke dalam database dan mengambil daftar nama fieldnya. Object ini diinisialisasi pada saat kita menginjeksi DataSource. Berikut kodenya.</p>
-
-<pre><code>@Autowired
-public void setDataSource(final DataSource dataSource) {
-  this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
-  this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource).withTableName("T_PERSON").usingGeneratedKeyColumns("id");
-}
-</code></pre>
-
-<p>Pada saat menginisialisasi object SimpleJdbcInsert kita memberi tahu Spring tentang nama tabel dan field yang isinya autogenerated, misalnya id.</p>
-
-<p>Selama nama field dalam T_PERSON sama dengan nama properti di class Person, kita bisa menghilangkan kode untuk mapping properti ke PreparedStatement. Kode yang biasanya tiga baris seperti ini</p>
-
-<pre><code>PreparedStatement ps = conn.prepareStatement("insert into T_PERSON (name, email) values(?,?)");
-ps.setString(1, person.getName());
-ps.setString(2, person.getEmail());
-</code></pre>
-
-<p>Dapat direduksi menjadi satu baris seperti ini:</p>
-
-<pre><code>SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(person);
-</code></pre>
-
-<p>Object parameterSource ini bisa langsung diumpankan ke simpleJdbcInsert seperti ini untuk melakukan insert sekaligus mengambil nilai id yang digenerate database.</p>
-
-<pre><code>Long newId = simpleJdbcInsert.executeAndReturnKey(parameterSource).longValue()
-</code></pre>
-
-<p>Fitur SimpleJdbcInsert ini sangat bermanfaat kalau entity class kita terdiri dari puluhan field. Adanya method executeAndReturnKey untuk mengambil auto-generated primary key dari database juga akan sangat membantu kita untuk menghilangkan perbedaan antar database. Biasanya masing-masing merek database memiliki cara yang berbeda-beda untuk mengambil nilai ini.</p>
-
-<p>Sebagai contoh, bila kita lakukan secara manual untuk database MySQL, kodenya akan tampak seperti ini.</p>
-
-<pre><code>@Transactional(readOnly=false)
-public void save(final Person person) {
-  simpleJdbcInsert.execute(new BeanPropertySqlParameterSource(person));
-  Long newId = simpleJdbcInsert.getJdbcOperations().queryForLong("select last_insert_id()");
-  person.setId(newId);
-}
-</code></pre>
-
-<p>Demikianlah sekilas tentang penggunaan fitur Spring terbaru untuk mengakses database. Pada artikel selanjutnya, kita akan lihat fitur-fitur baru di sisi MVC framework.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/redmine/">Mengelola Proyek Dengan Redmine</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-11-07T15:33:55+07:00" pubdate data-updated="true">Nov 7<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.redmine.org/">Redmine</a> adalah aplikasi manajemen proyek yang dibuat menggunakan framework Ruby on Rails.
-Pada saat artikel ini ditulis, Redmine sudah mencapai versi 0.5.1 yang dirilis 15 Juli 2007.</p>
-
-<p>Selain Redmine, banyak juga aplikasi manajemen proyek lainnya, misalnya:</p>
-
-<ul>
-<li><p><a href="http://www.activecollab.com/">ActiveCollab</a> (dulu gratis sekarang bayar)</p></li>
-<li><p><a href="http://trac.edgewall.org/">Trac</a></p></li>
-<li><p><a href="http://www.basecamphq.com/">BaseCamp</a> (hanya bisa diakses di websitenya, tidak bisa diinstal lokal)</p></li>
-<li><p><a href="http://www.dotproject.net/">DotProject</a></p></li>
-</ul>
-
-
-<p>Redmine mendukung multiple project. Jadi kita bisa menginstal Redmine di perusahaan untuk mengelola semua proyek yang sedang berjalan.</p>
-
-<p>Untuk pengelolaan proyek, Redmine memiliki Gantt chart dan Calendar. Untuk mengelola dokumentasi proyek, kita bisa menggunakan wiki yang sudah tersedia. Tugas dibagikan pada team member dengan menggunakan konsep issue yang akan dijelaskan di bawah. Kita bahkan bisa melihat kode program yang sudah dibuat menggunakan version control browser. Saat ini Redmine dapat melihat isi repository Subversion, CVS, Mercurial, dan Darcs.</p>
-
-<p>Pertama, kita <a href="http://dhiku.wordpress.com/2007/10/23/installing-redmine-di-windows/">instal dulu Redmine</a>.</p>
-
-<p>Selanjutnya, mari kita langsung saja menggunakan Redmine.</p>
-
-<p>Setelah Redmine terinstal, kita dapat langsung membuka browser dan melihat halaman depan Redmine. Segera klik tombol Login untuk masuk ke dalam sistem.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/redmine-login.png" alt="Login Screen" /></p>
-
-<p>Default username dan passwordnya adalah admin/admin. Segera masuk ke halaman My Account untuk mengganti password administrator.</p>
-
-<h3>Membuat user</h3>
-
-<p>Buat user baru melalui menu Administration > Users > New.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/new-user.png" alt="Menu New User" /></p>
-
-<p>Isi informasi yang sesuai di halaman form user baru.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/new-user-form.png" alt="Form User" /></p>
-
-<p>Jangan lupa untuk membuat beberapa user, agar bisa digunakan di</p>
-
-<h3>Membuat project</h3>
-
-<p>Selanjutnya, kita mendefinisikan project. Buat project baru melalui menu Administration > Projects > New.
-Isi informasi tentang project.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/new-project-summary.png" alt="Project Summary" /></p>
-
-<p>Isikan juga informasi tentang version control bila ada.</p>
-
-<p>Berikutnya, tentukan anggota project. Tentu saja saja anggota ini sudah harus didaftarkan dulu seperti pada langkah sebelumnya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/project-member.png" alt="Assign Member" /></p>
-
-<p>Setelah itu, kita tentukan Version dalam proyek. Version ini bisa iterasi, atau fase, tergantung dari siklus pengembangan yang kita gunakan dalam proyek. Version ini nantinya digunakan sebagai target penyelesaian suatu issue.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/version.png" alt="Project Version" /></p>
-
-<p>Di halaman selanjutnya, kita akan menentukan kategori untuk issue. Semua tugas di dalam Redmine disebut Issue. Ada tiga jenis issue:</p>
-
-<ul>
-<li><p>Feature: Ini digunakan untuk membuat semacam To Do List untuk fitur yang akan dibuat dalam proyek kita.</p></li>
-<li><p>Bug: Ini digunakan untuk mencatat dan melacak status penyelesaian defect dalam proyek kita.
-Selain untuk bug aplikasi, saya biasanya menggunakan jenis issue ini untuk mencatat</p>
-
-<ul>
-<li><p>Resiko Proyek</p></li>
-<li><p>Kesalahan dokumen (salah requirement, revisi project schedule, dsb)</p></li>
-<li><p>Masalah yang terjadi dalam proyek</p></li>
-<li><p>Support: fitur ini tidak saya gunakan. Mungkin ini ditujukan untuk pertanyaan dari user yang belum tentu bug.</p></li>
-</ul>
-</li>
-</ul>
-
-
-<p>Saya menggunakan kategori berikut untuk issue:</p>
-
-<ul>
-<li><p>Project Document: Dokumentasi project seperti schedule, progress report, dsb</p></li>
-<li><p>Functional Specification: spesifikasi aplikasi yang ingin dibuat, sering disebut juga dengan dokumen analisa</p></li>
-<li><p>Technical Specification: spesifikasi tentang bagaimana cara membuatnya, sering disebut juga dengan dokumen desain</p></li>
-<li><p>User Documentation: segala issue yang berkaitan dengan dokumen user manual</p></li>
-<li><p>Business Layer: komponen logika bisnis dari aplikasi</p></li>
-<li><p>User Interface Layer: komponen tampilan aplikasi</p></li>
-<li><p>Data Access Layer: komponen aplikasi yang berinteraksi dengan database</p></li>
-</ul>
-
-
-<p>Persiapan project selesai. Sekarang kita bisa langsung membuat daftar pekerjaan. Melalui menu, klik Nama Project > New Issue > Feature.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/new-feature.png" alt="New Feature" /></p>
-
-<p>Kita bisa daftarkan tugas yang harus dilakukan dengan mengisi informasi pada formnya. Setelah diisi, tekan Save dan lihat hasilnya pada tampilan daftar issue.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/list-issue.png" alt="List of Issue" /></p>
-
-<p>Issue yang sudah didaftarkan dapat dilacak pengerjaannya. Dari tampilan daftar issue, klik nama issue sehingga muncul tampilan detailnya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/detail-issue.png" alt="Detail Issue" /></p>
-
-<p>Kita bisa klik Log Time untuk memasukkan waktu yang sudah kita gunakan untuk menyelesaikan issue tersebut.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/log-time.png" alt="Log Time" /></p>
-
-<p>Isikan jumlah jam yang digunakan, misalnya 2 jam, lalu klik Save. Selanjutnya kita akan diarahkan ke halaman Spent Time. Halaman ini menunjukkan jumlah waktu yang sudah digunakan untuk berbagai task dalam project. Kita bisa melihat jumlah waktu untuk satu task saja ataupun keseluruhan project.</p>
-
-<p>Sekarang kita sudah memiliki beberapa issue yang terdaftar. Data tersebut ditampilkan oleh Redmine dalam berbagai bentuk, misalnya:</p>
-
-<h4>Calendar</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/calendar.png" alt="Calendar" /></p>
-
-<h4>Gantt Chart</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/gantt.png" alt="Gantt Chart" /></p>
-
-<h4>Report</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/report.png" alt="Report" /></p>
-
-<h4>Activity</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/activity.png" alt="Activity" /></p>
-
-<h4>Roadmap</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/roadmap.png" alt="Roadmap" /></p>
-
-<p>Untuk tampilan Activity dan Roadmap mirip sekali dengan Trac. Activity di Trac disebut dengan Timeline. Entah disengaja atau tidak, dari tampilan sampai cara kerjanya tidak dapat dibedakan. Silahkan lihat sendiri.</p>
-
-<h4>Timeline Trac</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/timeline-trac.png" alt="Timeline ala Trac" /></p>
-
-<h4>Roadmap Trac</h4>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/roadmap-trac.png" alt="Roadmap ala Trac" /></p>
-
-<p>Kita juga bisa melihat isi repository Subversion kita.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/repo-browser.png" alt="Repo Browser" /></p>
-
-<p>Seperti repo browser lainnya, kita bisa melihat perbandingan antara dua versi file yang berbeda.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/diff-inline.png" alt="Inline Diff" /></p>
-
-<p>Perbedaan ini bisa ditampilkan secara inline seperti gambar di atas, atau secara berdampingan seperti ini.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/diff-byside.png" alt="Side by Side Diff" /></p>
-
-<p>Demikianlah sekilas tentang aplikasi Redmine. Masih banyak fitur Redmine yang belum dieksplorasi, misalnya wiki, document management, dan file management. Mengingat umurnya yang masih muda, besar harapan Redmine akan semakin canggih di masa yang akan datang.</p>
-
-<p>Dengan menggunakan aplikasi ini, kita dapat mengelola berbagai aspek dalam manajemen proyek kita secara terpusat. Redmine gratis dan mudah diinstal, jadi tunggu apa lagi &#8230; segera gunakan.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/pakai-ide-apa/">Pakai IDE Apa?</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-11-02T17:09:52+07:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Posting ini dibuat untuk menanggapi diskusi di milis Netbeans.
-Saya menyarankan para programmer, daripada menghabiskan waktunya untuk memperdebatkan editor, lebih baik menginvestasikan waktu dan energi untuk memperdalam konsep.
-Ekstrimnya, coding dengan Notepad bila perlu.</p>
-
-<p>Salah satu <a href="http://www.antonraharja.web.id/">programmer hebat yang saya kenal</a>, sampai hari ini masih coding menggunakan editornya Midnight Commander (MC). Untuk urusan produktivitas, <a href="http://www.antonraharja.web.id/curriculum-vitae/">daftar hasil karyanya</a> lebih panjang daripada anda-anda yang berdebat Eclipse vs Netbeans.</p>
-
-<p>Dari keseluruhan hasil karyanya, perkiraan saya paling tidak 75% dibuat dengan editor MC. Dan aplikasi yang ada di sana adalah aplikasi betulan, bukan tugas kuliah, bukan skripsi.</p>
-
-<p>Editor Midnight Commander, kalau ingin tau, terlihat seperti ini:</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/11/mcedit.png" alt="Tampilan Editor MC" /></p>
-
-<p>Tidak ada autocomplete, tidak bisa mouse over terus keluar JavaDoc, tidak bisa klik kanan - Deploy in Tomcat.</p>
-
-<p>Komentar di milis Netbeans tentang coding pakai editor seperti ini:</p>
-
-<blockquote><p>waduh pake notepad&#8230; be-darah2 itu mah codingnyah</p></blockquote>
-
-<p>Not really &#8230; gak juga kok.
-Memang lebih lambat daripada pakai Eclipse/Netbeans, soalnya kalo ada syntax error baru ketahuan setelah compile.</p>
-
-<p>Workflownya mirip dengan coding PHP.
-Edit kodenya, save, refresh browser.</p>
-
-<p>Kalau Java, edit, save, Alt-Tab ke konsol, ant compile.
-Nanti kan keluar pesan errornya di baris berapa.</p>
-
-<p>Buat yang belum merasakan, memang terkesan seperti latihan kungfu di Shaolin.
-Keras dan melelahkan.</p>
-
-<p>Tapi ada hasilnya:</p>
-
-<ul>
-<li><p>Bebas mau pakai IDE apa aja. <br/>
-Bisa pakai the right tools for the right job. Spring development, pakai Eclipse. Desktop development, pakai Netbeans. Bikin aplikasi desktop yang mengakses Webservice, pakai 2-2nya</p></li>
-<li><p>Lebih jeli dalam mendebug. <br/>
-Sampai saat ini, sebagian besar XML code harus didebug manual, karena memang by nature sulit untuk disupport IDE. Development jaman sekarang, pasti harus melibatkan XML. Dengan coding pakai editor minimalis, kita akan terbiasa melihat error message dan mengartikannya.</p></li>
-<li><p>Lebih mudah mempelajari teknik automation, misalnya Continuous Integration (CI). <br/>
-Soalnya CI itu mengharuskan kita bisa compile tanpa IDE. Buat yang tidak terbiasa (apalagi lulusan VB/Delphi), pasti akan kaget, bagaimana bisa compile tanpa IDE?</p></li>
-<li><p>Lebih cepat belajar bahasa pemrograman baru.<br/>
-Kalau kita terbiasa coding pakai IDE, begitu belajar bahasa baru, hal pertama yang kita pikirkan adalah, &#8220;IDE-nya pakai apa ya??&#8221;. Lalu menghabiskan dua minggu debat di milis, baru pilih salah satu. Download butuh waktu 2 hari. Setelah terinstal, baca Help setengah jam, baru tau cara bikin file baru. Setelah coding Hello World, bingung cari tombol Compile dan Run, 2 jam lagi untuk baca Help. Notepad coder tidak. Langsung buka apapun editor yang tersedia, mulai coding dan compile via command-line. Pada saat IDE-code baru bisa menjalankan Hello World, Notepad-coder sudah paham tentang <a href="http://en.wikipedia.org/wiki/Duck_typing">duck-typing</a>.</p></li>
-</ul>
-
-
-<p>Satu pertanyaan yang selalu saya ajukan kalau ada yang tanya tentang IDE, RAD tools, dan sejenisnya.</p>
-
-<blockquote><p>&#8220;Apakah ini coding untuk belajar, atau coding untuk mencari nafkah??&#8221;</p></blockquote>
-
-<p>Kalau jawabannya belajar, entah itu mahasiswa, atau pro yang belajar framework baru, gunakan tools sesedikit mungkin.</p>
-
-<p>Alasannya adalah, karena tujuan kita untuk paham, bukan untuk selesai.
-Semakin banyak/canggih tools yang digunakan, pemahaman semakin minim.
-Tambahan lagi, kalau ada error (yang mana akan sering terjadi, namanya juga lagi belajar) sulit membedakan error karena salah pakai tools, atau error di kode program kita.</p>
-
-<p>Belajar Spring AOP dengan Notepad, tidak mungkin notepad yang salah, pasti kode kita.
-Belajar Spring AOP dengan Netbeans/Eclipse, ada kemungkinan tools tersebut salah loading classpath, punya asumsi sendiri tentang struktur folder, dsb.</p>
-
-<p>Kalau jawabannya untuk mencari nafkah, gunakan tools tercanggih yang bisa diperoleh dengan halal.
-Hal ini hanya mungkin jika kita tidak terikat pada tools tertentu.
-Tidak akan bisa coding desktop dengan Netbeans, kemudian buka Eclipse untuk coding server-side backend.</p>
-
-<p>Demikian saran dari saya.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/gprs-kg300/">Konfigurasi Mentari GPRS Dengan LG KG300 Di Ubuntu Gutsy</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-10-26T16:34:32+07:00" pubdate data-updated="true">Oct 26<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Maraknya akses internet 3G rupanya berimbas pada turunnya harga layanan GPRS. Salah satu yang sudah turun harga adalah Mentari, dari Rp. 5/kB menjadi Rp. 1/kB, setidaknya sampai Januari 2008.</p>
-
-<p>Dengan adanya perkembangan yang menggembirakan ini, saya segera mengaktifkan koneksi GPRS tersebut agar bisa digunakan dari laptop. Caranya tidak terlalu sulit, seperti akan kita lihat segera.</p>
-
-<h3>Hardware</h3>
-
-<p>Laptop saya <a href="http://minisites.nec-computers-ap.com/e3100/techspecs.html">NEC Versa E3100</a>, tepatnya seri E3100-1800DR. Handphone yang saya gunakan adalah <a href="http://tokolg.com/productsDetail.asp?item=KG300&amp;kategori=HP">LG KG300</a>, seperti yang diiklankan Agnes Monica di TV. Jadi kalau kapan-kapan Agnes mau setting GPRS juga, bisa lihat artikel ini :D</p>
-
-<p>Koneksi handphone ke laptop menggunakan kabel data, karena laptop saya tidak ada blututnya.</p>
-
-<h3>Software</h3>
-
-<p>Saya menggunakan Ubuntu Gutsy Gibbon 7.10, yang sudah dilengkapi dengan wvdialconf dan wvdial untuk melakukan koneksi. Tidak perlu ada instalasi software tambahan, karena kedua aplikasi ini sudah terinstal dari sananya.</p>
-
-<h3>Provider</h3>
-
-<p>Saya pakai Mentari. Sebelum mencoba koneksi melalui komputer, pastikan dulu kita bisa browsing langsung dari HP. Ini untuk memastikan bahwa dari HP ke Provider sudah OK. Jangan sampai sudah pusing-pusing utak-atik Ubuntu, ternyata masalahnya ada di HP.
-Untuk LG KG300, kita bisa konfigurasi otomatis melalui OTA. Cukup kirim SMS ke 3000 dengan isi sebagai berikut:</p>
-
-<pre><code>&lt;code&gt;gprs lg kg300&lt;/code&gt;
-</code></pre>
-
-<p>Nanti kita akan terima SMS, yang bila dibuka akan ada konfirmasi apakah kita ingin mengkonfigurasi GPRS. Tentu saja jawab Yes.
-Silahkan browsing ke Yahoo di http://m.yahoo.com atau Gmail di http://gmail.com/app.</p>
-
-<p>Bila Anda punya akun YM, bisa dicoba chatting di sana.</p>
-
-<p>LG KG300 punya fasilitas Java dengan versi MIDP 2.0. Bila malas chat melalui antarmuka Yahoo, bisa gunakan aplikasi <a href="http://shmessenger.ro/lang_en/index.jsp">shMessenger</a>.</p>
-
-<h3>Konfigurasi</h3>
-
-<p>Setelah lancar browsing dan chatting di handphone, kini tiba saatnya kita browsing di laptop. Hubungkan handphone ke laptop melalui kabel data yang disediakan. Nanti di handphone akan muncul pertanyaan, apakah kita ingin terhubung sebagai Storage Media atau COM2. Pilih COM2. Storage Media dipilih bila ingin melakukan transfer file.</p>
-
-<p>Oh iya, untuk memudahkan troubleshooting, selama melakukan konfigurasi, tampilkan kernel log dengan perintah <code>tail -f /var/log/messages</code> di konsol. Biarkan window ini tetap terbuka selama konfigurasi.</p>
-
-<p>Di kernel log akan muncul laporan deteksi modem seperti ini:</p>
-
-<pre><code>&lt;code&gt;Oct 26 09:19:28 sweetdreams kernel: [  507.608000] usb 1-2: new full speed USB device using uhci_hcd and address 2
-Oct 26 09:19:29 sweetdreams kernel: [  507.792000] usb 1-2: configuration #1 chosen from 1 choice
-Oct 26 09:19:29 sweetdreams kernel: [  508.100000] cdc_acm 1-2:1.1: ttyACM0: USB ACM device
-Oct 26 09:19:29 sweetdreams kernel: [  508.104000] usbcore: registered new interface driver cdc_acm
-Oct 26 09:19:29 sweetdreams kernel: [  508.104000] /build/buildd/linux-source-2.6.22-2.6.22/drivers/usb/class/cdc-acm.c: v0.25:USB Abstract Control Model driver for USB modems and ISDN adapters
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah itu, jalankan wvdialconf sebagai root.</p>
-
-<pre><code>&lt;code&gt; sudo wvdialconf
-Editing `/etc/wvdial.conf'.
-
-Scanning your serial ports for a modem.
-
-Modem Port Scan: S0   S1   S2   S3   SL0  
-WvModem: Cannot get information for serial port.
-ttyACM0: ATQ0 V1 E1 -- OK
-ttyACM0: ATQ0 V1 E1 Z -- OK
-ttyACM0: ATQ0 V1 E1 S0=0 -- OK
-ttyACM0: ATQ0 V1 E1 S0=0 &amp;C1 -- OK
-ttyACM0: ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 -- OK
-ttyACM0: ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0 -- OK
-ttyACM0: Modem Identifier: ATI -- MTK2
-ttyACM0: Speed 4800: AT -- OK
-ttyACM0: Speed 9600: AT -- OK
-ttyACM0: Speed 19200: AT -- OK
-ttyACM0: Speed 38400: AT -- OK
-ttyACM0: Speed 57600: AT -- OK
-ttyACM0: Speed 115200: AT -- OK
-ttyACM0: Speed 230400: AT -- OK
-ttyACM0: Speed 460800: AT -- OK
-ttyACM0: Max speed is 460800; that should be safe.
-ttyACM0: ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0 -- OK
-
-Found an USB modem on /dev/ttyACM0.
-/etc/wvdial.conf: Can't open '/etc/wvdial.conf' for reading: No such file or directory
-/etc/wvdial.conf: ...starting with blank configuration.
-Modem configuration written to /etc/wvdial.conf.
-ttyACM0: Speed 460800; init "ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0"
-&lt;/code&gt;
-</code></pre>
-
-<p>Hasilnya adalah sebuah file <code>/etc/wvdial.conf</code> sebagai berikut:</p>
-
-<pre><code>&lt;code&gt;[Dialer Defaults]
-Init2 = ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0
-Modem Type = USB Modem
-; Phone = 
-ISDN = 0
-; Username = 
-Init1 = ATZ
-; Password = 
-Modem = /dev/ttyACM0
-Baud = 460800
-&lt;/code&gt;
-</code></pre>
-
-<p>Edit menjadi seperti ini:</p>
-
-<pre><code>&lt;code&gt;[Dialer Defaults]
-Modem = /dev/ttyACM0
-Init1 = ATZ
-Init2 = ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0
-Init3 = AT+CGDCONT=1,"IP","indosatgprs"
-Stupid Mode = on
-Modem Type = USB Modem
-Phone = *99***1#
-ISDN = 0
-Username = indosat
-Password = indosat
-Baud = 460800
-&lt;/code&gt;
-</code></pre>
-
-<h3>Go Online</h3>
-
-<p>Kalau sudah, saatnya kita online. Gunakan perintah wvdial untuk melakukan dial-up.</p>
-
-<pre><code>&lt;code&gt; sudo wvdial
-WvDial&lt;*1&gt;: WvDial: Internet dialer version 1.56
-WvModem&lt;*1&gt;: Cannot get information for serial port.
-WvDial&lt;*1&gt;: Initializing modem.
-WvDial&lt;*1&gt;: Sending: ATZ
-WvDial Modem&lt;*1&gt;: ATZ
-WvDial Modem&lt;*1&gt;: OK
-WvDial&lt;*1&gt;: Sending: ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0
-WvDial Modem&lt;*1&gt;: ATQ0 V1 E1 S0=0 &amp;C1 &amp;D2 +FCLASS=0
-WvDial Modem&lt;*1&gt;: OK
-WvDial&lt;*1&gt;: Sending: AT+CGDCONT=1,"IP","indosatgprs"
-WvDial Modem&lt;*1&gt;: AT+CGDCONT=1,"IP","indosatgprs"
-WvDial Modem&lt;*1&gt;: OK
-WvDial&lt;*1&gt;: Modem initialized.
-WvDial&lt;*1&gt;: Sending: ATDT*99***1#
-WvDial&lt;*1&gt;: Waiting for carrier.
-WvDial Modem&lt;*1&gt;: ATDT*99***1#
-WvDial Modem&lt;*1&gt;: CONNECT
-WvDial Modem&lt;*1&gt;: ~[7f]}#@!}!} } }2}"}&amp;} } } } }#}$@#}'}"}(}"R[04]~
-WvDial&lt;*1&gt;: Carrier detected.  Starting PPP immediately.
-WvDial&lt;Notice&gt;: Starting pppd at Fri Oct 26 09:25:58 2007
-WvDial&lt;Notice&gt;: Pid of pppd: 6028
-WvDial&lt;*1&gt;: Using interface ppp0
-WvDial&lt;*1&gt;: local  IP address 10.33.41.205
-WvDial&lt;*1&gt;: remote IP address 10.64.64.64
-WvDial&lt;*1&gt;: primary   DNS address 202.155.0.10
-WvDial&lt;*1&gt;: secondary DNS address 202.155.46.77
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah itu, silahkan coba browsing. Jangan tutup window wvdial supaya tidak disconnect.</p>
-
-<p>Untuk menghentikan koneksi, cukup ketik Ctrl-C di window wvdial.</p>
-
-<pre><code>&lt;code&gt;Caught signal 2:  Attempting to exit gracefully...
-WvDial&lt;*1&gt;: Terminating on signal 15
-WvDial&lt;*1&gt;: Connect time 1.2 minutes.
-WvDial&lt;*1&gt;: Disconnecting at Fri Oct 26 09:27:20 2007
-&lt;/code&gt;
-</code></pre>
-
-<p>Kita dapat melihat keseluruhan sesi internet, berikut jumlah trafik yang kita gunakan di kernel log, sebagai berikut.</p>
-
-<pre><code>&lt;code&gt;Oct 26 09:25:58 sweetdreams pppd[6028]: pppd 2.4.4 started by root, uid 0
-Oct 26 09:25:58 sweetdreams pppd[6028]: Using interface ppp0
-Oct 26 09:25:58 sweetdreams pppd[6028]: Connect: ppp0 &lt;--&gt; /dev/ttyACM0
-Oct 26 09:26:00 sweetdreams pppd[6028]: PAP authentication succeeded
-Oct 26 09:26:12 sweetdreams pppd[6028]: Could not determine remote IP address: defaulting to 10.64.64.64
-Oct 26 09:26:12 sweetdreams pppd[6028]: local  IP address 10.33.41.205
-Oct 26 09:26:12 sweetdreams pppd[6028]: remote IP address 10.64.64.64
-Oct 26 09:26:12 sweetdreams pppd[6028]: primary   DNS address 202.155.0.10
-Oct 26 09:26:12 sweetdreams pppd[6028]: secondary DNS address 202.155.46.77
-Oct 26 09:27:19 sweetdreams pppd[6028]: Terminating on signal 15
-Oct 26 09:27:19 sweetdreams pppd[6028]: Connect time 1.2 minutes.
-Oct 26 09:27:19 sweetdreams pppd[6028]: Sent 0 bytes, received 0 bytes.
-Oct 26 09:27:19 sweetdreams pppd[6028]: Connection terminated.
-Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.
-&lt;/code&gt;
-</code></pre>
-
-<p>Demikianlah cara konfigurasi modem LG KG300 di Ubuntu. Mudah-mudahan dengan adanya artikel ini, Agnes Monica bisa segera online.</p>
+<p>Demikian penjelasan tentang fase requirement. Semoga bermanfaat.</p>
 </div>
   
   
@@ -2347,6 +788,26 @@ Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.
     
       <li class="post">
         <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
       </li>
     
   </ul>
@@ -2400,6 +861,15 @@ Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.
 
 
 
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
 
 
   
@@ -2417,7 +887,24 @@ Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.
 
 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
 
 
 

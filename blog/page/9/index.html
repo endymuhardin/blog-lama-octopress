@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel sebelumnya, kita sudah membahas penggunaan Luntbuild dan CruiseControl untuk menerapkan Continuous Integration (CI). Kali ini, kita akan &hellip;">
+  <meta name="description" content="Update 2011-12-02: karena masih aja banyak yang belum paham, saya tambahkan template pertanyaan di akhir artikel. Sebagai programmer, setiap hari &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -29,6 +29,9 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
 
   
 
@@ -79,7 +82,7 @@
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/hudson/">Continuous Integration Dengan Hudson</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/Manajemen/tips-melaporkan-error/">Tips Melaporkan Error</a></h1>
       
     
     
@@ -96,1034 +99,172 @@
   
 
 
-<time datetime="2007-10-09T23:16:08+07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2007</time>
+<time datetime="2010-04-15T04:38:02+07:00" pubdate data-updated="true">Apr 15<span>th</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Pada artikel sebelumnya, kita sudah membahas <a href="http://endy.artivisi.com/blog/java/luntbuild/">penggunaan Luntbuild</a> dan <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a> untuk menerapkan Continuous Integration (CI). Kali ini, kita akan mencoba <a href="https://hudson.dev.java.net/">Hudson</a>, aplikasi CI lain yang tersedia.</p>
+  <div class="entry-content"><blockquote><p>Update 2011-12-02: karena masih aja banyak yang belum paham, saya tambahkan template pertanyaan di akhir artikel.</p></blockquote>
 
-<p>Hudson dapat <a href="https://hudson.dev.java.net/servlets/ProjectDocumentList?folderID=2761&amp;expandFolder=2761&amp;folderID=0">diunduh dari websitenya</a>. Setelah mengunduh, kita akan mendapatkan satu file *war. File ini dapat langsung dijalankan standalone dengan perintah:</p>
-
-<p><code>java -jar hudson.war</code></p>
-
-<p>Ataupun dideploy ke servlet engine favorit Anda, seperti Tomcat atau sejenisnya.</p>
-
-<p>Setelah dideploy, kita bisa melihat tampilan awalnya melalui browser ke alamat http://localhost:8080 (untuk standalone) atau http://localhost:8080/hudson (bila dideploy ke servlet engine)</p>
-
-<p>Keunggulan pertama Hudson adalah kemudahan setupnya. Segera setelah dijalankan (baik standalone maupun dideploy), kita bisa segera mengunjungi halaman depannya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/welcome.png" alt="Hudson Welcome Page" /></p>
-
-<p>Hal pertama yang saya lakukan adalah konfigurasi email. Bila ini tidak dilakukan, Hudson akan gagal mengirim email laporan hasil build.</p>
-
-<p>Klik Manage Hudson di sebelah kiri atas. Layar konfigurasi akan muncul.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/manage-hudson.png" alt="Manage Hudson" /></p>
-
-<p>Selanjutnya, pilih System Configuration, lalu scroll ke bagian bawah untuk mengatur email.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/email-config.png" alt="Email Configuration" /></p>
-
-<p>Setelah selesai, klik OK.</p>
-
-<p>Bila Ant belum ada di PATH komputer Anda, jangan lupa untuk menyebutkan folder instalasi Ant di halaman ini.</p>
-
-<p>Setelah selesai, kita bisa langsung mendaftarkan job. Klik tombol New Job di kiri atas.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/create-job.png" alt="Create New Job" /></p>
-
-<p>Project saya menggunakan Ant biasa, tanpa Maven. Jadi saya pilih free-style. Klik OK.</p>
-
-<p>Selanjutnya, kita konfigurasi repository project. Isikan nilai yang sesuai di bagian Source Code Management.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/configure-svn.png" alt="Configure Subversion" /></p>
-
-<p>Segera setelah kursor meninggalkan field Repository URL (on blur), Hudson akan memeriksa URL yang kita berikan. Bila URL tersebut membutuhkan otentikasi, Hudson akan mengeluarkan pesan error dengan link untuk mengkonfigurasi username dan password.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/svn-auth.png" alt="Subversion Authentication" /></p>
-
-<p>Isikan nilai yang sesuai. Seperti kita lihat, Hudson mendukung beberapa modus otentikasi.</p>
-
-<p>Bagian selanjutnya adalah jadwal build atau trigger. Hudson menggunakan format yang mirip dengan Cron.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/build-schedule.png" alt="Build Schedule" /></p>
-
-<p>Bila kita ingin melakukan build setiap jam, hanya pada hari kerja, entrinya adalah sebagai berikut:</p>
-
-<p><code>1 * * * 1-5</code></p>
-
-<p>Agar build berjalan setiap jam 1 dini hari, hari Senin dan Rabu, entrinya sebagai berikut:</p>
-
-<p><code>0 * 1 * 1,3</code></p>
-
-<p>Setelah jadwal, kita mengkonfigurasi proses build itu sendiri. Di project saya, build dilakukan oleh Ant. Kita bisa mendaftarkan target yang akan dieksekusi.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/build-method.png" alt="Build Method" /></p>
-
-<p>Terakhir, kita mengkonfigurasi post build. Ini adalah kegiatan yang dilakukan setelah build sukses dijalankan. Pada tahap ini, saya ingin Hudson mempublikasikan <em>.jar atau </em>.war yang dihasilkan agar siap didonlod.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/post-build.png" alt="Post Build" /></p>
-
-<p>Selain itu, saya juga bisa menyuruh Hudson untuk memproses hasil unit test JUnit. Hudson mengerti file XML yang dihasilkan JUnit dan TestNG.</p>
-
-<p>Hudson juga bisa disuruh mengirim email apabila terjadi kegagalan build. Di sini biasanya saya isi dengan alamat mailing list developer.</p>
-
-<p>Setelah selesai, klik Save.</p>
-
-<p>Selanjutnya, kita tinggal melihat-lihat hasilnya.</p>
-
-<p>Di halaman depan, kita bisa lihat rangkuman status tiap project.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/build-status.png" alt="Build Status" /></p>
-
-<p>Klik salah satu project, dan lihat detailnya</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/build-result.png" alt="Build Result" /></p>
-
-<p>Di situ kita bisa lihat artifact yang sudah dipublish. Dari semua build yang sudah dilakukan, kita bisa lihat trendnya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/build-time-trend.png" alt="Trend of Build Time" /></p>
-
-<p>Selain itu, kita juga bisa lihat hasil JUnit test.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/10/junit-result.png" alt="JUnit Result" /></p>
-
-<p>Kesimpulan akhir, berikut adalah perbandingan ketiga tools ini.</p>
-
-<p>Tools Setup Tampilan Aksesoris Tag Otomatis</p>
-
-<p>CruiseControl</p>
-
-<p>Sulit, semua harus pakai XML</p>
-
-<p>Kurang bagus, terlihat kuno</p>
-
-<p>Lengkap</p>
-
-<p>Bisa, menggunakan publisher</p>
-
-<p>Luntbuild</p>
-
-<p>Mudah, setup melalui web</p>
-
-<p>Rumit dan kurang intuitif</p>
-
-<p>Sangat sedikit</p>
-
-<p>Bisa, dikonfigurasi melalui web</p>
-
-<p>Hudson</p>
-
-<p>Sangat Mudah</p>
-
-<p>Bagus, intuitif, Web 2.0, AJAX</p>
-
-<p>Eclipse plugin, Netbeans Plugin, Trac Plugin</p>
-
-<p>Tidak bisa, harus manual</p>
-
-<p>Demikianlah, semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/dump-restore-postgresql/">Dump Restore PostgreSQL</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-25T22:01:48+07:00" pubdate data-updated="true">Sep 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, melakukan troubleshoot, data cleansing, dan sebagainya dengan tenang. Begitu sudah selesai, kita dump struktur tabel berikut datanya dari mesin development, kemudian buat database baru di mesin production, lalu restore.</p>
-
-<p>Agar tidak lupa, berikut saya tulis rangkaian langkah-langkahnya. Diasumsikan kita sudah memiliki database development dengan parameter sebagai berikut:</p>
+<p>Sebagai programmer, setiap hari kita menghadapi software yang error. Bentuknya macam-macam, misalnya:</p>
 
 <ul>
-<li><p>Nama Database : buku_tamu_devel</p></li>
-<li><p>Username : belajar</p></li>
-<li><p>Password : java</p></li>
-<li><p>File hasil dump : buku_tamu-dump-sql</p></li>
+<li><p>Aplikasi yang kita buat error</p></li>
+<li><p>Peserta milis menggunakan framework X dan mengalami masalah</p></li>
+<li><p>Rekan sesama programmer membutuhkan bantuan</p></li>
+<li><p>dsb</p></li>
 </ul>
 
 
-<p>Untuk melakukan dump, berikut adalah perintahnya:</p>
+<p>Pada sebagian besar kasus, kita dengan senang hati akan membantu. Sudah menjadi sifat programmer untuk memiliki rasa keingintahuan yang tinggi dan senang terhadap teka-teki. Aplikasi yang error adalah teka-teki yang menarik.</p>
 
-<pre><code>&lt;code&gt;pg_dump -CdD  -Fp -U belajar buku_tamu_devel &gt; buku_tamu-dump.sql&lt;/code&gt;
-</code></pre>
+<p>Sayangnya, seringkali informasi error yang kita terima tidak lengkap sehingga butuh usaha tambahan untuk mengorek kejadian yang sebenarnya. Inilah yang membuat programmer seringkali keburu malas, sehingga akhirnya kegiatan solving error menjadi tidak fun lagi.</p>
 
-<p>Penjelasannya sebagai berikut:</p>
+<p>Berikut adalah beberapa tips untuk membuat laporan error yang baik, supaya programmer yang akan memecahkan masalah tersebut bisa segera bekerja dengan efektif.</p>
+
+<p>Prinsip utama dalam melaporkan error adalah sebagai berikut</p>
+
+<blockquote><p>Programmer bukan <del>Mama Loren</del> Baby Djenar atau Ki Joko Bodo. Dia tidak bisa membaca pikiran ataupun melakukan telepati. Jadi jangan menganggap programmer melihat apa yang dilihat user. User harus menjelaskan apa yang dia lihat.</p></blockquote>
+
+<h2>Jelaskan lokasinya</h2>
+
+<p>Seringkali si informan error berkata seperti ini,</p>
+
+<blockquote><p>Help, aplikasinya error nih</p></blockquote>
+
+<p>Nah, yang menerima informasi jelas bingung. Aplikasi yang mana?
+Kalo client yang jadi informan, bisa jadi kita punya banyak project di sana.
+Walaupun projectnya cuma satu, tapi aplikasi kan bisa terdiri dari banyak modul, screen, fitur, dsb.</p>
+
+<p>Jadi, jelaskan di mana errornya. Di aplikasi apa, modul apa, screen yang mana. Terdengar simple, tapi nyatanya ada saja yang melewatkan hal pertama ini.</p>
+
+<p>Mari kita lanjutkan.</p>
+
+<h2>Tujuan</h2>
+
+<p>Kita menggunakan aplikasi tentu ingin mencapai tujuan tertentu. Ingin menyimpan data customer, menampilkan laporan bulanan, dan lain sebagainya. Nah, tujuan ini harus disampaikan ke programmer. Soalnya sering terjadi percakapan seperti ini :</p>
+
+<p>User (U) : Pak, fitur daftar produknya error.
+Programmer (P) : Harusnya bisa kok, sudah kami test di sini tidak ada masalah.
+U : Tapi saya coba tidak bisa
+P : Coba jelaskan langkahnya
+U : Saya buka menu daftar produk, muncul tabel berisi produk.
+Kemudian saya klik dua kali nama produk dalam tabel, saya ganti isinya.
+Setelah itu, saya tutup screennya.
+Pas dibuka lagi, datanya tetap sama.
+P : Lho, memangnya Ibu mau melakukan apa?
+U : Saya mau edit harga produknya
+P : Walah, bukan dari situ Bu. Gunakan menu edit produk</p>
+
+<p>Nah, seringkali tujuan user tidak sesuai dengan fitur aplikasi. Jadi, beri tahukan tujuan user pada programmer.</p>
+
+<h2>Langkah Reproduksi</h2>
+
+<p>Begitu programmer akan mencoba memperbaiki error, dia akan mencoba mereproduksi error tersebut di komputernya sendiri. Nah di sinilah biasanya terjadi percakapan seperti ini :</p>
+
+<p>U : Ini aplikasi error, tidak bisa simpan data
+P : Oh, di sini saya coba bisa kok
+U : Di sini tidak bisa
+P : Di sini bisa
+U : Tidak bisa
+P : Bisa
+dst</p>
+
+<p>Akan lebih produktif kalau percakapannya seperti ini :
+U : Ini aplikasi error, tidak bisa simpan data
+P : Apa yang dilakukan?</p>
+
+<p>U : Seperti ini :
+1. Buka screen Edit Produk
+2. Pilih kategori Komputer dan Elektronik
+3. Isi kode produk
+4. Isi nama produk
+5. Harga dikosongkan
+6. Tekan tombol simpan</p>
+
+<p>Nah, dengan percakapan seperti ini, programmer bisa mengulangi apa yang dilakukan user.
+Apakah langkah repro saja sudah cukup? Belum, masih ada 1 hal penting lainnya.</p>
+
+<h2>Harapan dan Kenyataan</h2>
+
+<p>Mari kita lanjutkan percakapan di atas.</p>
+
+<p>U : Setelah ditekan tombol simpan, datanya tidak tersimpan.
+P : Di tempat saya masuk kok ke database.
+U : Di sini, setelah ditekan simpan tidak terjadi apa-apa
+P : Maksudnya?
+U : Ya harusnya kan ada pesan, &#8220;Data sudah tersimpan&#8221;
+Ini tidak ada.</p>
+
+<p>Nah, di sini harapan user adalah ada notifikasi dari aplikasi bahwa data sudah tersimpan. Tapi kenyataannya tidak ada notifikasi apa-apa dari aplikasi. User mengira ini error,
+padahal programmer memang tidak menyediakan notifikasi tersebut, walaupun datanya sudah masuk ke database. Dari sini, programmer bisa menambahkan notifikasi sesuai harapan user.</p>
+
+<p>Jadi, harapan dan kenyataan harus disampaikan pada programmer.</p>
+
+<h2>Environment</h2>
+
+<p>Ini maksudnya adalah kondisi di mana aplikasi dijalankan, seperti</p>
 
 <ul>
-<li><p>pg_dump : adalah aplikasi command line untuk melakukan import</p></li>
-<li><p>C : opsi untuk create semua tabel. Selain opsi C, kita juga bisa menggunakan opsi c, yaitu DROP dulu tabelnya baru kemudian CREATE. Pada skenario ini, file dump akan diaplikasikan ke database baru, jadi tidak perlu DROP dulu tabel-tabel yang sudah ada.</p></li>
-<li><p>d : opsi untuk mengisi data. Bila ada opsi ini, pg_dump akan menghasilkan statement INSERT dari data yang sudah ada.</p></li>
-<li><p>D : opsi untuk menulis nama kolom. Dengan opsi ini, di statement INSERT akan ada nama kolom.</p></li>
-<li><p>Fp : format hasilnya adalah plain text</p></li>
-<li><p>U : username untuk koneksi ke database</p></li>
+<li><p>Sistem Operasi</p></li>
+<li><p>Versi Aplikasi</p></li>
+<li><p>Aplikasi lain yang terinstal</p></li>
 </ul>
 
 
-<p>Selanjutnya, tiba saat melakukan restore. Parameternya sama dengan database development, kecuali nama databasenya adalah <code>buku_tamu_prod</code>. Bila database belum ada, buat dulu dengan user postgres.</p>
+<p>Sering terjadi aplikasi error hanya di Linux saja, atau di Mac saja, tapi berjalan lancar di Windows. Atau sebaliknya. Dengan memberi informasi ini, programmer bisa lebih terarah dalam mencari kesalahan dalam kode program.</p>
 
-<pre><code>&lt;code&gt;$ sudo su - postgres
-$ createdb buku_tamu_prod
-CREATE DATABASE
-$ exit&lt;/code&gt;
-</code></pre>
+<p>Demikian juga dengan versi aplikasi dan aplikasi lain yang terinstal. Seringkali sudah diketahui bahwa aplikasi kita tidak kompatibel dengan versi library tertentu, versi OS tertentu, atau dengan aplikasi lain. Misalnya seperti ini :</p>
 
-<p>Baru setelah itu kita lakukan restore.</p>
+<p>Tanya (T) : Saya instal Tomcat tapi error
+Jawab (J) : Errornya gimana?
+T : Katanya port 8080 tidak bisa digunakan.
+J : Apakah ada webserver lain yang terinstal?
+T : Web server sih tidak ada, saya cuma install database Oracle saja.
+J : Oh, Oracle itu membawa web server sendiri, jalannya juga di 8080.
+Coba matikan Oraclenya, atau ganti port Tomcat ke angka lain.</p>
 
-<pre><code>&lt;code&gt;psql -d buku_tamu_prod -U belajar -f buku_tamu-dump.sql&lt;/code&gt; 
-</code></pre>
+<p>Demikian beberapa tips melaporkan error.</p>
 
-<p>Penjelasan opsinya adalah sebagai berikut:</p>
-
-<ul>
-<li><p>d : nama database yang akan direstore</p></li>
-<li><p>U : username yang digunakan untuk koneksi</p></li>
-<li><p>f : file dump</p></li>
-</ul>
-
-
-<p>Bila tidak ada pesan error, struktur tabel dan data seharusnya sudah masuk ke database baru.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Lain2/lowongan-experd/">Lowongan Experd</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-25T15:36:49+07:00" pubdate data-updated="true">Sep 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Kemarin ada mbak-mbak yang kirim email ke saya, namanya mbak Hanna dari <a href="http://www.experd.org">Experd</a>, minta tolong dipostingkan lowongan. Entah kenapa, waktu saya cek websitenya, tulisannya Service Unavailable. Sedangkan www.experd.com bisa diakses. Entahlah, mungkin yang .org sedang bermasalah.</p>
-
-<p>Begini katanya,</p>
-
-<blockquote><p>Sekedar share informasi lowongan, bahwa saat ini kami ada klien, sebuah konsultan IT yang berpusat di New Jersey, sedang membutuhkan JAVA/J2EE programmer. Nantinya kandidat yang dihired ini akan ditugaskan untuk proyek salah satu top bank di Malaysia. Status pekerjaan yang ditawarkan permanent employee. (selengkapnya di bawah ini).</p></blockquote>
-
-<p>Berikut detail lowongannya.</p>
-
-<ul>
-<li><p>Has 2-7 years experience in Java/J2EE Development</p></li>
-<li><p>Experience in DB2/Oracle and Unix is an advantage</p></li>
-<li><p>Preferably with Banking Project Experience</p></li>
-<li><p>Can join in 2-6 weeks</p></li>
-<li><p>Willing to work in Kuala Lumpur, Malaysia</p></li>
-</ul>
-
-
-<p>Mbak Hanna juga memberikan alamat kantornya, yaitu di:</p>
-
-<p>Plaza 3 Pondok Indah Blok C2, Jl. T.B. Simatupang, Jakarta 12310</p>
-
-<p>Telp. 62-21-75906448, Fax. 62-21-75906442</p>
-
-<p>Email. hanna [at] experd [dot] org, http://www.experd.com</p>
-
-<p>Jangan kirim lamaran ke saya, menurut mbak Hanna, kirimkan ke databank [at] experd [dot] org.</p>
-
-<p><strong>Disclaimer: Saya tidak kenal sama mbak Hanna. Artikel ini juga bukan anjuran kepada pembaca untuk mengirim lamaran</strong></p>
-
-<p>Saya juga sudah membaca bukunya Kevin Mitnick yang berjudul <a href="http://www.flazx.com/ebook1002.php">The Art of Deception</a>, yang berisi tentang <a href="http://en.wikipedia.org/wiki/Social_engineering_%28security%29">Social Engineering</a>. Jadi, saran saya bagi pembaca yang berminat, luangkan waktu beberapa menit untuk melakukan cross-check ke alamat dan nomer telepon yang ada di atas untuk memastikan kesahihan info lowongan ini sebelum mengirim resume Anda.</p>
-
-<p>Sekedar smoke-test, saya sudah lookup ke <a href="http://www.who.is/">layanan whois</a>, dan hasilnya experd.com dan experd.org diregistrasi oleh orang yang sama, dan alamatnya sama dengan alamat kantornya di atas.</p>
-
-<p>Untuk mbak Hanna, mohon maaf ya &#8230; bukannya tidak percaya. Tapi baca sendiri deh <a href="http://www.flazx.com/ebook4179.php">The Art of Deception</a>, nanti Anda akan mengerti kenapa saya <em>terkesan paranoid</em>. Anyway &#8230; terima kasih atas info lowongannya. Mudah-mudahan mendapatkan kandidat yang sesuai.</p>
-
-<p>Kalau ada orang Experd yang membaca artikel ini, mohon konfirmasi atau sanggahannya.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/menggunakan-postgresql/">Menggunakan PostgreSQL</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-24T18:35:16+07:00" pubdate data-updated="true">Sep 24<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan <a href="http://www.mysql.org">ikan lumba-lumba</a> menjadi <a href="http://www.postgresql.org">gajah</a>. Sebetulnya saya pernah menggunakan database gajah ini pada tahun 2005, tapi setelah itu jarang digunakan sehingga butuh waktu agak lama untuk melakukan porting ini.</p>
-
-<p>Agar lain kali tidak lupa lagi, baiklah saya tulis di sini saja. Mudah-mudahan bermanfaat juga untuk pembaca :D</p>
-
-<h3>Instalasi</h3>
-
-<p>Saya menggunakan Ubuntu, jadi instalasi tidak sulit. Cukup lakukan:
-<code>sudo apt-get install postgresql-8.2</code>
-Beres .. :D</p>
-
-<h3>Konfigurasi Akses Jaringan</h3>
-
-<p>Selanjutnya, konfigurasi Postgre agar meminta password setiap ada koneksi masuk, termasuk dari localhost. Ini dilakukan agar konfigurasi JDBCnya tidak terlalu berbeda dengan konfigurasi sebelumnya yang menggunakan MySQL.</p>
-
-<p>Ganti otentikasi dalam <code>pg_hba.conf</code> menjadi</p>
-
-<pre><code>&lt;code&gt;local   all         all                           password
-host    all         all         127.0.0.1/32      password
-host    all         all         ::1/128           password&lt;/code&gt;
-</code></pre>
-
-<p>Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File <code>pg_hba.conf</code> ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder <code>/etc/postgresql/8.2/main</code>. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini.</p>
-
-<pre><code>&lt;code&gt;sudo /etc/init.d/postgresql restart&lt;/code&gt;
-</code></pre>
-
-<h3>Menambahkan User</h3>
-
-<p>Untuk menambahkan user, kita perlu <em>menyamar</em> sebagai user <code>postgres</code>.  Gunakan <code>su</code>.
-<code>sudo su - postgres</code></p>
-
-<p>Selanjutnya, jalankan perintah <code>createuser</code> dengan argumen P untuk meminta password.</p>
-
-<pre><code>&lt;code&gt;createuser -P
-Enter name of role to add: belajar
-Enter password for new role: 
-Enter it again: 
-Shall the new role be a superuser? (y/n) n
-Shall the new role be allowed to create databases? (y/n) y
-Shall the new role be allowed to create more new roles? (y/n) n
-CREATE ROLE&lt;/code&gt;
-</code></pre>
-
-<p>Perintah di atas menambahkan user dengan username <code>belajar</code> yang memiliki ijin untuk membuat database baru.</p>
-
-<p>Selanjutnya, keluar dari user postgres dengan menggunakan perintah <code>exit</code>.</p>
-
-<h3>Membuat Database</h3>
-
-<p>Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yang namanya <code>buku_tamu</code>. Gunakan perintah <code>createdb</code> dengan argumen U untuk menyebutkan username.</p>
-
-<pre><code>&lt;code&gt;createdb -U belajar buku_tamu
-Password: 
-CREATE DATABASE&lt;/code&gt;
-</code></pre>
-
-<p>Setelah selesai, coba koneksi ke database tersebut.</p>
-
-<p><code>psql -U belajar -d buku_tamu</code></p>
-
-<h3>Konfigurasi JDBC</h3>
-
-<p>Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut.</p>
-
-<pre><code>&lt;code&gt;jdbc.driver      = org.postgresql.Driver
-jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-jdbc.username    = belajar
-jdbc.password    = java&lt;/code&gt;
-</code></pre>
-
-<p>Saya menggunakan Hibernate, sehingga butuh satu parameter lagi, yaitu dialek SQL yang digunakan.</p>
-
-<p><code>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</code></p>
-
-<p>Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti lima baris konfigurasi (bukan source code), dari seperti ini:</p>
-
-<pre><code>&lt;code&gt;jdbc.driver      = com.mysql.jdbc.Driver
-jdbc.url         = jdbc:mysql://localhost/buku_tamu
-jdbc.username    = belajar
-jdbc.password    = java
-hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect&lt;/code&gt;
-</code></pre>
-
-<p>Menjadi seperti ini:</p>
-
-<pre><code>&lt;code&gt;jdbc.driver      = org.postgresql.Driver
-jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-jdbc.username    = belajar
-jdbc.password    = java
-hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect&lt;/code&gt;
-</code></pre>
-
-<p>Oh iya, jangan lupa <a href="http://jdbc.postgresql.org/download.html">unduh dulu driver JDBC untuk PostgreSQL</a>. Saya menggunakan versi <strong>8.2-506 JDBC 4</strong>.</p>
-
-<p>Demikian setup PostgreSQL agar bisa diakses dari Java.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/membuat-validasi-dalam-aplikasi/">Membuat Validasi Dalam Aplikasi</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-12T23:44:55+07:00" pubdate data-updated="true">Sep 12<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pertanyaan berikut muncul di <a href="http://tech.groups.yahoo.com/group/netbeans-indonesia/">milis netbeans-indonesia</a>, &#8220;Di mana sebaiknya kita menulis aturan validasi? Di database, di business layer, atau di presentation layer?&#8221;</p>
-
-<p>Saya pikir, pasti banyak juga yang memiliki kebimbangan serupa. Oleh karena itu, jawaban saya tulis di artikel ini.</p>
-
-<p>Menurut saya, validasi itu idealnya di semua layer, mulai dari database, business logic, dan presentation layer (UI).</p>
-
-<p>Kenapa di database harus ada validasi (dengan menggunakan database constraint) adalah karena data umurnya akan lebih panjang dari aplikasi. Front end bisa ditulis ulang dengan apapun teknologi/framework yang sedang populer, sedangkan data sekali sudah disimpan, biasanya akan terus ada dalam waktu yang lama.</p>
-
-<p>Kalau kita tidak pakai constraint di database, begitu aplikasi kita usang dan diganti (misal tadinya desktop jadi web) maka databasenya jadi &#8216;telanjang&#8217; tanpa validasi, sehingga rawan kemasukan data kotor. Dan siapa yang bisa memastikan database kita tidak diakses aplikasi lain? Mungkin sekarang tidak &#8230; tapi tahun depan ketika ada kebutuhan baru, bisa saja ada orang lain yang mengembangkan aplikasi di atas database kita tersebut.</p>
-
-<p>Di sisi lain, validasi di presentation layer juga penting, supaya round-trip nya tidak terlalu panjang.
-Katakanlah kita punya layer seperti ini:
-presentation &#8211;> business &#8211;> data access</p>
-
-<p>Kalau cuma ada validasi database, maka kita perlu meng-catch SQLException untuk kemudian diteruskan ke depan, entah itu as-is SQLException ataupun dienkapsulasi menjadi DataAccessException dan kemudian dibungkus lagi menjadi BusinessLayerException.
-Apalagi kalau aplikasinya ada di mesin berbeda. Ongkos perjalanan Exceptionnya jadi mahal.
-Itu makanya penting validasi di presentation layer.</p>
-
-<p>So &#8230; idealnya validasi ada di semua layer.</p>
-
-<p>Tapi ini tidak berarti saya menganjurkan untuk menulis kode validasi di semua layer lho. Kode program itu idealnya tidak boleh terduplikasi. Logika validasi hanya ditulis sekali. Kalau aturan yang sama ditulis berkali-kali nanti pasti akan datang masanya kita (atau orang lain yang mewarisi kode program kita) mengganti aturan di satu tempat, dan lupa mengganti di tempat lain. Jadi, untuk setiap aturan, harus satu kali saja menulisnya.</p>
-
-<p>Banyak cara agar codingnya cukup satu kali saja, misalnya mendefinisikan constraint dengan Hibernate, dan biarkan dia yang menggenerate DDL. Biasanya constraint unique, required, dan semacamnya akan langsung dibuatkan database constraintnya.</p>
-
-<p>Kemudian di presentation layer, buat aturan validasi yang dinamis, yang bisa membaca hibernate annotation dan kemudian menggenerate rutin validasi baik itu JavaScript (kalau aplikasinya web), atau pemanggilan method Java (kalau itu Swing).</p>
-
-<p>Demikian pendapat saya tentang validasi. Bagaimana menurut Anda?</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/menggunakan-hermesjms/">Menggunakan HermesJMS</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-06T18:37:59+07:00" pubdate data-updated="true">Sep 6<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Kalau kita ingin membuat aplikasi menggunakan database, tentunya hal pertama yang kita lakukan adalah menginstal server database. Selanjutnya, langkah kedua adalah menginstal aplikasi untuk mengelola database. Paling tidak, kita harus bisa membuat tabel, melihat isi tabel, mengisi ataupun menghapus data ke dalam tabel.</p>
-
-<p>Demikian juga kalau kita membangun aplikasi menggunakan JMS (Java Messaging Service). Sebelum membuat Hello JMS, terlebih dulu kita harus menginstal JMS server dan aplikasi yang dapat melihat isi JMS Server tersebut.</p>
-
-<p>Pada artikel kali ini, kita akan menginstal JMS Server <a href="http://activemq.apache.org/">ActiveMQ</a> dan aplikasi pengelolaan JMS yang bernama <a href="http://www.hermesjms.com/confluence/display/HJMS/Home">HermesJMS</a>.</p>
-
-<p>ActiveMQ dan HermesJMS dapat diunduh di websitenya masing-masing.</p>
-
-<p>Setelah diunduh, terlebih dulu kita instal ActiveMQ. Caranya sangat gampang, cukup diekstrak saja. Saya meletakkannya di folder <code>/opt</code></p>
-
-<pre><code>&lt;code&gt;cd /opt
-sudo tar xvzf apache-activemq-4.1.1.tar.gz
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah diekstrak, kita bisa langsung jalankan dari folder instalasinya.</p>
-
-<pre><code>&lt;code&gt;cd /opt/apache-activemq-4.1.1
-bin/activemq&lt;/code&gt;
-</code></pre>
-
-<p>Kalau sukses, akan muncul log message seperti ini:</p>
-
-<pre><code>&lt;code&gt;INFO  TransportServerThreadSupport   - Listening for connections at: tcp://sweetdreams:61616
-INFO  TransportConnector             - Connector openwire Started
-INFO  TransportServerThreadSupport   - Listening for connections at: ssl://sweetdreams:61617
-INFO  TransportConnector             - Connector ssl Started
-INFO  TransportServerThreadSupport   - Listening for connections at: stomp://sweetdreams:61613
-INFO  TransportConnector             - Connector stomp Started
-INFO  NetworkConnector               - Network Connector default-nc Started
-INFO  BrokerService                  - ActiveMQ JMS Message Broker (localhost, ID:sweetdreams-32991-1188983887811-1:0) started
-&lt;/code&gt;
-</code></pre>
-
-<p>Server kita sudah siap diakses di port 61616.</p>
-
-<p>Sekarang kita akan menginstal HermesJMS. Inipun instalasinya tidak sulit, cukup jalankan saja installernya.</p>
-
-<pre><code>&lt;code&gt;java -jar hermes-installer-1.12.jar&lt;/code&gt;
-</code></pre>
-
-<p>Nantinya akan muncul layar instalasi. Klik saja Next &#8230; Next &#8230; seperti biasa sampai selesai.</p>
-
-<p>Setelah Hermes berhasil diinstal, jalankan Hermes. Berikut adalah tampilan awalnya.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/hello-hermes.png" alt="Hello Hermes" /></p>
-
-<p>Selanjutnya, kita akan menambahkan koneksi ke server ActiveMQ kita.
-Buka menu Options - Preferences, kemudian pilih tab Classpath di sisi bawah panel.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/no-classpath.png" alt="Belum ada classpath group" /></p>
-
-<p>Selanjutnya, klik kanan di panel kosong tersebut
-dan masukkan classpath group baru bernama ActiveMQ.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/add-classpath.png" alt="Tambah Classpath Group" /></p>
-
-<p>Nanti akan muncul entri ActiveMQ dengan tab dibawahnya yang bertulisan Library.
-Klik kanan <strong>tepat pada tulisan Library</strong> dan pilih Add Jar.
-Kita harus menambahkan beberapa jar berikut:</p>
-
-<ul>
-<li><p>apache-activemq-4.1.1.jar</p></li>
-<li><p>backport-util-concurrent-2.1.jar</p></li>
-<li><p>geronimo-j2ee-management_1.0_spec-1.0.jar</p></li>
-</ul>
-
-
-<p>Semua file tersebut dapat ditemukan di lokasi instalasi ActiveMQ.</p>
-
-<p>Setelah konfigurasi dilakukan, layar tampilannya akan tampak seperti ini:
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/classpath-activemq.png" alt="Classpath ActiveMQ" /></p>
-
-<p>Tutup layar Preference, dan buka lagi.
-Entah kenapa kalau tidak ditutup dulu, pilihan ActiveMQ tidak akan keluar.</p>
-
-<p>Di layar Preference tab Session, ketikkan nama Session yang baru, yaitu ActiveMQ.
-Klik Apply, nantinya Hermes akan menanyakan apakah ini session baru atau bukan.
-Jawab saja, &#8220;Ya, ini adalah session baru&#8221;.</p>
-
-<p>Selanjutnya, ganti pilihan Loader menjadi ActiveMQ, dan pilih ActiveMQ Connection Factory pada pilihan Class.
-Hasilnya akan nampak seperti ini:
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/session-activemq.png" alt="Session Baru ActiveMQ" /></p>
-
-<p>Setelah selesai, session ActiveMQ akan muncul di panel sebelah kiri.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/session-activemq-configured.png" alt="Konfigurasi Session ActiveMQ" /></p>
-
-<p>Kita bisa membuat queue baru di session tersebut. Gunakan tombol Create New Queue.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/queue-new.png" alt="Membuat Queue" /></p>
-
-<p>Pembuatan queue pada layar ini bersifat sementara. Artinya, bila HermesJMS dimatikan, Queuenya akan hilang. Untuk membuat Queue yang permanen, kita dapat mendefinisikannya pada layar konfigurasi session.</p>
-
-<p>Queue yang sudah dibuat dapat dilihat di panel sebelah kiri.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/queue-browse.png" alt="Queue Browser" /></p>
-
-<p>Pada queue yang sudah terbentuk, kita bisa mengirim Text Message.
-Gunakan menu Messages - Send TextMessages. Kita harus memilih satu text file untuk dikirim.</p>
-
-<p>Setelah pengiriman selesai dilakukan, refresh tampilan sehingga message baru tersebut muncul.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/09/queue-browse-message.png" alt="Browse Message" /></p>
-
-<p>Kita dapat mengambil message tersebut dengan menggunakan kode program Java sebagai berikut.</p>
-
-<pre><code>&lt;code&gt;package tutorial.jms;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQConnectionFactory;
-
-public class HelloQueueReceiver {
-    public static void main(String[] args) throws Exception {
-        ConnectionFactory factory = new ActiveMQConnectionFactory(
-                ActiveMQConnection.DEFAULT_USER,
-                ActiveMQConnection.DEFAULT_PASSWORD,
-                ActiveMQConnection.DEFAULT_BROKER_URL);
-        System.out.println("Connecting to: "+ActiveMQConnection.DEFAULT_BROKER_URL);
-        System.out.println("With username : "+ActiveMQConnection.DEFAULT_USER);
-        System.out.println("and password : "+ActiveMQConnection.DEFAULT_PASSWORD);
-
-        Connection conn = factory.createConnection();
-        System.out.println("Connected");
-
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        System.out.println("Session created");
-
-        Queue destination = sess.createQueue("coba");
-        System.out.println("Queue created");
-
-        MessageConsumer consumer = sess.createConsumer(destination);
-        System.out.println("Consumer created");
-
-        System.out.println("Fetching message");
-        conn.start();
-        int counter = 1;
-        while(true) {           
-            Message msg = consumer.receive(1000);
-            if (msg == null) break;
-            System.out.println("Retrieving message #"+counter++);
-            System.out.println("Message fetched");
-            if (msg instanceof TextMessage) {
-                TextMessage txtmsg = (TextMessage) msg;
-                System.out.println("Message ID: "+txtmsg.getJMSMessageID());
-                System.out.println("Message Content: "+txtmsg.getText());
-            }
-        }
-
-
-        System.out.println("Closing connections");
-        consumer.close();
-        sess.close();
-        conn.close();
-        System.out.println("All closed");
-    }
-}
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah kode program di atas dijalankan, refresh queue browser di Hermes. Harusnya pengambilan message tersebut akan menghapus message di server.</p>
-
-<p>Kita juga bisa mengirim message menggunakan kode program berikut.</p>
-
-<pre><code>&lt;code&gt;package tutorial.jms;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
-import org.apache.activemq.ActiveMQConnection;
-import org.apache.activemq.ActiveMQConnectionFactory;
-
-public class HelloQueueSender {
-    public static void main(String[] args) throws JMSException {
-        ConnectionFactory factory = new ActiveMQConnectionFactory(
-                ActiveMQConnection.DEFAULT_USER,
-                ActiveMQConnection.DEFAULT_PASSWORD,
-                ActiveMQConnection.DEFAULT_BROKER_URL);
-        System.out.println("Connecting to: "+ActiveMQConnection.DEFAULT_BROKER_URL);
-        System.out.println("With username : "+ActiveMQConnection.DEFAULT_USER);
-        System.out.println("and password : "+ActiveMQConnection.DEFAULT_PASSWORD);
-
-        Connection conn = factory.createConnection();
-        System.out.println("Connected");
-
-        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        System.out.println("Session created");
-
-        Queue destination = sess.createQueue("coba");
-        System.out.println("Queue created");
-
-        MessageProducer prod = sess.createProducer(destination);
-        TextMessage msg = sess.createTextMessage();
-        msg.setText("Hello JMS");
-
-        prod.send(msg);
-        System.out.println("Message sent");
-
-        prod.close();
-        sess.close();
-        conn.close();
-    }
-}
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah kode program di atas dijalankan, kita dapat merefresh queue browser di Hermes untuk memastikan bahwa kode program kita berhasil mengirim message.</p>
-
-<p>Demikianlah, dengan menggunakan HermesJMS, kita dapat memeriksa secara visual apakah kode program kita dapat mengakses JMS Server dengan benar.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Linux/network-address-translation/">Network Address Translation</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-08-30T00:50:36+07:00" pubdate data-updated="true">Aug 30<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>NAT adalah singkatan dari Network Address Translation.</p>
-
-<p>Gunanya supaya kita bisa mempublish komputer di internal (misal, IP dalamnya : 192.168.0.1)
-ke internet (misal, IP luarnya : 202.159.11.11).
-Atau agar komputer di jaringan dalam bisa berbagi pakai akses internet.</p>
-
-<p>Setiap request ke satu komputer, komputer asal mengirim paket data ke komputer tujuan.
-Mirip dengan kalau kita kirim surat. Pesannya ditulis di kertas, masukkan amplop,
-tulis alamat penerima dan alamat pengirim.</p>
-
-<p>Contoh paketnya kira-kira seperti ini.</p>
-
-<pre><code>&lt;code&gt;Dari  : 202.159.22.22
-Untuk : 202.159.11.11
-Pesan : halo
-&lt;/code&gt;
-</code></pre>
-
-<p>Gateway harus punya mapping IP luar dan IP dalam.
-Begitu gateway terima paket yang ditujukan ke IP luar,
-dia akan membungkus paket tersebut dengan amplop baru, alamat tujuannya diganti dengan IP dalam.
-Proses ini dinamakan DNAT (Destination NAT).</p>
-
-<p>Bila alamat tujuan tidak diganti, maka routernya akan bingung, karena dia tidak tahu IP luar itu mesinnya yang mana.</p>
-
-<p>Kalau di Linux, ini dilakukan dengan perintah iptables.
-Contohnya adalah sebagai berikut:</p>
-
-<p><code>iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT</code></p>
-
-<p>Setelah diDNAT, paketnya menjadi seperti ini:</p>
-
-<pre><code>&lt;code&gt;Dari  : 202.159.22.22
-Untuk : 192.168.0.1
-Pesan : halo
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut,
-karena dia kenal 192.168.0.1 itu mesin yang mana.</p>
-
-<p>Akhirnya paket sampai di tujuan.</p>
-
-<p>Dengan menggunakan DNAT ini, kita bisa mempublikasikan mesin di jaringan internal agar bisa diakses dari luar.</p>
-
-<p>Bagaimana jika sebaliknya?</p>
-
-<p>Penerima akan mengirim balasan. Dia masukkan ke amplop, kirim ke router.
-Router akan lihat bahwa tujuannya adalah komputer di luar, maka dia kirim ke gateway.</p>
-
-<p>Paketnya kira-kira seperti ini:</p>
-
-<pre><code>&lt;code&gt;Dari  : 192.168.0.1
-Untuk : 202.159.22.22
-Pesan : halo juga
-&lt;/code&gt;
-</code></pre>
-
-<p>Gateway melihat bahwa alamat pengirim adalah IP dalam.
-Kalau diteruskan begitu saja, maka kalau ada balasan lagi, tidak akan sampai,
-karena IP dalam tidak dikenal di luar.
-Jadi dia harus membungkus lagi dengan amplop lagi, kali ini yang diganti adalah alamat pengirim.
-IP dalam diganti dengan IP public.
-Proses ini dinamakan SNAT (Source NAT)</p>
-
-<p>Contohnya adalah sebagai berikut:
-<code>iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT</code></p>
-
-<p>Setelah diSNAT paketnya menjadi seperti ini:</p>
-
-<pre><code>&lt;code&gt;Dari  : 202.159.11.11
-Untuk : 202.159.22.22
-Pesan : halo juga
-&lt;/code&gt;
-</code></pre>
-
-<p>Dengan menggunakan SNAT, kita bisa mengimplementasikan Internet Connection Sharing,
-yaitu satu koneksi internet dibagi beramai-ramai.</p>
-
-<p>Ada satu kasus khusus untuk SNAT, namanya Masquerade.
-Ini digunakan apabila IP public yang digunakan berubah-ubah.
-Misalnya kalau kita pakai dialup connection.</p>
-
-<p>Kalau kita nekat pakai SNAT, nanti akan repot, karena harus update rule setiap dial ke internet.</p>
-
-<p>Jadi, kita gunakan masquerade.
-Berikut perintahnya:
-<code>iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE</code></p>
-
-<p>Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan cara :
-<code>cat 1 &gt; /proc/sys/net/ipv4/ip_forward</code></p>
-
-<p>Rangkaian perintah ini akan hilang pada saat reboot.
-Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen.
-Caranya, tergantung masing-masing distro.</p>
-
-<p>Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat tightly-coupled dengan kernel linux.</p>
-
-<p>Untuk Windows, kita dapat gunakan fitur Internet Connection Sharing apabila ada. Beberapa versi Windows (misalnya XP Home), tidak punya fitur ini. Jadi solusinya adalah dengan menggunakan aplikasi tambahan seperti misalnya <a href="http://www.wingate.com/product-wingate.php">WinGate</a> atau <a href="http://www.kerio.com/kwf_home.html">WinRoute</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/Linux/konfigurasi-mod_jk/">Konfigurasi Mod_jk</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-08-15T22:52:26+07:00" pubdate data-updated="true">Aug 15<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ada kalanya, kita ingin mempublikasikan aplikasi Java kita melalui Apache HTTPD, webserver paling populer dan paling banyak digunakan di dunia.</p>
-
-<p>Beberapa alasan untuk melakukan ini antara lain:</p>
-
-<ul>
-<li><p>Kita ingin menjalankan Tomcat dalam cluster, diakses melalui satu pintu gerbang, yaitu Apache HTTPD</p></li>
-<li><p>Kita tidak ingin membuka port 8080 ke seluruh dunia, cukup buka port 80 dan 443 saja. Sedangkan di port 80 sudah ada aplikasi lain (PHP, Rails, whatever) yang dihosting di atas Apache HTTPD</p></li>
-<li><p>Kita ingin melayani static page dengan Apache HTTPD, dan dynamic page dengan Tomcat</p></li>
-<li><p>Dan masih banyak alasan lain.</p></li>
-</ul>
-
-
-<p>Konfigurasi ini saya lakukan di Ubuntu Feisty 7.04. Langkah-langkahnya relatif mirip untuk distro lain, yang kalau disimpulkan terdiri dari:</p>
+<p>Berikut ringkasannya :</p>
 
 <ol>
-<li><p>Install Apache</p></li>
-<li><p>Install Tomcat</p></li>
-<li><p>Deploy Aplikasi Java di Tomcat</p></li>
-<li><p>Install mod_jk</p></li>
-<li><p>Konfigurasi worker</p></li>
-<li><p>Konfigurasi virtual host</p></li>
+<li><p>Jelaskan Lokasinya</p></li>
+<li><p>Sebutkan Tujuan</p></li>
+<li><p>Langkah Reproduksi</p></li>
+<li><p>Harapan dan Kenyataan</p></li>
+<li><p>Environment</p></li>
 </ol>
 
 
-<p>Baiklah, mari kita mulai saja.</p>
+<p>Berikut template yang bisa digunakan untuk mengajukan pertanyaan.</p>
 
-<h3>Instalasi Apache</h3>
+<p>Saya ingin &#8230;&#8230; (misal : mendeploy aplikasi di glassfish),
+untuk itu saya melakukan langkah2 berikut :
+1. &#8230;.
+2. &#8230;.
+3. &#8230;.</p>
 
-<p>Saya gunakan Apache 2.2 yang disediakan oleh repository Ubuntu. Instalasi sangat mudah:
-<code>sudo apt-get install apache2</code></p>
+<p>Setelah saya lakukan langkah di atas, saya mengharapkan hasil sbb:
+1. &#8230;..
+2. &#8230;..
+3. &#8230;..</p>
 
-<p>Setelah instalasi selesai pastikan webserver sudah berjalan dengan baik dengan cara mengakses <code>http://localhost</code></p>
+<p>Tapi ternyata kok malah muncul hasil seperti ini :
+1. &#8230;.
+2. &#8230;.
+3. &#8230;.</p>
 
-<h3>Instalasi Tomcat</h3>
+<p>Sebagai tambahan informasi, saya menggunakan :
+1. Sistem Operasi &#8230; versi &#8230;
+2. Bahasa Pemrograman &#8230; versi &#8230;
+3. Database &#8230; versi &#8230;
+4. Framework/Tools &#8230; versi &#8230;</p>
 
-<p>Kita bisa menginstal Tomcat melalui apt-get, tetapi saya lebih suka menggunakan cara manual.
-Unduh dari <a href="http://tomcat.apache.org">situsnya</a>, kemudian ekstrak di folder /opt.</p>
-
-<pre><code>&lt;code&gt;cd /opt
-sudo tar xvzf apache-tomcat-xx.tar.gz
-&lt;/code&gt;
-</code></pre>
-
-<p>Setelah itu, jalankan Tomcat.</p>
-
-<pre><code>&lt;code&gt;sudo /opt/tomcat/bin/startup.sh
-&lt;/code&gt;
-</code></pre>
-
-<p>Jangan lupa mengatur environment variable <code>JAVA_HOME</code> ke tempat instalasi Java SDK Anda sebelum menjalankan Tomcat.</p>
-
-<p>Periksa keberhasilan instalasi Tomcat dengan cara browse ke <code>http://localhost:8080</code></p>
-
-<h3>Deploy Aplikasi Java</h3>
-
-<p>Pada saat ini, kita sudah bisa mendeploy aplikasi Java ke Tomcat, tepatnya di folder <code>[TOMCAT_HOME]/webapps</code>.
-Untuk mudahnya, kita tidak akan instal aplikasi, tapi menggunakan tomcat-docs yang sudah disediakan Tomcat.</p>
-
-<h3>Install mod_jk</h3>
-
-<p>Instalasi mod_jk di Ubuntu sangat mudah, cukup lakukan <code>sudo apt-get install libapache2-mod-jk</code></p>
-
-<p><code>mod_jk</code> akan diinstal dan langsung diaktifkan.</p>
-
-<p>Sebelum <code>mod_jk</code> bisa bekerja dengan benar, kita harus melakukan sedikit konfigurasi. Saya membuat file konfigurasi di <code>/etc/apache2/mods-available/jk.conf</code>.
-Letak file konfigurasi tidak penting, yang penting adalah file tersebut dibaca oleh Apache. Silahkan baca-baca manual konfigurasi untuk distro Anda</p>
-
-<p>Berikut adalah isi file <code>/etc/apache2/mods-available/jk.conf</code>.</p>
-
-<pre><code>&lt;code&gt;JkWorkersFile /etc/apache2/mods-available/workers.properties
-JkShmFile     /var/log/apache2/mod_jk.shm
-JkLogFile     /var/log/apache2/mod_jk.log
-JkLogLevel    info
-JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "
-&lt;/code&gt;
-</code></pre>
-
-<p>Seperti kita lihat di baris pertama, ada referensi ke file <code>workers.properties</code>. Kita akan bahas file ini di bagian selanjutnya.</p>
-
-<p>Sisa file ini mendefinisikan konfigurasi log file.</p>
-
-<h3>Konfigurasi Workers</h3>
-
-<p>File <code>workers.properties</code> mendefinisikan semua worker yang tersedia. Worker adalah Tomcat yang akan melayani request ke aplikasi Java. Untuk mengaktifkan clustering, kita bisa mengkonfigurasi banyak worker sekaligus.
-Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.</p>
-
-<p>Berikut adalah isi file <code>workers.properties</code></p>
-
-<pre><code>&lt;code&gt;worker.list=worker1
-worker.worker1.type=ajp13
-worker.worker1.host=localhost
-worker.worker1.port=8009
-&lt;/code&gt;
-</code></pre>
-
-<h3>Konfigurasi Virtual Host</h3>
-
-<p>Terakhir, kita akan mengkonfigurasi virtual host agar Apache HTTPD dapat melakukan forwarding dengan benar. Pada contoh ini, kita akan mengarahkan request ke <code>http://localhost/tomcat-docs</code> agar dilayani oleh Tomcat. Berikut konfigurasi Virtual Hostnya.</p>
-
-<pre><code>&lt;code&gt;&lt;VirtualHost&gt;
-    JkMount /tomcat-docs/* worker1
-&lt;/VirtualHost&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Jika ingin mempublikasikan banyak aplikasi Java sekaligus, duplikasi saja baris <code>JkMount</code> di atas agar mengarah ke masing-masing aplikasi kita yang sudah dideploy di dalam folder <code>[TOMCAT_HOME]/webapps</code>.</p>
-
-<p>Konfigurasi virtual host di atas bisa digabungkan dengan konfigurasi lain seperti <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">repository Subversion</a>, Ruby on Rails, dan sebagainya. Cukup selipkan baris <code>JkMount</code> di dalam blok <code>VirtualHost</code>.</p>
-
-<p>Letak konfigurasi Virtual Host berbeda antar distro. Di keluarga Debian, konfigurasinya ada di folder <code>/etc/apache2/sites-available</code>.</p>
-
-<p>Setelah selesai, coba restart Apache HTTPD. Kalau semua berjalan lancar, dokumentasi Tomcat yang tadinya hanya bisa diakses di <code>http://localhost:8080/tomcat-docs/</code> sekarang juga bisa diakses di <code>http://localhost/tomcat-docs/</code>. Perhatikan perbedaan portnya, yang belakangan dilayani oleh Apache HTTPD.</p>
-
-<p>Selamat mencoba :D</p>
+<p>Dengan mengikuti tips ini berarti Anda sudah membantu kami untuk membantu Anda.
+:D</p>
 </div>
   
   
@@ -1137,7 +278,7 @@ worker.worker1.port=8009
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/luntbuild/">Continuous Integration Dengan Luntbuild</a></h1>
+        <h1 class="entry-title"><a href="/blog/Manajemen/dokumentasi-project/">Dokumentasi Project</a></h1>
       
     
     
@@ -1154,208 +295,198 @@ worker.worker1.port=8009
   
 
 
-<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
+<time datetime="2010-03-10T07:41:06+07:00" pubdate data-updated="true">Mar 10<span>th</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
-kali ini kita akan menggunakan <a href="http://luntbuild.javaforge.com/proj/summary.do?proj_id=70">Luntbuild</a>,
-Continuous Integration Tools yang konfigurasinya tidak menggunakan XML sama sekali.</p>
+  <div class="entry-content"><p>Pertanyaan yang sering muncul dalam pengelolaan proyek software adalah, &#8220;Dokumen apa saja yang harus dibuat?&#8221;</p>
 
-<p>Sama seperti CruiseControl, untuk menjalankan Continuous Integration, kita memerlukan:</p>
+<p>Tidak ada jawaban absolut untuk pertanyaan ini, semuanya tergantung situasi dan kondisi. Bahkan di satu perusahaan yang sama, kelengkapan dokumen projectnya bisa saja berbeda antar project.</p>
+
+<p>Dalam artikel ini, kita akan membahas bagaimana menentukan dokumen yang digunakan dalam project.</p>
+
+<blockquote><p>Disclaimer : Semua yang dijelaskan pada artikel ini ditulis berdasarkan pengalaman dan kebutuhan internal ArtiVisi. Kebutuhan Anda belum tentu sama dengan kami.</p></blockquote>
+
+<p>Pertama, kita harus tahu dulu latar belakang kenapa dokumen project dibutuhkan. Setidaknya ada beberapa kegunaan dokumen project, yaitu</p>
 
 <ul>
-<li><p>Repository Subversion yang berisi source code, lengkap dengan folder trunk dan release</p></li>
-<li><p>Code Review, Unit Test, Integration Test, Coverage Test yang lengkap</p></li>
-<li><p>File build.xml yang memiliki target untuk menjalankan semua test</p></li>
+<li><p>sebagai media komunikasi di internal tim, dengan client, dengan manajemen, dan pihak lain yang berkepentingan (stakeholder)</p></li>
+<li><p>sebagai catatan historis jalannya project</p></li>
+<li><p>sebagai alat bantu untuk melihat kondisi terkini project (project visibility)</p></li>
+<li><p>sebagai kontrak legal bila terjadi perselisihan</p></li>
 </ul>
 
 
-<p>Struktur folder repository juga masih sama seperti artikel sebelumnya. Kita tidak membuat baru,
-melainkan langsung menggunakan repository pada artikel sebelumnya.</p>
+<p>Setelah kita mengetahui apa saja kegunaan dokumen, mari kita teliti satu persatu berdasarkan fase dalam project.</p>
 
-<p>Untuk menjalankan Luntbuild, kita memerlukan:</p>
+<h2>Fase Sales</h2>
+
+<p>Biasanya pada saat ada tawaran project, kita akan membuat proposal yang relatif tebal (> 10 halaman). Kami di ArtiVisi saat ini sudah hampir tidak pernah membuat proposal project, karena beberapa alasan berikut :</p>
 
 <ul>
-<li><p>Luntbuild installer</p></li>
-<li><p>Apache Ant 1.7.0</p></li>
-<li><p>Apache Tomcat 5.5</p></li>
-<li><p>Java SDK 6.0</p></li>
+<li><p>semakin tebal dokumen, semakin tidak dibaca</p></li>
+<li><p>membuang effort percuma untuk membuat dan maintenance</p></li>
 </ul>
 
 
-<p>Installer Luntbuild dapat diunduh <a href="http://luntbuild.javaforge.com/proj/doc.do?doc_id=35767">di sini</a>.</p>
+<p>Fungsi proposal sebenarnya adalah panduan awal untuk membuat agreement. Poin-poin yang ada di proposal akan dipindahkan ke agreement yang selanjutnya akan ditandatangani kedua belah pihak.</p>
 
-<p>Cara instalasinya tidak sulit, begitu kita dapatkan file instalasinya, buka command prompt, dan masuk ke folder tempat installer tersebut berada.
-Kemudian jalankan installernya.</p>
-
-<pre><code>&lt;code&gt;$ cd Downloads
-$ java -jar luntbuild-1.4.2-installer.jar 
-&lt;/code&gt;
-</code></pre>
-
-<p>Tampilan instalasi Luntbuild akan segera tampil. Klik saja Next untuk melewati Release Note dan License Agreement,
-sampai pada pertanyaan lokasi instalasi.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-install-dir.png" alt="Lokasi Instalasi Luntbuild" /></p>
-
-<p>Di komputer saya, saya pilih lokasi <code>/opt/luntbuild-1.4.2</code> sebagai lokasi instalasi.
-Klik Next, dan lanjutkan ke konfigurasi database.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-install-db.png" alt="Instalasi Database" /></p>
-
-<p>Di sini saya tidak mengubah setting apa-apa. Langsung saja lanjutkan sampai menemui pertanyaan username dan password administrator.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-install-password.png" alt="Setup Administrator Password" /></p>
-
-<p>Saya masukkan <code>luntbuild123</code> sebagai passwordnya.
-Kita juga akan ditanyai lokasi instalasi Tomcat agar Luntbuild bisa segera menginstal aplikasi webnya di sana.
-Entah apa yang terjadi, di komputer saya pilihan ini tidak berpengaruh apa-apa. Seharusnya installer akan membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code>.
-Setelah instalasi selesai saya tetap harus membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code> secara manual
-dan mengkopi semua isi <code>[LUNTBUILD_INSTALL]/web</code> ke dalamnya.</p>
-
-<p>Setelah semua layar berhasil dilalui, instalasi selesai. Kita bisa langsung jalankan Tomcat, dan browse ke http://localhost:8080/luntbuild.
-Jika instalasi berjalan benar, maka kita akan disambut oleh Luntbuild
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-frontpage.png" alt="Halaman Depan Luntbuild" /></p>
-
-<p>Secara default, kita login secara anonymous. Untuk bisa mengkonfigurasi project, kita harus logout dulu.
-Kita akan segera melihat halaman login.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-login.png" alt="Login Page" /></p>
-
-<p>Masukkan username luntbuild dan password luntbuild123, sesuai yang kita isikan pada waktu instalasi.
-Kita akan melihat daftar builder yang masih kosong.</p>
-
-<p>Segera klik tab Project, dan klik tombol New Project di kanan atas.
-User interface Luntbuild kurang intuitif, sehingga saya harus berusaha keras mencari tombol tersebut.
-Halaman New Project segera tampil.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-new-project.png" alt="Create New Project" /></p>
-
-<p>Masukkan nama project dan berikan keterangan, lalu Save.</p>
-
-<p>Selanjutnya, kita klik tab VCS.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-no-vc.png" alt="No VCS Yet" /></p>
-
-<p>Di tab ini kita melakukan konfigurasi untuk version control.
-Luntbuild mendukung berbagai merek version control.
-Pilih Subversion pada drop down yang tersedia.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-vcs-svn.png" alt="Add New Subversion Repo" /></p>
-
-<p>Untuk konfigurasi di komputer saya, isinya adalah sebagai berikut:</p>
-
-<ol>
-<li><p>Repository url base : svn://localhost</p></li>
-<li><p>Directory for trunk : trunk</p></li>
-<li><p>Directory for branches : kosongkan saja, karena project contoh ini tidak memiliki branch</p></li>
-<li><p>Directory for releases : releases/daily-build</p></li>
-<li><p>Username : endy. Ini adalah username yang digunakan Luntbuild untuk checkout dan membuat tag.
-Idealnya kita buatkan user khusus untuk Luntbuild</p></li>
-<li><p>Password : 123</p></li>
-<li><p>Quiet Period : kosongkan saja, ini tidak dibutuhkan untuk Subversion yang sudah mendukung atomic commit.</p></li>
-</ol>
-
-
-<p>Ada sedikit keanehan Luntbuild. Dia mengharuskan kita membuat modul.
-Kalau dia tidak menemukan modul, maka akan keluar pesan error.
-Oleh karena itu, kita klik New Module, lalu langsung saja save tanpa mengisi apa-apa.</p>
-
-<p>Hasil akhir dari tab VCS kita akan nampak seperti ini.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-vcs-svn-summary.png" alt="VCS Subversion" /></p>
-
-<p>Berikutnya, kita masuk ke tab berikutnya untuk konfigurasi Builder.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-no-builders.png" alt="No Builder Yet" /></p>
-
-<p>Satu project bisa memiliki banyak builder.
-Dengan builder, kita bisa mengatur sejauh mana kita ingin melakukan build.
-Contoh beberapa build yang mungkin digunakan adalah:</p>
+<p>Kami menyederhanakan proposal menjadi quotation biasa, yang berisi informasi sbb :</p>
 
 <ul>
-<li><p>Unit test: hanya menjalankan unit test saja, mungkin dijalankan setiap 1 jam sekali.</p></li>
-<li><p>Full test: menjalankan semua jenis test, dijalankan sebelum jam makan siang dan sore sebelum pulang</p></li>
-<li><p>Nightly/Daily build : dijalankan sekali sehari, selain menjalankan semua test, juga menghasilkan <em>jar atau </em>war.
-Jenis build ini biasanya dikonfigurasi untuk menghasilkan tag di version control apabila sukses.</p></li>
+<li><p>scope pekerjaan</p></li>
+<li><p>out of scope</p></li>
+<li><p>estimasi durasi</p></li>
+<li><p>requirement khusus (misalnya performance requirement, integrasi dengan aplikasi lain, dsb)</p></li>
+<li><p>nilai project</p></li>
+<li><p>termin pembayaran</p></li>
 </ul>
 
 
-<p>Klik tombol New Builder untuk mengkonfigurasi build. Karena kita menggunakan Ant, pilih Ant pada dropdown yang tersedia.</p>
+<p>Ada beberapa informasi yang biasa ada di proposal dan tidak ada di quotation, yaitu</p>
 
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-ant-builder.png" alt="Ant Builder" /></p>
+<ul>
+<li><p>teknologi yang digunakan. Biasanya client kami menurut saja apa solusi yang kita rekomendasikan. Kalaupun ada requirement khusus, akan ditulis di bagian requirement khusus di quotation</p></li>
+<li><p>skema layer, tier, database diagram, dsb. Biasanya, implementasi internal aplikasi tidak perlu dipikirkan client. Client cukup menentukan what to be built, dan kami yang memikirkan how to build. Kalau client ingin ikut cawe-cawe urusan internal, biasanya kita tawarkan outsourcing programmer saja, bukan project software.</p></li>
+</ul>
 
-<p>Pada contoh ini, kita akan mengkonfigurasi Build Jar.
-Sekali sudah paham konsepnya, tidak sulit untuk mengkonfigurasi jenis build yang lain.
-Berikut adalah nilai yang saya isikan:</p>
+
+<p>Selanjutnya, setelah quotation dinegosiasikan dan disetujui, tiba saatnya membuat agreement, atau perjanjian kerja sama. Ada beberapa poin yang dicantumkan dalam agreement, yaitu :</p>
+
+<ul>
+<li><p>scope pekerjaan</p></li>
+<li><p>out of scope</p></li>
+<li><p>estimasi durasi</p></li>
+<li><p>klausul keterlambatan delivery</p></li>
+<li><p>termin pembayaran</p></li>
+<li><p>klausul keterlambatan pembayaran</p></li>
+<li><p>prosedur change management</p></li>
+</ul>
+
+
+<p>Dari beberapa poin di atas, poin klausul keterlambatan delivery harus mendapat perhatian khusus. Keterlambatan delivery bisa terjadi karena banyak sekali sebab. Tidak semua diantaranya adalah kesalahan tim project. Oleh karena itu, kalau ada klausul seperti ini di agreement, tim project harus mengeluarkan effort ekstra untuk melakukan project tracking. Dengan demikian, bila terjadi keterlambatan, ada data yang lengkap mengenai riwayat dan penyebab keterlambatan tersebut.</p>
+
+<p>Selesai bagian agreement, mari kita masuk ke tahap berikutnya.</p>
+
+<h2>Project Planning</h2>
+
+<p>Tujuan dari dilakukannya dokumentasi pada fase ini adalah untuk mengkomunikasikan bagaimana project akan berjalan, baik ke internal tim maupun ke client. Berikut informasi yang ada dalam project plan :</p>
+
+<ul>
+<li><p>Milestone dan Delivery : list urutan delivery yang akan disampaikan, isi dari masing-masing delivery, dan estimasi tanggalnya</p></li>
+<li><p>Daftar Task untuk Milestone berikut. Kita tidak melakukan breakdown untuk milestone lainnya, karena masih banyak ketidakpastiannya. Breakdown task hanya dilakukan untuk milestone yang ada di depan mata. Begitu suatu milestone akan selesai, baru dilakukan breakdown task untuk milestone selanjutnya.</p></li>
+<li><p>Daftar Resiko Project : ini adalah hal-hal yang berpotensi menghambat jalannya project, seperti misalnya ada PIC client yang akan resign, teknologi yang belum familiar, dsb</p></li>
+</ul>
+
+
+<p>Kami tidak membuat Gantt chart. Sebabnya karena Gantt chart sangat menekankan pada dependensi antar task. Sedangkan di project software, dependensi sangat mudah berubah. Misalnya, kita definisikan Modul B dikerjakan setelah Modul A. Ternyata karena PIC client di modul A sedang ada training di luar kota, diputuskan bahwa Modul B akan dikerjakan duluan. Atau, tadinya direncanakan skema database akan dikerjakan sebelum desain UI. Tapi ternyata karena satu dan lain hal, terpaksa UI dikerjakan duluan.</p>
+
+<p>Hal-hal seperti ini cukup sering terjadi dalam project. Sehingga penggunaan Gantt chart justru akan merepotkan kita dalam mengupdate project plan. Kita tahu, semakin sulit dokumen diubah, semakin malas kita mengubahnya, dan akhirnya dokumen tersebut menjadi tidak up to date.</p>
+
+<h2>Project Tracking</h2>
+
+<p>Project tracking adalah kegiatan untuk memantau jalannya project. Dalam kegiatan ini, project manager melihat kemajuan project, mengidentifikasi masalah yang terjadi, dan mencarikan solusinya. Kalau masalah yang terjadi berada di luar kemampuan PM, dia akan melakukan eskalasi, yaitu meminta bantuan ke atasannya.</p>
+
+<p>Di ArtiVisi, kita cuma menggunakan satu dokumen untuk melakukan project tracking, yaitu progress report mingguan, yang berisi informasi sbb:</p>
+
+<ul>
+<li><p>Daftar task yang dikerjakan minggu ini dan statusnya, apakah sudah selesai, sedang dikerjakan, atau belum dimulai</p></li>
+<li><p>Daftar task yang akan dikerjakan minggu depan</p></li>
+<li><p>Daftar deliverable yang akan diberikan minggu depan</p></li>
+<li><p>Resiko project saat ini. Daftar ini dibuat pada saat planning, terus menerus dipantau setiap minggu, dan dilaporkan statusnya</p></li>
+<li><p>Masalah yang terjadi dalam project dan action plan yang dilakukan</p></li>
+<li><p>Perubahan terhadap estimasi awal</p></li>
+</ul>
+
+
+<p>Dokumen ini dibuat oleh PM setelah berkonsultasi dengan pasukannya, kemudian dikirim ke manajemen internal dan client. Dengan tidak adanya Gantt chart, kita tidak perlu mengeluarkan effort ekstra untuk mengupdate Gantt chart.</p>
+
+<h2>Fase Requirement</h2>
+
+<p>Pada fase ini, tim project menganalisa kebutuhan user sebagai patokan di fase coding. ArtiVisi cuma membuat satu dokumen pada fase ini, yaitu User Story. Dokumen user story berisi informasi sbb:</p>
+
+<ul>
+<li><p>User Goal : tujuan yang ingin dicapai client dalam menggunakan fitur ini</p></li>
+<li><p>Ijin Akses : security level untuk menjalankan fitur ini</p></li>
+<li><p>Penjelasan : deskripsi naratif tentang fitur ini</p></li>
+<li><p>Flow aplikasi : langkah-langkah untuk menjalankan fitur ini</p></li>
+<li><p>Desain screen : screenshot prototype atau scan paper prototype</p></li>
+<li><p>Rincian field : penjelasan masing-masing komponen dalam desain screen</p></li>
+<li><p>Prasyarat : hal-hal yang harus terjadi/ada sebelum fitur ini bisa dijalankan</p></li>
+<li><p>Kondisi awal : kondisi aplikasi (data, screen, dsb) sebelum fitur dijalankan</p></li>
+<li><p>Kondisi akhir : kondisi aplikasi setelah fitur selesai dijalankan</p></li>
+<li><p>Karakteristik khusus : kebutuhan khusus seperti response time, usability, dsb</p></li>
+<li><p>Flow pengetesan : bagaimana cara mengetes fitur ini</p></li>
+<li><p>Sign Off : persetujuan user bahwa deskripsi dalam fitur ini sudah sesuai keinginan</p></li>
+</ul>
+
+
+<p>Nantinya akan ada banyak dokumen User Story sesuai jumlah fitur dalam aplikasi. Setelah User Story ditandatangani, semua perubahan harus melalui change procedure, yaitu dengan mengisi change request form. Berikut informasi yang ada di dalam change request form :</p>
+
+<ul>
+<li><p>Penjelasan Perubahan : deskripsi dari apa saja yang ingin diubah</p></li>
+<li><p>Alasan Perubahan : mengapa perubahan ini diajukan</p></li>
+<li><p>Benefit : keuntungan bila perubahan diimplementasikan</p></li>
+<li><p>Dampak : akibat terhadap durasi, effort, dokumen, source code bila perubahan jadi diimplementasikan</p></li>
+<li><p>Estimasi : estimasi effort, durasi, cost untuk menjalankan perubahan ini</p></li>
+<li><p>Approval : persetujuan manajemen baik kedua belah pihak terhadap perubahan ini</p></li>
+</ul>
+
+
+<h2>Fase Desain</h2>
+
+<p>Di fase desain biasanya kami mendesain beberapa hal berikut:</p>
+
+<ul>
+<li><p>skema database</p></li>
+<li><p>interkoneksi antar modul</p></li>
+<li><p>protokol komunikasi</p></li>
+<li><p>format data</p></li>
+</ul>
+
+
+<p>Walaupun prosesnya dilakukan, tapi tidak ada dokumen permanen yang dihasilkan. Skema database misalnya. Desain dibuat di papan tulis, dan langsung ditulis dalam bentuk source code (SQL atau Hibernate mapping). Bila suatu saat diperlukan diagram, akan digenerate dengan tools dari database development. Protokol komunikasi dan format data akan dibuat di dokumen user story sebagai requirement internal.</p>
+
+<h2>Fase Coding</h2>
+
+<p>Pada fase ini, kita menghasilkan source code dan user manual.</p>
+
+<h2>Fase UAT</h2>
+
+<p>Pada fase ini, kita membuat dua dokumen, yaitu hasil pengetesan sesuai skenario di User Story dan Berita Acara UAT. Biasanya (tapi tidak selalu), berita acara dan hasil pengetesan digunakan sebagai lampiran penagihan.</p>
+
+<h2>Fase Implementasi</h2>
+
+<p>Pada fase ini, cuma satu dokumen yang dihasilkan, yaitu Berita Acara Serah Terima Aplikasi. Dokumen ini dibuat dan ditandatangani setelah kegiatan implementasi selesai dilakukan. Beberapa kegiatan dalam fase ini antara lain :</p>
+
+<ul>
+<li><p>Instalasi Aplikasi</p></li>
+<li><p>Training User</p></li>
+<li><p>Deployment Aplikasi</p></li>
+<li><p>Paralel Run</p></li>
+</ul>
+
+
+<p>Demikian dokumentasi project yang kita buat selama project. Tidak terlalu banyak kan? Berikut daftarnya</p>
 
 <ol>
-<li><p>Name : Build Jar</p></li>
-<li><p>Command for Ant : /opt/apache-ant-1.7.0/bin/ant. Ini adalah path menuju Ant kita.</p></li>
-<li><p>Build script path : build.xml. Ini adalah nama file build.xml yang ada di project kita</p></li>
-<li><p>Build target : build-jar. Target Ant yang dipanggil pada saat build berjalan.
-Saya pilih target build-jar yang mengeksekusi semua test, kemudian membuat *.jar bila test tidak ada yang gagal.</p></li>
-<li><p>Field sisanya, biarkan saja sesuai default.</p></li>
+<li><p>Quotation</p></li>
+<li><p>Agreement</p></li>
+<li><p>Project Plan</p></li>
+<li><p>Progress Report</p></li>
+<li><p>User Story</p></li>
+<li><p>Requirement Sign Off</p></li>
+<li><p>Change Request Form (kalau perlu)</p></li>
+<li><p>User Manual</p></li>
+<li><p>Berita Acara UAT</p></li>
+<li><p>Berita Acara Serah Terima Aplikasi</p></li>
 </ol>
 
 
-<p>Terakhir, kita mengkonfigurasi Schedule, alias jadwal. Ini menentukan kapan build dieksekusi.
-Untuk Build Jar yang sudah kita konfigurasi, kita ingin dia dijalankan setiap jam 01 dini hari, setiap hari.
-Berikut isian konfigurasinya.</p>
-
-<ol>
-<li><p>Name : Nightly Build</p></li>
-<li><p>Description : build setiap jam 01 dini hari</p></li>
-<li><p>Next build version : <code>nightly-${#currentDay=system.(year+"-"+numericMonth+"-"+dayOfMonth), #lastDay=project.var["day"].setValue(#currentDay), #dayIterator=project.var["dayIterator"].intValue, project.var["dayIterator"].setIntValue(#currentDay==#lastDay?#dayIterator+1:1), #currentDay}.${project.var["dayIterator"]}</code>.
-Ini adalah label yang akan diberikan untuk setiap build.
-String di atas akan menghasilkan label nightly-2007-08-17.1 bila dijalankan pada tanggal 17 Agustus 2007.</p></li>
-<li><p>Trigger Type: cron. Luntbuild menyediakan dua jenis trigger. Pertama, simple trigger yang berbasis interval.
-Dengan simple trigger, kita dapat menjadwalkan build untuk berjalan misalnya setiap dua jam, atau setiap 30 menit.
-Kedua, cron trigger, yang berbasis waktu. Dengan cron trigger, kita dapat menjalankan build setiap waktu tertentu,
-misalnya setiap Sabtu, atau setiap hari jam 1 pagi. Untuk menjalankan build setiap jam satu pagi, gunakan cron trigger
-dengan konfigurasi <code>0 0 1 * * ?</code>. Luntbuild menggunakan pustaka <a href="http://www.opensymphony.com/quartz/">Quartz</a> untuk melakukan penjadwalan ini.
-Lebih lanjut tentang konfigurasi jadwal Quartz dapat dilihat di <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html">websitenya</a>.</p></li>
-<li><p>Build necessary condition: vcsModified or dependencyNewer. Buat apa melakukan build kalau belum ada perubahan
-sejak terakhir kali build berjalan? Inilah maksud dari field ini. Dengan menyebutkan vcsModified, kita menjelaskan
-bahwa kalau tidak ada perubahan di dalam version control, tidak perlu lakukan build. Selain nilai ini, kita juga
-bisa menggunakan nilai always, yang artinya tetap build walaupun tidak ada yang commit.</p></li>
-<li><p>Associated builders. Di sini kita memilih builder mana yang ingin dijalankan.</p></li>
-<li><p>Associated post builder. Misalnya setelah build sukses dijalankan, kita ingin membuat installer yang siap diunduh.
-Kita bisa sebutkan hal tersebut di sini.</p></li>
-<li><p>Label strategy: Label if success. Hanya buat tag di version control bila build sukses.</p></li>
-<li><p>Notify strategy: notify if status change. Artinya, kirim pemberitahuan apabila status build berbeda dari sebelumnya,
-misalnya tadinya gagal menjadi sukses, atau sebaliknya.</p></li>
-</ol>
-
-
-<p>Demikian sebagian nilai yang harus diisikan. Untuk field yang tidak saya jelaskan, silahkan baca keterangannya atau ikuti saja default.</p>
-
-<p>Setelah semua konfigurasi selesai, kembali ke halaman depan untuk menyaksikan hasil pekerjaan kita.
-Di sana akan terpampang semua build yang sudah dikonfigurasi.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-builds.png" alt="Daftar build" /></p>
-
-<p>Kita bisa menjalankan build tersebut secara manual tanpa harus
-menunggu jatuh temponya. Biasanya kita lakukan build manual untuk mengetes konfigurasi.
-Build yang sedang berjalan ditandai dengan ikon roda gigi.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-building.png" alt="Building …" /></p>
-
-<p>Build yang gagal akan ditandai dengan warna merah, sedangkan build yang berhasil diwarnai hijau.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-build-success.png" alt="Build Successful" /></p>
-
-<p>Bila build gagal, tentunya kita ingin melihat apa yang terjadi. Klik build info untuk menampilkan informasinya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-build-info.png" alt="Build Info" /></p>
-
-<p>Kurang detail? Buka saja lognya. Di sini akan terlihat di langkah yang mana build tersebut berhenti.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/08/luntbuild-build-log.png" alt="Build Log" /></p>
-
-<p>Demikianlah cara penggunaan Luntbuild.
-Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelola dengan baik dan teratur.</p>
+<p>Kesimpulannya, buatlah dokumen sesuai kebutuhan, bukan sesuai hype yang sedang trend saat ini dan bukan juga sesuai warisan leluhur.</p>
 </div>
   
   
@@ -1369,7 +500,7 @@ Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelol
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/Java/Manajemen/cruise-control/">Cruise Control</a></h1>
+        <h1 class="entry-title"><a href="/blog/Manajemen/manajemen-proyek-sederhana/">Manajemen Proyek Sederhana</a></h1>
       
     
     
@@ -1386,463 +517,238 @@ Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelol
   
 
 
-<time datetime="2007-07-25T15:51:17+07:00" pubdate data-updated="true">Jul 25<span>th</span>, 2007</time>
+<time datetime="2010-02-17T04:55:40+07:00" pubdate data-updated="true">Feb 17<span>th</span>, 2010</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Kalau Anda programmer Java, tentunya sudah tidak asing lagi dengan Tomcat atau Eclipse. Yang satu adalah application server, satunya lagi adalah Integrated Development Environment (IDE). Ada satu kesamaan dalam kedua produk ini, keduanya adalah proyek open source yang dikelola secara profesional.</p>
+  <div class="entry-content"><p>Di berbagai milis yang saya ikuti, ada diskusi menarik yang muncul. Apa saja yang harus dilakukan untuk dalam project management? Bagaimana SOP (standard operating procedure) nya? Tools apa yang digunakan?</p>
 
-<p>Coba buka halaman download di website masing-masing proyek tersebut. Di sana bisa kita temukan beberapa jenis download, yaitu Nightly Builds dan Stable Builds. Stable builds adalah aplikasi yang sudah melalui berbagai fase testing dan dinyatakan lulus uji. Nightly builds, seperti namanya, adalah build yang dibuat setiap malam dan dirilis kepada publik agar bisa diuji coba beramai-ramai. Dengan besarnya jumlah penguji, diharapkan bug yang ada dalam aplikasi bisa ditemukan semuanya.</p>
+<p>Saya sudah mencoba berbagai metodologi manajemen proyek sepanjang karir saya. Ala koboi di jaman jahiliah dulu, ala waterfall di perusahaan terdahulu, ala CMMI di BaliCamp, dan berbagai ala-ala lainnya. Sepanjang perjalanan tersebut, saya juga membaca tentang berbagai metodologi seperti XP, Scrum, Crystal, RUP, dsb.</p>
 
-<p>Build, dalam dunia Java, terdiri dari serangkaian aktifitas, diantaranya sebagai berikut:</p>
+<p>Dari semuanya, tentu tidak ada metodologi yang bisa digunakan di semua kondisi. Segalanya serba tergantung keadaan. Walaupun demikian, hasil pengalaman bertahun-tahun tersebut sudah memberikan saya pemahaman tentang latar belakang di aturan-aturan CMMI maupun di metodologi lainnya. Begitu kita mendapatkan alasan dibalik aturan tersebut, kita bisa mengambil esensinya dan mengimplementasikannya dengan bentuk lain yang sesuai dengan situasi kita.</p>
+
+<p>Berikut adalah manajemen proyek ala ArtiVisi.</p>
+
+<h2>Fase dan Siklus</h2>
+
+<p>Sebelum membahas lebih jauh tentang manajemen proyek, kita luruskan dulu beberapa istilah. Kita mengenal istilah fase dan siklus (lifecycle)</p>
+
+<p>Fase adalah tahapan yang dilalui dalam membuat aplikasi. Biasanya, dalam satu fase akan terdiri dari banyak task.</p>
+
+<p>Fase yang ada di internal ArtiVisi adalah sebagai berikut :
+1. Requirement Development
+2. Coding
+3. User Acceptance Test
+4. Implementasi</p>
+
+<p>Keempat fase ini berjalan secara serial, artinya, fase coding baru bisa dimulai setelah requirement development selesai, dsb.
+Mendengar ini, pembaca yang beraliran progresif revolusioner pasti langsung demo di Bundaran HI, &#8220;Waterfall is dead, long live Agile !!!&#8221;</p>
+
+<p>Tunggu dulu sebentar, waterfall dan iteratif itu adalah lifecycle, bukan fase.</p>
+
+<p>Lalu apa itu lifecycle? Lifecycle adalah urutan kita menjalankan fase tersebut <strong>di keseluruhan project</strong>. Bagaimana maksudnya ini?</p>
+
+<p>Begini, misalnya kita membuat aplikasi akunting. Aplikasi ini terdiri dari beberapa modul yaitu; ledger, hutang/piutang, dan manajemen kas. Lifecycle waterfall adalah apabila kita menjalankan project dengan urutan seperti ini :</p>
 
 <ol>
-<li><p>Menjalankan review kode otomatis</p></li>
-<li><p>Kompilasi kode program</p></li>
-<li><p>Menjalankan unit test</p></li>
-<li><p>Menjalankan integration test</p></li>
-<li><p>Menjalankan coverage test (kalau ada)</p></li>
-<li><p>Menjalankan platform test, untuk aplikasi yang berbeda antar OS (seperti Eclipse)</p></li>
-<li><p>Bila lulus semua ujian di atas, buat tag di version control</p></li>
-<li><p>Siapkan executable (<em>.jar, </em>.war, *exe, dan sebagainya)</p></li>
-<li><p>Publish executable di website supaya bisa didownload orang banyak</p></li>
+<li>Project Planning</li>
 </ol>
 
 
-<p>Wow, daftar aktifitasnya cukup banyak. Kalau ini dikerjakan setiap malam, betapa membosankan. Saya tidak dapat membayangkan ada satu orang yang ditugaskan khusus untuk melakukan hal ini. Pasti setelah beberapa hari saja dia akan bosan dan mengundurkan diri. Apalagi dalam project open source di mana sebagian besar kontributornya tidak dibayar.</p>
-
-<p>Untuk itulah ada tools khusus untuk melakukan hal membosankan ini. Toolsnya disebut Continuous Integration Tools, berdasarkan tulisan Martin Fowler tentang Continuous Integration. Ada beberapa tools yang tersedia di pasaran, diantaranya:</p>
-
-<ul>
-<li><p><a href="http://cruisecontrol.sf.net">Cruise Control</a></p></li>
-<li><p><a href="http://www.luntbuild.org">Luntbuild</a></p></li>
-<li><p>Anthill</p></li>
-<li><p>Bamboo</p></li>
-</ul>
+<pre><code>1. Modul Ledger
 
 
-<p>Dalam tulisan kali ini, kita akan bahas tentang penggunaan CruiseControl, salah satu Continuous Integration Tool yang populer dan open source.</p>
-
-<p>CI Tool yang baik haruslah memiliki fitur sebagai berikut:</p>
-
-<ul>
-<li><p>Mendukung berbagai jenis version control, minimal Subversion dan CVS</p></li>
-<li><p>Dapat menggunakan Ant atau Maven</p></li>
-<li><p>Mendukung banyak project</p></li>
-<li><p>Dapat mengelola artifact (hasil build)</p></li>
-<li><p>Dapat memberitahu orang tentang hasil build (gagal atau sukses) melalui berbagai cara (email, instant message, sms, dan sebagainya)</p></li>
-<li><p>Memiliki aplikasi pelaporan yang mudah diakses melalui web</p></li>
-</ul>
+2. Modul Hutang/Piutang
 
 
-<p>Yang dilakukan oleh CI Tools adalah sebagai berikut:</p>
+3. Modul Kas
+</code></pre>
 
 <ol>
-<li><p>Periksa repository source code, apakah ada perubahan terbaru</p></li>
-<li><p>Bila ada, ambil perubahan terbaru tersebut</p></li>
-<li><p>Lakukan build (compile, testing, dsb)</p></li>
-<li><p>Laporkan hasilnya (gagal atau berhasil) melalui email atau media lainnya</p></li>
-<li><p>Buat juga laporan di website</p></li>
-<li><p>Bila sukses, publish artifact yang dihasilkan</p></li>
+<li>Requirement Development</li>
 </ol>
 
 
-<p>Cruise Control membutuhkan beberapa file konfigurasi:</p>
-
-<ul>
-<li><p>config.xml: Hanya satu, digunakan untuk mendaftarkan project yang akan dikelola</p></li>
-<li><p>build-namaproject.xml : Satu per project. Bila kita punya tiga project, maka akan ada tiga build-namaproject.xml, dengan nama file disesuaikan dengan masing-masing project.Buildfile ini bertugas untuk sinkronisasi dengan version control dan membuat tag di version control</p></li>
-<li><p>build.xml : Satu per project. Ini adalah buildfile yang biasa kita gunakan di project untuk melakukan kompilasi, menjalankan test, dan menghasilkan <em>jar atau </em>war.</p></li>
-</ul>
+<pre><code>1. Modul Ledger
 
 
-<p>Kita butuh satu folder kerja untuk CruiseControl melakukan tugasnya. Sebaiknya folder ini dipisahkan dari folder instalasi CruiseControl agar memudahkan kita pada waktu melakukan upgrade CruiseControl. Untuk kepentingan ilustrasi, folder instalasi CruiseControl akan ditulis [CC_INSTALL] dan folder kerja akan ditulis [CC_WORK].</p>
+2. Modul Hutang/Piutang
 
-<p>Berikut adalah struktur folder [CC_INSTALL]:
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/cruise-install.png" alt="Struktur Folder Instalasi CruiseControl" /></p>
 
-<p>dan folder kerja [CC_WORK] akan berisi seperti ini:
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/cruise-work.png" alt="Folder Kerja CruiseControl" /></p>
-
-<p>Struktur folder di dalam repository Subversion kita seperti ini:
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/repo-content.png" alt="Struktur Folder Subversion" /></p>
-
-<p>Pada contoh ini, kita akan menjalankan build untuk satu project &#8220;TestingTraining&#8221; dengan konfigurasi sebagai berikut:</p>
+3. Modul Kas
+</code></pre>
 
 <ol>
-<li><p>Memiliki dua build, yang satu berjalan setiap satu menit, satu lagi berjalan setiap jam 18.00 sore</p></li>
-<li><p>Version control yang digunakan adalah Subversion</p></li>
-<li><p>Bila build sukses, buat tag di folder releases/daily-build/build-NN-yyyyMMddhhmmss</p></li>
+<li>Coding</li>
 </ol>
 
 
-<p>Konfigurasi tersebut ditulis di config.xml sebagai berikut.</p>
+<pre><code>1. Modul Ledger
 
-<pre><code>&lt;code&gt;&lt;cruisecontrol&gt;
-    &lt;project name="TestingTraining" buildafterfailed="true"&gt;
-      &lt;listeners&gt;
-        &lt;currentbuildstatuslistener file="logs/${project.name}/status.txt"/&gt;
-      &lt;/listeners&gt;
 
-      &lt;modificationset quietperiod="10"&gt;
-          &lt;svn RepositoryLocation="svn://172.16.2.252/trunk" /&gt;
-      &lt;/modificationset&gt;
+2. Modul Hutang/Piutang
 
-      &lt;schedule interval="60"&gt;
-          &lt;ant anthome="/opt/apache-ant-1.6.5"
-               antWorkingDir="/home/endy/tmp/cruise-work/projects/${project.name}"
-               buildfile="/home/endy/tmp/cruise-work/build-${project.name}.xml"
-               target="build"
-               uselogger="true"
-               usedebug="false"
-           /&gt;
-      &lt;/schedule&gt;
 
-      &lt;log&gt;
-          &lt;merge dir="/home/endy/tmp/cruise-work/projects/${project.name}/build/report/junit"/&gt;
-      &lt;/log&gt;
-
-      &lt;publishers&gt;
-            &lt;onsuccess&gt;
-                &lt;antpublisher anthome="/opt/apache-ant-1.6.5"
-                              antWorkingDir="/home/endy/tmp/cruise-work/projects/${project.name}"
-                              buildfile="/home/endy/tmp/cruise-work/build-${project.name}.xml"
-                            target="tag"
-                            uselogger="true"
-                            usedebug="false"
-                /&gt;
-        &lt;artifactspublisher
-            dir="/home/endy/tmp/cruise-work/projects/${project.name}/dist"
-            dest="artifacts/${project.name}"/&gt;
-            &lt;/onsuccess&gt;
-        &lt;/publishers&gt;
-    &lt;/project&gt;
-&lt;/cruisecontrol&gt;
-&lt;/code&gt;
+3. Modul Kas
 </code></pre>
 
-<p>Berikut adalah penjelasannya.</p>
-
-<ul>
-<li><p>Konfigurasi CruiseControl dibuat dengan format XML. Tag paling luar adalah <code>&lt;cruisecontrol&gt;</code></p></li>
-<li><p>Satu file konfigurasi bisa memuat banyak project. Masing-masing project dikonfigurasi dalam tag <code>&lt;project&gt;</code></p></li>
-<li><p>Di halaman depan CruiseControl, akan ada status untuk masing-masing project. Status ini akan disimpan di file status.txt</p></li>
-<li><p>Modification Set: Beberapa produk version control tidak mengenal atomic commit, misalnya CVS. Karena itu, bila kita commit (misalnya) 7 file sekaligus, bisa saja CruiseControl terbangun pada saat baru 3 file yang tercommit. Bila CruiseControl melakukan build pada saat itu juga, bisa dipastikan akan terjadi error. Oleh karena itu, kita suruh CruiseControl membatalkan build bila kurang dari 10 detik yang lalu ada orang yang commit. Tentu saja bila kita menggunakan Subversion, hal ini tidak relevan.</p></li>
-<li><p>Schedule: Ini adalah daftar build schedule yang ingin kita daftarkan. Tag ini bisa memuat banyak build. Kita menggunakan interval 60 detik, yang artinya setiap menit CruiseControl akan melakukan build. Selain schedule yang berbasis interval, kita juga bisa mendaftarkan schedule yang menggunakan waktu tertentu, misalnya berjalan setiap jam 12 malam.</p></li>
-<li><p>Merge log yang dihasilkan JUnit, tersimpan di folder <code>build/report/junit</code> ke dalam tampilan report CruiseControl.</p></li>
-<li><p>Publisher : pada bagian ini kita daftarkan Ant Publisher pada kategori onsuccess. Artinya, kalau build sukses, jalankan target tag untuk membuat tag di dalam repository. Selain itu, kita juga menggunakan Artifact Publisher, yang berguna untuk mengkopi file *.jar yang dihasilkan ke dalam folder CruiseControl sehingga bisa didownload melalui website.</p></li>
-</ul>
+<ol>
+<li>UAT</li>
+</ol>
 
 
-<p>Di file konfigurasi tersebut, kita memanggil file <code>build-TestingTraining.xml</code>. Ini adalah isi dari file tersebut.</p>
+<pre><code>1. Modul Ledger
 
-<pre><code>&lt;code&gt;&lt;project name="CruiseControl Builder" 
-     default="build"
-         basedir="projects/TestingTraining"
-&gt;
 
-  &lt;property name="repository.url" value="svn://localhost"/&gt;
-  &lt;property name="branch" value="trunk"/&gt;
-  &lt;property name="release.folder" value="releases/daily-build" /&gt;
-  &lt;property name="svn.username" value="endy" /&gt;
-  &lt;property name="svn.password" value="123" /&gt;
-  &lt;property name="message" value="Created automatically by CruiseControl" /&gt;
+2. Modul Hutang/Piutang
 
-  &lt;path id="cc-classpath"&gt;
-    &lt;fileset dir="../../lib" includes="**/*jar"/&gt;
-  &lt;/path&gt;  
 
-  &lt;target name="update"&gt;
-    &lt;java classname="org.tmatesoft.svn.cli.SVN" fork="true"
-          classpathref="cc-classpath"&gt;
-      &lt;arg value="update"/&gt;      
-    &lt;/java&gt;
-  &lt;/target&gt;
-
-  &lt;target name="build" depends="update"&gt;
-    &lt;ant inheritAll="false" target="build-jar"/&gt;
-  &lt;/target&gt;
-
-  &lt;target name="tag"&gt;
-    &lt;java classname="org.tmatesoft.svn.cli.SVN" 
-              fork="true" classpathref="cc-classpath"&gt;
-            &lt;arg value="--username"/&gt;
-            &lt;arg value="${svn.username}"/&gt;
-
-            &lt;arg value="--password"/&gt;
-            &lt;arg value="${svn.password}"/&gt;
-
-            &lt;arg value="cp"/&gt;
-            &lt;arg value="${repository.url}/${branch}"/&gt;
-            &lt;arg value="${repository.url}/${release.folder}/${label}-${cctimestamp}"/&gt;
-
-            &lt;arg value="-m"/&gt;
-            &lt;arg value="${message}"/&gt;
-
-        &lt;/java&gt;
-  &lt;/target&gt;
-
-&lt;/project&gt;
-&lt;/code&gt;
+3. Modul Kas
 </code></pre>
 
-<p>Penjelasannya sebagai berikut.</p>
-
-<ul>
-<li><p>Kita menggunakan pustaka yang disediakan <a href="http://svnkit.com/">SVNKit (dulunya JavaSVN) </a>agar bisa menggunakan Subversion melalui Ant. Sebetulnya tanpa SVNKit juga bisa, yaitu dengan target <code>exec</code> yang dimiliki Ant untuk memanggil perintah di command line. Dengan menggunakan SVNKit, kita tidak perlu menginstal Subversion command line di build server kita.</p></li>
-<li><p>Ada tiga target utama dalam buildfile ini: update, build, dan tag. Target update berguna untuk mengambil perubahan terbaru dari repository ke folder kerja CruiseControl. Target build memanggil target build-jar di dalam build.xml yang dimiliki project. Target build-jar ini hanya bisa berhasil kalau semua test sudah berjalan dengan sempurna. Target tag berguna untuk membuat tag di repository. Kita bisa mengirim variabel yang dihasilkan CruiseControl, dalam hal ini <code>${label}</code> dan <code>${cctimestamp}</code>.</p></li>
-</ul>
+<ol>
+<li>Implementasi</li>
+</ol>
 
 
-<p>Agar file ini bisa dijalankan, kita harus memiliki folder projects/TestingTraining yang berisi hasil checkout dari repository. Mari kita checkout dulu.</p>
+<pre><code>1. Modul Ledger
 
-<pre><code>&lt;code&gt;$ cd projects
-$ svn co svn://localhost/trunk TestingTraining
-&lt;/code&gt;
+
+2. Modul Hutang/Piutang
+
+
+3. Modul Kas
 </code></pre>
 
-<p>Untuk menguji apakah file build-TestingTraining.xml ini bisa dijalankan dengan baik, masuk ke folder projects/TestingTraining dan panggil file tersebut dari folder ini.</p>
+<p>Lifecycle waterfall memang memiliki banyak kelemahan, apalagi kalau projectnya besar. Karena rentang waktu yang jauh antara fase requirement dan fase UAT, maka biasanya pada saat UAT user merasa kaget karena merasa aplikasi yang dibuat tidak sesuai ekspektasi. Entah karena user sudah lupa requirement yang dia bikin sendiri, ataupun karena proses bisnisnya memang sudah berubah.</p>
 
-<pre><code>&lt;code&gt;$ ant -f ../../build-TestingTraining.xml build
-Buildfile: ../../build-TestingTraining.xml
+<p>Lifecycle yang dijalankan ArtiVisi adalah Staged Delivery, seperti yang dijelaskan di bukunya Steve McConnell berjudul Rapid Development. Berikut urutannya.</p>
 
-update:
-     [java] At revision 71.
+<ol>
+<li>Global / High Level</li>
+</ol>
 
-build:
 
-clean:
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/bin
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/debug
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/junit
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/pmd
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/cobertura
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/dist
+<pre><code>1. Project Planning
 
-prepare:
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/bin
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/debug
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/junit
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/pmd
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/cobertura
-    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/dist
 
-code-review:
-
-compile:
-    [javac] Compiling 11 source files to /home/endy/tmp/cruise-work/projects/TestingTraining/build/bin
-
-compile-cobertura:
-    [javac] Compiling 11 source files to /home/endy/tmp/cruise-work/projects/TestingTraining/build/debug
-   [delete] Deleting: /home/endy/tmp/cruise-work/projects/TestingTraining/cobertura.ser
-   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
-[cobertura-instrument] Cobertura 1.8 - GNU GPL License (NO WARRANTY) - See COPYRIGHT file
-[cobertura-instrument] Instrumenting 7 files to /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
-[cobertura-instrument] Cobertura: Saved information on 7 classes.
-[cobertura-instrument] Instrument time: 110ms
-
-unit-test:
-    [junit] Running tutorial.testing.CalculatorTest
-    [junit] Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.047 sec
-    [junit] Cobertura: Loaded information on 7 classes.
-    [junit] Cobertura: Saved information on 7 classes.
-    [junit] Running tutorial.testing.DayCounterTest
-    [junit] Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.055 sec
-    [junit] Cobertura: Loaded information on 7 classes.
-    [junit] Cobertura: Saved information on 7 classes.
-    [junit] Running tutorial.testing.LoginServletTest
-    [junit] Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.159 sec
-    [junit] Cobertura: Loaded information on 7 classes.
-    [junit] Cobertura: Saved information on 7 classes.
-    [junit] Running tutorial.testing.dbunit.PersonDaoMySQLTest
-    [junit] Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0.153 sec
-    [junit] Cobertura: Loaded information on 7 classes.
-    [junit] Cobertura: Saved information on 7 classes.
-[junitreport] Transform time: 564ms
-[cobertura-report] Cobertura 1.8 - GNU GPL License (NO WARRANTY) - See COPYRIGHT file
-[cobertura-report] Cobertura: Loaded information on 7 classes.
-[cobertura-report] Report time: 231ms
-
-coverage-test:
-[cobertura-check] Cobertura 1.8 - GNU GPL License (NO WARRANTY) - See COPYRIGHT file
-[cobertura-check] Cobertura: Loaded information on 7 classes.
-[cobertura-check] All checks passed.
-
-full-test:
-
-build-jar:
-      [jar] Building jar: /home/endy/tmp/cruise-work/projects/TestingTraining/dist/TutorialTesting.jar
-
-BUILD SUCCESSFUL
-Total time: 12 seconds
-&lt;/code&gt;
+2. Requirement Development
 </code></pre>
 
-<p>File build-TestingTraining.xml akan memanggil build.xml yang ada di dalam project kita. Berikut isi dari file ini.</p>
+<ol>
+<li>Modul Ledger</li>
+</ol>
 
-<pre><code>&lt;code&gt;&lt;project name="TestingTraining" default="full-test" basedir="."&gt;
 
-    &lt;property name="source.java" value="src/java"/&gt;
-    &lt;property name="compile.normal" value="build/bin"/&gt; 
-    &lt;property name="compile.debug" value="build/debug"/&gt;
-    &lt;property name="compile.cobertura" value="build/cobertura"/&gt;
-    &lt;property name="distribution" value="dist" /&gt;
+<pre><code>1. Project Planning
 
-    &lt;property name="report.junit" value="build/report/junit"/&gt;
-    &lt;property name="report.pmd" value="build/report/pmd"/&gt;
-    &lt;property name="report.cobertura" value="build/report/cobertura"/&gt;
 
-    &lt;path id="devel.classpath"&gt;
-        &lt;pathelement location="${source.java}"/&gt;
-        &lt;pathelement location="${compile.debug}"/&gt;
-        &lt;fileset dir="lib" includes="**/*jar" /&gt;
-        &lt;fileset dir="ext" includes="**/*jar" /&gt;
-    &lt;/path&gt;
+2. Requirement Development
 
-    &lt;taskdef classpathref="devel.classpath" resource="tasks.properties"/&gt;
 
-    &lt;target name="prepare"&gt;
-        &lt;mkdir dir="${compile.normal}"/&gt;
-        &lt;mkdir dir="${compile.debug}"/&gt;
-        &lt;mkdir dir="${compile.cobertura}"/&gt;
-        &lt;mkdir dir="${report.junit}"/&gt;
-        &lt;mkdir dir="${report.pmd}"/&gt;
-        &lt;mkdir dir="${report.cobertura}"/&gt;
+3. Coding
 
-        &lt;mkdir dir="${distribution}" /&gt;
-    &lt;/target&gt;
 
-    &lt;target name="clean"&gt;
-        &lt;delete dir="${compile.normal}"&gt;&lt;/delete&gt;
-        &lt;delete dir="${compile.debug}"&gt;&lt;/delete&gt;
-        &lt;delete dir="${compile.cobertura}"&gt;&lt;/delete&gt;
-        &lt;delete dir="${report.junit}"&gt;&lt;/delete&gt;
-        &lt;delete dir="${report.pmd}"&gt;&lt;/delete&gt;
-        &lt;delete dir="${report.cobertura}"&gt;&lt;/delete&gt;
-        &lt;delete dir="${distribution}"&gt;&lt;/delete&gt;
-    &lt;/target&gt;
+4. UAT
 
-    &lt;target name="code-review" depends="prepare"&gt;
-        &lt;taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="devel.classpath"/&gt;
-        &lt;pmd targetjdk="1.5" shortFilenames="true" failonerror="true" failonruleviolation="true" rulesetfiles="pmd-ruleset.xml"&gt;                           
-          &lt;formatter type="net.sourceforge.pmd.renderers.HTMLRenderer" 
-                     toFile="${report.pmd}/pmd.html"
-          /&gt;
-          &lt;fileset dir="${source.java}"&gt;
-              &lt;include name="**/*.java"/&gt;
-              &lt;exclude name="**/*Test.java"/&gt;
-          &lt;/fileset&gt;
-        &lt;/pmd&gt;
-    &lt;/target&gt;
 
-    &lt;target name="compile" depends="code-review"&gt;
-        &lt;javac 
-            srcdir="${source.java}" 
-            destdir="${compile.normal}" 
-            classpathref="devel.classpath"&gt;
-        &lt;/javac&gt;
-    &lt;/target&gt;
-
-    &lt;target name="unit-test" depends="compile,compile-cobertura"&gt;
-        &lt;junit haltonfailure="true" fork="true" printsummary="true"&gt;
-            &lt;classpath location="${compile.cobertura}"&gt;&lt;/classpath&gt;
-            &lt;classpath refid="devel.classpath"/&gt;
-            &lt;formatter type="xml"/&gt;
-            &lt;batchtest todir="${report.junit}"&gt;
-                &lt;fileset dir="${compile.debug}" includes="**/*Test.class" excludes="**/*Abstract*.class"/&gt;
-            &lt;/batchtest&gt;
-        &lt;/junit&gt;
-
-        &lt;junitreport todir="${report.junit}"&gt;
-            &lt;fileset dir="${report.junit}"&gt;
-            &lt;include name="TEST-*.xml"/&gt;
-            &lt;/fileset&gt;
-            &lt;report format="frames" todir="${report.junit}/html"/&gt;
-        &lt;/junitreport&gt;
-
-        &lt;cobertura-report 
-            datafile="cobertura.ser"
-            srcdir="${source.java}" 
-            destdir="${report.cobertura}"
-        /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="compile-cobertura" depends="prepare"&gt;
-        &lt;javac 
-            srcdir="${source.java}" 
-            destdir="${compile.debug}" 
-            classpathref="devel.classpath" 
-            fork="true" 
-            debug="true"
-        /&gt;
-        &lt;delete file="cobertura.ser"/&gt;
-        &lt;delete dir="${compile.cobertura}" /&gt;
-
-        &lt;cobertura-instrument todir="${compile.cobertura}"&gt;
-            &lt;fileset dir="${compile.debug}"&gt;
-                    &lt;include name="**/*.class"/&gt;
-                    &lt;exclude name="**/*Test*.class"/&gt;
-            &lt;/fileset&gt;
-        &lt;/cobertura-instrument&gt;
-    &lt;/target&gt;
-
-    &lt;target name="coverage-test" depends="unit-test"&gt;
-        &lt;cobertura-check datafile="cobertura.ser"
-                         branchrate="75"
-                         linerate="75"
-                         haltonfailure="true"
-        /&gt;
-
-    &lt;/target&gt;
-
-    &lt;target name="full-test" depends="code-review,coverage-test"&gt;&lt;/target&gt;
-
-    &lt;target name="build-jar" depends="clean,full-test"&gt;
-        &lt;jar destfile="${distribution}/${ant.project.name}.jar"
-               basedir="${compile.normal}"
-               excludes="**/*Test.class"
-          /&gt; 
-    &lt;/target&gt;
-&lt;/project&gt;
-&lt;/code&gt;
+5. Implementasi
 </code></pre>
 
-<p>Seperti kita lihat di atas, file tersebut memiliki target build-jar yang hanya akan dilakukan apabila target code-review, compile, unit-test, coverage-test dilakukan dengan sukses.</p>
+<ol>
+<li>Modul Hutang/Piutang</li>
+</ol>
 
-<p>Baiklah, persiapan sudah selesai, sekarang jalankan CruiseControl, dan lihat hasilnya.
-CruiseControl dijalankan melalui command prompt dengan mensuplai config.xml yang kita miliki.</p>
 
-<pre><code>&lt;code&gt;$ cd [CC_INSTALL]
-$ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
-&lt;/code&gt;
+<pre><code>1. Project Planning
+
+
+2. Requirement Development
+
+
+3. Coding
+
+
+4. UAT
+
+
+5. Implementasi
 </code></pre>
 
-<p>Bila tidak ada error, maka kita bisa browse ke http://localhost:8080</p>
+<ol>
+<li>Modul Kas</li>
+</ol>
 
-<p>Ini adalah halaman depan. Memuat status masing-masing project.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/halaman-depan.png" alt="Halaman Depan CruiseControl" /></p>
 
-<p>Ini adalah halaman untuk TestingTraining.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/build-detail.png" alt="Hasil Build" /></p>
+<pre><code>1. Project Planning
 
-<p>Seperti kita lihat, hasilnya build failed, karena database MySQL yang diperlukan untuk test belum dijalankan. Mari kita nyalakan dan buat test ini menjadi sukses. Setelah sukses, tampilannya seperti ini.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/build-success.png" alt="Hasil Build yang sukses" /></p>
 
-<p>Kita bisa melihat hasil unit test di dalam tab Test Result.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/test-result.png" alt="Hasil JUnit" /></p>
+2. Requirement Development
 
-<p>Berapa kali gagal, berapa kali sukses? Kita bisa lihat di tab Metric.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/metric.png" alt="Metric tentang hasil build" /></p>
 
-<p>Bila kita sudah menjalankan daily build ini selama beberapa waktu, di repository kita akan dihasilkan tag sesuai dengan build yang sukses. Berikut contohnya.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2007/07/build-result.png" alt="Daftar Tag yang dibuat CruiseControl" /></p>
+3. Coding
 
-<p>Demikianlah penggunaan CruiseControl. Dengan menggunakan CruiseControl ini, para programmer bisa dibebaskan dari tugas membosankan, sehingga waktunya bisa digunakan untuk hal lain yang lebih bermanfaat, seperti misalnya menulis blog atau menambah teman baru di Friendster.</p>
+
+4. UAT
+
+
+5. Implementasi
+</code></pre>
+
+<p>Pendekatan ini bukan waterfall, karena delivery-nya iteratif dan kecil-kecil. Satu modul biasanya berkisar 1 - 2 bulan saja, kira-kira sesuai dengan panjang sprint yang dianjurkan di metodologi Scrum. Tapi pendekatan ini juga bukan murni agile, karena ada global project planning dan requirement di awal. Untuk apa ada kegiatan itu? Tidak lain dan tidak bukan adalah untuk mengantisipasi interkoneksi antar modul.</p>
+
+<p>Bila kita langsung mengambil salah satu modul untuk diiterasi, maka ada resiko modul tersebut tidak nyambung dengan modul lainnya. Memang bisa disambungkan, tapi nanti akan berkesan tambal sulam. Istilahnya Fred Brooks dalam Mythical Man Month, tidak ada Conceptual Integrity. Oleh karena itu kita perlu melakukan global requirement development untuk melihat interaksi antar modul.</p>
+
+<p>Pembaca yang teliti mungkin juga akan bertanya, mengapa kita menggunakan istilah Requirement Development, bukannya Requirement Gathering? Ini karena untuk mendapatkan requirement, perlu usaha ekstra, tidak sekedar memungut (gathering) informasi di sana-sini. Seringkali kita harus menanyakan hal yang sama dari beberapa sudut pandang untuk mendapatkan apa maunya user. Di saat lain, kita harus bisa menebak fitur yang tersirat. Kalau user bilang, &#8220;Harus ada fitur untuk menyimpan data transaksi&#8221;, berarti tidak cuma ada screen edit dan list. Tapi juga harus ada fitur search berdasarkan tanggal, produk, nilai transaksi, dan atribut lainnya. Kadangkala ini juga berarti harus ada fitur untuk export/import ke format file lainnya. Jadi, untuk mendapatkan requirement, perlu proses development. Mulai dari sedikit, lalu diakumulasi, dan dikristalisasi sehingga benar-benar akurat dan lengkap. Jangan sampai ada yang ketinggalan.</p>
+
+<p>Kelima fase yang dijelaskan di atas merupakan fase yang sekuensial. Artinya, satu fase dijalankan setelah fase lain selesai. Kita tidak bisa mulai implementasi sebelum UAT selesai. Well, bisa sih, tapi hasilnya <em>tidak akan menyenangkan</em>. Demikian juga, kalau belum selesai coding, ya jangan UAT dulu. Bisa sih maksain UAT, tapi tentu <em>tidak akan menyenangkan</em>. Begitu juga halnya kalau kita coding sebelum jelas requirementnya.</p>
+
+<p>Selain fase yang sekuensial tersebut, ada juga serangkaian kegiatan yang harus kita lakukan secara kontinyu sepanjang project. Yaitu project tracking dan change management.</p>
+
+<h2>Project Tracking</h2>
+
+<p>Project tracking tidak sulit. Setiap minggu, harus ada orang yang melihat project plan dan membandingkan dengan kondisi sekarang. Task mana yang sudah selesai, mana yang sedang dikerjakan, mana yang sudah selesai. Kondisi sekarang ini direkap ke dalam satu laporan, 1-2 halaman, dan dilaporkan ke client dan manajemen. Di ArtiVisi, mengadopsi dari BaliCamp, selain rekap task juga disertakan rekap resiko dan masalah yang terjadi dalam proyek. Ini akan menjadi bahan diskusi dengan client, bagaimana cara memecahkan masalah tersebut, dan bagaimana mencegah resiko agar tidak berdampak merugikan.</p>
+
+<h2>Requirement Development</h2>
+
+<p>Sebelum membahas change management, kita bahas dulu requirement. Di ArtiVisi, requirement bentuknya adalah daftar screen aplikasi, biasanya dibuat dengan Netbeans. Kami tidak menggunakan format naratif seperti yang dianut beberapa organisasi dan dinamai User Requirement Specification (URS), Business Requirement Specification (BRS), atau Software Requirement Specification (SRS), User Story, atau istilah-istilah lainnya. Berdasarkan pengalaman, dokumen naratif membuat user malas berinteraksi. Untuk aplikasi shopping cart sederhana saja, bila dibuatkan <em>RS, akan menjadi lebih dari 20 halaman. Apalagi untuk aplikasi yang besar. Client akan malas membaca, dan akibatnya pada saat aplikasi dideliver hasilnya tidak sesuai ekspektasi, walaupun sesuai dengan </em>RS.</p>
+
+<p>ArtiVisi menggunakan prototype aplikasi untuk requirement. Kita buatkan screen desktop ataupun web, diisi data hardcoded, dan sudah memiliki menu dan flow. Dari screen registrasi klik submit akan masuk screen konfirmasi, dst. Dengan menggunakan prototype yang bisa diisi dan diklik, user akan lebih bersemangat untuk berinteraksi, sehingga hasil requirement akan menjadi berkualitas. Pada fase requirement ini user bebas meminta modifikasi apapun asal masih dalam scope yang disepakati.</p>
+
+<p>Setelah tidak ada lagi perubahan signifikan, semua screen dicapture, dimasukkan ke dokumen, dan diapprove client (sign off). Ini akan menjadi patokan dalam proses development, diantaranya digunakan oleh programmer untuk coding, dan technical writer untuk membuat user manual.</p>
+
+<h2>Change Management</h2>
+
+<p>Perubahan setelah sign off harus melalui prosedur change management. Ini gunanya agar progress project bisa terkendali. Sering sekali banyak project molor dan tidak selesai-selesai karena banyak perubahan ini itu yang tidak dikelola dengan baik sehingga tidak terlihat titik akhirnya.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2010/02/change-procedure_id-212x300.png" title="Prosedur Change Management" >
+Prosedur change management tidak rumit. Hanya terdiri dari tiga langkah saja, yaitu :</p>
+
+<ol>
+<li><p>Requester menjelaskan perubahan yang diminta, apa alasan yang mendasari perubahan</p></li>
+<li><p>Tim development menganalisa dampak perubahan, apakah ada coding yang berubah, user manual, test scenario, dsb. Output dari analisa ini adalah estimasi berapa tambahan waktu, tenaga, dan biaya untuk mengeksekusi perubahan ini</p></li>
+<li><p>Manajemen di sisi client memutuskan berdasarkan estimasi tersebut, apakah perubahan ini akan :</p></li>
+</ol>
+
+
+<pre><code>* Dijalankan segera
+
+
+* Ditunda ke iterasi berikut
+
+
+* Ditolak, artinya tidak jadi dijalankan pada project ini, mungkin saja dijadikan project baru.
+</code></pre>
+
+<p>Dengan adanya proses ini, akan jelas berapa hari project akan mundur, dan berapa biaya tambahannya.</p>
+
+<p>Demikian sharing tentang praktek yang kita gunakan di ArtiVisi. Metodologi ini cukup sederhana, sehingga bisa dijalankan bahkan di project yang one-man-show. Project manager dia, business analyst dia, programmer dia juga, training lagi-lagi dia, terima transferan tidak lain dan tidak bukan adalah dia juga. Di project berskala besar, metodologi ini juga cukup efektif untuk membuat project berjalan secara predictable.</p>
+
+<p>Masih ada penjelasan lebih lanjut yang harus ditulis, diantaranya bagaimana cara menghitung (estimasi) project, dan bagaimana melakukan project planning dan tracking yang efektif. Ini akan dibahas di tulisan yang lain.</p>
+
+<p>Bila ingin berkomentar atau berdiskusi, silahkan bergabung di milis it-project-indonesia@googlegroups.com dengan cara mengirim email kosong ke it-project-indonesia-subscribe@googlegroups.com</p>
 </div>
   
   
@@ -1884,6 +790,26 @@ $ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
     
       <li class="post">
         <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
       </li>
     
   </ul>
@@ -1937,6 +863,15 @@ $ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
 
 
 
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
 
 
   
@@ -1954,7 +889,24 @@ $ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
 
 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
 
 
 

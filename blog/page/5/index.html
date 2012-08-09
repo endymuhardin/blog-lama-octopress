@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Null Date di MySQL Bila memiliki tipe data DATE di database MySQL, format standarnya adalah yyyy-MM-dd.
-Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
+  <meta name="description" content="Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -30,6 +29,9 @@ Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
 
   
 
@@ -80,7 +82,7 @@ Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/null-date-di-mysql/">Null Date Di MySQL</a></h1>
+        <h1 class="entry-title"><a href="/blog/Aplikasi/pemakaian-git-sehari-hari/">Pemakaian Git Sehari-hari</a></h1>
       
     
     
@@ -97,959 +99,674 @@ Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
   
 
 
-<time datetime="2009-03-04T17:01:52+07:00" pubdate data-updated="true">Mar 4<span>th</span>, 2009</time>
+<time datetime="2011-02-08T16:02:29+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Null Date di MySQL</p>
+  <div class="entry-content"><p>Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami beberapa istilah sebagai berikut:</p>
 
-<p>Bila memiliki tipe data DATE di database MySQL, format standarnya adalah yyyy-MM-dd.
-Jadi, bila kita mau mengisi 17 Agustus 1945, kita lakukan seperti ini</p>
+<ul>
+<li><p>diff : perbedaan antara satu file dengan file lain
+biasanya diff dilakukan terhadap satu file yang sudah berubah isinya</p></li>
+<li><p>changeset : kumpulan diff</p></li>
+<li><p>working folder : folder kerja kita, berisi file yang (mungkin) sudah berubah sejak commit terakhir</p></li>
+<li><p>staging : tempat persiapan changeset yang akan dicommit</p></li>
+<li><p>commit : snapshot dari posisi folder dan file pada waktu tertentu</p></li>
+<li><p>tip : commit paling ujung</p></li>
+<li><p>head : nama lain tip</p></li>
+<li><p>branch : head yang diberi nama</p></li>
+<li><p>HEAD : head yang sedang aktif</p></li>
+<li><p>merge : menggabungkan lebih dari satu commit</p></li>
+</ul>
 
-<pre><code>INSERT INTO hari_besar_nasional (tanggal, keterangan)
-VALUES ('1945-08-17', 'Hari Kemerdekaan RI');
+
+<h2>Membuat Repository</h2>
+
+<p>Untuk bisa mulai bekerja, kita harus memiliki repository dulu. Ada dua kemungkinan, kita membuat repository baru, atau kita membuat clone dari repository yang sudah ada.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat repository baru</p>
+
+<p>git init</p>
+
+<p>membuat repository baru di folder project-baru</p>
+
+<p>git init project-baru</p>
+
+<p>membuat repository untuk dishare</p>
+
+<pre><code>git init --bare project-baru
 </code></pre>
 
-<p>Bila kita tidak mengisikan tanggal alias NULL, maka MySQL akan mengisi kolom tersebut dengan nilai 0000-00-00. Sayangnya, nilai ini tidak diterima dengan baik oleh driver JDBC MySQL.</p>
+<p>copy repository lain</p>
 
-<p>Berikut contoh kode program dalam Java</p>
+<p>git clone repo-url</p>
 
-<pre><code>String sql = "select * from hari_besar_nasional";
-ResultSet rs = connection.createStatement().executeQuery(sql);
+<p>pilihan format URL</p>
 
-while(rs.next()){
-  System.out.println("Tanggal : "+rs.getDate("tanggal");
-  System.out.println("Keterangan : "+rs.getString("keterangan");
+<p>file:///path/ke/repo : clone dari folder lokal</p>
+
+<p>/path/ke/repo : clone dari folder lokal, menggunakan hard link</p>
+
+<p>http://server/path/ke/repo : clone melalui protokol http</p>
+
+<p>username@server:path/ke/repo : clone melalui protokol ssh</p>
+
+<h2>Bekerja dengan Git</h2>
+
+<p>Berikut ini adalah perintah yang dilakukan selama sesi coding.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>Menambah file baru</p>
+
+<p>git add namafile</p>
+
+<p>Menghapus file</p>
+
+<p>git rm namafile</p>
+
+<p>Memasukkan perubahan di satu file ke staging area</p>
+
+<p>git add namafile</p>
+
+<p>memasukkan semua perubahan</p>
+
+<p>git add .</p>
+
+<p>memilih potongan kode yang akan dimasukkan</p>
+
+<p>git add -p</p>
+
+<p>memasukkan perubahan ke staging menggunakan menu</p>
+
+<p>git add -i</p>
+
+<p>melihat status perubahan file, mana yang masih di working dan mana yang sudah di staging</p>
+
+<p>git status</p>
+
+<p>mengeluarkan perubahan dari staging area</p>
+
+<pre><code>git reset -- namafile
+</code></pre>
+
+<p>melihat perubahan yang belum dimasukkan ke staging area</p>
+
+<p>git diff</p>
+
+<p>melihat perubahan yang akan dicommit (sudah ada di staging area)</p>
+
+<pre><code>git diff --staged
+</code></pre>
+
+<p>melihat perubahan antara working folder dan commit terakhir</p>
+
+<p>git diff HEAD</p>
+
+<p>melihat file mana saja yang berubah</p>
+
+<pre><code>git diff --name-status abc123..def456
+</code></pre>
+
+<p>melakukan commit, editor akan diaktifkan untuk mengisi keterangan</p>
+
+<p>git commit</p>
+
+<p>melakukan commit, langsung mengisi keterangan</p>
+
+<p>git commit -m &#8220;langsung isi keterangan di sini&#8221;</p>
+
+<p>commit langsung semua perubahan, tanpa melalui staging</p>
+
+<p>git commit -a</p>
+
+<p>melihat commit history</p>
+
+<p>git log</p>
+
+<p>log lima commit terakhir</p>
+
+<p>git log -5</p>
+
+<p>log hanya menampilkan summary</p>
+
+<pre><code>git log --oneline
+</code></pre>
+
+<p>tampilkan commit summary dari semua branch dengan graph hubungan antar commit</p>
+
+<pre><code>git log --oneline --all --graph
+</code></pre>
+
+<p>membuat commit baru yang berkebalikan dengan (undo) commit terakhir</p>
+
+<p>git revert HEAD</p>
+
+<p>undo 2 commit terakhir</p>
+
+<p>git revert HEAD~2</p>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging disamakan dengan HEAD, working tetap seperti semula. <br/>
+Ini adalah opsi defaultnya reset</p>
+
+<pre><code>git reset --mixed
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, isi working dan staging disamakan dengan commit-id tersebut</p>
+
+<pre><code>git reset --hard commit-id
+</code></pre>
+
+<p>memindahkan HEAD ke commit-id yang diminta, staging dan working tidak disentuh. Tidak mengubah output git status</p>
+
+<pre><code>git reset --soft
+</code></pre>
+
+<p>membuat working dan staging sama dengan HEAD</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja paralel menggunakan branch</h2>
+
+<p>Branch memungkinkan kita bekerja secara paralel, misalnya ada tim yang menambah fitur, dan ada tim yang melakukan bug fix.</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>membuat branch baru</p>
+
+<p>git branch namabranch</p>
+
+<p>pindah ke branch tersebut</p>
+
+<p>git checkout namabranch</p>
+
+<p>bikin branch sambil pindah</p>
+
+<p>git checkout -b namabranch</p>
+
+<p>membuat tracking branch untuk branch bugfix di origin</p>
+
+<pre><code>git checkout --track origin/bugfix
+</code></pre>
+
+<p>membuat tracking branch dengan nama berbeda dengan remote</p>
+
+<p>git checkout -b myfix origin/bugfix</p>
+
+<p>membandingkan branch satu dengan lainnya</p>
+
+<p>git diff master..fitur-xx</p>
+
+<p>membandingkan branch dengan titik awal branch tersebut</p>
+
+<p>git diff master&#8230;fitur-xx</p>
+
+<p>menggabungkan branch satu dengan lainnya</p>
+
+<p>git checkout branch-tujuan</p>
+
+<p>git merge branch-yang-mau-diambil</p>
+
+<p>Mengedit konflik :</p>
+
+<ul>
+<li><p>edit konfliknya</p></li>
+<li><p>remove markernya</p></li>
+</ul>
+
+
+<p>git add namafile-yang-konflik</p>
+
+<p>git commit -m &#8220;merge fitur-xxx ke master&#8221;</p>
+
+<p>membatalkan merge yang konflik</p>
+
+<pre><code>git reset --hard
+</code></pre>
+
+<h2>Bekerja dengan remote</h2>
+
+<p>Interaksi dengan remote repository</p>
+
+<p>Keterangan
+Perintah</p>
+
+<p>mendaftarkan remote repository</p>
+
+<p>git remote add namaremote url</p>
+
+<p>melihat daftar remote repository</p>
+
+<p>git remote -v</p>
+
+<p>menghapus remote repository</p>
+
+<p>git remote rm namaremote</p>
+
+<p>mengambil perubahan di remote</p>
+
+<p>git remote update</p>
+
+<p>mengambil perubahan di satu remote saja</p>
+
+<p>git remote update namaremote</p>
+
+<p>mengambil perubahan di remote, hapus branch di lokal yang sudah tidak ada di remote</p>
+
+<pre><code>git remote update --prune
+</code></pre>
+
+<p>mengambil perubahan sesuai refspec yang sudah dikonfigurasi</p>
+
+<p>git fetch namaremote</p>
+
+<p>mengambil perubahan kemudian dimerge ke branch lokal yang sesuai</p>
+
+<p>pull = fetch + merge</p>
+
+<p>git pull namaremote</p>
+
+<p>mengirim perubahan di lokal ke remote</p>
+
+<p>git push nama-remote nama-branch-lokal:nama-branch-remote</p>
+
+<p>mengirim perubahan di lokal ke remote, semua branch yang namanya bersesuaian akan dikirim</p>
+
+<p>git push nama-remote</p>
+
+<p>mengirim perubahan di branch lokal yang sedang aktif ke branch di remote dengan nama yang sama</p>
+
+<p>git push nama-remote HEAD</p>
+
+<p>menghapus branch di remote</p>
+
+<p>git push nama-remote :nama-branch-remote</p>
+
+<p>Demikianlah perintah-perintah Git yang kita gunakan sehari-hari. Melengkapi daftar perintah di atas, diagram berikut dapat membantu pemahaman kita tentang konsep dan operasi di Git.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/git-300x284.png" title="" ></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Java/project-setup-dengan-gradle/">Project Setup Dengan Gradle</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-01T20:21:35+07:00" pubdate data-updated="true">Feb 1<span>st</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Project Setup dengan menggunakan Gradle dan Git</p>
+
+<p>Hal pertama yang kita lakukan sebelum mulai bekerja tentunya adalah menyiapkan meja kerja dan peralatannya. Sama juga dengan mulai membuat aplikasi. Kita harus menyiapkan struktur folder, library dan framework, dan mengatur semuanya agar siap dikerjakan di meja kita, dalam hal ini IDE.</p>
+
+<p>Di ArtiVisi, biasanya ini dikerjakan oleh programmer senior, yaitu <a href="http://martinusadyh.web.id/">Martinus</a> atau saya sendiri. Kegiatan project setup ini tidak terlalu tinggi frekuensinya, karena biasanya coding project yang existing jauh lebih sering daripada memulai project baru.</p>
+
+<p>Yang jarang dikerjakan biasanya cepat dilupakan. Inilah alasan utama saya menulis posting kali ini, sebagai pengingat buat diri sendiri. Selain itu, mudah-mudahan ada manfaatnya juga untuk para pembaca sekalian.</p>
+
+<p>Sebagai gambaran, tipikal aplikasi di ArtiVisi menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">stack standar 2011</a>. Jadi, project setup ini akan dibuat mengikuti stack standar tersebut.</p>
+
+<p>Pertama kali, kita buat dulu projectnya. Satu aplikasi biasanya kita pecah menjadi beberapa komponen, yaitu :</p>
+
+<ul>
+<li><p>Domain Model dan Service API : ini kita pisahkan untuk memudahkan distribusi ke aplikasi client. Perhatikan bahwa yang saya maksud client di sini bukanlah customer pembeli aplikasi, melainkan aplikasi di sisi hilir misalnya user interface yang dibuat dengan Swing. Di sisi client, tidak perlu ada detail implementasi. Cukup class-class domain seperti Produk, Kategori, dsb. Juga kita sediakan service interface, yaitu method yang bisa digunakan untuk menjalankan proses bisnis.</p></li>
+<li><p>Implementasi Service : ini adalah implementasi dari service interface di atas. Implementasi biasanya hanya ada di sisi server. Jadi, jar yang dihasilkan project ini tidak kita distribusikan ke client</p></li>
+<li><p>Konfigurasi : file konfigurasi seperti jdbc.properties, logback-test.xml, smtp.properties, dan setting-setting lain kita juga pisahkan ke project sendiri. Ini tujuannya untuk memudahkan deployment. Seperti kita tahu, biasanya ada beberapa environment seperti development di laptop programmer, testing server, dan production server. Dengan memisahkan konfigurasi, kita bisa menghindari mendeploy konfigurasi development ke server production. Yang perlu diperhatikan di sini, hibernate.cfg.xml dan applicationContext.xml bukanlah file konfigurasi. Itu adalah file aplikasi, walaupun bentuknya xml dan tidak perlu dikompilasi.</p></li>
+<li><p>User Interface : kalau aplikasi desktop, ini hanya satu project saja. Atau mungkin dua dengan konfigurasinya. Tapi untuk web, biasanya kita pecah dua juga. Yang satu berisi source code java, satu lagi berisi aplikasi web. Dengan demikian, bila ada perubahan di controller, kita cukup deploy 1 jar, tidak perlu upload 1 war.</p></li>
+</ul>
+
+
+<p>Sebagai ketentuan lain, biasanya nama package selalu kita awali dengan com.artivisi, dan struktur folder mengikuti standar Maven.</p>
+
+<p>Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project.</p>
+
+<div><script src='https://gist.github.com/794650.js?file=folder-structure.sh'></script>
+<noscript><pre><code>mkdir -p project-contoh/com.artivisi.contoh.{config,domain,service.impl,ui.springmvc,ui.web}/src/{main,test}/{java,resources}
+mkdir -p project-contoh/com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</code></pre></noscript></div>
+
+
+<p>Outputnya bisa kita lihat sebagai berikut</p>
+
+<pre><code>find . 
+.
+./com.artivisi.contoh.service.impl
+./com.artivisi.contoh.service.impl/src
+./com.artivisi.contoh.service.impl/src/test
+./com.artivisi.contoh.service.impl/src/test/java
+./com.artivisi.contoh.service.impl/src/test/resources
+./com.artivisi.contoh.service.impl/src/main
+./com.artivisi.contoh.service.impl/src/main/java
+./com.artivisi.contoh.service.impl/src/main/resources
+./com.artivisi.contoh.domain
+./com.artivisi.contoh.domain/src
+./com.artivisi.contoh.domain/src/test
+./com.artivisi.contoh.domain/src/test/java
+./com.artivisi.contoh.domain/src/test/resources
+./com.artivisi.contoh.domain/src/main
+./com.artivisi.contoh.domain/src/main/java
+./com.artivisi.contoh.domain/src/main/resources
+./com.artivisi.contoh.ui.springmvc
+./com.artivisi.contoh.ui.springmvc/src
+./com.artivisi.contoh.ui.springmvc/src/test
+./com.artivisi.contoh.ui.springmvc/src/test/java
+./com.artivisi.contoh.ui.springmvc/src/test/resources
+./com.artivisi.contoh.ui.springmvc/src/main
+./com.artivisi.contoh.ui.springmvc/src/main/java
+./com.artivisi.contoh.ui.springmvc/src/main/resources
+./com.artivisi.contoh.config
+./com.artivisi.contoh.config/src
+./com.artivisi.contoh.config/src/test
+./com.artivisi.contoh.config/src/test/java
+./com.artivisi.contoh.config/src/test/resources
+./com.artivisi.contoh.config/src/main
+./com.artivisi.contoh.config/src/main/java
+./com.artivisi.contoh.config/src/main/resources
+./com.artivisi.contoh.ui.web
+./com.artivisi.contoh.ui.web/src
+./com.artivisi.contoh.ui.web/src/test
+./com.artivisi.contoh.ui.web/src/test/java
+./com.artivisi.contoh.ui.web/src/test/resources
+./com.artivisi.contoh.ui.web/src/main
+./com.artivisi.contoh.ui.web/src/main/java
+./com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF
+./com.artivisi.contoh.ui.web/src/main/resources
+</code></pre>
+
+<p>Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle.
+Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle</p>
+
+<div><script src='https://gist.github.com/794650.js?file=settings.gradle'></script>
+<noscript><pre><code>include &quot;com.artivisi.contoh.config&quot;
+include &quot;com.artivisi.contoh.domain&quot;
+include &quot;com.artivisi.contoh.service.impl&quot;
+include &quot;com.artivisi.contoh.ui.springmvc&quot;
+include &quot;com.artivisi.contoh.ui.web&quot;</code></pre></noscript></div>
+
+
+<p>Dan ini build file Gradle.</p>
+
+<div><script src='https://gist.github.com/794650.js?file=build.gradle'></script>
+<noscript><pre><code>springVersion = &quot;3.0.5.RELEASE&quot;
+springSecurityVersion = &quot;3.0.5.RELEASE&quot;
+slf4jVersion = &quot;1.6.1&quot;
+logbackVersion = &quot;0.9.27&quot;
+jodaTimeVersion = &quot;1.6.2&quot;
+sourceCompatibility = 1.6
+ 
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+ 
+    configurations {
+        all*.exclude group: &quot;commons-logging&quot;, module: &quot;commons-logging&quot;
+    }
+ 
+    repositories {
+        mavenCentral()
+    }
+ 
+    dependencies {
+        compile &quot;org.slf4j:jcl-over-slf4j:$slf4jVersion&quot;,
+                &quot;org.slf4j:jul-to-slf4j:$slf4jVersion&quot;
+                
+        runtime &quot;joda-time:joda-time:$jodaTimeVersion&quot;        
+                
+        runtime &quot;ch.qos.logback:logback-classic:$logbackVersion&quot;
+  
+        testCompile 'junit:junit:4.7'
+    }
+ 
+    group = 'com.artivisi.contoh'
+    version = '1.0-SNAPSHOT'
+    sourceCompatibility = 1.6
+    
+    task wrapper(type: Wrapper) {
+        gradleVersion = '0.9.1'
+        jarFile = 'wrapper/wrapper.jar'
+    }
 }
 
-rs.close();
-</code></pre>
-
-<p>Jika ada data yang berisi 0000-00-00, maka akan terjadi exception sebagai berikut:</p>
-
-<blockquote><p>java.sql.SQLException: Cannot convert value &#8216;0000-00-00 00:00:00&#8217;</p></blockquote>
-
-<p>Masalah ini dijelaskan di <a href="http://dev.mysql.com/doc/refman/5.0/en/using-date.html">dokumentasi MySQL ini</a>.</p>
-
-<p>Solusinya adalah mengganti parameter koneksi database, yang tadinya seperti ini :</p>
-
-<pre><code>jdbc:mysql://localhost/nama_database
-</code></pre>
-
-<p>menjadi seperti ini</p>
-
-<pre><code>jdbc:mysql://localhost/nama_database?zeroDateTimeBehavior=convertToNull
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Lain2/Linux/vmware-eth/">Network Device Menghilang Di VMWare</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-03T15:04:24+07:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Saya menggunakan VMWare secara intensif dalam proses development.
-Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik client. Beberapa merek database seperti Oracle relatif invasif terhadap sistem, misalnya mendikte jumlah swap ataupun mengharuskan mengedit kernel parameter. Tentunya ini membuat kotor sistem operasi saya.</p>
-
-<p>Selain itu, kadangkala client menggunakan sistem operasi yang berbeda dengan yang saya gunakan. Ini juga dapat diselesaikan dengan menggunakan VMWare.</p>
-
-<p>Saya menyimpan file-file VM di harddisk eksternal, untuk meningkatkan performance. Menurut <a href="http://www.codinghorror.com">Jeff Atwood</a>, kinerja VM akan meningkat bila dia berada di harddisk yang berbeda dengan hostnya.</p>
-
-<p>Penyimpanan di harddisk eksternal ini ternyata mengundang sedikit masalah. Kadangkala network interface VM saya menghilang. Masalah ini terjadi pada kombinasi host Ubuntu dan guest Ubuntu.</p>
-
-<p>Setelah googling kesana kemari, ternyata ini disebabkan oleh beberapa hal :</p>
-
-<ol>
-<li><p>Ubuntu me-mount partisi harddisk eksternal secara acak. Kadang partisi 1 dimount ke /media/disk-1, kadang ke /media-disk-2</p></li>
-<li><p>Bila posisi mount berubah, VMWare akan menggenerate UUID (ID unik untuk guest VM) baru</p></li>
-<li><p>Setiap kali UUID berubah, MAC Address network interface guest VM juga berubah.</p></li>
-<li><p>Ubuntu di guest VM meng-cache MAC address, sehingga kalau MAC yang dia cache tidak ada, network interface tersebut tidak akan diload</p></li>
-</ol>
-
-
-<p>Solusinya mudah, yaitu menghapus cache MAC address di guest Ubuntu, dan merestartnya. Caranya, login ke guest OS, lalu hapus file /etc/udev/rules.d/70-persistent-net.rules. Setelah itu restart.</p>
-
-<pre><code>sudo rm /etc/udev/rules.d/70-persistent-net.rules
-sudo reboot
-</code></pre>
-
-<p>Setelah restart, guest VM akan kembali memiliki ethernet card.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/enkripsi-jdbc-properties/">Enkripsi JDBC Properties</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-01-16T22:24:04+07:00" pubdate data-updated="true">Jan 16<span>th</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Enkripsi Password Database dengan Jasypt</p>
-
-<p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
-
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = java
-</code></pre>
-
-<p>Cepat atau lambat, kita akan menemui kebutuhan untuk menyembunyikan nilai yang diisikan ke dalam file tersebut untuk alasan keamanan. Tentunya kita tidak ingin orang yang bisa membaca file tersebut login ke database dan melihat berbagai data rahasia dalam database.</p>
-
-<p>Kita ingin mengenkripsi minimal variabel jdbc.password, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan Jasypt yang mampu menangani masalah enkripsi file tersebut.</p>
-
-<p>Biasanya, kita membaca file jdbc.properties di dalam konfigurasi Spring, seperti ini.</p>
-
-<pre><code>&lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
-</code></pre>
-
-<p>atau dalam versi yang lebih konvensional, seperti ini</p>
-
-<pre><code>&lt;bean id="propertyConfigurer" 
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"&gt;
-    &lt;property name="location" value="classpath:jdbc.properties"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>dan menggunakannya dalam konfigurasi dataSource seperti ini.</p>
-
-<pre><code>&lt;bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"&gt;
-    &lt;property name="driverClassName" value="${jdbc.driver}"&gt;&lt;/property&gt;
-    &lt;property name="url" value="${jdbc.url}"&gt;&lt;/property&gt;
-    &lt;property name="username" value="${jdbc.username}"&gt;&lt;/property&gt;
-    &lt;property name="password" value="${jdbc.password}"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Dengan menggunakan Jasypt, kita dapat mengenkripsi jdbc.properties sehingga menjadi seperti ini.</p>
-
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = ENC(y5+6JdRA4Xv/qbYjmYdo7A==)
-</code></pre>
-
-<p>Agar jdbc.password bisa dibaca dengan baik, kita ganti PropertyPlaceholderConfigurer dengan miliknya Jasypt, sehingga konfigurasi Spring kita menjadi seperti ini.</p>
-
-<pre><code>&lt;bean class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"&gt;
-    &lt;constructor-arg&gt;
-        &lt;bean class="org.jasypt.util.text.BasicTextEncryptor"&gt;
-        &lt;property name="password" value="test1234"/&gt;
-        &lt;/bean&gt;
-    &lt;/constructor-arg&gt;
-    &lt;property name="locations"&gt;
-        &lt;list&gt;
-        &lt;value&gt;classpath:jdbc.properties&lt;/value&gt;
-        &lt;/list&gt;
-    &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Terakhir, bagaimana cara kita mengetahui bahwa hasil enkripsi dari &#8216;java&#8217; adalah &#8216;y5+6JdRA4Xv/qbYjmYdo7A==&#8217; ??
-Gampang, buat saja kode Java sederhana seperti ini.</p>
-
-<pre><code>public class Main {
-
-    public static void main(String[] args) {
-        String encryptionPassword = "test1234";
-        BasicTextEncryptor encryptor = new BasicTextEncryptor();
-        encryptor.setPassword(encryptionPassword);
-
-        String jdbcPassword = "java";
-
-        System.out.println("String "+jdbcPassword+" diencrypt menjadi : "+encryptor.encrypt(jdbcPassword));
-
-    }
-
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Lain2/svn-externals/">SVN Externals</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-11-10T21:40:10+07:00" pubdate data-updated="true">Nov 10<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Dalam membuat aplikasi, seringkali kita membutuhkan source-code dari aplikasi lainnya. Misalnya, jika kita sudah membuat cukup banyak aplikasi, maka fitur login dan logout pasti sudah sering kita buat.</p>
-
-<p>Daripada menulis ulang fitur tersebut, alangkah lebih baiknya jika kita reuse kode programnya dalam aplikasi yang akan dibuat. Dengan demikian, setelah melewati beberapa project, kode program yang direuse tersebut akan bertambah kemampuannya dan semakin canggih.</p>
-
-<p>Kita dapat melakukan hal ini dengan menggunakan fitur svn external. Misalnya struktur kode program kita terdiri dari modul berikut:</p>
-
-<ul>
-<li><p>Master Data</p></li>
-<li><p>Transaksi</p></li>
-<li><p>Report</p></li>
-<li><p>Security</p></li>
-</ul>
-
-
-<p>Kita ingin me-reuse kode program security yang ada di aplikasi lain. Dengan demikian, kita perlu menambahkan folder tersebut ke dalam source-tree kita.</p>
-
-<p>Untuk melakukan hal tersebut, kita mengedit property Subversion yang bernama svn:externals. Berikut cara menambah property tersebut :</p>
-
-<ol>
-<li><p>Checkout dulu seluruh trunk.</p>
-
-<p> svn co http://repo.server.com/svn/nama-project/trunk project-saya</p></li>
-<li><p>Tambahkan property svn:externals ke project yang sudah ada.</p>
-
-<p> svn propset svn:externals &#8220;modul-security http://repo.server.com/svn/project-lain/trunk/modul-security&#8221; project-saya</p></li>
-<li><p>Commit deh</p>
-
-<p> cd project-saya
- svn ci -m &#8220;tambahkan property svn:external&#8221;</p></li>
-<li><p>Untuk mengambil source code modul-security, lakukan svn update</p>
-
-<p> svn update</p></li>
-</ol>
-
-
-<p>Kode program modul-security siap digunakan. Ingat, kalau kita melakukan perubahan di dalamnya dan melakukan commit, maka perubahan akan dikirim ke repository asalnya, yaitu http://repo.server.com/svn/project-lain/trunk/modul-security</p>
-
-<p>Lalu bagaimana kalau kita tidak ingin mengikuti perkembangan modul-security? Bisa saja ada programmer lain yang mengubah modul-security dan menyebabkan kode kita rusak.</p>
-
-<p>Caranya, referensikan modul-security ke tags, jangan ke trunk.</p>
-
-<p>Demikian cara berbagi kode program lintas project. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ant-ivy-8/">Membuat Mirror Repository Ivy</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-10-05T14:30:53+07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada rangkaian artikel sebelumnya, kita telah membahas tentang:</p>
-
-<ol>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-1">Instalasi Ivy</a></p></li>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-2">Build Management dengan Ivy</a></p></li>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-3">Otomasi Build Process dengan Ant</a></p></li>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-4">Publish Modul ke Repository</a></p></li>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-5">Deklarasi internal dependency</a></p></li>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-6">Deklarasi external dependency</a></p></li>
-<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-7">Ivy Configuration</a></p></li>
-</ol>
-
-
-<p>Semua konsep dan pengetahuan di atas memungkinkan kita untuk menggunakan Ivy secara efektif untuk mengelola pembuatan aplikasi. Tetapi ada sedikit hal yang masih mengganjal, yaitu borosnya bandwidth yang digunakan selama build process dilakukan.</p>
-
-<p>Pada artikel kali ini, kita akan membahas cara membuat mirror repository, sehingga pengambilan artifak dapat dilakukan dari server internal maupun harddisk lokal, sehingga tidak memboroskan bandwidth.</p>
-
-<p>Di artikel sebelumnya, kita telah membahas tentang deklarasi resolver. Resolver adalah konfigurasi yang menyatakan lokasi repository. Ada beberapa jenis resolver yang disediakan Ivy:</p>
-
-<ul>
-<li><p>Filesystem : repository Ivy di harddisk lokal</p></li>
-<li><p>URL : repository Ivy yang diakses melalui protokol http</p></li>
-<li><p>SSH : repository Ivy yang diakses melalui protokol scp/ssh</p></li>
-<li><p>SFTP : repository Ivy, diakses melalui protokol sftp</p></li>
-<li><p>VFS : repository Ivy, kompatibel dengan file system yang didukung oleh <a href="http://jakarta.apache.org/commons/vfs/">Apache Commons VFS</a>, diantaranya WebDAV, FTP, ZIP, <a href="http://jakarta.apache.org/commons/vfs/filesystems.html">dan sebagainya</a></p></li>
-<li><p>Ibiblio : repository Maven 2, diakses melalui protokol http</p></li>
-</ul>
-
-
-<p>Sebagai contoh kasus, kita akan membuat mirror dari repository ivy milik SpringSource dan repository Maven2 di Ibiblio.</p>
-
-<p>Pertama, kita deklarasikan dulu resolver untuk kedua repository sumber.
-Konfigurasi ini dibuat dalam ivysettings.xml.</p>
-
-<p>SpringSource memiliki dua repo berbeda, untuk artifak yang dihasilkannya sendiri (Spring Portfolio) disebut dengan release, dan untuk pustaka external (Hibernate, JSF, dsb; disebut dengan external. Berikut konfigurasi untuk kedua repo SpringSource, sesuai dengan <a href="http://www.springsource.com/repository/app/faq#q7">dokumentasinya</a>:</p>
-
-<pre><code>&lt;url name="springsource.release.repo.resolver"&gt;
-    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-&lt;/url&gt;
-
-&lt;url name="springsource.external.repo.resolver"&gt;
-    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-&lt;/url&gt;
-</code></pre>
-
-<p>Dan ini adalah resolver untuk Ibiblio.</p>
-
-<pre><code>&lt;ibiblio name="maven2" m2compatible="true" /&gt;
-</code></pre>
-
-<p>Repository SpringSource akan kita mirror di <code>http://repo.artivisi.com/ivy/springsource/</code> dengan struktur folder <code>nama-organisasi/nama-modul/nomer-revisi/[artifak]-[revisi].[extension]</code>. Folder tersebut berada di mesin <code>repo.artivisi.com</code> dalam folder <code>/var/www/repo.artivisi.com/ivy/springsource</code>. Berikut konfigurasi repo mirror-springsource.</p>
-
-<pre><code>&lt;ssh name="springsource.mirror.resolver" keyFile="${user.home}/.ssh/id_rsa" host="repo.artivisi.com" user="${mirror.host.user}"&gt;
-    &lt;ivy pattern="/var/www/repo.artivisi.com/ivy/springsource/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-    &lt;artifact pattern="/var/www/repo.artivisi.com/ivy/springsource/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-&lt;/ssh&gt;
-</code></pre>
-
-<p>Repository Ibiblio akan kita mirror di <code>http://repo.artivisi.com/ibiblio</code> dengan struktur folder berbeda, untuk metadata sebagai berikut: <code>[nama-organisasi]/[nama-modul]/ivys/ivy-[nomer-revisi].xml</code>, dan untuk artifak sebagai berikut: <code>[nama-organisasi]/[nama-modul]/[jenis]s/[artifak]-[nomer-revisi].[extension]</code>. Folder tersebut berada di mesin <code>repo.artivisi.com</code> dalam folder <code>/var/www/repo.artivisi.com/ibiblio</code>. Berikut konfigurasinya:</p>
-
-<pre><code>&lt;ssh name="ibiblio.mirror.resolver" keyFile="${user.home}/.ssh/id_rsa" host="repo.artivisi.com" user="${mirror.host.user}"&gt;
-    &lt;ivy pattern="/var/www/repo.artivisi.com/ibiblio/[organisation]/[module]/ivys/ivy-[revision].xml"/&gt;
-    &lt;artifact pattern="/var/www/repo.artivisi.com/ibiblio/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/&gt;
-&lt;/ssh&gt;
-</code></pre>
-
-<p>Setelah kita memiliki dua repository sumber dan dua repository tujuan, kita buat target untuk melakukan mirroring. Di Ivy, kegiatan mirroring ini disebut dengan istilah install. Kita memiliki tiga target install, untuk ibiblio, SpringSource release, dan SpringSource external. Berikut deklarasi targetnya, kita masukkan di <code>ivybuilder.xml</code> bersama dengan target untuk resolve dan publish.</p>
-
-<pre><code>&lt;target name="install-springsource-release" description="--&gt; install dependency from springsource repo"&gt;
-    &lt;ivy:install 
-        organisation="${organisation}" 
-        module="${module}" 
-        revision="${revision}"
-        from="${springsource.release.repo.resolver}" 
-        to="${springsource.mirror.resolver}" 
-        transitive="true"
-        overwrite="true"
-    /&gt;  
-&lt;/target&gt;
-
-&lt;target name="install-springsource-external" description="--&gt; install dependency from springsource repo"&gt;
-    &lt;ivy:install
-        organisation="${organisation}" 
-        module="${module}" 
-        revision="${revision}"
-        from="${springsource.external.repo.resolver}" 
-        to="${springsource.mirror.resolver}" 
-        transitive="true"
-        overwrite="true"
-    /&gt;
-
-&lt;/target&gt;
-
-&lt;target name="install-ibiblio" description="--&gt; install dependency from ibiblio maven2 repo"&gt;
-    &lt;ivy:install 
-        organisation="${organisation}" 
-        module="${module}" 
-        revision="${revision}"
-        from="${ibiblio.repo.resolver}" 
-        to="${ibiblio.mirror.resolver}" 
-        transitive="true"
-        overwrite="true"
-    /&gt;
-&lt;/target&gt;
-</code></pre>
-
-<p>Seperti kita lihat di atas, deklarasi target install cukup generik, dengan menggunakan variabel yang bisa di-override pada saat runtime. Untuk target <code>install-springsource-external</code>, kita gunakan repo external SpringSource sebagai sumber, dan mirror-springsource sebagai tujuan. Target <code>install-springsource-release</code> dan <code>install-ibiblio</code> juga mirip.</p>
-
-<p>Sekarang saatnya kita coba. Mari kita install Hibernate Annotations versi 3.3.1.GA. Modul ini ada di repository SpringSource external.</p>
-
-<p>Langkah pertama, cari dulu modul yang kita inginkan. Kita bisa gunakan <a href="http://www.springsource.com/repository">halaman search yang telah disediakan</a>. Dari <a href="http://www.springsource.com/repository/app/bundle/version/detail?name=com.springsource.org.hibernate.annotations&amp;version=3.3.1.ga">hasil pencarian</a>, kita menemukan modul yang diinginkan, berikut dengan deklarasi dependensinya. Sekarang kita telah mengetahui nama organisasi, nama modul, dan nomer revisinya.</p>
-
-<pre><code>ant install-springsource-external -Dorganisation="org.hibernate" -Dmodule="com.springsource.org.hibernate.annotations" -Drevision="3.3.1.ga"
-</code></pre>
-
-<p>Ivy akan melakukan resolve dan melihat semua dependensi dari Hibernate Annotations versi 3.3.1.GA. Setelah itu, Ivy akan mendonlodnya ke cache lokal, untuk kemudian diupload melalui scp ke lokasi mirror.</p>
-
-<p>Terakhir, tentunya mirror repository ini akan diakses orang menggunakan http, bukan ssh. Jadi kita harus buatkan resolver untuk mengakses <code>http://repo.artivisi.com/ivy/springsource</code> dan <code>http://repo.artivisi.com/ibiblio</code>. Berikut konfigurasinya, kita satukan menggunakan chain-resolver.</p>
-
-<p>Demikianlah rangkaian tutorial tentang penggunaan Ivy. Mungkin banyak pembaca yang membatin,</p>
-
-<blockquote><p>Buat apa repot-repot, pakai Netbeans atau Eclipse kan juga bisa bikin jar/war.</p></blockquote>
-
-<p>Biar saya kasih bocoran sedikit tentang dapur ArtiVisi. Kami akan mengadopsi SOA (Service Oriented Architecture) dalam semua produk dan project kami. Adopsi ini dilakukan di level mikro dengan menggunakan platform OSGi. Karakteristik utama aplikasi SOA dengan OSGi adalah aplikasi akan terdiri dari banyak modul-modul kecil yang saling berinteraksi. Contohnya bisa dilihat di diagram modul yang disajikan di awal artikel.</p>
-
-<p>Memecah aplikasi besar menjadi modul-modul kecil tidak terlalu sulit. Siapapun yang mengenal keyword <code>import</code> dan konsep CLASSPATH di Java bisa melakukannya. Yang sulit adalah mengelola kegiatan development dan integrasi antar modul. Oleh karena itu, penggunaan dependency management seperti Ivy atau Maven2 adalah hal yang wajib.</p>
-
-<p>Pembaca bisa memilih apakah akan menggunakan Maven2 ataupun Ivy. Konsep dasarnya mirip, tapi implementasinya berbeda. Jadi, kalau sudah menguasai Ivy, Maven2 tidak sulit. Demikian juga sebaliknya. Silahkan mencari yang sesuai dengan kebutuhan tim Anda.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ant-ivy-7/">Ivy Configuration</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-10-03T17:55:34+07:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Rangkaian <a href="http://endy.artivisi.com/blog/java/ant-ivy-6/">artikel sebelumnya</a> telah memberikan kita pemahaman yang memadai untuk menggunakan Ivy. Pada artikel ini, kita akan membahas satu fitur Ivy yang walaupun tidak wajib dikuasai, tapi sangat penting, karena dapat membuat konfigurasi modul kita menjadi fleksibel. Fitur ini dalam dunia Ivy dikenal dengan istilah <code>configuration</code>.</p>
-
-<p>Sebagai paket standar kualitas di ArtiVisi, kami menggunakan Cobertura untuk melakukan coverage test. Sayangnya Cobertura dan Hibernate tidak kompatibel. Hibernate menggunakan pustaka <code>asm</code> dengan versi 1.5.3. Sedangkan Cobertura juga menggunakan <code>asm</code>, dengan versi 2.2.1. Bila kedua versi kita campur, maka akan terjadi error karena Java VM kebingungan menentukan versi mana yang akan digunakan.</p>
-
-<p>Untuk mengatasi masalah ini, kita menggunakan fitur <code>configuration</code> Ivy. Kita membuat konfigurasi bernama <code>test</code> yang membawa <code>asm</code> versi 2.2.1 sesuai kebutuhan Cobertura. Selain itu, kita juga membuat konfigurasi bernama <code>runtime</code> dengan <code>asm</code> versi 1.5.3 untuk digunakan Hibernate. Hal ini dimungkinkan karena Cobertura hanya kita gunakan pada saat test.</p>
-
-<p>Contoh lain penggunaan <code>configuration</code> adalah kombinasi modul untuk merakit aplikasi. Misalnya, kita memiliki modul-modul berikut dalam aplikasi kita:</p>
-
-<ul>
-<li><p>model</p></li>
-<li><p>dao.api</p></li>
-<li><p>dao.hibernate</p></li>
-<li><p>dao.jdbc</p></li>
-<li><p>ui.web</p></li>
-<li><p>ui.desktop</p></li>
-</ul>
-
-
-<p>Kita dapat menggunakan konfigurasi Ivy untuk membentuk 4 kombinasi aplikasi, yaitu:</p>
-
-<ul>
-<li><p>Desktop dengan JDBC</p></li>
-<li><p>Desktop dengan Hibernate</p></li>
-<li><p>Web-based dengan JDBC</p></li>
-<li><p>Web-based dengan Hibernate</p></li>
-</ul>
-
-
-<p>Fitur configuration juga bisa digunakan untuk mengatur rilis artifak, sehingga dari satu paket source-code, kita bisa membuat rilis:</p>
-
-<ul>
-<li><p>Hanya source-code (source only)</p></li>
-<li><p>Hanya hasil kompilasi (binary only)</p></li>
-<li><p>Paket dokumentasi (javadoc, reference)</p></li>
-<li><p>Paket komplit (source, binary, dokumentasi)</p></li>
-</ul>
-
-
-<p>Kombinasi rilis ini umum kita temui dalam pustaka open-source populer seperti Spring Framework atau Hibernate.</p>
-
-<p>Masih banyak lagi skenario penggunaan configuration. Silahkan kembangkan imajinasi Anda untuk penggunaannya. Pada artikel ini, kita akan membahas skenario kombinasi aplikasi seperti ilustrasi di atas.</p>
-
-<p>Kita telah memiliki modul person-model, dengan deklarasi dependensi (ivy.xml) sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-model"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Daftar konfigurasi yang kita miliki didefinisikan dalam file ivyconfigurations.xml dan di-include dari masing-masing ivy.xml. Berikut isi ivyconfigurations.xml.</p>
-
-<pre><code>&lt;configurations&gt;
-    &lt;conf name="compile"            description="dependency for compile time only" /&gt;
-    &lt;conf name="api"     description="Domain Model and API only"/&gt;
-    &lt;conf name="impl"    description="implementation of APIs"/&gt;
-    &lt;conf name="source"  description="source code only"/&gt;
-&lt;/configurations&gt;
-</code></pre>
-
-<p>Kita juga punya modul person-dao, interface yang digunakan sebagai patokan implementasi akses database, dengan dependensi sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-api"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency name="person-model" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Modul person-dao ini memiliki dua jenis implementasi, yaitu dengan JDBC:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-jdbc"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration" conf="api"/&gt;
-
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>dan dengan Hibernate:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-hibernate"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Dengan memisahkan interface dan implementasi DAO, kita bisa langsung membuat dua jenis user interface, yaitu yang berbasis web sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-ui-springmvc"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration"  conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>dan berbasis desktop sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-ui-swing"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration"  conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Seperti kita lihat, untuk bisa membuat UI, kita hanya membutuhkan modul dao saja.</p>
-
-<p>Untuk merangkai aplikasi ini, kita membuat satu modul yang tidak berisi source-code Java sama sekali, melainkan hanya deklarasi dependensi saja.</p>
-
-<p>Berikut konfigurasi untuk aplikasi desktop dengan JDBC.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-apps"/&gt;
-
-    &lt;configurations&gt;
-        &lt;conf name="person-app-desktop-jdbc" description="Application with desktop UI and JDBC backend"/&gt;
-    &lt;/configurations&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency name="person-dao-jdbc" rev="latest.integration" 
-        conf="person-app-desktop-jdbc-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-swing" rev="latest.integration" 
-        conf="person-app-desktop-jdbc-&gt;impl"/&gt;
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>dan ini adalah konfigurasi untuk aplikasi web dengan Hibernate.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-apps"/&gt;
-
-    &lt;configurations&gt;
-        &lt;conf name="person-app-web-hibernate" description="Application with web-based UI and Hibernate backend"/&gt;
-    &lt;/configurations&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency name="person-dao-hibernate" rev="latest.integration" 
-        conf="person-app-web-hibernate-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-springmvc" rev="latest.integration" 
-        conf="person-app-web-hibernate-&gt;impl"/&gt;
-
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Deklarasi lengkap konfigurasi dan dependensi untuk keempat kombinasi aplikasi sebagai berikut.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-apps"/&gt;
-
-    &lt;configurations&gt;
-        &lt;conf name="person-app-web-jdbc" description="Application with web-based UI and JDBC backend"/&gt;
-        &lt;conf name="person-app-desktop-jdbc" description="Application with desktop UI and JDBC backend"/&gt;
-        &lt;conf name="person-app-web-hibernate" description="Application with web-based UI and Hibernate backend"/&gt;
-        &lt;conf name="person-app-desktop-hibernate" description="Application with desktop UI and Hibernate backend"/&gt;
-    &lt;/configurations&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency name="person-model" rev="latest.integration" conf="*-&gt;api"/&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration" conf="*-&gt;api"/&gt;
-
-        &lt;dependency name="person-dao-jdbc" rev="latest.integration" 
-        conf="person-app-web-jdbc-&gt;impl;person-app-desktop-jdbc-&gt;impl"/&gt;
-
-        &lt;dependency name="person-dao-hibernate" rev="latest.integration" 
-        conf="person-app-web-hibernate-&gt;impl;person-app-desktop-hibernate-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-swing" rev="latest.integration" 
-        conf="person-app-desktop-jdbc-&gt;impl;person-app-desktop-hibernate-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-springmvc" rev="latest.integration" 
-        conf="person-app-web-jdbc-&gt;impl;person-app-web-hibernate-&gt;impl"/&gt;
-
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Kita dapat merakit aplikasi dengan ant sebagai berikut</p>
-
-<pre><code>ant resolve
-</code></pre>
-
-<p>Nanti pada folder lib akan terbentuk empat folder sesuai konfigurasi. Isi dari masing-masing folder mencerminkan paket aplikasi sesuai kombinasi yang kita inginkan.</p>
-
-<p>Seperti kita lihat, dengan menggunakan fitur configuration, kita dapat merangkai empat kombinasi aplikasi dengan mudah. Tentunya aplikasi kita harus dirancang secara modular supaya mudah dikombinasikan seperti cerita di atas.</p>
-
-<p><a href="http://endy.artivisi.com/blog/java/ant-ivy-8/">Artikel berikutnya</a> akan menutup seri Ivy ini dengan cara membuat repository dalam organisasi kita. Dengan adanya repository lokal, kita dapat menghemat bandwidth internasional karena kebutuhan dependensi dapat ditangani oleh server internal.</p>
-
-<p>Kita akan melihat kemampuan Ivy untuk mengadaptasi repository baik yang memiliki metadata Ivy, maupun Maven.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ant-ivy-6/">External Dependency Dengan Ivy</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-10-01T17:06:24+07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-5/">artikel sebelumnya</a>, kita telah menghubungkan dua modul berbeda dengan deklarasi dependensi. Tapi hal itu belum cukup, karena pada aplikasi yang sebenarnya, kita akan banyak menggunakan pustaka yang tidak kita buat sendiri.</p>
-
-<p>Agar kita bisa menggunakan pustaka luar tersebut, kita harus mengetahui alamat repository yang menyimpan pustaka yang kita inginkan, berikut dependensinya. Misalnya, bila kita ingin menggunakan Hibernate, kita harus mengetahui repository yang memuat artifak hibernate.jar dan juga dependensinya seperti asm.jar, cglib.jar, dan segudang *.jar lainnya.</p>
-
-<p>Selanjutnya, untuk menghemat bandwidth perusahaan, kita dapat menaruh pustaka yang sering digunakan tersebut dalam jaringan perusahaan. Dengan demikian semua orang yang akan menggunakan *.jar tersebut tidak perlu mendonlod dari lokasi asalnya, tapi cukup dari jaringan lokal. Pembuatan mirror ini akan kita diskusikan di artikel terakhir dalam seri ini.</p>
-
-<p>Ada dua masalah utama yang kita hadapi dalam menggunakan pustaka luar. Pertama, bagaimana mencari dan memilih repository yang baik. Kedua, bagaimana mendaftarkannya dalam project kita.</p>
-
-<p>Mencari dan memilih repository merupakan hal yang krusial. Para pengguna Maven, tools untuk dependency management seperti Ivy, memiliki repository yang dapat diakses melalui internet. Akan tetapi, ada satu masalah besar, isinya tidak lengkap dan deklarasi metadatanya banyak yang berantakan. Sebagai ilustrasi, dari dokumentasi Hibernate kita mengetahui bahwa hibernate.jar membutuhkan asm.jar, commons-collection.jar, dan cglib.jar. Tapi di repository Maven, kadang hanya tersedia asm.jar. Artifak commons-collection.jar ada di deklarasi dependensi, tapi filenya tidak ada. Bahkan cglib.jar sama sekali tidak dicantumkan dalam deklarasi dependensi. Nah, kira-kira seperti itulah kondisi repository yang tidak dipelihara dengan baik. Metadata dependensinya tidak akurat, dan koleksi artifaknya tidak lengkap.</p>
-
-<p>Untungnya &#8211;SpringSource, perusahaan yang membekingi Spring Framework&#8211; telah membuatkan <a href="http://www.springsource.com/repository/">repository</a> yang cukup mumpuni. Mereka menjamin bahwa repository tersebut transitively complete. Artinya, bila hibernate.jar membutuhkan commons-collection.jar dan commons-collection.jar membutuhkan commons-lang.jar, kita bisa yakin bahwa ketiga .jar tersebut ada dalam repository. SpringSource menyediakan metadata untuk ivy dan maven2. Jadi selain kita pengguna Ivy, pengguna Maven2 juga bisa menggunakan repository tersebut. Semua *.jar yang ada dalam repo ini sudah dijamin OSGi compliant. Ini akan sangat berguna apabila kita membangun di platform OSGi. Yang paling penting, repository ini memiliki fasilitas pencarian.</p>
-
-<p>Bila dependensi yang kita inginkan tidak tersedia di repository SpringSource, kita masih dapat mencari ke repository Maven2 yang disediakan oleh ibiblio.</p>
-
-<p>Baiklah, masalah pertama sudah terpecahkan. Sekarang mari kita selesaikan masalah kedua, yaitu menggunakan kedua repository tersebut dalam aplikasi kita.</p>
-
-<p>Repository ini, sama dengan internal repository yang sudah kita bahas pada artikel terdahulu, akan dideklarasikan dalam file ivysettings.xml. Berikut adalah entri untuk repository SpringSource.</p>
-
-<pre><code>&lt;url name="springsource.release.repo.resolver"&gt;
-    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-&lt;/url&gt;
-
-&lt;url name="springsource.external.repo.resolver"&gt;
-    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-&lt;/url&gt;
-</code></pre>
-
-<p>Cara konfigurasi ini juga bisa dilihat di situs repository SpringSource.
-Dan ini adalah konfigurasi untuk repository iBiblio.</p>
-
-<pre><code>&lt;ibiblio name="maven2" m2compatible="true" /&gt;
-</code></pre>
-
-<p>Kita dapat menyuruh Ivy untuk terlebih dulu mencari di repo SpringSource. Bila ditemukan, hentikan pencarian. Bila tidak ditemukan, lanjutkan ke iBiblio. Untuk mengaktifkan mekanisme ini, gunakan ChainResolver sebagai berikut.</p>
-
-<pre><code>&lt;chain name="external-repository"&gt;
-
-    &lt;chain name="springsource-repository" returnFirst="true"&gt;
-        &lt;url name="springsource.release.repo.resolver"&gt;
-            &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-            &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-        &lt;/url&gt;
-        &lt;url name="springsource.external.repo.resolver"&gt;
-            &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-            &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-        &lt;/url&gt;
-    &lt;/chain&gt;
-
-    &lt;chain name="ibiblio.repo.resolver"&gt;
-        &lt;ibiblio name="maven2" m2compatible="true" /&gt;
-    &lt;/chain&gt;
-
-&lt;/chain&gt;
-</code></pre>
-
-<p>Atribut <code>returnFirst</code> digunakan untuk menghentikan pencarian bila artifak sudah ditemukan.</p>
-
-<p>Setelah repository kita daftarkan, kita tinggal mengkonfigurasi dependensi di project kita. Modul person-dao-impl akan menggunakan Spring Framework 2.5.5.A dan juga Hibernate 3.2.6.ga. Kita dapat mencari di situs repository SpringSource untuk mendapatkan deklarasi dependensi yang sesuai untuk <a href="http://www.springsource.com/repository/app/search?query=spring">Spring Framework</a> dan <a href="http://www.springsource.com/repository/app/search?query=hibernate">Hibernate</a>.</p>
-
-<p>Berikut adalah file ivy.xml dari modul person-dao-impl.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="com.artivisi.tutorial.ivy.dao.impl"/&gt;
-    &lt;publications&gt;    
-        &lt;artifact name="${ant.project.name}"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency
-            org="com.artivisi"
-            name="com.artivisi.tutorial.ivy.dao.api"
-            rev="latest.integration"
-        /&gt;
-
-        &lt;dependency 
-            org="org.springframework" 
-            name="org.springframework.orm" 
-            rev="2.5.5.A"
-        /&gt;
-
-        &lt;dependency 
-            org="org.hibernate" 
-            name="com.springsource.org.hibernate" 
-            rev="3.2.6.ga"
-        /&gt;
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Terlihat dari ivy.xml bahwa modul ini memiliki dependensi terhadap modul person-dao-api, yang mana memiliki dependensi terhadap person-model. Dengan fitur transitive-dependency yang dimiliki Ivy, kita tidak perlu mendeklarasikan dependensi terhadap person-model, karena sudah secara otomatis didaftarkan melalui person-dao-api.</p>
-
-<p>Modul ini memiliki satu source code, yaitu PersonDaoHibernate, sebagai berikut.</p>
-
-<pre><code>package com.artivisi.tutorial.ivy.dao.impl;
-
-import java.util.List;
-
-import com.artivisi.tutorial.ivy.model.Person;
-import com.artivisi.tutorial.ivy.dao.PersonDao;
-
-@Transactional
-public class PersonDaoHibernate implements PersonDao {
-
-    private SessionFactory sessionFactory;
-
-    @Autowired
-    public void setSessionFactory(SessionFactory sf) {
-        this.sessionFactory = sf;
-    }
-
-    public void save(Person person) {
-        sessionFactory.getCurrentSession()
-        .saveOrUpdate(person);
-    }
-
-    @SuppressWarnings("unchecked")      
-    public List&lt;Person&gt; getAll(){
-        return sessionFactory.getCurrentSession()
-        .createCriteria(Person.class)
-        .list();
-    }
-
-    public Person getById(Long id){
-        return (Person) sessionFactory.getCurrentSession()
-        .get(Person.class, id);
+project('com.artivisi.contoh.domain') {
+    dependencies { 
+        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
+     
+        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
+                &quot;org.springframework:spring-orm:$springVersion&quot;,
+                &quot;org.springframework:spring-jdbc:$springVersion&quot;
+                
+     
     }
 }
+
+project('com.artivisi.contoh.service.impl') {
+    dependencies { 
+        compile project(':com.artivisi.contoh.domain')
+        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
+     
+        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
+                &quot;org.springframework:spring-orm:$springVersion&quot;,
+                &quot;org.springframework:spring-jdbc:$springVersion&quot;
+                
+     
+    }
+}
+
+project('com.artivisi.contoh.ui.springmvc') {
+    dependencies {
+        compile project(':com.artivisi.contoh.service.impl')
+     
+        compile &quot;org.springframework:spring-webmvc:$springVersion&quot;,
+                &quot;org.springframework:spring-aop:$springVersion&quot;
+     
+        compile &quot;org.springframework.security:spring-security-web:$springSecurityVersion&quot;,
+                &quot;org.springframework.security:spring-security-config:$springSecurityVersion&quot;
+     
+        compile &quot;javax.validation:validation-api:1.0.0.GA&quot;,
+                &quot;org.hibernate:hibernate-validator:4.0.2.GA&quot;
+     
+    }
+}
+
+project('com.artivisi.contoh.ui.web') {
+    apply plugin: 'war'
+    apply plugin: 'jetty'
+     
+    dependencies {
+        compile project(':com.artivisi.contoh.ui.springmvc')
+        runtime project(':com.artivisi.contoh.config')
+      
+        runtime &quot;javax.servlet:jstl:1.1.2&quot;,
+                &quot;taglibs:standard:1.1.2&quot;,
+                &quot;opensymphony:sitemesh:2.4.2&quot;
+     
+        providedCompile &quot;javax.servlet:servlet-api:2.5&quot;
+    }
+}</code></pre></noscript></div>
+
+
+<p>Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project.</p>
+
+<p>Karena saya menggunakan Eclipse, saya menambahkan metadata supaya projectnya bisa dibuka di Eclipse. Ini bisa kita lakukan dengan cara menjalankan perintah</p>
+
+<pre><code>gradle eclipse
 </code></pre>
 
-<p>Seperti kita lihat, kode program tersebut menggunakan @Transactional dari Spring Framework, dan SessionFactory milik Hibernate. Mari kita lakukan kompilasi.</p>
+<p>dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini.</p>
 
-<pre><code>ant build
+<div><script src='https://gist.github.com/794650.js?file=export-eclipse.sh'></script>
+<noscript><pre><code>for d in */; do cd &quot;$d&quot;; gradle eclipse; cd ..; done</code></pre></noscript></div>
+
+
+<p>Untung saja pakai linux, jadi bisa coding di command prompt :D</p>
+
+<p>Selanjutnya, kita bisa test dengan melakukan build di project paling hilir, yaitu ui.web</p>
+
+<pre><code>cd com.artivisi.contoh.ui.web
+gradle war
 </code></pre>
 
-<blockquote><p>PERHATIAN!!! Perintah build ini akan mengakses internet dan mendonlod semua *.jar yang dibutuhkan. Ini akan memakan banyak bandwidth internasional Anda.</p></blockquote>
+<p>Hasilnya ada di folder build/libs
+Kita cek apakah semua dependensi sudah terpenuhi dengan perintah berikut.</p>
 
-<p>Dari output kita bisa lihat bahwa Ivy menemukan dependensi yang dibutuhkan di repository SpringSource, dan kemudian mendonlodnya. Hasil donlod akan disimpan dalam cache, sehingga bila kita melakukan build lagi, tidak perlu mendonlod berkali-kali.</p>
+<pre><code>jar tvf build/libs/com.artivisi.contoh.ui.web-1.0-SNAPSHOT.war
+</code></pre>
 
-<p>Demikianlah penjelasan tentang dependensi eksternal. Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-7/">artikel selanjutnya</a>, kita akan bahas tentang configuration, fitur yang sangat canggih dari Ivy.</p>
+<p>Ini juga bisa langsung dijalankan dengan plugin Jetty yang ada dalam Gradle.</p>
+
+<pre><code>cd com.artivisi.contoh.ui.web
+gradle jetty
+</code></pre>
+
+<p>Outputnya bisa kita lihat di browser, dengan port 8080.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/jetty-run-300x216.png" title="" ></p>
+
+<p>Di situ ada link menuju aplikasi kita. Silahkan diklik.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/klik-context-path-300x214.png" title="" ></p>
+
+<p>Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</p>
+
+<div><script src='https://gist.github.com/794650.js?file=web.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;web-app version=&quot;2.5&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;&gt;
+
+    &lt;!-- Reads request input using UTF-8 encoding --&gt;
+    &lt;filter&gt;
+        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;encoding&lt;/param-name&gt;
+            &lt;param-value&gt;UTF-8&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;forceEncoding&lt;/param-name&gt;
+            &lt;param-value&gt;true&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filter&gt;
+
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+    
+    &lt;!-- Handles all requests into the application --&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+            &lt;param-value&gt;
+                /WEB-INF/springmvc-context.xml
+            &lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+&lt;/web-app&gt;</code></pre></noscript></div>
+
+
+<p>Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml</p>
+
+<div><script src='https://gist.github.com/794650.js?file=springmvc-context.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
+
+    &lt;!-- Scans the classpath of this application for @Components to deploy as beans --&gt;
+    &lt;context:component-scan base-package=&quot;com.artivisi.contoh.ui.web&quot; /&gt;
+
+    &lt;!-- Configures the @Controller programming model --&gt;
+    &lt;mvc:annotation-driven /&gt;
+    
+    &lt;!-- mengganti default servletnya Tomcat dan Jetty --&gt;
+    &lt;!-- ini diperlukan kalau kita mapping DispatcherServlet ke / --&gt;
+    &lt;!-- sehingga tetap bisa mengakses folder selain WEB-INF, misalnya img, css, js --&gt;
+    &lt;mvc:default-servlet-handler/&gt;
+
+    &lt;!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources/ directory --&gt;
+    &lt;mvc:resources mapping=&quot;/resources/**&quot; location=&quot;/resources/&quot; /&gt;
+
+    &lt;!-- Application Message Bundle --&gt;
+    &lt;bean id=&quot;messageSource&quot; class=&quot;org.springframework.context.support.ReloadableResourceBundleMessageSource&quot;&gt;
+        &lt;property name=&quot;basename&quot; value=&quot;/WEB-INF/messages/messages&quot; /&gt;
+        &lt;property name=&quot;cacheSeconds&quot; value=&quot;0&quot; /&gt;
+    &lt;/bean&gt;
+
+    &lt;!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory --&gt;
+    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;
+        &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/templates/jsp/&quot;/&gt;
+        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;/&gt;
+    &lt;/bean&gt;
+    
+    &lt;!-- Forwards requests to the &quot;/&quot; resource to the &quot;hello&quot; view --&gt;
+    &lt;mvc:view-controller path=&quot;/&quot; view-name=&quot;hello&quot;/&gt;
+
+&lt;/beans&gt;
+</code></pre></noscript></div>
+
+
+<p>Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import.</p>
+
+<p>Pertama, arahkan workspace ke folder project-contoh.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-pilih-workspace-300x154.png" title="" ></p>
+
+<p>Setelah Eclipse terbuka, kita pilih menu Import Project, untuk membuka 4 project yang tadi sudah kita buat.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-import-existing-300x272.png" title="" ></p>
+
+<p>Pilih folder induknya.
+<img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-select-root-directory-272x300.png" title="" ></p>
+
+<p>Selesai, semua project kita bisa dibuka. Bahkan kita bisa menjalankan project ui.web dengan cara klik kanan Run in Server. Ini bisa dilihat dari icon project tersebut yang berbentuk bola dunia.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2011/01/04-import-result-300x139.png" title="" ></p>
+
+<p>Selesai sudah, mari kita <a href="http://endy.artivisi.com/blog/aplikasi/sharing-repository-git/">share dengan rekan yang lain</a>.</p>
 </div>
   
   
@@ -1063,7 +780,7 @@ public class PersonDaoHibernate implements PersonDao {
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ant-ivy-5/">Internal Dependency Dengan Ivy</a></h1>
+        <h1 class="entry-title"><a href="/blog/Aplikasi/Java/Linux/konsep-clustering/">Konsep Clustering</a></h1>
       
     
     
@@ -1080,632 +797,121 @@ public class PersonDaoHibernate implements PersonDao {
   
 
 
-<time datetime="2008-09-28T16:51:32+07:00" pubdate data-updated="true">Sep 28<span>th</span>, 2008</time>
+<time datetime="2011-01-30T04:15:14+07:00" pubdate data-updated="true">Jan 30<span>th</span>, 2011</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel sebelumny</a>a, kita telah menyimpan artifact modul person-model di shared repository melalui mekanisme scp dengan private key. Pada artikel ini, kita akan menggunakan artifact person-model tersebut dalam modul person-dao-api. Pengambilan artifact dilakukan melalui mekanisme yang sama, yaitu scp dengan private key.</p>
+  <div class="entry-content"><p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
 
-<p>Berikut struktur folder modul person-dao-api.</p>
+<p>Demikian pertanyaannya.</p>
 
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/folder-person-dao-api-before-resolve.png" title="" ></p>
+<blockquote></blockquote>
 
-<p>Kita memiliki folder src yang berisi source code class <code>PersonDao.java</code>, yang isinya sebagai berikut.</p>
+<p>Ini sebetulnya dua hal yang berbeda.
+Load balancing ya membagi beban.
+Failover ya mencegah single point of failure.</p>
 
-<pre><code>package com.artivisi.tutorial.ivy.dao;
+<p>Load balancer terdiri dari satu balancer dan banyak worker.
+Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
+Bisa merata (round robin) bisa juga dengan bobot (weighted), misalnya worker X mendapat 2 kali worker Y karena dia specnya lebih tinggi.
+Atau bisa juga dynamic, artinya si LB akan mengetes kondisi semua worker, mana yang kira2 sedang idle itu yang dikasi.
+Mana yang sedang idle ini nanti ada lagi settingnya, apakah melihat CPU usage pakai SNMP, melihat ping response time, whatever.</p>
 
-import java.util.List;
+<p>Failover minimal harus ada 2 titik.
+Kalo kita implement LB aja, point of failure (POF) nya adalah si LB.
+Begitu LB nya mati, ya udah semua worker gak bisa diakses.
+Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
 
-import com.artivisi.tutorial.ivy.model.Person;
+<p>Contoh aplikasi load balancer :</p>
 
-public interface PersonDao {
-
-    /**
-     * saves Person object into database. 
-     * If object is already exists (denoted by not-null ID field), 
-     * the existing record with the corresponding ID is updated. 
-     * If the object is new (denoted by null ID field), 
-     * new record is inserted.
-     * 
-     *  This method also set the ID field for new record.
-     * */
-    public void save(Person person);
-
-    /**
-     * fetch all person object in database.
-     * @return List of all person
-     * */
-    public List getAll();
-
-    /**
-     * fetch Person object with the speficied ID. 
-     * @param id identifier for person object
-     * @return Person object if there is record found for the speficied id, null otherwise
-     * */
-    public Person getById(Long id);
-}
-</code></pre>
-
-<p>Seperti terlihat dalam deklarasi import, class ini menggunakan class <code>Person</code>, yang sudah tersedia di shared repository. Kita akan melakukan build dengan menggunakan script <code>build.xml</code>. Isinya sama dengan yang ada di modul person-model, dengan perkecualian nama projectnya. Berikut isi <code>build.xml</code>.</p>
-
-<pre><code>&lt;project name="person-dao-api" default="build"&gt;
-
-    &lt;property file="build.properties"/&gt;
-
-    &lt;import file="${basedir}/../person-build/default.xml"/&gt;
-    &lt;import file="${basedir}/../person-build/ivy-builder.xml"/&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>Dependensi modul <code>person-dao-api</code> terhadap <code>person-model</code> kita deklarasikan dalam <code>ivy.xml</code> sebagai berikut.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-api"/&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency name="person-model" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Setelah <code>build.xml</code> dan <code>ivy.xml</code> selesai dibuat, kita bisa langsung melakukan build. Panggil target dari command line sebagai berikut:</p>
-
-<pre><code>ant build
-</code></pre>
-
-<p>Dari output perintah di atas terlihat bahwa Ivy akan menguraikan dependensi project dengan melakukan query ke semua resolver yang terdaftar. Setelah modul yang dibutuhkan (person-model) ditemukan, Ivy akan langsung mendonlodnya ke dalam folder lib. Karena isi folder lib sudah kita daftarkan ke dalam classpath, maka proses kompilasi akan berjalan dengan mulus. Berikut struktur folder <code>person-dao-api</code> setelah melakukan proses resolve.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/folder-person-dao-api-after-resolve.png" title="" ></p>
-
-<p>Pada deklarasi dependensi di atas, terlihat bahwa modul <code>person-dao-api</code> memiliki dependensi terhadap modul <code>person-model</code> dengan revision <code>latest.integration</code>. Ini artinya Ivy akan menggunakan versi terbaru yang ada dalam repository. Untuk melihat kemampuan fitur ini, mari kita publish <code>person-model</code> dengan revision yang lebih baru.</p>
-
-<p>Edit file build.properties dalam modul person-model, sehingga menjadi seperti ini.</p>
-
-<pre><code>build.version = 0.0.2
-release.type = integration
-</code></pre>
-
-<p>Setelah itu, bersihkan hasil kompilasi terdahulu, dan publish modul <code>person-model</code>.</p>
-
-<pre><code>ant clean publish-local
-</code></pre>
-
-<p>Lalu, pindah ke modul person-dao-api, dan lakukan build lagi.</p>
-
-<pre><code>ant clean build
-</code></pre>
-
-<p>Terlihat pada output, bahwa modul <code>person-model</code> yang terbaru akan didonlod, dan yang versi lama akan dihapus. Sehingga isi folder lib akan terlihat sebagai berikut.</p>
-
-<p>Ivy memiliki beberapa cara untuk menentukan mana artifak yang terbaru (latest), yaitu: latest-time, latest-revision, dan latest-lexico.</p>
-
-<p>Dengan menggunakan latest-time, Ivy akan melihat tanggal dibuatnya suatu artifak. Kalau artifak berada di repository filesystem, maka tanggal sistem operasi akan digunakan. Bila repository diakses melalui http, Ivy akan melakukan query terhadap http server. Metode ini, walaupun efektif, relatif lambat bila akses jaringan ke repository tidak mumpuni.</p>
-
-<p>Latest-revision membandingkan nama versi artifak, dan mengenali beberapa keyword. Dia dapat menentukan bahwa versi 1.0-alpha lebih baru daripada 1.0-dev1, dan 1.0 lebih baru daripada 1.0-rc1.</p>
-
-<p>Sedangkan strategi latest-lexico hanya membandingkan berdasarkan urutan abjad. Jadi, 1.0-m1 akan lebih baru daripada 1.0-build135.</p>
-
-<p>Ketiga strategi tersebut sudah built-in dalam Ivy dan tidak memerlukan konfigurasi lebih lanjut.</p>
-
-<p>Selain revision, Ivy juga mengenal terminologi status. Secara default, Ivy menyediakan tiga status diurutkan dari yang paling stabil/mature, yaitu release, milestone, dan integration. Bila kita menggunakan latest.integration, Ivy akan mengambil artifak terbaru berstatus apapun dari repository. Bila kita gunakan latest.milestone, Ivy akan mengabaikan rilis integration, dan hanya akan membandingkan milestone dan release. Demikian juga bila kita gunakan latest.release, maka versi terbaru hanya akan dicari dari artifak berstatus release.</p>
-
-<p>Cara deklarasi latest.integration di atas disebut dengan dynamic revision, karena nomer revision tidak secara eksplisit disebutkan. Selain menggunakan latest.integration, ada beberapa mekanisme lain, yaitu menggunakan +, dan menggunakan range.</p>
-
-<p>Kita bisa menggunakan + untuk memilih revisi terbaru untuk rilis tertentu. Misalnya bila kita memiliki modul dengan revisi 1.0.1, 1.0.4, 1.0.7, dan 1.1.4 dalam repository, kita dapat menggunakan 1.0.+ untuk memilih versi terbaru dalam lini 1.0, yaitu 1.0.7.</p>
-
-<p>Kita juga bisa menggunakan range, untuk menentukan revisi yang dapat digunakan, misalnya [1.0,2.2] akan memilih semua revisi yang sama atau lebih besar dari 1.0, tapi lebih kecil atau sama dengan 2.2. Lebih lengkap tentang ini bisa dilihat di dokumentasi Ivy tentang dependensi.</p>
-
-<p>Demikianlah deklarasi dependensi dengan Ivy. Pada artikel ini, kita baru mencoba dependensi terhadap modul yang kita buat sendiri. Di <a href="http://endy.artivisi.com/blog/java/ant-ivy-6/">artikel selanjutnya</a>, kita akan lihat bagaimana mendeklarasikan dependensi terhadap modul eksternal seperti Spring Framework atau Hibernate.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/Manajemen/ant-ivy-4/">Publish Modul Ke Repository</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-10T16:57:41+07:00" pubdate data-updated="true">Sep 10<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Template project sudah dibuat pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-3/">artikel sebelumnya</a>. Pada artikel ini, kita akan menghubungkan kedua modul ini dengan menggunakan Ivy.</p>
-
-<p>Seperti kita ketahui, modul <code>person-dao-api</code> mempunyai dependensi terhadap modul <code>person-model</code>. Berikut gambarnya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/dep-after.png" title="" ></p>
-
-<p>Dependensi ini terlihat di source-code <code>PersonDao.java</code>, yang melakukan import terhadap class Person, sebagai berikut.</p>
-
-<pre><code>package com.artivisi.tutorial.ivy.dao;
-
-import java.util.List;
-
-import com.artivisi.tutorial.ivy.model.Person;
-
-public interface PersonDao {
-
-    /**
-     * saves Person object into database. 
-     * If object is already exists (denoted by not-null ID field), 
-     * the existing record with the corresponding ID is updated. 
-     * If the object is new (denoted by null ID field), 
-     * new record is inserted.
-     * 
-     *  This method also set the ID field for new record.
-     * */
-    public void save(Person person);
-
-    /**
-     * fetch all person object in database.
-     * @return List of all person
-     * */
-    public List getAll();
-
-    /**
-     * fetch Person object with the speficied ID. 
-     * @param id identifier for person object
-     * @return Person object if there is record found for the speficied id, null otherwise
-     * */
-    public Person getById(Long id);
-}
-</code></pre>
-
-<p>Agar class diatas bisa dikompilasi dengan lancar, ada tiga hal yang harus dilakukan:</p>
-
-<ol>
-<li><p>Menyediakan lokasi yang dapat diakses oleh kedua modul</p></li>
-<li><p>Mempublikasikan distribusi modul person-model</p></li>
-<li><p>Mendeklarasikan dependensi person-dao-api terhadap person-model</p></li>
-</ol>
-
-
-<h3>Repository Ivy</h3>
-
-<p>Dalam dunia Ivy, file-file distribusi suatu modul, seperti <code>person-model.jar</code>, <code>person-model-sources.jar</code>, disebut dengan istilah artifact.
-Artifact ini diletakkan di lokasi tertentu, disebut dengan istilah repository. Konfigurasi tentang cara mengakses suatu repository disebut dengan istilah resolver. Ivy menyediakan berbagai resolver untuk berbagai metode/protokol, yaitu:</p>
-
-<ul>
-<li><p>Filesystem : ini biasanya digunakan untuk folder di komputer lokal atau shared folder (NFS atau Windows Share)</p></li>
-<li><p>URL : digunakan untuk mengakses repository melalui http</p></li>
-<li><p>SSH : digunakan untuk mengakses repository melalui mekanisme scp</p></li>
-<li><p>SFTP : menggunakan protokol FTP yang terenkripsi</p></li>
-<li><p>VFS : menggunakan Apache Commons VFS sebagai backend. Mendukung apapun jenis filesystem yang didukung VFS, salah satunya sftp</p></li>
-<li><p>Ibiblio : untuk mengakses repository maven2</p></li>
+<blockquote><ul>
+<li><p>HAProxy</p></li>
+<li><p>ldirectord (Ultra Monkey)</p></li>
+<li><p>Pound</p></li>
 </ul>
+</blockquote>
 
+<p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
 
-<p>Selain itu, Ivy juga menyediakan composite resolver, yaitu resolver yang dapat menampung resolver lainnya. Composite resolver ada dua:</p>
-
-<ul>
-<li><p>Chain Resolver : menggabungkan beberapa resolver, sehingga kalau suatu artifak tidak ditemukan di resolver pertama, bisa melanjutkan pencarian ke resolver selanjutnya dalam chain</p></li>
-<li><p>Dual Resolver : memisahkan resolver untuk menghitung dependensi, dan resolver untuk mendownload artifak.</p></li>
+<blockquote><ul>
+<li><p>Apache (mod_proxy_balancer)</p></li>
+<li><p>Nginx</p></li>
+<li><p>lighttpd</p></li>
+<li><p>bind (DNS Server)</p></li>
 </ul>
+</blockquote>
 
+<p>Contoh aplikasi failover :</p>
 
-<p>Baiklah, ternyata Ivy bisa menangani macam-macam protokol. Tapi bagaimana cara kita mendesain repository yang baik? Bagaimana best-practicesnya? Mari kita bahas.</p>
-
-<h3>Desain Repository</h3>
-
-<p>Biasanya, kita memiliki dua jenis repository, internal dan external. Repository internal digunakan untuk menyimpan artifak yang dihasilkan project dalam organisasi. Sebagian atau semua artifak internal ini mungkin saja bersifat komersil atau proprietary, sehingga tidak dibuka untuk konsumsi publik.</p>
-
-<p>Di internet tersedia repository yang bisa diakses semua orang. Pengguna Maven biasanya menggunakan <a href="http://www.ibiblio.org/maven/">repository ibiblio</a>. Pengguna Spring OSGi biasanya menggunakan <a href="http://www.springsource.com/repository">repository SpringSource</a>, yang sudah berisi library yang OSGi compliant. Repository SpringSource kompatibel baik dengan Ivy maupun Maven. Untuk menghemat bandwidth internasional, organisasi kita bisa membuat mirror dari repository publik ini agar dependensi bisa diunduh dari jaringan lokal.</p>
-
-<p>Pada artikel ini, kita hanya akan membahas tentang internal repository. Pembahasan tentang external repository akan dibahas pada artikel yang akan datang.</p>
-
-<h3>Internal Repository</h3>
-
-<p>Internal repository dibagi lagi menjadi dua kategori, yaitu local repository, dan shared repository.</p>
-
-<p>Local repository berada di PC masing-masing programmer. Misalnya satu programmer mengerjakan dua modul yang saling berhubungan, misalnya <code>person-model</code> dan <code>person-dao-api</code>. Seringkali dia membuat perubahan di <code>person-model</code> yang akan digunakan di <code>person-dao-api</code>. Tapi karena kode programnya belum sempurna, dia tidak ingin merilis artifak tersebut ke anggota tim yang lain. Untuk kebutuhan ini, dia mempublikasikan artifact <code>person-model</code> ke local repo di PCnya dia sendiri, sehingga bisa diakses oleh modul <code>person-dao-api</code>.</p>
-
-<p>Setelah <code>person-model</code> dan <code>person-dao-api</code> dibuat dan ditest secara menyeluruh, barulah programmer tersebut merilis artifak ke shared repo agar bisa digunakan rekan-rekannya.</p>
-
-<h3>Konfigurasi Internal Resolver</h3>
-
-<p>Untuk mengimplementasikan skenario di atas, kita pertama akan mendefinisikan repository local. Asumsikan saja repository ini akan disimpan di folder local-repo sejajar dengan modul-modul yang lainnya. Kita akan mengkonfigurasi resolvernya di file bernama <code>ivysettings.xml</code>, diletakkan di modul <code>person-build</code> dalam subfolder ivy. Berikut isinya.</p>
-
-<pre><code>&lt;ivysettings&gt;
-    &lt;settings defaultResolver="local" /&gt;
-
-    &lt;caches defaultCacheDir="${ivy.settings.dir}/../../ivy-cache" /&gt;
-    &lt;resolvers&gt;     
-        &lt;filesystem name="local"&gt;
-            &lt;artifact
-                pattern="${ivy.settings.dir}/../../local-repo/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-            &lt;ivy
-                pattern="${ivy.settings.dir}/../../local-repo/release/[organisation]/[module]/[revision]/[artifact]-[revision].xml" /&gt;
-        &lt;/filesystem&gt;
-    &lt;/resolvers&gt;
-&lt;/ivysettings&gt;
-</code></pre>
-
-<p>Ada beberapa hal yang harus dijelaskan di sini.</p>
-
-<ul>
-<li><p>defaultResolver : ini adalah resolver yang digunakan oleh Ivy bila kita tidak secara eksplisit memilih resolver. Setting ini akan berguna nantinya bila kita mendeklarasikan dependensi</p></li>
-<li><p>defaultCacheDir : menyebutkan lokasi cache di komputer lokal. Bila tidak dikonfigurasi, Ivy akan menyimpan cache di folder <code>.ivy2/cache</code> dalam home folder user.</p></li>
-<li><p>Variabel ${ivy.settings.dir} : lokasi folder tempat file <code>ivysettings.xml</code> berada</p></li>
-<li><p>Artifact Pattern : struktur folder tempat artifak disimpan</p></li>
-<li><p>Ivy Pattern : struktur folder tempat metadata modul disimpan. Kita akan membahas tentang metadata ini nanti.</p></li>
+<blockquote><ul>
+<li><p>heartbeat (Ultra Monkey)</p></li>
+<li><p>keepalived</p></li>
 </ul>
+</blockquote>
 
+<p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
 
-<p>Selanjutnya, kita butuh repository yang bisa digunakan seluruh tim dan programmer dalam perusahaan. Ini berguna bila modul yang kita buat akan digunakan oleh tim lain. Untuk itu, kita akan mengkonfigurasi repository yang akan kita beri nama company. Agar aman, kita gunakan protokol scp untuk memindahkan file ke server. Otentikasinya menggunakan public/private key supaya semua artifact disimpan dengan nama user yang sama. Berikut konfigurasi resolvernya. Tambahkan di bawah resolver local.</p>
+<blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
+Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
 
-<pre><code>&lt;ssh name="company" keyFile="${user.home}/.ssh/id_rsa" host="nama-servernya" user="user-untuk-login-di-server"&gt;
-    &lt;ivy
-        pattern="/lokasi-folder-di-server/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-    &lt;artifact
-        pattern="/lokasi-folder-di-server/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
-&lt;/ssh&gt;
-</code></pre>
+<p>Tidak selalu, tergantung konfigurasinya.
+Ada konfigurasi sticky session.
+Artinya, pada hit pertama, si user akan diberikan penanda, biasanya berbentuk cookie.
+Pada hit berikutnya, LB akan melihat cookienya, dan mengarahkan ke server yang sebelumnya sudah mengurus si user ini.</p>
 
-<p>Kita telah memiliki dua resolver, satu untuk repository di komputer lokal, dan satu lagi repository yang disharing ke seluruh organisasi.</p>
+<p>Ada juga konfigurasi non-sticky.
+Artinya tiap hit dianggap hit baru, dan didistribusikan ke semua server sesuai algoritma yang dipilih, round robin, weighted, atau dynamic, sesuai penjelasan di atas.</p>
 
-<h3>Target Resolve dan Publish</h3>
+<p>Mau pilih yang mana? Ya tergantung kemampuan LB nya.
+Ada yang bisa 2-2 nya sehingga bisa pilih, dan ada juga yang rada stupid sehingga terpaksa pakai non-sticky.
+Istilahnya, LBnya layer berapa? Kalo layer 7 biasanya bisa sticky, kalo layer 4 ya gak bisa.
+Lebih jauh tentang urusan layer-layeran ini bisa dibaca <a href="http://blog.loadbalancer.org/why-layer-7-sucks/">di sini</a> dan <a href="http://1wt.eu/articles/2006_lb/">di sini</a></p>
 
-<p>Setelah kita melakukan konfigurasi resolver, sekarang kita bisa mempublish artifact dari modul person-model.
-Untuk melakukan publishing, kita perlu membuat target di buildfile kita. Agar buildfile tetap rapi, kita buat file baru, yaitu <code>ivy-builder.xml</code>, diletakkan di modul <code>person-build</code>. File ini nantinya akan kita import di <code>build.xml</code> dalam masing-masing modul. Berikut isi file <code>ivy-builder.xml</code></p>
+<p>Nah, apa impact sticky vs non-sticky?
+Ini pengaruhnya ke session data.
+Session data adalah data sementara masing-masing user.
+Karena sifatnya sementara, maka biasanya tidak disimpan secara persistent di tabel database.
+Contoh paling klasik adalah isi shopping cart.
+Itu barang belum diorder, tapi sudah dipilih, sehingga biasanya belum disimpan di database.</p>
 
-<pre><code>&lt;project name="ivy-related-targets" xmlns:ivy="antlib:org.apache.ivy.ant"&gt;
+<p>Kalo pake non-sticky, si user pertama milih barang di server X.
+Pada saat dia pilih barang kedua, dilayani server Y.
+Karena pilihan pertama ada di server X, ya pas dia pilih barang kedua, cuma tercatat 1 barang padahal harusnya 2.</p>
 
-    &lt;target name="resolve" description="--&gt; resolve and retrieve dependencies with ivy"&gt;
-        &lt;ivy:retrieve 
-            sync="true"
-            pattern="lib/[conf]/[artifact].[ext]"
-        /&gt;
-    &lt;/target&gt;
+<p>Ini tidak terjadi kalo kita pakai sticky balancer.
+Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
 
-    &lt;target name="clean-cache" description="--&gt; clean the ivy cache"&gt;
-        &lt;ivy:cleancache /&gt;
-    &lt;/target&gt;
+<p>Jadi, sticky atau non-sticky itu impactnya ke temporary data user, sering disebut dengan istilah session data atau user state.</p>
 
+<p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
 
-    &lt;target name="publish-local" depends="build" description="--&gt; publish this project in the ivy repository"&gt;
-        &lt;property name="revision" value="${build.version}" /&gt;
-        &lt;delete file="${build.dir}/ivy.xml" /&gt;
-        &lt;ivy:publish 
-            artifactspattern="${dist.dir}/[artifact].[ext]" 
-            resolver="local" 
-            pubrevision="${revision}" 
-            status="${release.type}" 
-            update="true" 
-            overwrite="true" 
-        /&gt;
-        &lt;echo message="project ${ant.project.name} released locally with version ${revision} and status ${release.type}" /&gt;
-    &lt;/target&gt;
+<blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
 
-    &lt;target name="publish-company" depends="build" description="--&gt; publish this project to company repository"&gt;
-        &lt;property name="revision" value="${build.version}" /&gt;
-        &lt;delete file="${build.dir}/ivy.xml" /&gt;
-        &lt;ivy:publish 
-            artifactspattern="${dist.dir}/[artifact].[ext]" 
-            resolver="company" 
-            pubrevision="${revision}" 
-            status="${release.type}" 
-            update="true" 
-            overwrite="true" 
-        /&gt;
-        &lt;echo message="project ${ant.project.name} released to company repo with version ${revision} and status ${release.type}" /&gt;
-    &lt;/target&gt;
+<p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
+Secara umum, settingan standar appserver biasanya simpan data session di memori.
+Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain.
+Pada saat worker utama mati, request berikutnya akan diarahkan ke worker cadangannya, sehingga user gak kehilangan data belanjaan.
+Biasanya, satu state itu disimpan ke 2 worker saja, bukan direplikasi ke semua untuk alasan efisiensi bandwidth.</p>
 
-    &lt;target name="ivy-report" depends="resolve" description="--&gt; generate dependency report"&gt;
-        &lt;ivy:report todir="build/ivy-report"/&gt;
-    &lt;/target&gt;
+<p>Pada penjelasan di atas banyak sekali saya gunakan kata &#8216;biasanya&#8217;. Ini karena kapabilitas dan konfigurasi masing-masing merek appserver sangat berbeda sehingga sulit untuk menggeneralisir kondisinya.</p>
 
-&lt;/project&gt;
-</code></pre>
+<p>Lalu bagaimana?
+Saya biasanya mengambil pendekatan yang universal, yang jalan di semua appserver, sehingga tidak perlu pusing menghafal appserver apa bisa apa settingnya gimana.
+Teknik universalnya sederhana: aplikasi webnya dibuat stateless.
+Jangan ada simpan data di memori. Simpan semua di database, atau di distributed cache (misalnya memcached).</p>
 
-<p>Terlihat dari target publish di atas bahwa kita membutuhkan dua variabel untuk melakukan publish, yaitu <code>${revision}</code> dan <code>${release.type}</code>. Kedua variabel ini akan kita sediakan pada masing-masing modul.</p>
+<p>Di Java, data yang ada di memori antara lain : session variable, static variable, context variable.
+Di PHP, CMIIW cuma session dan global variable aja.</p>
 
-<p>Bila kita ingin mempublish artifact, terlebih dulu kita harus melakukan build. Kita juga memiliki target resolve untuk menentukan dependency. Target resolve ini dijalankan sebelum melakukan kompilasi. Dengan demikian, kita harus menyesuaikan target compile dalam <code>default.xml</code> agar menjalankan resolve sebelum compile. Ubah baris berikut dalam <code>default.xml</code></p>
+<p>Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terhadap appserver apa bisa apa settingnya gimana.
+Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya.
+Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah.
+Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
 
-<pre><code>&lt;target name="compile" depends="prepare"&gt;
-    &lt;javac srcdir="${src.java.dir}" destdir="${compile.dir}" classpathref="compile.classpath" /&gt;
-&lt;/target&gt;
-</code></pre>
-
-<p>menjadi seperti ini.</p>
-
-<pre><code>&lt;target name="compile" depends="resolve, prepare"&gt;
-    &lt;javac srcdir="${src.java.dir}" destdir="${compile.dir}" classpathref="compile.classpath" /&gt;
-&lt;/target&gt;
-</code></pre>
-
-<h3>Mempublish Artifact</h3>
-
-<p>Sekarang kita ingin mempublish artifact yang dihasilkan modul <code>person-model</code>. Seperti kita ketahui pada artikel sebelumnya, bila kita menjalankan target build, akan dihasilkan dua jar dalam folder <code>dist</code>, yaitu <code>person-model.jar</code> dan <code>person-model-sources.jar</code>. Kita akan mempublish kedua artifak ini ke repository.</p>
-
-<p>Pastikan file <code>ivy-builder.xml</code> sudah diimport dalam <code>build.xml</code>. Isi <code>build.xml</code> harusnya terlihat seperti ini.</p>
-
-<pre><code>&lt;project name="person-model" default="build"&gt;
-    &lt;property file="build.properties"/&gt;
-
-    &lt;import file="${basedir}/../person-build/default.xml"/&gt;
-    &lt;import file="${basedir}/../person-build/ivy-builder.xml"/&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>File tersebut mengacu pada file <code>build.properties</code>. Berikut isi file <code>build.properties</code>.</p>
-
-<pre><code>build.version = 0.0.1
-release.type = integration
-</code></pre>
-
-<p>Kedua variabel di atas digunakan untuk mengisi variabel <code>${build.version}</code> dan <code>${release.type}</code> yang dibutuhkan target publish di atas. Setiap kali kita melakukan publish, kita harus menentukan versi dan jenis artifak tersebut.</p>
-
-<p>Nomer versi (build.version) tidak sulit dipahami. Untuk menentukan mana yang lebih baru, tinggal dibandingkan versi major, minor, dan micronya. Release type membutuhkan penjelasan lebih lanjut.</p>
-
-<p>Secara default, Ivy memiliki tiga jenis release, diurutkan dari yang paling experimental sampai yang paling stabil: integration, milestone, dan release. Kita juga bisa mendefinisikan jenis release sendiri, dengan menggunakan tag status dalam <code>ivysettings.xml</code>. Untuk kebutuhan kita, tiga status yang disediakan Ivy sudah memadai.</p>
-
-<p>Selanjutnya, kita mendefinisikan beberapa metadata yang berkaitan dengan artifact yang ingin dipublish, yaitu:</p>
-
-<ul>
-<li><p>Nama organisasi kita. Ini akan digunakan Ivy untuk mengatur struktur folder dalam repository</p></li>
-<li><p>Nama modul yang akan dipublish</p></li>
-<li><p>Daftar artifak yang akan dipublish. Satu modul bisa mempublish banyak artifak, misalnya: *.jar yang berisi hasil compile, javadoc, source-code, dsb</p></li>
-</ul>
-
-
-<p>Metadata tersebut ditulis dalam file yang bernama <code>ivy.xml</code>. Diletakkan di sebelah <code>build.xml</code>. Berikut isinya.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="com.artivisi.tutorial.ivy.model"/&gt;
-    &lt;publications&gt;    
-        &lt;artifact name="${ant.project.name}"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Setelah semuanya lengkap, kita tinggal memanggil</p>
-
-<pre><code>ant publish-local 
-</code></pre>
-
-<p>untuk mempublish ke repository local, atau</p>
-
-<pre><code>ant publish-company
-</code></pre>
-
-<p>untuk mempublish ke repository shared. Bila dalam proses pembuatan private key kita menggunakan password, akan muncul dialog box yang menanyakan password. Isikan nama user yang digunakan untuk login ke server dan password dari private key kita. Sekali lagi, username yang dimasukkan adalah username di server, sedangkan password yang dimasukkan adalah password untuk private key kita sendiri. Jadi, kita tidak memasukkan password dari username di server.</p>
-
-<p>Setelah dijalankan, kita akan melihat banyak file dalam repository. Ivy akan merilis: <code>person-model-0.0.1.jar</code>, <code>person-sources-0.0.1.jar</code>, dan <code>ivy-0.0.1.xml</code> yang berisi metadata dari rilis tersebut. Setiap file disertai signature md5 dan sha1 untuk kebutuhan verifikasi keabsahan file.</p>
-
-<p>Berikut struktur folder keseluruhan.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/struktur-folder-4-all.png" title="" ></p>
-
-<p>Isi folder local repo sebagai berikut.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/struktur-folder-4-local-repo.png" title="" ></p>
-
-<p>Isi folder person-build sebagai berikut.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/struktur-folder-4-person-build.png" title="" ></p>
-
-<p>Isi folder person-model sebagai berikut.
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/struktur-folder-4-person-model.png" title="" ></p>
-
-<p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-5">artikel selanjutnya</a>, kita akan membahas bagaimana cara mengambil artifact yang sudah dipublish tersebut.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/Manajemen/ant-ivy-3/">Otomasi Build Process Dengan Ant</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-09T16:48:30+07:00" pubdate data-updated="true">Sep 9<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita memahami <a href="http://endy.artivisi.com/blog/java/ant-ivy-2">mengapa dan kapan kita butuh Ivy</a>, mulai dari artikel ini, kita akan menjalani langkah demi langkah supaya kegiatan build kita benar-benar terintegrasi dan efisien.</p>
-
-<p>Pada artikel ini, kita akan membuat satu modul dulu, yang sama sekali tidak memiliki dependensi, yaitu modul <code>person-model</code>.
-Kita akan mengotomasi proses build untuk modul ini, kemudian menyiapkan infrastruktur lainnya sehingga siap untuk digunakan oleh modul lainnya.</p>
-
-<p>Tiap modul yang kita buat, setara dengan satu project dalam IDE. Dalam IDE kita dapat mendaftarkan (membuat referensi ke) project lain dalam build-path sehingga tidak muncul peringatan compile error.</p>
-
-<p>Berikut struktur folder modul <code>person-model</code>.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/01-project-person-model.png" title="" ></p>
-
-<p>Tidak ada yang istimewa, kita memiliki build.xml disertai dengan folder <code>src</code> yang berisi source code java. Kita ingin agar struktur folder kita seragam di semua modul, jadi untuk seluruh modul nantinya strukturnya akan sama.</p>
-
-<p>Kita hanya memiliki satu file source code sederhana, <code>Person.java</code> sebagai berikut.</p>
-
-<pre><code>package com.artivisi.tutorial.ivy.model;
-
-import java.util.Date;
-
-public class Person {
-    private Integer id;
-    private String name;
-    private Date birthdate;
-
-    public Integer getId() {
-        return id;
-    }
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Date getBirthdate() {
-        return birthdate;
-    }
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
-    }   
-}
-</code></pre>
-
-<p>Sebagai rangkaian build, kita akan melakukan kegiatan sebagai berikut:</p>
-
-<ul>
-<li><p>Bersihkan hasil kompilasi sebelumnya (clean)</p></li>
-<li><p>Kompilasi (compile)</p></li>
-<li><p>Distribusi, membuat file *.jar dari hasil kompilasi (build)</p></li>
-</ul>
-
-
-<p>Rangkaian kegiatan tersebut kita tuliskan dalam file <code>build.xml</code>, sebagai berikut</p>
-
-<pre><code>&lt;project name="person-model"&gt;
-
-    &lt;property name="src.java.dir" value="src/java" /&gt;
-    &lt;property name="compile.dir" value="build/bin" /&gt;
-    &lt;property name="dist.dir" value="build/dist" /&gt;
-
-    &lt;path id="compile.classpath"&gt;
-        &lt;pathelement location="${src.java.dir}" /&gt;
-        &lt;fileset dir="lib" includes="**/*.jar" /&gt;
-    &lt;/path&gt;
-
-    &lt;target name="prepare"&gt;
-        &lt;mkdir dir="lib" /&gt;
-        &lt;mkdir dir="build" /&gt;
-        &lt;mkdir dir="${compile.dir}" /&gt;
-        &lt;mkdir dir="${dist.dir}" /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="clean"&gt;
-        &lt;delete dir="build" /&gt;
-        &lt;delete dir="lib" /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="compile" depends="prepare"&gt;
-        &lt;javac srcdir="${src.java.dir}" destdir="${compile.dir}" classpathref="compile.classpath" /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="build" depends="compile"&gt;
-        &lt;!-- binary distribution --&gt;
-        &lt;jar destfile="${dist.dir}/${ant.project.name}.jar"&gt;
-            &lt;fileset dir="${compile.dir}"&gt;
-                &lt;exclude name="**/*Test.class"/&gt;
-            &lt;/fileset&gt;
-        &lt;/jar&gt;
-
-        &lt;!-- source distribution --&gt;
-        &lt;jar destfile="${dist.dir}/${ant.project.name}-sources.jar"&gt;
-            &lt;fileset dir="${src.java.dir}"&gt;
-                &lt;exclude name="**/*Test.java"/&gt;
-            &lt;/fileset&gt;
-        &lt;/jar&gt;
-    &lt;/target&gt;
-&lt;/project&gt;
-</code></pre>
-
-<p>Selanjutnya, kita bisa coba melakukan build.</p>
-
-<pre><code>ant build
-</code></pre>
-
-<p>Nanti Ant akan menghasilkan file <code>person-model.jar</code> dan <code>person-model-sources.jar</code> dalam folder dist.</p>
-
-<p>File <code>build.xml</code> ini nantinya akan kita gunakan di seluruh modul. Seluruh modul tentunya butuh kegiatan kompilasi dan membuat jar. Untuk menghindari perulangan dan copy-paste, kita simpan <code>build.xml</code> ini di folder bersama, kita beri nama saja person-build.</p>
-
-<p>Karena digunakan di banyak modul, kita perlu melakukan penyesuaian sedikit, yaitu namanya kita ganti menjadi <code>default.xml</code>. Deklarasi nama project juga diganti, dari seperti ini:</p>
-
-<pre><code>&lt;project name="person-model"&gt;
-</code></pre>
-
-<p>menjadi seperti ini:</p>
-
-<pre><code>&lt;project name="default-build"&gt;
-</code></pre>
-
-<p>Struktur foldernya menjadi seperti ini</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/02-project-person-build.png" title="" ></p>
-
-<p>Selanjutnya, dalam build.xml di project person-model, kita hanya perlu melakukan import saja. Isi <code>build.xml</code> menjadi seperti ini:</p>
-
-<pre><code>&lt;project name="person-model" default="build"&gt;
-
-    &lt;import file="${basedir}/../person-build/build.xml"/&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>Silahkan coba lakukan build di dalam folder <code>person-model</code>. Seharusnya modul ini bisa dibuild tanpa error, sama seperti sebelumnya.</p>
-
-<p>Bila modul person-model sudah lancar, kita bisa mulai mereplikasi modul-modul yang lainnya. Dengan semua modul sudah dibuatkan sesuai template, berikut struktur foldernya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2008/09/03-project-all.png" title="" ></p>
-
-<p>File <code>build.xml</code> di masing-masing project mirip dengan person-model, hanya dibedakan di baris pertama saja.</p>
-
-<pre><code>&lt;project name="person-model"&gt;
-</code></pre>
-
-<p>Sesuaikan dengan nama modul masing-masing.</p>
-
-<p>Persiapan template project kita sudah selesai. Sampai tahap ini, kita hanya memiliki satu source-code java, yaitu Person.java. Source-code ini akan dipaket menjadi file distribusi <code>person-model.jar</code> (binary) dan <code>person-model-sources.jar</code> (source-code). Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel selanjutnya</a>, kita akan mempublikasikan distribusi ini agar bisa digunakan oleh modul lain.</p>
+<p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
 </div>
   
   
@@ -1747,6 +953,26 @@ public class Person {
     
       <li class="post">
         <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
       </li>
     
   </ul>
@@ -1800,6 +1026,15 @@ public class Person {
 
 
 
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
 
 
   
@@ -1817,7 +1052,24 @@ public class Person {
 
 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
 
 
 

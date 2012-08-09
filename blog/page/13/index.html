@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Bagi mereka yang belum tahu, wiki adalah website yang bisa diedit. Contohnya ada di Wikipedia Biasanya wiki digunakan untuk membuat dokumentasi. &hellip;">
+  <meta name="description" content="Mengakses Remote Server dengan Java Kita sudah biasa mengakses komputer lain menggunakan SSH.
+Cukup ketikkan ssh username@namaserver, tekan enter, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -29,6 +30,9 @@
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
 
   
 
@@ -79,7 +83,7 @@
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/wiki/">Wiki</a></h1>
+        <h1 class="entry-title"><a href="/blog/Java/ssh-dengan-jsch/">SSH Dengan JSch</a></h1>
       
     
     
@@ -96,980 +100,150 @@
   
 
 
-<time datetime="2006-09-18T23:40:24+07:00" pubdate data-updated="true">Sep 18<span>th</span>, 2006</time>
+<time datetime="2009-05-03T00:38:00+07:00" pubdate data-updated="true">May 3<span>rd</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Bagi mereka yang belum tahu, wiki adalah website yang bisa diedit. Contohnya ada di <a href="http://www.wikipedia.org" title="Bapak moyangnya wiki">Wikipedia</a></p>
+  <div class="entry-content"><p>Mengakses Remote Server dengan Java</p>
 
-<p>Biasanya wiki digunakan untuk membuat dokumentasi. Sifatnya yang bisa diedit siapa saja menyebabkan banyak orang bisa langsung berkontribusi mengisi wiki. Tidak perlu direpotkan dengan birokrasi aplikasi CMS seperti biasanya.</p>
+<p>Kita sudah biasa mengakses komputer lain menggunakan SSH.
+Cukup ketikkan ssh username@namaserver, tekan enter, dan lakukan apa yang kita mau.
+Nah, bagaimana kalau kita ingin membuat aplikasi yang butuh mengakses komputer lain?
+Misalnya, kita ingin membuat aplikasi sederhana yang menampilkan input IP Address, Username, Password serta tombol Shutdown.
+Begitu input field kita isi dan tombol Shutdown ditekan, aplikasi kita akan melakukan ssh ke komputer tersebut dan menjalankan perintah shutdown -h now.</p>
 
-<p>Ada banyak aplikasi wiki yang tersedia. Dibuat dalam berbagai bahasa pemrograman. Biasanya, aplikasi wiki diinstal di web server dan diakses oleh orang banyak.</p>
+<p>Di Java, hal ini dapat dengan mudah dilakukan menggunakan pustaka <a href="http://www.jcraft.com/jsch/">JSch</a>. Berikut langkah-langkah untuk menggunakan JSch.</p>
 
-<p>Selain yang diinstal di web server, ada juga yang digunakan di desktop. Saya sendiri menggunakan <a href="http://zoidberg.student.utwente.nl/zim/" title="Homepage Zim">Zim Desktop Wiki</a> di komputer saya untuk menulis buku.</p>
+<h2>Mendapatkan Pustaka JSch</h2>
 
-<p>Buat yang malas (atau tidak bisa) menginstal, bisa menggunakan aplikasi wiki web based yang tidak perlu diinstal di server. Gunakan <a href="http://www.tiddlywiki.com/" title="Standalone Web based Wiki">Tiddly Wiki</a>. Wiki anda tinggal ditulis di komputer sendiri, kemudian diupload ketika sudah selesai.</p>
+<p>Tentunya yang pertama kita lakukan adalah membuka <a href="http://www.jcraft.com/jsch/">website JSch</a> dan mengunduh rilis terbaru. Pilih yang ZIP, jangan yang JAR, karena di dalamnya ada beberapa contoh penggunaan yang akan kita butuhkan untuk mencontek nantinya.</p>
 
-<p>Saking banyaknya orang yang membuat aplikasi wiki, akhirnya ada yang menyediakan one stop solution untuk memilih wiki. Silahkan kunjungi <a href="http://www.wikimatrix.org" title="Wiki Matrix, bandingkan dan pilih wiki favorit">wikimatrix</a> untuk membandingkan berbagai aplikasi wiki. Dia juga menyediakan wizard untuk membantu pemilihan aplikasi wiki yang sesuai.</p>
+<p>Paket ZIP ini belum dikompilasi, dan kita membutuhkan <a href="http://ant.apache.org">Ant</a> untuk melakukan proses build. Jika Anda belum pernah menggunakan Ant, baca dulu <a href="http://endy.artivisi.com/downloads/writings/Tutorial-Ant.pdf">tutorial ini</a>. Setelah proses build selesai dilakukan, akan muncul file *jar di dalam folder dist.</p>
 
-<p>Selamat mengeksplorasi. Semoga bermanfaat.</p>
-</div>
-  
-  
+<h2>Template Aplikasi Java</h2>
 
+<p>Buatlah project Java menggunakan editor yang Anda sukai. Pastikan jar JSch sudah terdaftar di project Java yang barusan dibuat. Setelah itu, buatlah Java Class sebagai berikut</p>
 
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/technorati/">Technorati</a></h1>
-      
-    
-    
-      <p class="meta">
-        
+<pre><code>public class JschDemo {
+    public static void main(String[] args) throws Exception {
 
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-08-31T22:34:49+07:00" pubdate data-updated="true">Aug 31<span>st</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Orang-orang pada rame Technorati. Pengen tau barang apa sih ini.</p>
-
-<p>Buat yang udah merasakan manfaatnya, tolong kasi masukan dong.</p>
-
-<p>Terima kasih.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Life/ipk-tiarap/">IPK Tiarap</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-08-29T19:58:03+07:00" pubdate data-updated="true">Aug 29<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><em>Disclaimer : tiap perusahaan dan interviewer beda-beda. Ini bukan patokan absolut. Yang saya tuliskan di sini hanyalah pengalaman pribadi disertai bumbu penyedap. Saya tidak bertanggung jawab atas segala rekomendasi di bawah. Penggunaan tips di bawah sepenuhnya adalah resiko pengguna.</em></p>
-
-<p>Di milis Alumni STTTelkom, ada posting menarik, sebagai berikut:</p>
-
-<blockquote><p>mengapa sih perusahaan membuat rumusan sakral untuk rekrutasi pegawai yakni
-IPK >= 2.75 ???</p></blockquote>
-
-<p>Segera saja saya merasa berkompeten untuk menjawabnya. Bukan apa-apa, IPK saya yang <em>cuma</em> 2.69 kan termasuk yang melanggar <em>rumusan sakral</em> di atas :P.</p>
-
-<p>Berikut jawaban saya, saya paste di sini supaya khalayak ramai bisa ikut membaca dan berkomentar.</p>
-
-<blockquote><p>Alasan utama membatasi IP adalah untuk menyusutkan jumlah pelamar !!!</p></blockquote>
-
-<p>Batasan ini biasanya ada di posisi yang demandnya dikit, tapi supplynya berlimpah ruah.
-Misalnya, entry level position, di mana kandidatnya adalah fresh grad semua
-:D.</p>
-
-<p>Coba bayangkan Anda sebagai petugas penerima karyawan baru.
-Ada 15 tumpukan lamaran di meja Anda, masing-masing berisi 100 lamaran. Dan masih ada 23 tumpukan lagi di meja pojok ruangan. Kemudian office-boy datang dan mengantarkan 40 tumpukan lagi sambil berkata, &#8220;Di depan masih ada 4 kardus lagi Pak, sebentar saya mau ambil troli dulu .. gak kuat ngangkatnya.&#8221;</p>
-
-<p>Nah, kuis singkat. Bagaimana cara memproses lamaran tersebut?
-Jawaban bisa dikirim ke 8080 dengan SMS  KUIS</p>
-
-<p>Eh, tidak perlu &#8230; akan saya jawab sendiri.</p>
-
-<p>Begini caranya.
-Segera setelah si office-boy datang dengan troli dan 4 kardus lamaran, bilang ke dia, &#8220;Mas, tolong bantu saya ya. Coba ini lamaran dibuka, trus diperiksa satu-satu. Yang IPKnya lebih besar dari 2.75 kumpulkan di meja ini. Sisanya masukkan ke kardus kosong. Nanti kalo ada tukang loak lewat, dikiloin aja. Uangnya boleh buat Mas beli rokok.&#8221;</p>
-
-<p>Beberapa jam kemudian, coba periksa hasil pekerjaan si Mas. Kalau tumpukan yang lolos masih tinggi, bilang ke dia, &#8220;Mas, revisi sedikit. Yang IPKnya lebih besar dari 3.00 kumpulkan di meja ini. Sisanya &#8230; bla .. bla &#8230; [silahkan diteruskan]&#8221;</p>
-
-<p>Ulangi langkah di atas sampai jumlah lamaran &lt; 20.</p>
-
-<p>Wahh&#8230;. ternyata prosesnya begitu.
-Tapi, gimana kalo IPnya tiarap?
-Not to worry.</p>
-
-<p>Dalam beberapa kesempatan sebagai decision maker rekrutmen, berikut faktor yang saya pertimbangkan:</p>
-
-<ol>
-<li><p>Antusiasme, atau istilah kerennya, passion.
-Semangat itu harus ada dan berapi-api.
-Namanya juga fresh-grad .. masa gak semangat.
-Ini juga berkaitan dengan masalah motivasi. Orang yang udah dari sananya semangat, gak sulit disuruh-suruh. Gak perlu dibujuk, ditawari insentif macam-macam. Intinya adalah, saya cari yang memang menyukai pekerjaan yang ditawarkan. Jadi tidak sekedar kerja saja.</p></li>
-<li><p>Smart.
-Biasanya di sini saya akan menanyakan problem solving question.
-Dari cara problem solvingnya, saya bisa menilai apakah seseorang smart atau tidak.</p></li>
-<li><p>Get things done.
-Walaupun smart, tapi kalo gak bisa kerja percuma.
-Saya akan minta diperlihatkan produk-produk yang sudah dihasilkan kandidat.
-Kebetulan bidang saya adalah software development.
-Biasanya saya minta didemokan software yang pernah dibuat.</p></li>
-<li><p>Inisiatif, atau &#8216;kemampuan mengerjakan hal yang tidak wajib atas kemauan sendiri&#8217;
-Orang yang biasa &#8216;take extra mile&#8217; biasanya lebih bagus pekerjaannya dan tidak butuh banyak supervisi dan motivasi.</p></li>
-<li><p>Free time, waktu luang.
-Ini adalah indikator penting apakah kandidat tersebut &#8216;bisa berkembang&#8217; atau tidak.
-Orang yang berkembang akan memanfaatkan freetime nya untuk belajar hal baru, walaupun tidak disuruh.</p></li>
-</ol>
-
-
-<p>Lebih lanjut bisa baca panduan Joel dalam interview :
-http://joelonsoftware.com/articles/fog0000000073.html</p>
-
-<p>Atau panduan mas Mbot di sini:
-http://mbot.multiply.com/journal/item/274</p>
-
-<p>Jadi, kalo IP anda tidak besar, jangan berkecil harapan, tips dari saya :</p>
-
-<ol>
-<li><p>Punya koleksi portofolio hasil karya yang siap dipamerkan.
-Buat dalam bentuk CD yang siap didemokan.</p></li>
-<li><p>Sering-sering terima pekerjaan freelance walaupun gratisan.
-Selain memperluas networking, juga tambah pengalaman dan mengasah problem solving skill. Kalau pekerjaannya tangible, tambahkan di koleksi portofolio</p></li>
-<li><p>Latih inisiatif sehingga menjadi refleks.
-Salah satu caranya adalah dengan aktif mengerjakan pekerjaan rumah seperti membereskan kamar, mendekorasi ruang kerja, berkebun, dsb.</p></li>
-<li><p>Isi waktu luang dengan banyak belajar.
-Sumber bisa diperoleh di internet atau toko buku</p></li>
-<li><p>Banyak berkontribusi di komunitas, misalnya milis, forum, dsb.
-Ini akan membuat kita menjadi terkenal sehingga nilai jual meningkat.</p></li>
-<li><p>Jual diri anda dengan cara memiliki personal website.
-Pasang semua portofolio di sana.
-Tulis artikel yang dapat menunjukkan kapabilitas dan kompetensi kita.</p></li>
-<li><p>Giat beribadah dan berdoa.
-Penghasilan besar kalo korupsi percuma.
-Jadi berdoa supaya dapat gaji besar yang halal.</p></li>
-<li><p>Kasihanilah office boy, maksudnya petugas penerima karyawan baru.
-Jangan melamar ke semua lowongan. Pilih yang benar-benar disukai dan dikuasai. Kalau belum menguasai, lihat #4. Bukan cuma perusahaan yang bisa selektif, kandidat juga dong.</p></li>
-<li><p>Kalau Anda fresh graduate, jangan terlalu cerewet tentang salary.
-Fokus fresh graduate, apalagi yang IPKnya tiarap, adalah sesegera mungkin meninggalkan status fresh graduate. Gimana caranya? Tentu saja dengan memiliki pengalaman kerja. Carilah pekerjaan yang walaupun gajinya kecil, tapi variatif dan besar tantangannya, juga bisa membuat kita tambah pintar. Biasanya ini bisa diperoleh di perusahaan kecil di mana orang biasanya merangkap pekerjaan.
-Tenang saja, begitu kompetensi meningkat, salary pasti mengikuti. Keuntungan tambahan, sebagai pemilik IPK tiarap, persaingan di perusahaan kecil pasti tidak seketat di perusahaan besar yang pasang iklan di Kompas atau Republika.</p></li>
-</ol>
-
-
-<p>Demikian, semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/intro-framework/">Intro Framework</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-08-11T20:37:33+07:00" pubdate data-updated="true">Aug 11<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Hari ini di milis jug ada yang bertanya tentang framework. <a href="http://dwiardiirawan.blogs.or.id">Si penanya</a> sendiri kelihatannya mengerti tentang framework, tapi kesulitan menjelaskan kepada orang lain.</p>
-
-<p>Ini umum terjadi, apalagi kalau programmer Java berbicara dengan programmer dari dunia lain, seperti PHP, C, C++, dsb. Ini bisa disebabkan karena penggunaan framework tidak umum di dunia lain tersebut, atau simply karena programmer lain tersebut fakir bandwidth, sehingga gak aware terhadap tren terbaru.</p>
-
-<p>Baiklah, mari kita bahas framework. Framework, sesuai dengan terjemahannya, adalah kerangka kerja. Jadi, di dalam framework ada beberapa kode program yang kalau kita gunakan, akan memberikan kerangka atau struktur ke aplikasi yang dihasilkan. Singkatnya seperti itu. Nanti akan lebih jelas setelah kita lihat contoh kasus dan contoh kode.</p>
-
-<p>Untuk memahami framework, mari kita lihat ke dunia yang minim framework, yaitu PHP. Sebelum tahun 2005-2006 ini, (setau saya) programmer PHP di Indonesia masih asing dengan framework.</p>
-
-<p>Misalnya saya buat aplikasi shopping cart. Aplikasi yang sangat umum dalam PHP. Setidaknya saya pernah mencoding ulang shopping cart minimal tiga kali. Dan semuanya arsitekturnya beda.</p>
-
-<p>Pertama, waktu masih belajar. Semua kode campur aduk jadi satu. Kalau ada perubahan warna font, beberapa kode SQL harus ikut diupdate. Ubah nama tabel, 7 file kode harus diedit. Singkatnya, perubahan sedikit saja memaksa saya mengubah di banyak tempat di kode program.</p>
-
-<p>Kemudian, setelah semakin banyak pengalaman, saya mulai memisahkan kode HTML dengan kode SQL. Dengan ini, aplikasi bisa berganti wajah dengan mudah. Cukup edit satu file konfigurasi, tampilan berubah seketika.</p>
-
-<p>Terakhir, saya mulai mempertimbangkan multi bahasa. Semua string yang berkaitan dengan label, dikeluarkan dalam satu file sendiri. Jadi kalau kita mau ganti bahasa, cukup bikin replika file tersebut, dan terjemahkan. Kemudian edit file konfigurasi, dan bahasa berubah seketika.</p>
-
-<p>Rapi dan bersih ..</p>
-
-<p>Setelah mendapatkan struktur yang optimal, saya mulai me-reuse struktur tersebut. Kapan-kapan membuat aplikasi baru, saya akan langsung memisahkan kode HTML, SQL, dan bahasa.</p>
-
-<p>Skenario di atas terjadi karena saya tidak menggunakan framework. Butuh banyak sekali trial and error buat saya sampai menemukan struktur yang rapi dan bersih. Setelah ditemukan, struktur tersebut saya jadikan framework. Kerangka untuk membuat aplikasi selanjutnya.</p>
-
-<p>Sekarang kita pindah dari dunia yang minim framework, ke dunia yang kebanjiran framework, Java.</p>
-
-<p>Di dunia Java, kelihatannya orang sangat suka coding framework, sehingga kalau kita search di sourceforge, mungkin lebih banyak framework daripada aplikasi siap pakai. Mengapa ini terjadi, saya tidak tahu. Yang jelas, kalau kita akrab dengan Java, pasti akan pakai framework.</p>
-
-<p>Framework yang ideal harusnya merupakan intisari dari best practices. Pengalaman bertahun-tahun membuat aplikasi yang mirip, disimpulkan dan dibakukan menjadi framework siap pakai. Tapi saking banyaknya framework di Java, akhirnya banyak juga framework sampah. Artinya, dibuat bukan dari best practices dan experiences, tapi lebih menjadi ajang belajar membuat framework.</p>
-
-<p>Penggunaan framework hasil belajar seperti ini sangat buruk dampaknya. APInya tidak stabil, sehingga kalau framework tersebut menerbitkan edisi baru, kode program kita harus diubah semua. Tentu saja, karena framework merupakan kerangka utama. Jadi kalau kerangkanya berubah, maka seluruh aplikasi akan terpengaruh. Selain itu, strukturnya juga belum terbukti keandalannya. Masalah sederhana menjadi kompleks, waktu banyak terbuang untuk &#8216;mengurusi&#8217; framework.
-Menggunakan framework jelek lebih fatal akibatnya daripada tanpa framework.</p>
-
-<p>Sampai sejauh ini, harusnya sudah ada gambaran tentang framework.</p>
-
-<h3>Framework vs Library</h3>
-
-<p>Jangan keliru membedakan framework dengan library. Framework, by definition, sangat invasif. Dia memaksakan bagaimana kita harus coding, bagaimana memberi nama class, di mana harus meletakkan file, dan banyak aturan-aturan lain. Sedangkan library, tinggal baca dokumentasi, daftar function, input dan output masing-masing function, selesai.</p>
-
-<p>Dengan demikian, menggunakan framework lebih sulit daripada library.
-Coba kita bedakan framework dengan library
-Framework Java:</p>
-
-<ul>
-<li> <a href="http://www.springframework.org" title="Spring Framework Home Page">Spring Framework</a></li>
-<li> <a href="http://struts.apache.org">Struts</a></li>
-</ul>
-
-
-<p>Library Java:</p>
-
-<ul>
-<li> <a href="http://joda-time.sourceforge.net/">Joda Time</a></li>
-<li> <a href="http://www.jfree.org/jfreechart/">JFreeChart</a></li>
-<li> <a href="http://freemarker.sourceforge.net">Freemarker</a></li>
-<li> <a href="http://jakarta.apache.org/commons/index.html">Jakarta Commons</a></li>
-</ul>
-
-
-<p>Framework PHP:</p>
-
-<ul>
-<li> <a href="http://seagullproject.org/">Seagull</a></li>
-<li> <a href="http://cakephp.org/">Cake</a></li>
-</ul>
-
-
-<p>Library PHP:</p>
-
-<ul>
-<li> <a href="http://pear.php.net/">PEAR</a></li>
-<li> <a href="http://adodb.sourceforge.net/">AdoDb</a></li>
-<li> <a href="http://smarty.php.net/">Smarty</a></li>
-</ul>
-
-
-<p>Ada lagi satu kategori, yaitu toolkit. Toolkit adalah kode yang kita gunakan dalam development, tapi tidak disertakan dalam produk akhir. Contohnya di Java antara lain: <a href="http://ant.apache.org">Ant</a> dan <a href="http://cruisecontrol.sourceforge.net/">CruiseControl</a>.</p>
-
-<p>Tapi ada juga beberapa yang tidak jelas pengelompokannya. JUnit misalnya, di satu sisi, dia menyediakan perlengkapan untuk testing sehingga bisa dikategorikan sebagai library. Di sisi lain, dia mengharuskan ada prefix test di setiap nama method, sehingga layak disebut framework.</p>
-
-<h3>Plus Minus</h3>
-
-<p>Sekarang pertanyaan yang penting. Apa keuntungan dan kerugian menggunakan framework? Asumsikan framework yang ingin digunakan bagus dan teruji.</p>
-
-<p>Keuntungan</p>
-
-<ul>
-<li>Struktur yang konsisten. Sangat berguna bila developer banyak dan turnover tinggi.</li>
-<li>Struktur merupakan best practices. Semua sudah ditempatkan di tempat yang paling sesuai.</li>
-<li>Dapat belajar tentang desain aplikasi yang baik.</li>
-</ul>
-
-
-<p>Kerugian</p>
-
-<ul>
-<li>Butuh investasi waktu belajar dan adaptasi</li>
-<li>Ada overhead. Untuk project sangat kecil, mungkin overheadnya lebih besar dari projectnya sendiri. Lagipula, tidak semua fitur framework kita pakai, sehingga cuma akan menjadi bloat.</li>
-<li>Menimbulkan dependensi. Ini terutama terasa di aplikasi yang berarsitektur plugin. Upgrade framework dapat merusak plugin.</li>
-</ul>
-
-
-<h3>Memilih Framework</h3>
-
-<p>Sekarang, bagaimana kita memutuskan pakai framework atau tidak? Kalau pakai, pilih yang mana? Sering sekali ada banyak framework yang menyelesaikan masalah yang sama.</p>
-
-<p>Pertama, pertimbangkan benefit vs cost.
-Di beberapa project, saya lebih memilih tanpa framework, karena ukuran projectnya kecil.</p>
-
-<p>Untuk <a href="http://playbilling.sourceforge.net">playbilling</a>, saya pakai <a href="http://ibatis.apache.org">iBatis</a> alih-alih <a href="http://www.hibernate.org" title="Hibernate Home Page">Hibernate</a> yang lebih lengkap fiturnya. Pertimbangannya adalah, saya tidak menggunakan banyak tipe database. Sehingga cross-database tidak terlalu dibutuhkan. Sekarang saya sedang mempertimbangkan menghilangkan <a href="http://ibatis.apache.org">iBatis</a>, dan pakai JDBC biasa untuk mengurangi dependensi dan ukuran donlod.</p>
-
-<p>Kedua, lihat kualitas dokumentasinya.
-Alasan yang jelas adalah, kalau tidak ada dokumentasi, gimana tau cara pakainya? Kita butuh dokumentasi untuk bisa menggunakan framework.</p>
-
-<p>Ada alasan kedua yang juga penting. Kualitas dokumentasi mencerminkan kualitas framework. Mengapa? Karena dokumentasi biasanya adalah by product (produk sampingan), apalagi di project open source. Logikanya, jika tim developer menghasilkan dokumentasi bagus, pasti kualitas dan desain frameworknya sendiri lebih bagus lagi.</p>
-
-<p>Sejauh ini, kesimpulan saya konsisten. Framework terbaik secara desain dan kualitas kode adalah <a href="http://www.springframework.org" title="Spring Framework Home Page">Spring Framework</a>. Coba lihat dokumentasinya. Sangat rinci, detail, dan minim kesalahan.
-Contoh lain adalah <a href="http://www.hibernate.org" title="Hibernate Home Page">Hibernate</a>. Dokumentasinya sangat lengkap. Bahkan di dalamnya juga dijelaskan tentang konsep Object Relational Mapping. Dengan membaca dokumentasinya saja, kita akan menambah wawasan. Apalagi menggunakan frameworknya.</p>
-
-<p>Ketiga, lihat aktivitas komunitasnya.
-Framework, apalagi open source, membutuhkan interaksi dengan sesama pengguna. Keuntungan  utama tentu saja technical support dan tutorial gratis. Apalagi dengan perkembangan blog yang sangat pesat beberapa tahun terakhir. Semua pengalaman baik, buruk, mudah, sulit, semua diceritakan para pengguna framework di blognya masing-masing.</p>
-
-<p>Kalau kita menggunakan framework minoritas, jarang digunakan orang, tutorialnya sedikit, diskusi di berbagai forum juga tidak banyak. Jadi, kalau kita search dengan <a href="http://www.google.com" title="Oom Google">Google</a>, lebih sulit menemukan permasalahan (dan solusi) yang sama dengan kebutuhan kita.</p>
-
-<p>Terakhir, learning curve, atau kurva belajar. Apakah framework tersebut sulit atau mudah dipelajari?</p>
-
-<p>Di bagian atas tadi saya menyebutkan keunggulan framework adalah dia dapat menyeragamkan struktur kode di antara banyak developer. Jadi, agar efektif, semua developer harus bisa menggunakan framework tersebut.</p>
-
-<p>Nah, seorang system architect, software designer, senior developer, development team leader, atau apapun istilahnya di tempat Anda, orang yang bertugas memilih framework, harus mempertimbangkan kurva belajar ini.</p>
-
-<p>Ini sering diabaikan banyak orang. Sebagai pemilih framework, tentunya orang tersebut memiliki keahlian/pengalaman teknis di atas rekan-rekannya. Penting bagi orang tersebut untuk memperhitungkan keahlian/pengalaman anggota tim yang lain yang tidak secanggih dirinya pada waktu memilih framework. Jangan sampai framework yang dipilih terlalu rumit, sehingga bukannya di-reuse malahan di-abuse.</p>
-
-<p>Demikian ulasan singkat tentang framework. Mudah-mudahan bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Manajemen/bisnis-open-source/">Bisnis Open Source</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-08-08T16:34:50+07:00" pubdate data-updated="true">Aug 8<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Artikel ini, tidak seperti biasanya, ditulis berdasarkan request oleh <a href="http://sleepless.ngoprek.org" title="Anton Raharja">teman saya</a>. Selain itu, juga ada thread di milis <a href="http://groups.yahoo.com/group/jug-indonesia" title="Milis JUG Indonesia">JUG Indonesia</a> yang membahas tentang bisnis open source. Di sana saya memberikan sedikit komentar yang secara singkat serupa dengan apa yang akan dijelaskan di sini.</p>
-
-<p>Beberapa tahun belakangan ini, gema open source mulai ramai di dunia. Banyak orang yang tadinya skeptis dengan ide software gratis, mulai mencoba peruntungannya di dunia yang buka-bukaan ini. Banyak juga orang (salah satunya saya) yang bergembira dan sangat mendukung open source, terutama karena ke&#8217;gratis&#8217;annya semata.</p>
-
-<p>Tidak kurang dari perusahaan besar di dunia seperti <a href="http://www.oracle.com" title="Oracle">Oracle</a>, <a href="http://www.ibm.com" title="IBM">IBM</a>, <a href="http://www.sun.com" title="Sun Microsystem">Sun</a>, dan masih banyak yang lainnya, merilis aplikasi mereka yang berharga jutaan dolar secara open source atau &#8216;gratis&#8217;.</p>
-
-<p>Open source tidak selalu gratis, walaupun biasanya begitu. Dan gratis juga tidak selalu berarti open-source. Untuk menyederhanakan urusan, yang akan kita bahas di sini adalah software gratis. Terlepas dari apakah software tersebut open source atau tidak.</p>
-
-<p>Orang-orang pun mulai bertanya, &#8220;Apa tidak rugi melepas aplikasi secara gratis? Dari mana keuntungannya? Padahal untuk membuat software tersebut, telah banyak biaya yang dikeluarkan.&#8221;
-Dan masih banyak lagi pertanyaan sejenis.</p>
-
-<p>Tapi yang jelas, mereka tidak menjadi rugi karena melepas aplikasinya. Tindakan ini tentunya sudah didahului dengan kalkulasi bisnis yang matang dan tidak semata ikut-ikutan trend open source atau tiba-tiba menjadi &#8216;baik hati&#8217; terhadap negara ketiga/miskin (misalnya, Indonesia). Nah, sekarang mari kita lihat, dari mana profitnya.</p>
-
-<p>Setidaknya ada beberapa modus operandi penggunaan strategi gratis untuk perusahaan, sepanjang pengetahuan saya:</p>
-
-<ol>
-<li>RND</li>
-<li>Teaser product</li>
-<li>Strategi Produk Komplementer</li>
-<li>By product</li>
-<li>Pendukung core business</li>
-<li>Sebagai produk utama</li>
-</ol>
-
-
-<p>Mari kita lihat satu per satu.</p>
-
-<p><em>Disclaimer: semua yang saya tulis di sini merupakan pendapat pribadi saya, atas pengamatan tentang penggunaan strategi gratisan, yang tidak terbukti kebenarannya. Tidak ada pernyataan resmi dari perusahaan yang disebut di sini tentang strategi gratisnya. Silahkan tulis komentar anda di bawah kalau setuju/tidak setuju dengan pendapat saya ini.</em></p>
-
-<h3>Research and Development</h3>
-
-<p>Strategi ini digunakan oleh RedHat. Mereka membuat project open source Fedora sebagai lini depan riset Linux. Teknologi yang dihasilkan di project Fedora kemudian digunakan di lini produk komersilnya Red Hat Enterprise Linux. Dengan menggunakan project open source sebagai divisi RND, Red Hat mendapat keuntungan dari kontribusi tenaga kerja gratisan (baca: sukarelawan) baik di posisi developer, tester, dokumenter, public relation (dalam bentuk komentar positif, testimoni, word of mouth), dan juga technical writer (blog membahas penggunaan Fedora, support forum, mailing list, dsb).
-Seperti kita lihat di sini, sebenarnya Red Hat mendapat keuntungan besar, setidaknya dari sisi payroll dan marketing, dengan menggunakan strategi open source.</p>
-
-<p>Latihan buat pembaca, sebutkan contoh lain perusahaan yang menggunakan open source sebagai divisi RND.</p>
-
-<h3>Teaser Product</h3>
-
-<p>Promosi produk yang terbaik adalah dengan cara memberikan produk tersebut ke konsumen, dan berharap mereka puas dan bercerita kepada teman-temannya (yang diharapkan akan membeli produk tersebut). Strategi ini digunakan Oracle pada saat mereka melepas produk Oracle 10g Express Edition. Harapannya adalah, dengan menggunakan produk gratis tersebut:</p>
-
-<ol>
-<li>Lebih banyak orang yang familiar dengan produk Oracle</li>
-<li>Pengguna merasa puas atau sudah terlalu terbiasa (baca: kecanduan) dengan Oracle</li>
-<li>Pada suatu saat, pengguna gratisan tersebut merasa kurang dengan fitur yang ada, dan akan membeli versi berbayarnya</li>
-<li>Jika pengguna gratisan diminta rekomendasi oleh bosnya/temannya, mereka akan merekomendasikan Oracle, karena itulah produk yang mereka kuasai, dan lagipula bukan mereka yang akan membayarnya.</li>
-</ol>
-
-
-<p>Strategi pemasaran ini lebih efektif daripada memasang iklan di media. Banyak orang (termasuk saya) yang sudah sangat bosan dengan iklan, sehingga ada fitur &#8216;autoskip&#8217; di otak saya yang secara otomatis menutup popup iklan, bahkan sebelum gambarnya selesai loading. Bahkan untuk kasus ekstrim, banyak orang mau bersusah payah yang memasang filter iklan seperti Adblock atau <a href="http://www.schooner.com/~loverso/no-ads/" title="Internal Proxy for No Ads">no-ads.pac</a> untuk melucuti media dari semua iklan.</p>
-
-<p>Dengan menggunakan &#8216;orang betulan&#8217; yang tulus dan jujur untuk merekomendasikan produknya, lebih besar kemungkinan produk akan dibeli.</p>
-
-<h3>Strategi Produk Komplementer</h3>
-
-<p>Ada kalanya perusahaan menggratiskan suatu aplikasi karena aplikasi tersebut adalah komplementer dari produk utamanya. Contohnya adalah Acrobat Reader.</p>
-
-<p>Waktu kita belajar di SMP dulu, kita belajar tentang produk substitusi dan komplementer. Produk substitusi adalah produk yang dapat menggantikan produk lain. Misalnya, Indomie adalah produk substitusi Mi Sedap.</p>
-
-<p>Sedangkan produk komplementer adalah produk yang saling melengkapi dengan produk lain. Seperti yang sering kita lihat di tivi, salah satu iklan tag linenya adalah, &#8220;Apapun makanannya, minumnya tetap &#8230; (produk XXX)&#8221;. Nampaknya produsen minuman tersebut berusaha serakah dengan menjadikan produknya sebagai komplementer untuk semua makanan padat.</p>
-
-<p>Acrobat Reader, adalah komplementer dari Acrobat Distiller. Dengan menggratiskan Reader, Adobe berharap penjualan Distiller akan meningkat. Sepertinya strategi ini cukup jitu, sehingga PDF bisa jadi standar format dokumen di internet.</p>
-
-<p>Lebih lanjut tentang penggunaan strategi produk komplementer ini dijelaskan oleh Joel Spolsky. Silahkan baca sendiri di <a href="http://www.joelonsoftware.com/articles/StrategyLetterV.html" title="Joel on Open Source">websitenya</a>.</p>
-
-<h3>By Products</h3>
-
-<p>By products artinya produk sampingan. Misalnya kita membuka usaha jualan kelapa parut di pasar, kita akan mendapatkan banyak sekali air kelapa sebagai limbah. Mereka yang jeli akan segera beternak jamur di dalam air kelapa tersebut dan segera membuka lini produk baru, yang lebih tenar disebut dengan Nata de Coco.</p>
-
-<p>Hal yang sama dilakukan oleh <a href="http://www.thoughtworks.com" title="ThoughtWorks">Martin Fowler dan gerombolannya</a>. Bisnis utama mereka adalah software development dan konsultasi bagi perusahaan software development yang lainnya. Sebagai mana konsultan manajemen pada umumnya, mereka juga berjualan jargon. Salah satu jargon yang mereka perdagangkan adalah Continuous Integration. Ini tidak lain adalah istilah keren dari <em>kompile sering-sering dan test sampai capek</em>. Menyuruh programmer kompile lima kali sehari dan testing sepuluh kali sehari kemudian menulis hasilnya dalam format HTML adalah cara cepat untuk membuat programmer pensiun dini alias resign. Oleh karena itu, mereka membuat program kecil yang bisa melakukan kegiatan tersebut secara terjadwal dan terus menerus. Sehingga jargon Continuous Integration bisa dijual dengan sukses.</p>
-
-<p>Program kecil tersebut adalah <a href="http://cruisecontrol.sourceforge.net" title="Cruise Control homepage">Cruise Control</a>. Dapat Anda peroleh secara gratis di <a href="http://www.sourceforge.net" title="Kost-kostan aplikasi open source">SourceForge</a>.</p>
-
-<p>Perhatikan di sini bahwa dagangan utama mereka adalah proses, bukan produk. Sehingga <a href="http://cruisecontrol.sourceforge.net" title="Cruise Control homepage">Cruise Control</a> tersebut adalah by product belaka. Sama seperti &#8216;nata de coco&#8217;. Karena bukan produk utama, tidak ada kerugian dari melepas aplikasi tersebut secara gratis. Keuntungannya, para calon prospek akan berpersepsi bahwa <a href="http://www.martinfowler.com" title="Bliki Martin Fowler">Martin Fowler</a> masih punya mainan lain yang lebih menarik yang tidak digratiskan. Sehingga dengan senang hati mereka akan mempekerjakan <a href="http://www.pyrasun.com/mike/mt/archives/2005/04/23/18.29.03/index.html" title="Para magang di thoughtworks">dia dan pasukan magangnya</a> dengan tarif selangit.</p>
-
-<h3>Pendukung produk utama</h3>
-
-<p>Framework favorit saya, <a href="http://www.springframework.org" title="Spring Framework">Spring Framework</a> adalah contohnya. Produk utama <a href="http://www.springframework.com" title="Interface 21">Interface 21</a>, perusahaan sponsor <a href="http://www.springframework.org" title="Spring Framework">Spring Framework</a>, adalah perusahaan software development. Berbagai perusahaan besar di dunia mempercayakan pengembangan aplikasi bisnisnya pada <a href="http://www.springframework.com" title="Interface 21">Interface 21</a>. Jadi, produk utama <a href="http://www.springframework.com" title="Interface 21">Interface 21</a> adalah software development. Dalam mengembangkan aplikasi pesanan client, Interface 21 membutuhkan framework berkualitas tinggi dan berarsitektur bagus. Di situlah peranan project Spring Framework, sebagai produk pendukung aktivitas bisnis Interface 21.</p>
-
-<h3>Produk Utama</h3>
-
-<p>Ada juga beberapa perusahaan yang menjadikan aplikasi gratisnya sebagai produk utama. Lalu datang pertanyaan, &#8220;Kalau produk utama digratiskan, dari mana dapat uangnya?&#8221;. Ada beberapa jalur lain di luar penjualan software: training, buku, dan customization. Jalur ini ditempuh JBoss dan Hibernate. Dokumentasi utama JBoss tidak gratis. Kita harus membeli dengan sistem berlangganan di websitenya.</p>
-
-<p>Hibernate, mendapat pemasukan dari penjualan buku. Pembuatnya, Gavin King dan Christian Bauer mengarang buku yang bagus sekali, Hibernate in Action. Isinya menjelaskan desain aplikasi pada umumnya, dan penggunaan framework Hibernate. Dengan semakin banyaknya pengguna Hibernate, buku dan training akan semakin laku.</p>
-
-<p>PlaySMS dan PlayBilling, mendapat pemasukan dari customization. Para pelanggan seringkali membutuhkan fitur khusus yang belum ada di rilis open source. Untuk itu, mereka membayar developer untuk menambahkan fitur yang dibutuhkan. Siapa yang lagi yang lebih berkompeten menulis tambahan fitur selain <a href="http://endy.artivisi.com" title="Endy Muhardin">pengembang</a> <a href="http://sleepless.ngoprek.org" title="Anton Raharja">asli</a>nya?</p>
-
-<p>Demikianlah uraian tentang bisnis open source. Jadi, hilangkan ilusi bahwa perusahaan besar sekarang menjadi dermawan, karena memberikan aplikasinya secara gratis. Ada kepentingan pemegang saham di baliknya, yang tentu saja, tidak mau rugi.</p>
-
-<p>Walaupun demikian, kita lihat ada situasi win-win di sini. Pengguna diuntungkan dengan adanya software gratis. Perusahaan juga diuntungkan dari promosi gratis, tenaga sukarela, dan berbagai keuntungan lainnya.</p>
-
-<p>Oleh karena itu, mari gunakan aplikasi gratis.
-Kalo bisa gratis, kenapa harus bayar?
-Kalo ada yang gratis, kenapa masih membajak?</p>
-
-<p>:D</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ruthless-testing-3/">Ruthless Testing 3</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-07-20T22:38:19+07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam sistem. Jadi, user membuka form, mengisi data diri, dan menekan tombol Submit. Tidak ada yang aneh dengan fiturnya.</p>
-
-<p>Keanehannya adalah, entah kenapa, aplikasi tersebut cuma bisa digunakan 7 kali. Jadi pada waktu user ke-8 menekan tombol Submit, datanya tidak tersimpan di database. Anehnya juga, aplikasi tidak menimbulkan pesan error. Hmm &#8230; sungguh gaib.</p>
-
-<p>Berbagai upaya dilakukan untuk mengatasi masalah ini. Tim pengusir hantu didatangkan, lengkap dengan kostum putih-putih dan botol penangkap hantu, karena dicurigai ada &#8216;sesuatu&#8217; dengan angka 7. Tetapi tidak juga mencapai solusi yang memuaskan.</p>
-
-<p>Akhirnya, seorang anggota milis JUG didatangkan. Beliau memeriksa source code fitur registrasi tersebut, sebagai berikut:</p>
-
-<pre><code>&lt;code&gt;
-public void save (User u) {
-  try {
-    Connection conn = DriverManager.getConnection(url, username, password);
-
-    PreparedStatement pstm = conn.prepareStatement("INSERT INTO user VALUES (?,?,?)");
-    pstm.setInt(1, u.getId());
-    pstm.setString(2, u.getUsername());
-    pstm.setString(3, u.getPassword());
-
-    pstm.executeUpdate();
-  } catch(Exception err) {
-
-  }
+    }
 }
-&lt;/code&gt;
 </code></pre>
 
-<p>Pembaca yang teliti (ya, maksudnya Anda) akan segera menemukan asal muasal semua &#8216;kejadian gaib&#8217; di atas, yaitu:</p>
+<p>Untuk selanjutnya, kode program akan ditulis di dalam method main.</p>
 
-<ol>
-<li><p>Connection dibuka, tapi tidak pernah ditutup. Besar kemungkinan max connection di database adalah 7 concurrent connection. Sehingga setelah 7 kali connect dan 0 kali disconnect, database akan menolak koneksi baru.</p></li>
-<li><p>Catch block dibiarkan kosong, sehingga error dari database tidak akan tampil di mana-mana.</p></li>
-</ol>
+<h2>Parameter koneksi</h2>
 
+<p>Untuk melakukan koneksi ke komputer lain, kita memerlukan beberapa variabel, ditunjukkan dengan kode sebagai berikut.</p>
 
-<p>Hmm .. kesalahan yang &#8216;newbie banget&#8217;. Melalui pemeriksaan menyeluruh, ditemukan kesalahan serupa di berbagai bagian kode yang lain.</p>
+<pre><code>String host = "localhost";
+String user = "endy";
+String pass = "java";
+String command = "shutdown -h now";
+</code></pre>
 
-<p>Pada titik ini, para project manager, development team leader akan segera mengeluh dan bersiap-siap mengisi komentar di bawah, &#8220;Masa saya harus baca kode baris-per-baris? Kayak kurang kerjaan aja !!&#8221;
-Sebelum Anda lakukan itu, sabar dulu .. baca sampai habis. Kita akan segera lihat solusinya.</p>
+<p>Kita akan melakukan koneksi ke komputer kita sendiri (localhost) dengan username endy dan password java. Setelah berhasil terhubung, kita akan menjalankan perintah shutdown -h now.</p>
 
-<p>Pemeriksaan baris kode seperti ini sangat melelahkan. Semakin besar projectnya, semakin banyak baris kodenya, semakin tinggi beban pemeriksaannya. Di lain pihak, kalau kita tidak melakukan pemeriksaan, kita menimbulkan resiko terjadinya masalah di kemudian hari.</p>
+<h2>Pre Requisite</h2>
 
-<p>Jadi, bagaimana solusinya?</p>
-
-<p>Untungnya &#8211;seperti biasa&#8211; kita bukan yang pertama menemukan masalah seperti ini. Masalah sudah pernah dialami orang lain, dan dibuatkan solusinya, sehingga kita &#8211;seperti biasa&#8211; tinggal download dan pakai :D</p>
-
-<p>Jawaban dari masalah ini adalah <strong>automated code review</strong>. Tools ini akan melakukan review terhadap source code, sesuai dengan aturan yang kita tetapkan, dengan teliti, otomatis, dan repeatable. Dengan tool ini, berapapun baris kode yang ada, semua akan diperiksa secara menyeluruh.</p>
-
-<p>Ada beberapa solusi yang dapat digunakan:</p>
+<p>Agar kode program kita bisa dijalankan, ada beberapa persyaratan sebagai berikut:</p>
 
 <ul>
-<li><p><a href="http://csdl.ics.hawaii.edu/Tools/Jupiter/">Jupiter (Eclipse Plugin)</a></p></li>
-<li><p><a href="http://pmd.sourceforge.net">PMD</a></p></li>
-<li><p><a href="http://www.hammurapi.org">Hammurapi</a></p></li>
-<li><p>Built-in feature IntelliJ IDEA</p></li>
+<li><p>Komputer yang ingin dihubungi harus menjalankan SSH server</p></li>
+<li><p>Komputer yang ingin menghubungi harus melakukan koneksi SSH secara manual terlebih dulu,
+agar komputer tujuan terdaftar di file known_hosts</p></li>
+<li><p>User yang digunakan untuk koneksi harus memiliki akses yang cukup untuk melakukan perintah yang diinginkan</p></li>
 </ul>
 
 
-<p>Pada contoh kali ini, kita akan coba menggunakan PMD. Caranya mudah:</p>
+<h2>Menggunakan JSch</h2>
 
-<ol>
-<li><p>Download dari websitenya.</p></li>
-<li><p>Extract</p></li>
-<li><p>Buat target di Ant untuk memanggil PMD.</p></li>
-<li><p>Lihat reportnya</p></li>
-</ol>
+<p>Setelah parameter koneksi kita deklarasikan, dan juga prasyarat di komputer tujuan dipenuhi, sekarang kita bisa mulai menggunakan JSch.
+Pertama, kita instankan dulu object dari class JSch.</p>
 
-
-<p>Untuk langkah #1 dan #2 tidak perlu dijelaskan lebih lanjut. Target Ant untuk langkah #3 adalah sebagai berikut:</p>
-
-<pre><code>&lt;code&gt;
-&lt;target name="code-review" depends="prepare"&gt;
-  &lt;pmd targetjdk="1.5" shortFilenames="true"&gt;
-
-    &lt;ruleset&gt;basic&lt;/ruleset&gt;   
-    &lt;ruleset&gt;codesize&lt;/ruleset&gt;
-    &lt;ruleset&gt;clone&lt;/ruleset&gt;
-    &lt;ruleset&gt;controversial&lt;/ruleset&gt;
-    &lt;ruleset&gt;coupling&lt;/ruleset&gt;
-    &lt;ruleset&gt;design&lt;/ruleset&gt;
-    &lt;ruleset&gt;finalizers&lt;/ruleset&gt;
-    &lt;ruleset&gt;imports&lt;/ruleset&gt;
-    &lt;ruleset&gt;javabeans&lt;/ruleset&gt;
-    &lt;ruleset&gt;logging-java&lt;/ruleset&gt;
-    &lt;ruleset&gt;logging-jakarta-commons&lt;/ruleset&gt;
-    &lt;ruleset&gt;naming&lt;/ruleset&gt;
-    &lt;ruleset&gt;optimizations&lt;/ruleset&gt;
-    &lt;ruleset&gt;strictexception&lt;/ruleset&gt;
-    &lt;ruleset&gt;strings&lt;/ruleset&gt;
-    &lt;ruleset&gt;sunsecure&lt;/ruleset&gt;
-    &lt;ruleset&gt;unusedcode&lt;/ruleset&gt;
-
-    &lt;formatter
-        type="net.sourceforge.pmd.renderers.HTMLRenderer"  
-        toFile="${pmd.result}/pmd.html"
-    /&gt;
-    &lt;fileset dir="src"&gt;
-      &lt;include name="**/*.java"/&gt;
-    &lt;/fileset&gt;
-  &lt;/pmd&gt;
-&lt;/target&gt;
-&lt;/code&gt;
+<pre><code>JSch jsch = new JSch();
 </code></pre>
 
-<p>Berikut penjelasannya:</p>
+<p>Kemudian, kita berikan database known_hosts, yaitu daftar komputer tujuan beserta public keynya. Ini berguna untuk melakukan verifikasi terhadap komputer tujuan.</p>
 
-<ol>
-<li><p>Target JDK : memeriksa kesesuaian dengan JDK 1.5</p></li>
-<li><p>Ruleset : Aturan yang akan diberlakulkan. Detailnya bisa dilihat di website PMD. Sebagai contoh, dengan memberlakukan ruleset basic, kita memeriksa blok catch yang kosong, sehingga mencegah masalah pesan error di atas. Sedangkan ruleset design memeriksa apakah Connection yang dibuat sudah ditutup.</p></li>
-<li><p>Formatter : Jenis formatter yang digunakan. Report yang dihasilkan PMD dapat berupa text, xml, csv.</p></li>
-<li><p>Fileset: source code yang akan direview. Kita dapat mengganti parameter ini dan mereview semua source code yang ada di harddisk kita. SIlahkan mencoba mendownload source code project open source java (misalnya Tomcat, atau JBoss), dan lihat apakah kode programnya ditulis dengan baik.</p></li>
-</ol>
-
-
-<p>Laporan yang dihasilkan bentuknya seperti ini:
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/pmd-report.png" alt="PMD Review Result" /></p>
-
-<p>Selamat mencoba. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Manajemen/cost-of-quality/">Cost of Quality</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-07-12T23:48:16+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Mumpung sedang <a href="http://endy.artivisi.com/blog/java/ruthless-testing-2/">hangat</a> membahas <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">testing</a>, coba kita dengarkan apa pendapat manajemen.</p>
-
-<p>Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, integration test, coverage test dsb
-Manager [M] : Stop, banyak sekali testnya? Memangnya kamu gak bisa bikin kode yang bener, sampe ditest segitu banyaknya?
-[P] : Ya bisa bos, tapi ..
-[M] : Ya sudah kalo bisa coding sana yang bener, test nanti saja waktu sudah delivery. Kita sudah mepet deadline ini. Kita dibayar bukan untuk coding unit test.
-[P] : (kecewa, cuma bisa gigit mouse) Ya deh bos &#8230;</p>
-
-<p>Umumnya, begitulah tanggapan pihak manajemen dalam menyikapi test. Test dianggap sebagai kegiatan yang (walaupun) penting, prioritasnya ada di kelas ekonomi.
-Saya sendiri, walaupun merupakan penggemar unit testing dan percaya akan manfaatnya, kadang merasa tidak pede untuk berargumen dengan manajemen tentang urusan ini.</p>
-
-<p>Sampai suatu hari, ada training di kantor tentang Software Engineering. Instrukturnya adalah konsultan manajemen yang ahli di bidang ISO dan CMMI.</p>
-
-<p>Biasanya, saya rada skeptis dengan yang namanya konsultan manajemen. Baik itu konsultan pemasaran, konsultan ISO, atau bidang manajemen yang lainnya. Kebanyakan dari mereka (tidak semua, tapi kebanyakan) biasanya cuma bisnis jargon saja. Cari uang dari menciptakan jargon aneh, menjelaskan jargon tersebut, dan menyuruh kita menggunakan jargon tersebut. Selebihnya nasihatnya mirip-mirip ramalan bintang, nasihat yang buram dan bisa ditafsirkan apa saja.</p>
-
-<p>Tapi kali ini, sang konsultan mengetengahkan jargon yang cukup menarik, yaitu <strong>Cost of Quality</strong>. Berikut penjelasannya.</p>
-
-<p>Biasanya, dalam mengerjakan project software, kegiatan apa yang ada di project schedule kita?
-Umumnya seperti ini:
-1. Analisa : membuat spesifikasi requirement user
-2. Desain : desain tampilan dan arsitektur aplikasi
-3. Coding
-4. User Testing
-5. Implementasi : migrasi data, training user, tuning
-6. Garansi
-7. Makan-makan (kalo ada profit)</p>
-
-<p>Si konsultan bilang, memang itu semua (1-6) adalah kegiatan utama. Tanpa kegiatan itu, project tidak bisa diutamakan. Tapi, dengan 6 aktifitas tersebut, kecil peluangnya kita akan sampai ke aktivitas #7, yaitu makan-makan.</p>
-
-<p>&#8220;Kenapa begitu ?&#8221;, demikian para peserta training bertanya dengan antusias, nampaknya jelas kalau urusannya menyangkut perut (tidak jadi makan-makan) orang ngantuk bisa langsung jadi segar.</p>
-
-<p>&#8220;Ya sebab di sana belum dianggarkan Biaya Kualitas (Cost of Quality), nantinya kualitas rendah, banyak perbaikan, sehingga profit terancam tergusur&#8221;, jawab instruktur.</p>
-
-<p>Nah, sekarang apa saja biaya kualitas itu? Diantaranya adalah:</p>
-
-<ol>
-<li><p>Training : memastikan pekerjaan tidak dikerjakan secara trial and error</p></li>
-<li><p>Review : mendeteksi kesalahan sedini mungkin. Kesalahan desain bisa diperbaiki dalam beberapa halaman dokumen desain. Tetapi jika dibiarkan sampai coding, banyak sekali effort untuk debug dan bugfix yang harus dikeluarkan. Misal: mengganti iBatis dengan Hibernate di dokumen desain cukup dengan Find and Replace. Mengganti iBatis dengan Hibernate di kode program? Bayangkan sendiri.</p></li>
-<li><p>Rework : harus ada anggaran untuk melakukan perbaikan dokumen, bugfix, dsb</p></li>
-<li><p>Audit : sebelum hasil pekerjaan dideliver ke client, harus diperiksa dulu secara internal. Audit proses juga dilakukan untuk memastikan semua Cost of Quality sudah diperhitungkan dan dijalankan.</p></li>
-<li><p>Testing : testing sebanyak mungkin dan seawal mungkin.</p></li>
-</ol>
-
-
-<p>Dalam project software, kita mengenal fenomena bola salju. Tadinya kecil, menggelinding menjadi besar sehingga dapat menggulung satu desa (seperti di film kartun). Di software sama. Kita ingin mendeteksi kesalahan sedini mungkin, kalau bisa di tahap analisa semua kesalahan sudah dieliminasi, sehingga tidak merembet ke kode program. Jadi, perlu ada review dan audit untuk memastikan kesalahan tidak ditemukan di fase-fase akhir. Karena memperbaiki kesalahan di awal (requirement dan design) jauh lebih murah daripada di akhir (kode program, materi user training, user manual, dan script migrasi data).</p>
-
-<p>Baiklah, cost of quality itu penting. Sekarang bagaimana cara menjelaskan pada manajemen mengenai tambahan biaya tersebut?</p>
-
-<p>Mari kita rekonstruksi dialog Programmer dan Manager.</p>
-
-<p>Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, integration test, coverage test &#8230;
-Manager [M] : Stop, banyak sekali testnya? Memangnya kamu gak bisa bikin kode yang bener, sampe ditest segitu banyaknya?
-[P] : Ya bisa bos, tapi ..
-[M] : Ya sudah kalo bisa coding sana yang bener, test nanti saja waktu sudah delivery. Kita sudah mepet deadline ini. Kita dibayar bukan untuk coding unit test.
-[P] : Memangnya kalo boleh tau, seperti apa jadwalnya Bos?
-[M] : Kamu programmer mau tau saja.
-Tapi gpp, karena ini percakapan boongan baiklah akan saya kasi tau:
-1. Analisa : 2 minggu
-2. Desain : 1 minggu
-3. Coding : 4 minggu
-4. User Testing dan Bugfix : 4 minggu
-5. Implementasi : 4 minggu
-6. Garansi : 8 minggu
-Total : 23 minggu</p>
-
-<p>[P] : Kenapa User Testing dan Implementasi lama sekali Bos? Sama lamanya dengan Coding?
-[M] : Ya itu karena kamu dan teman-temanmu kerjanya salah melulu, jadi di User Testing dan Implementasi banyak masalah.</p>
-
-<p>[P] : Bagaimana kalau saya usul jadwal seperti ini :
-1. Analisa : 2 minggu
-2. Review dan rework : 1 minggu
-3. Desain : 1 minggu
-4. Review dan rework : 1 minggu
-5. Training : 1 minggu
-6. Coding + Unit Testing: 6 minggu
-7. User Testing dan Bugfix: 2 minggu
-8. Implementasi : 1 minggu
-9. Garansi : 8 minggu
-Total : 23 minggu
-Sama kan Bos, total waktunya. Saya yakin dengan tambahan aktifitas review, rework, dan training, kita akan bisa tangkap sebagian besar bug sebelum User Testing. Dengan demikian, bug yang terlihat sama user tinggal sedikit karena sudah kita temukan duluan.
-Kalau sebelum coding kita ditraining dulu, codingnya bisa lebih cepat dan bener Bos, sehingga bugnya lebih sedikit. Mudah-mudahan client jadi puas.</p>
-
-<p>[M] : Wah pintar juga kamu, di rumah dikasi makan apa sama Emaknya bisa pintar gini? Baiklah akan saya coba usul kamu.</p>
-
-<p>Demikianlah, cost of quality itu penting. Lebih penting lagi adalah cara kita menjual pada manajemen, supaya kegiatan testing dan training tidak dianggap sebagai kegiatan &#8216;buang-buang uang&#8217; dan &#8216;tidak dibayar client&#8217;. Sebenarnya, client membayar untuk mendapat hasil yang berkualitas dan memuaskan. Secara tidak langsung, mereka membayar kita untuk melakukan testing.</p>
-
-<p>Referensi : <a href="http://www.stevemcconnell.com/articles/art04.htm">Software Quality at Top Speed</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ruthless-testing-2/">Ruthless Testing 2</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-07-12T19:27:12+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel sebelumnya</a>, kita telah membahas tentang penggunaan <a href="http://www.junit.org">unit test</a> dan integration test sederhana menggunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>. Pada artikel kali ini, kita akan membahas tentang coverage testing</p>
-
-<p>Sebagai technical leader, project manager -atau apapun nama jabatannya- yang bertugas mengawasi segerombolan programmer, bagaimana cara kita memastikan bahwa mereka membuat unit test untuk setiap kode yang ditulis?</p>
-
-<p>Cara manual tentu saja dengan memeriksa unit test satu-persatu dan membandingkannya dengan kode program aplikasi. Kita cocokkan tiap unit test dengan pasangan kode yang ditest. Dengan demikian, kita tahu mana kode yang sudah ditest mana yang belum.</p>
-
-<p>Sayangnya, cara ini tidak otomatis. Sehingga kalau nanti dihadapkan pada deadline ketat, dipastikan kegiatan ini akan segera diabaikan. Oleh karena itu kita harus mengotomasi pemeriksaan test ini sehingga di tengah tekanan jadwal, kita tetap bisa memastikan unit test dibuat dengan benar.</p>
-
-<p>Ada beberapa tools yang beredar di pasaran untuk mengotomasi pemeriksaan ini, diantaranya:</p>
-
-<ul>
-<li><p><a href="http://www.cenqua.com/clover/">Clover</a> (komersial)</p></li>
-<li><p><a href="http://cobertura.sourceforge.net/">Cobertura</a> (open source)</p></li>
-<li><p><a href="http://emma.sourceforge.net/">Emma</a> (open source)</p></li>
-</ul>
-
-
-<p>Semua tools di atas melakukan &#8217;<em>coverage testing</em>&#8217;, yaitu pengetesan apakah unit test yang dibuat telah meng-cover semua kode yang ditest. Jika unit testnya terlalu sedikit, maka coverage testing akan failed.</p>
-
-<p>Pada contoh kali ini, kita akan menggunakan Cobertura. Cobertura mampu memeriksa coverage terhadap baris kode dan percabangan. Jadi kalau ada percabangan (if-else, switch) yang belum ditest, cobertura akan melaporkan. Kalau ada baris kode yang belum terjangkau unit test, cobertura juga akan memperingatkan.</p>
-
-<p>Sebagai supervisor, kita dapat menetapkan aturan pada project. Misalnya, &#8220;Untuk project ini, saya ingin test meng-cover minimal 70% dari seluruh baris dan 90% dari seluruh percabangan&#8221;.</p>
-
-<p>Bagaimana cara Cobertura melakukan keajaiban ini? Jawabannya, melalui mekanisme yang disebut <em>code instrumentation</em>.
-Cobertura akan memodifikasi bytecode (*.class) yang dihasilkan oleh proses kompilasi. Bytecode yang dihasilkan <em>javac</em> akan ditambah dengan kode-kode khusus untuk menghitung dan mendeteksi invokasi. Dengan demikian, pada saat unit test dijalankan, Cobertura akan mengetahui unit test yang mana menjalankan kode program yang mana. Bytecode yang akan diproses oleh Cobertura harus dikompile dengan flag -debug.</p>
-
-<p>Dengan demikian, untuk menjalankan Cobertura, kita membutuhkan dua kali tahap kompilasi. Kompilasi pertama mengubah <em>.java menjadi </em>.class. Kompilasi kedua menambahkan instrumen di *.class.</p>
-
-<p>Berikut adalah Ant target untuk melakukan instrumentasi.</p>
-
-<pre><code>&lt;code&gt;&lt;target name="instrument-cobertura" depends="compile-cobertura"&gt;        
-        &lt;!--
-                Instrument the application classes, writing the
-                instrumented classes into ${build.instrumented.dir}.
-        --&gt;        
-        &lt;cobertura-instrument todir="${compile.cobertura}"&gt;         
-            &lt;includeClasses regex=".*" /&gt;
-            &lt;excludeClasses regex=".*\Test.*" /&gt;  
-            &lt;instrumentationClasspath&gt;
-                &lt;pathelement location="${compile.debug}" /&gt;
-            &lt;/instrumentationClasspath&gt;
-        &lt;/cobertura-instrument&gt;
-    &lt;/target&gt;
-&lt;/code&gt;
+<pre><code>jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
 </code></pre>
 
-<p>Selanjutnya, kita menjalankan unit test seperti biasa (melalui Ant target). Bedanya adalah, kita menggunakan hasil kompilasi Cobertura. Ant target untuk menjalankan unit test adalah sebagai berikut:</p>
+<p>File known_hosts ini akan otomatis dibuat bila kita melakukan koneksi SSH ke komputer lain. Itulah sebabnya kita harus melakukan koneksi manual terlebih dulu, sehingga public key komputer tujuan sudah terdaftar dalam file ini. Alternatif dari menggunakan file ini adalah <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">mendaftarkan public key di komputer tujuan dan menggunakan private key untuk login</a>.</p>
 
-<pre><code>&lt;code&gt;&lt;target name="unit-test" depends="instrument-cobertura"&gt;
-        &lt;junit haltonfailure="false" fork="yes"&gt;            
-            &lt;classpath location="${compile.cobertura}"/&gt;
-            &lt;classpath refid="cobertura-classpath"/&gt;
-            &lt;formatter type="xml"/&gt;
-            &lt;batchtest todir="${junit.result}"&gt;
-                &lt;fileset dir="${compile.debug}" includes="**/*Test.class"/&gt;
-            &lt;/batchtest&gt;
-        &lt;/junit&gt;
-    &lt;/target&gt;
-&lt;/code&gt;
+<p>Selanjutnya, kita membuka koneksi ke komputer tujuan</p>
+
+<pre><code>Session session = jsch.getSession(user, host);
+session.setPassword(pass);
+session.connect();
 </code></pre>
 
-<p>Perhatikan referensi ke <strong>${compile.cobertura}</strong> yang diletakkan di atas referensi <strong>cobertura-classpath</strong>. Ini mengisyaratkan bahwa class hasil instrumentasi Cobertura diload <strong>lebih dulu</strong> daripada class yang dikompilasi secara normal.</p>
+<p>Lalu, kita membuka channel. Channel menggambarkan bentuk interaksi kita dengan komputer tujuan. JSch menyediakan beberapa jenis channel, misalnya exec dan shell. Kita menggunakan exec untuk mengeksekusi satu perintah saja. Sedangkan shell bisa digunakan untuk membuka terminal interaktif yang bisa kita berikan perintah sebanyak kita mau.</p>
 
-<p>Terakhir, kita buat Ant target untuk memeriksa coverage dan menghasilkan HTML report.</p>
-
-<pre><code>&lt;code&gt;&lt;target name="coverage-test" depends="unit-test"&gt;
-        &lt;cobertura-check datafile="cobertura.ser" 
-                         branchrate="70" 
-                         linerate="90"
-                         haltonfailure="false"
-        /&gt;
-        &lt;cobertura-report datafile="cobertura.ser"
-                          srcdir="src" destdir="${cobertura.result}"
-        /&gt;
-    &lt;/target&gt;
-&lt;/code&gt;
+<pre><code>ChannelExec channel = (ChannelExec) session.openChannel("exec");
+channel.setCommand(command);
+channel.connect();
 </code></pre>
 
-<p>Perhatikan nilai batas baris (linerate) dan percabangan (branchrate) yang harus ditest. Nilainya sudah disesuaikan dengan aturan yang kita tetapkan di atas, yaitu sebesar 70% dan 90%.</p>
+<p>Kita bisa membaca output dari perintah yang kita jalankan menggunakan I/O Stream seperti biasa.</p>
 
-<p>Misalnya kita memiliki class DayCounter.java sebagai berikut:</p>
+<pre><code>BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+String output = reader.readLine();
+while (output != null) {
+    System.out.println(output);
+    output = reader.readLine();
+}
+reader.close();
+</code></pre>
 
-<pre><code>&lt;code&gt;public class DayCounter {
-    public int numDays(int month, int year){
-        switch (month) {
-            case 1: 
-            case 3:
-            case 5: 
-            case 7: 
-            case 8:
-            case 10:
-            case 12: return 31;
-            case 4: 
-            case 6:
-            case 9: 
-            case 11: return 30;
-            case 2: 
-                if (year%4 == 0) {
-                    return 29;
-                } else {
-                    return 28;
-                }
-            default: return 0;
+<p>Segera setelah perintah selesai dijalankan, kita mengakhiri channel dan session.</p>
+
+<pre><code>channel.disconnect();
+session.disconnect();
+</code></pre>
+
+<p>Berikut adalah keseluruhan kode program.</p>
+
+<pre><code>public class JschDemo {
+
+    public static void main(String[] args) throws Exception {
+    String host = "localhost";
+    String user = "endy";
+    String pass = "java";
+    String command = "shutdown -h now";
+
+        JSch jsch = new JSch();
+        jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
+
+        Session session = jsch.getSession(user, host);
+        session.setPassword(pass);
+        session.connect();
+
+        ChannelExec channel = (ChannelExec) session.openChannel("exec");
+        channel.setCommand(command);
+        channel.connect();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+        String output = reader.readLine();
+        while (output != null) {
+            System.out.println(output);
+            output = reader.readLine();
         }
-    }    
-} 
-&lt;/code&gt;
-</code></pre>
+        reader.close();
 
-<p>Dan unit testnya DayCounterTest.java sebagai berikut:</p>
+        channel.disconnect();
+        session.disconnect();
 
-<pre><code>&lt;code&gt;package tutorial.testframework;
-
-import junit.framework.TestCase;
-
-public class DayCounterTest extends TestCase {
-    public void testNumDays() {
-        DayCounter d = new DayCounter();
-        assertEquals(31, d.numDays(12,2001));        
-        assertEquals(30, d.numDays(11,2001));
-        assertEquals(28, d.numDays(2,2001));
-        assertEquals(29, d.numDays(2,2000));
-        assertEquals(0, d.numDays(21,2000));
     }
 }
-&lt;/code&gt;
 </code></pre>
 
-<p>Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya (kilk gambar untuk memperbesar) :
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-green.png">
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-green-small.png" alt="Cobertura All Pass" /></a></p>
-
-<p>Kita juga bisa melihat coverage detail dari class DayCounter.java:
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-green.png">
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-green-small.png" alt="Cobertura Class Detail Pass" />
-</a>
-Bila kita non-aktifkan beberapa test, seperti ini:</p>
-
-<pre><code>&lt;code&gt;package tutorial.testframework;
-
-import junit.framework.TestCase;
-
-public class DayCounterTest extends TestCase {
-    public void testNumDays() {
-        DayCounter d = new DayCounter();
-        assertEquals(31, d.numDays(12,2001));        
-        assertEquals(30, d.numDays(11,2001));
-        //assertEquals(28, d.numDays(2,2001));
-        //assertEquals(29, d.numDays(2,2000));
-        //assertEquals(0, d.numDays(21,2000));
-    }
-}
-&lt;/code&gt;
-</code></pre>
-
-<p>Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini:
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-red.png">
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-red-small.png" alt="Cobertura All Failed" /></a></p>
-
-<p>dan detail classnya seperti ini
-<a href="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-red.png">
-<img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-red-small.png" alt="Cobertura Class Detail Failed" /></a></p>
-
-<p>Bagaimana?
-Mudah dan cepat kan?
-Dengan cara ini, kita dapat mendeteksi tingkat kemalasan programmer dalam membuat unit test.
-Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test ini sering juga disebut code-review.</p>
+<p>Selamat mencoba. Bila percobaan Anda sukses, komputer yang sedang Anda gunakan akan shutdown setelah aplikasi selesai dijalankan.
+:D</p>
 </div>
   
   
@@ -1083,7 +257,7 @@ Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test 
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Aplikasi/plugin-untuk-archive/">Plugin Untuk Archive</a></h1>
+        <h1 class="entry-title"><a href="/blog/Linux/upgrade-ubuntu/">Upgrade Ubuntu</a></h1>
       
     
     
@@ -1100,23 +274,178 @@ Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test 
   
 
 
-<time datetime="2006-07-12T00:49:47+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+<time datetime="2009-04-22T23:10:37+07:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Tadinya cuma pengen tampilan arsip seperti <a href="http://andryshuzain.com/archives">punyanya mas Andry</a>. Tapi sayangnya dia pakai <a href="http://textpattern.com/">aplikasi blog lain</a> yang beda dengan <a href="http://www.wordpress.org">saya punya</a>. Jadi solusinya dia kemungkinan besar tidak bisa diimplement di sini.</p>
+  <div class="entry-content"><p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
 
-<p>Tadinya mau coding sendiri, browsing ke <a href="http://codex.wordpress.org">situs dokumentasi Wordpress</a>, malah ketemu <a href="http://www.sonsofskadi.net/extended-live-archive/">plugin Extended Live Archives</a>, berikut <a href="http://www.24fightingchickens.com/2006/01/03/extended-live-archives/">cara instalasinya</a>.</p>
+<ul>
+<li><p>Unduh ISO Ubuntu terbaru</p></li>
+<li><p>Bakar ke CD</p></li>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird</p></li>
+<li><p>Remove semua hidden file di home folder</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+</ul>
 
-<p>Setelah sedikit berkutat dengan file CSS, tadaaa&#8230;. silahkan <a href="http://endy.artivisi.com/blog/archive-live/">lihat sendiri</a>. Kalau anda melihat halaman kosong, tunggu sejenak, tandanya dia sedang loading.
-Nanti setelah loading, ada rangkuman arsip canggih berteknologi AJAX.</p>
 
-<p>Cool &#8230; :D</p>
+<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
 
-<p>Update: Sesuai saran mas Andry, saya coba instal <a href="http://www.sporadicnonsense.com/2006/05/04/clean-archives-20/">SRG Clean Archives</a>. Hasilnya bisa dilihat <a href="http://endy.artivisi.com/blog/archive-simple/">di sini</a>.</p>
+<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
+
+<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
+
+<ul>
+<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
+<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa &#8216;dititipkan&#8217; di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
+</ul>
+
+
+<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
+
+<ul>
+<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
+<li><p>Lakukan proses instalasi</p></li>
+<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
+<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
+<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
+</ul>
+
+
+<h2>Membuat daftar aplikasi</h2>
+
+<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
+
+<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
+</code></pre>
+
+<p>Buka file daftar_aplikasi.txt dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
+
+<pre><code>ttf-inconsolata
+ttf-droid
+nautilus-open-terminal
+mc
+chmsee
+unrar
+comix
+keepassx
+subversion
+git-svn
+gimp
+network-manager-openvpn
+network-manager-openvpn-gnome
+network-manager-pptp
+network-manager-pptp-gnome
+network-manager-vpnc
+network-manager-vpnc-gnome
+openssh-server
+gnome-alsamixer
+vlc
+rtorrent
+hamster-applet
+timer-applet
+inkscape
+mysql-server
+mysql-query-browser
+mysql-admin
+sun-java6-jdk
+ubuntu-restricted-extras
+build-essential
+ant
+</code></pre>
+
+<h2>Proses Instalasi</h2>
+
+<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
+
+<ul>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird</p></li>
+<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+<li><p>Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
+<li><p>Jalankan apt-get update untuk mengupdate database aplikasi</p></li>
+</ul>
+
+
+<p>Berikut isi file /etc/apt/sources.list saya.</p>
+
+<pre><code>deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ intrepid-security main restricted universe multiverse
+</code></pre>
+
+<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
+
+<pre><code>deb http://kambing.ui.edu/ubuntu/ jaunty main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ jaunty-updates main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multiverse
+</code></pre>
+
+<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
+
+<h2>Membuat daftar URL untuk download</h2>
+
+<p>Jalankan perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt | xargs -i apt-get install -qq --print-uris {} | cut -d\' -f2 &gt; daftar_url.txt
+</code></pre>
+
+<p>Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
+
+<h2>Mengunduh *.deb</h2>
+
+<p>Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
+
+<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
+
+<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
+</code></pre>
+
+<p>Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini.</p>
+
+<pre><code>tail -f daftar_url.txt 
+</code></pre>
+
+<p>Tekan Ctrl+C untuk keluar dari tail.</p>
+
+<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
+
+<h2>Instalasi *.deb</h2>
+
+<p>Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt | xargs -i apt-get install -y {}
+</code></pre>
+
+<p>Tunggu sejenak sampai selesai.</p>
+
+<h2>Replikasi Instalasi</h2>
+
+<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
+
+<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
+
+<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
+</code></pre>
+
+<p>Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
+
+<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
+
+<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
+</code></pre>
+
+<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
+
+<pre><code>sudo apt-get dselect-upgrade
+</code></pre>
+
+<p>Semoga bermanfaat.</p>
 </div>
   
   
@@ -1130,7 +459,7 @@ Nanti setelah loading, ada rangkuman arsip canggih berteknologi AJAX.</p>
   <header>
     
       <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/blog/Java/ruthless-testing-1/">Ruthless Testing 1</a></h1>
+        <h1 class="entry-title"><a href="/blog/Lain2/intro-jquery/">Intro jQuery</a></h1>
       
     
     
@@ -1147,189 +476,169 @@ Nanti setelah loading, ada rangkuman arsip canggih berteknologi AJAX.</p>
   
 
 
-<time datetime="2006-06-13T22:59:30+07:00" pubdate data-updated="true">Jun 13<span>th</span>, 2006</time>
+<time datetime="2009-03-17T22:38:56+07:00" pubdate data-updated="true">Mar 17<span>th</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
-100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221;</p>
+  <div class="entry-content"><p>Jaman sekarang, membuat tampilan menarik di aplikasi web sudah tidak sulit lagi.
+Banyak pustaka JavaScript yang siap digunakan dengan mudah.
+Tidak perlu lagi kita memusingkan keragaman browser dengan keanehannya masing-masing.</p>
 
-<p>Nah, kalau begitu, pertanyaannya, apa saja yang sudah ditest?</p>
+<p>Salah satu pustaka JavaScript yang populer adalah <a href="http://www.jquery.com">jQuery</a>.
+Berbeda dengan pustaka JavaScript lainnya, jQuery tidak menawarkan komponen UI yang aneh-aneh.
+Demikian juga dengan efek visual, hanya tersedia sekenanya saja.
+Dengan demikian, jQuery berukuran relatif kecil dan mudah dipelajari.</p>
 
-<p>Jawaban orang biasanya bervariasi, tergantung nilai project, jumlah orang yang tersedia, dan juga tergantung tingkat kegaptekan si programmer terhadap teknologi testing yang tersedia.</p>
+<p>Akan tetapi, di balik kesederhanaan tersebut tersimpan kecanggihan arsitekturnya.
+Dengan arsitektur yang rapi ini, orang mudah membuat plugin untuk menambah kemampuan jQuery.
+Hasilnya, ada <a href="http://www.jqueryui.com/">jQuery UI</a> dengan koleksi komponen UI yang kaya.
+Ada juga <a href="http://www.trirand.com/blog/">jqGrid</a> dengan komponen tabelnya yang canggih.</p>
 
-<p>Testing minimal yang dilakukan biasanya adalah user testing. Jadi, ada user (atau programmer yang pura-pura jadi user) mencoba menggunakan aplikasi yang (katanya sih) sudah selesai. Biasanya fenomena ini akan berakhir dengan periode bugfix yang lebih lama daripada periode coding itu sendiri.</p>
+<p>Pada tutorial ini, kita akan mempelajari dasar-dasar pemrograman JavaScript menggunakan jQuery.
+Setelah menguasai dasar-dasarnya,
+kita akan mampu menggunakan berbagai teknik tingkat tinggi seperti AJAX dan efek visual.
+Kita juga akan mudah mempelajari dan menggunakan berbagai komponen dan plugin yang tersedia.</p>
 
-<p>Jadi, bagaimana tipsnya supaya user testing berjalan dengan lancar, minim bug, kalaupun ada, bisa diselesaikan dalam bilangan hari?</p>
+<p>Pada intinya, penggunaan jQuery terdiri dari dua langkah sederhana :
+1. Mendapatkan elemen HTML yang ingin kita gunakan
+2. Menambahkan behavior pada elemen HTML yang sudah didapatkan.</p>
 
-<p>Jawabannya adalah melaksanakan &#8220;ruthless testing&#8221;. Artinya testing secara kejam. Testing yang berlapis-lapis sehingga kalau ada programmer bandel yang membuat percabangan if terlalu dalam, akan langsung ketahuan.</p>
+<p>Sebagai contoh kasus, kita akan membuat kalkulator sederhana yang tampilannya seperti ini:
+(http://endy.artivisi.com/blog/wp-content/uploads/2009/03/kalkulator-jquery.png)</p>
 
-<p>Bagaimana itu? Kita akan lihat sebentar lagi.</p>
+<p>Berikut adalah kode HTML untuk membuat kalkulator tersebut.</p>
 
-<p>Ada berapa jenis testing? Hmm .. menurut saya ada:</p>
+<pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Kalkulator jQuery&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Kalkulator jQuery&lt;/h1&gt;
 
-<ol>
-<li>Unit testing</li>
-<li>Integration testing</li>
-<li>Coverage testing</li>
-<li>Code compliance testing</li>
-<li>User/functional testing</li>
-<li>Performance testing</li>
-</ol>
+    &lt;input name="num1"&gt; * &lt;input name="num2"&gt;
+    &lt;input type="button" id="hitung" value="="&gt;
+    &lt;input name="hasil" disabled="true"&gt;
 
-
-<p>Semua test ini harus dijalankan tanpa kecuali.</p>
-
-<p>What the !@#$? Banyak sekali? Apakah semua harus dijalankan? Wah, bisa-bisa kerjaan kita cuma ngurusin test doang? Bagaimana ini?</p>
-
-<p>Hmm.. jangan khawatir, semua bisa dijalankan dengan investasi minimal di awal project.
-Tips saya adalah:</p>
-
-<ol>
-<li><p>Alokasikan pembuatan test bersama-sama dengan construction. Jangan setelah construction. Jadi, wahai Project Managers, kalau merencanakan construction, tambahkan alokasi waktu untuk membuat test.</p></li>
-<li><p>Semua test harus otomatis dan bisa dijalankan dengan sekali perintah. Di project saya, semua test dijalankan cukup dengan:</p></li>
-</ol>
-
-
-<p><code>ant full-test</code></p>
-
-<p>Baiklah, mari kita lihat satu persatu secara lebih detail.</p>
-
-<h3>Unit Testing</h3>
-
-<p>Ini adalah testing di level paling detail dari aplikasi. Artinya, testing di level method/function. Misalnya saya punya kode seperti ini:</p>
-
-<pre><code>&lt;code&gt;
-public class DayCounter{
-  /**
-  * menghitung jumlah hari dalam bulan dan tahun yang diminta. 
-  * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.
-  * @param month bulan yang akan dihitung
-  * @param year tahun yang akan dihitung
-  * @return jumlah hari dalam bulan dan tahun bersangkutan
-  */
-  public int numDays(int month, int year) {
-    return 29;
-  }
-}
-&lt;/code&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
 </code></pre>
 
-<p>Coba lihat contoh kode di atas? Salah bukan?
-Apapun yang kita masukkan, hasilnya pasti 29.
-Mari kita buktikan dengan unit test bahwa kode di atas salah.</p>
+<p>Dari screenshot di atas kita sudah bisa menebak cara kerja halaman web tersebut.
+Bila tombol = ditekan, maka nilai yang ada di input num1 dan num2 akan dibaca dan dikalikan.
+Kemudian hasilnya akan ditampilkan di input hasil.</p>
 
-<pre><code>&lt;code&gt;
-public class DayCounter extends junit.framework.TestCase{
-  public void testNumDays() {
-    DayCounter d = new DayCounter();
-    assertEquals(31, d.numDays(1,2000)); 
-  }
-}
-&lt;/code&gt;
+<p>jQuery menganjurkan kita untuk mengikuti prinsip <em>unobtrusive javascript</em>,
+yang artinya tidak menambahkan event pada kode HTML.</p>
+
+<p>Bila kita tidak mengikuti prinsip ini, biasanya kita akan langsung menambahkan event di tombol = seperti ini</p>
+
+<pre><code>&lt;input type="button" id="hitung" value="=" onclick="alert('Hello World');"&gt;
 </code></pre>
 
-<p>Pada waktu dijalankan, unit test tersebut akan menghasilkan tulisan FAILED</p>
+<p>Dengan prinsip <em>unobtrusive javascript</em>, kode HTML untuk tampilan dibiarkan apa adanya.
+Event onclick akan kita tambahkan di kode JavaScript yang bisa dipasang di blok head secara inline (ditulis langsung),
+ataupun dikeluarkan ke file tersendiri.</p>
 
-<p>Di Java, unit test dapat dilakukan secara otomatis dengan menggunakan <a href="http://ww.junit.org">JUnit</a>.</p>
+<p>Pada contoh ini, kita akan menulis inline supaya lebih mudah.</p>
 
-<h3>Integration Test</h3>
+<h2>Instalasi jQuery</h2>
 
-<p>Sebagian besar aplikasi yang kita buat akan menggunakan database. Untuk itu, kita perlu mengetes apakah kode program kita dapat berinteraksi dengan database sesuai harapan.
-Mirip dengan JUnit, kita membuat unit test yang mengakses database. Misalnya, berikut kode programnya:</p>
+<p>Sebelum kita melakukan apa-apa, terlebih dulu halaman kalkulator tersebut harus bisa mengakses jQuery.
+Tambahkan baris berikut pada blok head.</p>
 
-<pre><code>&lt;code&gt;
-public class DatabaseAccess{
-  /**
-  * memeriksa username dan password dalam database. 
-  * Method ini akan mencocokkan username dan password yang diberikan 
-  * dan yang terdaftar di database.
-  * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.
-  * @param username 
-  * @param password
-  * @return true kalau cocok, false kalau tidak cocok
-  */
-  public boolean checkLogin(String username, String password) {
-    String sql = "SELECT * FROM user WHERE username=? AND password=?"
-    // dst kode akses database    
-  }
-}
-&lt;/code&gt;
+<pre><code>&lt;script type="text/javascript" src="js/jquery-1.2.6.min.js"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>Dan ini adalah kode untuk mengetesnya.</p>
+<p>Pastikan lokasi file jQuery.js sudah benar.</p>
 
-<pre><code>&lt;code&gt;
-public class DatabaseAccess extends junit.framework.TestCase{
-  public void testCheckLogin() {
-    DatabaseAccess db = new DatabaseAccess();
+<p>Setelah itu, biasanya kita akan menambahkan kode program JavaScript yang akan dijalankan <strong>setelah</strong> seluruh halaman selesai diload oleh browser. Tentunya kita tidak ingin menambahkan event pada elemen yang belum selesai diload.</p>
 
-    // asumsikan ada username endy dan password secret di database
-    assertTrue(db.checkLogin("endy", "secret"));
+<p>Berikut adalah blok standar untuk meletakkan kode JavaScript kita.</p>
 
-    // coba dengan user sembarang, harusnya akan menghasilkan false
-    assertFalse(db.checkLogin("nobody", "gakada"));
-  }
-}
-&lt;/code&gt;
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+
+    });
+&lt;/script&gt;
 </code></pre>
 
-<p>Perhatikan bahwa kedua test di atas mengasumsikan bahwa kita punya database, terisi data endy:secret, dan tidak ada record nobody:gakada di dalam tabel user.
-Berarti, setiap dijalankan, kita harus memastikan asumsi di atas terpenuhi.
-Lalu, bagaimana cara menjalankannya secara otomatis? Gampang, gunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>.</p>
+<h2>Event onclick</h2>
 
-<p>Dengan DBUnit, kita dapat me-reset kondisi database sesuai keinginan setiap kali test akan dijalankan.
-Caranya, kita harus buat test data, yaitu satu record berisi data endy:test dalam tabel user. Test data ini disimpan dalam file checkLogin.xml</p>
+<p>Langkah pertama yang kita lakukan adalah menambahkan event ke tombol =.
+Agar bisa melakukannya, kita harus mendapatkan tombol tersebut.
+Kalau kita perhatikan kode HTML di atas, tombol = memiliki ID yang berisi nilai hitung.
+Atribut ID harus unik dalam satu halaman HTML.
+Dengan demikian, kita bisa langsung mendapatkan tombol = dengan menggunakan IDnya.
+Setelah tombol didapatkan, kita bisa langsung menggunakan function click untuk menambahkan event onclick.
+Berikut adalah kode programnya.</p>
 
-<pre><code>&lt;code&gt;
-&lt;dataset&gt;
-  &lt;user id='1' 
-        username='endy'
-        password='secret'
-  /&gt;
-&lt;/dataset&gt;
-&lt;/code&gt;
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click();
+    });
+&lt;/script&gt;
 </code></pre>
 
-<p>Sebelum test dimulai, pastikan database direset. Tambahkan method berikut di kode test:</p>
+<p>Dalam JavaScript, kita bisa memasukkan function sebagai parameter dalam function lain.
+Bagi mereka yang sudah pernah coding C atau C++, pasti sudah tidak asing dengan teknik ini,
+biasa disebut function pointer dalam C atau C++.</p>
 
-<pre><code>&lt;code&gt;
-public class DatabaseAccess extends junit.framework.TestCase{
-  public void testCheckLogin() {
-    // reset database
-    prepareDatabase();
+<p>Nah, mari kita isikan function sebagai parameter untuk function click, seperti ini :</p>
 
-    DatabaseAccess db = new DatabaseAccess();
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click(function(){
 
-    // asumsikan ada username endy dan password secret di database
-    assertTrue(db.checkLogin("endy", "secret"));
-
-    // coba dengan user sembarang, harusnya akan menghasilkan false
-    assertFalse(db.checkLogin("nobody", "gakada"));
-  }
-
-  private void prepareDatabase(){
-    DatabaseOperation.CLEAN_INSERT.execute(dbConn, getTestData());
-  }
-
-  private IDataSet getTestData(){
-    return new FlatXmlDataSet(new FileInputStream("checkLogin.xml"));
-  }
-}
-&lt;/code&gt;
+        });
+    });
+&lt;/script&gt;
 </code></pre>
 
-<p>Nah, DBUnit akan dengan senang hati me-reset isi <strong>database development</strong> Anda. Pastikan test tersebut dijalankan di DATABASE DEVELOPMENT, dan bukan DATABASE PRODUCTION.</p>
+<p>Selanjutnya, kita tinggal mengimplementasikan logika kode program kita, yaitu :
+1. ambil nilai num1
+2. ambil nilai num2
+3. kalikan num1 dan num2
+4. hasilnya isikan ke input text hasil</p>
 
-<p>Sementara cukup sekian. Pada artikel selanjutnya, kita akan bahas tentang:
-3. Coverage Testing
-4. Code compliance testing
-5. User/functional testing
-6. Performance testing
-Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
+<h2>Selector name</h2>
+
+<p>Fitur jQuery untuk menunjuk elemen HTML tertentu disebut selector.
+Pada penambahan event onclick di atas, kita sudah menggunakan selector berdasarkan ID.
+Sekarang, kita akan menggunakan selector atribut untuk memilih input dengan atribut name berisi num1, num2, dan hasil.
+Berikut kode program implementasi dari logika di atas.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click(function(){
+            var num1 = $("input[name=num1]").val();
+            var num2 = $("input[name=num2]").val();
+            $("input[name=hasil]").val(num1 * num2);
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h2>Kesimpulan</h2>
+
+<p>Silahkan buka kalkulator.html di browser, dan coba apakah sudah bekerja dengan benar.</p>
+
+<p>Secara garis besar, pemakaian jQuery dapat dijelaskan dengan satu kalimat,</p>
+
+<blockquote><p>pilih elemen menggunakan selector, lalu manipulasi sesuai keinginan</p></blockquote>
+
+<p>Setelah memahami artikel ini, kita bisa mengembangkan kemampuan kita dalam menggunakan jQuery, diantaranya:</p>
+
+<ul>
+<li><p>mempelajari berbagai selector selain id dan atribut. jQuery memiliki banyak sekali selector yang bisa digunakan</p></li>
+<li><p>menggunakan berbagai event lain selain onclick, misalnya onfocus, onchange, dsb</p></li>
+<li><p>operasi elemen selain mengeset value, misalnya menambahkan isi elemen, mengakses server dengan AJAX, dsb</p></li>
+<li><p>menggunakan plugin-plugin jQuery misalnya Date Picker, Tab, jqGrid, dan sebagainya</p></li>
+<li><p>membuat plugin sendiri</p></li>
+</ul>
+
 </div>
   
   
@@ -1371,6 +680,26 @@ Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
     
       <li class="post">
         <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
       </li>
     
   </ul>
@@ -1424,6 +753,15 @@ Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
 
 
 
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
 
 
   
@@ -1441,7 +779,24 @@ Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
 
 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
 
 
 

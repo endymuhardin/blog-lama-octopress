@@ -1,0 +1,885 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Menggunakan izPack Setelah kita selesai membuat aplikasi, what next? Tentunya mendistribusikan pada orang yang membutuhkan. Bagaimana caranya agar &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endymuhardin.github.com/blog/page/40/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endymuhardin.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Aplikasi/Java/membuat-installer-dengan-izpack/">Membuat Installer Dengan IzPack</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-27T18:49:25+07:00" pubdate data-updated="true">Sep 27<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Menggunakan izPack</p>
+
+<p>Setelah kita selesai membuat aplikasi, what next? Tentunya mendistribusikan pada orang yang membutuhkan. Bagaimana caranya agar aplikasi kita mudah digunakan? Langkah pertama adalah dengan cara memudahkan proses instalasi.
+Dalam tulisan ini, kita akan mempelajari cara menggunakan izPack, framework untuk membuat installer aplikasi, sehingga menginstal aplikasi akan semudah menekan tombol Next.</p>
+
+<p>Para programmer tentunya sudah familiar dengan berbagai framework installer. Ada yang komersil seperti InstallShield, dan ada juga yang gratis seperti <a href="http://nsis.sourceforge.net">NSIS</a> dan izPack. Kelebihan izPack adalah dia berbasis Java, tidak seperti NSIS yang cuma bisa jalan di Windows.</p>
+
+<p>Langkah pertama, mari kita <a href="http://www.izforge.com/izpack/downloads">download izPack</a>. IzPack disediakan sebagai installer, sehingga kita harus menginstalnya dulu sebelum bisa digunakan.</p>
+
+<p>Selanjutnya, mari kita lihat struktur folder project kita yang ingin dibuatkan installernya. Struktur folder saya seperti ini:</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/project-folder-before.png" alt="Struktur folder project" /></p>
+
+<p>Setelah terinstal di komputer pengguna, saya ingin foldernya seperti ini:</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/project-folder-after.png" alt="Hasil yang diinginkan" /></p>
+
+<p>Perhatikan bahwa folder src tidak perlu diikutkan. Pengguna dapat memilih apakah mau menginstal source code atau tidak. Jadi, folder source code adalah optional. Folder dokumentasi dan plugin tambahan juga biasanya diinstal secara optional.</p>
+
+<p>Berikutnya, tentukan screen yang akan tampil selama proses instalasi, biasanya adalah :</p>
+
+<ol>
+<li>Salam pembukaan, menyatakan kepada pengguna bahwa proses instalasi akan dimulai.</li>
+<li>Informasi aplikasi, menjelaskan tentang aplikasi dan kegunaannya.</li>
+<li>License Agreement</li>
+<li>Pemilihan paket yang akan diinstal. Di sini pengguna dapat memilih apakah dia akan menginstal paket optional atau tidak.</li>
+<li>Tujuan instalasi. Pengguna menentukan di folder mana dia akan menginstal.</li>
+<li>Proses instalasi. Menunjukkan kemajuan proses instalasi. Biasanya menggunakan progress bar.</li>
+<li>Instalasi selesai. Menampilkan pesan sukses atau gagal.</li>
+</ol>
+
+
+<p>Kerangka dari konfigurasi installer kita adalah sebagai berikut :</p>
+
+<pre><code>    &lt;installation version="1.0"&gt;
+        &lt;info&gt; &lt;/info&gt;
+        &lt;guiprefs&gt; &lt;/guiprefs&gt;
+        &lt;locale&gt; &lt;/locale&gt;
+        &lt;resources&gt; &lt;/resources&gt;
+        &lt;panels&gt; &lt;/panels&gt;
+        &lt;packs&gt; &lt;/packs&gt;
+    &lt;/installation&gt;
+</code></pre>
+
+<p>Isi dari tag info adalah sebagai berikut</p>
+
+<pre><code>    &lt;info&gt;
+        &lt;appname&gt;PlayBilling&lt;/appname&gt;
+        &lt;appversion&gt;1.1-RC3&lt;/appversion&gt;
+        &lt;authors&gt;
+            &lt;author name="Endy Muhardin" email="endy@artivisi.com"/&gt;
+            &lt;author name="Anton Raharja" email="anton@ngoprek.org"/&gt;
+        &lt;/authors&gt;
+        &lt;url&gt;http://playbilling.sourceforge.net&lt;/url&gt;
+        &lt;javaversion&gt;1.5.0&lt;/javaversion&gt;
+    &lt;/info&gt;
+</code></pre>
+
+<p>Bagian guiprefs menjelaskan tampilan yang akan digunakan. Kita akan pakai native saja, sesuai OS, supaya tampak alami. Kalau mau, kita dapat memilih beberapa tampilan Look &amp; Feel yang tersedia.</p>
+
+<pre><code>    &lt;guiprefs width="800" height="600" resizable="yes"/&gt;
+</code></pre>
+
+<p>Berikutnya, pilihan bahasa instalasi. Untuk mudahnya, gunakan bahasa Inggris saja.</p>
+
+<pre><code>    &lt;locale&gt;
+        &lt;langpack iso3="eng" /&gt;
+    &lt;/locale&gt;
+</code></pre>
+
+<p>Untuk bagian resource, kita perlu mendefinisikan file-file yang dibutuhkan installer. File-file ini harus sudah ada.</p>
+
+<pre><code>    &lt;resources&gt;
+        &lt;res src="installer/application-description.html" id="HTMLInfoPanel.info"/&gt;
+        &lt;res src="installer/gpl.txt" id="LicencePanel.licence"/&gt;
+    &lt;/resources&gt;
+</code></pre>
+
+<p>Tentukan urutan screen seperti sudah dijelaskan di atas.</p>
+
+<pre><code>    &lt;panels&gt; 
+        &lt;panel classname="HelloPanel"/&gt;
+        &lt;panel classname="HTMLInfoPanel"/&gt;
+        &lt;panel classname="LicencePanel"/&gt;
+        &lt;panel classname="PacksPanel"/&gt;
+        &lt;panel classname="TargetPanel"/&gt;
+        &lt;panel classname="InstallPanel"/&gt;
+        &lt;panel classname="SimpleFinishPanel"/&gt;
+    &lt;/panels&gt;
+</code></pre>
+
+<p>Bagian packs menentukan folder-folder yang akan diinstal. Sintaksnya mirip dengan Ant.</p>
+
+<pre><code>    &lt;packs&gt;
+        &lt;pack name="Base" required="yes"&gt;
+            &lt;description&gt;Base System files&lt;/description&gt;
+            &lt;fileset dir="." targetdir="$INSTALL_PATH"&gt;
+                &lt;include name="ext/jetty/*"/&gt;
+                &lt;include name="webapp/**/*"/&gt;
+                &lt;include name="*.sh"/&gt;
+                &lt;include name="*.bat"/&gt;
+            &lt;/fileset&gt;
+        &lt;/pack&gt;
+
+        &lt;pack name="Source" required="no"&gt;
+            &lt;description&gt;Source code and test files&lt;/description&gt;
+            &lt;fileset dir="." targetdir="$INSTALL_PATH"&gt;
+                &lt;include name="src/**/*"/&gt;
+                &lt;include name="lib/**/*"/&gt;
+                &lt;include name="*.xml"/&gt;
+            &lt;/fileset&gt;
+        &lt;/pack&gt;
+    &lt;/packs&gt;
+</code></pre>
+
+<p>Variabel $INSTALL_PATH akan diisikan sesuai folder tujuan yang dipilih pengguna.</p>
+
+<p>Ok, file konfigurasi installer kita sudah selesai. Sekarang tinggal diotomasi sehingga bisa dipanggil lewat <a href="http://ant.apache.org">Ant</a>.
+Ada beberapa informasi yang dibutuhkan oleh izPack, yaitu:</p>
+
+<ul>
+<li>lokasi konfigurasi instalasi (file xml yang baru saja kita buat)</li>
+<li>nama file installer yang akan dihasilkan (misalnya MyProject-installer.jar)</li>
+<li>jenis instalasi (desktop atau web)</li>
+<li>base folder (folder acuan untuk menentukan lokasi relatif folder yang lain)</li>
+<li>lokasi instalasi izPack</li>
+</ul>
+
+
+<p>Berikut adalah target untuk Ant</p>
+
+<pre><code>    &lt;taskdef name="izpack" 
+             classpath="${izpack_install_dir}/lib/compiler.jar"
+             classname="com.izforge.izpack.ant.IzPackTask"
+    /&gt;
+    &lt;target name="build-installer"&gt;
+        &lt;izpack input="installer/playbilling-installer.xml"
+                output="dist/playbilling-installer.jar"
+                installerType="standard"
+                basedir="."
+                izPackDir="${izpack_install_dir}"
+        /&gt;
+    &lt;/target&gt;
+</code></pre>
+
+<p>Setelah Ant target dijalankan, kita akan mendapatkan file playbilling-installer.jar di dalam folder dist.
+Mari kita coba jalankan file installer tersebut.</p>
+
+<pre><code>java -jar dist/playbilling-installer.jar
+</code></pre>
+
+<p>Kita akan disodori tampilan selamat datang</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-1.png" alt="Screen Selamat Datang" /></p>
+
+<p>Klik Next, dan kita akan melihat keterangan tentang <a href="http://playbilling.sourceforge.net">PlayBilling</a>. Keterangan ini langsung dicopy-paste dari homepage PlayBilling</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-2.png" alt="Deskripsi Aplikasi" /></p>
+
+<p>Next lagi, dan muncullah license agreement, yaitu GPL, yang diambil langsung dari <a href="http://www.gnu.org/copyleft/gpl.txt">website GPL</a>.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-3.png" alt="GPL License" /></p>
+
+<p>Screen selanjutnya adalah pilihan paket yang akan diinstal. Perhatikan bahwa paket wajib diburamkan dan tidak bisa diklik.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-4.png" alt="Pilihan paket instalasi" /></p>
+
+<p>Setelah itu, kita akan ditanya lokasi instalasi.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-5.png" alt="Pilihan lokasi instalasi" /></p>
+
+<p>Pilih lokasi yang sesuai, kemudian Next. Instalasi akan segera dimulai.</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-6.png" alt="Proses Instalasi" /></p>
+
+<p>Sukses &#8230; !</p>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/install-screen-7.png" alt="Sukses" /></p>
+
+<p>Sebagai bonus, izPack juga akan membuatkan Uninstaller. Coba jalankan</p>
+
+<pre><code>java -jar /home/endy/PlayBilling/Uninstaller/uninstaller.jar
+</code></pre>
+
+<p><img src="http://endy.artivisi.com/blog/wp-content/uploads/2006/09/uninstall-screen-1.png" alt="Uninstall" /></p>
+
+<p>Klik OK, dan aplikasi akan dihilangkan dari komputer Anda.</p>
+
+<p>Selamat mencoba. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Java/tapestry-vs-spring/">Tapestry vs Spring MVC</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-27T15:13:51+07:00" pubdate data-updated="true">Sep 27<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dalam beberapa project terakhir, saya menggunakan <a href="http://www.springframework.org" title="Spring Framework">Spring</a> MVC untuk membuat presentation layer. Spring sangat fleksibel dan mudah dipelajari. Ini menambah fleksibilitas dalam menyusun tim programmer. Dengan kemudahannya, programmer yang sudah pernah membuat aplikasi web &#8211;baik menggunakan Struts, PHP, Ruby on Rails, atau bahkan yang cuma mengerti servlet&#8211; dapat beradaptasi dalam hitungan hari dan langsung produktif.</p>
+
+<p>Di lain pihak, saya sering sekali mendengar kehebatan <a href="http://tapestry.apache.org" title="Tapestry Framework">Tapestry</a>. Para pendukungnya menggembar-gemborkan peningkatan produktifitas (baca: kecepatan membuat aplikasi) yang signifikan. Harga yang harus dibayar untuk produktifitas tersebut adalah kompleksitas. Tapestry terkenal sulit. Dia menggunakan paradigma event-driven. Jadi kita harus berpikir seolah-olah kita membangun aplikasi desktop dengan Swing atau VB. Kompleksitas ini menyebabkan kita tidak bisa sembarangan menyusun tim programmer. Butuh orang yang pemahaman Java-nya menengah ke atas agar aplikasi dapat diselesaikan dengan baik.</p>
+
+<p>Setelah merasa nyaman menggunakan Spring di beberapa project terakhir, saya putuskan untuk keluar dari zona aman dan belajar Tapestry. Masa depan aplikasi web nampaknya adalah component-mania. Berbagai komponen siap pakai yang tersedia di pasaran (baik gratis maupun bayar) yang tinggal kita tempelkan di aplikasi kita, akan menjadi trend. Terutama dengan maraknya penggunaan Ajax belakangan ini. Pasti akan banyak orang yang membuat komponen Ajax-ready yang bisa langsung digunakan.</p>
+
+<p>Prediksi ini diperkuat dengan presentasi Chuk Mun Lee di Sun Developer Day 2006 kemarin. Dia menunjukkan bagaimana cepatnya orang bisa membuat aplikasi web. Cukup mendownload kumpulan komponen dari <a href="https://ajax.dev.java.net" title="Ajax-based component">jMaki</a>, dan langsung <em>menggambar</em> di IDE. Kalau para pesaing bekerja seperti ini, sementara kita masih secara manual memparsing request, wah &#8230; kita akan ketinggalan.</p>
+
+<p>Sebagai titik awal pelajaran, saya akan mulai dari Spring Framework. Ada beberapa kegiatan utama dalam pembangunan aplikasi web yang terjadi berulang-ulang. Dalam membandingkan Spring vs Tapestry, kegiatan-kegiatan ini akan menjadi kriteria penilaian. Dalam setiap kegiatan, saya akan memberi nilai dan menyatakan pemenangnya. Masing-masing kegiatan bobotnya berbeda, tergantung frekuensi kemunculannya dalam aplikasi.</p>
+
+<p>Berikut adalah kriteria penilaiannya :</p>
+
+<ol>
+<li>Hello World. Yaitu kegiatan setup pertama kali sampai Hello World muncul. Bobotnya cuma 5%, karena kegiatan ini cuma dilakukan sekali saja di awal.</li>
+<li>Form binding. Bagaimana semua variabel dalam form bisa diambil sebagai satu domain object. Bobotnya 20%, karena ini adalah kegiatan wajib, inti dari aplikasi.</li>
+<li>Validasi form. Bagaimana mencegah invalid input, baik secara server-side maupun client-side. Bobotnya 20%, saudara kembar dengan Form Binding.</li>
+<li>Web Asset. Bagaimana penanganan image, css, javascript. Bobotnya 10%.</li>
+<li>Security. Bagaimana kemudahan mengaktifkan otentikasi dan otorisasi. Bobotnya 20%. Ini juga bagian yang penting. Kalau penanganan di sisi ini tidak elegan, akan banyak duplikasi kode bertebaran di dalam kode program.</li>
+<li>Ajax readiness. Bobotnya 10%.</li>
+<li>Reusability. Bagaimana kemudahan menggunakan komponen/library yang sudah ada. Bobotnya 10%.</li>
+</ol>
+
+
+<p><em>Disclaimer: dalam kegiatan membandingkan ini, tidak ada tujuan untuk menjelekkan yang satu terhadap yang lainnya. Ini murni adalah pekerjaan harian software designer, yaitu memilih framework dan teknologi. Berbagai saran dan masukan dari pendukung masing-masing framework sangat diharapkan.</em></p>
+
+<p>Hello World akan dibahas di artikel selanjutnya.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/Java/ruthless-testing-4/">Ruthless Testing 4</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-26T19:39:44+07:00" pubdate data-updated="true">Sep 26<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Database testing merupakan suatu kegiatan yang sulit, apalagi dalam dunia Java. Bayangkan saja, untuk melakukan testing database, kita harus melakukan :</p>
+
+<ol>
+<li><p>Membuat skema database. Skema terdiri dari dari tabel, constraint, view, dan lainnya.</p></li>
+<li><p>Mengisi sampel data.</p></li>
+<li><p>Mengeksekusi query.</p></li>
+<li><p>Periksa ke database untuk memastikan hasilnya benar.</p></li>
+<li><p>Koreksi atau lanjutkan sesuai dengan hasil di nomer 4.</p></li>
+</ol>
+
+
+<p>Semua kegiatan di atas sangat membosankan dan melelahkan untuk diulang-ulang setiap kali melakukan perubahan kode program. Akibatnya programmer menjadi bosan dan malas mengetes kode programnya. Padahal kode akses database merupakan salah satu bagian krusial dalam aplikasi.</p>
+
+<p>Pada artikel ini kita akan membahas cara membuat kode akses database yang mudah dan cepat, dilengkapi dengan testing yang menyeluruh dan menyenangkan.</p>
+
+<p>Saya biasanya menggunakan kombinasi Spring Framework dan Hibernate. Dengan kombinasi ini, kita dapat membuat aplikasi dengan sangat cepat.</p>
+
+<p>Kita mulai dengan struktur tabel sederhana. Misalnya kita memiliki class Siswa, sebagai berikut:</p>
+
+<h3>Class Siswa</h3>
+
+<pre><code>    public class Siswa {
+      private Integer id;
+      private String nama;
+      private Date tanggalLahir;
+
+      public Integer getId() { return this.id; }
+      public String getNama() { return this.nama; }
+      public Date getTanggalLahir() { return this.tanggalLahir; }
+
+      // setter method  
+    }
+</code></pre>
+
+<p>class ini akan disimpan di database dengan struktur tabel (MySQL) sebagai berikut:</p>
+
+<h3>mysql-schema.sql</h3>
+
+<pre><code>    CREATE TABLE TBL_SISWA (
+      id_siswa INT PRIMARY KEY AUTO_INCREMENT, 
+      nama VARCHAR(255), 
+      tanggal_lahir DATE
+    );
+</code></pre>
+
+<p>Dengan menggunakan Hibernate, kita tidak perlu menulis SQL query. Sebagai gantinya, kita harus memberitahu Hibernate tentang skema database kita. Caranya adalah dengan menambahkan annotation sehingga class kita menjadi seperti ini:</p>
+
+<h3>Siswa.java</h3>
+
+<pre><code>    package tutorial.hibernate;
+    @Entity
+    @Table(name="TBL_SISWA")
+    public class Siswa {
+      private Integer id;
+      private String nama;
+      private Date tanggalLahir;
+
+      @Id
+      @Column(name="id_siswa")
+      @GeneratedValue(strategy=GenerationType.AUTO)
+      public Integer getId() { return this.id; }
+
+      public String getNama() { return this.nama; }
+
+      @Column(name="tanggal_lahir")
+      public Date getTanggalLahir() { return this.tanggalLahir; }
+    }
+</code></pre>
+
+<p>Pembaca yang teliti segera protes, &#8220;Ada yang ketinggalan!! Di atas public String getNama() belum ada @Column&#8221; <br/>
+Tidak, itu bukan kelupaan. Tapi memang Hibernate dapat dengan cerdas menebak nama kolom. <em>public String getNama</em> akan diterjemahkan menjadi kolom <em>nama</em>. Bahkan seandainya nama tabel kita <em>SISWA</em> (bukannya <em>TBL_SISWA</em>), kita tidak perlu menuliskan @Table.</p>
+
+<p>Oke. Sekarang mapping sudah selesai. Saatnya membuat kode untuk mengisi record (create), membaca record (read), mengubah record (update), dan menghapus record (delete). Empat serangkai operasi database ini dikenal dengan istilah CRUD.</p>
+
+<p>Pertama, kita buat interface dulu, kode yang mendefinisikan operasi CRUD ini.</p>
+
+<h3>SiswaDao.java</h3>
+
+<pre><code>    package tutorial.hibernate;
+    public interface SiswaDao {
+      public void create(Siswa s);
+      public Siswa getById(Integer id);
+      public void update(Siswa s);
+      public void delete(Siswa s);  
+    }
+</code></pre>
+
+<p>Pembuatan interface berguna supaya kapan-kapan kalau kita sudah bosan dengan Hibernate, kita bisa mengganti dengan implementasi yang lainnya, misalnya iBatis atau JDBC biasa.</p>
+
+<p>Berikut implementasi operasi CRUD dengan Spring dan Hibernate.</p>
+
+<h3>SiswaDaoHibernate.java</h3>
+
+<pre><code>    package tutorial.hibernate;
+    public class SiswaDaoHibernate extends HibernateDaoSupport implements SiswaDao {
+      public void create(Siswa s){
+        getHibernateTemplate().save(s);
+      }
+
+      public Siswa getById(Integer id){
+        return (Siswa) getHibernateTemplate().load(Siswa.class, id);
+      }
+
+      public void update(Siswa s){
+        getHibernateTemplate().update(s);
+      }
+
+      public void delete(Siswa s) {
+        getHibernateTemplate().delete(s);
+      } 
+    }
+</code></pre>
+
+<p>Lagi-lagi ada yang bertanya, &#8220;Kok tidak ada kode untuk menangani koneksi database? Mana connect dan disconnect dengan database? Mana kode untuk begin dan commit transaction?&#8221;</p>
+
+<p>Semua kode birokratis yang ditanyakan barusan akan diinisialisasi melalui Spring Framework. Sebenarnya kita bisa saja menginisialisasi sendiri melalui kode program biasa. Tapi akan lebih efisien dan konsisten apabila kita menggunakan Spring Framework, seperti akan kita lihat sebentar lagi.</p>
+
+<p>Berikut adalah deklarasi SiswaDaoHibernate, DataSource koneksi database, dan konfigurasi transaction :</p>
+
+<h3>belajar.xml</h3>
+
+<pre><code>    &lt;beans&gt;
+        &lt;bean id="siswaDaoAsli" class="tutorial.hibernate.SiswaDaoHibernate"&gt;
+          &lt;property name="sessionFactory"&gt;&lt;ref bean="sessionFactory"/&gt;&lt;/property&gt;
+        &lt;/bean&gt; 
+
+        &lt;bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"&gt;
+          &lt;property name="dataSource" ref="dataSource"/&gt;
+          &lt;property name="annotatedClasses"&gt;
+            &lt;list&gt;
+              &lt;value&gt;tutorial.hibernate.Siswa&lt;/value&gt;
+            &lt;/list&gt;
+            &lt;/property&gt;
+            &lt;property name="hibernateProperties"&gt;
+                &lt;props&gt;
+                    &lt;prop key="hibernate.hbm2ddl.auto"&gt;create&lt;/prop&gt; 
+                    &lt;prop key="hibernate.dialect"&gt;org.hibernate.dialect.MySQLInnoDBDialect&lt;/prop&gt;
+                &lt;/props&gt;
+            &lt;/property&gt;
+        &lt;/bean&gt;
+
+        &lt;bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"&gt;
+            &lt;property name="driverClassName" value="com.mysql.jdbc.Driver"/&gt;
+            &lt;property name="url" value="jdbc:mysql://localhost/belajar"/&gt;
+            &lt;property name="username" value="belajar"/&gt;
+            &lt;property name="password" value="belajar"/&gt;
+        &lt;/bean&gt;
+
+        &lt;bean id="siswaDao" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"&gt;
+            &lt;property name="transactionManager" ref="transactionManager"/&gt;
+
+            &lt;property name="target" ref="siswaDaoAsli"/&gt;
+
+            &lt;property name="transactionAttributes"&gt;
+
+                &lt;props&gt;
+
+                    &lt;prop key="*"&gt;PROPAGATION_REQUIRED,readOnly&lt;/prop&gt;
+
+                    &lt;prop key="create*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+                    &lt;prop key="update*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+
+                    &lt;prop key="delete*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+
+                &lt;/props&gt;
+
+            &lt;/property&gt;
+        &lt;/bean&gt;
+
+        &lt;bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager"&gt;
+            &lt;property name="sessionFactory" ref="sessionFactory"/&gt;
+        &lt;/bean&gt;
+    &lt;/beans&gt;
+</code></pre>
+
+<p>Object yang kita gunakan adalah siswaDao. Object ini dirangkai dari berbagai object lain, diantaranya adalah koneksi database (dataSource), transaction interceptor (gunakan transaction untuk method create<em>, update</em>, delete*), dan transaction manager untuk mengelola transaction Hibernate.</p>
+
+<p>Perhatikan kode ini:</p>
+
+<pre><code>    &lt;prop key="hibernate.hbm2ddl.auto"&gt;create&lt;/prop&gt; 
+</code></pre>
+
+<p>Baris kode di atas akan men-drop seluruh tabel dan constraint di database, dan membuat ulang semuanya. Dengan demikian, database kita akan fresh seperti baru.</p>
+
+<p><strong>PERHATIAN!!! Jangan dijalankan di database production!!</strong></p>
+
+<p>Berikut adalah unit test untuk class SiswaDaoHibernate:</p>
+
+<h3>SiswaDaoHibernateTest.java</h3>
+
+<pre><code>    package tutorial.hibernate;
+    public class SiswaDaoHibernateTest extends TestCase {
+        private static ApplicationContext ctx;
+        private static SiswaDao dao;
+        private static DataSource ds;
+        private static Connection conn;
+
+        static {
+            ctx = new ClassPathXmlApplicationContext("belajar.xml");
+            dao = (SiswaDao)ctx.getBean("siswaDao");
+            ds = (DataSource)ctx.getBean("dataSource"););
+        }
+
+        public void setUp() throws Exception {
+            conn = ds.getConnection();
+        }
+
+        public void tearDown() throws Exception {
+            conn.close();
+        }
+
+        public void testCreate() throws Exception {
+            Siswa endy = new Siswa();
+            endy.setNama("Endy Muhardin");
+            endy.setTanggalLahir(new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
+            dao.save(endy);
+
+            // mari kita test
+            String sql = "SELECT * FROM TBL_USER WHERE nama='Endy Muhardin'";
+
+            ResultSet rs = conn.createStatement().executeQuery(sql);
+            assertTrue("harusnya ada minimal satu record", rs.next());
+            assertEquals("coba cek tanggal lahir", rs.getDate("tanggal_lahir"), new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
+        }
+    }
+</code></pre>
+
+<p>Nah, dengan adanya unit test di atas, kita tidak perlu lagi secara manual menjalankan kode test, kemudian memeriksa isi database.</p>
+
+<p>Sekarang, bagaimana mengetes method getById? Apakah kita harus melakukan <em>insert</em> dulu baru kemudian menjalankan <em>dao.getById(1)</em> ?</p>
+
+<p>Tidak perlu. Kita dapat menggunakan DBUnit untuk menginisialisasi sampel data.
+Kita buat sampel data (fixture) sebagai berikut:</p>
+
+<h3>siswa-fixture.xml</h3>
+
+<pre><code>    &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+    &lt;dataset&gt;
+        &lt;TBL_USER id="99"
+                  nama="Khalisa Alayya"
+                  tanggal_lahir="2005-12-31"
+        /&gt;
+    &lt;/dataset&gt;
+</code></pre>
+
+<p>Sekarang, pastikan fixture di atas dijalankan sebelum setiap test dieksekusi. Caranya adalah dengan menambahkan kode berikut di method setUp:</p>
+
+<pre><code>    public void setUp() {
+        conn = ds.getConnection();
+
+        // inisialisasi koneksi DBUnit
+        DatabaseConnection dbUnitConn = new DatabaseConnection(conn);
+
+        // inisialisasi fixture
+        FlatXmlDataSet fixture = new FlatXmlDataSet(new File("siswa-fixtures.xml"));
+
+        DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn,fixture);
+    }
+</code></pre>
+
+<p>Kode ini :</p>
+
+<pre><code>DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn,fixture);
+</code></pre>
+
+<p>akan menghapus semua data yang ada di database, dan mengisinya dengan satu record, yaitu <em>Khalisa Alayya</em>.</p>
+
+<p>Sehingga kita dapat membuat kode test seperti ini:</p>
+
+<pre><code>    public void testGetById() {
+        Siswa khalisa = dao.getById(99);
+        assertNotNull(khalisa);
+        assertEquals("Khalisa Alayya", khalisa.getNama());
+    }
+</code></pre>
+
+<p>Berikut adalah Ant script untuk mengeksekusi test di atas:</p>
+
+<h3>build.xml</h3>
+
+<pre><code>    &lt;project name="belajar-hibernate" default="test" basedir="."&gt;
+
+        &lt;!-- silahkan lengkapi dengan target compile --&gt;
+
+        &lt;target name="test" depends="compile"&gt;
+            &lt;junit haltonfailure="true" fork="true" printsummary="yes"&gt;             
+                &lt;classpath refid="project-classpath"/&gt;
+                &lt;formatter type="xml"/&gt;
+                &lt;batchtest todir="report/junit"&gt;
+                    &lt;fileset dir="bin" includes="**/*Test.class"/&gt;
+                &lt;/batchtest&gt;
+            &lt;/junit&gt;
+        &lt;/target&gt;
+
+    &lt;/project&gt;
+</code></pre>
+
+<p>Silahkan jalankan berkali-kali sepuasnya. Rangkaian kode di atas akan dengan senang hati melakukan:</p>
+
+<ol>
+<li><p>Pembuatan schema</p></li>
+<li><p>Mengisi sampel data</p></li>
+<li><p>Menjalankan kode program</p></li>
+<li><p>Memeriksa hasilnya di database</p></li>
+</ol>
+
+
+<p>Tidak perlu memelototi <em>phpmyadmin</em> lagi :D</p>
+
+<p>Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/41/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/39/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/Java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/Manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Aplikasi/Linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Java/PHP/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/Manajemen/estimasi-proyek-software/">Estimasi Proyek Software</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
