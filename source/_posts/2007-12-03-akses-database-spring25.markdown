@@ -6,7 +6,7 @@ slug: akses-database-spring25
 title: Akses Database dengan Spring 2.5
 wordpress_id: 314
 categories:
-- Java
+- java
 ---
 
 Akses database dengan Spring 2.5

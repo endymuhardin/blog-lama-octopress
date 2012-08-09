@@ -6,7 +6,7 @@ slug: gantt-jfreechart
 title: Membuat Gantt Chart dengan JFreeChart
 wordpress_id: 150
 categories:
-- Java
+- java
 ---
 
 [JFreeChart](http://www.jfree.org/jfreechart/ "Homepage JFreeChart") adalah library untuk menghasilkan chart dengan Java. Berbagai chart bisa dihasilkan, dari Pie Chart, Bar Chart, dan sebagainya. 

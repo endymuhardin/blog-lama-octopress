@@ -6,8 +6,8 @@ slug: konfigurasi-mod_jk
 title: Konfigurasi mod_jk
 wordpress_id: 260
 categories:
-- Java
-- Linux
+- java
+- linux
 ---
 
 Ada kalanya, kita ingin mempublikasikan aplikasi Java kita melalui Apache HTTPD, webserver paling populer dan paling banyak digunakan di dunia. 

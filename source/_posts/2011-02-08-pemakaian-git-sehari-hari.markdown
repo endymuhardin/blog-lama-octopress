@@ -6,7 +6,7 @@ slug: pemakaian-git-sehari-hari
 title: Pemakaian Git sehari-hari
 wordpress_id: 647
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami beberapa istilah sebagai berikut:

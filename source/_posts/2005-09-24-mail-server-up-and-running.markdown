@@ -6,7 +6,7 @@ slug: mail-server-up-and-running
 title: Mail server up and running
 wordpress_id: 3
 categories:
-- Life
+- life
 ---
 
 Postfix akhirnya berhasil dikonfigurasi dengan benar. Sekarang endy at artivisi dot com sudah bisa digunakan lagi. 

@@ -6,7 +6,7 @@ slug: aplikasi-web-spring25-6
 title: Aplikasi Web dengan Spring 2.5 [bagian 6]
 wordpress_id: 327
 categories:
-- Java
+- java
 ---
 
 Pada artikel kali ini, kita akan mengurusi masalah sepele tapi penting, yaitu Internationalization (i18n) dan Localization (l10n). i18n adalah menyiapkan aplikasi kita supaya bisa beradaptasi dengan berbagai bahasa, format penomoran, mata uang, dan hal-hal lain yang berkaitan dengan globalisasi.

@@ -6,7 +6,7 @@ slug: geek-personality-quiz
 title: Geek Personality Quiz
 wordpress_id: 18
 categories:
-- Life
+- life
 ---
 
 Ada lagi kuis untuk membuang-buang waktu luang dan bandwidth Anda. Jangan ketinggalan!! Ketahuilah jenis personality Anda segera. 

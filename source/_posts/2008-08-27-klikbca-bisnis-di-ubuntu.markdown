@@ -6,7 +6,7 @@ slug: klikbca-bisnis-di-ubuntu
 title: KlikBCA Bisnis di Ubuntu
 wordpress_id: 338
 categories:
-- Lain2
+- lain
 ---
 
 Setelah menjadi pengusaha, KlikBCA saya berganti, dari Individual menjadi Bisnis. Hmm ... tentunya KlikBCA ini juga harus bisa diakses via Linux. 

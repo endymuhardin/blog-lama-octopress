@@ -6,7 +6,7 @@ slug: dump-restore-postgresql
 title: Dump Restore PostgreSQL
 wordpress_id: 275
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, melakukan troubleshoot, data cleansing, dan sebagainya dengan tenang. Begitu sudah selesai, kita dump struktur tabel berikut datanya dari mesin development, kemudian buat database baru di mesin production, lalu restore. 

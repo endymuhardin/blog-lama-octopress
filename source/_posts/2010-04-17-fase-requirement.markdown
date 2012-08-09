@@ -6,7 +6,7 @@ slug: fase-requirement
 title: Fase Requirement
 wordpress_id: 522
 categories:
-- Manajemen
+- manajemen
 ---
 
 Dari seluruh fase yang ada di project, fase Requirement Development adalah yang paling penting. Bila kita melakukan kegiatan requirement dengan asal-asalan, akibatnya antara lain : 

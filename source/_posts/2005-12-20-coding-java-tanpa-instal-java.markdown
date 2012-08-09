@@ -6,7 +6,7 @@ slug: coding-java-tanpa-instal-java
 title: Coding Java tanpa Instal Java
 wordpress_id: 19
 categories:
-- Java
+- java
 ---
 
 [Teman saya](http://oky.or.id) bekerja di salah satu bank terkemuka di Indonesia. Sebagai mantan programmer yang biasa menginstal ulang komputer sebulan sekali, tentunya akan sangat terpenjara bekerja di bank. Bagaimana tidak, instal [Yahoo Messenger](http://messenger.yahoo.com) saja harus bikin form permohonan dulu. 

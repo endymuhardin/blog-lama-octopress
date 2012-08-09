@@ -6,7 +6,7 @@ slug: membuat-validasi-dalam-aplikasi
 title: Membuat validasi dalam aplikasi
 wordpress_id: 272
 categories:
-- Java
+- java
 ---
 
 Pertanyaan berikut muncul di [milis netbeans-indonesia](http://tech.groups.yahoo.com/group/netbeans-indonesia/), "Di mana sebaiknya kita menulis aturan validasi? Di database, di business layer, atau di presentation layer?"

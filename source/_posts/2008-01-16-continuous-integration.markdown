@@ -6,7 +6,7 @@ slug: continuous-integration
 title: Continuous Integration
 wordpress_id: 103
 categories:
-- Manajemen
+- manajemen
 ---
 
 Tools untuk Continuous Integration sudah sering dibahas di sini. Ada [CruiseControl](http://endy.artivisi.com/blog/java/cruise-control/), [Luntbuild](http://endy.artivisi.com/blog/java/luntbuild/), dan [Hudson](http://endy.artivisi.com/blog/java/hudson/). Apa yang begitu pentingnya dari proses ini sehingga saya meluangkan waktu untuk melihat setiap tools yang ada?

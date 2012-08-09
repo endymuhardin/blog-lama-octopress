@@ -6,8 +6,8 @@ slug: tips-melaporkan-error
 title: Tips Melaporkan Error
 wordpress_id: 519
 categories:
-- Java
-- Manajemen
+- java
+- manajemen
 ---
 
 > Update 2011-12-02: karena masih aja banyak yang belum paham, saya tambahkan template pertanyaan di akhir artikel.

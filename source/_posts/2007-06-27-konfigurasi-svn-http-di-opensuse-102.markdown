@@ -6,7 +6,7 @@ slug: konfigurasi-svn-http-di-opensuse-102
 title: Konfigurasi SVN-HTTP di OpenSuSE 10.2
 wordpress_id: 222
 categories:
-- Linux
+- linux
 ---
 
 Artikel ini akan menjelaskan tentang konfigurasi Apache dan OpenLDAP di OpenSuSE 10.2 agar Subversion Repository yang kita miliki bisa diakses melalui protokol HTTP. 

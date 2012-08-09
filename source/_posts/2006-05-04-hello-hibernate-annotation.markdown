@@ -6,7 +6,7 @@ slug: hello-hibernate-annotation
 title: Hello Hibernate Annotation
 wordpress_id: 83
 categories:
-- Java
+- java
 ---
 
 Adanya fitur annotation di Java 5 membuka dunia baru bagi para coder Java. Dulu semua metadata mau tidak mau harus disimpan di XML file. Sekarang ada pilihan baru, kita bisa taruh di XML file, atau juga bisa di source code melalui annotation. 

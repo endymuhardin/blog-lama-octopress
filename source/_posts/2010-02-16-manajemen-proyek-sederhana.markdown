@@ -6,7 +6,7 @@ slug: manajemen-proyek-sederhana
 title: Manajemen Proyek Sederhana
 wordpress_id: 508
 categories:
-- Manajemen
+- manajemen
 ---
 
 Di berbagai milis yang saya ikuti, ada diskusi menarik yang muncul. Apa saja yang harus dilakukan untuk dalam project management? Bagaimana SOP (standard operating procedure) nya? Tools apa yang digunakan?

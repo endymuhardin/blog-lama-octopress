@@ -6,8 +6,8 @@ slug: pengetahuan-wajib-buat-programmer
 title: Pengetahuan wajib buat programmer
 wordpress_id: 40
 categories:
-- Java
-- Life
+- java
+- life
 ---
 
 Setelah beberapa kali mewawancara calon programmer baru, saya menemukan bahwa cukup banyak dari kandidat pelamar kerja, baik _fresh graduate_ maupun yang (ngakunya) _experienced_ masih belum memahami beberapa pengetahuan dasar.

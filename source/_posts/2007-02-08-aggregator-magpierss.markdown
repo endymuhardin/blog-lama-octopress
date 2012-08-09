@@ -6,7 +6,7 @@ slug: aggregator-magpierss
 title: Membuat aggregator dengan MagpieRSS
 wordpress_id: 198
 categories:
-- PHP
+- php
 ---
 
 Pada artikel ini, kita akan belajar cara menambahkan feed aggregator di website kita. Untuk mudahnya, kita gunakan pustaka [Magpie RSS](magpierss.sourceforge.net). Dengan library ini, kita bisa membuat website yang berisi rangkuman dari website-website lain (web-based aggregator). 

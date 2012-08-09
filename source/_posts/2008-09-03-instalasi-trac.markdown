@@ -6,7 +6,7 @@ slug: instalasi-trac
 title: Instalasi Trac
 wordpress_id: 359
 categories:
-- Linux
+- linux
 ---
 
 Mulai beberapa minggu ini, ArtiVisi kebanjiran project. Ini tentu harus dikelola dengan baik. Semua orang harus bekerja se-efisien mungkin. Menjadi tugas saya sebagai manager untuk memudahkan orang-orang bekerja. 

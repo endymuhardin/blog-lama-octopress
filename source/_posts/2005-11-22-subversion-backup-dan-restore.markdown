@@ -6,7 +6,7 @@ slug: subversion-backup-dan-restore
 title: Subversion backup dan restore
 wordpress_id: 15
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Setelah repository terpasang dan telah terisi struktur folder awal, hal pertama yang wajib dilakukan adalah memasang perangkat backup otomatis. Berikut adalah checklistnya : 

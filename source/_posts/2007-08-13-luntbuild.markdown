@@ -6,7 +6,7 @@ slug: luntbuild
 title: Continuous Integration dengan Luntbuild
 wordpress_id: 243
 categories:
-- Java
+- java
 ---
 
 Setelah pada artikel sebelumnya kita menggunakan CruiseControl --sempat dikomentari sebagai XML Sit Ups-- 

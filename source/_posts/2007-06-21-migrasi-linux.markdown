@@ -6,7 +6,7 @@ slug: migrasi-linux
 title: Migrasi Linux
 wordpress_id: 218
 categories:
-- Linux
+- linux
 ---
 
 Di kantor saya sekarang sedang terjadi euforia Linux. Hmm.... bukan euforia. Tampaknya histeria lebih tepat. Karena semua orang tampak histeris dan ingin sampai di kantor besok harinya dan menemukan semua Windows sudah tidak ada, dan semua orang bekerja normal dan gembira. 

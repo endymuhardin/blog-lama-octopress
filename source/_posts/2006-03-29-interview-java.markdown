@@ -6,8 +6,8 @@ slug: interview-java
 title: Interview Java
 wordpress_id: 54
 categories:
-- Java
-- Life
+- java
+- life
 ---
 
 Hasil interview online saya dengan Sony AK sudah dipublish.

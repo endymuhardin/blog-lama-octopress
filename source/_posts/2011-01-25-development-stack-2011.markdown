@@ -6,7 +6,7 @@ slug: development-stack-2011
 title: Development Stack 2011
 wordpress_id: 629
 categories:
-- Java
+- java
 ---
 
 Posting ini adalah update dari [posting tiga tahun yang lalu](http://endy.artivisi.com/blog/java/stack-2008-1/). Tidak banyak yang berubah dalam stack ini, yang bisa berarti dua hal: pilihan tiga tahun yang lalu sudah tepat atau malas belajar selama 3 tahun ini.

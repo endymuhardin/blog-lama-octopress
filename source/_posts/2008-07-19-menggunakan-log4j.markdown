@@ -6,7 +6,7 @@ slug: menggunakan-log4j
 title: Menggunakan Log4J
 wordpress_id: 337
 categories:
-- Java
+- java
 ---
 
 Menggunakan log4j

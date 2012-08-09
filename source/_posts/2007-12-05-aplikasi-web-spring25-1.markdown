@@ -6,7 +6,7 @@ slug: aplikasi-web-spring25-1
 title: Aplikasi Web dengan Spring 2.5 [bagian 1]
 wordpress_id: 315
 categories:
-- Java
+- java
 ---
 
 Setelah pada [artikel sebelumnya](http://endy.artivisi.com/blog/java/akses-database-spring25) kita berhasil mengakses database, kali ini kita akan membuat tampilan berbasis web yang menggunakan kode program kita kemarin. 

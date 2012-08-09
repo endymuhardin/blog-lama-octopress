@@ -6,7 +6,7 @@ slug: ssh-dengan-jsch
 title: SSH dengan JSch
 wordpress_id: 422
 categories:
-- Java
+- java
 ---
 
 Mengakses Remote Server dengan Java

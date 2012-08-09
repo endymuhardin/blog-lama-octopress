@@ -6,7 +6,7 @@ slug: backup-mysql
 title: Backup MySQL
 wordpress_id: 425
 categories:
-- Lain2
+- lain
 ---
 
 Sebelumnya, saya telah membahas script backup untuk [Trac](http://endy.artivisi.com/blog/lain/backup-trac/) maupun [Subversion](http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/). Kali ini, kita akan bahas backup script untuk MySQL. 

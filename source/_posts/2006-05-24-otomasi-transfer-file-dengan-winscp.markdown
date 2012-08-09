@@ -6,7 +6,7 @@ slug: otomasi-transfer-file-dengan-winscp
 title: Otomasi Transfer File dengan WinSCP
 wordpress_id: 95
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Setelah sebelumnya kita mengotomasi backup untuk Subversion, baik [di Windows](http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/) maupun [di Linux](http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/), masih ada sedikit PR yang tersisa. 

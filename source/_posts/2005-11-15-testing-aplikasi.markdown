@@ -6,7 +6,7 @@ slug: testing-aplikasi
 title: Testing Aplikasi
 wordpress_id: 14
 categories:
-- Java
+- java
 ---
 
 Sebelum diinstal di tempat customer, aplikasi yang kita buat harus ditest. Itu jelas. Semua orang melakukannya. Hanya saja, teknik melakukan testing akan membedakan antara yang pro dan belajaran (apalagi yang baru lulus kuliah :P)

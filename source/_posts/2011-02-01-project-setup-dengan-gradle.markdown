@@ -6,7 +6,7 @@ slug: project-setup-dengan-gradle
 title: Project Setup dengan Gradle
 wordpress_id: 632
 categories:
-- Java
+- java
 ---
 
 Project Setup dengan menggunakan Gradle dan Git

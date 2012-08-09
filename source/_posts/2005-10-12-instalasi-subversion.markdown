@@ -6,7 +6,7 @@ slug: instalasi-subversion
 title: Instalasi Subversion
 wordpress_id: 7
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Setelah pindah ke rumah baru, tugas pertama adalah instalasi [Subversion](http://subversion.tigris.org) lengkap dengan akses melalui http.

@@ -6,7 +6,7 @@ slug: game-oldies
 title: Game Oldies
 wordpress_id: 97
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Berangkat dari membaca [blog teman](http://www.saryada.com/2006/05/23/wow-transport-tycoon-deluxe-has-an-open-source-version/) yang mengulas tentang [Transport Tycoon Deluxe](http://www.tycoongames.net/downloadarea.html) yang sekarang ada [versi open sourcenya](http://www.openttd.org/), saya jadi teringat koleksi game oldies saya.

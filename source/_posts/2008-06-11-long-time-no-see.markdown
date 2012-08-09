@@ -6,7 +6,7 @@ slug: long-time-no-see
 title: Long time no see
 wordpress_id: 332
 categories:
-- Lain2
+- lain
 ---
 
 Mohon maaf bagi pembaca setia blog saya, karena sudah lama tidak ada artikel baru. Pada Februari 2008 yang lalu, saya mengambil keputusan yang mengubah arah hidup saya, mudah-mudahan ke arah yang lebih baik. 

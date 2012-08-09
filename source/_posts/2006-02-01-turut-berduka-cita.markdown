@@ -6,7 +6,7 @@ slug: turut-berduka-cita
 title: Turut Berduka Cita
 wordpress_id: 28
 categories:
-- Life
+- life
 ---
 
 Dengan ini saya mengucapkan turut berbelasungkawa atas [dilay-off](http://prayudi.blogs.friendster.com/iip_blog/2006/01/titik_nol.html) nya [rekan seperjuangan dari jaman kost di Adhyaksa](http://prayudi.web.id) dulu. 

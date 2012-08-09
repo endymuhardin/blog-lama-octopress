@@ -6,8 +6,8 @@ slug: vmware-eth
 title: Network Device menghilang di VMWare
 wordpress_id: 404
 categories:
-- Lain2
-- Linux
+- lain
+- linux
 ---
 
 Saya menggunakan VMWare secara intensif dalam proses development. 

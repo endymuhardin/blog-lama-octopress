@@ -6,7 +6,7 @@ slug: road-to-java-ee
 title: Road to Java EE
 wordpress_id: 331
 categories:
-- Java
+- java
 ---
 
 Another Frequently Asked Question.

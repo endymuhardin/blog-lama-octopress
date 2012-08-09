@@ -6,7 +6,7 @@ slug: enkripsi-jdbc-properties
 title: Enkripsi JDBC Properties
 wordpress_id: 402
 categories:
-- Java
+- java
 ---
 
 Enkripsi Password Database dengan Jasypt

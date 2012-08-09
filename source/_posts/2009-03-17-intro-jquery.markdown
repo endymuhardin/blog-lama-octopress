@@ -6,7 +6,7 @@ slug: intro-jquery
 title: Intro jQuery
 wordpress_id: 413
 categories:
-- Lain2
+- lain
 ---
 
 Jaman sekarang, membuat tampilan menarik di aplikasi web sudah tidak sulit lagi. 

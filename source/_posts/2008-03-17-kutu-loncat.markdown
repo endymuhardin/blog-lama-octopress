@@ -6,7 +6,7 @@ slug: kutu-loncat
 title: Kutu Loncat
 wordpress_id: 330
 categories:
-- Manajemen
+- manajemen
 ---
 
 Di milis Java sedang ribut urusan gaji programmer. Topik ini adalah topik abadi. Sepanjang hidup saya di milis ini, paling tidak urusan gaji dibahas setahun dua kali. Kadang-kadang lebih sering.

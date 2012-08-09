@@ -6,7 +6,7 @@ slug: aplikasi-portabel
 title: Aplikasi Portabel
 wordpress_id: 91
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Masih ingat jaman DOS dulu? Untuk menyalakan komputer kita harus memasukkan floppy disk yang lebar. Setelah komputer selesai booting, kalau kita ingin mengetik, ganti disket booting dengan disket berisi aplikasi [Wordstar](http://www.wordstar.org/). Selesai mengetik, ingin menyimpan dokumen, ganti disket Wordstar dengan disket data. Capek bekerja, ingin main game, masukkan disket berisi [Digger](http://www.digger.org). 

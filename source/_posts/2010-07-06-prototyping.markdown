@@ -6,8 +6,8 @@ slug: prototyping
 title: Prototyping
 wordpress_id: 562
 categories:
-- Java
-- Manajemen
+- java
+- manajemen
 ---
 
 Pada waktu kita melakukan requirement gathering, harapan kita adalah agar requirement yang kita dapatkan di fase requirement tidak jauh bergeser dari requirement final setelah project closing. Kalau pergeserannya jauh, akan mengakibatkan waktu dan biaya pengerjaan project menjadi molor dan akibatnya kedua belah pihak akan dirugikan. 

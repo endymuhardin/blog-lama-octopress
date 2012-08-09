@@ -6,7 +6,7 @@ slug: ruthless-testing-3
 title: Ruthless Testing 3
 wordpress_id: 121
 categories:
-- Java
+- java
 ---
 
 Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam sistem. Jadi, user membuka form, mengisi data diri, dan menekan tombol Submit. Tidak ada yang aneh dengan fiturnya. 

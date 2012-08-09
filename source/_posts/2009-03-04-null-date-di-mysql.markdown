@@ -6,7 +6,7 @@ slug: null-date-di-mysql
 title: Null Date di MySQL
 wordpress_id: 407
 categories:
-- Java
+- java
 ---
 
 Null Date di MySQL

@@ -6,7 +6,7 @@ slug: belajar-java-mulai-dari-mana
 title: Belajar Java, mulai dari mana?
 wordpress_id: 60
 categories:
-- Java
+- java
 ---
 
 Ini adalah pertanyaan yang paling sering ditanyakan ke saya, baik melalui Y!, email, ataupun tatap muka di kelas. 

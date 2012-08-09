@@ -6,7 +6,7 @@ slug: postgresql-sequence-hibernate
 title: PostgreSQL Sequence dengan Hibernate
 wordpress_id: 481
 categories:
-- Java
+- java
 ---
 
 Menggunakan PostgreSQL Sequence dengan Hibernate

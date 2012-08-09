@@ -6,7 +6,7 @@ slug: apa-itu-cmmi
 title: Apa itu CMMI?
 wordpress_id: 333
 categories:
-- Manajemen
+- manajemen
 tags:
 - cmmi
 - management

@@ -6,7 +6,7 @@ slug: refactoring
 title: Refactoring
 wordpress_id: 17
 categories:
-- Java
+- java
 ---
 
 Three times and you refactor !! Begitu kata Martin Fowler dalam bukunya Refactoring. 

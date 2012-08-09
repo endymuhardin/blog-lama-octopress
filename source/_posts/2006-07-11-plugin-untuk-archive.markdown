@@ -6,7 +6,7 @@ slug: plugin-untuk-archive
 title: Plugin untuk Archive
 wordpress_id: 109
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Tadinya cuma pengen tampilan arsip seperti [punyanya mas Andry](http://andryshuzain.com/archives). Tapi sayangnya dia pakai [aplikasi blog lain](http://textpattern.com/) yang beda dengan [saya punya](http://www.wordpress.org). Jadi solusinya dia kemungkinan besar tidak bisa diimplement di sini. 

@@ -6,7 +6,7 @@ slug: otentikasi-apache-menggunakan-ldap
 title: Otentikasi Apache menggunakan LDAP
 wordpress_id: 8
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Pada tulisan sebelumya, saya telah menceritakan cara instalasi dan konfigurasi [Subversion](http://subversion.tigris.org). Juga telah diceritakan cara mengaktifkan mode akses HTTP melalui [Apache 2 + WebDAV](http://httpd.apache.org).

@@ -6,7 +6,7 @@ slug: menggunakan-gist
 title: Menggunakan Gist
 wordpress_id: 603
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Gist adalah fitur yang disediakan oleh Github. Fungsi dasarnya mirip dengan pastebin, yaitu kita bisa paste text di sana, dan disharing dengan orang lain. Keunggulan Gist adalah dia sudah memiliki kemampuan version control dengan Git. Sehingga kita bisa fork, clone, modifikasi, dan push lagi ke repo utama dengan seluruh history tersimpan di sana. 

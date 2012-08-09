@@ -6,7 +6,7 @@ slug: rumah-baru
 title: Rumah baru
 wordpress_id: 2
 categories:
-- Lain2
+- lain
 ---
 
 Setelah bencana alam HDD jebol beberapa waktu lalu, saya berusaha me-restore http://endy.artivisi.com. 

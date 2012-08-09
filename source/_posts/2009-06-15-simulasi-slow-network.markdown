@@ -6,7 +6,7 @@ slug: simulasi-slow-network
 title: Simulasi Slow Network
 wordpress_id: 467
 categories:
-- Linux
+- linux
 ---
 
 Di salah satu proyek ArtiVisi, kita memiliki aplikasi client-server yang terhubung melalui koneksi internet berbandwidth kecil. Client menghubungi server melalui modem GPRS. 

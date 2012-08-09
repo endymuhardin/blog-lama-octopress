@@ -6,7 +6,7 @@ slug: konfigurasi-anotasi-vs-xml
 title: Annotation dan XML
 wordpress_id: 318
 categories:
-- Java
+- java
 ---
 
 Salah satu [komentator bertanya seperti ini](http://endy.artivisi.com/blog/java/akses-database-spring25/#comment-9582), 

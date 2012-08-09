@@ -6,7 +6,7 @@ slug: backup-home-folder
 title: Backup Home Folder
 wordpress_id: 770
 categories:
-- Linux
+- linux
 ---
 
 Seberapa penting file di komputer kita? Tentu tidak ternilai harganya. Tapi apakah kita melakukan backup secara terhadap file-file di komputer kita? Beberapa menit yang lalu, saya menjawab tidak untuk pertanyaan tersebut.

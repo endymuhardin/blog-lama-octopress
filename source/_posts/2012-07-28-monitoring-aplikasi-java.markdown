@@ -6,7 +6,7 @@ slug: monitoring-aplikasi-java
 title: Monitoring Aplikasi Java
 wordpress_id: 799
 categories:
-- Java
+- java
 ---
 
 Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini disebut dengan transisi dari development menjadi operation. 

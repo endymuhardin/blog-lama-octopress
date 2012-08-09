@@ -6,8 +6,8 @@ slug: eclipse-birt
 title: Menggunakan Eclipse BIRT [bagian 1]
 wordpress_id: 178
 categories:
-- Aplikasi
-- Java
+- aplikasi
+- java
 ---
 
 Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk membuat laporan dari sumber data yang sudah ada. 

@@ -6,8 +6,8 @@ slug: apa-itu-rss
 title: Apa itu RSS ?
 wordpress_id: 197
 categories:
-- Aplikasi
-- Lain2
+- aplikasi
+- lain
 ---
 
 Sudah tau RSS? 

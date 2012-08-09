@@ -6,8 +6,8 @@ slug: membuat-screencast
 title: Membuat Screencast
 wordpress_id: 709
 categories:
-- Aplikasi
-- Linux
+- aplikasi
+- linux
 ---
 
 Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat bandwidth) menjadi multimedia (rakus bandwidth). 

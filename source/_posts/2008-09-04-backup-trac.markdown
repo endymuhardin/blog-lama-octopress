@@ -6,8 +6,8 @@ slug: backup-trac
 title: Backup Trac
 wordpress_id: 364
 categories:
-- Lain2
-- Linux
+- lain
+- linux
 ---
 
 [Trac sudah terinstal](http://endy.artivisi.com/blog/linux/instalasi-trac), sekarang harus diamankan melalui prosedur backup. 

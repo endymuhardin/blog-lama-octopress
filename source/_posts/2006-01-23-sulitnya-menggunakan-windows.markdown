@@ -6,7 +6,7 @@ slug: sulitnya-menggunakan-windows
 title: Sulitnya menggunakan Windows
 wordpress_id: 21
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Bulan depan saya akan menjadi instruktur untuk training [Bugzilla](http://www.bugzilla.org), [Subversion](http://subversion.tigris.org), dan [Ant](http://ant.apache.org). Sebetulnya tidak ada hambatan berarti, karena di proyek sebelumnya saya sudah banyak menggunakan aplikasi tersebut. Cara instalasi dan konfigurasi juga sudah banyak saya tulis di blog ini, antara lain: 

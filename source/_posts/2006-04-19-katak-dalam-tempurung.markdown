@@ -6,8 +6,8 @@ slug: katak-dalam-tempurung
 title: Katak dalam tempurung
 wordpress_id: 56
 categories:
-- Java
-- Life
+- java
+- life
 ---
 
 Rupanya [standar pengetahuan bagi programmer](http://endy.artivisi.com/blog/life/pengetahuan-wajib-buat-programmer/)[ ala saya](http://endy.artivisi.com/blog/life/pengetahuan-wajib-buat-programmer/) banyak mendapat protes di sana sini. Tidak hanya itu sebetulnya. Beberapa waktu yang lalu saya sempat posting di milis tentang [standar pengetahuan seorang dosen pemrograman](http://groups.yahoo.com/group/jug-indonesia/message/21651)[ juga ala saya](http://groups.yahoo.com/group/jug-indonesia/message/21651), yang pada intinya adalah:   

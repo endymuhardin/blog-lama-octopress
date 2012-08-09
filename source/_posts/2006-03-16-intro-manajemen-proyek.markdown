@@ -6,7 +6,7 @@ slug: intro-manajemen-proyek
 title: Intro Manajemen Proyek
 wordpress_id: 38
 categories:
-- Manajemen
+- manajemen
 ---
 
 Apabila kita ditunjuk menjadi project manager, ada beberapa hal yang harus kita kelola, yaitu:

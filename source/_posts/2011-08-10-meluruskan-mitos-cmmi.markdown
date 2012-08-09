@@ -6,7 +6,7 @@ slug: meluruskan-mitos-cmmi
 title: Meluruskan Mitos CMMI
 wordpress_id: 754
 categories:
-- Manajemen
+- manajemen
 ---
 
 Di milis manajemen proyek IT sedang rame diskusi tentang CMMI dan Scrum.

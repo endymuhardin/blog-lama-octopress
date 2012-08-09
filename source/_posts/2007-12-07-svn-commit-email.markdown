@@ -6,7 +6,7 @@ slug: svn-commit-email
 title: Mengaktifkan commit email Subversion
 wordpress_id: 319
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota tim yang lain. Beberapa keuntungan dari pelaksanaan Peer Review antara lain: 

@@ -6,8 +6,8 @@ slug: netbeans-50-dan-matisse
 title: Netbeans 5.0 dan Matisse
 wordpress_id: 50
 categories:
-- Aplikasi
-- Java
+- aplikasi
+- java
 ---
 
 Beberapa orang di milis JUG sangat berkomentar tentang canggihnya Swing Editor di Netbeans, yang lebih terkenal dengan nama Matisse. Berbagai fitur canggih seperti:

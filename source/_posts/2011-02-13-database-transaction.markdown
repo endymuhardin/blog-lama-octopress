@@ -6,8 +6,8 @@ slug: database-transaction
 title: Database Transaction
 wordpress_id: 664
 categories:
-- Java
-- PHP
+- java
+- php
 ---
 
 Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini, 

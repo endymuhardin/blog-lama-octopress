@@ -6,7 +6,7 @@ slug: bisnis-open-source
 title: Bisnis Open Source
 wordpress_id: 124
 categories:
-- Manajemen
+- manajemen
 ---
 
 Artikel ini, tidak seperti biasanya, ditulis berdasarkan request oleh [teman saya][anton]. Selain itu, juga ada thread di milis [JUG Indonesia][jug] yang membahas tentang bisnis open source. Di sana saya memberikan sedikit komentar yang secara singkat serupa dengan apa yang akan dijelaskan di sini. 

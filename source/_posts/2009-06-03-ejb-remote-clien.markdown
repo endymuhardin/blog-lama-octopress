@@ -6,7 +6,7 @@ slug: ejb-remote-clien
 title: Mengakses EJB secara Remote
 wordpress_id: 428
 categories:
-- Java
+- java
 ---
 
 Mengakses EJB secara Remote

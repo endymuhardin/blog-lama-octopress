@@ -6,7 +6,7 @@ slug: menghapus-file-secara-permanen-di-git
 title: Menghapus file secara permanen di Git
 wordpress_id: 678
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus satu file tertentu, sebetulnya file tersebut masih ada di repository dan bisa dimunculkan kembali kapan saja. 

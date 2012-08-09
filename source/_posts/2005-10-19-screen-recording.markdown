@@ -6,7 +6,7 @@ slug: screen-recording
 title: Screen Recording
 wordpress_id: 10
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Jaman sekarang orang bikin tutorial udah gak PDF lagi. Ketinggalan jaman oom. 

@@ -6,7 +6,7 @@ slug: aplikasi-web-spring25-3
 title: Aplikasi Web dengan Spring 2.5 [bagian 3]
 wordpress_id: 320
 categories:
-- Java
+- java
 ---
 
 Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, dan menu navigasi. 

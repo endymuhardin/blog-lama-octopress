@@ -6,7 +6,7 @@ slug: ubuntu-dual-head
 title: Dual Head Ubuntu
 wordpress_id: 230
 categories:
-- Linux
+- linux
 ---
 
 Pertanyaan : Kalau kita punya komputer, upgrade hardware apa yang paling meningkatkan produktifitas ??   

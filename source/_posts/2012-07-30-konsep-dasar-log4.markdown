@@ -6,7 +6,7 @@ slug: konsep-dasar-log4
 title: Konsep Dasar Log4j
 wordpress_id: 813
 categories:
-- Java
+- java
 ---
 
 Walaupun sudah dibuatkan [minibook](http://endy.artivisi.com/blog/java/menggunakan-log4j), tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.

@@ -6,8 +6,8 @@ slug: wirausaha
 title: Wirausaha
 wordpress_id: 335
 categories:
-- Life
-- Manajemen
+- life
+- manajemen
 ---
 
 Tiga bulan yang lalu, tepatnya Februari 2008, saya membuat keputusan signifikan sepanjang kehidupan saya. 

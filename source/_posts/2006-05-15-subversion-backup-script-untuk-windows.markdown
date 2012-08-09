@@ -6,7 +6,7 @@ slug: subversion-backup-script-untuk-windows
 title: Subversion backup script untuk Windows
 wordpress_id: 92
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Dulu saya pernah menulis tentang [cara backup repository Subversion secara otomatis](http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/). Tetapi, script yang ada di situ hanya bisa dijalankan di Linux, karena ada satu baris bermasalah pada Perl scriptnya, yaitu: 

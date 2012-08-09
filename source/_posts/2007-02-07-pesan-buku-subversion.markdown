@@ -6,7 +6,7 @@ slug: pesan-buku-subversion
 title: Pesan Buku Subversion
 wordpress_id: 196
 categories:
-- Lain2
+- lain
 ---
 
 Berkat [posting Ifnu yang berapi-api](http://www.nagasakti.or.id/roller/Ifnu/entry/20070129), buku Subversion saya sudah banyak yang pesan. Ini kenyataan yang menggembirakan, mengingat saya belum banyak berpromosi. 

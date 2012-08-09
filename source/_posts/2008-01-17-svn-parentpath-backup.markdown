@@ -6,7 +6,7 @@ slug: svn-parentpath-backup
 title: Another Subversion Backup Script
 wordpress_id: 324
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Dulu saya pernah menulis tentang [backup script Subversion untuk Linux](http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/), maupun [untuk Windows](http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/). Sayangnya, script tersebut hanya bisa digunakan untuk satu repository saja.

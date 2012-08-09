@@ -6,7 +6,7 @@ slug: upgrade-ubuntu
 title: Upgrade Ubuntu
 wordpress_id: 420
 categories:
-- Linux
+- linux
 ---
 
 Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb: 

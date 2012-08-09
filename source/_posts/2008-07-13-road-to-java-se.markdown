@@ -6,7 +6,7 @@ slug: road-to-java-se
 title: Road to Java SE
 wordpress_id: 336
 categories:
-- Java
+- java
 ---
 
 Belajar bahasa pemrograman mirip dengan belajar bahasa manusia. Bahasa pertama adalah yang paling sulit. Ini disebabkan karena kita belum paham istilah-istilah yang digunakan, pola umum menyusun kata, dan ungkapan-ungkapan khusus yang biasa digunakan dalam bahasa tertentu. 

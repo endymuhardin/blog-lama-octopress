@@ -6,7 +6,7 @@ slug: integrasi-pusat-cabang-1
 title: Integrasi aplikasi kantor pusat dan cabang [Bagian 1]
 wordpress_id: 443
 categories:
-- Java
+- java
 ---
 
 Integrasi Aplikasi Pusat Cabang - Bagian I

@@ -6,8 +6,8 @@ slug: presentasi-subversion
 title: Presentasi Subversion
 wordpress_id: 181
 categories:
-- Aplikasi
-- Lain2
+- aplikasi
+- lain
 ---
 
 Hari Sabtu, 2 Desember 2006 pukul 10.00 WIB, saya akan memberikan presentasi tentang Subversion di pertemuan rutin programmer Java (JaMU - Java Meet Up). 

@@ -6,7 +6,7 @@ slug: rumah-baru-ii
 title: Rumah baru II
 wordpress_id: 6
 categories:
-- Life
+- life
 ---
 
 Hari ini saya dapat komputer baru. Spesifikasinya lumayan banget, Prosesor P-IV 3 GHz, memori 1GB, dan harddisk SATA 80GB, plus DVD-ROM. Rencananya, mesin ini selain untuk office work, juga akan jadi server sementara. 

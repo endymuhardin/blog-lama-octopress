@@ -6,7 +6,7 @@ slug: aggregator-on-windows-2
 title: Aggregator on Windows
 wordpress_id: 26
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Beberapa hari yang lalu saya bertanya kepada [Benny](http://benny.telematicsindonesia.com/blog), "Ben, kok RSS di blog loe gak dinyalain". Jawabannya cukup ironis, mengingat dia adalah Very Senior,  One and the Only, The Undisputed, Champion of the World, Lead Programmer di salah satu vendor e-learning terkemuka di Indonesia. Dia bilang, "Emang RSS itu apa, dan kenapa penting?". 

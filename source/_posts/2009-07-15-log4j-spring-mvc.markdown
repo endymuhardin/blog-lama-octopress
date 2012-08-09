@@ -6,7 +6,7 @@ slug: log4j-spring-mvc
 title: Konfigurasi lokasi logfile pada Spring MVC
 wordpress_id: 492
 categories:
-- Java
+- java
 ---
 
 Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya, di Windows kita mungkin mendeploy aplikasi kita di 

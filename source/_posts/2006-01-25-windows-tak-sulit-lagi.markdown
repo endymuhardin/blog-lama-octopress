@@ -6,7 +6,7 @@ slug: windows-tak-sulit-lagi
 title: Windows tak sulit lagi
 wordpress_id: 24
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Akhirnya, setelah dua hari [bergulat dalam kompetisi Windows Wrestling Championship (WWC)](http://endy.artivisi.com/blog/aplikasi/windows-semakin-sulit/), saya menemukan titik terang. 

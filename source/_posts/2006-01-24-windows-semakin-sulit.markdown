@@ -6,7 +6,7 @@ slug: windows-semakin-sulit
 title: Windows semakin sulit
 wordpress_id: 23
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Masih ingat cerita kemarin tentang [sulitnya menggunakan Windows](http://endy.artivisi.com/blog/aplikasi/sulitnya-menggunakan-windows/)? Ternyata kesulitan itu belum berakhir. 

@@ -6,7 +6,7 @@ slug: ruthless-testing-2
 title: Ruthless Testing 2
 wordpress_id: 115
 categories:
-- Java
+- java
 ---
 
 Pada [artikel sebelumnya](http://endy.artivisi.com/blog/java/ruthless-testing-1/), kita telah membahas tentang penggunaan [unit test](http://www.junit.org) dan integration test sederhana menggunakan [DBUnit](http://dbunit.sourceforge.net/). Pada artikel kali ini, kita akan membahas tentang coverage testing 

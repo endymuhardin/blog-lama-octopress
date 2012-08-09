@@ -6,7 +6,7 @@ slug: intro-framework
 title: Intro Framework
 wordpress_id: 100
 categories:
-- Java
+- java
 ---
 
 Hari ini di milis jug ada yang bertanya tentang framework. [Si penanya][] sendiri kelihatannya mengerti tentang framework, tapi kesulitan menjelaskan kepada orang lain. 

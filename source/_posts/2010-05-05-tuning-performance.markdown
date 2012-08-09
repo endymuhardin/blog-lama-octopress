@@ -6,8 +6,8 @@ slug: tuning-performance
 title: Tuning Performance
 wordpress_id: 529
 categories:
-- Java
-- PHP
+- java
+- php
 ---
 
 Setelah aplikasi dicoding dengan benar, biasanya langkah berikutnya adalah tuning performance. Hal ini banyak ditanyakan di berbagai milis pemrograman yang saya ikuti. Agar tidak berkali-kali menulis jawaban yang sama, berikut artikel tentang metodologi saya dalam melakukan tuning performance aplikasi. 

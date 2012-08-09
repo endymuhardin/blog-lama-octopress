@@ -6,8 +6,8 @@ slug: nyambi-bolehkah
 title: Nyambi, bolehkah??
 wordpress_id: 213
 categories:
-- Life
-- Manajemen
+- life
+- manajemen
 ---
 
 Posting ini saya tulis karena di milis JUG sedang rame membahas tentang boleh tidaknya karyawan nyambi. Sepanjang karir saya, urusan nyambi telah menjadi bagian hidup tak terpisahkan dari perkembangan pribadi saya. Jadi baiklah mari kita bahas sedikit tentang urusan nyambi ini. 

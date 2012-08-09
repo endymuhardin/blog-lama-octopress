@@ -6,7 +6,7 @@ slug: interface-abstract
 title: Interface vs Abstract class
 wordpress_id: 195
 categories:
-- Java
+- java
 ---
 
 > 

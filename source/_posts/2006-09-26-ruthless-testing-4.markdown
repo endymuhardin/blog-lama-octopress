@@ -6,7 +6,7 @@ slug: ruthless-testing-4
 title: Ruthless Testing 4
 wordpress_id: 136
 categories:
-- Java
+- java
 ---
 
 Database testing merupakan suatu kegiatan yang sulit, apalagi dalam dunia Java. Bayangkan saja, untuk melakukan testing database, kita harus melakukan : 

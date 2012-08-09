@@ -6,7 +6,7 @@ slug: mencoba-wordpress
 title: Mencoba Wordpress
 wordpress_id: 5
 categories:
-- Lain2
+- lain
 ---
 
 Kalau kemarin pakai mambo, sekarang coba pakai Wordpress. Kata orang sih, ini adalah aplikasi yang terhebat di kelasnya (kelas weblog maksudnya). Buat saya, aplikasi weblog yang hebat haruslah bisa menampilkan kode program dengan bagus. Soalnya, saya sering menjadikan blog sebagai website tutorial. 

@@ -6,7 +6,7 @@ slug: upgrade-dan-migrasi
 title: Upgrade dan Migrasi
 wordpress_id: 30
 categories:
-- Life
+- life
 ---
 
 Sebetulnya sudah lama saya mau memindahkan hosting blog ini. Alasan pertama, blog ini menggunakan komputer kantor yang sewaktu-waktu bisa diminta yang punya. Kedua, kehadirannya di internet sangat ditentukan oleh sampai kapan saya mendapatkan IP Public. Kalau sewaktu-waktu pindah kantor, blog ini bisa terancam offline.

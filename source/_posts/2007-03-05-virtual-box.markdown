@@ -6,7 +6,7 @@ slug: virtual-box
 title: Virtual Box
 wordpress_id: 203
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Oom Sindu beberapa hari ini berisik sekali membahas [Virtual Box](http://www.virtualbox.org). [Sudah](http://sindu.web.id/blog/2007/02/21/virtualbox-ubuntu-edgy/) [beberapa](http://sindu.web.id/blog/2007/02/22/winxp-on-ubuntuvirtualbox/) [artikel](http://sindu.web.id/blog/2007/02/22/static-ip-in-virtualbox/) dia tulis, sehingga akhirnya saya tertarik untuk mencoba. 

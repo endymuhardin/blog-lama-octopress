@@ -6,7 +6,7 @@ slug: version-control-database
 title: Version Control untuk Database
 wordpress_id: 188
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Menyimpan kode program Java ke repository tidak sulit. Yang lebih sulit adalah menyimpan artifak database, yaitu: 

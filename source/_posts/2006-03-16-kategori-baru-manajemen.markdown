@@ -6,7 +6,7 @@ slug: kategori-baru-manajemen
 title: 'Kategori Baru: Manajemen'
 wordpress_id: 37
 categories:
-- Manajemen
+- manajemen
 ---
 
 Sudah beberapa bulan ini saya tidak coding seintensif biasanya. Ini berkaitan dengan project baru saya. Sekarang saya ada di divisi Business Process Improvement, yang intinya adalah membuat proses pengembangan software menjadi lebih baik.

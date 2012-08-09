@@ -6,7 +6,7 @@ slug: technorati
 title: Technorati
 wordpress_id: 134
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Orang-orang pada rame Technorati. Pengen tau barang apa sih ini. 

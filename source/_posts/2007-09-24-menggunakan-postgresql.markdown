@@ -6,7 +6,7 @@ slug: menggunakan-postgresql
 title: Menggunakan PostgreSQL
 wordpress_id: 273
 categories:
-- Java
+- java
 ---
 
 Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan [ikan lumba-lumba](http://www.mysql.org) menjadi [gajah](http://www.postgresql.org). Sebetulnya saya pernah menggunakan database gajah ini pada tahun 2005, tapi setelah itu jarang digunakan sehingga butuh waktu agak lama untuk melakukan porting ini. 

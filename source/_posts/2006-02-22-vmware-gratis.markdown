@@ -6,7 +6,7 @@ slug: vmware-gratis
 title: VMWare Gratis !!!
 wordpress_id: 29
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Tahu [VMWare](http://www.vmware.com)? Itu adalah aplikasi yang dapat membuat komputer baru di dalam komputer kita. 

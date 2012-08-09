@@ -6,7 +6,7 @@ slug: cost-of-quality
 title: Cost of Quality
 wordpress_id: 98
 categories:
-- Manajemen
+- manajemen
 ---
 
 Mumpung sedang [hangat](http://endy.artivisi.com/blog/java/ruthless-testing-2/) membahas [testing](http://endy.artivisi.com/blog/java/ruthless-testing-1/), coba kita dengarkan apa pendapat manajemen. 

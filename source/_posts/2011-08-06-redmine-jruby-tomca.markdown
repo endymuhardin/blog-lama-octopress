@@ -6,8 +6,8 @@ slug: redmine-jruby-tomca
 title: Instalasi Redmine di Tomcat
 wordpress_id: 750
 categories:
-- Aplikasi
-- Linux
+- aplikasi
+- linux
 ---
 
 Ada berbagai cara instalasi Redmine, diantaranya:

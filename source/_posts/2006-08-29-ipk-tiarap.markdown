@@ -6,7 +6,7 @@ slug: ipk-tiarap
 title: IPK Tiarap
 wordpress_id: 132
 categories:
-- Life
+- life
 ---
 
 _Disclaimer : tiap perusahaan dan interviewer beda-beda. Ini bukan patokan absolut. Yang saya tuliskan di sini hanyalah pengalaman pribadi disertai bumbu penyedap. Saya tidak bertanggung jawab atas segala rekomendasi di bawah. Penggunaan tips di bawah sepenuhnya adalah resiko pengguna._ 

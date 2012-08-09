@@ -6,7 +6,7 @@ slug: spring-httpinvoker-sun-jre6-httpserver
 title: Menjalankan Spring HTTP Invoker di Sun JRE 6 HTTP Server
 wordpress_id: 485
 categories:
-- Java
+- java
 ---
 
 Dulu, kita sudah mencoba untuk [membuat remoting service dengan menggunakan Spring Framework](http://endy.artivisi.com/blog/java/remoting-dengan-spring/). Salah satu protokol yang digunakan adalah Spring HTTP Invoker. Untuk mempublish service dengan protokol ini, kita harus menggunakan servlet engine, misalnya Tomcat. 

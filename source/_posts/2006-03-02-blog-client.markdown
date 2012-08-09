@@ -6,7 +6,7 @@ slug: blog-client
 title: Blog Client
 wordpress_id: 31
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Sekarang ini banyak aplikasi internet yang juga menyediakan desktop client. Contoh paling klasik adalah e-mail. Server email komersial biasanya menyediakan akses web based. Tetapi selain melalui browser, email juga bisa didownload dan dibaca secara offline menggunakan desktop mail client, seperti KMail, Mozilla Thunderbird, atau Microsoft Outlook.

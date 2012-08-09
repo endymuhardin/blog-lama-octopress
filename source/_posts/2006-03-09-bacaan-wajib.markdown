@@ -6,7 +6,7 @@ slug: bacaan-wajib
 title: Bacaan Wajib
 wordpress_id: 36
 categories:
-- Java
+- java
 ---
 
 Sepanjang karir saya sebagai programmer, ada beberapa bacaan yang kontribusinya sangat signifikan terhadap perkembangan diri saya.

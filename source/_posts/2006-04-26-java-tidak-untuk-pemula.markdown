@@ -6,7 +6,7 @@ slug: java-tidak-untuk-pemula
 title: 'Java: Tidak untuk Pemula'
 wordpress_id: 57
 categories:
-- Java
+- java
 ---
 
 Beberapa kali sepanjang perjalanan hidup, saya berkesempatan untuk mengajarkan Java kepada orang lain. Satu hal yang saya simpulkan dari pengalaman tersebut adalah "Java kurang cocok bagi pemula".

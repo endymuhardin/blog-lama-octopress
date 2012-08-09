@@ -6,7 +6,7 @@ slug: ruthless-testing-1
 title: Ruthless Testing 1
 wordpress_id: 106
 categories:
-- Java
+- java
 ---
 
 Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?

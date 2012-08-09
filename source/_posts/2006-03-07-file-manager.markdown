@@ -6,7 +6,7 @@ slug: file-manager
 title: File Manager
 wordpress_id: 35
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Kadangkala, kita tidak terlalu beruntung, mendapatkan jatah akses internet yang serba terbelenggu. Cuma bisa browsing, tidak bisa ssh, tidak bisa chat, ataupun tidak bisa ftp.

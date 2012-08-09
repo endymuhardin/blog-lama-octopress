@@ -6,7 +6,7 @@ slug: intro-icefaces
 title: Intro ICEFaces
 wordpress_id: 206
 categories:
-- Java
+- java
 ---
 
 Beberapa waktu terakhir ini, framework Java Server Faces terlihat semakin matang. Orang-orang sudah mulai menggunakan, memberi feedback, dan menemukan best-practices cara penggunaannya. Oleh karena itu, saya pikir sudah tiba waktunya untuk saya mempelajari framework tersebut. 

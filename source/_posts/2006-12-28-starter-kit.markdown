@@ -6,7 +6,7 @@ slug: starter-kit
 title: Project Starter Kit
 wordpress_id: 186
 categories:
-- Manajemen
+- manajemen
 ---
 
 Mengelola project software tidak mudah. Ada berbagai aspek teknis dan non teknis. Apalagi kalau projectnya berkaitan dengan pemerintahan atau organisasi lain yang birokratis. Akan banyak pekerjaan dokumentasi. 

@@ -6,7 +6,7 @@ slug: aplikasi-web-spring25-4
 title: Aplikasi Web dengan Spring 2.5 [bagian 4]
 wordpress_id: 323
 categories:
-- Java
+- java
 ---
 
 Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara menangani upload file dengan Spring MVC versi 2.5. Di artikel selanjutnya baru kita akan bahas tentang state management. 

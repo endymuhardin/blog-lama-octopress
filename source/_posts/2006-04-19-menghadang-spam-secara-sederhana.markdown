@@ -6,7 +6,7 @@ slug: menghadang-spam-secara-sederhana
 title: Menghadang spam secara sederhana
 wordpress_id: 55
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Rupanya tidak di Indonesia saja orang yang kurang kerjaan. Mentang-mentang sekarang gampang sekali mendapatkan akses internet, segerombolan orang kurang kerjaan seenaknya menginstal aplikasi spammer.   

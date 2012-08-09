@@ -6,7 +6,7 @@ slug: berkeleydb-java-edition
 title: BerkeleyDB Java Edition
 wordpress_id: 179
 categories:
-- Java
+- java
 ---
 
 Beberapa waktu yang lalu, ada posting menarik tentang [Google yang menggunakan BerkeleyDB untuk mengelola user accountnya](http://epsilondelta.net/2006/10/01/web-apps-why-does-statelessness-stop-at-the-database/ "Stateless Database @ Google"). Karena penasaran, saya lalu mencoba mendownload dan bermain-main dengan BerkeleyDB versi Java (Java Edition).

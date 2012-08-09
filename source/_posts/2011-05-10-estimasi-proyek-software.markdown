@@ -6,7 +6,7 @@ slug: estimasi-proyek-software
 title: Estimasi Proyek Software
 wordpress_id: 690
 categories:
-- Manajemen
+- manajemen
 ---
 
 > Saya ingin membuat aplikasi akunting, berapa lama dan berapa biayanya?

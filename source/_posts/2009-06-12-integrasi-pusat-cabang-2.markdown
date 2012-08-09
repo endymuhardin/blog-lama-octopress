@@ -6,7 +6,7 @@ slug: integrasi-pusat-cabang-2
 title: Integrasi aplikasi kantor pusat dan cabang [Bagian 2]
 wordpress_id: 446
 categories:
-- Java
+- java
 ---
 
 Pada [artikel sebelumnya](http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-1/), kita sudah mendiskusikan requirement yang diinginkan. Sekarang kita akan melakukan implementasi menggunakan [Spring Integration](http://www.springsource.org/spring-integration). 

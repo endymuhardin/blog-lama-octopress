@@ -6,7 +6,7 @@ slug: presentasi-ruthless-testing
 title: Presentasi Ruthless Testing
 wordpress_id: 194
 categories:
-- Java
+- java
 ---
 
 Saya akan berbicara pada pertemuan rutin komunitas Java, JaMU (Java Meet Up). Acaranya akan diadakan di kantor Sun Microsystem, Sabtu, 27 Januari 2006. 

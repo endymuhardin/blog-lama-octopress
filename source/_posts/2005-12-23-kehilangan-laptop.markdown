@@ -6,7 +6,7 @@ slug: kehilangan-laptop
 title: Kehilangan Laptop
 wordpress_id: 20
 categories:
-- Life
+- life
 ---
 
 Teman saya baru saja kehilangan laptopnya kemarin. Kami pergi makan siang jam 12.10, dan kembali lagi ke kantor jam 12.40... dan laptopnya sudah tidak ada.

@@ -6,7 +6,7 @@ slug: keanehan-konfigurasi-openldap
 title: Keanehan konfigurasi OpenLDAP
 wordpress_id: 9
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Satu hal yang sangat mengganggu dalam OpenLDAP adalah, secara default dia mengijinkan anonymous login. Dan parahnya lagi, user yang login secara anonymous dapat melihat daftar username yang terdaftar. 

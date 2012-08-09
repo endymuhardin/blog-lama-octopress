@@ -6,7 +6,7 @@ slug: booklet-printing
 title: Booklet Printing
 wordpress_id: 73
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Jika Anda adalah kolektor PDF obsesif-kompulsif seperti saya, pasti cepat atau lambat Anda akan mencari cara yang paling efektif untuk mencetak koleksi PDF tersebut.

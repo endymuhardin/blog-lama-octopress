@@ -6,7 +6,7 @@ slug: remoting-dengan-spring
 title: Remoting dengan Spring
 wordpress_id: 214
 categories:
-- Java
+- java
 ---
 
 Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user atau pengguna aplikasi kita bukanlah orang, melainkan mesin. Dalam hal ini, aplikasi kita dapat disebut dengan aplikasi server yang menyediakan service bagi aplikasi client. 

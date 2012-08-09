@@ -6,8 +6,8 @@ slug: migrasi-subversion-ke-git
 title: Migrasi Subversion ke Git
 wordpress_id: 569
 categories:
-- Aplikasi
-- Lain2
+- aplikasi
+- lain
 ---
 
 Di tahun yang baru ini, kami di ArtiVisi juga beralih menggunakan version control baru, yaitu Git.

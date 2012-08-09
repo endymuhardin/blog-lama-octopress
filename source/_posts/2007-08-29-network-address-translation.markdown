@@ -6,7 +6,7 @@ slug: network-address-translation
 title: Network Address Translation
 wordpress_id: 261
 categories:
-- Linux
+- linux
 ---
 
 NAT adalah singkatan dari Network Address Translation. 

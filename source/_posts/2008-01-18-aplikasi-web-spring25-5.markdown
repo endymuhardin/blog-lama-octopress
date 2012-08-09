@@ -6,7 +6,7 @@ slug: aplikasi-web-spring25-5
 title: Aplikasi Web dengan Spring 2.5 [bagian 5]
 wordpress_id: 326
 categories:
-- Java
+- java
 ---
 
 Aplikasi web --berbeda dengan aplikasi desktop-- ditakdirkan untuk stateless. Artinya dia tidak menyimpan data untuk masing-masing user yang sedang aktif. Keputusan ini menyebabkan aplikasi web bisa diakses jutaan user sekaligus. Tapi juga menyebabkan perlu teknik khusus agar data user yang sedang aktif dapat disimpan dengan baik. 

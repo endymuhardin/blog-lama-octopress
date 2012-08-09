@@ -6,7 +6,7 @@ slug: svn-externals
 title: SVN Externals
 wordpress_id: 400
 categories:
-- Lain2
+- lain
 ---
 
 Dalam membuat aplikasi, seringkali kita membutuhkan source-code dari aplikasi lainnya. Misalnya, jika kita sudah membuat cukup banyak aplikasi, maka fitur login dan logout pasti sudah sering kita buat. 

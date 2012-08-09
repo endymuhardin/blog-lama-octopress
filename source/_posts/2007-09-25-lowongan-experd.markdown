@@ -6,7 +6,7 @@ slug: lowongan-experd
 title: Lowongan Experd
 wordpress_id: 274
 categories:
-- Lain2
+- lain
 ---
 
 Kemarin ada mbak-mbak yang kirim email ke saya, namanya mbak Hanna dari [Experd](http://www.experd.org), minta tolong dipostingkan lowongan. Entah kenapa, waktu saya cek websitenya, tulisannya Service Unavailable. Sedangkan www.experd.com bisa diakses. Entahlah, mungkin yang .org sedang bermasalah.

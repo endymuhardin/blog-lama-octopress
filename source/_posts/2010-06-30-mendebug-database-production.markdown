@@ -6,7 +6,7 @@ slug: mendebug-database-production
 title: Mendebug Database Production
 wordpress_id: 539
 categories:
-- Java
+- java
 ---
 
 Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di environment development karena berbagai hal, misalnya variasi data, jumlah data, dan sebagainya. 

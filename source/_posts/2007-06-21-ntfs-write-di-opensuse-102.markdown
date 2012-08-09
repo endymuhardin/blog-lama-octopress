@@ -6,7 +6,7 @@ slug: ntfs-write-di-opensuse-102
 title: NTFS Write di OpenSuSE 10.2
 wordpress_id: 219
 categories:
-- Linux
+- linux
 ---
 
 Di Ubuntu, menulis ke partisi NTFS sangat mudah. Cukup lakukan

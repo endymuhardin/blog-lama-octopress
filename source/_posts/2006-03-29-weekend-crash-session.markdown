@@ -6,7 +6,7 @@ slug: weekend-crash-session
 title: Weekend Crash Session
 wordpress_id: 53
 categories:
-- Manajemen
+- manajemen
 ---
 
 Seperti kebanyakan perusahaan IT lainnya, client saya sekarang juga sering mengalami kejar tayang. Berbagai alasan menjadi penyebabnya. Tapi kita tidak mencari kambing hitam di sini. Yang paling penting adalah _Lesson Learned_ dan _Best Practices_nya. Karena toh yang namanya krisis memang tidak direncanakan dan bisa terjadi kapan saja.

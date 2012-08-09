@@ -6,7 +6,7 @@ slug: pakai-ide-apa
 title: Pakai IDE apa?
 wordpress_id: 291
 categories:
-- Java
+- java
 ---
 
 Posting ini dibuat untuk menanggapi diskusi di milis Netbeans.

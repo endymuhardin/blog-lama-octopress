@@ -6,7 +6,7 @@ slug: menggunakan-hermesjms
 title: Menggunakan HermesJMS
 wordpress_id: 262
 categories:
-- Java
+- java
 ---
 
 Kalau kita ingin membuat aplikasi menggunakan database, tentunya hal pertama yang kita lakukan adalah menginstal server database. Selanjutnya, langkah kedua adalah menginstal aplikasi untuk mengelola database. Paling tidak, kita harus bisa membuat tabel, melihat isi tabel, mengisi ataupun menghapus data ke dalam tabel. 

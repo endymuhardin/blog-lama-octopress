@@ -6,7 +6,7 @@ slug: tapestry-vs-spring
 title: Tapestry vs Spring MVC
 wordpress_id: 137
 categories:
-- Java
+- java
 ---
 
 Dalam beberapa project terakhir, saya menggunakan [Spring][] MVC untuk membuat presentation layer. Spring sangat fleksibel dan mudah dipelajari. Ini menambah fleksibilitas dalam menyusun tim programmer. Dengan kemudahannya, programmer yang sudah pernah membuat aplikasi web --baik menggunakan Struts, PHP, Ruby on Rails, atau bahkan yang cuma mengerti servlet-- dapat beradaptasi dalam hitungan hari dan langsung produktif. 

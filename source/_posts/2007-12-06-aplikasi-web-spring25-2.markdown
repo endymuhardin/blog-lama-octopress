@@ -6,7 +6,7 @@ slug: aplikasi-web-spring25-2
 title: Aplikasi Web dengan Spring 2.5 [bagian 2]
 wordpress_id: 317
 categories:
-- Java
+- java
 ---
 
 Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring, cara menyuplai data ke form, melakukan validasi, dan memproses form ketika tombol Submit ditekan. 

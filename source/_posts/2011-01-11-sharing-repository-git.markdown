@@ -6,7 +6,7 @@ slug: sharing-repository-git
 title: Sharing Repository Git
 wordpress_id: 613
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Skenario : selama ini kita coding di laptop sendiri saja. Kemudian ada kebutuhan untuk kolaborasi dengan orang lain melalui Git. Bagaimana caranya? Baiklah mari kita bahas di artikel ini. 

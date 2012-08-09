@@ -6,7 +6,7 @@ slug: konfigurasi-user-subversion-di-xampp
 title: Konfigurasi user Subversion di XAMPP
 wordpress_id: 41
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Berikut cara konfigurasi repository Subversion pada Windows agar bisa diakses melalui http. Ijin akses hanya diberikan pada user yang sudah terdaftar dalam database.

@@ -5,7 +5,7 @@ date: 2012-08-09 13:54
 comments: true
 published: true
 categories: 
-- Aplikasi
+- aplikasi
 ---
 
 Sejak pertama saya membuat blog, aplikasi yang saya gunakan adalah [Wordpress](http://www.wordpress.org). Aplikasi Wordpress sangat mudah digunakan dan banyak fiturnya. Selain itu, themes gratisan di internet juga berlimpah ruah, sehingga kita bisa ganti tampilan setiap hari kalau mau. 

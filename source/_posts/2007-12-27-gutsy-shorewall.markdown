@@ -6,8 +6,8 @@ slug: gutsy-shorewall
 title: Konfigurasi Shorewall di Ubuntu Gutsy
 wordpress_id: 321
 categories:
-- Aplikasi
-- Linux
+- aplikasi
+- linux
 ---
 
 Bila kita ingin mempublish komputer di internet, hal pertama yang kita pikirkan adalah firewall. Bagaimana membatasi akses hanya ke port-port yang kita ijinkan. 

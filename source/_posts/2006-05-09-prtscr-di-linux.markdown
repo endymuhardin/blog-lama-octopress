@@ -6,7 +6,7 @@ slug: prtscr-di-linux
 title: PrtScr di Linux
 wordpress_id: 90
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Membuat screenshot di Windows itu gampang. Tinggal ikuti [langkah-langkah yang dijelaskan Oom Mbot](http://mbot.multiply.com/journal/item/225), beres. Tapi bagaimana caranya membuat screenshot di Linux?

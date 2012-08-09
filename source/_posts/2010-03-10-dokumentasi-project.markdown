@@ -6,7 +6,7 @@ slug: dokumentasi-project
 title: Dokumentasi Project
 wordpress_id: 516
 categories:
-- Manajemen
+- manajemen
 ---
 
 Pertanyaan yang sering muncul dalam pengelolaan proyek software adalah, "Dokumen apa saja yang harus dibuat?"

@@ -6,7 +6,7 @@ slug: login-ssh-dengan-private-key
 title: Login ssh dengan private key
 wordpress_id: 368
 categories:
-- Linux
+- linux
 ---
 
 Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis. 

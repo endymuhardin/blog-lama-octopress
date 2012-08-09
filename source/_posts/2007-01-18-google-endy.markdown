@@ -6,7 +6,7 @@ slug: google-endy
 title: Google "endy"
 wordpress_id: 191
 categories:
-- Lain2
+- lain
 ---
 
 Masukkan [keyword "endy" di Google Indonesia](http://www.google.co.id/search?hl=id&q=endy&meta=). Lihat hasil search paling atas ... 

@@ -6,7 +6,7 @@ slug: debian-sarge-vs-opensuse-100
 title: Debian Sarge vs OpenSuSE 10.0
 wordpress_id: 68
 categories:
-- Aplikasi
+- aplikasi
 ---
 
 Di kantor saya ada PC berkualifikasi cukup canggih untuk ukuran workstation. Spesifikasinya P-4 3GHz HT, 4GB DDR, 2x80GB SATA, DVD RW. PC tersebut sebetulnya dibeli untuk menjadi server. Tetapi karena dia terlambat datang, semua aplikasi server sudah terinstal di mesin lain dan sudah terisi banyak data. Sebelum sempat semua data tersebut dimigrasi, tugas lain buat saya sudah datang bertubi-tubi, sehingga alhasil tidak sempat migrasi. Akhirnya, PC server tersebut turun kasta menjadi '_sekedar pembakar DVD saja_'.
