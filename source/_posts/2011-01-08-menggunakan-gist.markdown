@@ -17,15 +17,15 @@ Untuk bisa menggunakan Gist, kita harus memiliki account Github dulu. Setelah it
 
 Cara membuatnya tidak sulit. Cukup entri nama file, keterangan, dan isi text yang mau dishare. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/01-create-gist-300x204.png  %}
+{% img /images/uploads/2011/01/01-create-gist-300x204.png  %}
 
 Setelah itu, tekan Create Public Gist. Gist kita akan siap digunakan. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/02-gist-created-300x207.png  %}
+{% img /images/uploads/2011/01/02-gist-created-300x207.png  %}
 
 Gist yang sudah dibuat bisa dipasang di blog. Caranya, klik tombol embed. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2011/01/03-embed-link-300x205.png  %}
+{% img /images/uploads/2011/01/03-embed-link-300x205.png  %}
 
 Nanti akan muncul textfield berisi tag HTML untuk dipasang di blog, kira-kira seperti ini tagnya: 
 

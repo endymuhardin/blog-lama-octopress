@@ -31,7 +31,7 @@ Spring Integration memiliki beberapa abstraksi utama yang perlu kita ketahui aga
 
 Ilustrasi hubungan antara message, channel, dan endpoint bisa dilihat di gambar berikut : 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/msg-channel-endpoint-300x59.png Hubungan Message, Channel, dan Endpoint %}
+{% img /images/uploads/2009/06/msg-channel-endpoint-300x59.png Hubungan Message, Channel, dan Endpoint %}
 
 
 
@@ -130,15 +130,15 @@ Endpoint digunakan untuk menghubungkan channel. Pemrosesan message dilakukan dal
 
 Sekarang, setelah kita memahami berbagai istilah dalam Spring Integration, kita bisa merancang implementasi dari requirement kita. Berikut adalah aliran message di sisi kantor pusat. Kantor pusat mengirim beberapa data produk baru, dan akan dikonversi menjadi JSON. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/pusat-json-300x24.png Flow konversi data menjadi JSON %}
+{% img /images/uploads/2009/06/pusat-json-300x24.png Flow konversi data menjadi JSON %}
 
 Setelah menjadi JSON, selanjutnya kita bisa kirim melalui berbagai transport yang disediakan. Untuk tahap development, kita kirim saja melalui file ke folder /tmp, supaya mudah didebug dan tidak butuh internet. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/json-file-300x56.png Flow message JSON ke shared folder %}
+{% img /images/uploads/2009/06/json-file-300x56.png Flow message JSON ke shared folder %}
 
 Selanjutnya, setelah transport melalui file sudah dipastikan benar, baik format data, isi data, maupun rangkaian filternya, kita bisa mengganti channel adapter untuk mengirim ke GMail. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/json-email-300x35.png Flow message JSON ke Email %}
+{% img /images/uploads/2009/06/json-email-300x35.png Flow message JSON ke Email %}
 
 Kita harus membuat beberapa file sebagai berikut : 
 
@@ -379,15 +379,15 @@ Berikut kode programnya.
 
 Di sisi kantor cabang, berikut aliran message dari transport hingga menjadi JSON. Kita mulai dengan transport file. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/file-json-300x35.png Flow dari shared folder menjadi JSON %}
+{% img /images/uploads/2009/06/file-json-300x35.png Flow dari shared folder menjadi JSON %}
 
 Bila kita menggunakan email, berikut gambarnya
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/email-json-300x35.png Flow dari Email menjadi JSON %}
+{% img /images/uploads/2009/06/email-json-300x35.png Flow dari Email menjadi JSON %}
 
 Setelah menjadi JSON, kita proses sampai ke CabangService
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/json-cabang-300x25.png Flow pemrosesan JSON menjadi Produk %}
+{% img /images/uploads/2009/06/json-cabang-300x25.png Flow pemrosesan JSON menjadi Produk %}
 
 Kita harus membuat beberapa file sebagai berikut : 
 

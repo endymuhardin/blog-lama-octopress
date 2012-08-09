@@ -19,7 +19,7 @@ Masalahnya, tools backup database yang tersedia biasanya tidak bisa digunakan un
 
 Sebagai contoh, coba lihat skema berikut. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/diagram-er-payment.png  %}
+{% img /images/uploads/2010/06/diagram-er-payment.png  %}
 
 Untuk mengambil data payment, tentunya kita juga harus menarik data lain yang berelasi dengannya, yaitu di tabel grup loket, loket, payment value, payment info dan fee loket. Ini sangat sulit dilakukan, apalagi kalau data payment tersebut jumlahnya ratusan ribu record. 
 
@@ -50,39 +50,39 @@ Ada dua script untuk menjalankan jailer, yaitu jailerGUI dan jailer. jailerGUI d
 
 Berikut adalah tampilan awal Jailer. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/01-jailer-welcome-300x206.png Jailer Welcome Page %}
+{% img /images/uploads/2010/06/01-jailer-welcome-300x206.png Jailer Welcome Page %}
 
 Jailer memberitahu kita bahwa belum ada data model yang bisa dikerjakan, dan menyarankan kita untuk menganalisa database. Klik Analyze Database. Selanjutnya Jailer akan meminta informasi cara koneksi ke database. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/02-analyze-db-300x134.png Analyze Database %}
+{% img /images/uploads/2010/06/02-analyze-db-300x134.png Analyze Database %}
 
 Isikan informasi koneksi database dan driver yang digunakan. Driver yang kita gunakan adalah yang tadi sudah kita copy ke folder lib. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/03-mysql-connectorj-300x128.png Konfigurasi MySQL %}
+{% img /images/uploads/2010/06/03-mysql-connectorj-300x128.png Konfigurasi MySQL %}
 
 Klik OK untuk menganalisa database. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/04-connect-to-db-300x212.png Koneksi ke database %}
+{% img /images/uploads/2010/06/04-connect-to-db-300x212.png Koneksi ke database %}
 
 Setelah itu, Jailer akan menghubungi database untuk mengambil informasi. Lognya akan ditampilkan di log output. Jailer akan memberi tahu kita tabel-tabel yang tidak ada primary keynya. Jailer tidak dapat memproses tabel tanpa primary key. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/05-autodetect-result-300x233.png Hasil Autodetect %}
+{% img /images/uploads/2010/06/05-autodetect-result-300x233.png Hasil Autodetect %}
 
 Klik tabel yang berwarna merah, dan definisikan primary keynya. Primary key yang kita definisikan di sini hanya digunakan Jailer, sehingga tidak perlu khawatir skema aslinya akan berubah. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/06-edit-table-pk-300x200.png Add Primary Key %}
+{% img /images/uploads/2010/06/06-edit-table-pk-300x200.png Add Primary Key %}
 
 Setelah itu, klik OK. Jailer akan menampilkan screen Extraction Model Editor. Pilih tabel payment, di dropdown subject, karena inilah tabel yang akan kita gunakan sebagai pusat extraction. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/07-payment-relasi-300x206.png Pilih tabel yang ingin diimport %}
+{% img /images/uploads/2010/06/07-payment-relasi-300x206.png Pilih tabel yang ingin diimport %}
 
 Jailer mendeteksi relasi antar tabel berdasarkan constraint foreign key yang kita pasang di database. Kadangkala ada tabel-tabel yang berelasi, namun tidak ada constraintnya. Entah karena malas mendefinisikan, atau memang sengaja tidak dikaitkan. Kita bisa mendaftarkan relasi tanpa constraint ini dengan membuka lagi Data Model Editor, kemudian klik Add di kotak Association sebelah kanan. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/08-relasi-non-fk-300x234.png Relasi non Foreign Key %}
+{% img /images/uploads/2010/06/08-relasi-non-fk-300x234.png Relasi non Foreign Key %}
 
 Setelah diklik OK, maka skema relasi di Extraction Model Editor akan berubah sesuai relasi yang ditambahkan. Sama dengan definisi primary key di atas, relasi ini hanya disimpan oleh Jailer dan tidak diaplikasikan ke skema database. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/09-payment-relasi-2-300x168.png Relasi Payment - Loket %}
+{% img /images/uploads/2010/06/09-payment-relasi-2-300x168.png Relasi Payment - Loket %}
 
 Kita perlu mendefinisikan batasan record payment yang akan diambil, yaitu yang terjadi di bulan Juni 2010. Dalam bentuk SQL, berikut adalah query yang digunakan
 
@@ -96,17 +96,17 @@ Kita perlu mendefinisikan batasan record payment yang akan diambil, yaitu yang t
 
 Kita ambil expression setelah where dan pasang di textfield where dalam Extraction Model Editor. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/10-payment-where-300x206.png Restriction %}
+{% img /images/uploads/2010/06/10-payment-where-300x206.png Restriction %}
 
 Simpan dulu extraction modelnya. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/11-save-extraction-300x208.png Save Extraction %}
+{% img /images/uploads/2010/06/11-save-extraction-300x208.png Save Extraction %}
 
 Beri nama yang representatif, misalnya payment-201006. Jailer akan menyimpan extraction model ini dalam format csv. Kalau sudah memahami formatnya, kita bisa membuatnya dengan text editor tanpa GUI (kalau mau). 
 
 Setelah tersimpan, kita bisa klik Export Data sehingga memunculkan dialog berikut. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/12-data-export-300x283.png Export Data %}
+{% img /images/uploads/2010/06/12-data-export-300x283.png Export Data %}
 
 Di screen tersebut kita bisa mengatur konfigurasi pengambilan data. Bagi saya, nilai defaultnya sudah memadai sehingga tidak ada yang diubah. 
 
@@ -114,11 +114,11 @@ Di box paling bawah ada command line yang bisa kita copy-paste untuk dijalankan 
 
 Yang harus kita isi di screen ini adalah textfield Into. Ini adalah nama file yang akan menampung script SQL berisi data yang diinginkan. Isi saja dengan nama payment-201006.sql. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/13-export-into-300x205.png Export Into File %}
+{% img /images/uploads/2010/06/13-export-into-300x205.png Export Into File %}
 
 Setelah itu, klik Export Data. Jailer akan segera bekerja dan menampilkan hasilnya dalam bentuk tree. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/14-export-result-300x168.png Hasil Export %}
+{% img /images/uploads/2010/06/14-export-result-300x168.png Hasil Export %}
 
 Di situ kita bisa lihat berapa row yang akan diambil dari masing-masing tabel. 
 Seperti kita lihat, cukup signifikan, yaitu 2000an record. Ini disebabkan karena jailer mengambil record secara rekursif tanpa ada batasan. 
@@ -129,17 +129,17 @@ Dengan melihat ke tree-nya, kita bisa memutus relasi fee_loket ke loket, karena 
 
 Tutup screennya, dan kembali ke Extraction Model Editor. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/15-restricted-dependency-300x168.png Membatasi Relasi %}
+{% img /images/uploads/2010/06/15-restricted-dependency-300x168.png Membatasi Relasi %}
 
 Di kotak Association, expand node yang ingin kita putuskan, yaitu fee loket. Klik relasi loket, dan centang checkbox disabled di pojok kiri bawah. Setelah itu, jalankan lagi Export Data. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/16-restricted-dependency-warning-300x153.png Warning Restricted Dependency %}
+{% img /images/uploads/2010/06/16-restricted-dependency-warning-300x153.png Warning Restricted Dependency %}
 
 Jailer akan mengingatkan bahwa dengan membatasi dependensi, referential integrity akan rusak, karena relasi foreign key dari fee_loket ke loket akan terputus. Klik saja Yes, karena di database development kita tabel loket sudah terisi lengkap. 
 
 Inilah hasilnya
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/17-restricted-export-result-300x82.png Hasil Export setelah dibatasi %}
+{% img /images/uploads/2010/06/17-restricted-export-result-300x82.png Hasil Export setelah dibatasi %}
 
 Seperti kita lihat di atas, kita cuma mendapatkan 84 record dan pengambilan data berhenti di tabel fee_loket. 
 Periksa output payment-201006.sql di folder Jailer untuk memastikan hasilnya sudah benar. 
@@ -176,7 +176,7 @@ Kalau baru pertama kali dijalankan, script ini akan menimbulkan error sebagai be
 
 Ini disebabkan karena Jailer ternyata membuat beberapa tabel di database untuk kebutuhan internalnya. Ini dapat dilihat pada database development kita. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/06/18-jailer-tables-300x226.png Tabel Internal Jailer %}
+{% img /images/uploads/2010/06/18-jailer-tables-300x226.png Tabel Internal Jailer %}
 
 Untuk menggenerate tabel di atas, kita jalankan jailer dengan opsi create-ddl. Ini akan menghasilkan SQL di layar. SQL ini harus kita jalankan di database production supaya tabelnya terbentuk. 
 

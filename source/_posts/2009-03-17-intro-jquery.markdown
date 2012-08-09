@@ -33,7 +33,7 @@ Pada intinya, penggunaan jQuery terdiri dari dua langkah sederhana :
 2. Menambahkan behavior pada elemen HTML yang sudah didapatkan. 
 
 Sebagai contoh kasus, kita akan membuat kalkulator sederhana yang tampilannya seperti ini: 
-(http://endy.artivisi.com/blog/wp-content/uploads/2009/03/kalkulator-jquery.png)
+(/images/uploads/2009/03/kalkulator-jquery.png)
 
 
 

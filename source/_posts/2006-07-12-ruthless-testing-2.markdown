@@ -152,12 +152,12 @@ Dan unit testnya DayCounterTest.java sebagai berikut:
 
 Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya (kilk gambar untuk memperbesar) :
 [
-![Cobertura All Pass](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-green-small.png)](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-green.png)
+![Cobertura All Pass](/images/uploads/2006/07/cobertura-all-green-small.png)](/images/uploads/2006/07/cobertura-all-green.png)
 
 Kita juga bisa melihat coverage detail dari class DayCounter.java: 
 [
-![Cobertura Class Detail Pass](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-green-small.png)
-](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-green.png)
+![Cobertura Class Detail Pass](/images/uploads/2006/07/cobertura-class-green-small.png)
+](/images/uploads/2006/07/cobertura-class-green.png)
 Bila kita non-aktifkan beberapa test, seperti ini: 
 
     
@@ -181,11 +181,11 @@ Bila kita non-aktifkan beberapa test, seperti ini:
 
 Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini: 
 [
-![Cobertura All Failed](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-red-small.png)](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-all-red.png)
+![Cobertura All Failed](/images/uploads/2006/07/cobertura-all-red-small.png)](/images/uploads/2006/07/cobertura-all-red.png)
 
 dan detail classnya seperti ini
 [
-![Cobertura Class Detail Failed](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-red-small.png)](http://endy.artivisi.com/blog/wp-content/uploads/2006/07/cobertura-class-red.png)
+![Cobertura Class Detail Failed](/images/uploads/2006/07/cobertura-class-red-small.png)](/images/uploads/2006/07/cobertura-class-red.png)
 
 Bagaimana? 
 Mudah dan cepat kan?

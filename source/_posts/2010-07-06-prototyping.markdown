@@ -90,11 +90,11 @@ Berikut contoh mockup yang baru saja saya buat menggunakan Pencil.
 
 Ini versi 'bagus' yang mirip aslinya. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/07/windows_login-300x238.png Mockup Login Screen ala Windows XP %}
+{% img /images/uploads/2010/07/windows_login-300x238.png Mockup Login Screen ala Windows XP %}
 
 Supaya client sadar bahwa ini adalah prototype, kita bisa gunakan versi yang coret-coretan. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2010/07/sketchy_login-300x238.png Mockup Versi Coretan %}
+{% img /images/uploads/2010/07/sketchy_login-300x238.png Mockup Versi Coretan %}
 
 Source file untuk mockup di atas bisa [diunduh di sini](http://endy.artivisi.com/downloads/contoh/mockup/pencil-demo.ep). 
 

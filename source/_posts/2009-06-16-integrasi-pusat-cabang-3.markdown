@@ -16,7 +16,7 @@ Kali ini kita akan mengeksplorasi use-case yang lebih kompleks, yaitu cara menan
 Untuk memecahkan masalah ini, kita menggunakan Router. Router bertugas memilih channel sesuai dengan message yang datang. Berikut skema penggunaan router. 
 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/router-demo-300x91.png Skema Penggunaan Router %}
+{% img /images/uploads/2009/06/router-demo-300x91.png Skema Penggunaan Router %}
 
 Sebelum membahas tentang router, baiklah kita lihat dulu data penjualan yang akan dikirim. Berikut class penjualan
 
@@ -123,7 +123,7 @@ Tentunya nanti method save dan delete ini akan lebih canggih dari ini, misalnya 
 
 Kalau kita lihat skemanya, ada satu titik di mana message akan dilihat dan disalurkan ke channel yang sesuai. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/router-only-300x104.png Routing Message %}
+{% img /images/uploads/2009/06/router-only-300x104.png Routing Message %}
 
 Penjualan yang akan disimpan dimasukkan ke channel penjualan-simpan. Sedangkan object penjualan yang akan dihapus dimasukkan ke channel penjualan-hapus. Dengan demikian, kita harus membuat router yang mampu menentukan channel yang akan dipilih dengan melihat message yang masuk ke dalam router tersebut. Operasi yang akan dilakukan (simpan atau hapus) harus dimasukkan ke message header atau message content. Agar sederhana, kita tambahkan saja satu property di class Penjualan untuk menentukan operasi yang akan dilakukan. Bila class Penjualan ini dimapping menggunakan JPA, kita bisa menandai property ini dengan anotasi @Transient agar isinya tidak disimpan di database. 
 
@@ -220,7 +220,7 @@ Berikut unit test untuk router di atas.
 
 Berikut aliran message mulai dari gateway sampai menjadi JSON. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/gateway-to-json-300x31.png Dari Gateway sampai menjadi JSON %}
+{% img /images/uploads/2009/06/gateway-to-json-300x31.png Dari Gateway sampai menjadi JSON %}
 
 Dan ini adalah konfigurasi Spring Integration untuk flow di atas. 
 
@@ -253,7 +253,7 @@ Dan ini adalah konfigurasi Spring Integration untuk flow di atas.
 
 Pada artikel sebelumnya, kita mengganti implementasi email dengan shared folder supaya proses development lebih cepat. Akses ke shared folder jauh lebih cepat daripada email yang dibatasi oleh kecepatan internet. Kali ini, kita akan menggunakan bridge, yaitu hubungan langsung antar channel. Ini kita gunakan untuk menghubungkan channel outgoingJson dengan incomingJson. Hubungan ini pada artikel sebelumnya diimplementasikan menggunakan shared folder dan email. 
 
-{% img http://endy.artivisi.com/blog/wp-content/uploads/2009/06/bridge-300x45.png bridge antara incoming dan outgoing %}
+{% img /images/uploads/2009/06/bridge-300x45.png bridge antara incoming dan outgoing %}
 
 Berikut konfigurasi bridge untuk menghubungkan outgoingJson dan incomingJson. 
 
