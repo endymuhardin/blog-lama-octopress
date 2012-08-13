@@ -23,11 +23,11 @@ Langkah pertama, mari kita [download izPack](http://www.izforge.com/izpack/downl
 
 Selanjutnya, mari kita lihat struktur folder project kita yang ingin dibuatkan installernya. Struktur folder saya seperti ini: 
 
-![Struktur folder project](/images/uploads/2006/09/project-folder-before.png)
+{% img /images/uploads/2006/09/project-folder-before.png Struktur folder project %}
 
 Setelah terinstal di komputer pengguna, saya ingin foldernya seperti ini: 
 
-![Hasil yang diinginkan](/images/uploads/2006/09/project-folder-after.png)
+{% img /images/uploads/2006/09/project-folder-after.png Hasil yang diinginkan %}
 
 Perhatikan bahwa folder src tidak perlu diikutkan. Pengguna dapat memilih apakah mau menginstal source code atau tidak. Jadi, folder source code adalah optional. Folder dokumentasi dan plugin tambahan juga biasanya diinstal secara optional. 
 
@@ -183,37 +183,37 @@ Mari kita coba jalankan file installer tersebut.
     
 Kita akan disodori tampilan selamat datang
 
-![Screen Selamat Datang](/images/uploads/2006/09/install-screen-1.png)
+{% img /images/uploads/2006/09/install-screen-1.png Screen Selamat Datang %}
 
 Klik Next, dan kita akan melihat keterangan tentang [PlayBilling](http://playbilling.sourceforge.net). Keterangan ini langsung dicopy-paste dari homepage PlayBilling
 
-![Deskripsi Aplikasi](/images/uploads/2006/09/install-screen-2.png)
+{% img /images/uploads/2006/09/install-screen-2.png Deskripsi Aplikasi %}
 
 Next lagi, dan muncullah license agreement, yaitu GPL, yang diambil langsung dari [website GPL](http://www.gnu.org/copyleft/gpl.txt). 
 
-![GPL License](/images/uploads/2006/09/install-screen-3.png)
+{% img /images/uploads/2006/09/install-screen-3.png GPL License %}
 
 Screen selanjutnya adalah pilihan paket yang akan diinstal. Perhatikan bahwa paket wajib diburamkan dan tidak bisa diklik. 
 
-![Pilihan paket instalasi](/images/uploads/2006/09/install-screen-4.png)
+{% img /images/uploads/2006/09/install-screen-4.png Pilihan paket instalasi %}
 
 Setelah itu, kita akan ditanya lokasi instalasi. 
 
-![Pilihan lokasi instalasi](/images/uploads/2006/09/install-screen-5.png)
+{% img /images/uploads/2006/09/install-screen-5.png Pilihan lokasi instalasi %}
 
 Pilih lokasi yang sesuai, kemudian Next. Instalasi akan segera dimulai.
 
-![Proses Instalasi](/images/uploads/2006/09/install-screen-6.png)
+{% img /images/uploads/2006/09/install-screen-6.png Proses Instalasi %}
 
 Sukses ... !
 
-![Sukses](/images/uploads/2006/09/install-screen-7.png)
+{% img /images/uploads/2006/09/install-screen-7.png Sukses %}
 
 Sebagai bonus, izPack juga akan membuatkan Uninstaller. Coba jalankan 
 
     java -jar /home/endy/PlayBilling/Uninstaller/uninstaller.jar
     
-![Uninstall](/images/uploads/2006/09/uninstall-screen-1.png)
+{% img /images/uploads/2006/09/uninstall-screen-1.png Uninstall %}
 
 Klik OK, dan aplikasi akan dihilangkan dari komputer Anda. 
 

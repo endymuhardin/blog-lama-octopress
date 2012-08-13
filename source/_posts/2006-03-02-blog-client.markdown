@@ -17,26 +17,26 @@ Salah satunya, yang saya gunakan untuk menulis artikel ini adalah [Performancing
 
 Setelah diinstal, di pojok kanan bawah browser akan muncul icon kecil.
 
-![Mozilla with Performancing](/images/uploads/2006/03/mozilla.png)
+{% img /images/uploads/2006/03/mozilla.png Mozilla with Performancing %}
 Klik icon tersebut, dan tampilan aplikasi segera keluar, mengambil tempat separuh layar browser.
 
-![Performancing User Interface](/images/uploads/2006/03/performancing.png)
+{% img /images/uploads/2006/03/performancing.png Performancing User Interface %}
 Kita dapat meregistrasi beberapa blog sekaligus di panel sebelah kanan. Berikut adalah langkah-langkahnya:
 
 1. Pilih tipe blog
 
-![Select Blog type](/images/uploads/2006/03/01.%20Select.png)
+{% img /images/uploads/2006/03/01.%20Select.png Select Blog type %}
 2. Masukkan informasi tentang blog kita
 
-![Blog URL](/images/uploads/2006/03/02.%20URL.png)
+{% img /images/uploads/2006/03/02.%20URL.png Blog URL %}
 
 3. Isi username dan password yang biasa digunakan untuk posting artikel
 
-![Enter username and password](/images/uploads/2006/03/03.%20Username.png)
+{% img /images/uploads/2006/03/03.%20Username.png Enter username and password %}
 
 4. Selesai
 
-![Finished !!!](/images/uploads/2006/03/04.%20Finish.png)
+{% img /images/uploads/2006/03/04.%20Finish.png Finished !!! %}
 
 Setelah blog didaftarkan, kita bisa langsung menulis post di kotak yang telah disediakan. Kategori artikel juga dapat dipilih langsung di tab **Categs** di panel sebelah kanan.
 

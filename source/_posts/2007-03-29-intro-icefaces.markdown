@@ -52,8 +52,7 @@ Programmer harus memilih satu di antara beberapa teknik berikut:
   * Menggunakan meta refresh untuk request ke server setiap beberapa detik
 
                 
-  * Mengambil jam server sekali saja di awal loading page, 
-                kemudian increment nilainya di sisi client dengan JavaScript
+  * Mengambil jam server sekali saja di awal loading page, kemudian increment nilainya di sisi client dengan JavaScript
 
                 
   * Menggunakan streaming HTML
@@ -518,16 +517,16 @@ Terakhir, jangan lupa lengkapi jar yang dibutuhkan agar kode kita bisa dikompila
 
 Struktur folder akhir dari aplikasi ini adalah sebagai berikut. 
 
-![Struktur Folder Aplikasi JSF](/images/uploads/2007/03/folder-jsf.png)
+{% img /images/uploads/2007/03/folder-jsf.png Struktur Folder Aplikasi JSF %}
 
 Untuk Eclipse, daftar pustaka yang dibutuhkan sedikit berbeda. Demikian gambarnya. 
-![Daftar pustaka ICEFaces untuk Eclipse](/images/uploads/2007/07/ice-eclipse-lib.png)
+{% img /images/uploads/2007/07/ice-eclipse-lib.png Daftar pustaka ICEFaces untuk Eclipse %}
 
 Setelah semua file dibuat dan dipaket sesuai dengan aturan aplikasi web Java, kita bisa mendeploynya ke application server. Lalu, silahkan mengakses http://localhost:8080/HelloICE/whattimeisit.iface atau URL lain sesuai setting deployment. 
 
 Hasilnya akan tampak seperti ini. 
 
-![Tampilan Akhir Server Time](/images/uploads/2007/03/result-jsf.png)
+{% img /images/uploads/2007/03/result-jsf.png Tampilan Akhir Server Time %}
 
 Namun demikian, ternyata halaman tersebut masih melakukan refresh setiap satu detik sehingga mengganggu pandangan. Oleh karena itu, mari kita aktifkan fitur partial submit yang dimiliki ICEFaces. Dengan fitur ini, halaman HTML akan diupdate secara parsial sehingga tidak perlu me-reload seluruh halaman. 
 

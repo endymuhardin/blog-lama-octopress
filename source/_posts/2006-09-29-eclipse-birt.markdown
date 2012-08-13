@@ -47,17 +47,17 @@ Setelah terinstal, kita bisa langsung menggunakannya. BIRT terinstal lengkap ber
 
 Berikut adalah tampilan Eclipse pada saat sudah dijalankan.
 
-![Eclipse Interface](/images/uploads/2006/09/eclipse.png)
+{% img /images/uploads/2006/09/eclipse.png Eclipse Interface %}
 
 Selanjutnya, kita langsung membuat project baru. Klik File > New, kemudian pilih Report Project
 
-![Create Report Project](/images/uploads/2006/09/new-report-project.png)
+{% img /images/uploads/2006/09/new-report-project.png Create Report Project %}
 
 Beri nama projectnya. Kemudian klik Next. Eclipse akan menanyakan apakah kita ingin bekerja dalam Report Perspective. Jawab saja Yes. 
 
 Report perspective tampil seperti screenshot berikut
 
-![Report Perspective](/images/uploads/2006/09/eclipse-report.png)
+{% img /images/uploads/2006/09/eclipse-report.png Report Perspective %}
 
 Perhatikan di sebelah kiri ada tiga tab : Pallete, Data Explorer, dan Library. Kita akan gunakan tab ini untuk mendesain report.
 
@@ -65,43 +65,43 @@ Kemudian, mari kita buat report pertama kita. Datasource yang akan digunakan sud
 
 Untuk membuat report baru, klik File > New > Report. Kalau pilihan Report belum ada, pilih Others dan cari di daftar yang tersedia, dalam kategori Business Intelligence and Reporting Tools.
 
-![Create Report](/images/uploads/2006/09/new-report.png)
+{% img /images/uploads/2006/09/new-report.png Create Report %}
 
 Beri nama reportnya
 
-![Define Report](/images/uploads/2006/09/new-report-1.png)
+{% img /images/uploads/2006/09/new-report-1.png Define Report %}
 
 Kemudian pilih templatenya. Supaya lebih seru, kita akan gunakan Blank Template
 
-![Blank Template](/images/uploads/2006/09/new-report-blank2.png)
+{% img /images/uploads/2006/09/new-report-blank2.png Blank Template %}
 
 Selanjutnya, template report kita tampil di layar dalam Design View. Kita dapat berganti ke berbagai view melalui tab di bawah editor report. 
 
 Setelah report tampil, kita dapat menambahkan label. Tambahkan saja satu label untuk judul, yaitu Laporan Data Pelanggan. Jenis huruf, rata tengah, dan setting lainnya dapat dilakukan melalui toolbar yang ada di bagian bawah.
 
-![Add Label](/images/uploads/2006/09/report-design-label.png)
+{% img /images/uploads/2006/09/report-design-label.png Add Label %}
 
 Sebelum melangkah lebih jauh, kita perlu mendefinisikan Data Source untuk report ini. Buat Data Source baru melalui panel sebelah kiri. 
 
-![Create DataSource](/images/uploads/2006/09/report-datasource-new.png)
+{% img /images/uploads/2006/09/report-datasource-new.png Create DataSource %}
 
 Pilihan datasource akan muncul. Kita akan menggunakan database sample yang sudah ada. Untuk project betulan, kita dapat gunakan database atau sumber data yang lainnya.
 
-![Select DataSource](/images/uploads/2006/09/report-datasource-new-1.png)
+{% img /images/uploads/2006/09/report-datasource-new-1.png Select DataSource %}
 
 Beri nama Sample di kolom Data Source Name, kemudian klik Finish.
 
 Dari datasource yang ada, kita dapat mendefinsikan Data Set. Data Set ini adalah sebagian dari isi Data Source yang akan kita gunakan dalam report. 
 
-![Create Dataset](/images/uploads/2006/09/report-dataset-new.png)
+{% img /images/uploads/2006/09/report-dataset-new.png Create Dataset %}
 
 Muncul pilihan datasource dan jenis data set. Kita bisa menggunakan lebih dari satu datasource dalam satu report. Untuk kali ini, cuma ada satu data source. Pilih tipe data set SQL Select Query. Jangan lupa beri nama yang deskriptif untuk dataset yang dibuat. 
 
-![Create Dataset](/images/uploads/2006/09/report-dataset-new-1.png)
+{% img /images/uploads/2006/09/report-dataset-new-1.png Create Dataset %}
 
 Setelah kita tekan Next, akan muncul database explorer di panel kiri, dan SQL editor di kanan. Kita dapat melakukan drag and drop pada layar ini. 
 
-![Database Explorer](/images/uploads/2006/09/report-dataset-new-2.png)
+{% img /images/uploads/2006/09/report-dataset-new-2.png Database Explorer %}
 
 Edit SQL menjadi seperti ini: 
 
@@ -115,11 +115,11 @@ Kemudian drag-and-drop tabel Customer ke sebelah kanan _from_, sehingga kodenya 
     
 Klik Next. Selanjutnya muncul Data Set Editor. 
 
-![DataSet Editor](/images/uploads/2006/09/report-dataset-new-3.png)
+{% img /images/uploads/2006/09/report-dataset-new-3.png DataSet Editor %}
 
 Kita tidak melakukan perubahan apa-apa di sini. Tapi bila ingin tahu apa isi tabelnya, kita dapat melihat _Preview Result_ seperti ini:
 
-![Preview DataSet](/images/uploads/2006/09/report-dataset-new-4.png)
+{% img /images/uploads/2006/09/report-dataset-new-4.png Preview DataSet %}
 
 Klik OK. Dataset siap digunakan. 
 
@@ -132,45 +132,45 @@ Selanjutnya, kita akan tampilkan data pelanggan dalam bentuk tabel. Pilih Table 
 
 Tampilan yang dihasilkan adalah seperti ini:
 
-![Initial Table](/images/uploads/2006/09/report-table-1.png)
+{% img /images/uploads/2006/09/report-table-1.png Initial Table %}
 
 Dari seluruh data pelanggan yang ada, kita akan kelompokkan berdasarkan provinsi, kemudian kota. Untuk itu, kita tambahkan Group di tabel. Caranya, klik tombol pemilih tabel, kemudian klik kanan di baris detail.
 
-![Insert Group](/images/uploads/2006/09/report-table-2.png)
+{% img /images/uploads/2006/09/report-table-2.png Insert Group %}
 
 Group Editor akan muncul. Beri nama State, kemudian klik OK. 
 
-![Group Editor](/images/uploads/2006/09/report-table-3.png)
+{% img /images/uploads/2006/09/report-table-3.png Group Editor %}
 
 Hasilnya akan tampak seperti ini
 
-![Group by State](/images/uploads/2006/09/report-table-4.png)
+{% img /images/uploads/2006/09/report-table-4.png Group by State %}
 
 Untuk mengisikan State ke Group Row tersebut, drag-and-drop dari panel kiri ke kolom _paling kiri_ di baris Group Header Row. Layar Select Data Binding akan muncul, langsung saja klik OK. 
 
-![State Data Binding](/images/uploads/2006/09/report-table-5.png)
+{% img /images/uploads/2006/09/report-table-5.png State Data Binding %}
 
 Kita perlu memasukkan Group Row satu lagi untuk City. Caranya sama, yaitu dengan menambahkan Group Row di _bawah_ Group Header State. 
 
-![Insert Group Below](/images/uploads/2006/09/report-table-6.png)
+{% img /images/uploads/2006/09/report-table-6.png Insert Group Below %}
 
 Beri nama City, kemudian klik OK. Lalu pilih field city dari Data Explorer di sebelah kiri, dan pasang di kolom kedua di Group Header Row 2. Hasilnya seperti ini:
 
-![Group by City](/images/uploads/2006/09/report-table-7.png)
+{% img /images/uploads/2006/09/report-table-7.png Group by City %}
 
 Terakhir, masukkan field CUSTOMERNAME dan PHONE ke Detail Row. Kolom judul CUSTOMERNAME kurang enak dibaca, jadi kita bisa ganti labelnya di baris paling atas menjadi Customer Name. Hasil akhirnya adalah seperti ini:
 
-![Final Design](/images/uploads/2006/09/report-table-8.png)
+{% img /images/uploads/2006/09/report-table-8.png Final Design %}
 
 Report kita sudah selesai. Silahkan disave, kemudian lihat previewnya. Kalau semua dilakukan dengan benar, kita akan melihat tampilan seperti ini: 
 
-![Report Preview](/images/uploads/2006/09/report-table-9.png)
+{% img /images/uploads/2006/09/report-table-9.png Report Preview %}
 
 Kita akan lihat bahwa data pelanggan sudah diurutkan dan dikelompokkan berdasarkan State dan City. 
 
 Kalau kita tekan menu _File_, kita akan menemui pilihan View Report in Web Viewer, as HTML, dan as PDF. Silahkan gunakan sesuai kebutuhan.
 
-![Export Format HTML PDF](/images/uploads/2006/09/report-table-10.png)
+{% img /images/uploads/2006/09/report-table-10.png Export Format HTML PDF %}
 
 Selamat mencoba.
 
