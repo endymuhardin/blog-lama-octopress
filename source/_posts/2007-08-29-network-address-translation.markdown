@@ -22,10 +22,11 @@ tulis alamat penerima dan alamat pengirim.
 Contoh paketnya kira-kira seperti ini. 
 
     
-    <code>Dari  : 202.159.22.22
-    Untuk : 202.159.11.11
-    Pesan : halo
-    </code>
+```
+Dari  : 202.159.22.22
+Untuk : 202.159.11.11
+Pesan : halo
+```
 
 
 
@@ -44,11 +45,12 @@ Contohnya adalah sebagai berikut:
 Setelah diDNAT, paketnya menjadi seperti ini: 
 
 
-    
-    <code>Dari  : 202.159.22.22
-    Untuk : 192.168.0.1
-    Pesan : halo
-    </code>
+
+```
+Dari  : 202.159.22.22
+Untuk : 192.168.0.1
+Pesan : halo
+```
 
 
 
@@ -68,10 +70,11 @@ Paketnya kira-kira seperti ini:
 
 
     
-    <code>Dari  : 192.168.0.1
-    Untuk : 202.159.22.22
-    Pesan : halo juga
-    </code>
+```
+Dari  : 192.168.0.1
+Untuk : 202.159.22.22
+Pesan : halo juga
+```
 
 
 
@@ -88,10 +91,11 @@ Contohnya adalah sebagai berikut:
 Setelah diSNAT paketnya menjadi seperti ini: 
 
     
-    <code>Dari  : 202.159.11.11
-    Untuk : 202.159.22.22
-    Pesan : halo juga
-    </code>
+```
+Dari  : 202.159.11.11
+Untuk : 202.159.22.22
+Pesan : halo juga
+```
 
 
 

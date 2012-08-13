@@ -33,7 +33,9 @@ Untuk melakukan dump, berikut adalah perintahnya:
 
 
     
-    <code>pg_dump -CdD  -Fp -U belajar buku_tamu_devel > buku_tamu-dump.sql</code>
+```
+pg_dump -CdD  -Fp -U belajar buku_tamu_devel > buku_tamu-dump.sql
+```
 
 
 
@@ -64,10 +66,12 @@ Penjelasannya sebagai berikut:
 Selanjutnya, tiba saat melakukan restore. Parameternya sama dengan database development, kecuali nama databasenya adalah `buku_tamu_prod`. Bila database belum ada, buat dulu dengan user postgres. 
 
     
-    <code>$ sudo su - postgres
-    $ createdb buku_tamu_prod
-    CREATE DATABASE
-    $ exit</code>
+```
+$ sudo su - postgres
+$ createdb buku_tamu_prod
+CREATE DATABASE
+$ exit
+```
     
 
 
@@ -76,7 +80,9 @@ Baru setelah itu kita lakukan restore.
 
 
     
-    <code>psql -d buku_tamu_prod -U belajar -f buku_tamu-dump.sql</code> 
+```
+psql -d buku_tamu_prod -U belajar -f buku_tamu-dump.sql
+``` 
 
 
 

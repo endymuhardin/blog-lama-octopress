@@ -35,10 +35,10 @@ Contoh mudahnya seperti ini. Misalnya kita membuat aplikasi GUI. dan menggunakan
   * addCaretListener(CaretListener cls) : merespon gerakan kursor
 
 Kalau kita definsikan class seperti ini:
-
     
-    <code>public class EventLog implements MouseListener, CaretListener {}</code>
-
+``` java
+public class EventLog implements MouseListener, CaretListener {}
+```
 
 maka class EventLog bisa diumpankan pada kedua method di atas, karena class EventLog bertipe data EventLog, MouseListener, dan juga CaretListener. 
 
@@ -60,26 +60,23 @@ Contoh template method bisa dilihat di implementasi AbstractFormController di [S
 Untuk non-pengguna Spring, AbstractFormController itu mendefinisikan workflow pemrosesan HTML form. Method yang perlu diperhatikan di sini adalah method handleRequestInternal. Isi method ini kira2 seperti ini (dimodifikasi agar mudah dimengerti): 
 
     
-    <code>protected void handleRequestInternal() {
-        bindDataDariForm();
-        setelahBindSebelumValidasi();
-        validasiData();
-        setelahValidasi();
-        processFormSubmission();
-    }
-    </code>
-
-
+``` java
+protected void handleRequestInternal() {
+    bindDataDariForm();
+    setelahBindSebelumValidasi();
+    validasiData();
+    setelahValidasi();
+    processFormSubmission();
+}
+```
 
 Seperti kita lihat di atas, method ini memanggil beberapa method lain secara berurutan. Urutan ini penting, karena kita tidak mau validasi dipanggil setelah form diproses. Apa gunanya validasi kalau pemrosesan sudah selesai?
 
 Class AbstractFormController ini punya abstract method, yaitu: 
-
-
     
-    <code>public abstract void processFormSubmission();</code>
-
-
+``` java 
+public abstract void processFormSubmission();
+```
 
 Kenapa dibuat abstract? Karena pada saat menulis kode tersebut, Rod Johnson tidak tahu apa yang kita ingin lakukan pada saat form diproses. Ada yang mau simpan ke database, ada yang mau kirim email, dan berbagai kegiatan lain yang tidak terbayangkan sebelumnya. Oleh karena itu, method ini dibuat abstract, sehingga kita harus membuat implementasinya (override) 
 

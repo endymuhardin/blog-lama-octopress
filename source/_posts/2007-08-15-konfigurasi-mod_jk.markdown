@@ -74,17 +74,19 @@ Kita bisa menginstal Tomcat melalui apt-get, tetapi saya lebih suka menggunakan 
 Unduh dari [situsnya](http://tomcat.apache.org), kemudian ekstrak di folder /opt. 
 
     
-    <code>cd /opt
-    sudo tar xvzf apache-tomcat-xx.tar.gz
-    </code>
+```
+cd /opt
+sudo tar xvzf apache-tomcat-xx.tar.gz
+```
 
 
 
 Setelah itu, jalankan Tomcat. 
 
     
-    <code>sudo /opt/tomcat/bin/startup.sh
-    </code>
+```
+sudo /opt/tomcat/bin/startup.sh
+```
 
 
 
@@ -115,12 +117,13 @@ Letak file konfigurasi tidak penting, yang penting adalah file tersebut dibaca o
 Berikut adalah isi file `/etc/apache2/mods-available/jk.conf`. 
 
     
-    <code>JkWorkersFile /etc/apache2/mods-available/workers.properties
-    JkShmFile     /var/log/apache2/mod_jk.shm
-    JkLogFile     /var/log/apache2/mod_jk.log
-    JkLogLevel    info
-    JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "
-    </code>
+```
+JkWorkersFile /etc/apache2/mods-available/workers.properties
+JkShmFile     /var/log/apache2/mod_jk.shm
+JkLogFile     /var/log/apache2/mod_jk.log
+JkLogLevel    info
+JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "
+```
 
 
 
@@ -139,11 +142,12 @@ Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.
 Berikut adalah isi file `workers.properties`
 
     
-    <code>worker.list=worker1
-    worker.worker1.type=ajp13
-    worker.worker1.host=localhost
-    worker.worker1.port=8009
-    </code>
+```
+worker.list=worker1
+worker.worker1.type=ajp13
+worker.worker1.host=localhost
+worker.worker1.port=8009
+```
 
 
 
@@ -155,10 +159,11 @@ Berikut adalah isi file `workers.properties`
 Terakhir, kita akan mengkonfigurasi virtual host agar Apache HTTPD dapat melakukan forwarding dengan benar. Pada contoh ini, kita akan mengarahkan request ke `http://localhost/tomcat-docs` agar dilayani oleh Tomcat. Berikut konfigurasi Virtual Hostnya. 
 
     
-    <code><VirtualHost>
-        JkMount /tomcat-docs/* worker1
-    </VirtualHost>
-    </code>
+``` xml
+<VirtualHost>
+    JkMount /tomcat-docs/* worker1
+</VirtualHost>
+```
 
 
 Jika ingin mempublikasikan banyak aplikasi Java sekaligus, duplikasi saja baris `JkMount` di atas agar mengarah ke masing-masing aplikasi kita yang sudah dideploy di dalam folder `[TOMCAT_HOME]/webapps`. 

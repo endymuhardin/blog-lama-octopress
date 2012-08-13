@@ -54,17 +54,18 @@ Berikut isi dari file post-commit saya
 
 
     
-    <code>#!/bin/sh
-    REPOS="$1"
-    REV="$2"
-    
-    RECIPIENT=devteam@artivisi.com
-    SUBJECT=automated-commit-email
-    REPLY_TO=devteam@artivisi.com
-    HOST=artivisi.com
-    
-    $REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT
-    </code>
+```
+#!/bin/sh
+REPOS="$1"
+REV="$2"
+
+RECIPIENT=devteam@artivisi.com
+SUBJECT=automated-commit-email
+REPLY_TO=devteam@artivisi.com
+HOST=artivisi.com
+
+$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT
+```
 
 
 
@@ -72,19 +73,20 @@ Untuk di Windows, kita harus membuat file `post-commit.bat`, di folder hooks jug
 
 
     
-    <code>@ECHO OFF
-    
-    SET RECIPIENT=devteam@artivisi.com
-    SET SUBJECT=automated-commit-email
-    SET REPLY_TO=devteam@artivisi.com
-    SET HOST=artivisi.com
-    
-    SET PERL=c:\usr\bin\perl
-    SET REPOS=%1
-    SET REV=%2
-    
-    %PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%
-    </code>
+```
+@ECHO OFF
+
+SET RECIPIENT=devteam@artivisi.com
+SET SUBJECT=automated-commit-email
+SET REPLY_TO=devteam@artivisi.com
+SET HOST=artivisi.com
+
+SET PERL=c:\usr\bin\perl
+SET REPOS=%1
+SET REV=%2
+
+%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%
+```
 
 
 

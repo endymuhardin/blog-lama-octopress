@@ -34,16 +34,20 @@ Selanjutnya, konfigurasi Postgre agar meminta password setiap ada koneksi masuk,
 Ganti otentikasi dalam `pg_hba.conf` menjadi 
 
     
-    <code>local   all         all                           password
-    host    all         all         127.0.0.1/32      password
-    host    all         all         ::1/128           password</code>
+```
+local   all         all                           password
+host    all         all         127.0.0.1/32      password
+host    all         all         ::1/128           password
+```
 
 
 
 Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File `pg_hba.conf` ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder `/etc/postgresql/8.2/main`. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini. 
 
     
-    <code>sudo /etc/init.d/postgresql restart</code>
+```
+sudo /etc/init.d/postgresql restart
+```
 
 
 
@@ -59,14 +63,16 @@ Selanjutnya, jalankan perintah `createuser` dengan argumen P untuk meminta passw
 
 
     
-    <code>createuser -P
-    Enter name of role to add: belajar
-    Enter password for new role: 
-    Enter it again: 
-    Shall the new role be a superuser? (y/n) n
-    Shall the new role be allowed to create databases? (y/n) y
-    Shall the new role be allowed to create more new roles? (y/n) n
-    CREATE ROLE</code>
+```
+createuser -P
+Enter name of role to add: belajar
+Enter password for new role: 
+Enter it again: 
+Shall the new role be a superuser? (y/n) n
+Shall the new role be allowed to create databases? (y/n) y
+Shall the new role be allowed to create more new roles? (y/n) n
+CREATE ROLE
+```
 
 
 
@@ -83,9 +89,11 @@ Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yan
 
 
     
-    <code>createdb -U belajar buku_tamu
-    Password: 
-    CREATE DATABASE</code>
+```
+createdb -U belajar buku_tamu
+Password: 
+CREATE DATABASE
+```
 
 
 
@@ -101,10 +109,12 @@ Setelah selesai, coba koneksi ke database tersebut.
 Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut. 
 
     
-    <code>jdbc.driver      = org.postgresql.Driver
-    jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-    jdbc.username    = belajar
-    jdbc.password    = java</code>
+```
+jdbc.driver      = org.postgresql.Driver
+jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+jdbc.username    = belajar
+jdbc.password    = java
+```
 
 
 
@@ -116,11 +126,13 @@ Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti l
 
 
     
-    <code>jdbc.driver      = com.mysql.jdbc.Driver
-    jdbc.url         = jdbc:mysql://localhost/buku_tamu
-    jdbc.username    = belajar
-    jdbc.password    = java
-    hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</code>
+```
+jdbc.driver      = com.mysql.jdbc.Driver
+jdbc.url         = jdbc:mysql://localhost/buku_tamu
+jdbc.username    = belajar
+jdbc.password    = java
+hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect
+```
 
 
 
@@ -128,11 +140,13 @@ Menjadi seperti ini:
 
 
     
-    <code>jdbc.driver      = org.postgresql.Driver
-    jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-    jdbc.username    = belajar
-    jdbc.password    = java
-    hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</code>
+```
+jdbc.driver      = org.postgresql.Driver
+jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+jdbc.username    = belajar
+jdbc.password    = java
+hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+```
 
 
 

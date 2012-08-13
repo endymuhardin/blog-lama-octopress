@@ -40,7 +40,9 @@ Saya pakai Mentari. Sebelum mencoba koneksi melalui komputer, pastikan dulu kita
 Untuk LG KG300, kita bisa konfigurasi otomatis melalui OTA. Cukup kirim SMS ke 3000 dengan isi sebagai berikut: 
 
     
-    <code>gprs lg kg300</code>
+```
+gprs lg kg300
+```
 
 
 
@@ -64,12 +66,13 @@ Di kernel log akan muncul laporan deteksi modem seperti ini:
 
 
     
-    <code>Oct 26 09:19:28 sweetdreams kernel: [  507.608000] usb 1-2: new full speed USB device using uhci_hcd and address 2
-    Oct 26 09:19:29 sweetdreams kernel: [  507.792000] usb 1-2: configuration #1 chosen from 1 choice
-    Oct 26 09:19:29 sweetdreams kernel: [  508.100000] cdc_acm 1-2:1.1: ttyACM0: USB ACM device
-    Oct 26 09:19:29 sweetdreams kernel: [  508.104000] usbcore: registered new interface driver cdc_acm
-    Oct 26 09:19:29 sweetdreams kernel: [  508.104000] /build/buildd/linux-source-2.6.22-2.6.22/drivers/usb/class/cdc-acm.c: v0.25:USB Abstract Control Model driver for USB modems and ISDN adapters
-    </code>
+```
+Oct 26 09:19:28 sweetdreams kernel: [  507.608000] usb 1-2: new full speed USB device using uhci_hcd and address 2
+Oct 26 09:19:29 sweetdreams kernel: [  507.792000] usb 1-2: configuration #1 chosen from 1 choice
+Oct 26 09:19:29 sweetdreams kernel: [  508.100000] cdc_acm 1-2:1.1: ttyACM0: USB ACM device
+Oct 26 09:19:29 sweetdreams kernel: [  508.104000] usbcore: registered new interface driver cdc_acm
+Oct 26 09:19:29 sweetdreams kernel: [  508.104000] /build/buildd/linux-source-2.6.22-2.6.22/drivers/usb/class/cdc-acm.c: v0.25:USB Abstract Control Model driver for USB modems and ISDN adapters
+```
 
 
 
@@ -77,73 +80,76 @@ Setelah itu, jalankan wvdialconf sebagai root.
 
 
     
-    <code> sudo wvdialconf
-    Editing `/etc/wvdial.conf'.
-    
-    Scanning your serial ports for a modem.
-    
-    Modem Port Scan: S0   S1   S2   S3   SL0  
-    WvModem: Cannot get information for serial port.
-    ttyACM0: ATQ0 V1 E1 -- OK
-    ttyACM0: ATQ0 V1 E1 Z -- OK
-    ttyACM0: ATQ0 V1 E1 S0=0 -- OK
-    ttyACM0: ATQ0 V1 E1 S0=0 &C1 -- OK
-    ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 -- OK
-    ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
-    ttyACM0: Modem Identifier: ATI -- MTK2
-    ttyACM0: Speed 4800: AT -- OK
-    ttyACM0: Speed 9600: AT -- OK
-    ttyACM0: Speed 19200: AT -- OK
-    ttyACM0: Speed 38400: AT -- OK
-    ttyACM0: Speed 57600: AT -- OK
-    ttyACM0: Speed 115200: AT -- OK
-    ttyACM0: Speed 230400: AT -- OK
-    ttyACM0: Speed 460800: AT -- OK
-    ttyACM0: Max speed is 460800; that should be safe.
-    ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
-    
-    Found an USB modem on /dev/ttyACM0.
-    /etc/wvdial.conf: Can't open '/etc/wvdial.conf' for reading: No such file or directory
-    /etc/wvdial.conf: ...starting with blank configuration.
-    Modem configuration written to /etc/wvdial.conf.
-    ttyACM0: Speed 460800; init "ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0"
-    </code>
+``` 
+sudo wvdialconf
+Editing `/etc/wvdial.conf'.
+
+Scanning your serial ports for a modem.
+
+Modem Port Scan: S0   S1   S2   S3   SL0  
+WvModem: Cannot get information for serial port.
+ttyACM0: ATQ0 V1 E1 -- OK
+ttyACM0: ATQ0 V1 E1 Z -- OK
+ttyACM0: ATQ0 V1 E1 S0=0 -- OK
+ttyACM0: ATQ0 V1 E1 S0=0 &C1 -- OK
+ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 -- OK
+ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
+ttyACM0: Modem Identifier: ATI -- MTK2
+ttyACM0: Speed 4800: AT -- OK
+ttyACM0: Speed 9600: AT -- OK
+ttyACM0: Speed 19200: AT -- OK
+ttyACM0: Speed 38400: AT -- OK
+ttyACM0: Speed 57600: AT -- OK
+ttyACM0: Speed 115200: AT -- OK
+ttyACM0: Speed 230400: AT -- OK
+ttyACM0: Speed 460800: AT -- OK
+ttyACM0: Max speed is 460800; that should be safe.
+ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
+
+Found an USB modem on /dev/ttyACM0.
+/etc/wvdial.conf: Can't open '/etc/wvdial.conf' for reading: No such file or directory
+/etc/wvdial.conf: ...starting with blank configuration.
+Modem configuration written to /etc/wvdial.conf.
+ttyACM0: Speed 460800; init "ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0"
+```
 
 
 
 Hasilnya adalah sebuah file `/etc/wvdial.conf` sebagai berikut:
 
     
-    <code>[Dialer Defaults]
-    Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-    Modem Type = USB Modem
-    ; Phone = 
-    ISDN = 0
-    ; Username = 
-    Init1 = ATZ
-    ; Password = 
-    Modem = /dev/ttyACM0
-    Baud = 460800
-    </code>
+```
+[Dialer Defaults]
+Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+Modem Type = USB Modem
+; Phone = 
+ISDN = 0
+; Username = 
+Init1 = ATZ
+; Password = 
+Modem = /dev/ttyACM0
+Baud = 460800
+```
 
 
 
 Edit menjadi seperti ini: 
 
     
-    <code>[Dialer Defaults]
-    Modem = /dev/ttyACM0
-    Init1 = ATZ
-    Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-    Init3 = AT+CGDCONT=1,"IP","indosatgprs"
-    Stupid Mode = on
-    Modem Type = USB Modem
-    Phone = *99***1#
-    ISDN = 0
-    Username = indosat
-    Password = indosat
-    Baud = 460800
-    </code>
+```
+[Dialer Defaults]
+Modem = /dev/ttyACM0
+Init1 = ATZ
+Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+Init3 = AT+CGDCONT=1,"IP","indosatgprs"
+Stupid Mode = on
+Modem Type = USB Modem
+Phone = *99***1#
+ISDN = 0
+Username = indosat
+Password = indosat
+Baud = 460800
+```
 
 
 
@@ -155,34 +161,35 @@ Edit menjadi seperti ini:
 Kalau sudah, saatnya kita online. Gunakan perintah wvdial untuk melakukan dial-up.
 
     
-    <code> sudo wvdial
-    WvDial<*1>: WvDial: Internet dialer version 1.56
-    WvModem<*1>: Cannot get information for serial port.
-    WvDial<*1>: Initializing modem.
-    WvDial<*1>: Sending: ATZ
-    WvDial Modem<*1>: ATZ
-    WvDial Modem<*1>: OK
-    WvDial<*1>: Sending: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-    WvDial Modem<*1>: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-    WvDial Modem<*1>: OK
-    WvDial<*1>: Sending: AT+CGDCONT=1,"IP","indosatgprs"
-    WvDial Modem<*1>: AT+CGDCONT=1,"IP","indosatgprs"
-    WvDial Modem<*1>: OK
-    WvDial<*1>: Modem initialized.
-    WvDial<*1>: Sending: ATDT*99***1#
-    WvDial<*1>: Waiting for carrier.
-    WvDial Modem<*1>: ATDT*99***1#
-    WvDial Modem<*1>: CONNECT
-    WvDial Modem<*1>: ~[7f]}#@!}!} } }2}"}&} } } } }#}$@#}'}"}(}"R[04]~
-    WvDial<*1>: Carrier detected.  Starting PPP immediately.
-    WvDial<Notice>: Starting pppd at Fri Oct 26 09:25:58 2007
-    WvDial<Notice>: Pid of pppd: 6028
-    WvDial<*1>: Using interface ppp0
-    WvDial<*1>: local  IP address 10.33.41.205
-    WvDial<*1>: remote IP address 10.64.64.64
-    WvDial<*1>: primary   DNS address 202.155.0.10
-    WvDial<*1>: secondary DNS address 202.155.46.77
-    </code>
+``` 
+sudo wvdial
+WvDial<*1>: WvDial: Internet dialer version 1.56
+WvModem<*1>: Cannot get information for serial port.
+WvDial<*1>: Initializing modem.
+WvDial<*1>: Sending: ATZ
+WvDial Modem<*1>: ATZ
+WvDial Modem<*1>: OK
+WvDial<*1>: Sending: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+WvDial Modem<*1>: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+WvDial Modem<*1>: OK
+WvDial<*1>: Sending: AT+CGDCONT=1,"IP","indosatgprs"
+WvDial Modem<*1>: AT+CGDCONT=1,"IP","indosatgprs"
+WvDial Modem<*1>: OK
+WvDial<*1>: Modem initialized.
+WvDial<*1>: Sending: ATDT*99***1#
+WvDial<*1>: Waiting for carrier.
+WvDial Modem<*1>: ATDT*99***1#
+WvDial Modem<*1>: CONNECT
+WvDial Modem<*1>: ~[7f]}#@!}!} } }2}"}&} } } } }#}$@#}'}"}(}"R[04]~
+WvDial<*1>: Carrier detected.  Starting PPP immediately.
+WvDial<Notice>: Starting pppd at Fri Oct 26 09:25:58 2007
+WvDial<Notice>: Pid of pppd: 6028
+WvDial<*1>: Using interface ppp0
+WvDial<*1>: local  IP address 10.33.41.205
+WvDial<*1>: remote IP address 10.64.64.64
+WvDial<*1>: primary   DNS address 202.155.0.10
+WvDial<*1>: secondary DNS address 202.155.46.77
+```
 
 
 
@@ -191,32 +198,34 @@ Setelah itu, silahkan coba browsing. Jangan tutup window wvdial supaya tidak dis
 Untuk menghentikan koneksi, cukup ketik Ctrl-C di window wvdial. 
 
     
-    <code>Caught signal 2:  Attempting to exit gracefully...
-    WvDial<*1>: Terminating on signal 15
-    WvDial<*1>: Connect time 1.2 minutes.
-    WvDial<*1>: Disconnecting at Fri Oct 26 09:27:20 2007
-    </code>
+```
+Caught signal 2:  Attempting to exit gracefully...
+WvDial<*1>: Terminating on signal 15
+WvDial<*1>: Connect time 1.2 minutes.
+WvDial<*1>: Disconnecting at Fri Oct 26 09:27:20 2007
+```
 
 
 
 Kita dapat melihat keseluruhan sesi internet, berikut jumlah trafik yang kita gunakan di kernel log, sebagai berikut.
 
     
-    <code>Oct 26 09:25:58 sweetdreams pppd[6028]: pppd 2.4.4 started by root, uid 0
-    Oct 26 09:25:58 sweetdreams pppd[6028]: Using interface ppp0
-    Oct 26 09:25:58 sweetdreams pppd[6028]: Connect: ppp0 <--> /dev/ttyACM0
-    Oct 26 09:26:00 sweetdreams pppd[6028]: PAP authentication succeeded
-    Oct 26 09:26:12 sweetdreams pppd[6028]: Could not determine remote IP address: defaulting to 10.64.64.64
-    Oct 26 09:26:12 sweetdreams pppd[6028]: local  IP address 10.33.41.205
-    Oct 26 09:26:12 sweetdreams pppd[6028]: remote IP address 10.64.64.64
-    Oct 26 09:26:12 sweetdreams pppd[6028]: primary   DNS address 202.155.0.10
-    Oct 26 09:26:12 sweetdreams pppd[6028]: secondary DNS address 202.155.46.77
-    Oct 26 09:27:19 sweetdreams pppd[6028]: Terminating on signal 15
-    Oct 26 09:27:19 sweetdreams pppd[6028]: Connect time 1.2 minutes.
-    Oct 26 09:27:19 sweetdreams pppd[6028]: Sent 0 bytes, received 0 bytes.
-    Oct 26 09:27:19 sweetdreams pppd[6028]: Connection terminated.
-    Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.
-    </code>
+```
+Oct 26 09:25:58 sweetdreams pppd[6028]: pppd 2.4.4 started by root, uid 0
+Oct 26 09:25:58 sweetdreams pppd[6028]: Using interface ppp0
+Oct 26 09:25:58 sweetdreams pppd[6028]: Connect: ppp0 <--> /dev/ttyACM0
+Oct 26 09:26:00 sweetdreams pppd[6028]: PAP authentication succeeded
+Oct 26 09:26:12 sweetdreams pppd[6028]: Could not determine remote IP address: defaulting to 10.64.64.64
+Oct 26 09:26:12 sweetdreams pppd[6028]: local  IP address 10.33.41.205
+Oct 26 09:26:12 sweetdreams pppd[6028]: remote IP address 10.64.64.64
+Oct 26 09:26:12 sweetdreams pppd[6028]: primary   DNS address 202.155.0.10
+Oct 26 09:26:12 sweetdreams pppd[6028]: secondary DNS address 202.155.46.77
+Oct 26 09:27:19 sweetdreams pppd[6028]: Terminating on signal 15
+Oct 26 09:27:19 sweetdreams pppd[6028]: Connect time 1.2 minutes.
+Oct 26 09:27:19 sweetdreams pppd[6028]: Sent 0 bytes, received 0 bytes.
+Oct 26 09:27:19 sweetdreams pppd[6028]: Connection terminated.
+Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.
+```
 
 
 

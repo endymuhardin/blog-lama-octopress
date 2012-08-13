@@ -32,19 +32,20 @@ Sebagai contoh, semua ISO tersebut saya mount ke folder `/home/endy/tmp/UbuntuRe
 
 
     
-    <code># Ubuntu Repository DVDs
-    /media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-1_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD1 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-2_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD2 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-3_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD3 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-4_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD4 iso9660 loop,auto 0 0 
-    
-    # OpenSuSE CD
-    /media/sdb2/ISO/openSUSE-10.2-GM-i386-CD1.iso  /home/endy/tmp/OpenSuSE/CD1 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/openSUSE-10.2-GM-i386-CD2.iso  /home/endy/tmp/OpenSuSE/CD2 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/openSUSE-10.2-GM-i386-CD3.iso  /home/endy/tmp/OpenSuSE/CD3 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/openSUSE-10.2-GM-i386-CD4.iso  /home/endy/tmp/OpenSuSE/CD4 iso9660 loop,auto 0 0 
-    /media/sdb2/ISO/openSUSE-10.2-GM-i386-CD5.iso  /home/endy/tmp/OpenSuSE/CD5 iso9660 loop,auto 0 0 
-    </code>
+```
+# Ubuntu Repository DVDs
+/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-1_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD1 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-2_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD2 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-3_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD3 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-4_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD4 iso9660 loop,auto 0 0 
+
+# OpenSuSE CD
+/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD1.iso  /home/endy/tmp/OpenSuSE/CD1 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD2.iso  /home/endy/tmp/OpenSuSE/CD2 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD3.iso  /home/endy/tmp/OpenSuSE/CD3 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD4.iso  /home/endy/tmp/OpenSuSE/CD4 iso9660 loop,auto 0 0 
+/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD5.iso  /home/endy/tmp/OpenSuSE/CD5 iso9660 loop,auto 0 0 
+```
 
 
 
@@ -54,8 +55,9 @@ Untuk memeriksa berapa device loop yang tersedia, lihat di dalam `/dev/`
 Untuk itu, device loop perlu ditambahkan. Di Ubuntu, tambahkan baris berikut di file `/etc/modprobe.d/options`
 
     
-    <code>options loop max_loop=32 
-    </code>
+```
+options loop max_loop=32 
+```
 
 
 agar pada saat booting kernel menyediakan 32 device loop. 
@@ -63,9 +65,10 @@ agar pada saat booting kernel menyediakan 32 device loop.
 Selanjutnya, kita lakukan mapping agar folder /home/endy/tmp tersebut dipublish di http server. Cara termudah adalah dengan membuat symlink ke folder DocumentRoot (untuk keluarga Debian adalah /var/www). 
 
     
-    <code>ln -s /var/www/UbuntuRepo /home/endy/tmp/UbuntuRepo
-    ln -s /var/www/OpenSuSE /home/endy/tmp/OpenSuSE
-    </code>
+```
+ln -s /var/www/UbuntuRepo /home/endy/tmp/UbuntuRepo
+ln -s /var/www/OpenSuSE /home/endy/tmp/OpenSuSE
+```
 
 
 

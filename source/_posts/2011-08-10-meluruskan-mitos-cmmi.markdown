@@ -80,7 +80,7 @@ Demikian juga dengan CMMI, berisi seperangkat checklist yang bentuknya kira-kira
 
 
             
-2
+1
 
             
 Requirement Management
@@ -108,7 +108,7 @@ Configuration Management
 
 
             
-2
+3
 
             
 Measurement and Analysis
@@ -122,7 +122,7 @@ Measurement and Analysis
 
 
             
-2
+4
 
             
 Project Planning
@@ -136,7 +136,7 @@ Project Planning
 
 
             
-2
+5
 
             
 Project Management and Control
@@ -150,7 +150,7 @@ Project Management and Control
 
 
             
-2
+6
 
             
 PPQA
@@ -164,7 +164,7 @@ PPQA
 
 
             
-2
+7
 
             
 Supplier Agreement Management

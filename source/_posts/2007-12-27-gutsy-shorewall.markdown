@@ -29,8 +29,10 @@ Baiklah, mari kita install dan konfigurasi Shorewall. Sebagai gambaran, komputer
 
 Langkah pertama tentunya adalah menginstal Shorewall. Di Ubuntu tidak sulit, langsung saja
 
-    
-    <code> sudo apt-get install shorewall </code>
+
+``` 
+sudo apt-get install shorewall 
+```
 
 
 
@@ -43,9 +45,10 @@ Setelah Shorewall terinstal, pertama kita tentukan dulu jaringan yang terhubung 
 Jaringan komputer, dalam dunia Shorewall disebut dengan istilah zone. Konfigurasinya ditulis di file bernama `zones`. Karena kita cuma punya satu jaringan, yaitu internet, berikut adalah isi file tersebut. 
 
     
-    <code>fw	firewall
-    net	ipv4
-    </code>
+```
+fw	firewall
+net	ipv4
+```
 
 
 
@@ -55,7 +58,9 @@ Zone dan device dihubungkan di file yang namanya `interfaces`. Isinya adalah seb
 
 
     
-    <code>net     eth0            detect          tcpflags,logmartians,nosmurfs,norfc1918</code>
+```
+net     eth0            detect          tcpflags,logmartians,nosmurfs,norfc1918
+```
 
 
 
@@ -80,13 +85,15 @@ Setelah selesai dengan zone dan interface, kita menentukan kebijakan global atau
 Konfigurasi kebijakan di atas ditulis di file bernama `policy`. Berikut isinya
 
     
-    <code>#SOURCE		DEST		POLICY		LOG LEVEL	LIMIT:BURST
-    $FW		net		ACCEPT
-    net		$FW		DROP		info
-    net		all		DROP		info
-    # The FOLLOWING POLICY MUST BE LAST
-    all		all		REJECT		info
-    #LAST LINE -- ADD YOUR ENTRIES ABOVE THIS LINE -- DO NOT REMOVE</code>
+```
+#SOURCE		DEST		POLICY		LOG LEVEL	LIMIT:BURST
+$FW		net		ACCEPT
+net		$FW		DROP		info
+net		all		DROP		info
+# The FOLLOWING POLICY MUST BE LAST
+all		all		REJECT		info
+#LAST LINE -- ADD YOUR ENTRIES ABOVE THIS LINE -- DO NOT REMOVE
+```
 
 
 
@@ -96,16 +103,18 @@ Shorewall sudah punya konfigurasi standar (disebut dengan istilah macro) untuk a
 
 
     
-    <code>Ping/REJECT	net		$FW
-    
-    # Permit all ICMP traffic FROM the firewall TO the net zone
-    ACCEPT		$FW		net		icmp
-    
-    # Open SSH Service
-    SSH/ACCEPT	net		$FW
-    
-    # Open Web Server
-    Web/ACCEPT	net		$FW</code>
+```
+Ping/REJECT	net		$FW
+
+# Permit all ICMP traffic FROM the firewall TO the net zone
+ACCEPT		$FW		net		icmp
+
+# Open SSH Service
+SSH/ACCEPT	net		$FW
+
+# Open Web Server
+Web/ACCEPT	net		$FW
+```
 
 
 
@@ -113,7 +122,9 @@ Shorewall sudah punya konfigurasi standar (disebut dengan istilah macro) untuk a
 
 
     
-    <code>ACCEPT    net       $FW             tcp  80</code>
+```
+ACCEPT    net       $FW             tcp  80
+```
 
 
 
@@ -139,7 +150,9 @@ Semuanya sudah siap. Silahkan nyalakan firewall Anda.
 
 
     
-    <code>sudo /etc/init.d/shorewall start</code>
+```
+sudo /etc/init.d/shorewall start
+```
 
 
 
