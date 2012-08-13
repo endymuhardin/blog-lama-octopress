@@ -36,7 +36,7 @@ Berikut kode program Java :
 
 
     
-    <code>package com.artivisi;
+    package com.artivisi;
     
     public class HelloWorld {
         public static void main(String[] args) {
@@ -46,7 +46,7 @@ Berikut kode program Java :
                System.out.println("Error ... ");
             }
         }
-    }</code>
+    }
 
 
 
@@ -54,13 +54,11 @@ Kemudian build.xml
 
 
     
-    <code>
     <project default="compile" name="test-wordpress">
         <target name="compile">
             <javac srcdir="src" destdir="bin"></javac>
         </target>
     </project>
-    </code>
 
 
 

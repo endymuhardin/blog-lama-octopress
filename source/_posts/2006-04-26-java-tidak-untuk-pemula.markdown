@@ -22,14 +22,14 @@ Anda ikut training Java -seperti lazimnya sopan santun di dunia pemrograman- hal
 Instruktur: Selamat pagi bapak dan ibu. Sekarang kita akan belajar Hello World. Silahkan buka Notepad, dan ketik kode berikut:
 
 
-    
-    <code>
-    public class HelloWorld {
-      public static void main(String[] xx){
-        System.out.println("Hello World");
-      }
-    }
-    </code>
+
+``` java
+public class HelloWorld {
+  public static void main(String[] xx){
+    System.out.println("Hello World");
+  }
+}
+```
 
 
 Instruktur: Dengan kode di atas, kita akan dapat mencetak tulisan "Hello World" ke layar. Bagaimana? Hebat kan?
@@ -42,7 +42,9 @@ Seperti pada contoh sederhana di atas, sebetulnya baris yang ingin kita ajarkan 
 
 
     
-    <code>System.out.println("Hello World");</code>
+``` java
+System.out.println("Hello World");
+```
 
 
 
@@ -50,17 +52,17 @@ Tapi ada banyak baris lainnya yang ikut muncul. Karena ya di Java untuk Hello Wo
 
 **Ruby**
 
-
-    
-    <code>puts "Hello World"</code>
+``` ruby 
+puts "Hello World"
+```
 
 
 
 **PHP**
-
-
     
-    <code>echo("Hello World");</code>
+``` php
+echo("Hello World");
+```
 
 
 

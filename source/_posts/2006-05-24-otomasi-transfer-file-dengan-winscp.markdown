@@ -30,49 +30,47 @@ Berikut caranya. Perhatikan bahwa konfigurasi saya adalah sebagai berikut:
   * Backup Server: Linux OpenSuSE 10.0 dengan SSH server aktif [IP Address: 192.168.0.2]
 
   
-  * Username di Backup Server: backuponly
+  * Username di Backup Server: `backuponly`
 
   
-  * Password di Backup Server: backuppasswd
+  * Password di Backup Server: `backuppasswd`
 
   
-  * Folder yang mau dibackup: c:\Backup
+  * Folder yang mau dibackup: `c:\Backup`
 
   
-  * Folder tujuan: /home/endy/backup
+  * Folder tujuan: `/home/endy/backup`
 
 
 
 Salah satu keunggulan WinSCP adalah, selain bisa mengelola transfer secara GUI, dia juga memiliki kemampuan scripting, sehingga bisa dipanggil dari command prompt. 
 
-![Screenshot WinSCP](/images/uploads/2006/05/winscp.png)
+%{ img /images/uploads/2006/05/winscp.png Screenshot WinSCP %}
 
-Berikut adalah script untuk mengotomasi proses copy folder C:\Backup dari Windows ke /home/endy/backup di Linux. Save sebagai _c:\upload-backup.txt_
+Berikut adalah script untuk mengotomasi proses copy folder `C:\Backup` dari Windows ke `/home/endy/backup` di Linux. Save sebagai `c:\upload-backup.txt`
 
     
-    <code># Modus batch, supaya WinSCP tidak tanya-tanya
-    option batch on
-    # Otomatis overwrite file yang sama
-    option confirm off
-    # Masukkan username dan password
-    open backuponly:backuppasswd@192.168.0.2
-    # Pindah ke folder backup
-    cd /home/endy/backup
-    # Upload folder C:\Backup seisinya
-    put c:/Backup 
-    # Disconnect
-    close
-    # Exit WinSCP
-    exit
-    </code>
-
-
+```
+# Modus batch, supaya WinSCP tidak tanya-tanya
+option batch on
+# Otomatis overwrite file yang sama
+option confirm off
+# Masukkan username dan password
+open backuponly:backuppasswd@192.168.0.2
+# Pindah ke folder backup
+cd /home/endy/backup
+# Upload folder C:\Backup seisinya
+put c:/Backup 
+# Disconnect
+close
+# Exit WinSCP
+exit
+```
 
 Dan berikut adalah bat script untuk mengeksekusi script di atas, save dengan nama _c:\backup-scp.bat_: 
 
-    
-    <code>"C:\Program Files\WinSCP3\winscp3.exe" /console /script=upload-backup.txt</code>
-
-
+```
+"C:\Program Files\WinSCP3\winscp3.exe" /console /script=upload-backup.txt
+```
 
 Script backup-scp.bat siap dijalankan melalui Windows Scheduler, sebaiknya 10 menit setelah jadwal backup. 

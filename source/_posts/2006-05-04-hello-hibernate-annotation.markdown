@@ -22,39 +22,39 @@ Mari kita lihat kodenya.
 
 
     
-    <code>
-    package id.web.endy.tutorial;
-    
-    public class Category {
-      private Integer id; 
-      private String name;
-      private String description; 
-    
-      public String getDescription() {
-        return description;
-      }
-    
-      public void setDescription(String description) {  
-        this.description = description;
-      }
-    
-      public Integer getId() {
-        return id;
-      }
-    	
-      public void setId(Integer id) {
-        this.id = id;
-      }
-      
-      public String getName() {
-        return name;
-      }
-    
-      public void setName(String name) {
-        this.name = name;
-      }
-    }
-    </code>
+``` java
+package id.web.endy.tutorial;
+
+public class Category {
+  private Integer id; 
+  private String name;
+  private String description; 
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Integer getId() {
+    return id;
+  }
+	
+  public void setId(Integer id) {
+    this.id = id;
+  }
+  
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+}
+```
 
 
 Class di atas akan kita simpan ke database dengan skema tabel (MySQL) sebagai berikut: 
@@ -63,16 +63,14 @@ Class di atas akan kita simpan ke database dengan skema tabel (MySQL) sebagai be
 
 ## Category-ddl.sql
 
-
-
     
-    <code>
-    CREATE TABLE Category (
-      id INT PRIMARY KEY AUTO_INCREMENT, 
-      name VARCHAR(255), 
-      description VARCHAR(255)
-    );
-    </code>
+``` sql
+CREATE TABLE Category (
+  id INT PRIMARY KEY AUTO_INCREMENT, 
+  name VARCHAR(255), 
+  description VARCHAR(255)
+);
+```
 
 
 
@@ -81,26 +79,23 @@ Sebelum jaman annotation, kita harus buat mapping file sebagai berikut.
 
 
 ## Category.hbm.xml
-
-
-
     
-    <code>
-    <?xml version="1.0"?>
-    <!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
-        
-    <hibernate-mapping>
-      <class name="id.web.endy.tutorial.Category" table="Category">
-        <id name="id" column="id">
-          <generator class="auto"/>
-        </id>
-        <property name="name" column="name"/>
-        <property name="name" column="description"/>
-    </class>
-    </hibernate-mapping>
-    </code>
+``` xml
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+    
+<hibernate-mapping>
+  <class name="id.web.endy.tutorial.Category" table="Category">
+    <id name="id" column="id">
+      <generator class="auto"/>
+    </id>
+    <property name="name" column="name"/>
+    <property name="name" column="description"/>
+</class>
+</hibernate-mapping>
+```
 
 
 
@@ -110,57 +105,47 @@ Tapi dengan menggunakan annotation, kita bisa lupakan file Category.hbm.xml. Seb
 
 ## Category.java dengan Annotation
 
+    
+``` java
+package id.web.endy.tutorial;
 
+@Entity
+public class Category {
+  private Integer id; 
+  private String name;
+  private String description; 
 
-    
-    <code>
-    package id.web.endy.tutorial;
-    
-    @Entity
-    public class Category {
-      private Integer id; 
-      private String name;
-      private String description; 
-    
-      public String getDescription() {
-        return description;
-      }
-    
-      public void setDescription(String description) {  
-        this.description = description;
-      }
-    
-      @Id(generate=GeneratorType.AUTO)
-      public Integer getId() {
-        return id;
-      }
-    	
-      public void setId(Integer id) {
-        this.id = id;
-      }
-      
-      public String getName() {
-        return name;
-      }
-    
-      public void setName(String name) {
-        this.name = name;
-      }
-    }
-    </code>
+  public String getDescription() {
+    return description;
+  }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
+  @Id(generate=GeneratorType.AUTO)
+  public Integer getId() {
+    return id;
+  }
+	
+  public void setId(Integer id) {
+    this.id = id;
+  }
+  
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+}
+```
 
 Perbedaan pada kode di atas cuma dua baris saja, yaitu: 
-
-
-
 	
   * @Entity
-
-	
   * @Id(generate=GeneratorType.AUTO)
-
 
 
 Selain untuk property dan id biasa, hibernate annotation juga dapat digunakan untuk one-to-many, many-to-many, dan teknik-teknik advanced lainnya. 

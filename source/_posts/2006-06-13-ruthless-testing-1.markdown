@@ -62,20 +62,20 @@ Baiklah, mari kita lihat satu persatu secara lebih detail.
 Ini adalah testing di level paling detail dari aplikasi. Artinya, testing di level method/function. Misalnya saya punya kode seperti ini: 
 
     
-    <code>
-    public class DayCounter{
-      /**
-      * menghitung jumlah hari dalam bulan dan tahun yang diminta. 
-      * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.
-      * @param month bulan yang akan dihitung
-      * @param year tahun yang akan dihitung
-      * @return jumlah hari dalam bulan dan tahun bersangkutan
-      */
-      public int numDays(int month, int year) {
-        return 29;
-      }
-    }
-    </code>
+``` java
+public class DayCounter{
+  /**
+  * menghitung jumlah hari dalam bulan dan tahun yang diminta. 
+  * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.
+  * @param month bulan yang akan dihitung
+  * @param year tahun yang akan dihitung
+  * @return jumlah hari dalam bulan dan tahun bersangkutan
+  */
+  public int numDays(int month, int year) {
+    return 29;
+  }
+}
+```
 
 
 
@@ -85,14 +85,14 @@ Mari kita buktikan dengan unit test bahwa kode di atas salah.
 
 
     
-    <code>
-    public class DayCounter extends junit.framework.TestCase{
-      public void testNumDays() {
-        DayCounter d = new DayCounter();
-        assertEquals(31, d.numDays(1,2000)); 
-      }
-    }
-    </code>
+``` java
+public class DayCounter extends junit.framework.TestCase{
+  public void testNumDays() {
+    DayCounter d = new DayCounter();
+    assertEquals(31, d.numDays(1,2000)); 
+  }
+}
+```
 
 
 
@@ -110,23 +110,23 @@ Mirip dengan JUnit, kita membuat unit test yang mengakses database. Misalnya, be
 
 
     
-    <code>
-    public class DatabaseAccess{
-      /**
-      * memeriksa username dan password dalam database. 
-      * Method ini akan mencocokkan username dan password yang diberikan 
-      * dan yang terdaftar di database.
-      * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.
-      * @param username 
-      * @param password
-      * @return true kalau cocok, false kalau tidak cocok
-      */
-      public boolean checkLogin(String username, String password) {
-        String sql = "SELECT * FROM user WHERE username=? AND password=?"
-        // dst kode akses database    
-      }
-    }
-    </code>
+``` java
+public class DatabaseAccess{
+  /**
+  * memeriksa username dan password dalam database. 
+  * Method ini akan mencocokkan username dan password yang diberikan 
+  * dan yang terdaftar di database.
+  * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.
+  * @param username 
+  * @param password
+  * @return true kalau cocok, false kalau tidak cocok
+  */
+  public boolean checkLogin(String username, String password) {
+    String sql = "SELECT * FROM user WHERE username=? AND password=?"
+    // dst kode akses database
+  }
+}
+```
 
 
 
@@ -134,19 +134,19 @@ Dan ini adalah kode untuk mengetesnya.
 
 
     
-    <code>
-    public class DatabaseAccess extends junit.framework.TestCase{
-      public void testCheckLogin() {
-        DatabaseAccess db = new DatabaseAccess();
-        
-        // asumsikan ada username endy dan password secret di database
-        assertTrue(db.checkLogin("endy", "secret"));
+``` java
+public class DatabaseAccess extends junit.framework.TestCase{
+  public void testCheckLogin() {
+    DatabaseAccess db = new DatabaseAccess();
     
-        // coba dengan user sembarang, harusnya akan menghasilkan false
-        assertFalse(db.checkLogin("nobody", "gakada"));
-      }
-    }
-    </code>
+    // asumsikan ada username endy dan password secret di database
+    assertTrue(db.checkLogin("endy", "secret"));
+
+    // coba dengan user sembarang, harusnya akan menghasilkan false
+    assertFalse(db.checkLogin("nobody", "gakada"));
+  }
+}
+```
 
 
 
@@ -158,44 +158,44 @@ Dengan DBUnit, kita dapat me-reset kondisi database sesuai keinginan setiap kali
 Caranya, kita harus buat test data, yaitu satu record berisi data endy:test dalam tabel user. Test data ini disimpan dalam file checkLogin.xml
 
     
-    <code>
-    <dataset>
-      <user id='1' 
-            username='endy'
-            password='secret'
-      />
-    </dataset>
-    </code>
+``` xml
+<dataset>
+  <user id='1' 
+        username='endy'
+        password='secret'
+  />
+</dataset>
+```
 
 
 
 Sebelum test dimulai, pastikan database direset. Tambahkan method berikut di kode test: 
 
     
-    <code>
-    public class DatabaseAccess extends junit.framework.TestCase{
-      public void testCheckLogin() {
-        // reset database
-        prepareDatabase();
-        
-        DatabaseAccess db = new DatabaseAccess();
-        
-        // asumsikan ada username endy dan password secret di database
-        assertTrue(db.checkLogin("endy", "secret"));
+``` java
+public class DatabaseAccess extends junit.framework.TestCase{
+  public void testCheckLogin() {
+    // reset database
+    prepareDatabase();
     
-        // coba dengan user sembarang, harusnya akan menghasilkan false
-        assertFalse(db.checkLogin("nobody", "gakada"));
-      }
+    DatabaseAccess db = new DatabaseAccess();
     
-      private void prepareDatabase(){
-        DatabaseOperation.CLEAN_INSERT.execute(dbConn, getTestData());
-      }
-    
-      private IDataSet getTestData(){
-        return new FlatXmlDataSet(new FileInputStream("checkLogin.xml"));
-      }
-    }
-    </code>
+    // asumsikan ada username endy dan password secret di database
+    assertTrue(db.checkLogin("endy", "secret"));
+
+    // coba dengan user sembarang, harusnya akan menghasilkan false
+    assertFalse(db.checkLogin("nobody", "gakada"));
+  }
+
+  private void prepareDatabase(){
+    DatabaseOperation.CLEAN_INSERT.execute(dbConn, getTestData());
+  }
+
+  private IDataSet getTestData(){
+    return new FlatXmlDataSet(new FileInputStream("checkLogin.xml"));
+  }
+}
+```
 
 
 

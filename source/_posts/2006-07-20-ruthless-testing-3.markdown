@@ -18,22 +18,22 @@ Berbagai upaya dilakukan untuk mengatasi masalah ini. Tim pengusir hantu didatan
 Akhirnya, seorang anggota milis JUG didatangkan. Beliau memeriksa source code fitur registrasi tersebut, sebagai berikut: 
 
     
-    <code>
-    public void save (User u) {
-      try {
-        Connection conn = DriverManager.getConnection(url, username, password);
-        
-        PreparedStatement pstm = conn.prepareStatement("INSERT INTO user VALUES (?,?,?)");
-        pstm.setInt(1, u.getId());
-        pstm.setString(2, u.getUsername());
-        pstm.setString(3, u.getPassword());
-        
-        pstm.executeUpdate();
-      } catch(Exception err) {
+``` java
+public void save (User u) {
+  try {
+    Connection conn = DriverManager.getConnection(url, username, password);
     
-      }
-    }
-    </code>
+    PreparedStatement pstm = conn.prepareStatement("INSERT INTO user VALUES (?,?,?)");
+    pstm.setInt(1, u.getId());
+    pstm.setString(2, u.getUsername());
+    pstm.setString(3, u.getPassword());
+    
+    pstm.executeUpdate();
+  } catch(Exception err) {
+
+  }
+}
+```
 
 
 
@@ -99,38 +99,38 @@ Pada contoh kali ini, kita akan coba menggunakan PMD. Caranya mudah:
 Untuk langkah #1 dan #2 tidak perlu dijelaskan lebih lanjut. Target Ant untuk langkah #3 adalah sebagai berikut: 
 
     
-    <code>
-    <target name="code-review" depends="prepare">
-      <pmd targetjdk="1.5" shortFilenames="true">
-       
-        <ruleset>basic</ruleset>   
-        <ruleset>codesize</ruleset>
-        <ruleset>clone</ruleset>
-        <ruleset>controversial</ruleset>
-        <ruleset>coupling</ruleset>
-        <ruleset>design</ruleset>
-        <ruleset>finalizers</ruleset>
-        <ruleset>imports</ruleset>
-        <ruleset>javabeans</ruleset>
-        <ruleset>logging-java</ruleset>
-        <ruleset>logging-jakarta-commons</ruleset>
-        <ruleset>naming</ruleset>
-        <ruleset>optimizations</ruleset>
-        <ruleset>strictexception</ruleset>
-        <ruleset>strings</ruleset>
-        <ruleset>sunsecure</ruleset>
-        <ruleset>unusedcode</ruleset>
-       
-        <formatter
-            type="net.sourceforge.pmd.renderers.HTMLRenderer"  
-            toFile="${pmd.result}/pmd.html"
-        />
-        <fileset dir="src">
-          <include name="**/*.java"/>
-        </fileset>
-      </pmd>
-    </target>
-    </code>
+``` xml
+<target name="code-review" depends="prepare">
+  <pmd targetjdk="1.5" shortFilenames="true">
+   
+    <ruleset>basic</ruleset>   
+    <ruleset>codesize</ruleset>
+    <ruleset>clone</ruleset>
+    <ruleset>controversial</ruleset>
+    <ruleset>coupling</ruleset>
+    <ruleset>design</ruleset>
+    <ruleset>finalizers</ruleset>
+    <ruleset>imports</ruleset>
+    <ruleset>javabeans</ruleset>
+    <ruleset>logging-java</ruleset>
+    <ruleset>logging-jakarta-commons</ruleset>
+    <ruleset>naming</ruleset>
+    <ruleset>optimizations</ruleset>
+    <ruleset>strictexception</ruleset>
+    <ruleset>strings</ruleset>
+    <ruleset>sunsecure</ruleset>
+    <ruleset>unusedcode</ruleset>
+   
+    <formatter
+        type="net.sourceforge.pmd.renderers.HTMLRenderer"  
+        toFile="${pmd.result}/pmd.html"
+    />
+    <fileset dir="src">
+      <include name="**/*.java"/>
+    </fileset>
+  </pmd>
+</target>
+```
 
 
 
@@ -155,6 +155,6 @@ Berikut penjelasannya:
 
 
 Laporan yang dihasilkan bentuknya seperti ini: 
-![PMD Review Result](/images/uploads/2006/07/pmd-report.png)
+{% img /images/uploads/2006/07/pmd-report.png PMD Review Result %}
 
 Selamat mencoba. Semoga bermanfaat. 

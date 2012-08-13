@@ -23,7 +23,7 @@ Beberapa minggu yang lalu, VMWare menggratiskan [aplikasi servernya](http://www.
 Instalasi di Linux (Debian Sarge) membutuhkan kernel header. Jadi, lakukan ini dulu: 
 
     
-    <code>apt-get install kernel-headers-2.6-686-smp </code>
+```apt-get install kernel-headers-2.6-686-smp ```
 
 
 Baru kemudian instal VMWare.

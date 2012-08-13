@@ -17,72 +17,75 @@ Biasanya, kalau menemui hal seperti ini, kita akan copy-paste dari kode yang sud
 Misalnya, kita punya UserDao, dengan kode seperti ini : 
 
     
-    <code>public class UserDao {
-        public void insert(User u) {
-          // connect dulu
-          Connection conn = DriverManager.getConnection(url, user, pass);
-          PreparedStatement ps = conn.prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
-          
-          // ... dan seterusnya .... 
-        }
+``` java
+public class UserDao {
+    public void insert(User u) {
+      // connect dulu
+      Connection conn = DriverManager.getConnection(url, user, pass);
+      PreparedStatement ps = conn.prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
+      
+      // ... dan seterusnya .... 
     }
-    </code>
+}
+```
 
 
 
 Setelah itu, kita akan menambahkan method untuk delete: 
 
     
-    <code>public class UserDao {
-        public void insert(User u) {
-            // connect dulu
-            Connection conn = DriverManager.getConnection(url, user, pass);
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
-          
-            // ... dan seterusnya .... 
-        }
-    
-        public void delete (User u) {
-            // connect dulu
-            Connection conn = DriverManager.getConnection(url, user, pass);
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM  tbl_user WHERE id=?");
-          
-            // ... dan seterusnya .... 
-        }
+``` java
+public class UserDao {
+    public void insert(User u) {
+        // connect dulu
+        Connection conn = DriverManager.getConnection(url, user, pass);
+        PreparedStatement ps = conn.prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
+      
+        // ... dan seterusnya .... 
     }
-    </code>
+
+    public void delete (User u) {
+        // connect dulu
+        Connection conn = DriverManager.getConnection(url, user, pass);
+        PreparedStatement ps = conn.prepareStatement("DELETE FROM  tbl_user WHERE id=?");
+      
+        // ... dan seterusnya .... 
+    }
+}
+```
 
 
 Nah, sekarang kita mau tambah method untuk search user berdasarkan id, tentunya kita akan tulis kode seperti ini : 
 
 
     
-    <code>public class UserDao {
-        public void insert(User u) {
-            // connect dulu
-            Connection conn = DriverManager.getConnection(url, user, pass);
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
-          
-            // ... dan seterusnya .... 
-        }
-    
-        public void delete (User u) {
-            // connect dulu
-            Connection conn = DriverManager.getConnection(url, user, pass);
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM  tbl_user WHERE id=?");
-          
-            // ... dan seterusnya .... 
-        }
-    
-        public User search (int id) {
-            // connect dulu
-            Connection conn = DriverManager.getConnection(url, user, pass);
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM  tbl_user WHERE id=?");
-          
-            // ... dan seterusnya .... 
-        }
+``` java
+public class UserDao {
+    public void insert(User u) {
+        // connect dulu
+        Connection conn = DriverManager.getConnection(url, user, pass);
+        PreparedStatement ps = conn.prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
+      
+        // ... dan seterusnya .... 
     }
-    </code>
+
+    public void delete (User u) {
+        // connect dulu
+        Connection conn = DriverManager.getConnection(url, user, pass);
+        PreparedStatement ps = conn.prepareStatement("DELETE FROM  tbl_user WHERE id=?");
+      
+        // ... dan seterusnya .... 
+    }
+
+    public User search (int id) {
+        // connect dulu
+        Connection conn = DriverManager.getConnection(url, user, pass);
+        PreparedStatement ps = conn.prepareStatement("SELECT * FROM  tbl_user WHERE id=?");
+      
+        // ... dan seterusnya .... 
+    }
+}
+```
 
 
 
@@ -93,29 +96,30 @@ Kita paste blok tersebut, masukkan ke dalam function/method sendiri, berikan par
 Setelah direfactor, kode di atas menjadi : 
 
     
-    <code>public class UserDao {
-        public PreparedStatement prepareStatement(String sql) {
-            // connect dulu
-            Connection conn = DriverManager.getConnection(url, user, pass);
-            return conn.prepareStatement(sql);              
-        }
-    
-        public void insert(User u) {
-            PreparedStatement ps = prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
-            // ... dan seterusnya .... 
-        }
-    
-        public void delete (User u) {
-            PreparedStatement ps = prepareStatement("DELETE FROM tbl_user WHERE id=?");      
-            // ... dan seterusnya .... 
-        }
-    
-        public User search (int id) {
-            PreparedStatement ps = prepareStatement("SELECT * FROM tbl_user WHERE id=?");
-            // ... dan seterusnya .... 
-        }
+``` java
+public class UserDao {
+    public PreparedStatement prepareStatement(String sql) {
+        // connect dulu
+        Connection conn = DriverManager.getConnection(url, user, pass);
+        return conn.prepareStatement(sql);              
     }
-    </code>
+
+    public void insert(User u) {
+        PreparedStatement ps = prepareStatement("INSERT INTO tbl_user VALUES (?,?)");
+        // ... dan seterusnya .... 
+    }
+
+    public void delete (User u) {
+        PreparedStatement ps = prepareStatement("DELETE FROM tbl_user WHERE id=?");      
+        // ... dan seterusnya .... 
+    }
+
+    public User search (int id) {
+        PreparedStatement ps = prepareStatement("SELECT * FROM tbl_user WHERE id=?");
+        // ... dan seterusnya .... 
+    }
+}
+```
 
 
 

@@ -72,7 +72,7 @@ Satu lagi, dengan menggunakan Linux, tidak perlu cari satu-satu, download, klik 
 Untuk menginstal semua di atas, cukup ketik saja : 
 
     
-    <code>apt-get install mc kde mysql-server postgresql apache2 php4 postfix firestarter subversion cvs kde -y</code>
+    apt-get install mc kde mysql-server postgresql apache2 php4 postfix firestarter subversion cvs kde -y
 
 
 sebagai root.

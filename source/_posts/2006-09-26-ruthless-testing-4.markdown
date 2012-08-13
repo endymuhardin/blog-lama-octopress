@@ -45,21 +45,19 @@ Kita mulai dengan struktur tabel sederhana. Misalnya kita memiliki class Siswa, 
 ### Class Siswa
 
 
+``` java
+public class Siswa {
+  private Integer id;
+  private String nama;
+  private Date tanggalLahir;
 
-    
-    
-        public class Siswa {
-          private Integer id;
-          private String nama;
-          private Date tanggalLahir;
-      
-          public Integer getId() { return this.id; }
-          public String getNama() { return this.nama; }
-          public Date getTanggalLahir() { return this.tanggalLahir; }
-      
-          // setter method  
-        }
-    
+  public Integer getId() { return this.id; }
+  public String getNama() { return this.nama; }
+  public Date getTanggalLahir() { return this.tanggalLahir; }
+
+  // setter method  
+}
+```
 
 
 class ini akan disimpan di database dengan struktur tabel (MySQL) sebagai berikut: 
@@ -67,17 +65,14 @@ class ini akan disimpan di database dengan struktur tabel (MySQL) sebagai beriku
 
 
 ### mysql-schema.sql
-
-
-
     
-    
-        CREATE TABLE TBL_SISWA (
-          id_siswa INT PRIMARY KEY AUTO_INCREMENT, 
-          nama VARCHAR(255), 
-          tanggal_lahir DATE
-        );
-    
+``` sql
+CREATE TABLE TBL_SISWA (
+  id_siswa INT PRIMARY KEY AUTO_INCREMENT, 
+  nama VARCHAR(255), 
+  tanggal_lahir DATE
+);
+```
 
 
 Dengan menggunakan Hibernate, kita tidak perlu menulis SQL query. Sebagai gantinya, kita harus memberitahu Hibernate tentang skema database kita. Caranya adalah dengan menambahkan annotation sehingga class kita menjadi seperti ini: 
@@ -86,29 +81,26 @@ Dengan menggunakan Hibernate, kita tidak perlu menulis SQL query. Sebagai gantin
 
 ### Siswa.java
 
+``` java
+package tutorial.hibernate;
+@Entity
+@Table(name="TBL_SISWA")
+public class Siswa {
+  private Integer id;
+  private String nama;
+  private Date tanggalLahir;
 
+  @Id
+  @Column(name="id_siswa")
+  @GeneratedValue(strategy=GenerationType.AUTO)
+  public Integer getId() { return this.id; }
 
-    
-    
-        package tutorial.hibernate;
-        @Entity
-        @Table(name="TBL_SISWA")
-        public class Siswa {
-          private Integer id;
-          private String nama;
-          private Date tanggalLahir;
-      
-          @Id
-          @Column(name="id_siswa")
-          @GeneratedValue(strategy=GenerationType.AUTO)
-          public Integer getId() { return this.id; }
-      
-          public String getNama() { return this.nama; }
-      
-          @Column(name="tanggal_lahir")
-          public Date getTanggalLahir() { return this.tanggalLahir; }
-        }
-    
+  public String getNama() { return this.nama; }
+
+  @Column(name="tanggal_lahir")
+  public Date getTanggalLahir() { return this.tanggalLahir; }
+}
+```
 
 
 Pembaca yang teliti segera protes, "Ada yang ketinggalan!! Di atas public String getNama() belum ada @Column"   
@@ -122,18 +114,15 @@ Pertama, kita buat interface dulu, kode yang mendefinisikan operasi CRUD ini.
 
 ### SiswaDao.java
 
-
-
-    
-    
-        package tutorial.hibernate;
-        public interface SiswaDao {
-          public void create(Siswa s);
-          public Siswa getById(Integer id);
-          public void update(Siswa s);
-          public void delete(Siswa s);  
-        }
-    
+``` java
+package tutorial.hibernate;
+public interface SiswaDao {
+  public void create(Siswa s);
+  public Siswa getById(Integer id);
+  public void update(Siswa s);
+  public void delete(Siswa s);  
+}
+```
 
 
 Pembuatan interface berguna supaya kapan-kapan kalau kita sudah bosan dengan Hibernate, kita bisa mengganti dengan implementasi yang lainnya, misalnya iBatis atau JDBC biasa.
@@ -144,29 +133,26 @@ Berikut implementasi operasi CRUD dengan Spring dan Hibernate.
 
 ### SiswaDaoHibernate.java
 
+``` java
+package tutorial.hibernate;
+public class SiswaDaoHibernate extends HibernateDaoSupport implements SiswaDao {
+  public void create(Siswa s){
+    getHibernateTemplate().save(s);
+  }
 
+  public Siswa getById(Integer id){
+    return (Siswa) getHibernateTemplate().load(Siswa.class, id);
+  }
+  
+  public void update(Siswa s){
+    getHibernateTemplate().update(s);
+  }
 
-    
-    
-        package tutorial.hibernate;
-        public class SiswaDaoHibernate extends HibernateDaoSupport implements SiswaDao {
-          public void create(Siswa s){
-            getHibernateTemplate().save(s);
-          }
-      
-          public Siswa getById(Integer id){
-            return (Siswa) getHibernateTemplate().load(Siswa.class, id);
-          }
-          
-          public void update(Siswa s){
-            getHibernateTemplate().update(s);
-          }
-      
-          public void delete(Siswa s) {
-            getHibernateTemplate().delete(s);
-          } 
-        }
-    
+  public void delete(Siswa s) {
+    getHibernateTemplate().delete(s);
+  } 
+}
+```
 
 
 Lagi-lagi ada yang bertanya, "Kok tidak ada kode untuk menangani koneksi database? Mana connect dan disconnect dengan database? Mana kode untuk begin dan commit transaction?"
@@ -179,73 +165,68 @@ Berikut adalah deklarasi SiswaDaoHibernate, DataSource koneksi database, dan kon
 
 ### belajar.xml
 
+``` xml
+<beans>
+    <bean id="siswaDaoAsli" class="tutorial.hibernate.SiswaDaoHibernate">
+      <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+    </bean> 
 
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+      <property name="dataSource" ref="dataSource"/>
+      <property name="annotatedClasses">
+        <list>
+          <value>tutorial.hibernate.Siswa</value>
+    	</list>
+    	</property>
+    	<property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">create</prop> 
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+            </props>
+    	</property>
+    </bean>
 
-    
-    
-        <beans>
-            <bean id="siswaDaoAsli" class="tutorial.hibernate.SiswaDaoHibernate">
-              <property name="sessionFactory"><ref bean="sessionFactory"/></property>
-            </bean> 
-        
-            <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
-    	      <property name="dataSource" ref="dataSource"/>
-    	      <property name="annotatedClasses">
-    	        <list>
-    	          <value>tutorial.hibernate.Siswa</value>
-    	    	</list>
-    	    	</property>
-    	    	<property name="hibernateProperties">
-                    <props>
-                        <prop key="hibernate.hbm2ddl.auto">create</prop> 
-                        <prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
-                    </props>
-    	    	</property>
-    	    </bean>
-        
-            <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-                <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://localhost/belajar"/>
-    	    	<property name="username" value="belajar"/>
-    	    	<property name="password" value="belajar"/>
-            </bean>
-        
-            <bean id="siswaDao" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-                <property name="transactionManager" ref="transactionManager"/>
-    
-    	    	<property name="target" ref="siswaDaoAsli"/>
-    
-    	    	<property name="transactionAttributes">
-    
-    	    		<props>
-    
-    	    			<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
-    
-    	    			<prop key="create*">PROPAGATION_REQUIRED</prop>
-    	    			<prop key="update*">PROPAGATION_REQUIRED</prop>
-    
-    	    			<prop key="delete*">PROPAGATION_REQUIRED</prop>
-    
-    	    		</props>
-    
-    	    	</property>
-            </bean>
-        
-            <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    	    	<property name="sessionFactory" ref="sessionFactory"/>
-    	    </bean>
-        </beans>
-    
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/belajar"/>
+    	<property name="username" value="belajar"/>
+    	<property name="password" value="belajar"/>
+    </bean>
 
+    <bean id="siswaDao" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+
+    	<property name="target" ref="siswaDaoAsli"/>
+
+    	<property name="transactionAttributes">
+
+    		<props>
+
+    			<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+
+    			<prop key="create*">PROPAGATION_REQUIRED</prop>
+    			<prop key="update*">PROPAGATION_REQUIRED</prop>
+
+    			<prop key="delete*">PROPAGATION_REQUIRED</prop>
+
+    		</props>
+
+    	</property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    	<property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+</beans>
+```
 
 Object yang kita gunakan adalah siswaDao. Object ini dirangkai dari berbagai object lain, diantaranya adalah koneksi database (dataSource), transaction interceptor (gunakan transaction untuk method create*, update*, delete*), dan transaction manager untuk mengelola transaction Hibernate. 
 
 Perhatikan kode ini: 
 
-    
-    
-        <prop key="hibernate.hbm2ddl.auto">create</prop> 
-    
+``` xml
+<prop key="hibernate.hbm2ddl.auto">create</prop> 
+```
 
    
 Baris kode di atas akan men-drop seluruh tabel dan constraint di database, dan membuat ulang semuanya. Dengan demikian, database kita akan fresh seperti baru. 
@@ -258,47 +239,43 @@ Berikut adalah unit test untuk class SiswaDaoHibernate:
 
 ### SiswaDaoHibernateTest.java
 
-
-
+``` java
+package tutorial.hibernate;
+public class SiswaDaoHibernateTest extends TestCase {
+    private static ApplicationContext ctx;
+    private static SiswaDao dao;
+    private static DataSource ds;
+    private static Connection conn;
     
+    static {
+        ctx = new ClassPathXmlApplicationContext("belajar.xml");
+        dao = (SiswaDao)ctx.getBean("siswaDao");
+        ds = (DataSource)ctx.getBean("dataSource"););
+    }
+
+    public void setUp() throws Exception {
+        conn = ds.getConnection();
+    }
     
-        package tutorial.hibernate;
-        public class SiswaDaoHibernateTest extends TestCase {
-            private static ApplicationContext ctx;
-            private static SiswaDao dao;
-            private static DataSource ds;
-            private static Connection conn;
-            
-            static {
-                ctx = new ClassPathXmlApplicationContext("belajar.xml");
-                dao = (SiswaDao)ctx.getBean("siswaDao");
-                ds = (DataSource)ctx.getBean("dataSource"););
-            }
+    public void tearDown() throws Exception {
+        conn.close();
+    }
+
+    public void testCreate() throws Exception {
+        Siswa endy = new Siswa();
+        endy.setNama("Endy Muhardin");
+        endy.setTanggalLahir(new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
+        dao.save(endy);
+    
+        // mari kita test
+        String sql = "SELECT * FROM TBL_USER WHERE nama='Endy Muhardin'";
         
-            public void setUp() throws Exception {
-                conn = ds.getConnection();
-            }
-            
-            public void tearDown() throws Exception {
-                conn.close();
-            }
-        
-            public void testCreate() throws Exception {
-                Siswa endy = new Siswa();
-                endy.setNama("Endy Muhardin");
-                endy.setTanggalLahir(new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
-                dao.save(endy);
-            
-                // mari kita test
-                String sql = "SELECT * FROM TBL_USER WHERE nama='Endy Muhardin'";
-                
-                ResultSet rs = conn.createStatement().executeQuery(sql);
-                assertTrue("harusnya ada minimal satu record", rs.next());
-                assertEquals("coba cek tanggal lahir", rs.getDate("tanggal_lahir"), new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
-            }
-        }
-    
-
+        ResultSet rs = conn.createStatement().executeQuery(sql);
+        assertTrue("harusnya ada minimal satu record", rs.next());
+        assertEquals("coba cek tanggal lahir", rs.getDate("tanggal_lahir"), new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
+    }
+}
+```
 
 Nah, dengan adanya unit test di atas, kita tidak perlu lagi secara manual menjalankan kode test, kemudian memeriksa isi database. 
 
@@ -311,87 +288,73 @@ Kita buat sampel data (fixture) sebagai berikut:
 
 ### siswa-fixture.xml
 
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
 
-
-    
-    
-        <?xml version="1.0" encoding="UTF-8"?>
-    
-        <dataset>
-            <TBL_USER id="99"
-                      nama="Khalisa Alayya"
-                      tanggal_lahir="2005-12-31"
-            />
-        </dataset>
-    
+<dataset>
+    <TBL_USER id="99"
+              nama="Khalisa Alayya"
+              tanggal_lahir="2005-12-31"
+    />
+</dataset>
+```
 
 
 Sekarang, pastikan fixture di atas dijalankan sebelum setiap test dieksekusi. Caranya adalah dengan menambahkan kode berikut di method setUp: 
 
+``` java
+public void setUp() {
+    conn = ds.getConnection();
     
+    // inisialisasi koneksi DBUnit
+    DatabaseConnection dbUnitConn = new DatabaseConnection(conn);
     
-        public void setUp() {
-            conn = ds.getConnection();
-            
-            // inisialisasi koneksi DBUnit
-            DatabaseConnection dbUnitConn = new DatabaseConnection(conn);
-            
-            // inisialisasi fixture
-            FlatXmlDataSet fixture = new FlatXmlDataSet(new File("siswa-fixtures.xml"));
-            
-            DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn,fixture);
-        }
+    // inisialisasi fixture
+    FlatXmlDataSet fixture = new FlatXmlDataSet(new File("siswa-fixtures.xml"));
     
-
+    DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn,fixture);
+}
+```
 
 Kode ini : 
 
-    
-    
-    DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn,fixture);
-    
-
+``` java
+DatabaseOperation.CLEAN_INSERT.execute(dbUnitConn,fixture);
+```
 
 akan menghapus semua data yang ada di database, dan mengisinya dengan satu record, yaitu _Khalisa Alayya_. 
 
 Sehingga kita dapat membuat kode test seperti ini: 
 
-    
-    
-        public void testGetById() {
-            Siswa khalisa = dao.getById(99);
-            assertNotNull(khalisa);
-            assertEquals("Khalisa Alayya", khalisa.getNama());
-        }
-    
-
+``` java
+public void testGetById() {
+    Siswa khalisa = dao.getById(99);
+    assertNotNull(khalisa);
+    assertEquals("Khalisa Alayya", khalisa.getNama());
+}
+```
 
 Berikut adalah Ant script untuk mengeksekusi test di atas: 
 
 
 ### build.xml
+``` xml
+<project name="belajar-hibernate" default="test" basedir=".">
 
+    <!-- silahkan lengkapi dengan target compile -->
 
+    <target name="test" depends="compile">
+		<junit haltonfailure="true" fork="true" printsummary="yes">             
+            <classpath refid="project-classpath"/>
+            <formatter type="xml"/>
+            <batchtest todir="report/junit">
+                <fileset dir="bin" includes="**/*Test.class"/>
+            </batchtest>
+        </junit>
+	</target>
 
-    
-    
-        <project name="belajar-hibernate" default="test" basedir=".">
-        
-            <!-- silahkan lengkapi dengan target compile -->
-        
-            <target name="test" depends="compile">
-        		<junit haltonfailure="true" fork="true" printsummary="yes">             
-                    <classpath refid="project-classpath"/>
-                    <formatter type="xml"/>
-                    <batchtest todir="report/junit">
-                        <fileset dir="bin" includes="**/*Test.class"/>
-                    </batchtest>
-                </junit>
-        	</target>
-    
-        </project>
-    
-
+</project>
+```
 
 Silahkan jalankan berkali-kali sepuasnya. Rangkaian kode di atas akan dengan senang hati melakukan: 
 

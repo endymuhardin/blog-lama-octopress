@@ -15,25 +15,21 @@ Mari kita ambil contoh nyata. Misalkan kita punya class Calculator, dengan satu 
 
 
     
-    <code>
     public class Calculator {
         public double divide (double a, double b) {
               return 0;
         }
     }
-    </code>
 
 
 
 Programmer pemula (atau pro yang kurang wawasan), hampir pasti akan segera menulis 
 
     
-    <code>
     public static void main(String[] xxx) {
         Calculator c = new Calculator();
         System.out.println("10 dibagi 2 adalah : " +c.divide(10,2));  // hasilnya harus 5
     }
-    </code>
 
 
 
@@ -44,13 +40,13 @@ Apa yang salah dengan kode test di atas?
 Salah, karena programmer harus mengeksekusi kode di atas, melihat bahwa tampilan yang dihasilkan seperti ini : 
 
     
-    <code>10 / 2 adalah : 0</code>
+    10 / 2 adalah : 0
 
 
 membetulkan kode, kemudian lihat lagi, memastikan kali ini tampilannya seperti ini :
 
     
-    <code>10 / 2 adalah : 5</code>
+    10 / 2 adalah : 5
 
 
 
@@ -78,12 +74,10 @@ Programmer profesional (baca: menghidupi anak istri dari coding) yang berwawasan
 Programmer profesional yang berwawasan tersebut akan menulis test seperti ini : 
 
     
-    <code>
     public void testDivide() {
         Calculator c = new Calculator();
         assertEquals(5, c.divide(10,2));
     }
-    </code>
 
 
 

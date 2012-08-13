@@ -16,7 +16,7 @@ Pada artikel ini, kita akan mencoba membuat Gantt Chart. Gantt chart adalah diag
 
 
 Berikut output yang kita inginkan
-![Gantt Chart](/images/uploads/2006/09/gantt.png)
+{% img /images/uploads/2006/09/gantt.png Gantt Chart %}
 
 Diagram di atas dihasilkan dari sumber data sebagai berikut
 
@@ -27,84 +27,12 @@ Diagram di atas dihasilkan dari sumber data sebagai berikut
 
 
   
-Aktivas
-
-  
-Tanggal Mulai
-
-  
-Tanggal Selesai
-
-  
-Persentase Selesai
-
-
-
-
-
-
-  
-UML Design 
-
-  
-01-01-2006
-
-  
-03-01-2006
-
-  
-100 %
-
-
-
-
-
-
-  
-Coding 
-
-  
-02-01-2006
-
-  
-03-01-2006
-
-  
-75 %
-
-
-
-
-
-
-  
-Testing 
-
-  
-03-01-2006
-
-  
-14-01-2006
-
-  
-50 %
-
-
-
-
-
-
-  
-Integrate 
-
-  
-04-01-2006
-
-  
-25-01-2006
-
-  
-25 %
+Aktivas		| Tanggal Mulai		| Tanggal Selesai	| Persentase Selesai
+----------------|-----------------------|-----------------------|-------------------
+UML Design 	| 01-01-2006		| 03-01-2006		| 100 %
+Coding 		| 02-01-2006		| 03-01-2006		| 75 %
+Testing 	| 03-01-2006		| 14-01-2006		| 50 %
+Integrate 	| 04-01-2006		| 25-01-2006		| 25 %
 
 
 

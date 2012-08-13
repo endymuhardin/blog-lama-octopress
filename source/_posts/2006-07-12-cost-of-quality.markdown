@@ -38,7 +38,7 @@ Umumnya seperti ini:
 
 Si konsultan bilang, memang itu semua (1-6) adalah kegiatan utama. Tanpa kegiatan itu, project tidak bisa diutamakan. Tapi, dengan 6 aktifitas tersebut, kecil peluangnya kita akan sampai ke aktivitas #7, yaitu makan-makan. 
 
-"Kenapa begitu ?", demikian para peserta training bertanya dengan antusias, nampaknya jelas kalau urusannya menyangkut perut (tidak jadi makan-makan) orang ngantuk bisa langsung jadi segar.  
+"Kenapa begitu ?", demikian para peserta training bertanya dengan antusias, nampaknya jelas kalau urusannya menyangkut perut (tidak jadi makan-makan) orang ngantuk bisa langsung jadi segar.
 
 "Ya sebab di sana belum dianggarkan Biaya Kualitas (Cost of Quality), nantinya kualitas rendah, banyak perbaikan, sehingga profit terancam tergusur", jawab instruktur.
 

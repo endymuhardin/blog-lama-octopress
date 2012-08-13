@@ -14,10 +14,11 @@ Walaupun aksesnya cuma readonly, tapi tetap saja ini adalah potensi bahaya.
 
 Saya coba mendisable account anonymous dengan cara menambahkan baris ini : 
 `disallow bind_anon `
-ke dalam /etc/ldap/slapd.conf. 
+ke dalam `/etc/ldap/slapd.conf`. 
 
 Berhasil, sekarang orang tidak bisa otentikasi secara anonymous. Tapi muncul masalah berikutnya. Subversion WebDAV juga ternyata tidak bisa login. 
-Setelah ditrace ke lognya apache, dia bilang tidak bisa menggunakan mekanisme simple_bind untuk otentikasi. Berikut pesan errornya : 
+Setelah ditrace ke lognya apache, dia bilang tidak bisa menggunakan mekanisme simple_bind untuk otentikasi. Berikut pesan errornya :
+ 
 `[LDAP: ldap_simple_bind_s() failed][Inappropriate authentication]`
 
 Sepertinya, dengan mendisable anonymous, metode otentikasi simple juga di-disable. Sampai saat tulisan ini diposting, saya belum menemukan cara untuk mematikan anonymous tapi tidak mematikan simple_bind.
@@ -26,16 +27,16 @@ Akhirnya, workaroundnya adalah, mengaktifkan anonymous, tapi melucuti semua ijin
 Ini dilakukan dengan cara mengubah konfigurasi akses (/etc/ldap/slapd.conf) dari 
 
     
-    <code>access to *
-            by * read</code>
+    access to *
+            by * read
 
 
 menjadi 
 
     
-    <code>access to *
+    access to *
             by anonymous none
-            by * read</code>
+            by * read
 
 
 Dengan demikian, sekarang anonymous bisa login, tapi tidak bisa lihat apa-apa.

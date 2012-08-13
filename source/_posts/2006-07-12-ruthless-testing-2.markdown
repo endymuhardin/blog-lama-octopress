@@ -46,146 +46,151 @@ Dengan demikian, untuk menjalankan Cobertura, kita membutuhkan dua kali tahap ko
 Berikut adalah Ant target untuk melakukan instrumentasi. 
 
     
-    <code><target name="instrument-cobertura" depends="compile-cobertura">        
-            <!--
-                    Instrument the application classes, writing the
-                    instrumented classes into ${build.instrumented.dir}.
-            -->        
-            <cobertura-instrument todir="${compile.cobertura}">			
-    			<includeClasses regex=".*" />
-    			<excludeClasses regex=".*\Test.*" />  
-    			<instrumentationClasspath>
-    				<pathelement location="${compile.debug}" />
-    			</instrumentationClasspath>
-            </cobertura-instrument>
-        </target>
-    </code>
+``` xml 
+<target name="instrument-cobertura" depends="compile-cobertura">        
+        <!--
+                Instrument the application classes, writing the
+                instrumented classes into ${build.instrumented.dir}.
+        -->        
+        <cobertura-instrument todir="${compile.cobertura}">			
+			<includeClasses regex=".*" />
+			<excludeClasses regex=".*\Test.*" />  
+			<instrumentationClasspath>
+				<pathelement location="${compile.debug}" />
+			</instrumentationClasspath>
+        </cobertura-instrument>
+    </target>
+```
 
 
 
 Selanjutnya, kita menjalankan unit test seperti biasa (melalui Ant target). Bedanya adalah, kita menggunakan hasil kompilasi Cobertura. Ant target untuk menjalankan unit test adalah sebagai berikut: 
 
     
-    <code><target name="unit-test" depends="instrument-cobertura">
-            <junit haltonfailure="false" fork="yes">            
-                <classpath location="${compile.cobertura}"/>
-                <classpath refid="cobertura-classpath"/>
-                <formatter type="xml"/>
-                <batchtest todir="${junit.result}">
-                    <fileset dir="${compile.debug}" includes="**/*Test.class"/>
-                </batchtest>
-            </junit>
-        </target>
-    </code>
+``` xml
+<target name="unit-test" depends="instrument-cobertura">
+        <junit haltonfailure="false" fork="yes">            
+            <classpath location="${compile.cobertura}"/>
+            <classpath refid="cobertura-classpath"/>
+            <formatter type="xml"/>
+            <batchtest todir="${junit.result}">
+                <fileset dir="${compile.debug}" includes="**/*Test.class"/>
+            </batchtest>
+        </junit>
+    </target>
+```
 
 
 Perhatikan referensi ke **${compile.cobertura}** yang diletakkan di atas referensi **cobertura-classpath**. Ini mengisyaratkan bahwa class hasil instrumentasi Cobertura diload **lebih dulu** daripada class yang dikompilasi secara normal. 
 
 Terakhir, kita buat Ant target untuk memeriksa coverage dan menghasilkan HTML report. 
 
-    
-    <code><target name="coverage-test" depends="unit-test">
-            <cobertura-check datafile="cobertura.ser" 
-                             branchrate="70" 
-                             linerate="90"
-                             haltonfailure="false"
-            />
-            <cobertura-report datafile="cobertura.ser"
-                              srcdir="src" destdir="${cobertura.result}"
-            />
-        </target>
-    </code>
 
+``` xml 
+<target name="coverage-test" depends="unit-test">
+        <cobertura-check datafile="cobertura.ser" 
+                         branchrate="70" 
+                         linerate="90"
+                         haltonfailure="false"
+        />
+        <cobertura-report datafile="cobertura.ser"
+                          srcdir="src" destdir="${cobertura.result}"
+        />
+    </target>
+```
 
 Perhatikan nilai batas baris (linerate) dan percabangan (branchrate) yang harus ditest. Nilainya sudah disesuaikan dengan aturan yang kita tetapkan di atas, yaitu sebesar 70% dan 90%. 
 
 Misalnya kita memiliki class DayCounter.java sebagai berikut:
 
     
-    <code>public class DayCounter {
-        public int numDays(int month, int year){
-            switch (month) {
-                case 1: 
-                case 3:
-                case 5: 
-                case 7: 
-                case 8:
-                case 10:
-                case 12: return 31;
-                case 4: 
-                case 6:
-                case 9: 
-                case 11: return 30;
-                case 2: 
-                    if (year%4 == 0) {
-                        return 29;
-                    } else {
-                        return 28;
-                    }
-                default: return 0;
-            }
-        }    
-    } 
-    </code>
+``` java
+public class DayCounter {
+    public int numDays(int month, int year){
+        switch (month) {
+            case 1: 
+            case 3:
+            case 5: 
+            case 7: 
+            case 8:
+            case 10:
+            case 12: return 31;
+            case 4: 
+            case 6:
+            case 9: 
+            case 11: return 30;
+            case 2: 
+                if (year%4 == 0) {
+                    return 29;
+                } else {
+                    return 28;
+                }
+            default: return 0;
+        }
+    }
+} 
+```
 
 
 
 Dan unit testnya DayCounterTest.java sebagai berikut:
 
     
-    <code>package tutorial.testframework;
-    
-    import junit.framework.TestCase;
-    
-    public class DayCounterTest extends TestCase {
-        public void testNumDays() {
-            DayCounter d = new DayCounter();
-            assertEquals(31, d.numDays(12,2001));        
-            assertEquals(30, d.numDays(11,2001));
-            assertEquals(28, d.numDays(2,2001));
-            assertEquals(29, d.numDays(2,2000));
-            assertEquals(0, d.numDays(21,2000));
-        }
+``` java
+package tutorial.testframework;
+
+import junit.framework.TestCase;
+
+public class DayCounterTest extends TestCase {
+    public void testNumDays() {
+        DayCounter d = new DayCounter();
+        assertEquals(31, d.numDays(12,2001));        
+        assertEquals(30, d.numDays(11,2001));
+        assertEquals(28, d.numDays(2,2001));
+        assertEquals(29, d.numDays(2,2000));
+        assertEquals(0, d.numDays(21,2000));
     }
-    </code>
+}
+```
 
 
-Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya (kilk gambar untuk memperbesar) :
-[
-![Cobertura All Pass](/images/uploads/2006/07/cobertura-all-green-small.png)](/images/uploads/2006/07/cobertura-all-green.png)
+Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya:
+
+{% img /images/uploads/2006/07/cobertura-all-green-small.png Cobertura All Pass %}
 
 Kita juga bisa melihat coverage detail dari class DayCounter.java: 
-[
-![Cobertura Class Detail Pass](/images/uploads/2006/07/cobertura-class-green-small.png)
-](/images/uploads/2006/07/cobertura-class-green.png)
+
+{% img /images/uploads/2006/07/cobertura-class-green-small.png Cobertura Class Detail Pass %}
+
 Bila kita non-aktifkan beberapa test, seperti ini: 
 
     
-    <code>package tutorial.testframework;
-    
-    import junit.framework.TestCase;
-    
-    public class DayCounterTest extends TestCase {
-        public void testNumDays() {
-            DayCounter d = new DayCounter();
-            assertEquals(31, d.numDays(12,2001));        
-            assertEquals(30, d.numDays(11,2001));
-            //assertEquals(28, d.numDays(2,2001));
-            //assertEquals(29, d.numDays(2,2000));
-            //assertEquals(0, d.numDays(21,2000));
-        }
+``` java
+package tutorial.testframework;
+
+import junit.framework.TestCase;
+
+public class DayCounterTest extends TestCase {
+    public void testNumDays() {
+        DayCounter d = new DayCounter();
+        assertEquals(31, d.numDays(12,2001));        
+        assertEquals(30, d.numDays(11,2001));
+        //assertEquals(28, d.numDays(2,2001));
+        //assertEquals(29, d.numDays(2,2000));
+        //assertEquals(0, d.numDays(21,2000));
     }
-    </code>
+}
+```
 
 
 
 Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini: 
-[
-![Cobertura All Failed](/images/uploads/2006/07/cobertura-all-red-small.png)](/images/uploads/2006/07/cobertura-all-red.png)
+
+{% img /images/uploads/2006/07/cobertura-all-red-small.png Cobertura All Failed %}
 
 dan detail classnya seperti ini
-[
-![Cobertura Class Detail Failed](/images/uploads/2006/07/cobertura-class-red-small.png)](/images/uploads/2006/07/cobertura-class-red.png)
+
+{% img /images/uploads/2006/07/cobertura-class-red-small.png Cobertura Class Detail Failed %}
 
 Bagaimana? 
 Mudah dan cepat kan?

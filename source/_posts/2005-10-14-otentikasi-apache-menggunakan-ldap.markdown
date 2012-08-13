@@ -18,16 +18,16 @@ Cara manajemen username melalui htpasswd tidak scalable. Tambah user harus lapor
 Setelah google ke sana kemari, metode yang umum digunakan orang adalah otentikasi melalui LDAP server. Dan ternyata, memindahkan otentikasi dari file htpasswd ke LDAP tidak sulit, cukup ganti konfigurasi `dav_svn.conf` dalam folder `/etc/apache2/mods-available` ini : 
 
     
-    <code>AuthUserFile /etc/apache2/htpasswd</code>
+    AuthUserFile /etc/apache2/htpasswd
 
 
 menjadi ini : 
 
     
-    <code>AuthBasicProvider ldap
+    AuthBasicProvider ldap
     AuthLDAPURL ldap://localhost/dc=artivisi,dc=com?uid?sub?
     AuthLDAPBindDN uid=apache,dc=artivisi,dc=com
-    AuthLDAPBindPassword "passwd-user-apache-dalam-ldap"</code>
+    AuthLDAPBindPassword "passwd-user-apache-dalam-ldap"
 
 
 
@@ -65,10 +65,8 @@ Ini menyebabkan beberapa halaman tidak bisa diakses karena web server tidak diij
 Untuk mudahnya, saya melakukan : 
 
     
-    <code># chown -R www-data.www-data /etc/phpldapadmin
+    # chown -R www-data.www-data /etc/phpldapadmin
     # chown -R www-data.www-data /usr/share/phpldapadmin
-    </code>
-
 
 
 Ok, selesailah sudah.
