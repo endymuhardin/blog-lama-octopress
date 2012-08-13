@@ -1,0 +1,1187 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/26/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-2/">Aplikasi Web Dengan Spring 2.5 [Bagian 2]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-06T18:27:16+07:00" pubdate data-updated="true">Dec 6<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring, cara menyuplai data ke form, melakukan validasi, dan memproses form ketika tombol Submit ditekan.</p>
+
+<p>Kita akan menggunakan template yang sama untuk pengeditan Person yang sudah ada maupun pendaftaran Person baru. Templatenya bernama personform.html. Berikut kodenya.</p>
+
+<h3>personform.html</h3>
+
+<pre><code>&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt;:: Edit Person ::&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;form method="POST"&gt;
+&lt;input type="hidden" name="id" value="$!person.Id"&gt;
+
+&lt;table&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Nama&lt;/td&gt;
+    &lt;td&gt;&lt;input type="text" name="name" value="$!person.Name"&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Email&lt;/td&gt;
+    &lt;td&gt;&lt;input type="text" name="email" value="$!person.Email"&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td colspan="2"&gt;&lt;input type="submit" value="Save"&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/form&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+
+<p>Kita melihat ada variabel yang agak berbeda pada contoh di atas, yaitu $!person. Ini merupakan variabel opsional dalam Velocity. Bila variabel $person tidak ada isinya, Velocity akan menampilkan apa adanya, yaitu $person ke halaman web. Kita ingin bila $person null, jangan tampilkan apa-apa. Untuk itu, kita mengubah variabel $person menjadi $!person.</p>
+
+<p>Kalau dijadikan kode Java, kira-kira $!person sama dengan ini:</p>
+
+<pre><code>String personName;
+if(person != null &amp;&amp; person.getName() != null) {
+  personName = person.getName();
+} else {
+  personName = "";
+}
+</code></pre>
+
+<p>Variabel $!person ini digunakan karena form ini menangani New Person dan juga Edit Person. Untuk kasus Edit Person, kita dapat memberikan object person yang sudah ada di database. Sedangkan untuk New Person, objectnya belum ada atau null. Dengan $!person, kita dapat menangani kedua skenario ini.</p>
+
+<p>Berikut kerangka class PersonFormController.</p>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+@RequestMapping("/personform")
+public class PersonFormController { 
+  private PersonDao personDao;
+
+  @Autowired
+  public void setPersonDao(final PersonDao personDao) {
+    this.personDao = personDao;
+  }
+
+  @RequestMapping(method = RequestMethod.GET)
+  public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
+
+  }
+
+  @RequestMapping(method = RequestMethod.POST)
+  public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
+
+  }
+}
+</code></pre>
+
+<p>Ada dua method di sini, yaitu displayForm dan processForm. Yang satu untuk menampilkan form, dan satu lagi untuk memproses hasil submit. Nama method bebas saja, tidak ada aturan yang harus dipatuhi.</p>
+
+<p>Kedua method dimapping ke request /personform. Dengan demikian, request ke <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> akan memanggil class PersonFormController. Di dalam form htmlnya juga action setelah submit dikosongkan. Artinya, kalau dia disubmit, form tersebut akan memanggil URL yang sama dengan yang memanggilnya.</p>
+
+<p>Tetapi, bagaimana kita memilih kapan harus mendisplay form dan memproses form? Kita membedakannya dengan memasang annotation <code>@RequestMapping</code> dengan parameter <code>RequestMethod</code>. Bila requestnya GET (terjadi bila kita mengetik <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> di browser dan menekan Enter), maka jalankan method displayForm. Tapi bila requestnya POST (terjadi bila kita menekan tombol Submit di <code>personform.html</code>), maka jalankan method processForm.</p>
+
+<p>Sekarang mari kita isi method displayForm. Berikut isinya</p>
+
+<pre><code>@RequestMapping(method = RequestMethod.GET)
+public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
+  Person person = personDao.getById(id);
+
+  if (person == null) person = new Person();
+
+  return new ModelMap(person);
+}
+</code></pre>
+
+<p>Di sini kita melakukan binding untuk request parameter person_id. Berbeda dengan tampilan detail pada artikel sebelumnya, di form ini parameter person_id belum tentu ada. Bila kita membuat object Person baru, field id akan berisi null. Untuk itu, kita berikan parameter required yang bernilai false pada anotasi @RequestMapping.</p>
+
+<p>Logika pada method ini tidak rumit. Ambil object Person dari database berdasarkan id. Kalau tidak ada, berikan saja object baru.</p>
+
+<p>Method ini bisa langsung dicoba dengan mengakses personform dengan memberikan parameter person_id, misalnya dengan URL http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100. Tentunya kita harus memiliki record di tabel T_PERSON dengan id 100. Kalau codingnya benar, maka akan tampil form yang terisi dengan data record tersebut.</p>
+
+<p>Berikutnya, kita akan implementasi method untuk memproses form. Berikut isi method processForm</p>
+
+<pre><code>@RequestMapping(method = RequestMethod.POST)
+public String processForm(@ModelAttribute("person") Person person) {
+  personDao.save(person);
+  return "redirect:personlist";
+}
+</code></pre>
+
+<p>Mudah kan? Cukup gunakan personDao untuk menyimpan object ke database, kemudian redirect ke halaman personlist.</p>
+
+<p>Begitu saja? Tidak ada yang lupa?</p>
+
+<p>Ya untuk memproses form begitu saja langkahnya, tidak perlu susah-susah.</p>
+
+<p>Bagaimana dengan validasi? Mana ada form tanpa validasi.</p>
+
+<p>Baiklah, mari kita tambahkan kode validasi. Untuk itu, method processForm perlu dimodifikasi menjadi seperti ini</p>
+
+<pre><code>@RequestMapping(method = RequestMethod.POST)
+public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
+  new PersonValidator().validate(person, result);
+  if (result.hasErrors()) {
+    return "personform";
+  } else {
+    personDao.save(person);
+    status.setComplete();
+    return "redirect:personlist";
+  }
+}
+</code></pre>
+
+<p>Tidak terlalu rumit, kan? Cukup buat class PersonValidator, kemudian jalankan method validate dengan input object person yang ingin divalidasi, dan object result untuk menampung error validasi bila ada.</p>
+
+<p>Selanjutnya, kita periksa object result. Bila ada errornya, kembali ke form. Bila tidak ada, langsung save dengan personDao, set status menjadi complete, dan redirect ke personlist.</p>
+
+<p>Isi class PersonValidator juga tidak banyak. Berikut kodenya.</p>
+
+<pre><code>package tutorial.spring25.validator;
+public class PersonValidator {
+
+  private static final String EMAIL_FORMAT = ".*@.*\\.com";
+
+  public void validate(Person person, Errors errors) {
+    // field nama harus diisi
+    if(!StringUtils.hasText(person.getName())) {
+      errors.rejectValue("name", "required", "nama harus diisi");
+    }
+
+    // bila field email diisi, formatnya harus benar
+    if (StringUtils.hasLength(person.getEmail()) &amp;&amp; !person.getEmail().matches(EMAIL_FORMAT) ) {
+      errors.rejectValue("email", "email.format", "format email salah");
+    }
+  }
+}
+</code></pre>
+
+<p>Mudah bukan?</p>
+
+<p>Para penggemar framework berbasis komponen (seperti Tapestry atau JSF) mungkin bertanya, untuk apa saya belajar lagi Spring MVC? Sepertinya tidak lebih mudah.</p>
+
+<p>Coba perhatikan URL yang kita gunakan:</p>
+
+<ul>
+<li><p>http://localhost:8080/tutorial-spring25/tutorial/personlist</p></li>
+<li><p>http://localhost:8080/tutorial-spring25/tutorial/persondetail?person_id=100</p></li>
+<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform</p></li>
+<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100</p></li>
+</ul>
+
+
+<p>Semuanya bersih dan <em>bookmarkable</em>. Dengan Spring MVC kita bisa mengatur URL sesuai keinginan.</p>
+
+<p>Selanjutnya, coba perhatikan kode Java kita. Jangankan lokasi template Velocity kita, bahkan dia tidak tahu menahu kalau kita pakai Velocity. Tugas kode Java cuma menerima input dan mengembalikan data. Terserah data itu mau diformat seperti apa. Dia tidak peduli teknologi view yang digunakan.</p>
+
+<p>Implikasinya, selama data yang disuplai tidak berubah, hanya dengan mengubah konfigurasi kita dapat mengubah tampilan. Tentunya kita harus menyediakan template yang sesuai.</p>
+
+<p>Kita bisa membuat template dengan teknologi yang lain, misalnya JSP, Freemarker, atau Jasper Report. Kita juga bisa merender tampilan tidak hanya dalam format HTML, tapi juga PDF, XLS, XML, JSON, plain-text, atau mengkonversinya menjadi grafik SVG.</p>
+
+<p>Kelebihan lainnya, kita mengendalikan secara penuh output HTML aplikasi kita. Implikasinya, kita bisa menerapkan teknik-teknik teruji dalam protokol HTTP seperti <a href="http://www.mnot.net/cache_docs/">Cache Control pada HTTP Header</a>.</p>
+
+<p>Atau kita bisa manfaatkan <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">HTTP Response Code</a> <em>304 Not Modified</em> untuk memberi tahu client bahwa halaman yang dia akses belum berubah sejak terakhir diakses, sehingga client tidak mendownload lagi keseluruhan page, melainkan langsung menampilkan local cache-nya.</p>
+
+<p>Teknik seperti ini sederhana, mudah, sudah teruji di lapangan, berlaku untuk berbagai bahasa pemrograman, dan sangat efektif. Hanya dengan mengubah HTTP response code, kita bisa menghemat bandwidth dan mengurangi load application server. Sayangnya teknik ini belum tentu dapat digunakan pada framework yang terlalu canggih. Spring MVC memungkinkan kita untuk memanipulasi HTTP response dengan mudah kalau kita mau.</p>
+
+<p>Source code untuk rangkaian artikel ini sudah dipublish di GoogleCode. Anda bisa:</p>
+
+<ul>
+<li><a href="http://code.google.com/p/hello-spring-25/source">Checkout project</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.war">Download WAR</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-winstone.jar">Download JAR</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.tar.bz2"> Download keseluruhan project folder</a></li>
+</ul>
+
+
+<p>Jangan lupa membaca <a href="http://code.google.com/p/hello-spring-25/">instruksi untuk menjalankannya</a>.</p>
+
+<p>Demikian sekilas tentang framework Spring MVC. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-1/">Aplikasi Web Dengan Spring 2.5 [Bagian 1]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-05T20:35:16+07:00" pubdate data-updated="true">Dec 5<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah pada <a href="http://endy.artivisi.com/blog/java/akses-database-spring25">artikel sebelumnya</a> kita berhasil mengakses database, kali ini kita akan membuat tampilan berbasis web yang menggunakan kode program kita kemarin.</p>
+
+<p>Fiturnya tidak terlalu sulit, dari tabel T_PERSON kemarin kita akan buatkan beberapa tampilan untuk mengelola data Person. Tampilan yang akan kita sediakan adalah:</p>
+
+<ul>
+<li>daftar semua Person</li>
+<li>informasi Person yang dipilih</li>
+<li>form untuk membuat object Person baru</li>
+<li>form untuk mengedit object Person yang sudah ada</li>
+</ul>
+
+
+<p>Sebelum kita mulai, ada baiknya kita mengetahui cara kerja Spring dalam mengelola aplikasi web. Sequence diagram berikut akan memudahkan pemahaman kita.</p>
+
+<p><img src="/images/uploads/2007/12/spring-mvc-sequence.png" title="Alur kerja Spring MVC" ></p>
+
+<p>Seperti kita lihat pada gambar, semua request akan diterima oleh DispatcherServlet. Mereka yang pernah membaca buku Core J2EE Pattern akan segera mengenali jurus ini, yang sering disebut dengan istilah FrontController. DispatcherServlet akan menyuruh handler mapping untuk memilih class yang akan menangani request. Ada beberapa implementasi handler mapping, diantaranya:</p>
+
+<ul>
+<li>BeanNameUrlHandlerMapping</li>
+<li>SimpleUrlHandlerMapping</li>
+<li>ControllerClassNameHandlerMapping</li>
+</ul>
+
+
+<p>Class yang menangani request disebut dengan istilah Controller. Class Controller ini yang akan kita tulis sendiri. Spring menyediakan beberapa superclass Controller yang bisa kita subclass untuk mengurangi kode yang harus ditulis. Beberapa superclass yang disediakan Spring antara lain:</p>
+
+<ul>
+<li>Controller</li>
+<li>MultiActionController</li>
+<li>SimpleFormController</li>
+<li>AbstractWizardController</li>
+</ul>
+
+
+<p>Selain membuat turunan dari superclass di atas, kita juga bisa membuat class biasa yang dilengkapi dengan annotation. Pada artikel  ini kita tidak akan membuat turunan apa-apa, karena semua bisa dikerjakan dengan annotation.</p>
+
+<p>Tanggung jawab controller selain memproses request adalah menentukan nama template yang akan digunakan untuk menampilkan hasil pemrosesan controller. Spring menyebut template ini dengan istilah View. Kita cuma perlu menyebutkan nama View dan Spring yang akan mencarikan file template yang sesuai dan kemudian mengisi datanya. Proses mencarikan template ini ditangani oleh ViewResolver. Ada beberapa implementasi ViewResolver, antara lain untuk memproses template berjenis:</p>
+
+<ul>
+<li>JSP dan JSTL</li>
+<li>Freemarker atau Velocity</li>
+<li>XML dengan XSLT</li>
+<li>Jasper Report</li>
+<li>Document View (PDF dan XLS)</li>
+</ul>
+
+
+<p>Sekarang setelah kita mengetahui arsitektur umum dari aplikasi web Spring, kita bisa segera coding. Class-class yang akan kita buat adalah:</p>
+
+<ul>
+<li>PersonController. Class ini akan menangani tampilan daftar Person dan detail Person.</li>
+<li>PersonFormController. Class ini akan menangani tampilan pengeditan object Person, baik yang belum terdaftar maupun yang sudah ada di dalam database.</li>
+</ul>
+
+
+<p>File konfigurasi yang akan kita buat adalah:</p>
+
+<ul>
+<li>web.xml. Ini adalah konfigurasi standar untuk semua aplikasi web dengan Java.</li>
+<li>tutorial-servlet.xml. Ini adalah konfigurasi DispatcherServlet untuk menampung deklarasi HandlerMapping, Controller, dan ViewResolver.</li>
+</ul>
+
+
+<p>Untuk menampilkan halaman web, kita akan menggunakan template engine <a href="http://velocity.apache.org">Velocity</a>. Velocity adalah template engine yang kecil dan ringan, tapi fiturnya cukup lengkap dan mudah digunakan. Saya lebih suka menggunakan Velocity daripada JSP, karena JSP membutuhkan kompilasi menjadi Servlet dan kemudian menjadi bytecode. Ini menyebabkan halaman JSP lebih sulit didebug bila terjadi error. Selain itu, kompilasi JSP membutuhkan dua kompiler, satu untuk JSP ke Servlet, dan satu lagi untuk Servlet menjadi bytecode. Dengan demikian, kita harus menginstal JDK di server. Tanpa JSP, kita dapat menggunakan Servlet container yang ringan dan kecil seperti <a href="http://jetty.mortbay.org">Jetty</a> atau <a href="http://winstone.sourceforge.net">Winstone</a> dan tidak perlu menginstal JDK, cukup JRE saja.</p>
+
+<p>Template untuk menampilkan daftar orang dibuat dalam HTML yang sudah disisipi kode Velocity, disimpan dengan nama <code>personlist.html</code>. Kodenya terlihat seperti ini.</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;:: List of All Person ::&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Name&lt;/th&gt;
+    &lt;th&gt;Email&lt;/th&gt;
+    &lt;th&gt; &lt;/th&gt;
+  &lt;/tr&gt;
+
+  #foreach($person in $personList)
+  &lt;tr&gt;
+    &lt;td&gt;$person.Name&lt;/td&gt;
+    &lt;td&gt;$person.Email&lt;/td&gt;
+    &lt;td&gt;
+      &lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | 
+      &lt;a href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+#end
+
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Kode yang diawali dengan tanda # merupakan perintah dalam Velocity. Dengan menggunakan perintah <code>#foreach</code>, kita melakukan looping untuk setiap baris record.</p>
+
+<p>Kode yang diawali tanda $ merupakan variabel dalam Velocity. Isi variabel ini nantinya akan kita sediakan melalui controller Spring.</p>
+
+<p>Untuk menampilkan detail informasi Person, kita buat <code>persondetail.html</code>. Kodenya seperti ini.</p>
+
+<h3>persondetail.html</h3>
+
+<pre><code>&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt;:: $person.Name's Detail Info ::&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+&lt;table&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Nama&lt;/td&gt;
+    &lt;td&gt;$person.Name&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Email&lt;/td&gt;
+    &lt;td&gt;$person.Email&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+
+<p>Sekarang mari kita isi template tersebut dengan data yang dibutuhkannya. Template <code>personlist.html</code> membutuhkan data List<Person> dengan nama variabel personList, sedangkan <code>persondetail.html</code> membutuhkan data Person dengan nama variabel person.</p>
+
+<p>Pertama, kita akan mengisi <code>personlist.html</code>. Template ini akan disuplai oleh PersonController, melalui method yang bernama list. Berikut kode programnya.</p>
+
+<h3>PersonController.java</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+public class PersonController {
+
+  private PersonDao personDao;
+
+  @Autowired
+  public void setPersonDao(PersonDao personDao) {
+    this.personDao = personDao;
+  }
+
+  @RequestMapping("/personlist")
+  public ModelMap list(){
+    return new ModelMap(personDao.getAll());
+  }
+}
+</code></pre>
+
+<p>Mudah bukan? Cukup panggil method personDao.getAll, kemudian masukkan hasilnya ke dalam ModelMap.</p>
+
+<p>Kita melihat beberapa annotation pada kode ini. Annotation <code>@Controller</code> merupakan penanda bagi Spring bahwa class ini adalah sebuah Controller. Kelas yang memiliki annotation ini akan dipindai pada saat start-up dan diregistrasi ke <code>ApplicationContext</code>. Annotation <code>@Autowired</code> menyuruh Spring untuk menginjeksikan object <code>PersonDao</code>. Dengan annotation <code>@RequestMapping</code>, kita menentukan bahwa request menuju ke <code>http://namaserver:port/namaaplikasi/namaservlet/personlist</code> akan ditangani oleh method ini.</p>
+
+<p>Pada saat dideploy, <code>DispatcherServlet</code> milik Spring akan menemukan dan memanggil method ini. Kemudian, dia akan menerima hasilnya berupa ModelMap untuk kemudian diserahkan ke ViewHandler Velocity untuk digabungkan dengan template dan menghasilkan halaman HTML.</p>
+
+<p>Object yang kita berikan pada ModelMap akan diberi nama oleh Spring secara otomatis. Karena kita mensuplai object dengan tipe <code>List&lt;Person&gt;</code>, maka Spring akan memberikan nama <code>personList</code>. Demikian juga pada controller berikutnya kita akan memberikan object bertipe <code>Person</code> ke controller, Spring akan memberikan nama person pada object tersebut. Dengan nama itulah (<code>$person</code>) kita mengaksesnya di template Velocity.</p>
+
+<p>Cukup satu dulu implementasi kita. Sekarang tiba saatnya konfigurasi. Aplikasi kita akan dideploy dengan nama context <code>tutorial-spring25</code>. Di dalamnya, kita akan memasang <code>DispatcherServlet</code> yang akan mengambil semua request dengan path /tutorial/*. Jadi, method <code>public ModelMap list</code> akan diakses melalui URL <code>http://localhost:8080/tutorial-spring25/tutorial/personlist</code>.</p>
+
+<p>Konfigurasi pertama ada di web.xml. Di sini kita akan mengkonfigurasi <code>DispatcherServlet</code> dan mendaftarkan <code>applicationContext.xml</code>. Berikut isi <code>web.xml</code></p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+&lt;web-app version="2.4" 
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+         http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"&gt;
+
+  &lt;display-name&gt;Tutorial Spring&lt;/display-name&gt;
+
+  &lt;description&gt;Tutorial Spring 2.5&lt;/description&gt;
+
+  &lt;context-param&gt;
+    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+    &lt;param-value&gt;classpath:applicationContext.xml&lt;/param-value&gt;
+  &lt;/context-param&gt;
+
+  &lt;listener&gt;
+    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+  &lt;/listener&gt;
+
+  &lt;servlet&gt;
+    &lt;servlet-name&gt;tutorial&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+  &lt;/servlet&gt;
+
+  &lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;tutorial&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/tutorial/*&lt;/url-pattern&gt;
+  &lt;/servlet-mapping&gt;
+
+  &lt;welcome-file-list&gt;
+    &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
+  &lt;/welcome-file-list&gt;
+
+&lt;/web-app&gt;
+</code></pre>
+
+<p><code>ApplicationContext</code> yang berisi konfigurasi database dan transaksi, yang dibahas pada artikel sebelumnya, didaftarkan melalui context-param. File konfigurasinya, <code>applicationContext.xml</code> disimpan di classpath, yaitu di folder <code>WEB-INF/classes</code>. Oleh karena itu, kita tulis pathnya <code>classpath:applicationContext.xml</code></p>
+
+<p><code>ApplicationContext</code> ini harus diaktifkan pada saat aplikasi web dideploy dan dinon-aktifkan pada saat aplikasi web di-undeploy. Untuk itu, kita harus memasang <code>ContextLoaderListener</code> untuk memonitor aktifitas aplikasi web.</p>
+
+<p>Selanjutnya, kita daftarkan <code>DispatcherServlet</code> dengan nama <code>tutorial</code>. Spring akan mencari file bernama <code>tutorial-servlet.xml</code> sebagai file konfigurasi <code>DispatcherServlet</code> ini di dalam folder <code>WEB-INF</code>. <code>DispatcherServlet</code> tutorial akan dimapping untuk menangani semua request dengan pola <code>/tutorial/*</code></p>
+
+<p>Sekarang, mari kita lihat isi <code>tutorial-servlet.xml</code>.</p>
+
+<h3>tutorial-servlet.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context-2.5.xsd"&gt;
+
+  &lt;context:component-scan base-package="tutorial.spring25.ui.springmvc" /&gt;
+
+  &lt;bean id="velocityConfig"
+        class="org.springframework.web.servlet.view.velocity.VelocityConfigurer"&gt;
+    &lt;property name="resourceLoaderPath" value="/WEB-INF/templates/velocity/" /&gt;
+  &lt;/bean&gt;
+
+  &lt;bean id="viewResolver"
+        class="org.springframework.web.servlet.view.velocity.VelocityViewResolver"&gt;
+    &lt;property name="cache" value="true" /&gt;
+    &lt;property name="prefix" value="" /&gt;
+    &lt;property name="suffix" value=".html" /&gt;
+  &lt;/bean&gt;
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Pertama, kita konfigurasi Spring agar memindai isi package <code>tutorial.spring25.ui.springmvc</code> dan mendaftarkan semua class yang beranotasi <code>@Controller</code>.
+Kedua, kita mengkonfigurasi <code>VelocityConfigurer</code> untuk mencari template di dalam folder <code>WEB-INF/templates/velocity</code>.
+Terakhir, kita melakukan konfigurasi <code>VelocityViewResolver</code> untuk menerjemahkan nama view menjadi nama file template. Misalnya kita memberikan nama view <code>personlist</code>, maka <code>VelocityViewResolver</code> akan memberikan file <code>WEB-INF/templates/velocity/personlist.html</code>.</p>
+
+<p>Pembaca yang teliti akan segera protes, &#8220;Kita kan tidak pernah menyebutkan nama view di dalam Controller. Lalu dari mana nama view itu didapatkan?&#8221;</p>
+
+<p>Baiklah, mari lihat lagi method tersebut.</p>
+
+<h3>Method list</h3>
+
+<pre><code>  @RequestMapping("/personlist")
+  public ModelMap list(){
+    return new ModelMap(personDao.getAll());
+  }
+</code></pre>
+
+<p>Method tersebut dimapping untuk menerima request <code>http://localhost:8080/tutorial-spring25/tutorial/personlist</code>. Kalau kita tidak melakukan konfigurasi apa-apa, Spring secara default akan menganggap nama request sama dengan nama view. Jadi method di atas akan menghasilkan nama view <code>personlist</code>.</p>
+
+<p>Setelah semua konfigurasi di atas selesai, kita bisa langsung membuat paket war untuk dideploy.</p>
+
+<p>Berikutnya, kita akan membuat tampilan informasi detail per Person. Untuk ini, kita membutuhkan parameter <code>person\_id</code> yang ingin ditampilkan. Sehingga bila kita ingin menampilkan Person dengan id 100, URLnya adalah <code>http://localhost/tutorial-spring25/tutorial/persondetail?person\_id=100</code></p>
+
+<p>Class <code>PersonController</code> yang sudah ditambahi method detail tampak seperti ini.</p>
+
+<h3>PersonController.java</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+public class PersonController {
+
+  private PersonDao personDao;
+
+  @Autowired
+  public void setPersonDao(PersonDao personDao) {
+    this.personDao = personDao;
+  }
+
+  @RequestMapping("/personlist")
+  public ModelMap list(){
+    return new ModelMap(personDao.getAll());
+  }
+
+  @RequestMapping("/persondetail")
+  public ModelMap detail(@RequestParam("person_id") Long personId){
+    return new ModelMap(personDao.getById(personId));
+  }
+}
+</code></pre>
+
+<p>Untuk mengambil parameter<code>person\_id</code>, kita tinggal membuat method parameter biasa yang dilengkapi annotation <code>@RequestParam</code>. Konversi tipe data akan dilakukan oleh Spring. Dengan kata lain, kode ini</p>
+
+<pre><code>@RequestParam("person_id") Long personId
+</code></pre>
+
+<p>sama dengan ini</p>
+
+<pre><code>Long personId = Long.valueOf(httpRequest.getParameter("person_id"));
+</code></pre>
+
+<p>bedanya, kita tidak perlu mengimport <code>javax.servlet.HttpServletRequest</code>.</p>
+
+<p>Setelah selesai, redeploy aplikasi dan coba akses <code>http://localhost/tutorial-spring25/tutorial/personlist</code>. Dari sana, klik link view. Tampilan detail dari object Person yang dipilih akan segera terlihat.</p>
+
+<p>Demikianlah bagian kedua dari seri Spring 2.5. Pada <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-2/">artikel selanjutnya</a>, kita akan melihat cara mengimplementasikan form untuk mengedit object Person yang sudah ada, maupun membuat object Person yang baru.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/akses-database-spring25/">Akses Database Dengan Spring 2.5</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-03T21:12:07+07:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Akses database dengan Spring 2.5</p>
+
+<p>Spring 2.5 baru saja keluar. Rilis kali ini membawa penambahan fitur yang cukup signifikan di sisi konfigurasi. Dalam Spring yang baru ini, kita bisa mengkonfigurasi aplikasi melalui annotation. Suatu hal yang sangat bermanfaat untuk mengurangi jumlah baris kode XML kita.</p>
+
+<p>Sebetulnya tidak ada yang salah dengan XML. Walaupun demikian, ada beberapa hal yang menurut saya kurang tepat kalau dikonfigurasi melalui XML, diantaranya:</p>
+
+<ul>
+<li>konfigurasi transaction</li>
+<li>deklarasi bean standar</li>
+</ul>
+
+
+<p>Konfigurasi transaction biasanya tergantung dari kode program yang ingin ber-transaction. Bila kita konfigurasi di XML, maka untuk memikirkan satu logika akses database, kita harus melihat di dua tempat yang berbeda; file java dan file XML. Menurut pendapat saya, fitur declarative transaction walaupun kelihatannya mirip konfigurasi, tapi pada dasarnya adalah logika aplikasi. Tempatnya bukan di konfigurasi XML, tapi di kode Java.</p>
+
+<p>Di Spring, kita harus mendaftarkan object aplikasi kita ke dalam object ApplicationContext agar bisa dikelola oleh Spring. Pada rilis sebelumnya, pendaftaran ini dilakukan dalam file XML. Cara ini memiliki incremental cost yang tinggi. Bila kita punya 100 object yang ingin dikelola, maka kita harus punya 100 deklarasi di konfigurasi XML Spring. Sekarang kita bisa menandai object yang akan dikelola Spring melalui annotation. Jadi walaupun ada 100 object, konfigurasi XML kita tidak bertambah.</p>
+
+<p>Ok, cukup berteori. Saatnya melihat contoh kode.</p>
+
+<p>Pada artikel kali ini, kita akan membuat kode akses database untuk class Person. Class ini tidak istimewa, cuma POJO biasa dengan tiga property: id, name, dan email. Berikut kodenya.</p>
+
+<h3>Person.java</h3>
+
+<pre><code>package tutorial.spring25.model;
+public class Person {
+  private Long id;
+  private String name;
+  private String email;
+}
+</code></pre>
+
+<p>Jangan lupa membuat getter dan setter.</p>
+
+<p>Class ini akan kita simpan di database dalam tabel bernama T_PERSON. Berikut definisinya untuk database MySQL.</p>
+
+<h3>MySQL-schema.sql</h3>
+
+<pre><code>create table T_PERSON (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT, 
+  name VARCHAR(255), 
+  email VARCHAR(255)
+);
+</code></pre>
+
+<p>Operasi database yang akan kita buat dijelaskan oleh interface PersonDao, sebagai berikut.</p>
+
+<h3>PersonDao.java</h3>
+
+<pre><code>package tutorial.spring25.dao
+public interface PersonDao {
+  public List&lt;person&gt; getAll();
+  public Person getById(Long id);
+  public void save(Person p);
+}
+</code></pre>
+
+<p>Untuk tahap pertama, kita akan lihat cara mengakses database dengan JDBC helper yang disediakan Spring. Akses database dengan Hibernate akan dijelaskan pada artikel terpisah.</p>
+
+<p>Berikut adalah kerangka implementasi PersonDao dengan JDBC helper dari Spring.</p>
+
+<h3>PersonDaoSpringJdbc.java</h3>
+
+<pre><code>package tutorial.spring25.dao.springjdbc;
+
+@Repository("personDao")
+@Transactional(readOnly=true)
+public class PersonDaoSpringJdbc implements PersonDao { 
+    @Autowired
+    public void setDataSource(final DataSource dataSource) {
+
+    }
+
+    @Override
+    public List&lt;person&gt; getAll() {
+        return null;
+    }
+
+    @Override
+    public Person getById(final Long id) {
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly=false)
+    public void save(final Person person) {
+
+    }
+}
+</code></pre>
+
+<p>Ada beberapa hal yang baru pada kode di atas. Kita melihat ada annotation @Repository, @Transactional, dan @Autowired.</p>
+
+<p>Annotation @Repository memberi tahu pada Spring bahwa class ini adalah salah satu @Component dalam aplikasi kita. Semua @Component akan dipindai pada waktu inisialisasi dan kemudian diregistrasi ke dalam object ApplicationContext milik Spring. Selain @Repository, @Component juga memiliki turunan @Service dan @Controller. @Service biasanya digunakan untuk menandai class-class facade atau business delegate. Sedangkan @Controller digunakan untuk aplikasi web. @Service dan @Controller akan kita bahas di artikel terpisah.</p>
+
+<p>Annotation @Transactional menandakan bahwa semua method dalam class ini akan dijalankan dalam transaksi database. Kita memberikan nilai readOnly=true pada deklarasi class, menandakan bahwa secara default transaksi hanya digunakan untuk mengambil data dari database. Perhatikan method save. Pada method ini, kita akan memasukkan atau mengubah data dalam database. Untuk satu method ini, kita membutuhkan transaksi yang tidak readOnly. Karena itu, kita override konfigurasi default dengan cara memberikan annotation @Transactional(readOnly=false).</p>
+
+<p>Sekarang mari kita lihat konfigurasi Application Context.</p>
+
+<h3>applicationContext.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jee="http://www.springframework.org/schema/jee"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"&gt;
+
+    &lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
+    &lt;context:annotation-config/&gt;
+    &lt;context:component-scan base-package="tutorial.spring25"/&gt; &lt;!-- tidak perlu deklarasi masing2 DAO --&gt;
+    &lt;tx:annotation-driven /&gt; &lt;!-- tidak perlu deklarasi transaction setting per method --&gt;
+
+    &lt;bean id="dataSource"
+        class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+        destroy-method="close" 
+        p:driverClassName="${jdbc.driver}"
+        p:url="${jdbc.url}" 
+        p:username="${jdbc.username}"
+        p:password="${jdbc.password}" /&gt;
+
+    &lt;bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+        p:dataSource-ref="dataSource" /&gt;
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Seperti kita lihat di atas, kita tidak lagi membutuhkan deklarasi untuk object personDao seperti pada Spring sebelumnya. Kita juga tidak perlu membuat konfigurasi transaksi untuk masing-masing method dalam PersonDao. Sebagai gambaran, kita menghilangkan beberapa baris yang seperti ini.</p>
+
+<h3>Konfigurasi DAO dan Transaksi</h3>
+
+<pre><code>&lt;bean id="personDaoImpl" class="tutorial.spring25.dao.springjdbc.PersonDaoSpringJdbc"&gt;
+    &lt;property name="dataSource" ref="dataSource"&gt;&lt;/property&gt;
+&lt;/bean&gt;
+
+&lt;bean id="personDao" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"&gt;
+    &lt;property name="target" ref="personDao"&gt;&lt;/property&gt;
+    &lt;property name="transactionManager" ref="transactionManager"&gt;&lt;/property&gt;
+    &lt;property name="transactionAttributes"&gt;
+        &lt;props&gt;
+            &lt;prop key="*"&gt;PROPAGATION_REQUIRED,readOnly&lt;/prop&gt;
+            &lt;prop key="save*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+        &lt;/props&gt;
+    &lt;/property&gt;
+&lt;/bean&gt;
+</code></pre>
+
+<p>Semakin banyak class DAO kita, deklarasinya juga akan semakin banyak. Pada aplikasi skala menengah, jumlah DAO bisa mencapai ratusan. Bisa dibayangkan dampaknya terhadap file xml tersebut. Dengan mencantumkan satu baris seperti ini,</p>
+
+<pre><code>&lt;context:component-scan base-package="tutorial.spring25"/&gt;
+</code></pre>
+
+<p>Spring dapat secara otomatis memeriksa seluruh package tutorial.spring dan mendaftarkan semua class yang memiliki annotation @Component, @Repository, @Service, dan @Controller.</p>
+
+<p>Kita sudah lihat bagaimana keseluruhan kode program ditulis. Kecuali implementasi sebenarnya tentu saja. Sebelum melihat secara detail bagaimana kode program untuk INSERT dan SELECT, terlebih dulu kita lihat bagaimana class PersonDaoSpringJdbc ini digunakan.</p>
+
+<p>Daripada menggunakan cara yang kurang berwawasan (menggunakan method main), saya akan mengambil pendekatan yang lebih berpendidikan, yaitu menggunakan Unit Test. Lihat <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel saya tentang Unit Test dan Integration Test</a> untuk memahami kode berikut.</p>
+
+<p>Ini adalah kerangka class test untuk PersonDaoSpringJdbc. Class ini dibuat dengan menggunakan JUnit 4. Isinya masih belum lengkap. Kita akan lengkapi sambil jalan.</p>
+
+<h3>PersonDaoSpringJdbcTest.java</h3>
+
+<pre><code>package test.spring25.dao.springjdbc
+public class PersonDaoSpringJdbcTest {
+
+  private static final ApplicationContext applicationContext;
+  private static final DataSource dataSource;
+  private static final PersonDao personDao;
+
+  @BeforeClass public static void init(){}
+  @Before public void resetDatabase(){}
+
+  @Test public void testGetById(){}
+  @Test public void testGetAll(){}
+  @Test public void testSave(){}
+}
+</code></pre>
+
+<p>Seperti kita lihat, kita sudah menggunakan annotation untuk menandai method test dan inisialisasi. Penjelasan tentang JUnit 4 akan dibahas pada artikel terpisah.</p>
+
+<p>Sekarang kita lihat isi masing-masing method. Method init isinya seperti ini.</p>
+
+<pre><code>@BeforeClass public static void init(){
+  ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+  dataSource = (DataSource) ctx.getBean("dataSource");
+  personDao = (PersonDao) ctx.getBean("personDao");
+}
+</code></pre>
+
+<p>Method resetDatabase dijalankan sebelum masing-masing test method. Fungsinya untuk menghapus isi tabel T_PERSON dan mengisi sampel data sesuai yang kita inginkan. Ini dilakukan menggunakan DBUnit. Isinya sebagai berikut</p>
+
+<pre><code>@Before public void resetDatabase() throws Exception {
+  final Connection conn = ds.getConnection();
+  DatabaseOperation.CLEAN_INSERT.execute(new DatabaseConnection(conn), new FlatXmlDataSet(new FileInputStream("fixtures/person.xml")));
+  conn.close();
+}
+</code></pre>
+
+<p>Method ini akan menggunakan sampel data yang ada di file person.xml. Isinya seperti ini,</p>
+
+<pre><code>&lt;dataset&gt;
+  &lt;T_PERSON
+    id="100"
+    name="Endy Muhardin"
+    email="endy.muhardin@gmail.com" 
+  /&gt;
+&lt;/dataset&gt;
+</code></pre>
+
+<p>Cukup satu record saja.</p>
+
+<p>Pertama kali, kita akan implementasi method getById. Isi testnya tidak rumit. Cukup jalankan method getById dan periksa hasilnya.</p>
+
+<pre><code>@Test public void testGetById() throws Exception {
+  Person endy = personDao.getById(100L);
+  assertEquals("Endy Muhardin", endy.getName());
+  assertEquals("endy.muhardin@gmail.com", endy.getEmail());
+}
+</code></pre>
+
+<p>Implementasi getById dalam PersonDaoSpringJdbc seperti ini.</p>
+
+<pre><code>public Person getById(Long id) {
+  return simpleJdbcTemplate.queryForObject("select * from T_PERSON where id=?", new PersonMapper(), id);
+}
+</code></pre>
+
+<p>Cukup satu baris saja.</p>
+
+<p>Method ini membutuhkan class PersonMapper untuk mengkonversi object ResultSet menjadi object Person. Class ini dibuat menjadi static final inner class dalam PersonDaoSpringJdbc.</p>
+
+<pre><code>public class PersonDaoSpringJdbc implements PersonDao {
+  private static final class PersonMapper implements ParameterizedRowMapper&lt;Person&gt;{
+    @Override
+    public Person mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+      final Person result = new Person();
+      result.setId(rs.getLong("id"));
+      result.setName(rs.getString("name"));
+      result.setEmail(rs.getString("email"));
+      return result;
+    }
+  }
+}
+</code></pre>
+
+<p>Selanjutnya, kita akan implementasikan method getAll. Berikut test methodnya.</p>
+
+<pre><code>@Test public void testGetAll() throws Exception {
+  List&lt;Person&gt; result = personDao.getAll();
+  assertEquals(1, result.size());
+  Person endy = result.get(0);
+  assertEquals("Endy Muhardin", endy.getName());
+  assertEquals("endy.muhardin@gmail.com", endy.getEmail());
+}
+</code></pre>
+
+<p>Dan ini implementasi dari method getAll.</p>
+
+<pre><code>public List&lt;Person&gt; getAll() {
+  return simpleJdbcTemplate.query("select * from T_PERSON", new PersonMapper(), new HashMap&lt;String, String&gt;());
+}
+</code></pre>
+
+<p>Terakhir, mari kita implementasi method save. Method testnya sedikit lebih panjang, karena untuk yakin akan hasilnya, kita harus melakukan query ke database dengan JDBC murni.</p>
+
+<pre><code>@Test public void testSave() throws Exception {
+  Person dhiku = new Person();
+  dhiku.setName("Hadikusuma Wahab");
+  dhiku.setEmail("dhiku@gmail.com");
+  assertNull(dhiku.getId());
+  personDao.save(dhiku);
+  assertNotNull(dhiku.getId());
+
+  final Connection conn = ds.getConnection();
+  final PreparedStatement ps = conn.prepareStatement("select * from T_PERSON where id=?");
+  ps.setLong(1, dhiku.getId());
+  final ResultSet rs = ps.executeQuery();
+  assertTrue(rs.next());
+
+  assertEquals(dhiku.getName(), rs.getString("name"));
+  assertEquals(dhiku.getEmail(), rs.getString("email"));
+
+  ps.close();
+  rs.close();
+  conn.close();
+}
+</code></pre>
+
+<p>Untungnya implementasi method save juga hanya satu baris.</p>
+
+<pre><code>@Transactional(readOnly=false)
+public void save(final Person person) {
+  person.setId(simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(person)).longValue());
+}
+</code></pre>
+
+<p>Ada beberapa hal yang perlu dijelaskan dari kode di atas.
+Pertama, kita perlu mengaktifkan transaksi database untuk mengubah isi database. Kita lakukan dengan @Transactional(readOnly=false).</p>
+
+<p>Kedua, kita bisa menggunakan fitur terbaru Spring JDBC, yaitu SimpleJdbcInsert. Fitur ini mampu melihat ke dalam database dan mengambil daftar nama fieldnya. Object ini diinisialisasi pada saat kita menginjeksi DataSource. Berikut kodenya.</p>
+
+<pre><code>@Autowired
+public void setDataSource(final DataSource dataSource) {
+  this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
+  this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource).withTableName("T_PERSON").usingGeneratedKeyColumns("id");
+}
+</code></pre>
+
+<p>Pada saat menginisialisasi object SimpleJdbcInsert kita memberi tahu Spring tentang nama tabel dan field yang isinya autogenerated, misalnya id.</p>
+
+<p>Selama nama field dalam T_PERSON sama dengan nama properti di class Person, kita bisa menghilangkan kode untuk mapping properti ke PreparedStatement. Kode yang biasanya tiga baris seperti ini</p>
+
+<pre><code>PreparedStatement ps = conn.prepareStatement("insert into T_PERSON (name, email) values(?,?)");
+ps.setString(1, person.getName());
+ps.setString(2, person.getEmail());
+</code></pre>
+
+<p>Dapat direduksi menjadi satu baris seperti ini:</p>
+
+<pre><code>SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(person);
+</code></pre>
+
+<p>Object parameterSource ini bisa langsung diumpankan ke simpleJdbcInsert seperti ini untuk melakukan insert sekaligus mengambil nilai id yang digenerate database.</p>
+
+<pre><code>Long newId = simpleJdbcInsert.executeAndReturnKey(parameterSource).longValue()
+</code></pre>
+
+<p>Fitur SimpleJdbcInsert ini sangat bermanfaat kalau entity class kita terdiri dari puluhan field. Adanya method executeAndReturnKey untuk mengambil auto-generated primary key dari database juga akan sangat membantu kita untuk menghilangkan perbedaan antar database. Biasanya masing-masing merek database memiliki cara yang berbeda-beda untuk mengambil nilai ini.</p>
+
+<p>Sebagai contoh, bila kita lakukan secara manual untuk database MySQL, kodenya akan tampak seperti ini.</p>
+
+<pre><code>@Transactional(readOnly=false)
+public void save(final Person person) {
+  simpleJdbcInsert.execute(new BeanPropertySqlParameterSource(person));
+  Long newId = simpleJdbcInsert.getJdbcOperations().queryForLong("select last_insert_id()");
+  person.setId(newId);
+}
+</code></pre>
+
+<p>Demikianlah sekilas tentang penggunaan fitur Spring terbaru untuk mengakses database. Pada artikel selanjutnya, kita akan lihat fitur-fitur baru di sisi MVC framework.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/27/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/25/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

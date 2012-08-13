@@ -1,0 +1,697 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Menggunakan PostgreSQL Sequence dengan Hibernate Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/11/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/postgresql-sequence-hibernate/">PostgreSQL Sequence Dengan Hibernate</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-22T22:08:58+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Menggunakan PostgreSQL Sequence dengan Hibernate</p>
+
+<p>Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang dibuat PostgreSQL.</p>
+
+<p>Bila kita membuat Hibernate mapping untuk entity class sebagai berikut:</p>
+
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue
+    private Integer id;
+
+    private String name;
+
+    // getter dan setter    
+}
+</code></pre>
+
+<p>kemudian menyuruh Hibernate untuk menggenerate DDL ke PostgreSQL, maka kita akan mendapatkan hasil sebagai berikut.</p>
+
+<pre><code>create table example (id int4 not null, name varchar(255), primary key (id))
+create sequence example_id_seq
+</code></pre>
+
+<p>Artinya, Hibernate akan membuat sequence bernama example_id_seq dan menggunakannya untuk menghasilkan id.</p>
+
+<p>Skema yang dihasilkan ini berbeda dengan skema yang biasa digunakan DBA PostgreSQL dalam membuat tabel, yaitu seperti ini</p>
+
+<pre><code>CREATE TABLE example (id serial, name text)
+</code></pre>
+
+<p>Bila kita menggunakan mapping di atas ke skema tabel dengan id bertipe serial ini, kita akan mendapatkan exception sebagai berikut.</p>
+
+<pre><code>SEVERE: ERROR: relation "hibernate_sequence" does not exist
+Exception in thread "main" org.hibernate.exception.SQLGrammarException: could not get next sequence value
+Caused by: org.postgresql.util.PSQLException: ERROR: relation "hibernate_sequence" does not exist
+</code></pre>
+
+<p>Ini disebabkan karena mapping di atas akan mencari sequence bernama hibernate_sequence yang tidak ada kalau kita membuat tabel dengan id serial.</p>
+
+<p>Solusinya adalah dengan menggunakan Hibernate Annotation Extension, yaitu anotasi @GenericGenerator seperti ini.</p>
+
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pg_seq")
+    @GenericGenerator(name="pg_seq", strategy="sequence", parameters={
+        @Parameter(name="sequence", value="example_id_seq")
+    })
+    private Integer id;
+
+    private String name;
+}
+</code></pre>
+
+<p>Nama sequence diambil dari sequence yang dibuatkan PostgreSQL pada saat kita melakukan create table.
+Nama sequence ini bisa dilihat dengan mengetikkan \d example, yang akan menghasilkan output sebagai berikut.</p>
+
+<pre><code>\d example
+                          Table "public.example"
+ Column |  Type   |                       Modifiers                       
+--------+---------+-------------------------------------------------------
+ id     | integer | not null default nextval('example_id_seq'::regclass)
+ name   | text    | 
+</code></pre>
+
+<p>Barulah setelah itu kita bisa menyimpan object ke database dengan mulus.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-3/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 3]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-16T17:56:28+07:00" pubdate data-updated="true">Jun 16<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel sebelumnya, kita telah membahas tentang <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-1/">konsep integrasi aplikasi</a>, dan <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-2/">implementasinya menggunakan Spring Integration</a>. Contoh implementasi kita kemarin, walaupun mencakup integrasi end-to-end, masih sangat sederhana.</p>
+
+<p>Kali ini kita akan mengeksplorasi use-case yang lebih kompleks, yaitu cara menangani berbagai operasi service. Misalnya untuk tipe data yang sama, contohnya Penjualan, kita memiliki service untuk simpan dan hapus. Object penjualan juga lebih kompleks daripada object produk.</p>
+
+<p>Untuk memecahkan masalah ini, kita menggunakan Router. Router bertugas memilih channel sesuai dengan message yang datang. Berikut skema penggunaan router.</p>
+
+<p><img src="/images/uploads/2009/06/router-demo-300x91.png" title="Skema Penggunaan Router" ></p>
+
+<p>Sebelum membahas tentang router, baiklah kita lihat dulu data penjualan yang akan dikirim. Berikut class penjualan</p>
+
+<h4>Penjualan</h4>
+
+<pre><code>public class Penjualan {
+    private Integer id;
+    private Date tanggal = new Date();
+    private List&lt;PenjualanDetail&gt; details = new ArrayList&lt;PenjualanDetail&gt;();
+    // getter dan setter
+}
+</code></pre>
+
+<p>Berikutnya, penjualan detail.</p>
+
+<h4>PenjualanDetail</h4>
+
+<pre><code>public class PenjualanDetail {
+    private Integer id;
+    private Penjualan penjualan;
+    private Produk produk;
+    private Integer jumlah;
+
+    // getter dan setter
+}
+</code></pre>
+
+<p>Object baru ini tentu saja harus kita buatkan transformernya untuk mengkonversi object menjadi JSON.</p>
+
+<h4>CabangService</h4>
+
+<pre><code>public class JsonTransformer{
+    public Penjualan jsonToPenjualan(String json){
+        Map&lt;String , Class&gt; binding = new HashMap&lt;String , Class&gt;();
+        binding.put("details", PenjualanDetail.class);
+        return (Penjualan) JSONObject.toBean(JSONObject.fromObject(json), Penjualan.class, binding);
+    }
+
+    public String penjualanToJson(Penjualan p){
+        // remove dulu cyclic dependency
+        for (PenjualanDetail detail : p.getDetails()) {
+            detail.setPenjualan(null);
+        }
+
+        return JSONObject.fromObject(p).toString();
+    }
+}
+</code></pre>
+
+<p>Penjualan dan PenjualanDetail akan kita proses melalui method simpan dan hapus yang ada di CabangService.</p>
+
+<h4>CabangService</h4>
+
+<pre><code>public class CabangService {
+    public void save(Penjualan p) {
+        System.out.println("Simpan penjualan dengan ID : "+p.getId());
+        System.out.println("Tanggal : "+new SimpleDateFormat("dd MMM yyyy").format(p.getTanggal()));
+        System.out.println("Details : ");
+        for (PenjualanDetail detail : p.getDetails()) {
+            System.out.println("Produk : "+detail.getProduk().getKode());
+            System.out.println("Jumlah : "+detail.getJumlah());
+        }
+    }
+
+    public void delete(Penjualan p) {
+        System.out.println("Hapus penjualan dengan ID : "+p.getId());
+    }
+}
+</code></pre>
+
+<p>Tentunya nanti method save dan delete ini akan lebih canggih dari ini, misalnya insert dan delete ke database.</p>
+
+<p>Kalau kita lihat skemanya, ada satu titik di mana message akan dilihat dan disalurkan ke channel yang sesuai.</p>
+
+<p><img src="/images/uploads/2009/06/router-only-300x104.png" title="Routing Message" ></p>
+
+<p>Penjualan yang akan disimpan dimasukkan ke channel penjualan-simpan. Sedangkan object penjualan yang akan dihapus dimasukkan ke channel penjualan-hapus. Dengan demikian, kita harus membuat router yang mampu menentukan channel yang akan dipilih dengan melihat message yang masuk ke dalam router tersebut. Operasi yang akan dilakukan (simpan atau hapus) harus dimasukkan ke message header atau message content. Agar sederhana, kita tambahkan saja satu property di class Penjualan untuk menentukan operasi yang akan dilakukan. Bila class Penjualan ini dimapping menggunakan JPA, kita bisa menandai property ini dengan anotasi @Transient agar isinya tidak disimpan di database.</p>
+
+<p>Karena nantinya property operasi ini akan digunakan tidak saja untuk Penjualan, tapi juga transaksi lainnya, baiklah kita buat saja di superclass DomainObject sebagai berikut.</p>
+
+<h4>Penjualan</h4>
+
+<pre><code>public class DomainObject {
+    private String operasi;
+}
+</code></pre>
+
+<p>Berikut class Penjualan yang sudah dimodifikasi.</p>
+
+<h4>Penjualan</h4>
+
+<pre><code>public class Penjualan extends DomainObject {
+    private Integer id;
+    private Date tanggal = new Date();
+    private List&lt;PenjualanDetail&gt; details = new ArrayList&lt; &lt;PenjualanDetail&gt;();
+
+    // getter dan setter
+}
+</code></pre>
+
+<p>Property operasi ini akan dilihat oleh router untuk menentukan nama channel. Berikut implementasi Router.</p>
+
+<h4>Router</h4>
+
+<pre><code>public class NamaKelasDanOperasiRouter {
+    public String pilihChannel(Object msg){
+        String classname = msg.getClass().getSimpleName().toLowerCase();
+
+        if(!DomainObject.class.isAssignableFrom(msg.getClass())) {
+            throw new IllegalArgumentException("Harus object bertipe : "+DomainObject.class.getName());
+        }
+
+        DomainObject obj = (DomainObject) msg;
+        String operasi = obj.getOperasi().toLowerCase();
+
+        return classname + "-" + operasi;
+    }
+}
+</code></pre>
+
+<p>Router ini akan membaca nama class dari object yang diterimanya dan menggabungkannya dengan property operasi. Jadi, object Penjualan dengan operasi simpan akan menghasilkan nama channel penjualan-simpan. Demikian juga object Pembelian dengan operasi hapus akan menghasilkan channel pembelian-hapus.</p>
+
+<p>Berikut unit test untuk router di atas.</p>
+
+<h4>Router</h4>
+
+<pre><code>public class NamaKelasDanOperasiRouterTest {
+
+    @Test
+    public void testPilihChannel() {
+        Penjualan p = new Penjualan();
+        p.setOperasi("simpan");
+        assertEquals("penjualan-simpan", new NamaKelasDanOperasiRouter().pilihChannel(p));
+    }
+
+}
+</code></pre>
+
+<p>Berikut aliran message mulai dari gateway sampai menjadi JSON.</p>
+
+<p><img src="/images/uploads/2009/06/gateway-to-json-300x31.png" title="Dari Gateway sampai menjadi JSON" ></p>
+
+<p>Dan ini adalah konfigurasi Spring Integration untuk flow di atas.</p>
+
+<h4>Gateway ke JSON</h4>
+
+<pre><code>&lt;gateway id="gateway"
+    service-interface="com.artivisi.explore.spring.integration.gateway.Gateway"
+    default-request-channel="outgoingPenjualan"
+/&gt;
+
+&lt;channel id="outgoingPenjualan"/&gt;
+
+&lt;transformer 
+    input-channel="outgoingPenjualan" 
+    output-channel="outgoingJson"
+    ref="jsonTransformer" 
+    method="penjualanToJson"
+/&gt;
+
+&lt;channel id="outgoingJson"/&gt;
+</code></pre>
+
+<p>Pada artikel sebelumnya, kita mengganti implementasi email dengan shared folder supaya proses development lebih cepat. Akses ke shared folder jauh lebih cepat daripada email yang dibatasi oleh kecepatan internet. Kali ini, kita akan menggunakan bridge, yaitu hubungan langsung antar channel. Ini kita gunakan untuk menghubungkan channel outgoingJson dengan incomingJson. Hubungan ini pada artikel sebelumnya diimplementasikan menggunakan shared folder dan email.</p>
+
+<p><img src="/images/uploads/2009/06/bridge-300x45.png" title="bridge antara incoming dan outgoing" ></p>
+
+<p>Berikut konfigurasi bridge untuk menghubungkan outgoingJson dan incomingJson.</p>
+
+<h4>Bridge</h4>
+
+<pre><code>&lt;bridge 
+    input-channel="outgoingJson" 
+    output-channel="incomingJson" 
+/&gt;
+</code></pre>
+
+<p>Dari incomingJson, kita konversi dulu menjadi object.
+Berikut konfigurasinya.</p>
+
+<h4>JSON ke Object</h4>
+
+<pre><code>&lt;channel id="incomingJson"/&gt;
+
+&lt;transformer 
+    input-channel="incomingJson" 
+    output-channel="incomingPenjualan"
+    ref="jsonTransformer" 
+    method="jsonToPenjualan"
+/&gt;
+</code></pre>
+
+<p>Setelah menjadi object, kita masukkan ke router untuk ditentukan channelnya.</p>
+
+<h4>Routing</h4>
+
+<pre><code>&lt;router 
+    input-channel="incomingPenjualan" 
+    ref="namaKelasDanOperasiRouter" 
+    method="pilihChannel"
+/&gt;
+</code></pre>
+
+<p>Kemudian, dari channel kita sambungkan ke method save dan delete.</p>
+
+<h4>Method Save</h4>
+
+<pre><code>&lt;channel id="penjualan-simpan"/&gt;
+
+&lt;service-activator 
+    input-channel="penjualan-simpan"
+    ref="cabangService"
+    method="save"/&gt;
+</code></pre>
+
+<h4>Method Delete</h4>
+
+<pre><code>&lt;channel id="penjualan-hapus"/&gt;
+
+&lt;service-activator 
+    input-channel="penjualan-hapus"
+    ref="cabangService"
+    method="delete"/&gt;
+</code></pre>
+
+<p>Terakhir, kita buat class untuk menjalankan semua rangkaian integrasi ini.</p>
+
+<h4>CabangRouterDemo</h4>
+
+<pre><code>public class CabangRouterDemo {
+    public static void main(String[] args) {
+         // 1. Menginstankan Spring Application Context
+        AbstractApplicationContext ctx 
+            = new ClassPathXmlApplicationContext("cabang-router-ctx.xml", CabangRouterDemo.class);
+        ctx.registerShutdownHook();
+        Gateway gw = (Gateway) ctx.getBean("gateway");
+        Penjualan p1 = bikinTransaksi(100, "simpan");
+        Penjualan p2 = bikinTransaksi(102, "hapus");
+
+        gw.send(p1);
+        gw.send(p2);
+
+        System.exit(0);
+    }
+
+    private static Penjualan bikinTransaksi(Integer id, String operasi) {
+        Penjualan p = new Penjualan();
+        p.setId(id);
+        p.setOperasi(operasi);
+
+        Produk pr1 = new Produk(1001, "PR-001", "Produk 001");
+        Produk pr2 = new Produk(1002, "PR-002", "Produk 002");
+        Produk pr3 = new Produk(1003, "PR-003", "Produk 003");
+
+        PenjualanDetail pd1 = new PenjualanDetail(11, pr1, 1);
+        PenjualanDetail pd2 = new PenjualanDetail(12, pr2, 2);
+        PenjualanDetail pd3 = new PenjualanDetail(13, pr3, 3);
+
+        p.addPenjualanDetail(pd1);
+        p.addPenjualanDetail(pd2);
+        p.addPenjualanDetail(pd3);
+
+        return p;
+    }
+}
+</code></pre>
+
+<p>Demikianlah penggunaan routing dengan Spring Integration. Seperti kita lihat, dengan menggunakan Spring Integration, aplikasi kita menjadi fleksibel dan mudah ditest. Semua implementasi kode program Java, baik itu transformer, router, dan service method, bisa ditest dengan mudah menggunakan JUnit. Kita juga lihat bahwa semua kode program Java kita tidak memiliki ketergantungan terhadap Spring Integration.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/linux/simulasi-slow-network/">Simulasi Slow Network</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-15T15:21:33+07:00" pubdate data-updated="true">Jun 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di salah satu proyek ArtiVisi, kita memiliki aplikasi client-server yang terhubung melalui koneksi internet berbandwidth kecil. Client menghubungi server melalui modem GPRS.</p>
+
+<p>Permasalahannya adalah bagaimana cara mengetes koneksi lemot ini pada saat development? Umumnya pada saat development kita menjalankan server dan client di komputer yang sama. Atau kalaupun di komputer berbeda, dijalankan di satu LAN, sehingga kecepatan bisa mencapai 100Mbps.</p>
+
+<p>Ada dua alternatif yang bisa kita gunakan. Yang pertama adalah aplikasi tc (traffic control) yang biasanya sudah terinstal secara default di Ubuntu. Kalau belum terinstal, kita bisa menginstal paket iproute atau iproute2, tergantung distro yang Anda gunakan.</p>
+
+<p>Alternatif kedua, menggunakan aplikasi ip_relay. Aplikasi ini bisa diinstal dengan nama paket iprelay.</p>
+
+<p>Berikut adalah referensi pemakaian tc :</p>
+
+<ul>
+<li><p><a href="http://www.kdedevelopers.org/node/1878">pipita&#8217;s blog</a></p></li>
+<li><p><a href="http://henrydu.com/blog/how-to/simulate-a-slow-link-by-linux-bridge-123.html">Henry&#8217;s Point</a></p></li>
+</ul>
+
+
+<p>Dan ini adalah referensi pemakaian iprelay :</p>
+
+<ul>
+<li><p><a href="http://ubuntuforums.org/showthread.php?t=670628">Ubuntu Forum</a></p></li>
+<li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/12/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/10/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Intro JSF - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada postingan kemarin, kita telah melihat bagaimana membuat aplikasi web dengan ICEFaces, yang notabene dijalankan di atas framework JSF. Tapi JSF &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/java/intro-jsf/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Intro JSF</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-03-31T00:05:58+07:00" pubdate data-updated="true">Mar 31<span>st</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/intro-icefaces/">postingan kemarin</a>, kita telah melihat bagaimana membuat aplikasi web dengan ICEFaces, yang notabene dijalankan di atas framework JSF. Tapi JSF sendiri itu apa?</p>
+
+<p>Java Server Faces (JSF) adalah salah satu teknologi terbaru dalam pengembangan aplikasi web. Teknologi ini distandarisasi oleh Sun sehingga dukungan terhadapnya akan disediakan para vendor server.</p>
+
+<p>Sebenarnya apa itu JSF? Berdasarkan <a href="http://java.sun.com/j2ee/1.4/docs/tutorial/doc/JSFIntro3.html">penjelasan dari Sun</a>, JSF terdiri dari:</p>
+
+<ul>
+<li><p>Kumpulan komponen UI (tentunya berbasis web)</p></li>
+<li><p>Pengaturan flow navigasi</p></li>
+<li><p>Mekanisme event handling (seperti layaknya aplikasi desktop)</p></li>
+<li><p>Halaman web</p></li>
+<li><p>Server side objects</p></li>
+</ul>
+
+
+<p>Karena sifatnya yang merupakan spesifikasi resmi dari Sun, di masa depan akan banyak vendor yang menyediakan dukungan terhadap framework ini, sehingga kita bisa mengharapkan adanya:</p>
+
+<ul>
+<li><p>Visual Editor untuk halaman web</p></li>
+<li><p>Visual Editor untuk mengatur aliran navigasi</p></li>
+<li><p>Komponen siap pakai yang sudah AJAX-enabled</p></li>
+</ul>
+
+
+<p>Saat tulisan ini dibuat, sepertinya editor visual yang terbaik untuk JSF masih dipegang Netbeans. Sayangnya berdasarkan pengalaman sekilas saya, editor visual ini sangat &#8216;menjajah&#8217;. Agar kita bisa mengedit halaman web dan navigasi secara visual, kita harus banyak <em>extends</em> class Netbeans.</p>
+
+<p>Mudah-mudahan di masa depan dukungan tools akan semakin banyak, terutama dari Eclipse atau IDEA.</p>
+
+<p>Baiklah, para pembaca tentunya sudah tidak sabar ingin melihat, seperti apa kodenya. Pada artikel ini, kita hanya akan membahas tentang:</p>
+
+<ol>
+<li><p>konfigurasi awal</p></li>
+<li><p>membuat dua halaman, dan</p></li>
+<li><p>menghubungkan keduanya dengan konfigurasi navigasi</p></li>
+</ol>
+
+
+<p>Kita akan menggunakan <a href="https://javaserverfaces.dev.java.net/">implementasi JSF yang disediakan Sun</a>, saat artikel ini ditulis, rilis terbaru adalah 1.2.</p>
+
+<p>Selain hasil karya Sun, kita juga bisa menggunakan <a href="http://myfaces.apache.org">JSF terbitan Apache</a>.</p>
+
+<p>Mari langsung coding.</p>
+
+<p>Kita akan hanya akan membuat dua halaman:</p>
+
+<ol>
+<li><p>Registrasi User</p></li>
+<li><p>Konfirmasi Registrasi</p></li>
+</ol>
+
+
+<p>tanpa business logic sama sekali. Halaman pertama berisi form registrasi, yang bila di-klik tombol Register-nya, user akan diarahkan ke halaman kedua. Untuk validasi dan akses database akan dibahas dalam artikel terpisah.</p>
+
+<p>Halaman pertama tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/jsf-register.png" title="Halaman Registrasi" ></p>
+
+<p>Sedangkan halaman kedua tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/jsf-confirm.png" title="Halaman Konfirmasi" ></p>
+
+<p>Kode untuk halaman pertama adalah sebagai berikut.</p>
+
+<h3>register.jsp</h3>
+
+<pre><code>&lt;code&gt;&lt;%@page contentType="text/html"%&gt;
+&lt;%@page pageEncoding="UTF-8"%&gt;
+&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd"&gt;
+
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;:: Pendaftaran User ::&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+
+    &lt;h1&gt;Silahkan masukkan data Anda di sini&lt;/h1&gt;
+    &lt;h:form&gt;
+    &lt;table border="0"&gt;        
+        &lt;tbody&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Nama Lengkap&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Username&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Email&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Password&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputSecret value="password"/&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Password (ulangi)&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputSecret value="password2"/&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt; &lt;/td&gt;
+                &lt;td&gt;&lt;h:commandButton type="submit" value="Daftar" action="register"/&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;/h:form&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Perhatikan kode program untuk menampilkan tombol. Di sana ada atribut <code>action</code> yang bernilai <code>register</code>. Atribut <code>action</code> ini nantinya akan digunakan di konfigurasi navigasi di bawah.</p>
+
+<p>Sedangkan halaman kedua isinya HTML biasa, sebagai berikut.</p>
+
+<h3>confirmation.jsp</h3>
+
+<pre><code>&lt;code&gt;&lt;%@page contentType="text/html"%&gt;
+&lt;%@page pageEncoding="UTF-8"%&gt;
+
+
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd"&gt;
+
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;:: Konfirmasi Pendaftaran ::&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+
+    &lt;h1&gt;Registrasi Berhasil !!&lt;/h1&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Kedua halaman tersebut akan diakses dengan URL :</p>
+
+<ol>
+<li><p>http://localhost:8080/HelloJSF/register.jsf</p></li>
+<li><p>http://localhost:8080/HelloJSF/confirmation.jsf</p></li>
+</ol>
+
+
+<p>Perhatikan bahwa kita mengakses halaman tersebut dengan URL <em>.jsf, padahal nama file sebenarnya adalah </em>.jsp.</p>
+
+<p>Jadi, yang terjadi di sini adalah, kita menyerahkan pemrosesan semua URL berakhiran jsf kepada servlet JSF.</p>
+
+<p>Oleh karena itu, kita perlu mendefinisikan Servlet JSF dan URL Mapping tersebut pada <code>web.xml</code>.</p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
+        &lt;param-value&gt;client&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+        &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;*.jsf&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;
+            30
+        &lt;/session-timeout&gt;
+    &lt;/session-config&gt;
+&lt;/web-app&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Isi <code>web.xml</code> sudah dijelaskan pada <a href="http://endy.artivisi.com/blog/java/intro-icefaces/">artikel sebelumnya tentang ICEFaces</a>.</p>
+
+<p>Selanjutnya, mari kita lihat konfigurasi navigasinya, yang menyatakan:</p>
+
+<blockquote><p>bila tombol Daftar ditekan, bukalah halaman <code>confirmation.jsp</code></p></blockquote>
+
+<p>Konfigurasi tersebut ditulis di dalam file <code>faces-config.xml</code> sebagai berikut.</p>
+
+<h3>faces-config.xml</h3>
+
+<pre><code>&lt;code&gt;&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+
+&lt;faces-config version="1.2" 
+    xmlns="http://java.sun.com/xml/ns/javaee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd"&gt;
+        &lt;navigation-rule&gt;            
+            &lt;from-view-id&gt;/register.jsp&lt;/from-view-id&gt;
+            &lt;navigation-case&gt;
+                &lt;from-outcome&gt;register&lt;/from-outcome&gt;
+                &lt;to-view-id&gt;/confirmation.jsp&lt;/to-view-id&gt;
+            &lt;/navigation-case&gt;
+        &lt;/navigation-rule&gt;
+&lt;/faces-config&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Pada konfigurasi di atas, kita mendefinisikan view bernama <code>register.jsp</code>, yaitu halaman registrasi kita. Kemudian ada navigation case, yang merupakan aturan navigasi untuk halaman <code>register.jsp</code> tersebut. Bila dihasilkan action <code>register</code>, tampilkan halaman <code>confirmation.jsp</code>.</p>
+
+<p>Action register ini didapat dari nilai atribut action pada komponen tombol Daftar di dalam file <code>register.jsp</code>.</p>
+
+<p>Di masa yang akan datang, nantinya konfigurasi navigasi ini akan diedit dengan visual editor. Sehingga kita bisa langsung drag-and-drop halaman, kemudian menggambar panah dari halaman <code>register.jsp</code> ke <code>confirmation.jsp</code> dengan tulisan &#8216;register&#8217;.</p>
+
+<p>Aplikasi HelloJSF siap dideploy. Struktur folder lengkapnya tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/hellojsf-folder.png" title="Struktur Folder Aplikasi HelloJSF" ></p>
+
+<p>Pembaca yang teliti akan segera bertanya,</p>
+
+<blockquote><p>Apa tidak kurang? Mana <em>.jar nya? Tidak ada </em>.jar apa-apa di sana!</p></blockquote>
+
+<p>Itu karena saya mendeploy ke Sun Application Server yang terbundle bersama Netbeans Enterprise Pack. Kalau saja kita deploy ke Tomcat atau Jetty, tentu lain ceritanya. Kita harus melihat dokumentasi masing-masing merek server.</p>
+
+<p>Demikian perkenalan kita dengan JSF. Lain waktu kita akan sambung dengan kemampuan JSF yang lainnya.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-03-31T00:05:58+07:00" pubdate data-updated="true">Mar 31<span>st</span>, 2007</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endy.artivisi.com/blog/java/intro-jsf/" data-via="endymuhardin" data-counturl="http://endy.artivisi.com/blog/java/intro-jsf/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/java/intro-icefaces/" title="Previous Post: Intro ICEFaces">&laquo; Intro ICEFaces</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/life/manajemen/nyambi-bolehkah/" title="Next Post: Nyambi, bolehkah??">Nyambi, bolehkah?? &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="facebook_comments" aria-live="polite">
+      <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://endy.artivisi.com/blog/java/intro-jsf/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+    </div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

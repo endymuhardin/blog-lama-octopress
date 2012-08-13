@@ -1,0 +1,960 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada artikel sebelumnya, kita sudah mendiskusikan requirement yang diinginkan. Sekarang kita akan melakukan implementasi menggunakan Spring &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/12/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-2/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 2]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-12T20:43:16+07:00" pubdate data-updated="true">Jun 12<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-1/">artikel sebelumnya</a>, kita sudah mendiskusikan requirement yang diinginkan. Sekarang kita akan melakukan implementasi menggunakan <a href="http://www.springsource.org/spring-integration">Spring Integration</a>.</p>
+
+<p>Spring Integration memiliki beberapa abstraksi utama yang perlu kita ketahui agar bisa membuat implementasi, yaitu :</p>
+
+<ul>
+<li><p>Message : ini adalah data yang akan kita kirim, proses, dan terima</p></li>
+<li><p>Channel : ini adalah saluran tempat lewatnya message</p></li>
+<li><p>Endpoint : ini adalah ujung dari channel</p></li>
+<li><p>Transport : mekanisme pengiriman message. Spring Integration mendukung messaging (email,JMS), remoting (Web Service, RMI, HttpInvoker, HTTP), file, dan lainnya (stream)</p></li>
+</ul>
+
+
+<p>Ilustrasi hubungan antara message, channel, dan endpoint bisa dilihat di gambar berikut :</p>
+
+<p><img src="/images/uploads/2009/06/msg-channel-endpoint-300x59.png" title="Hubungan Message, Channel, dan Endpoint" ></p>
+
+<p>Message terdiri dari dua bagian utama, yaitu header dan payload (isi message).</p>
+
+<h3>Channel</h3>
+
+<p>Berdasarkan kemampuan menampung message, channel dibedakan menjadi :</p>
+
+<ul>
+<li><p>Pollable : memiliki buffer untuk menampung message. Dengan adanya kapasitas buffer, pengirim tidak perlu menunggu sampai penerima mendapatkan message, kecuali bila buffernya penuh. Dalam kondisi buffer penuh, pengirim akan menunggu (blocking) sampai ada slot kosong yang bisa digunakan untuk menyimpan message. Penerima dapat memeriksa keberadaan message dalam buffer. Dalam melakukan pemeriksaan, penerima dapat menunggu sampai ada message, atau sampai jangka waktu tertentu (timeout)</p></li>
+<li><p>Subscribable : tidak memiliki buffer, tiap message yang masuk langsung dikirim ke endpoint. Pengirim harus menunggu sampai message diterima.</p></li>
+</ul>
+
+
+<p>Berdasarkan perilaku pengiriman message, channel dibedakan menjadi :</p>
+
+<ul>
+<li><p>Point to Point (PTP) : tiap message hanya dikirimkan ke satu penerima saja. Walaupun ada beberapa penerima yang terhubung ke channel PTP, tapi hanya salah satu saja yang akan menerima message</p></li>
+<li><p>Point to Multipoint (PTM) : tiap message akan dikirim ke semua penerima yang terdaftar.</p></li>
+</ul>
+
+
+<p>Ada beberapa implementasi channel :</p>
+
+<ul>
+<li><p>Direct Channel : subscribable dan point-to-point. Seluruh proses (kirim, masuk channel, terima) akan dilakukan dalam thread yang sama</p></li>
+<li><p>Queue Channel : pollable dan point to point. Message yang datang duluan akan dikirim duluan juga (FIFO)</p></li>
+<li><p>Priority Channel : mirip dengan Queue Channel, tapi tidak menggunakan FIFO, melainkan melihat field Priority di Message Header untuk menentukan mana message yang harus dikirim terlebih dulu</p></li>
+<li><p>Rendezvous Channel : mirip dengan Direct Channel, tapi pengirim dan penerima menggunakan thread yang berbeda. Pengirim akan menunggu sampai message diterima atau sampai timeout. Atau sebaliknya, penerima akan menunggu sampai ada message yang masuk. Biasanya digunakan untuk mengimplementasikan request-reply.</p></li>
+<li><p>ThreadLocal Channel : pollable dan point-to-point. Message disimpan di thread local, sehingga tidak disharing dengan thread yang berbeda.</p></li>
+<li><p>Publish Subscribe Channel : subscribable dan point-to-multipoint. Setiap penerima yang terdaftar akan menerima message. Tidak bisa menyimpan message, sehingga kalau kita butuh buffer, kita harus merangkainya dengan channel jenis lain yang memiliki buffer.</p></li>
+</ul>
+
+
+<h3>Endpoint</h3>
+
+<p>Endpoint digunakan untuk menghubungkan channel. Pemrosesan message dilakukan dalam endpoint. Ada beberapa jenis endpoint, yaitu:</p>
+
+<ul>
+<li><p>Service Activator : kalau kita ingin memanggil business method kita, gunakan endpoint ini.</p></li>
+<li><p>Channel Adapter : ini adalah penghubung channel dengan transport, baik untuk menerima message (inbound) ataupun mengirim message (outbound).</p></li>
+<li><p>Transformer : digunakan untuk mengubah format message</p></li>
+<li><p>Filter : digunakan untuk memutuskan apakah suatu message akan diterima atau dibuang</p></li>
+<li><p>Router : digunakan untuk memilih channel mana yang akan menerima message</p></li>
+<li><p>Splitter : digunakan untuk memecah message menjadi beberapa bagian untuk diproses secara independen</p></li>
+<li><p>Aggregator : digunakan untuk menggabungkan beberapa message menjadi satu message untuk diteruskan ke channel berikutnya</p></li>
+<li><p>Resequencer : digunakan untuk menyusun urutan message</p></li>
+</ul>
+
+
+<h3>Implementasi Kantor Pusat</h3>
+
+<p>Sekarang, setelah kita memahami berbagai istilah dalam Spring Integration, kita bisa merancang implementasi dari requirement kita. Berikut adalah aliran message di sisi kantor pusat. Kantor pusat mengirim beberapa data produk baru, dan akan dikonversi menjadi JSON.</p>
+
+<p><img src="/images/uploads/2009/06/pusat-json-300x24.png" title="Flow konversi data menjadi JSON" ></p>
+
+<p>Setelah menjadi JSON, selanjutnya kita bisa kirim melalui berbagai transport yang disediakan. Untuk tahap development, kita kirim saja melalui file ke folder /tmp, supaya mudah didebug dan tidak butuh internet.</p>
+
+<p><img src="/images/uploads/2009/06/json-file-300x56.png" title="Flow message JSON ke shared folder" ></p>
+
+<p>Selanjutnya, setelah transport melalui file sudah dipastikan benar, baik format data, isi data, maupun rangkaian filternya, kita bisa mengganti channel adapter untuk mengirim ke GMail.</p>
+
+<p><img src="/images/uploads/2009/06/json-email-300x35.png" title="Flow message JSON ke Email" ></p>
+
+<p>Kita harus membuat beberapa file sebagai berikut :</p>
+
+<ul>
+<li><p>Produk.java : domain model dari data yang akan kita kirim</p></li>
+<li><p>JsonTransformer.java : kode program untuk mengubah object Produk menjadi JSON</p></li>
+<li><p>JsonTransformerTest.java : kode program untuk mengetes ProdukTransformer</p></li>
+<li><p>PusatSender.java : kode program untuk mengaktifkan Spring Integration dan mengirim data produk</p></li>
+<li><p>Gateway.java : interface untuk mengirim message. Kita harus membuat ini agar tidak ada dependensi ke library Spring Integration</p></li>
+<li><p>pusat-integration-ctx.xml : konfigurasi Spring Integration</p></li>
+</ul>
+
+
+<p>Berikut kode programnya.</p>
+
+<h4>Produk.java</h4>
+
+<pre><code>public class Produk implements Serializable {
+    private Integer id;
+    private String kode;
+    private String nama;
+
+    // getter dan setter generate dengan IDE
+}
+</code></pre>
+
+<h4>JsonTransformer.java</h4>
+
+<pre><code>public class JsonTransformer {
+    public Produk jsonToProduk(String json){
+        return (Produk) JSONObject.toBean(JSONObject.fromObject(json), Produk.class);
+    }
+
+    public String produkToJson(Produk p){
+        return JSONObject.fromObject(p).toString();
+    }
+}
+</code></pre>
+
+<h4>JsonTransformerTest.java</h4>
+
+<pre><code>public class JsonTransformerTest {
+
+    @Test
+    public void testJsonToProduk() {
+        Produk p = new JsonTransformer()
+                    .jsonToProduk("{\"id\":99,\"kode\":\"T-001\",\"nama\":\"Produk Test\"}");
+        assertEquals(new Integer(99), p.getId());
+        assertEquals("T-001", p.getKode());
+        assertEquals("Produk Test", p.getNama());
+    }
+
+    @Test
+    public void testProdukToJson() {
+        Produk p = new Produk();
+        p.setId(99);
+        p.setKode("T-001");
+        p.setNama("Produk Test");
+
+        assertEquals("{\"id\":99,\"kode\":\"T-001\",\"nama\":\"Produk Test\"}",
+                new JsonTransformer().produkToJson(p));
+    }
+}
+</code></pre>
+
+<h4>PusatSender.java</h4>
+
+<pre><code>public class PusatSender {
+    public static void main(String[] args) {
+        // 1. Menginstankan Spring Application Context
+        AbstractApplicationContext ctx 
+            = new ClassPathXmlApplicationContext("pusat-integration-ctx.xml", Gateway.class);
+        ctx.registerShutdownHook();
+        Gateway gw = (Gateway) ctx.getBean("gateway");
+
+        // 2. Kirim produk ke gateway
+        int jumlahProduk = 5;
+        for (int i = 0; i &lt; jumlahProduk; i++) {
+            Produk p = new Produk();
+            p.setId(i);
+            p.setKode("PRD-00"+i);
+            p.setNama("Produk "+i);
+            gw.send(p);
+            System.out.println("Kirim produk "+i);
+        }
+        System.out.println("Produk terkirim");
+        System.exit(0);
+    }
+}
+</code></pre>
+
+<h4>Gateway.java</h4>
+
+<pre><code>public interface Gateway {
+    public void send(Produk p);
+}
+</code></pre>
+
+<h4>pusat-integration-ctx.xml</h4>
+
+<pre><code>&lt;beans:beans xmlns="http://www.springframework.org/schema/integration"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:file="http://www.springframework.org/schema/integration/file"
+       xmlns:mail="http://www.springframework.org/schema/integration/mail"
+       xmlns:transformer="http://www.springframework.org/schema/integration/transformer"
+       xmlns:stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+           http://www.springframework.org/schema/integration/file
+           http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+           http://www.springframework.org/schema/integration/mail
+           http://www.springframework.org/schema/integration/mail/spring-integration-mail-1.0.xsd
+           http://www.springframework.org/schema/integration/stream
+           http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+           http://www.springframework.org/schema/integration/transformer
+           http://www.springframework.org/schema/integration/transformer/spring-integration-transformer-1.0.xsd"&gt;
+
+
+    &lt;gateway id="gateway"
+                service-interface="com.artivisi.explore.spring.integration.pusat.Gateway"
+                default-request-channel="outgoingProduk"/&gt;
+
+    &lt;channel id="outgoingProduk" /&gt;
+
+    &lt;transformer input-channel="outgoingProduk" output-channel="outgoingJson"
+    ref="jsonTransformer" method="produkToJson"/&gt;
+
+    &lt;publish-subscribe-channel id="outgoingJson" /&gt;
+
+    &lt;file:outbound-channel-adapter channel="outgoingJson" directory="/tmp"/&gt;
+
+    &lt;mail:header-enricher
+        id="mailHeaderEnricher"
+        subject="Spring Integration Demo"
+        to="cabang@gmail.com"
+        from="pusat@gmail.com"
+        reply-to="pusat@gmail.com"
+        overwrite="false"
+        input-channel="outgoingJson"
+        output-channel="outgoingEmail"/&gt;
+
+    &lt;channel id="outgoingEmail" /&gt;
+
+    &lt;mail:outbound-channel-adapter
+        mail-sender="mailSender"
+        channel="outgoingEmail"
+        /&gt;
+
+    &lt;beans:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"&gt;
+        &lt;beans:property name="defaultEncoding" value="UTF-8"/&gt;
+        &lt;beans:property name="host" value="smtp.gmail.com"/&gt;
+        &lt;beans:property name="port" value="465"/&gt;
+        &lt;beans:property name="username" value="mygmailaccount"/&gt;
+        &lt;beans:property name="password" value="mygmailpassword"/&gt;
+        &lt;beans:property name="javaMailProperties"&gt;
+            &lt;beans:value&gt;
+                mail.debug=true
+                mail.smtp.starttls.enable=true
+                mail.smtp.auth=true
+                mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+                mail.smtp.socketFactory.fallback=false
+            &lt;/beans:value&gt;
+        &lt;/beans:property&gt;
+    &lt;/beans:bean&gt;
+
+    &lt;beans:bean id="jsonTransformer" class="com.artivisi.explore.spring.integration.model.JsonTransformer"/&gt;
+&lt;/beans:beans&gt;
+</code></pre>
+
+<h3>Implementasi Kantor Cabang</h3>
+
+<p>Di sisi kantor cabang, berikut aliran message dari transport hingga menjadi JSON. Kita mulai dengan transport file.</p>
+
+<p><img src="/images/uploads/2009/06/file-json-300x35.png" title="Flow dari shared folder menjadi JSON" ></p>
+
+<p>Bila kita menggunakan email, berikut gambarnya</p>
+
+<p><img src="/images/uploads/2009/06/email-json-300x35.png" title="Flow dari Email menjadi JSON" ></p>
+
+<p>Setelah menjadi JSON, kita proses sampai ke CabangService</p>
+
+<p><img src="/images/uploads/2009/06/json-cabang-300x25.png" title="Flow pemrosesan JSON menjadi Produk" ></p>
+
+<p>Kita harus membuat beberapa file sebagai berikut :</p>
+
+<ul>
+<li><p>CabangReceiver.java : kode program untuk mengaktifkan Spring Integration</p></li>
+<li><p>CabangService.java : kode program yang akan dipanggil setelah message diterima, dikonversi dari JSON menjadi Produk</p></li>
+<li><p>cabang-integration-ctx.xml : konfigurasi Spring Integration</p></li>
+</ul>
+
+
+<p>Kode programnya.</p>
+
+<h4>CabangReceiver.java</h4>
+
+<pre><code>public class CabangReceiver {
+    public static void main(String[] args) {
+        AbstractApplicationContext ctx 
+                = new ClassPathXmlApplicationContext("cabang-integration-ctx.xml", CabangReceiver.class);
+        ctx.registerShutdownHook();
+    }
+}
+</code></pre>
+
+<h4>CabangService.java</h4>
+
+<pre><code>public class CabangService {
+    public void terimaProduk(Produk p){
+        // Tampilkan data produk, tapi bisa juga disimpan di database
+        System.out.println("Terima produk");
+        System.out.println("ID : "+p.getId());
+        System.out.println("Kode : "+p.getKode());
+        System.out.println("Nama : "+p.getNama());
+    }
+}
+</code></pre>
+
+<h4>cabang-integration-ctx.xml</h4>
+
+<pre><code>&lt;beans:beans xmlns="http://www.springframework.org/schema/integration"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:file="http://www.springframework.org/schema/integration/file"
+       xmlns:mail="http://www.springframework.org/schema/integration/mail"
+       xmlns:transformer="http://www.springframework.org/schema/integration/transformer"
+       xmlns:stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+           http://www.springframework.org/schema/integration/stream
+           http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+           http://www.springframework.org/schema/integration/file
+           http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+           http://www.springframework.org/schema/integration/mail
+           http://www.springframework.org/schema/integration/mail/spring-integration-mail-1.0.xsd
+           http://www.springframework.org/schema/integration/transformer
+           http://www.springframework.org/schema/integration/transformer/spring-integration-transformer-1.0.xsd"&gt;
+
+
+    &lt;file:inbound-channel-adapter id="filePoller"
+       directory="/tmp"
+       filename-pattern="^.*\.msg$"
+       channel="incomingFile"/&gt;
+
+    &lt;channel id="incomingFile" /&gt;
+
+    &lt;file:file-to-string-transformer
+       input-channel="incomingFile"
+       output-channel="incomingJson"
+       delete-files="true" /&gt;
+
+    &lt;channel id="incomingJson" /&gt;
+
+    &lt;transformer input-channel="incomingJson" output-channel="incomingProduk"
+    ref="jsonTransformer" method="jsonToProduk"/&gt;
+
+    &lt;channel id="incomingProduk" /&gt;
+
+    &lt;service-activator input-channel="incomingProduk"
+                      ref="cabangService"
+                      method="terimaProduk"/&gt;
+
+    &lt;poller id="defaultPoller" default="true"&gt;
+        &lt;interval-trigger interval="3" time-unit="SECONDS"/&gt;
+    &lt;/poller&gt;
+
+
+    &lt;beans:bean id="jsonTransformer" class="com.artivisi.explore.spring.integration.model.JsonTransformer"/&gt;
+    &lt;beans:bean id="cabangService" class="com.artivisi.explore.spring.integration.cabang.CabangService"/&gt;
+&lt;/beans:beans&gt;
+</code></pre>
+
+<p>Untuk menerima email, kita dapat memilih protokol POP3, IMAP, atau IMAP-Idle. POP3 dan IMAP akan mendownload semua email yang masuk, setelah itu, kita harus melakukan polling dengan interval tertentu untuk memeriksa apakah ada email baru. Bila kita menggunakan IMAP-Idle, kita tidak perlu melakukan polling. Mail server akan memberikan notifikasi bila ada email baru yang masuk, setelah itu kita bisa mendownloadnya.</p>
+
+<p>Berikut konfigurasi untuk GMail</p>
+
+<h4>Debug Output</h4>
+
+<pre><code>    &lt;beans:bean id="javaMailProperty" class="org.springframework.beans.factory.config.PropertiesFactoryBean"&gt;
+        &lt;beans:property name="properties"&gt;
+            &lt;beans:value&gt;
+                mail.debug=true
+            &lt;/beans:value&gt;
+        &lt;/beans:property&gt;
+    &lt;/beans:bean&gt;
+</code></pre>
+
+<h4>POP3</h4>
+
+<pre><code>    &lt;mail:inbound-channel-adapter
+    channel="incomingMail"
+    store-uri="pop3s://mygmailaccount:mygmailpassword@pop.gmail.com:995/INBOX"
+    java-mail-properties="javaMailProperty"/&gt;
+</code></pre>
+
+<h4>IMAP</h4>
+
+<pre><code>    &lt;mail:inbound-channel-adapter
+    channel="incomingMail"
+    store-uri="imaps://mygmailaccount:mygmailpassword@imap.gmail.com:993/INBOX" /&gt;
+</code></pre>
+
+<h4>IMAP-Idle</h4>
+
+<pre><code>    &lt;mail:imap-idle-channel-adapter channel="incomingMail"
+    store-uri="imaps://mygmailaccount:mygmailpassword@imap.gmail.com:993/INBOX"/&gt;
+</code></pre>
+
+<p>Setelah email masuk, jangan lupa konversi dulu jadi String.</p>
+
+<pre><code>    &lt;channel id="incomingMail" /&gt;
+
+    &lt;mail:mail-to-string-transformer 
+    input-channel="incomingMail" 
+    output-channel="incomingJson"/&gt;
+</code></pre>
+
+<p>Demikianlah tutorial penggunaan Spring Integration. Dengan menggunakan Spring Integration ini, ada beberapa benefit yang kita dapatkan dibandingkan coding sendiri :</p>
+
+<ul>
+<li><p>Kode program lebih sedikit</p></li>
+<li><p>Kode program lebih mudah ditest. Kita bisa menggunakan JUnit untuk JsonTransformer. Alur pengiriman data juga bisa ditest di komputer lokal tanpa koneksi ke GMail, sehingga kalau ada error bisa diperbaiki dengan lebih cepat.</p></li>
+<li><p>Aliran data lebih mudah dibaca, yaitu dalam konfigurasi Spring Integration</p></li>
+<li><p>Fleksibilitas dalam pemilihan transport. Bukan cuma email, tapi juga banyak opsi lain seperti remoting dan file. Opsi ini cuma butuh beberapa baris konfigurasi saja untuk mengaktifkannya.</p></li>
+</ul>
+
+
+<p>Konsumsi effort :</p>
+
+<ul>
+<li><p>Download : 1 jam</p></li>
+<li><p>Browsing tutorial : 2 jam</p></li>
+<li><p>Mempelajari Spring Integration : 8 jam</p></li>
+<li><p>Membuat sample aplikasi : 4 jam</p></li>
+<li><p>Menulis blog dan membuat gambar : 8 jam</p></li>
+<li><p><strong>Total : 23 jam (3 hari)</strong></p></li>
+</ul>
+
+
+<p>Apakah dalam 3 hari kita bisa membuat implementasi kirim-terima data produk via email yang bebas bug ??</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-1/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 1]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-11T21:39:48+07:00" pubdate data-updated="true">Jun 11<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Integrasi Aplikasi Pusat Cabang - Bagian I</p>
+
+<p>Beberapa waktu yang lalu, kami di ArtiVisi dihadapkan pada suatu tantangan, yaitu sinkronisasi aplikasi antara pusat dan cabang.
+Aplikasi pusat maupun cabang memiliki database masing-masing, dan tentunya data transaksi masing-masing pula.</p>
+
+<p>Pada artikel ini, saya akan mengelaborasi proses problem solving yang dilakukan, solusi yang dipilih, dan tentunya dilengkapi dengan source code.</p>
+
+<h3>Use Case</h3>
+
+<p>Ada beberapa use case yang ingin didukung oleh aplikasi, sebagai berikut :</p>
+
+<ul>
+<li><p>Pusat menambahkan jenis produk baru, data ini harus segera diimplementasikan juga di cabang</p></li>
+<li><p>Transaksi yang dilakukan di cabang harus dikirim ke pusat agar bisa dibuatkan laporan keseluruhan</p></li>
+<li><p>Data pelanggan di cabang harus juga dikirim ke pusat</p></li>
+<li><p>Perpindahan stok barang dari pusat ke cabang dan sebaliknya</p></li>
+</ul>
+
+
+<h3>Constraint</h3>
+
+<p>Bicara requirement, tentu tidak bisa dilepaskan dari constraint. Berikut constraint yang ada :</p>
+
+<ul>
+<li><p>Pusat dan cabang sama-sama terhubung ke internet menggunakan Speedy</p></li>
+<li><p>Karena pakai Speedy, kita bisa mengekspose satu mesin ke internet menggunakan IP Public</p></li>
+<li><p>IP Public tidak dedicated, dan mungkin berubah sewaktu-waktu</p></li>
+<li><p>Server aplikasi dan database di pusat/cabang belum tentu hidup. Kalaupun hidup, belum tentu hidup berbarengan.
+Bisa saja pusat sedang nyala, cabang mati lampu, dan sebaliknya.</p></li>
+</ul>
+
+
+<h3>Alternatif Solusi</h3>
+
+<p>Setelah kita memiliki requirement dan constraint, tahap berikutnya adalah membuat daftar alternatif solusi.
+Berikut adalah alternatif yang bisa kita lakukan untuk memecahkan masalah di atas.</p>
+
+<ul>
+<li><p>Remoting</p>
+
+<ul>
+<li><p>Web Services</p></li>
+<li><p>RMI</p></li>
+<li><p>HttpInvoker</p></li>
+</ul>
+</li>
+<li><p>Messaging</p>
+
+<ul>
+<li><p>JMS</p></li>
+<li><p>Email (POP3/IMAP dan SMTP)</p></li>
+</ul>
+</li>
+<li><p>File</p>
+
+<ul>
+<li><p>Shared Folder</p></li>
+<li><p>FTP</p></li>
+<li><p>SSH/SCP</p></li>
+</ul>
+</li>
+<li><p>Database</p>
+
+<ul>
+<li><p>Shared Database</p></li>
+<li><p>Replikasi Database</p></li>
+</ul>
+</li>
+</ul>
+
+
+<h3>Pemilihan Solusi</h3>
+
+<p>Jaringan publik melalui internet sangat tidak reliable dan memiliki banyak keterbatasan.
+Kita tidak bisa membuka sembarang port, karena mungkin saja diblokir di tengah jalan.
+Kita juga tidak bisa menggunakan protokol yang terlalu kompleks atau cerewet (membutuhkan transfer data yang sering).
+Oleh karena itu, kita bisa menyingkirkan alternatif berikut.</p>
+
+<ul>
+<li><p>Remoting dengan RMI : port tidak standar</p></li>
+<li><p>Messaging dengan JMS : port tidak standar</p></li>
+<li><p>Replikasi MySQL : protokol terlalu kompleks dan cerewet, port tidak standar</p></li>
+</ul>
+
+
+<p>Kita harus mempertimbangkan konsumsi bandwidth. Protokol yang rakus bandwidth bisa kita singkirkan, yaitu Remoting dengan WS.</p>
+
+<p>Melihat constraint terakhir, kita juga harus mengeliminasi beberapa alternatif yang mengharuskan pusat dan cabang online bersamaan, yaitu Remoting dengan Spring HTTPInvoker dan File Transfer, baik FTP maupun SSH/SCP.</p>
+
+<p>Dengan demikian, yang tersisa adalah Messaging dengan Email. Kita bisa mengirim data dengan attachment. Untuk menghemat bandwidth, attachment bisa dikompresi. Pusat dan cabang bisa online kapanpun mereka mau, dan akan tetap menerima message. Kalau ada message yang hilang di tengah jalan, orang pusat/cabang bisa menelepon untuk minta dikirim ulang datanya.</p>
+
+<p>Sebagai bonus, dengan memilih email sebagai media transfer data, kita tidak perlu repot-repot mengelola infrastruktur sendiri. Kita bisa gunakan layanan GMail yang gratis, berkapasitas besar, dan memiliki implementasi POP3, IMAP, dan SMTP. Ada satu fitur istimewa dari IMAP, yaitu <a href="http://en.wikipedia.org/wiki/IMAP_IDLE">IMAP-Idle</a>. Fitur ini akan sangat berguna kelak di kemudian hari. Kebetulan <a href="http://samj.net/2008/07/proof-gmail-imap-gimap-supports-imap.html">GMail sudah mendukung fitur ini</a>.</p>
+
+<h3>Desain Implementasi</h3>
+
+<p>Baiklah, mari kita implementasikan sinkronisasi melalui email. Ada beberapa pertanyaan lanjutan. Pertama, apa yang ingin dikirim? Sebagai contoh sederhana, kita ingin mengirim data produk baru dari pusat ke cabang. Inilah class Produk.</p>
+
+<pre><code>public class Produk {
+  private Integer id;
+  private String kode;
+  private String nama;
+
+  // getter dan setter
+}
+</code></pre>
+
+<p>Bila kita membuat object Produk, datanya akan tersimpan di memori. Kita harus mengkonversi format data di memori ini ke bentuk file, supaya bisa dikirim dalam bentuk attachment. Ada beberapa pilihan lagi di sini, yaitu :</p>
+
+<ul>
+<li><p>java.io.Serializable, konversi dengan ObjectInputStream dan ObjectOutputStream</p></li>
+<li><p>JSON</p></li>
+<li><p>XML</p></li>
+</ul>
+
+
+<p>Serializable lebih unggul dalam hal kemudahan coding dan kecepatan marshall/unmarshall. Di Java menulis object ke file sangat mudah dan cepat. Prosesnya sama untuk apapun object yang ingin kita konversi. Untuk memproses konversi juga tidak dibutuhkan CPU dan Memori tinggi. Walaupun demikian, file yang dihasilkan berbentuk binary, sehingga menyulitkan debugging.</p>
+
+<p>JSON dan XML berbentuk text, sehingga mudah didebug kalau ada masalah. Walaupun demikian, kita harus membuat atau memilih dari yang ada implementasi generator dan parser untuk proses konversi. Proses konversinya butuh resource CPU dan memori. Dan yang paling penting, kita mungkin harus membuat generator/parser untuk tiap tipe data yang akan kita kirim.</p>
+
+<p>Sementara saya pilih JSON, karena ada <a href="http://json-lib.sourceforge.net/usage.html">json-lib</a> yang bisa mengkonversi object menjadi JSON dan sebaliknya dengan mudah.</p>
+
+<p>Selanjutnya, bagaimana cara mengirim email?</p>
+
+<p>Cara mengirim email dengan Java sudah ditunjukkan Ifnu <a href="http://ifnu.artivisi.com/?p=80">di sini</a>. Tapi saya tidak mau coding tangan kosong seperti itu. Bukan apa-apa, setiap baris kode yang kita tulis harus ditest dan dimaintain. Belum lagi kalo nanti ada perubahan requirement, bisa coding ulang.</p>
+
+<p>Nah, pertama saya memutuskan <a href="http://static.springframework.org/spring/docs/2.5.x/reference/mail.html">menggunakan Spring untuk mengirim email</a>. Ibaratnya kalau coding sendiri itu berkelahi dengan tangan kosong, pakai Spring berkelahi pakai pistol. Jauh lebih cepat dan mudah.</p>
+
+<p>Tapi ternyata, pistol juga tidak cukup, karena kita belum bisa menerima email. Bisa kirim gak bisa terima ya percuma, karena di sisi kantor cabang kita tentu harus mengambil dan memproses data yang dikirim dari pusat. Ifnu sebetulnya sudah membuat implementasi penerima emailnya, tapi nampaknya belum diposting.</p>
+
+<p>Saatnya membuka gudang senjata dan mencari senjata yang lebih besar. Saya menemukan rocket launcher, yaitu <a href="http://www.springsource.org/spring-integration">Spring Integration</a>.</p>
+
+<p>Bukan saja bisa menerima email, Spring Integration juga bisa menggunakan semua alternatif transport yang disebutkan di atas (WS, HTTPInvoker, RMI, FTP, SSH, JMS, Email) hanya dengan mengganti beberapa baris konfigurasi. Wow &#8230;. canggih sekali. Baiklah, saya akan pakai ini saja.</p>
+
+<p>Berhubung artikel ini sudah terlalu panjang. Implementasi Spring Integrationnya diteruskan di <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-2">bagian kedua</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/ejb-remote-clien/">Mengakses EJB Secara Remote</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-03T20:46:00+07:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mengakses EJB secara Remote</p>
+
+<p>Beberapa buku tentang EJB, seperti EJB 3 in Action karangan Reza Rahman maupun Enterprise Java Beans 3.0 karangan Bill Burke, membahas secara detail tentang penggunaan EJB. Akan tetapi, ada satu hal kecil namun penting yang tidak dibahas. Bagaimana cara mengakses EJB secara remote?</p>
+
+<p>Di sisi server, ini mudah. Cukup membuat remote interface saja beres. Tapi bagaimana cara lookupnya dari client? Artikel ini akan membahas cara memanggil EJB dari method main.</p>
+
+<p>Sebelumnya, berikut adalah EJB yang akan kita panggil.</p>
+
+<h3>HaloBean.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.session;
+
+@Stateless
+public class HaloBean implements HaloRemote {
+   public String halo(String nama) {
+     return "Halo "+nama;
+   }
+}
+</code></pre>
+
+<h3>HaloRemote.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.session;
+
+@Remote
+public interface HaloRemote {
+   public String halo(String nama);
+}
+</code></pre>
+
+<p>EJB ini akan kita deploy ke Glassfish menggunakan Netbeans. Bagaimana caranya? Silahkan buka menu Help Netbeans.</p>
+
+<p>Berikut adalah kode untuk memanggil HaloBean secara remote.</p>
+
+<h3>HaloClient.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.client;
+
+public class HaloClient {
+  public static void main(String[] args){
+    // 0. Konfigurasi host dan port
+    String ejbHost = "localhost";
+    String ejbPort = 12345;
+    String ejbName = HaloRemote.class.getName();
+
+    // 1. JNDI Context
+    Properties props = new Properties();
+    props.put("org.omg.CORBA.ORBInitialHost", ejbHost);
+    props.put("org.omg.CORBA.ORBInitialPort", ejbPort);
+
+    InitialContext ctx = new InitialContext(props);
+
+    // 2. Lookup EJB
+    HaloRemote haloBean = (HaloRemote) ctx.lookup(ejbName);
+
+    // 3. Panggil methodnya
+    System.out.println("Halo EJB : "+haloBean.halo("endy"));
+  }
+}
+</code></pre>
+
+<p>Ada beberapa variabel yang perlu diperhatikan di sini, yaitu ejbHost, ejbPort, dan ejbName. Variabel ejbHost tentunya adalah komputer tempat EJB dideploy. Variabel ejbPort adalah port yang digunakan oleh Application Server untuk mempublish EJB. Port ini berbeda-beda tergantung merek application server dan cara deploymentnya. Karena saya menggunakan Netbeans untuk mendeploy ke Glassfish, maka saya harus cari tahu dulu berapa port yang digunakan Netbeans.</p>
+
+<p>Caranya, login ke admin console Glassfish melalui Netbeans. Buka tab Services, klik kanan Glassfish, dan pilih View Admin Console.
+(/images/uploads/2009/06/netbeans-view-admin-console.png)
+Browser akan terbuka dan menampilkan halaman login Glassfish.
+(/images/uploads/2009/06/glassfish-login.png)
+Setelah login, klik Application Server di panel kiri. Port yang digunakan akan ditampilkan di panel kanan, yaitu dengan nama IIOP Port(s). Coba-coba saja semuanya. Di komputer saya, port yang benar adalah 10275.
+(/images/uploads/2009/06/glassfish-iiop-port.png)
+Variabel ejbName juga berbeda tergantung dari application server yang digunakan. Baca dokumentasi server Anda untuk memastikannya.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/13/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/11/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,832 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/43/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/ruthless-testing-3/">Ruthless Testing 3</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-20T22:38:19+07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam sistem. Jadi, user membuka form, mengisi data diri, dan menekan tombol Submit. Tidak ada yang aneh dengan fiturnya.</p>
+
+<p>Keanehannya adalah, entah kenapa, aplikasi tersebut cuma bisa digunakan 7 kali. Jadi pada waktu user ke-8 menekan tombol Submit, datanya tidak tersimpan di database. Anehnya juga, aplikasi tidak menimbulkan pesan error. Hmm &#8230; sungguh gaib.</p>
+
+<p>Berbagai upaya dilakukan untuk mengatasi masalah ini. Tim pengusir hantu didatangkan, lengkap dengan kostum putih-putih dan botol penangkap hantu, karena dicurigai ada &#8216;sesuatu&#8217; dengan angka 7. Tetapi tidak juga mencapai solusi yang memuaskan.</p>
+
+<p>Akhirnya, seorang anggota milis JUG didatangkan. Beliau memeriksa source code fitur registrasi tersebut, sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">username</span><span class="o">,</span> <span class="n">password</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">PreparedStatement</span> <span class="n">pstm</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO user VALUES (?,?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getUsername</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getPassword</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pembaca yang teliti (ya, maksudnya Anda) akan segera menemukan asal muasal semua &#8216;kejadian gaib&#8217; di atas, yaitu:</p>
+
+<ol>
+<li><p>Connection dibuka, tapi tidak pernah ditutup. Besar kemungkinan max connection di database adalah 7 concurrent connection. Sehingga setelah 7 kali connect dan 0 kali disconnect, database akan menolak koneksi baru.</p></li>
+<li><p>Catch block dibiarkan kosong, sehingga error dari database tidak akan tampil di mana-mana.</p></li>
+</ol>
+
+
+<p>Hmm .. kesalahan yang &#8216;newbie banget&#8217;. Melalui pemeriksaan menyeluruh, ditemukan kesalahan serupa di berbagai bagian kode yang lain.</p>
+
+<p>Pada titik ini, para project manager, development team leader akan segera mengeluh dan bersiap-siap mengisi komentar di bawah, &#8220;Masa saya harus baca kode baris-per-baris? Kayak kurang kerjaan aja !!&#8221;
+Sebelum Anda lakukan itu, sabar dulu .. baca sampai habis. Kita akan segera lihat solusinya.</p>
+
+<p>Pemeriksaan baris kode seperti ini sangat melelahkan. Semakin besar projectnya, semakin banyak baris kodenya, semakin tinggi beban pemeriksaannya. Di lain pihak, kalau kita tidak melakukan pemeriksaan, kita menimbulkan resiko terjadinya masalah di kemudian hari.</p>
+
+<p>Jadi, bagaimana solusinya?</p>
+
+<p>Untungnya &#8211;seperti biasa&#8211; kita bukan yang pertama menemukan masalah seperti ini. Masalah sudah pernah dialami orang lain, dan dibuatkan solusinya, sehingga kita &#8211;seperti biasa&#8211; tinggal download dan pakai :D</p>
+
+<p>Jawaban dari masalah ini adalah <strong>automated code review</strong>. Tools ini akan melakukan review terhadap source code, sesuai dengan aturan yang kita tetapkan, dengan teliti, otomatis, dan repeatable. Dengan tool ini, berapapun baris kode yang ada, semua akan diperiksa secara menyeluruh.</p>
+
+<p>Ada beberapa solusi yang dapat digunakan:</p>
+
+<ul>
+<li><p><a href="http://csdl.ics.hawaii.edu/Tools/Jupiter/">Jupiter (Eclipse Plugin)</a></p></li>
+<li><p><a href="http://pmd.sourceforge.net">PMD</a></p></li>
+<li><p><a href="http://www.hammurapi.org">Hammurapi</a></p></li>
+<li><p>Built-in feature IntelliJ IDEA</p></li>
+</ul>
+
+
+<p>Pada contoh kali ini, kita akan coba menggunakan PMD. Caranya mudah:</p>
+
+<ol>
+<li><p>Download dari websitenya.</p></li>
+<li><p>Extract</p></li>
+<li><p>Buat target di Ant untuk memanggil PMD.</p></li>
+<li><p>Lihat reportnya</p></li>
+</ol>
+
+
+<p>Untuk langkah #1 dan #2 tidak perlu dijelaskan lebih lanjut. Target Ant untuk langkah #3 adalah sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;code-review&quot;</span> <span class="na">depends=</span><span class="s">&quot;prepare&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;pmd</span> <span class="na">targetjdk=</span><span class="s">&quot;1.5&quot;</span> <span class="na">shortFilenames=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>basic<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>codesize<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>clone<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>controversial<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>coupling<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>design<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>finalizers<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>imports<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>javabeans<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-java<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-jakarta-commons<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>naming<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>optimizations<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strictexception<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strings<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>sunsecure<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>unusedcode<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;formatter</span>
+</span><span class='line'>        <span class="na">type=</span><span class="s">&quot;net.sourceforge.pmd.renderers.HTMLRenderer&quot;</span>
+</span><span class='line'>        <span class="na">toFile=</span><span class="s">&quot;${pmd.result}/pmd.html&quot;</span>
+</span><span class='line'>    <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;src&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;include</span> <span class="na">name=</span><span class="s">&quot;**/*.java&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/fileset&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/pmd&gt;</span>
+</span><span class='line'><span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut penjelasannya:</p>
+
+<ol>
+<li><p>Target JDK : memeriksa kesesuaian dengan JDK 1.5</p></li>
+<li><p>Ruleset : Aturan yang akan diberlakulkan. Detailnya bisa dilihat di website PMD. Sebagai contoh, dengan memberlakukan ruleset basic, kita memeriksa blok catch yang kosong, sehingga mencegah masalah pesan error di atas. Sedangkan ruleset design memeriksa apakah Connection yang dibuat sudah ditutup.</p></li>
+<li><p>Formatter : Jenis formatter yang digunakan. Report yang dihasilkan PMD dapat berupa text, xml, csv.</p></li>
+<li><p>Fileset: source code yang akan direview. Kita dapat mengganti parameter ini dan mereview semua source code yang ada di harddisk kita. SIlahkan mencoba mendownload source code project open source java (misalnya Tomcat, atau JBoss), dan lihat apakah kode programnya ditulis dengan baik.</p></li>
+</ol>
+
+
+<p>Laporan yang dihasilkan bentuknya seperti ini:
+<img src="/images/uploads/2006/07/pmd-report.png" title="PMD Review Result" ></p>
+
+<p>Selamat mencoba. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/manajemen/cost-of-quality/">Cost of Quality</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T23:48:16+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mumpung sedang <a href="http://endy.artivisi.com/blog/java/ruthless-testing-2/">hangat</a> membahas <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">testing</a>, coba kita dengarkan apa pendapat manajemen.</p>
+
+<p>Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, integration test, coverage test dsb
+Manager [M] : Stop, banyak sekali testnya? Memangnya kamu gak bisa bikin kode yang bener, sampe ditest segitu banyaknya?
+[P] : Ya bisa bos, tapi ..
+[M] : Ya sudah kalo bisa coding sana yang bener, test nanti saja waktu sudah delivery. Kita sudah mepet deadline ini. Kita dibayar bukan untuk coding unit test.
+[P] : (kecewa, cuma bisa gigit mouse) Ya deh bos &#8230;</p>
+
+<p>Umumnya, begitulah tanggapan pihak manajemen dalam menyikapi test. Test dianggap sebagai kegiatan yang (walaupun) penting, prioritasnya ada di kelas ekonomi.
+Saya sendiri, walaupun merupakan penggemar unit testing dan percaya akan manfaatnya, kadang merasa tidak pede untuk berargumen dengan manajemen tentang urusan ini.</p>
+
+<p>Sampai suatu hari, ada training di kantor tentang Software Engineering. Instrukturnya adalah konsultan manajemen yang ahli di bidang ISO dan CMMI.</p>
+
+<p>Biasanya, saya rada skeptis dengan yang namanya konsultan manajemen. Baik itu konsultan pemasaran, konsultan ISO, atau bidang manajemen yang lainnya. Kebanyakan dari mereka (tidak semua, tapi kebanyakan) biasanya cuma bisnis jargon saja. Cari uang dari menciptakan jargon aneh, menjelaskan jargon tersebut, dan menyuruh kita menggunakan jargon tersebut. Selebihnya nasihatnya mirip-mirip ramalan bintang, nasihat yang buram dan bisa ditafsirkan apa saja.</p>
+
+<p>Tapi kali ini, sang konsultan mengetengahkan jargon yang cukup menarik, yaitu <strong>Cost of Quality</strong>. Berikut penjelasannya.</p>
+
+<p>Biasanya, dalam mengerjakan project software, kegiatan apa yang ada di project schedule kita?
+Umumnya seperti ini:
+1. Analisa : membuat spesifikasi requirement user
+2. Desain : desain tampilan dan arsitektur aplikasi
+3. Coding
+4. User Testing
+5. Implementasi : migrasi data, training user, tuning
+6. Garansi
+7. Makan-makan (kalo ada profit)</p>
+
+<p>Si konsultan bilang, memang itu semua (1-6) adalah kegiatan utama. Tanpa kegiatan itu, project tidak bisa diutamakan. Tapi, dengan 6 aktifitas tersebut, kecil peluangnya kita akan sampai ke aktivitas #7, yaitu makan-makan.</p>
+
+<p>&#8220;Kenapa begitu ?&#8221;, demikian para peserta training bertanya dengan antusias, nampaknya jelas kalau urusannya menyangkut perut (tidak jadi makan-makan) orang ngantuk bisa langsung jadi segar.</p>
+
+<p>&#8220;Ya sebab di sana belum dianggarkan Biaya Kualitas (Cost of Quality), nantinya kualitas rendah, banyak perbaikan, sehingga profit terancam tergusur&#8221;, jawab instruktur.</p>
+
+<p>Nah, sekarang apa saja biaya kualitas itu? Diantaranya adalah:</p>
+
+<ol>
+<li><p>Training : memastikan pekerjaan tidak dikerjakan secara trial and error</p></li>
+<li><p>Review : mendeteksi kesalahan sedini mungkin. Kesalahan desain bisa diperbaiki dalam beberapa halaman dokumen desain. Tetapi jika dibiarkan sampai coding, banyak sekali effort untuk debug dan bugfix yang harus dikeluarkan. Misal: mengganti iBatis dengan Hibernate di dokumen desain cukup dengan Find and Replace. Mengganti iBatis dengan Hibernate di kode program? Bayangkan sendiri.</p></li>
+<li><p>Rework : harus ada anggaran untuk melakukan perbaikan dokumen, bugfix, dsb</p></li>
+<li><p>Audit : sebelum hasil pekerjaan dideliver ke client, harus diperiksa dulu secara internal. Audit proses juga dilakukan untuk memastikan semua Cost of Quality sudah diperhitungkan dan dijalankan.</p></li>
+<li><p>Testing : testing sebanyak mungkin dan seawal mungkin.</p></li>
+</ol>
+
+
+<p>Dalam project software, kita mengenal fenomena bola salju. Tadinya kecil, menggelinding menjadi besar sehingga dapat menggulung satu desa (seperti di film kartun). Di software sama. Kita ingin mendeteksi kesalahan sedini mungkin, kalau bisa di tahap analisa semua kesalahan sudah dieliminasi, sehingga tidak merembet ke kode program. Jadi, perlu ada review dan audit untuk memastikan kesalahan tidak ditemukan di fase-fase akhir. Karena memperbaiki kesalahan di awal (requirement dan design) jauh lebih murah daripada di akhir (kode program, materi user training, user manual, dan script migrasi data).</p>
+
+<p>Baiklah, cost of quality itu penting. Sekarang bagaimana cara menjelaskan pada manajemen mengenai tambahan biaya tersebut?</p>
+
+<p>Mari kita rekonstruksi dialog Programmer dan Manager.</p>
+
+<p>Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, integration test, coverage test &#8230;
+Manager [M] : Stop, banyak sekali testnya? Memangnya kamu gak bisa bikin kode yang bener, sampe ditest segitu banyaknya?
+[P] : Ya bisa bos, tapi ..
+[M] : Ya sudah kalo bisa coding sana yang bener, test nanti saja waktu sudah delivery. Kita sudah mepet deadline ini. Kita dibayar bukan untuk coding unit test.
+[P] : Memangnya kalo boleh tau, seperti apa jadwalnya Bos?
+[M] : Kamu programmer mau tau saja.
+Tapi gpp, karena ini percakapan boongan baiklah akan saya kasi tau:
+1. Analisa : 2 minggu
+2. Desain : 1 minggu
+3. Coding : 4 minggu
+4. User Testing dan Bugfix : 4 minggu
+5. Implementasi : 4 minggu
+6. Garansi : 8 minggu
+Total : 23 minggu</p>
+
+<p>[P] : Kenapa User Testing dan Implementasi lama sekali Bos? Sama lamanya dengan Coding?
+[M] : Ya itu karena kamu dan teman-temanmu kerjanya salah melulu, jadi di User Testing dan Implementasi banyak masalah.</p>
+
+<p>[P] : Bagaimana kalau saya usul jadwal seperti ini :
+1. Analisa : 2 minggu
+2. Review dan rework : 1 minggu
+3. Desain : 1 minggu
+4. Review dan rework : 1 minggu
+5. Training : 1 minggu
+6. Coding + Unit Testing: 6 minggu
+7. User Testing dan Bugfix: 2 minggu
+8. Implementasi : 1 minggu
+9. Garansi : 8 minggu
+Total : 23 minggu
+Sama kan Bos, total waktunya. Saya yakin dengan tambahan aktifitas review, rework, dan training, kita akan bisa tangkap sebagian besar bug sebelum User Testing. Dengan demikian, bug yang terlihat sama user tinggal sedikit karena sudah kita temukan duluan.
+Kalau sebelum coding kita ditraining dulu, codingnya bisa lebih cepat dan bener Bos, sehingga bugnya lebih sedikit. Mudah-mudahan client jadi puas.</p>
+
+<p>[M] : Wah pintar juga kamu, di rumah dikasi makan apa sama Emaknya bisa pintar gini? Baiklah akan saya coba usul kamu.</p>
+
+<p>Demikianlah, cost of quality itu penting. Lebih penting lagi adalah cara kita menjual pada manajemen, supaya kegiatan testing dan training tidak dianggap sebagai kegiatan &#8216;buang-buang uang&#8217; dan &#8216;tidak dibayar client&#8217;. Sebenarnya, client membayar untuk mendapat hasil yang berkualitas dan memuaskan. Secara tidak langsung, mereka membayar kita untuk melakukan testing.</p>
+
+<p>Referensi : <a href="http://www.stevemcconnell.com/articles/art04.htm">Software Quality at Top Speed</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/ruthless-testing-2/">Ruthless Testing 2</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T19:27:12+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel sebelumnya</a>, kita telah membahas tentang penggunaan <a href="http://www.junit.org">unit test</a> dan integration test sederhana menggunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>. Pada artikel kali ini, kita akan membahas tentang coverage testing</p>
+
+<p>Sebagai technical leader, project manager -atau apapun nama jabatannya- yang bertugas mengawasi segerombolan programmer, bagaimana cara kita memastikan bahwa mereka membuat unit test untuk setiap kode yang ditulis?</p>
+
+<p>Cara manual tentu saja dengan memeriksa unit test satu-persatu dan membandingkannya dengan kode program aplikasi. Kita cocokkan tiap unit test dengan pasangan kode yang ditest. Dengan demikian, kita tahu mana kode yang sudah ditest mana yang belum.</p>
+
+<p>Sayangnya, cara ini tidak otomatis. Sehingga kalau nanti dihadapkan pada deadline ketat, dipastikan kegiatan ini akan segera diabaikan. Oleh karena itu kita harus mengotomasi pemeriksaan test ini sehingga di tengah tekanan jadwal, kita tetap bisa memastikan unit test dibuat dengan benar.</p>
+
+<p>Ada beberapa tools yang beredar di pasaran untuk mengotomasi pemeriksaan ini, diantaranya:</p>
+
+<ul>
+<li><p><a href="http://www.cenqua.com/clover/">Clover</a> (komersial)</p></li>
+<li><p><a href="http://cobertura.sourceforge.net/">Cobertura</a> (open source)</p></li>
+<li><p><a href="http://emma.sourceforge.net/">Emma</a> (open source)</p></li>
+</ul>
+
+
+<p>Semua tools di atas melakukan &#8217;<em>coverage testing</em>&#8217;, yaitu pengetesan apakah unit test yang dibuat telah meng-cover semua kode yang ditest. Jika unit testnya terlalu sedikit, maka coverage testing akan failed.</p>
+
+<p>Pada contoh kali ini, kita akan menggunakan Cobertura. Cobertura mampu memeriksa coverage terhadap baris kode dan percabangan. Jadi kalau ada percabangan (if-else, switch) yang belum ditest, cobertura akan melaporkan. Kalau ada baris kode yang belum terjangkau unit test, cobertura juga akan memperingatkan.</p>
+
+<p>Sebagai supervisor, kita dapat menetapkan aturan pada project. Misalnya, &#8220;Untuk project ini, saya ingin test meng-cover minimal 70% dari seluruh baris dan 90% dari seluruh percabangan&#8221;.</p>
+
+<p>Bagaimana cara Cobertura melakukan keajaiban ini? Jawabannya, melalui mekanisme yang disebut <em>code instrumentation</em>.
+Cobertura akan memodifikasi bytecode (*.class) yang dihasilkan oleh proses kompilasi. Bytecode yang dihasilkan <em>javac</em> akan ditambah dengan kode-kode khusus untuk menghitung dan mendeteksi invokasi. Dengan demikian, pada saat unit test dijalankan, Cobertura akan mengetahui unit test yang mana menjalankan kode program yang mana. Bytecode yang akan diproses oleh Cobertura harus dikompile dengan flag -debug.</p>
+
+<p>Dengan demikian, untuk menjalankan Cobertura, kita membutuhkan dua kali tahap kompilasi. Kompilasi pertama mengubah <em>.java menjadi </em>.class. Kompilasi kedua menambahkan instrumen di *.class.</p>
+
+<p>Berikut adalah Ant target untuk melakukan instrumentasi.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;instrument-cobertura&quot;</span> <span class="na">depends=</span><span class="s">&quot;compile-cobertura&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="c">&lt;!--</span>
+</span><span class='line'><span class="c">                Instrument the application classes, writing the</span>
+</span><span class='line'><span class="c">                instrumented classes into ${build.instrumented.dir}.</span>
+</span><span class='line'><span class="c">        --&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-instrument</span> <span class="na">todir=</span><span class="s">&quot;${compile.cobertura}&quot;</span><span class="nt">&gt;</span>            
+</span><span class='line'>          <span class="nt">&lt;includeClasses</span> <span class="na">regex=</span><span class="s">&quot;.*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;excludeClasses</span> <span class="na">regex=</span><span class="s">&quot;.*\Test.*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;instrumentationClasspath&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;pathelement</span> <span class="na">location=</span><span class="s">&quot;${compile.debug}&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/instrumentationClasspath&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/cobertura-instrument&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selanjutnya, kita menjalankan unit test seperti biasa (melalui Ant target). Bedanya adalah, kita menggunakan hasil kompilasi Cobertura. Ant target untuk menjalankan unit test adalah sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;unit-test&quot;</span> <span class="na">depends=</span><span class="s">&quot;instrument-cobertura&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;junit</span> <span class="na">haltonfailure=</span><span class="s">&quot;false&quot;</span> <span class="na">fork=</span><span class="s">&quot;yes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">location=</span><span class="s">&quot;${compile.cobertura}&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">refid=</span><span class="s">&quot;cobertura-classpath&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;formatter</span> <span class="na">type=</span><span class="s">&quot;xml&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;batchtest</span> <span class="na">todir=</span><span class="s">&quot;${junit.result}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;${compile.debug}&quot;</span> <span class="na">includes=</span><span class="s">&quot;**/*Test.class&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/batchtest&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/junit&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan referensi ke <strong>${compile.cobertura}</strong> yang diletakkan di atas referensi <strong>cobertura-classpath</strong>. Ini mengisyaratkan bahwa class hasil instrumentasi Cobertura diload <strong>lebih dulu</strong> daripada class yang dikompilasi secara normal.</p>
+
+<p>Terakhir, kita buat Ant target untuk memeriksa coverage dan menghasilkan HTML report.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;coverage-test&quot;</span> <span class="na">depends=</span><span class="s">&quot;unit-test&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-check</span> <span class="na">datafile=</span><span class="s">&quot;cobertura.ser&quot;</span>
+</span><span class='line'>                         <span class="na">branchrate=</span><span class="s">&quot;70&quot;</span>
+</span><span class='line'>                         <span class="na">linerate=</span><span class="s">&quot;90&quot;</span>
+</span><span class='line'>                         <span class="na">haltonfailure=</span><span class="s">&quot;false&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-report</span> <span class="na">datafile=</span><span class="s">&quot;cobertura.ser&quot;</span>
+</span><span class='line'>                          <span class="na">srcdir=</span><span class="s">&quot;src&quot;</span> <span class="na">destdir=</span><span class="s">&quot;${cobertura.result}&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan nilai batas baris (linerate) dan percabangan (branchrate) yang harus ditest. Nilainya sudah disesuaikan dengan aturan yang kita tetapkan di atas, yaitu sebesar 70% dan 90%.</p>
+
+<p>Misalnya kita memiliki class DayCounter.java sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numDays</span><span class="o">(</span><span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">year</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">switch</span> <span class="o">(</span><span class="n">month</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">5</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">7</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">8</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">10</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">12</span><span class="o">:</span> <span class="k">return</span> <span class="mi">31</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">6</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">9</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">11</span><span class="o">:</span> <span class="k">return</span> <span class="mi">30</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">year</span><span class="o">%</span><span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="mi">29</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="mi">28</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="k">default</span><span class="o">:</span> <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan unit testnya DayCounterTest.java sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">testframework</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">junit.framework.TestCase</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounterTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">28</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">29</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">21</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-all-green-small.png" title="Cobertura All Pass" ></p>
+
+<p>Kita juga bisa melihat coverage detail dari class DayCounter.java:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-class-green-small.png" title="Cobertura Class Detail Pass" ></p>
+
+<p>Bila kita non-aktifkan beberapa test, seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">testframework</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">junit.framework.TestCase</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounterTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(28, d.numDays(2,2001));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(29, d.numDays(2,2000));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(0, d.numDays(21,2000));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-all-red-small.png" title="Cobertura All Failed" ></p>
+
+<p>dan detail classnya seperti ini</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-class-red-small.png" title="Cobertura Class Detail Failed" ></p>
+
+<p>Bagaimana?
+Mudah dan cepat kan?
+Dengan cara ini, kita dapat mendeteksi tingkat kemalasan programmer dalam membuat unit test.
+Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test ini sering juga disebut code-review.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/44/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/42/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

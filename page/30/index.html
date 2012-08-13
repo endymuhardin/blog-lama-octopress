@@ -1,0 +1,745 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="NAT adalah singkatan dari Network Address Translation. Gunanya supaya kita bisa mempublish komputer di internal (misal, IP dalamnya : 192.168.0.1)
+ke &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/30/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/linux/network-address-translation/">Network Address Translation</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-30T00:50:36+07:00" pubdate data-updated="true">Aug 30<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>NAT adalah singkatan dari Network Address Translation.</p>
+
+<p>Gunanya supaya kita bisa mempublish komputer di internal (misal, IP dalamnya : 192.168.0.1)
+ke internet (misal, IP luarnya : 202.159.11.11).
+Atau agar komputer di jaringan dalam bisa berbagi pakai akses internet.</p>
+
+<p>Setiap request ke satu komputer, komputer asal mengirim paket data ke komputer tujuan.
+Mirip dengan kalau kita kirim surat. Pesannya ditulis di kertas, masukkan amplop,
+tulis alamat penerima dan alamat pengirim.</p>
+
+<p>Contoh paketnya kira-kira seperti ini.</p>
+
+<pre><code>```Dari  : 202.159.22.22
+Untuk : 202.159.11.11
+Pesan : halo
+```
+</code></pre>
+
+<p>Gateway harus punya mapping IP luar dan IP dalam.
+Begitu gateway terima paket yang ditujukan ke IP luar,
+dia akan membungkus paket tersebut dengan amplop baru, alamat tujuannya diganti dengan IP dalam.
+Proses ini dinamakan DNAT (Destination NAT).</p>
+
+<p>Bila alamat tujuan tidak diganti, maka routernya akan bingung, karena dia tidak tahu IP luar itu mesinnya yang mana.</p>
+
+<p>Kalau di Linux, ini dilakukan dengan perintah iptables.
+Contohnya adalah sebagai berikut:</p>
+
+<p><code>iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT</code></p>
+
+<p>Setelah diDNAT, paketnya menjadi seperti ini:</p>
+
+<pre><code>```Dari  : 202.159.22.22
+Untuk : 192.168.0.1
+Pesan : halo
+```
+</code></pre>
+
+<p>Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut,
+karena dia kenal 192.168.0.1 itu mesin yang mana.</p>
+
+<p>Akhirnya paket sampai di tujuan.</p>
+
+<p>Dengan menggunakan DNAT ini, kita bisa mempublikasikan mesin di jaringan internal agar bisa diakses dari luar.</p>
+
+<p>Bagaimana jika sebaliknya?</p>
+
+<p>Penerima akan mengirim balasan. Dia masukkan ke amplop, kirim ke router.
+Router akan lihat bahwa tujuannya adalah komputer di luar, maka dia kirim ke gateway.</p>
+
+<p>Paketnya kira-kira seperti ini:</p>
+
+<pre><code>```Dari  : 192.168.0.1
+Untuk : 202.159.22.22
+Pesan : halo juga
+```
+</code></pre>
+
+<p>Gateway melihat bahwa alamat pengirim adalah IP dalam.
+Kalau diteruskan begitu saja, maka kalau ada balasan lagi, tidak akan sampai,
+karena IP dalam tidak dikenal di luar.
+Jadi dia harus membungkus lagi dengan amplop lagi, kali ini yang diganti adalah alamat pengirim.
+IP dalam diganti dengan IP public.
+Proses ini dinamakan SNAT (Source NAT)</p>
+
+<p>Contohnya adalah sebagai berikut:
+<code>iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT</code></p>
+
+<p>Setelah diSNAT paketnya menjadi seperti ini:</p>
+
+<pre><code>```Dari  : 202.159.11.11
+Untuk : 202.159.22.22
+Pesan : halo juga
+```
+</code></pre>
+
+<p>Dengan menggunakan SNAT, kita bisa mengimplementasikan Internet Connection Sharing,
+yaitu satu koneksi internet dibagi beramai-ramai.</p>
+
+<p>Ada satu kasus khusus untuk SNAT, namanya Masquerade.
+Ini digunakan apabila IP public yang digunakan berubah-ubah.
+Misalnya kalau kita pakai dialup connection.</p>
+
+<p>Kalau kita nekat pakai SNAT, nanti akan repot, karena harus update rule setiap dial ke internet.</p>
+
+<p>Jadi, kita gunakan masquerade.
+Berikut perintahnya:
+<code>iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE</code></p>
+
+<p>Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan cara :
+<code>cat 1 &gt; /proc/sys/net/ipv4/ip_forward</code></p>
+
+<p>Rangkaian perintah ini akan hilang pada saat reboot.
+Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen.
+Caranya, tergantung masing-masing distro.</p>
+
+<p>Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat tightly-coupled dengan kernel linux.</p>
+
+<p>Untuk Windows, kita dapat gunakan fitur Internet Connection Sharing apabila ada. Beberapa versi Windows (misalnya XP Home), tidak punya fitur ini. Jadi solusinya adalah dengan menggunakan aplikasi tambahan seperti misalnya <a href="http://www.wingate.com/product-wingate.php">WinGate</a> atau <a href="http://www.kerio.com/kwf_home.html">WinRoute</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/linux/konfigurasi-mod_jk/">Konfigurasi Mod_jk</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-15T22:52:26+07:00" pubdate data-updated="true">Aug 15<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ada kalanya, kita ingin mempublikasikan aplikasi Java kita melalui Apache HTTPD, webserver paling populer dan paling banyak digunakan di dunia.</p>
+
+<p>Beberapa alasan untuk melakukan ini antara lain:</p>
+
+<ul>
+<li><p>Kita ingin menjalankan Tomcat dalam cluster, diakses melalui satu pintu gerbang, yaitu Apache HTTPD</p></li>
+<li><p>Kita tidak ingin membuka port 8080 ke seluruh dunia, cukup buka port 80 dan 443 saja. Sedangkan di port 80 sudah ada aplikasi lain (PHP, Rails, whatever) yang dihosting di atas Apache HTTPD</p></li>
+<li><p>Kita ingin melayani static page dengan Apache HTTPD, dan dynamic page dengan Tomcat</p></li>
+<li><p>Dan masih banyak alasan lain.</p></li>
+</ul>
+
+
+<p>Konfigurasi ini saya lakukan di Ubuntu Feisty 7.04. Langkah-langkahnya relatif mirip untuk distro lain, yang kalau disimpulkan terdiri dari:</p>
+
+<ol>
+<li><p>Install Apache</p></li>
+<li><p>Install Tomcat</p></li>
+<li><p>Deploy Aplikasi Java di Tomcat</p></li>
+<li><p>Install mod_jk</p></li>
+<li><p>Konfigurasi worker</p></li>
+<li><p>Konfigurasi virtual host</p></li>
+</ol>
+
+
+<p>Baiklah, mari kita mulai saja.</p>
+
+<h3>Instalasi Apache</h3>
+
+<p>Saya gunakan Apache 2.2 yang disediakan oleh repository Ubuntu. Instalasi sangat mudah:
+<code>sudo apt-get install apache2</code></p>
+
+<p>Setelah instalasi selesai pastikan webserver sudah berjalan dengan baik dengan cara mengakses <code>http://localhost</code></p>
+
+<h3>Instalasi Tomcat</h3>
+
+<p>Kita bisa menginstal Tomcat melalui apt-get, tetapi saya lebih suka menggunakan cara manual.
+Unduh dari <a href="http://tomcat.apache.org">situsnya</a>, kemudian ekstrak di folder /opt.</p>
+
+<p>   &#8220;`cd /opt</p>
+
+<pre><code>sudo tar xvzf apache-tomcat-xx.tar.gz
+</code></pre>
+
+<p>   &#8220;`</p>
+
+<p>Setelah itu, jalankan Tomcat.</p>
+
+<pre><code>```sudo /opt/tomcat/bin/startup.sh
+```
+</code></pre>
+
+<p>Jangan lupa mengatur environment variable <code>JAVA_HOME</code> ke tempat instalasi Java SDK Anda sebelum menjalankan Tomcat.</p>
+
+<p>Periksa keberhasilan instalasi Tomcat dengan cara browse ke <code>http://localhost:8080</code></p>
+
+<h3>Deploy Aplikasi Java</h3>
+
+<p>Pada saat ini, kita sudah bisa mendeploy aplikasi Java ke Tomcat, tepatnya di folder <code>[TOMCAT_HOME]/webapps</code>.
+Untuk mudahnya, kita tidak akan instal aplikasi, tapi menggunakan tomcat-docs yang sudah disediakan Tomcat.</p>
+
+<h3>Install mod_jk</h3>
+
+<p>Instalasi mod_jk di Ubuntu sangat mudah, cukup lakukan <code>sudo apt-get install libapache2-mod-jk</code></p>
+
+<p><code>mod_jk</code> akan diinstal dan langsung diaktifkan.</p>
+
+<p>Sebelum <code>mod_jk</code> bisa bekerja dengan benar, kita harus melakukan sedikit konfigurasi. Saya membuat file konfigurasi di <code>/etc/apache2/mods-available/jk.conf</code>.
+Letak file konfigurasi tidak penting, yang penting adalah file tersebut dibaca oleh Apache. Silahkan baca-baca manual konfigurasi untuk distro Anda</p>
+
+<p>Berikut adalah isi file <code>/etc/apache2/mods-available/jk.conf</code>.</p>
+
+<pre><code>```JkWorkersFile /etc/apache2/mods-available/workers.properties
+JkShmFile     /var/log/apache2/mod_jk.shm
+JkLogFile     /var/log/apache2/mod_jk.log
+JkLogLevel    info
+JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "
+```
+</code></pre>
+
+<p>Seperti kita lihat di baris pertama, ada referensi ke file <code>workers.properties</code>. Kita akan bahas file ini di bagian selanjutnya.</p>
+
+<p>Sisa file ini mendefinisikan konfigurasi log file.</p>
+
+<h3>Konfigurasi Workers</h3>
+
+<p>File <code>workers.properties</code> mendefinisikan semua worker yang tersedia. Worker adalah Tomcat yang akan melayani request ke aplikasi Java. Untuk mengaktifkan clustering, kita bisa mengkonfigurasi banyak worker sekaligus.
+Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.</p>
+
+<p>Berikut adalah isi file <code>workers.properties</code></p>
+
+<pre><code>```worker.list=worker1
+worker.worker1.type=ajp13
+worker.worker1.host=localhost
+worker.worker1.port=8009
+```
+</code></pre>
+
+<h3>Konfigurasi Virtual Host</h3>
+
+<p>Terakhir, kita akan mengkonfigurasi virtual host agar Apache HTTPD dapat melakukan forwarding dengan benar. Pada contoh ini, kita akan mengarahkan request ke <code>http://localhost/tomcat-docs</code> agar dilayani oleh Tomcat. Berikut konfigurasi Virtual Hostnya.</p>
+
+<pre><code>```&lt;VirtualHost&gt;
+    JkMount /tomcat-docs/* worker1
+&lt;/VirtualHost&gt;
+```
+</code></pre>
+
+<p>Jika ingin mempublikasikan banyak aplikasi Java sekaligus, duplikasi saja baris <code>JkMount</code> di atas agar mengarah ke masing-masing aplikasi kita yang sudah dideploy di dalam folder <code>[TOMCAT_HOME]/webapps</code>.</p>
+
+<p>Konfigurasi virtual host di atas bisa digabungkan dengan konfigurasi lain seperti <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">repository Subversion</a>, Ruby on Rails, dan sebagainya. Cukup selipkan baris <code>JkMount</code> di dalam blok <code>VirtualHost</code>.</p>
+
+<p>Letak konfigurasi Virtual Host berbeda antar distro. Di keluarga Debian, konfigurasinya ada di folder <code>/etc/apache2/sites-available</code>.</p>
+
+<p>Setelah selesai, coba restart Apache HTTPD. Kalau semua berjalan lancar, dokumentasi Tomcat yang tadinya hanya bisa diakses di <code>http://localhost:8080/tomcat-docs/</code> sekarang juga bisa diakses di <code>http://localhost/tomcat-docs/</code>. Perhatikan perbedaan portnya, yang belakangan dilayani oleh Apache HTTPD.</p>
+
+<p>Selamat mencoba :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/luntbuild/">Continuous Integration Dengan Luntbuild</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
+kali ini kita akan menggunakan <a href="http://luntbuild.javaforge.com/proj/summary.do?proj_id=70">Luntbuild</a>,
+Continuous Integration Tools yang konfigurasinya tidak menggunakan XML sama sekali.</p>
+
+<p>Sama seperti CruiseControl, untuk menjalankan Continuous Integration, kita memerlukan:</p>
+
+<ul>
+<li><p>Repository Subversion yang berisi source code, lengkap dengan folder trunk dan release</p></li>
+<li><p>Code Review, Unit Test, Integration Test, Coverage Test yang lengkap</p></li>
+<li><p>File build.xml yang memiliki target untuk menjalankan semua test</p></li>
+</ul>
+
+
+<p>Struktur folder repository juga masih sama seperti artikel sebelumnya. Kita tidak membuat baru,
+melainkan langsung menggunakan repository pada artikel sebelumnya.</p>
+
+<p>Untuk menjalankan Luntbuild, kita memerlukan:</p>
+
+<ul>
+<li><p>Luntbuild installer</p></li>
+<li><p>Apache Ant 1.7.0</p></li>
+<li><p>Apache Tomcat 5.5</p></li>
+<li><p>Java SDK 6.0</p></li>
+</ul>
+
+
+<p>Installer Luntbuild dapat diunduh <a href="http://luntbuild.javaforge.com/proj/doc.do?doc_id=35767">di sini</a>.</p>
+
+<p>Cara instalasinya tidak sulit, begitu kita dapatkan file instalasinya, buka command prompt, dan masuk ke folder tempat installer tersebut berada.
+Kemudian jalankan installernya.</p>
+
+<pre><code>&lt;code&gt;$ cd Downloads
+$ java -jar luntbuild-1.4.2-installer.jar 
+&lt;/code&gt;
+</code></pre>
+
+<p>Tampilan instalasi Luntbuild akan segera tampil. Klik saja Next untuk melewati Release Note dan License Agreement,
+sampai pada pertanyaan lokasi instalasi.
+<img src="/images/uploads/2007/08/luntbuild-install-dir.png" title="Lokasi Instalasi Luntbuild" ></p>
+
+<p>Di komputer saya, saya pilih lokasi <code>/opt/luntbuild-1.4.2</code> sebagai lokasi instalasi.
+Klik Next, dan lanjutkan ke konfigurasi database.
+<img src="/images/uploads/2007/08/luntbuild-install-db.png" title="Instalasi Database" ></p>
+
+<p>Di sini saya tidak mengubah setting apa-apa. Langsung saja lanjutkan sampai menemui pertanyaan username dan password administrator.
+<img src="/images/uploads/2007/08/luntbuild-install-password.png" title="Setup Administrator Password" ></p>
+
+<p>Saya masukkan <code>luntbuild123</code> sebagai passwordnya.
+Kita juga akan ditanyai lokasi instalasi Tomcat agar Luntbuild bisa segera menginstal aplikasi webnya di sana.
+Entah apa yang terjadi, di komputer saya pilihan ini tidak berpengaruh apa-apa. Seharusnya installer akan membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code>.
+Setelah instalasi selesai saya tetap harus membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code> secara manual
+dan mengkopi semua isi <code>[LUNTBUILD_INSTALL]/web</code> ke dalamnya.</p>
+
+<p>Setelah semua layar berhasil dilalui, instalasi selesai. Kita bisa langsung jalankan Tomcat, dan browse ke http://localhost:8080/luntbuild.
+Jika instalasi berjalan benar, maka kita akan disambut oleh Luntbuild
+<img src="/images/uploads/2007/08/luntbuild-frontpage.png" title="Halaman Depan Luntbuild" ></p>
+
+<p>Secara default, kita login secara anonymous. Untuk bisa mengkonfigurasi project, kita harus logout dulu.
+Kita akan segera melihat halaman login.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-login.png" title="Login Page" ></p>
+
+<p>Masukkan username luntbuild dan password luntbuild123, sesuai yang kita isikan pada waktu instalasi.
+Kita akan melihat daftar builder yang masih kosong.</p>
+
+<p>Segera klik tab Project, dan klik tombol New Project di kanan atas.
+User interface Luntbuild kurang intuitif, sehingga saya harus berusaha keras mencari tombol tersebut.
+Halaman New Project segera tampil.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-new-project.png" title="Create New Project" ></p>
+
+<p>Masukkan nama project dan berikan keterangan, lalu Save.</p>
+
+<p>Selanjutnya, kita klik tab VCS.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-no-vc.png" title="No VCS Yet" ></p>
+
+<p>Di tab ini kita melakukan konfigurasi untuk version control.
+Luntbuild mendukung berbagai merek version control.
+Pilih Subversion pada drop down yang tersedia.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn.png" title="Add New Subversion Repo" ></p>
+
+<p>Untuk konfigurasi di komputer saya, isinya adalah sebagai berikut:</p>
+
+<ol>
+<li><p>Repository url base : svn://localhost</p></li>
+<li><p>Directory for trunk : trunk</p></li>
+<li><p>Directory for branches : kosongkan saja, karena project contoh ini tidak memiliki branch</p></li>
+<li><p>Directory for releases : releases/daily-build</p></li>
+<li><p>Username : endy. Ini adalah username yang digunakan Luntbuild untuk checkout dan membuat tag.
+Idealnya kita buatkan user khusus untuk Luntbuild</p></li>
+<li><p>Password : 123</p></li>
+<li><p>Quiet Period : kosongkan saja, ini tidak dibutuhkan untuk Subversion yang sudah mendukung atomic commit.</p></li>
+</ol>
+
+
+<p>Ada sedikit keanehan Luntbuild. Dia mengharuskan kita membuat modul.
+Kalau dia tidak menemukan modul, maka akan keluar pesan error.
+Oleh karena itu, kita klik New Module, lalu langsung saja save tanpa mengisi apa-apa.</p>
+
+<p>Hasil akhir dari tab VCS kita akan nampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn-summary.png" title="VCS Subversion" ></p>
+
+<p>Berikutnya, kita masuk ke tab berikutnya untuk konfigurasi Builder.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-no-builders.png" title="No Builder Yet" ></p>
+
+<p>Satu project bisa memiliki banyak builder.
+Dengan builder, kita bisa mengatur sejauh mana kita ingin melakukan build.
+Contoh beberapa build yang mungkin digunakan adalah:</p>
+
+<ul>
+<li><p>Unit test: hanya menjalankan unit test saja, mungkin dijalankan setiap 1 jam sekali.</p></li>
+<li><p>Full test: menjalankan semua jenis test, dijalankan sebelum jam makan siang dan sore sebelum pulang</p></li>
+<li><p>Nightly/Daily build : dijalankan sekali sehari, selain menjalankan semua test, juga menghasilkan <em>jar atau </em>war.
+Jenis build ini biasanya dikonfigurasi untuk menghasilkan tag di version control apabila sukses.</p></li>
+</ul>
+
+
+<p>Klik tombol New Builder untuk mengkonfigurasi build. Karena kita menggunakan Ant, pilih Ant pada dropdown yang tersedia.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-ant-builder.png" title="Ant Builder" ></p>
+
+<p>Pada contoh ini, kita akan mengkonfigurasi Build Jar.
+Sekali sudah paham konsepnya, tidak sulit untuk mengkonfigurasi jenis build yang lain.
+Berikut adalah nilai yang saya isikan:</p>
+
+<ol>
+<li><p>Name : Build Jar</p></li>
+<li><p>Command for Ant : /opt/apache-ant-1.7.0/bin/ant. Ini adalah path menuju Ant kita.</p></li>
+<li><p>Build script path : build.xml. Ini adalah nama file build.xml yang ada di project kita</p></li>
+<li><p>Build target : build-jar. Target Ant yang dipanggil pada saat build berjalan.
+Saya pilih target build-jar yang mengeksekusi semua test, kemudian membuat *.jar bila test tidak ada yang gagal.</p></li>
+<li><p>Field sisanya, biarkan saja sesuai default.</p></li>
+</ol>
+
+
+<p>Terakhir, kita mengkonfigurasi Schedule, alias jadwal. Ini menentukan kapan build dieksekusi.
+Untuk Build Jar yang sudah kita konfigurasi, kita ingin dia dijalankan setiap jam 01 dini hari, setiap hari.
+Berikut isian konfigurasinya.</p>
+
+<ol>
+<li><p>Name : Nightly Build</p></li>
+<li><p>Description : build setiap jam 01 dini hari</p></li>
+<li><p>Next build version : <code>nightly-${#currentDay=system.(year+"-"+numericMonth+"-"+dayOfMonth), #lastDay=project.var["day"].setValue(#currentDay), #dayIterator=project.var["dayIterator"].intValue, project.var["dayIterator"].setIntValue(#currentDay==#lastDay?#dayIterator+1:1), #currentDay}.${project.var["dayIterator"]}</code>.
+Ini adalah label yang akan diberikan untuk setiap build.
+String di atas akan menghasilkan label nightly-2007-08-17.1 bila dijalankan pada tanggal 17 Agustus 2007.</p></li>
+<li><p>Trigger Type: cron. Luntbuild menyediakan dua jenis trigger. Pertama, simple trigger yang berbasis interval.
+Dengan simple trigger, kita dapat menjadwalkan build untuk berjalan misalnya setiap dua jam, atau setiap 30 menit.
+Kedua, cron trigger, yang berbasis waktu. Dengan cron trigger, kita dapat menjalankan build setiap waktu tertentu,
+misalnya setiap Sabtu, atau setiap hari jam 1 pagi. Untuk menjalankan build setiap jam satu pagi, gunakan cron trigger
+dengan konfigurasi <code>0 0 1 * * ?</code>. Luntbuild menggunakan pustaka <a href="http://www.opensymphony.com/quartz/">Quartz</a> untuk melakukan penjadwalan ini.
+Lebih lanjut tentang konfigurasi jadwal Quartz dapat dilihat di <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html">websitenya</a>.</p></li>
+<li><p>Build necessary condition: vcsModified or dependencyNewer. Buat apa melakukan build kalau belum ada perubahan
+sejak terakhir kali build berjalan? Inilah maksud dari field ini. Dengan menyebutkan vcsModified, kita menjelaskan
+bahwa kalau tidak ada perubahan di dalam version control, tidak perlu lakukan build. Selain nilai ini, kita juga
+bisa menggunakan nilai always, yang artinya tetap build walaupun tidak ada yang commit.</p></li>
+<li><p>Associated builders. Di sini kita memilih builder mana yang ingin dijalankan.</p></li>
+<li><p>Associated post builder. Misalnya setelah build sukses dijalankan, kita ingin membuat installer yang siap diunduh.
+Kita bisa sebutkan hal tersebut di sini.</p></li>
+<li><p>Label strategy: Label if success. Hanya buat tag di version control bila build sukses.</p></li>
+<li><p>Notify strategy: notify if status change. Artinya, kirim pemberitahuan apabila status build berbeda dari sebelumnya,
+misalnya tadinya gagal menjadi sukses, atau sebaliknya.</p></li>
+</ol>
+
+
+<p>Demikian sebagian nilai yang harus diisikan. Untuk field yang tidak saya jelaskan, silahkan baca keterangannya atau ikuti saja default.</p>
+
+<p>Setelah semua konfigurasi selesai, kembali ke halaman depan untuk menyaksikan hasil pekerjaan kita.
+Di sana akan terpampang semua build yang sudah dikonfigurasi.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-builds.png" title="Daftar build" ></p>
+
+<p>Kita bisa menjalankan build tersebut secara manual tanpa harus
+menunggu jatuh temponya. Biasanya kita lakukan build manual untuk mengetes konfigurasi.
+Build yang sedang berjalan ditandai dengan ikon roda gigi.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-building.png" title="Building …" ></p>
+
+<p>Build yang gagal akan ditandai dengan warna merah, sedangkan build yang berhasil diwarnai hijau.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-success.png" title="Build Successful" ></p>
+
+<p>Bila build gagal, tentunya kita ingin melihat apa yang terjadi. Klik build info untuk menampilkan informasinya.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-info.png" title="Build Info" ></p>
+
+<p>Kurang detail? Buka saja lognya. Di sini akan terlihat di langkah yang mana build tersebut berhenti.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-log.png" title="Build Log" ></p>
+
+<p>Demikianlah cara penggunaan Luntbuild.
+Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelola dengan baik dan teratur.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/31/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/29/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,561 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Aplikasi Web dengan Spring 2.5 [bagian 5] - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Aplikasi web &#8211;berbeda dengan aplikasi desktop&#8211; ditakdirkan untuk stateless. Artinya dia tidak menyimpan data untuk masing-masing user &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-5/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Aplikasi Web Dengan Spring 2.5 [Bagian 5]</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-18T16:15:08+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Aplikasi web &#8211;berbeda dengan aplikasi desktop&#8211; ditakdirkan untuk stateless. Artinya dia tidak menyimpan data untuk masing-masing user yang sedang aktif. Keputusan ini menyebabkan aplikasi web bisa diakses jutaan user sekaligus. Tapi juga menyebabkan perlu teknik khusus agar data user yang sedang aktif dapat disimpan dengan baik.</p>
+
+<p>Tanpa kemampuan penyimpanan state, semua data yang dikirim user akan hilang setelah dia pindah halaman. Misalnya user:</p>
+
+<ol>
+<li>mengisi form 1, kemudian menekan tombol Next</li>
+<li>mengisi form 2, kemudian menekan tombol Next</li>
+<li>tiba di form 3. Pada saat ini, data yang diisi di form 1 sudah hilang</li>
+</ol>
+
+
+<p>Sebelum kita melihat kode program dengan Spring 2.5, terlebih dulu kita bahas konsepnya.</p>
+
+<p>Data user yang kita bicarakan di sini adalah data sementara. Contoh klasik dari state user yang harus disimpan antara lain:</p>
+
+<ul>
+<li>kita berbelanja online. Barang-barang yang sudah kita pilih, tapi belum kita pesan, ini harus disimpan oleh aplikasi. Data ini sering disebut dengan istilah shopping cart (atau troli belanja)</li>
+<li>kita sudah login untuk melihat email. Selama kita belum menyatakan selesai (dengan cara logout), kita ingin aplikasi menyimpan username dan password kita. Sehingga kita tidak perlu memasukkan username dan password setiap kali pindah dari satu email ke email lain.</li>
+<li>kita mengisi form secara bertahap (wizard-style). Keseluruhan rangkaian proses baru berakhir pada saat form terakhir diisi. Tanpa state management yang baik, kita tidak bisa menggunakan rangkaian form. Kita terpaksa menggunakan satu form yang sangat panjang, dan menyuruh user mengisinya sekaligus dalam satu kali proses.</li>
+</ul>
+
+
+<p>Contoh yang kita sebutkan di atas membahas tentang data sementara yang harus dikelola sebelum disimpan ke database. Umurnya relatif lebih pendek daripada data permanen yang disimpan di database. Misalnya, username dan password selama user membaca email, disimpan dalam jangka waktu beberapa jam saja. Data wizard mungkin hanya disimpan beberapa menit saja, sampai form terakhir selesai dan keseluruhan data disimpan ke database. Walaupun beberapa situs, seperti Amazon, mungkin saja menyimpan data shopping-cart kita selama berbulan-bulan.</p>
+
+<p>Ada beberapa cara yang dapat kita pilih untuk menyimpan state. Setidaknya ada dua pilihan lokasi :</p>
+
+<ul>
+<li>di client. Dengan menggunakan mekanisme cookie, kita dapat menyimpan data di browser client. Cara ini tidak membebani server, tapi kapasitas cookie di client relatif kecil. Kita tidak bisa menyimpan data yang terlalu banyak di cookie.</li>
+<li>di server. Mekanismenya mirip dengan kalau kita belanja di hypermarket. Tas dan jaket kita titipkan di pintu masuk, kemudian kita akan diberikan token. Pada waktu kita keluar, token kita tukarkan dengan barang yang kita titipkan.</li>
+</ul>
+
+
+<p>Demikian juga dengan penyimpanan state. Ketika user pertama kali datang, dia akan mendapat token atau session ID. Aplikasi menyimpan state user di lokasi tertentu yang ditandai dengan session ID tersebut. Setiap request yang datang akan dilihat session IDnya dan datanya diambil untuk diproses.</p>
+
+<p>Ada beberapa cara untuk menitipkan token pada user, beberapa yang sering digunakan antara lain:</p>
+
+<ul>
+<li>masukkan ke cookie. Ya kita pakai cookie lagi, tapi tidak menyimpan keseluruhan data state, melainkan cuma session ID saja.</li>
+<li>disisipkan di setiap link dan form. URL yang tadinya seperti ini : <code>http://localhost/aplikasi/personlist</code> menjadi seperti ini: <code>http://localhost/aplikasi/personlist?session_id=12a75tj67</code>.</li>
+<li>dikirim ke server sebagai HTML input. Biasanya tipe yang dipilih adalah <em>hidden</em>. Cara ini memiliki kelemahan, karena tidak semua request bisa dibungkus dalam form.</li>
+</ul>
+
+
+<p>Data state yang disimpan di server juga memiliki beberapa pilihan lokasi penyimpanan, antara lain:</p>
+
+<ul>
+<li>di webserver. Webserver menulis satu file per satu session. Semua data disimpan di sini. Cara ini paling mudah dikonfigurasi, sehingga banyak webserver menjadikan cara ini sebagai default. Kelemahannya, metode ini menyulitkan kita untuk mengcluster webserver, karena kita kemudian harus memikirkan bagaimana mensinkronisasikan data session di masing-masing anggota cluster</li>
+<li>di database. Webserver dikonfigurasi agar menyimpan datanya di database. Cara ini cukup sulit, mengingat dialek SQL masing-masing database berbeda. Banyak vendor webserver tidak mau menulis adapter untuk masing-masing merek database, sehingga kita harus periksa dulu apakah database yang kita gunakan didukung atau tidak. Bila tidak, kita terpaksa menulis sendiri kode program untuk state management.</li>
+<li>di distributed cache. Ada beberapa aplikasi cache yang mengkhususkan diri untuk menyimpan data secara terdistribusi, misalnya <a href="name=">memcached</a> yang open source atau <a href="http://www.oracle.com/technology/products/coherence/index.html">Oracle Coherence</a> yang berbayar. Penyimpanan ini bisa dicluster sendiri, terpisah dari webserver. Dengan pendekatan ini, kita bisa mengcluster webserver sesuka hati, karena statenya tidak disimpan webserver, melainkan dititipkan di distributed cache. Kelemahan cara ini sama dengan metode database. Tidak semua webserver menyediakan support. Kadang kita harus tulis kodenya sendiri.</li>
+<li>di upstream layer. Beberapa orang menggunakan arsitektur empat layer : client - web layer - application layer - database. Dengan arsitektur ini, semua state disimpan di application layer. Biasanya server yang digunakan untuk application layer memiliki mekanisme state management yang lebih baik daripada webserver. Terutama jika kita ingin melakukan clustering.</li>
+</ul>
+
+
+<p>Sekarang setelah kita mengerti konsepnya, mari kita implementasikan pada contoh aplikasi kita. Kita akan menggunakan state management untuk menampilkan hasil upload data Person.</p>
+
+<p>Kode upload kita kemarin bekerja sebagai berikut :</p>
+
+<ol>
+<li>user melakukan upload dengan mensubmit form</li>
+<li>server memproses, kemudian mengirim redirect ke halaman berikut</li>
+<li>browser menerima perintah redirect, kemudian melakukan request GET ke URL lain sesuai perintah redirect</li>
+<li>server menerima request GET, kemudian melakukan proses dan merender hasilnya</li>
+<li>browser menampilkan respon dari server</li>
+</ol>
+
+
+<p>Teknik ini sering disebut Post-Redirect-Get (PRG) pattern.</p>
+
+<p>Kesalahan umum programmer web pemula adalah memproses form sebagai berikut:</p>
+
+<ol>
+<li>user melakukan upload dengan mensubmit form</li>
+<li>server memproses, kemudian merender hasilnya</li>
+<li>browser menampilkan respon dari server</li>
+</ol>
+
+
+<p>Bila user merefresh halaman hasil, maka yang dilakukan browser adalah mengulang dari langkah 1. Ini akan mengakibatkan form tersubmit dua kali. Berbeda dengan teknik PRG, kalau user merefresh halaman hasil, maka browser akan mengulangi dari langkah ketiga, yaitu GET untuk halaman hasil. Dengan demikian form tidak disubmit dua kali.</p>
+
+<p>Kita menghadapi tantangan untuk mengimplementasikan PRG pada halaman upload result. Kalau hanya sekedar pesan sukses, kita bisa membuat redirect ke <code>http://localhost/aplikasi/personuploadresult?msg=Sukses</code>. Tapi yang ingin kita tampilkan adalah daftar yang memuat mana data yang sukses diimport, dan mana data yang gagal. Sulit untuk dikirim melalui URL.</p>
+
+<p>Untuk itu, kita harus simpan data tersebut di session. Berikut adalah kode pemrosesan upload yang sudah dimodifikasi.</p>
+
+<h3>PersonUploadController.java</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+@RequestMapping("/personuploadform")
+public class PersonUploadController {
+    private static final Log LOG = LogFactory.getLog(PersonUploadController.class);
+    private static final String REDIRECT_PERSONUPLOADRESULT = "redirect:personuploadresult";
+
+
+    @RequestMapping(method=RequestMethod.POST) 
+    public String processForm(@RequestParam("persondata") MultipartFile file, final HttpSession session) {
+
+        // parse file into list of strings
+        List&lt;String&gt; contents = new ArrayList&lt;String&gt;();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            String content = reader.readLine();
+            while(content != null) {
+                contents.add(content);
+                content = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+
+        // parse list of strings into list of Persons
+        List&lt;Person&gt; persons = new ArrayList&lt;Person&gt;();
+        List&lt;ParseError&gt; errors = new ArrayList&lt;ParseError&gt;();
+        personDataParser.parse(contents, persons, errors);
+
+        for (Person person : persons) {
+            personDao.save(person);
+        }
+
+        session.setAttribute(Constants.PERSONUPLOAD_ERRORS_KEY, errors);
+        session.setAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY, persons);
+
+        return REDIRECT_PERSONUPLOADRESULT;
+    }
+}
+</code></pre>
+
+<p>Perhatikan dua baris <code>session.setAttribute</code> di bagian bawah.
+Setelah menyimpan data di session, kita redirect ke halaman hasil.</p>
+
+<p>Pada halaman hasil, terlebih dulu kita pindahkan data hasil upload dari session ke request. Kemudian data yang ada di session kita hapus, agar tidak membebani memori ataupun kapasitas penyimpanan server. Lalu baru kita render tampilannya.</p>
+
+<p>Berikut adalah kode untuk memindahkan data dari session ke request. Terletak di class <code>PersonController</code>, dalam method <code>uploadResult</code>.</p>
+
+<h3>PersonController</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+public class PersonController { 
+
+    @RequestMapping("/personuploadresult")
+    public ModelMap uploadResult(final HttpSession session){
+        final ModelMap modelMap = new ModelMap();
+
+        if (session.getAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY) != null) {
+
+            modelMap.addAttribute(
+                session.getAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY)
+            );
+
+            session.removeAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY);
+        }
+
+        if (session.getAttribute(Constants.PERSONUPLOAD_ERRORS_KEY) != null) {
+
+            modelMap.addAttribute(
+                session.getAttribute(Constants.PERSONUPLOAD_ERRORS_KEY)
+            );
+
+            session.removeAttribute(Constants.PERSONUPLOAD_ERRORS_KEY);
+        }
+
+        return modelMap;
+    }
+}
+</code></pre>
+
+<p>Dan ini adalah template yang digunakan untuk menampilkan hasil upload.</p>
+
+<h3>personuploadresult.html</h3>
+
+<pre><code>&lt;html&gt;
+
+  &lt;head&gt;&lt;title&gt;:: Person Upload Result ::&lt;/title&gt;&lt;/head&gt;
+
+  &lt;body&gt;
+
+    &lt;h1&gt;Person Upload Result&lt;/h1&gt;
+
+    &lt;h2&gt;Successfully Imported Person Data&lt;/h2&gt;
+    #if (!$personList ||  ${personList.isEmpty()})
+
+      &lt;h3&gt;No Data&lt;/h3&gt;
+
+    #else
+
+    &lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+      &lt;/tr&gt;
+      #foreach($person in $personList)
+      &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;
+          &lt;a href="personform?id=$person.Id"&gt;edit&lt;/a&gt; | 
+          &lt;a href="persondetail?id=$person.Id"&gt;view&lt;/a&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      #end
+    &lt;/table&gt;
+
+    #end
+
+
+    &lt;h2&gt;Erroneous Data&lt;/h2&gt;
+    #if (!$parseErrorList ||  ${parseErrorList.isEmpty()})
+
+    &lt;h3&gt;No Data&lt;/h3&gt;
+
+    #else
+
+    &lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Row&lt;/th&gt;
+        &lt;th&gt;Data&lt;/th&gt;
+        &lt;th&gt;Reason&lt;/th&gt;
+      &lt;/tr&gt;
+
+      #foreach($error in $parseErrorList)
+      &lt;tr&gt;
+        &lt;td&gt;$error.Line&lt;/td&gt;
+        &lt;td&gt;$error.Text&lt;/td&gt;
+        &lt;td&gt;$error.Reason&lt;/td&gt;
+      &lt;/tr&gt;
+      #end
+    &lt;/table&gt;
+    #end
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Di framework Ruby on Rails, sudah ada dukungan untuk kegiatan ini, namanya flash message. Flash message akan menyimpan data di session, kemudian menghapusnya pada request berikutnya.</p>
+
+<p>Pada artikel ini kita sudah melakukan state management sederhana. Untuk kemampuan yang lebih canggih seperti pengelolaan shopping cart atau wizard, kita bisa menggunakan framework Spring Web Flow. Dengan SWF, flow aplikasi bisa diedit secara grafis. Ini akan memudahkan kita untuk mendokumentasikan flow navigasi aplikasi.</p>
+
+<p><img src="/images/uploads/2008/01/webflow_editor.png" title="Spring Web Flow Editor" ></p>
+
+<p>Gambar diambil dari <a href="http://springide.org/project/wiki/WebFlowEditorUsage">situsnya SWF</a>.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-18T16:15:08+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2008</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-5/" data-via="endymuhardin" data-counturl="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-5/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/aplikasi/svn-parentpath-backup/" title="Previous Post: Another Subversion Backup Script">&laquo; Another Subversion Backup Script</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/java/aplikasi-web-spring25-6/" title="Next Post: Aplikasi Web dengan Spring 2.5 [bagian 6]">Aplikasi Web dengan Spring 2.5 [bagian 6] &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="facebook_comments" aria-live="polite">
+      <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-5/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+    </div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

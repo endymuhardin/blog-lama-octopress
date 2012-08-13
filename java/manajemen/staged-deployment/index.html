@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Staged Deployment - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Staged Deployment Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/java/manajemen/staged-deployment/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Staged Deployment</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-16T15:57:35+07:00" pubdate data-updated="true">Aug 16<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Staged Deployment</p>
+
+<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
+
+<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
+
+<ul>
+<li><p>development (komputer si programmer)</p></li>
+<li><p>testing (test server)</p></li>
+<li><p>production (live system)</p></li>
+</ul>
+
+
+<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
+
+<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
+
+<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
+
+<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
+
+<h2>Alternatif Solusi</h2>
+
+<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
+
+<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
+<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
+
+
+<p>atau</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
+<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
+
+
+<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
+
+<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
+
+<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
+
+<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
+
+<ul>
+<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
+<li><p>jdbc.testing.properties : digunakan di server test</p></li>
+<li><p>jdbc.production.properties : digunakan di live</p></li>
+</ul>
+
+
+<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
+jdbc.username = kasbon
+jdbc.password = kasbon</code></pre></noscript></div>
+
+
+<p>Kemudian, ini file jdbc.testing.properties :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+
+
+<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
+
+<p>Terakhir, jdbc.production.properties</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+
+
+<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
+
+    &lt;context:property-placeholder location=&quot;
+    classpath*:jdbc.properties,
+    classpath*:jdbc.${stage}.properties
+    &quot; /&gt;
+
+    &lt;tx:annotation-driven /&gt;
+
+    &lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
+        destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
+        p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
+        p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
+
+    &lt;bean id=&quot;transactionManager&quot;
+        class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
+        p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
+
+
+    &lt;bean id=&quot;sessionFactory&quot;
+        class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
+        p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
+        &lt;property name=&quot;hibernateProperties&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;messageSource&quot;
+        class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
+        &lt;property name=&quot;basenames&quot;&gt;
+            &lt;list&gt;
+                &lt;value&gt;messages&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;</code></pre></noscript></div>
+
+
+<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
+<noscript><pre><code>&lt;context:property-placeholder location=&quot;
+    classpath*:jdbc.properties, 
+    classpath*:jdbc.${stage}.properties
+&quot; /&gt;</code></pre></noscript></div>
+
+
+<p>Di sana kita melihat ada variabel ${stage}.
+Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
+
+<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
+
+<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
+
+<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
+
+<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
+
+<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
+
+<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
+
+<h2>Setting Environment Variabel</h2>
+
+<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
+<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
+
+
+<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
+<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
+
+
+<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
+<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
+
+
+<h2>Konfigurasi Logger</h2>
+
+<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
+
+<ul>
+<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
+<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
+
+<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
+
+<ul>
+<li><p>logback.xml : file konfigurasi utama</p></li>
+<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
+</ul>
+
+
+<p>Berikut isi file logback.xml.</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;configuration&gt;
+
+    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
+        &lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
+
+&lt;/configuration&gt;</code></pre></noscript></div>
+
+
+<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
+<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
+
+
+<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
+
+<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
+
+<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-16T15:57:35+07:00" pubdate data-updated="true">Aug 16<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>, <a class='category' href='/categories/manajemen/'>manajemen</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://endy.artivisi.com/blog/java/manajemen/staged-deployment/" data-via="endymuhardin" data-counturl="http://endy.artivisi.com/blog/java/manajemen/staged-deployment/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/manajemen/meluruskan-mitos-cmmi/" title="Previous Post: Meluruskan Mitos CMMI">&laquo; Meluruskan Mitos CMMI</a>
+      
+      
+        <a class="basic-alignment right articlenav" href="/linux/backup-home-folder/" title="Next Post: Backup Home Folder">Backup Home Folder &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="facebook_comments" aria-live="polite">
+      <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://endy.artivisi.com/blog/java/manajemen/staged-deployment/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+    </div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

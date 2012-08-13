@@ -1,0 +1,842 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/25/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-3/">Aplikasi Web Dengan Spring 2.5 [Bagian 3]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-21T21:07:10+07:00" pubdate data-updated="true">Dec 21<span>st</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, dan menu navigasi.</p>
+
+<p>Ada beberapa cara untuk memasang header dan footer tanpa duplikasi kode. Cara paling sederhana tentunya dengan menggunakan include di setiap halaman. Contohnya kira-kira seperti ini.</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>#parse("header.html")
+
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+    &lt;/tr&gt;
+    #foreach($person in $personList)
+    &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
+            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    #end
+&lt;/table&gt;
+
+
+#parse("footer.html")
+</code></pre>
+
+<h3>header.html</h3>
+
+<p>berisi kira-kira seperti ini</p>
+
+<pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+    &lt;title&gt;:: List of All Person ::&lt;/title&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+</code></pre>
+
+<p>dan</p>
+
+<h3>footer.html</h3>
+
+<pre><code>&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Saya sendiri kurang suka dengan pendekatan seperti ini, karena:</p>
+
+<ul>
+<li>kita terpaksa membuat halaman html yang tidak lengkap. Di header.html tidak ada tutup body dan di footer.html tidak ada tag pembuka body.</li>
+<li>perintah include untuk header dan footer akan diulangi di setiap halaman.</li>
+</ul>
+
+
+<p>Ada cara yang lebih baik, yaitu menggunakan decorator.</p>
+
+<p>Pustaka decorator di Java cukup banyak, antara lain:</p>
+
+<ul>
+<li>SiteMesh</li>
+<li>Tiles</li>
+<li>Facelets</li>
+</ul>
+
+
+<p>Tiles tadinya adalah decorator khusus untuk framework Struts. Tapi seiring dengan populernya penggunaan decorator, maka Tiles direfactor sehingga dapat berdiri sendiri tanpa Struts. Saat artikel ini ditulis, baik Tiles maupun penerusnya Tiles 2 cuma bisa digunakan untuk JSP. Jadi tidak bisa kita terapkan untuk aplikasi kita yang menggunakan Velocity.</p>
+
+<p>Facelets bukan hanya sekedar decorator. Dia adalah teknologi templating untuk JSF. Jadi posisinya kurang lebih mirip dengan Velocity, yaitu template engine. Decorator hanyalah salah satu fitur tambahan Facelets. Sayangnya Facelets hanya bisa digunakan untuk JSF.</p>
+
+<p>Sitemesh adalah decorator independen. Tidak terikat dengan framework apa-apa. Dia juga mendukung JSP, Freemarker, dan Velocity. Kita akan menggunakan SiteMesh pada artikel ini.</p>
+
+<p>SiteMesh bekerja secara transparan. Pada saat membuat halaman aplikasi, kita bisa langsung coding seperti biasa. Tidak ada perubahan kode HTML di dalam template Velocity. Ketika dideploy, SiteMesh akan mencegat semua respon yang dikirim appserver ke browser dan menambahkan header dan footer.</p>
+
+<p>Sebagai contoh,</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+&lt;title&gt;:: List of All Person ::&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+    &lt;/tr&gt;
+    #foreach($person in $personList)
+    &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
+            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    #end
+&lt;/table&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Seperti kita lihat, tidak ada kode khusus. Kodenya sama persis dengan artikel sebelumnya.</p>
+
+<p>Ini adalah decoratornya, kita beri nama main.html.</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+
+&lt;link href="${base}/css/main.css" rel="stylesheet" type="text/css" /&gt;
+&lt;link href="${base}/css/layout.css" rel="stylesheet" type="text/css" /&gt;
+
+&lt;title&gt;${title}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div id="header"&gt;
+&lt;h1&gt;Hello Spring 2.5&lt;/h1&gt;
+&lt;h2&gt;Tutorial Spring 2.5 Annotation Configuration&lt;/h2&gt;
+&lt;/div&gt;
+
+&lt;div id="top-bar"&gt;
+&lt;ul&gt;
+    &lt;li&gt;hola, endymuhardin&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;help&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;logout&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div id="menu-bar"&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;manage person&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;generate report&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;prevent global warming&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div id="main"&gt;
+
+&lt;div id="sidebar"&gt;
+
+&lt;h1&gt;Manage Person&lt;/h1&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href="${base}/tutorial/personform"&gt;add person&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;list of person&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;/div&gt;
+
+&lt;div id="content"&gt;
+
+${body}
+
+&lt;/div&gt;
+
+
+&lt;/div&gt;
+
+
+&lt;div id="footer"&gt;
+
+&lt;div id="copyright"&gt;Copyright &amp;copy; 2008 :: ArtiVisi Intermedia
+::&lt;/div&gt;
+
+&lt;div id="company-logo"&gt;Company Logo&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Ada beberapa tag khusus yang digunakan dalam decorator kita, yaitu</p>
+
+<ul>
+<li>${base}</li>
+<li>${title}</li>
+<li>${body}</li>
+</ul>
+
+
+<p>Ini adalah variabel yang disediakan SiteMesh untuk kita. ${base} adalah path menuju aplikasi web kita. Kita menggunakan ${base} untuk membuat URL yang lengkap. Variabel ini sangat berguna agar aplikasi kita bisa dideploy ke berbagai context.</p>
+
+<p>Pada saat mendekorasi, SiteMesh akan membaca respon HTML yang dikeluarkan appserver dan mengambil isi tag title dan body, kemudian memasangnya di tempat kita menaruh tag ${title} dan ${body}. Setelah itu, barulah keseluruhan respon yang sudah didekorasi akan dikirim ke client.</p>
+
+<p>Kita sudah punya halaman yang akan ditampilkan (personlist.html) dan decoratornya (main.html). Untuk menggabungkan keduanya, kita harus memasang SiteMesh sebagai Servlet Filter. Servlet Filter memiliki kemampuan untuk mencegat baik request maupun response. Kita mendaftarkan filter di web.xml. Berikut deklarasi filter SiteMesh berikut mappingnya.</p>
+
+<pre><code>&lt;filter&gt;
+  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
+  &lt;filter-class&gt;com.opensymphony.module.sitemesh.filter.PageFilter&lt;/filter-class&gt;
+&lt;/filter&gt;   
+
+
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</code></pre>
+
+<p>Selain itu, kita juga perlu memasang servlet SiteMesh. Servlet ini yang akan mencegat semua pemanggilan template velocity, yaitu semua file yang berakhiran *.html. Berikut adalah deklarasi servlet berikut mappingnya.</p>
+
+<pre><code>&lt;servlet&gt;
+  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
+  &lt;servlet-class&gt;com.opensymphony.module.sitemesh.velocity.VelocityDecoratorServlet&lt;/servlet-class&gt;
+&lt;/servlet&gt;
+
+&lt;servlet-mapping&gt;
+  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
+  &lt;url-pattern&gt;*.html&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</code></pre>
+
+<p>Selanjutnya, kita harus memberi tahu SiteMesh di mana kita meletakkan decorator dan URL apa saja yang ingin didekorasi. Biasanya kita punya beberapa decorator yang berbeda untuk (misalnya):</p>
+
+<ul>
+<li>halaman utama. Lengkap dengan menubar, header, dan footer</li>
+<li>halaman login. Tanpa menubar, header, dan footer</li>
+<li>tampilan siap print. Tanpa warna-warni.</li>
+</ul>
+
+
+<p>Sebagai contoh, kita cuma akan menggunakan satu decorator, yaitu main.html. Decorator ini berlaku untuk semua request. Berikut konfigurasinya.</p>
+
+<pre><code>&lt;decorators defaultdir="/WEB-INF/decorators"&gt;
+  &lt;decorator name="default" page="main.html"&gt;
+    &lt;pattern&gt;/*&lt;/pattern&gt;
+  &lt;/decorator&gt;
+&lt;/decorators&gt;
+</code></pre>
+
+<p>File ini diletakkan di dalam folder WEB-INF, bersama-sama dengan web.xml.</p>
+
+<p>Pada konfigurasi decorator tersebut, kita jelaskan bahwa semua request (/*) akan dicegat dan didekorasi dengan main.html yang ada di folder /WEB-INF/decorators.</p>
+
+<p>Terakhir, kita lengkapi pustaka yang dibutuhkan. Jar yang dibutuhkan adalah:</p>
+
+<ul>
+<li>sitemesh.jar</li>
+<li>commons-digester.jar</li>
+<li>velocity-tools-view.jar</li>
+</ul>
+
+
+<p>Perhatikan bahwa velocity-tools-view.jar ini sudah mengandung velocity-tools-generic.jar yang kita gunakan pada artikel sebelumnya. Jadi pastikan bahwa kita tidak lupa membuang velocity-tools-generic.jar.</p>
+
+<p>Selesai sudah. Mudah bukan?</p>
+
+<p>Contoh ini sudah dipublish di GoogleCode, Anda bisa mengunduh:</p>
+
+<ul>
+<li><a href="http://hello-spring-25.googlecode.com/files/hello-spring-25-sitemesh.tar.bz2">keseluruhan project folder</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh.war">File *.war yang siap deploy</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh-winstone.jar">File *.jar yang siap dijalankan secara standalone</a></li>
+</ul>
+
+
+<p>Atau Anda juga bisa menggunakan Subversion untuk menarik keseluruhan project folder, dengan perintah:</p>
+
+<pre><code>svn export http://hello-spring-25.googlecode.com/svn/trunk/ hello-spring-25-read-only 
+</code></pre>
+
+<p>Setelah project folder diperoleh, dibutuhkan database MySQL dengan konfigurasi sebagai berikut:</p>
+
+<ul>
+<li>nama database : belajar</li>
+<li>username : belajar</li>
+<li>password : java</li>
+</ul>
+
+
+<p>Tabel T_PERSON yang digunakan pada contoh ini dapat dibuat dengan menggunakan script sql yang ada di folder src/sql/mysql-schema.sql.</p>
+
+<p>Untuk menjalankan aplikasi ini, dibutuhkan Ant 1.7.0 dan Java 6. Cukup ketik ant run di konsol. Kemudian browse ke http://localhost:8080/</p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/aplikasi/svn-commit-email/">Mengaktifkan Commit Email Subversion</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-07T22:22:59+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota tim yang lain. Beberapa keuntungan dari pelaksanaan Peer Review antara lain:</p>
+
+<ul>
+<li>meningkatnya collective code ownership. Semua anggota tim akan merasa memiliki.</li>
+<li>membantu penyebaran pengetahuan dan pengalaman. Kode yang kurang optimal akan dikomentari di ruang publik (milis developer), sehingga semua anggota akan mendapat pencerahan.</li>
+<li>meningkatkan kualitas kode program secara keseluruhan. Bila setiap commit direview, anggota tim akan mendapat peer pressure untuk tidak mengulangi kesalahan yang pernah dibahas. Kalau ada kode yang kurang optimal, feedback akan datang dengan cepat, sehingga kualitas yang rendah tidak akan terakumulasi.</li>
+</ul>
+
+
+<p>Baiklah, sekarang kita sudah tahu manfaat praktek peer review. Sama seperti kita tahu kalau lari pagi itu sehat. Tapi seperti halnya lari pagi, banyak orang yang tidak melakukannya.</p>
+
+<p>Salah satu alasan peer review tidak dilakukan adalah semakin banyak kode program, semakin sulit reviewnya. Mau mulai dari mana? Apa kode yang kemarin sudah direview perlu dilihat lagi?</p>
+
+<p>Masalah yang sama dihadapi oleh seluruh pengembang aplikasi open source di seluruh dunia. Dan mereka sudah punya solusinya, yaitu commit email.</p>
+
+<p>Prinsipnya sederhana. Kita pasang trigger di version control. Setiap kali ada yang commit, trigger tersebut akan melihat apa yang baru saja dicommit. Kemudian membandingkannya dengan versi sebelumnya. Hasil perbandingan kemudian dikirim ke milis developer supaya bisa dilihat orang banyak.</p>
+
+<p>Dengan commit email ini, reviewer tidak perlu melihat keseluruhan kode program, tapi cukup yang berubah saja. Ini akan sangat meringankan kegiatan review.</p>
+
+<p>Subversion sudah mempaketkan script trigger untuk commit email. Di <a href="http://subversion.tigris.org/tools_contrib.html">halaman Tools &amp; Contrib</a> ada beberapa script untuk keperluan ini.</p>
+
+<p>Saya menggunakan <a href="http://svn.collab.net/repos/svn/trunk/tools/hook-scripts/commit-email.pl.in">commit script yang dibuat dengan Perl</a>. Sebelum dipakai, script ini harus diedit sedikit, di bagian SMTP server.</p>
+
+<p><code>$smtp_server = "127.0.0.1";</code></p>
+
+<p>dan bagian path menuju perintah svnlook.</p>
+
+<p><code>my $svnlook = "@SVN_BINDIR@/svnlook";</code></p>
+
+<p>Kalau di Windows, <code>svnlook</code> ada di <code>C:\Program Files\Subversion\bin</code>, sedangkan kalau di Linux biasanya ada di <code>/usr/bin</code>.</p>
+
+<p>Selanjutnya, kita harus menyuruh Subversion untuk menjalankan file ini pada saat ada orang commit. Caranya mudah, masuk ke folder repository Subversion, di dalam folder hooks.</p>
+
+<p>Untuk Linux mudah, cukup rename <code>post-commit.tmpl</code> menjadi <code>post-commit</code>, dan ganti modenya menjadi executable.</p>
+
+<p><code>chmod +x post-commit</code></p>
+
+<p>Kemudian edit sedikit untuk memasukkan beberapa parameter:</p>
+
+<ul>
+<li>Recipient : penerima commit email. Biasanya ini saya arahkan ke milis developer</li>
+<li>Subject : subject pada email yang dikirim</li>
+<li>Reply To : kalau penerima email menekan tombol Reply, inilah alamat yang akan muncul di field To</li>
+<li>Host : nama host otomatis yang akan ditambahkan ke nama user yang commit. Misalnya username yang commit endy, dan hostnya artivisi.com, maka nama pengirim otomatis menjadi endy@artivisi.com</li>
+</ul>
+
+
+<p>Berikut isi dari file post-commit saya</p>
+
+<pre><code>```#!/bin/sh
+REPOS="$1"
+REV="$2"
+
+RECIPIENT=devteam@artivisi.com
+SUBJECT=automated-commit-email
+REPLY_TO=devteam@artivisi.com
+HOST=artivisi.com
+
+$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT
+```
+</code></pre>
+
+<p>Untuk di Windows, kita harus membuat file <code>post-commit.bat</code>, di folder hooks juga. Berikut isi dari <code>post-commit.bat</code></p>
+
+<pre><code>```@ECHO OFF
+
+SET RECIPIENT=devteam@artivisi.com
+SET SUBJECT=automated-commit-email
+SET REPLY_TO=devteam@artivisi.com
+SET HOST=artivisi.com
+
+SET PERL=c:\usr\bin\perl
+SET REPOS=%1
+SET REV=%2
+
+%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%
+```
+</code></pre>
+
+<p>Tentunya kita harus menginstal dulu <a href="http://www.activestate.com/store/productdetail.aspx?prdGuid=81fbce82-6bd5-49bc-a915-08d58c2648ca">Perl untuk Windows</a> agar script ini bisa berjalan.</p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/konfigurasi-anotasi-vs-xml/">Annotation Dan XML</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-07T21:30:47+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu <a href="http://endy.artivisi.com/blog/java/akses-database-spring25/#comment-9582">komentator bertanya seperti ini</a>,</p>
+
+<blockquote><p>kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring membuat kontrol kita lebih sentralisasi, sehingga lebih mudah dimaintain ?</p></blockquote>
+
+<p>Hmm&#8230; saya tidak ingin terlibat flame war annotation vs xml. Masing-masing memiliki plus minusnya. Ada saatnya kita memakai annotation dan ada saatnya XML lebih tepat. Mari kita bahas.</p>
+
+<p>Beberapa waktu yang lalu, saya pernah ditugaskan untuk memeriksa aplikasi finansial yang error. Pada salah satu halaman, bila tombol Submit ditekan, aplikasi akan hang. Aplikasi ini dibuat menggunakan teknologi VB 6 (RIP) untuk komponen akses database, ASP untuk tampilan, dan Stored Procedure MS-SQL Server 2005 untuk sebagian logika bisnis.</p>
+
+<p>Setelah memasukkan trace statement ke dalam Stored Procedure (ternyata bukan hal yang mudah, tidak semudah menyisipkan System.out.println(), terlihat penyebabnya karena ada cyclic dependency antar transaksi database. Transaksi A mencoba mengurangi saldo, tapi sebelumnya memeriksa posisi saldo, kalau-kalau tidak mencukupi. Pemeriksaan saldo dilakukan melalui transaksi B. Transaksi B mencoba melihat tabel saldo, yang ternyata sudah dikunci oleh transaksi A. Ya sampai kapanpun transaksi A dan B akan saling menunggu.</p>
+
+<p>Baiklah, masalah sudah ditemukan, saatnya untuk memperbaiki. Memperbaiki jauh lebih mudah daripada menemukan bug, kan?</p>
+
+<p>Sayangnya tidak demikian. Ada berbagai faktor, salah satunya yang paling signifikan adalah saya awam dengan teknologi Microsoft. Saya sama sekali tidak mengerti bagaimana cara mengatur transaksi di VB dan Stored Procedure.</p>
+
+<p>Akhirnya setelah google kesana kemari, saya menemukan empat cara untuk melakukan setting transaksi:</p>
+
+<ul>
+<li>coding di VB</li>
+<li>coding di Stored Procedure</li>
+<li>konfigurasi class properties di VB</li>
+<li>konfigurasi di COM service pada Control Panel Windows</li>
+</ul>
+
+
+<p>Waduh &#8230; ini mimpi buruk. Berarti ada banyak kombinasi yang harus dicoba. Saya yakin para MVP pasti dengan cepat bisa memilih, tapi saya hanyalah seorang programmer Java. Mana saya tahu hal beginian.</p>
+
+<p>Dari kejadian ini, saya mendapat pelajaran penting. Pengaturan transaksi haruslah dekat dengan kode yang melakukan transaksi. Alasannya, kode program yang mengakses database sangat erat hubungannya dengan pengaturan transaksi. Tidak mungkin kita menulis kode untuk transfer antar rekening tapi menon-aktifkan transaksi database.</p>
+
+<p>Kode seperti ini mudah dipahami dan mudah didebug.</p>
+
+<pre><code>@Transactional(readOnly=false)
+public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Kode seperti ini perlu banyak Alt-Tab untuk mendebugnya.</p>
+
+<p>Di Java:</p>
+
+<pre><code>public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Di XML</p>
+
+<pre><code>&lt;property name="transactionAttributes"&gt;
+  &lt;props&gt;
+    &lt;prop key="transfer*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+  &lt;/props&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Bedakan antara cara melakukan transaksi, dan cara melakukan konfigurasi. Di Java, kita bisa memilih beberapa cara transaksi:</p>
+
+<ul>
+<li>Local Transaction: mengelola transaksi melalui java.sql.Connection dalam source code</li>
+<li>Programmatic Transaction: mengambil object Transaction dari JTS provider, kemudian menggunakannya untuk commit/rollback. Ini juga dilakukan dalam source code.</li>
+<li>Declarative Transaction: mengatur transaksi melalui konfigurasi.</li>
+</ul>
+
+
+<p>Kalau kita pilih declarative transaction, ada beberapa cara konfigurasinya:</p>
+
+<ul>
+<li>Melalui XML</li>
+<li>Melalui Annotation</li>
+</ul>
+
+
+<p>Yang mana yang paling dekat dengan source code yang bertransaksi? Tentu saja annotation.</p>
+
+<p>Ok, sudah jelas mengenai transaction, sebaiknya di annotation saja.</p>
+
+<p>Berikutnya, deklarasi DAO. Sebelumnya kita melakukan deklarasi DAO di XML. Yang biasa saya lakukan kalau ada DAO baru biasanya sama:</p>
+
+<ul>
+<li>copy paste deklarasi DAO di atasnya</li>
+<li>ganti bean id</li>
+<li>ganti nama class</li>
+</ul>
+
+
+<p>Beres. Tidak ada added value di sini. Deklarasi manual di XML tidak membuat konfigurasi Spring jadi lebih mudah dipahami. Juga tidak membuat kita makin pintar. Ini adalah overhead pemrograman dengan Spring. Boilerplate code. Kode yang ditulis hanya untuk memuaskan framework.</p>
+
+<p>Jadi, lebih baik kalau kita suruh Spring autodetect saja dari annotation @Repository.</p>
+
+<p>Bagaimana dengan relasi dengan datasource? Bukankah kalau di XML jadi terlihat DAO mana menggunakan DataSource mana?</p>
+
+<p>Hmm &#8230; untuk kasus datasource, ada dua kemungkinan:</p>
+
+<ul>
+<li>menggunakan satu datasource</li>
+<li>menggunakan lebih dari satu datasource</li>
+</ul>
+
+
+<p>Untuk kasus pertama, biasanya sebagian aplikasi seperti ini, tidak perlu ada deklarasi eksplisit untuk injeksi dataSource. Lha wong cuma satu, apanya yang ambigu? @Autowired saja semuanya.</p>
+
+<p>Untuk kasus kedua, mau tidak mau memang harus XML. Soalnya @Autowired by type tidak akan bisa, karena ada lebih dari satu bean bertipe DataSource.</p>
+
+<p>Sekarang kita lihat, apa yang tertinggal di konfigurasi XML, setelah banyak hal kita pindahkan ke annotation:</p>
+
+<ul>
+<li>deklarasi datasource</li>
+<li>deklarasi transaction manager</li>
+</ul>
+
+
+<p>Kedua hal ini tidak logis bila kita pindahkan ke annotation. Dua-duanya adalah konfigurasi, sangat mungkin berubah tergantung strategi deployment. Bila kita mengelola koneksi database melalui application server, maka kita akan menggunakan JNDI. Bila kita deploy di <a href="http://winstone.sourceforge.net">Winstone</a>, maka kita tidak menggunakan JTA, jadi transaction manager menggunakan LocalTransactionManager.</p>
+
+<p>Setelah selesai dengan isu backend, mari sekarang kita bahas presentation layer. Ada beberapa anotasi di sini:</p>
+
+<ul>
+<li>@Controller : untuk menandai class Controller</li>
+<li>@RequestMapping : untuk mapping URL atau Request Method ke handlernya</li>
+<li>@RequestParam : untuk mem-bind request parameter ke variabel</li>
+<li>@ModelAttribute : untuk mem-bind object ke request attribute</li>
+<li>@SessionAttribute : untuk mem-bind object ke session attribute</li>
+</ul>
+
+
+<p>@Controller sama dengan @Repository. Keberadaannya menghilangkan boilerplate deklarasi di XML. Menurut saya, ini sangat mengurangi clutter dan duplikasi di XML.</p>
+
+<p>@RequestMapping, saya 50:50 di sini.</p>
+
+<p>Di satu sisi, seharusnya kita tidak mengikat handler method dengan URL pattern, supaya kita bisa mengganti skema URL sesuai trend terbaru (RESTful, etc) atau sebaliknya, supaya bisa mengganti handler method tanpa mengubah URL.</p>
+
+<p>Tapi di sisi lain, saya ingin menggunakan Convention over Configuration ala <a href="http://rubyonrails.org">Rails</a>. Yaitu nama view otomatis diambil dari request URL. Ini benar-benar mengurangi jumlah konfigurasi yang harus ditulis. Lagipula, seberapa sering sih kita mengganti pasangan URL-Handler?</p>
+
+<p>Jadi untuk @RequestMapping, posisi saya adalah, tergantung situasi. Ada saatnya mapping di XML, dan ada saatnya mapping dengan annotation.</p>
+
+<p>@RequestParam, @ModelAttribute, dan @SessionAttribute setahu saya tidak punya padanan XML. Ini adalah anotasi untuk memudahkan coding saja. Jadi tidak perlu diperdebatkan apakah sebaiknya di XML saja.</p>
+
+<p>Yah, begitulah sekilas perbandingan antara konfigurasi melalui anotasi dan XML. Sepertinya menambah bingung. Tapi jangan khawatir, untuk bisa mengerti harus bingung dulu.</p>
+
+<p>Semoga bermanfaat.</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/26/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/24/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

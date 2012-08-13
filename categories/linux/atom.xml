@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: linux | Living life and make it better]]></title>
+  <link href="http://endy.artivisi.com/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://endy.artivisi.com/blog/"/>
+  <updated>2012-08-13T15:27:52+07:00</updated>
+  <id>http://endy.artivisi.com/blog/</id>
+  <author>
+    <name><![CDATA[Endy Muhardin]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Backup Home Folder]]></title>
+    <link href="http://endy.artivisi.com/blog/linux/backup-home-folder/"/>
+    <updated>2011-08-26T23:00:29+07:00</updated>
+    <id>http://endy.artivisi.com/blog/linux/backup-home-folder</id>
+    <content type="html"><![CDATA[<p>Seberapa penting file di komputer kita? Tentu tidak ternilai harganya. Tapi apakah kita melakukan backup secara terhadap file-file di komputer kita? Beberapa menit yang lalu, saya menjawab tidak untuk pertanyaan tersebut.</p>
+
+<p>Kenapa backup tidak dilakukan? Penyebab utamanya biasanya adalah karena merepotkan. Kita harus pilih file yang mau dibackup, membuka aplikasi backup, lalu menjalankannya. Walaupun cuma butuh waktu beberapa menit, tapi biasanya kita sering menunda dan akhirnya lupa.</p>
+
+<p>Cara paling efektif untuk melakukan backup rutin adalah dengan mengotomasinya. Effort untuk melakukan setup cukup sekali saja, selanjutnya backup akan berjalan otomatis tanpa kita sadari. Pada artikel ini, saya akan posting teknik backup yang saya gunakan.</p>
+
+<p>Sebelum kita mulai, terlebih dulu kita tentukan requirementnya, supaya jelas apa yang kita ingin capai. Saya ingin membackup folder tertentu di komputer saya (misalnya <em>/home/endy</em> dan <em>/opt/multimedia/Photos</em>). Backup ini dilakukan secara rutin (misalnya satu jam sekali, satu hari sekali, atau satu minggu sekali). Selain rutin, juga harus incremental. Artinya kalau saya punya backup hari ini jam 11, maka backup selanjutnya di jam 12 hanya menyimpan file yang berubah saja. Dengan demikian, saya bisa jalankan backupnya satu jam sekali dan tidak akan menyebabkan harddisk menjadi penuh dalam beberapa jam saja.</p>
+
+<!--more-->
+
+
+<p>Kalau kita cari di Google dengan keyword <em>ubuntu backup application</em>, ada banyak sekali aplikasi backup yang tersedia.
+Ada Unison, Bacula, SBackup, rdiff-backup, Deja Dup, dan <a href="http://davestechshop.net/ListOfFreeOpenSourceLinuxUbuntuBackupSoftware">entah apa lagi</a>. Walaupun demikian, seperti biasanya, saya akan gunakan aplikasi yang paling populer, universal (ada di mana-mana), dan bisa dijalankan dari command line (supaya bisa diotomasi dengan cron). Pilihannya tentu adalah <em>rsync</em>.</p>
+
+<p><em>rsync</em> adalah aplikasi untuk melakukan file transfer. Dia memiliki beberapa kelebihan, diantaranya :</p>
+
+<ul>
+<li><p>tersedia di semua *nix (misalnya Linux dan Mac)</p></li>
+<li><p>berbasis command line, sehingga bisa saya aplikasikan juga di server</p></li>
+<li><p>sudah teruji kehandalannya</p></li>
+<li><p>bisa resume (bila transfer putus di tengah jalan, tidak perlu ulang dari awal)</p></li>
+<li><p>data yang ditransfer bisa dikompres, supaya lebih cepat</p></li>
+<li><p>bisa mengirim data melalui ssh, sehingga keamanan data terjamin</p></li>
+<li><p>memiliki kemampuan hard linking sehingga bisa menghemat space (akan dijelaskan lebih lanjut)</p></li>
+</ul>
+
+
+<p>With great power, comes great complexity. Demikian kata pamannya Spiderman seandainya dia harus menggunakan <em>rsync</em>. Saking banyaknya opsi, sehingga kita bingung apa yang harus dipakai. Berikut adalah opsi rsync yang saya gunakan :</p>
+
+<ul>
+<li><p>a : archive. Opsi ini sama dengan kalau kita mengaktifkan opsi rlptgoD</p></li>
+<li><p>r : rekursif sampai ke subfolder terdalam</p></li>
+<li><p>l : symlink tetap dicopy sebagai symlink</p></li>
+<li><p>p : file permission disamakan dengan aslinya</p></li>
+<li><p>t : modification time (waktu terakhir update) disamakan dengan aslinya</p></li>
+<li><p>g : kepemilikan group disamakan dengan aslinya</p></li>
+<li><p>o : kepemilikan owner disamakan dengan aslinya</p></li>
+<li><p>D : file device dan special disamakan dengan aslinya</p></li>
+<li><p>force : folder kosong di tujuan dihapus walaupun ada isinya</p></li>
+<li><p>ignore-errors : lanjut terus walaupun ada error</p></li>
+<li><p>exclude-from : file text berisi daftar file/folder yang tidak perlu ditransfer</p></li>
+<li><p>link-dest : lihat ke folder yang disebutkan, kalau ada file yang sama, buat hard link</p></li>
+</ul>
+
+
+<p>Pada penjelasan di atas, beberapa kali disebutkan istilah hard-link. Di Linux, suatu file terdiri dari dua bagian : isi (content), dan nama. Satu content yang sama bisa saja memiliki dua nama yang berbeda di folder berbeda sehingga terlihat seolah-olah ada dua file.
+Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu content dan satu nama file coba.txt. Kita bisa membuat nama file baru yang isinya sama dengan perintah sebagai berikut</p>
+
+<p><em>__ln coba.txt halo.txt</em></p>
+
+<p>Perintah di atas akan membentuk file <em>halo.txt</em> yang isinya sama dengan <em>coba.txt</em>. Kalau kita edit <em>coba.txt</em>, maka isi file <em>halo.txt</em> juga akan berubah, karena mereka sebetulnya menunjuk ke benda yang sama.</p>
+
+<p>Dengan menggunakan hard-link ini, kita bisa menduplikasi file tanpa menduplikasi space di harddisk. Ini akan sangat berguna untuk membuat incremental backup, karena kita bisa membuat backup sesering mungkin tanpa memenuhi isi harddisk.</p>
+
+<p>Fitur ini kita gunakan pada <em>rsync</em> dengan opsi <em>link-dest</em>. Sebagai contoh, kita jalankan backup pertama kali dan menghasilkan folder <em>20110826-1100</em>. Pada waktu kita jalankan backup kedua, kita berikan opsi <em>link-dest=20110826-1100</em>. Saat akan mengisi folder yang baru (misalnya <em>20110826-1200</em>), <em>rsync</em> akan melihat ke folder <em>20110826-1100</em> dan memeriksa apakah file yang sama sudah ada. Bila sudah ada, maka <em>rsync</em> tidak akan menulis file baru, melainkan hanya akan membuat hard-link saja. Jadi, bila backup pertama berisi 100 file dengan total 10 GB, dan backup kedua berisi 99 file yang sama, dan 1 file saja yang berubah dengan ukuran 1 GB, maka total space yang terpakai adalah 10 GB (backup pertama) dan 1 GB (backup kedua), bukannya 20 GB.</p>
+
+<p>Setelah kita memahami opsi <em>rsync</em>, berikut adalah perintah yang kita gunakan</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=rsync-cmd.txt'></script>
+<noscript><pre><code>rsync -a --force --ignore-errors --exclude-from=rsync-exclude.txt --link-dest=folder-backup-sebelumnya SRC DEST</code></pre></noscript></div>
+</p>
+
+<p>File <em>rsync-exclude.txt</em> berisi folder yang tidak dibackup, punya saya isinya seperti ini :</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=rsync-exclude.txt'></script>
+<noscript><pre><code>#rsync script exclude file
+**/.thumbnails/
+**/Desktop/Trash/
+**/.cache/
+**/.m2/
+**/.metadata/
+**/.netbeans/
+**/.shotwell/
+**/.config/
+**/.gconf/
+**/virtual-machines/</code></pre></noscript></div>
+</p>
+
+<p><em>folder-backup-sebelumnya</em> perlu dihitung dulu. Caranya menggunakan perintah <em>ls -tr</em> yang akan menampilkan isi folder yang diurutkan berdasarkan modification time secara descending. Berikut contoh outputnya.</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=ls-ltr-output'></script>
+<noscript><pre><code>ls -ltr /opt/downloads/backups/
+total 12
+drwxr-xr-x 3 endy endy 4096 2011-08-26 13:21 20110826-1321
+drwxr-xr-x 3 endy endy 4096 2011-08-26 14:07 20110826-1407
+drwxr-xr-x 3 endy endy 4096 2011-08-26 14:27 20110826-1427</code></pre></noscript></div>
+</p>
+
+<p>Dari sini, kita cukup ambil yang paling atas menggunakan perintah <em>tail -1</em></p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=ls-ltr-tail'></script>
+<noscript><pre><code>ls -tr /opt/downloads/backups/ | tail -1
+20110826-1427</code></pre></noscript></div>
+</p>
+
+<p>Dengan bermodalkan pengetahuan tersebut, kita bisa membuat script seperti ini.</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=rsync-backup.sh'></script>
+<noscript><pre><code>#!/usr/bin/env bash
+
+# run hourly with cron
+# 0 * * * * /path/ke/rsync-backup.sh /home/endy /opt/downloads/backups /path/ke/rsync-exclude.txt
+
+SRC=$1
+DEST=$2
+EXCLUDES=$3
+args=(&quot;$@&quot;);
+MORE_OPTS=${args[@]:3}
+
+if [ &quot;$#&quot; -lt 3 ]; then
+    echo &quot;Usage : $0 &lt;src&gt; &lt;dest&gt; &lt;exclude list&gt; [rsync options]&quot;
+    return 1
+fi
+
+
+LAST=$(ls -tr $DEST | tail -1)
+if [ &quot;$LAST&quot; != &quot;&quot; ]; then
+        LINK=&quot;--link-dest=$DEST/$LAST&quot;
+fi
+
+OPTS=&quot; -a --force --ignore-errors --exclude-from=$EXCLUDES $LINK&quot;
+
+# echo OPTS $OPTS MORE_OPTS $MORE_OPTS
+
+rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></div>
+</p>
+
+<p>Untuk membackup folder <em>/home/endy</em> ke folder <em>/opt/downloads/backups</em>, kita jalankan seperti ini :</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=exec-backup.sh'></script>
+<noscript><pre><code>./rsync-backup-home.sh /home/endy /opt/downloads/backups rsync-exclude.txt</code></pre></noscript></div>
+</p>
+
+<p>Selanjutnya, kita bisa pasang di crontab dengan setting seperti ini, supaya dijalankan tiap tiga jam.</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=crontab.txt'></script>
+<noscript><pre><code>0 */3 * * * /path/ke/rsync-backup-home.sh /home/endy /opt/downloads/backups /path/ke/rsync-exclude.txt</code></pre></noscript></div>
+</p>
+
+<p>Voila ... folder home kita sudah terbackup secara otomatis tanpa kita sadari. Sepanjang menulis artikel ini, laptop saya sudah membackup dirinya sendiri sebanyak 3 kali :D</p>
+
+<p>Setelah membuat backup di harddisk laptop, tentunya kita ingin memindahkannya ke external harddisk supaya kita bisa mengosongkan lokasi backup di laptop.</p>
+
+<p>Berikut adalah perintah rsync yang digunakan.</p>
+
+<p><div><script src='https://gist.github.com/1172978.js?file=copy-backup-to-external.sh'></script>
+<noscript><pre><code>rsync -avzPH /opt/downloads/backups /media/DATA2/</code></pre></noscript></div>
+</p>
+
+<p>Dan ini adalah penjelasan terhadap opsi yang digunakan:</p>
+
+<ul>
+<li><p>P : sama dengan partial dan progress</p></li>
+<li><p>partial : file yang baru dicopy sebagian tetap disimpan agar bisa diresume</p></li>
+<li><p>progress : menampilkan progress report</p></li>
+<li><p>H : hard link dicopy sebagai hard link juga. Tanpa opsi ini, tiap hard link akan dibuatkan file baru sehingga boros space harddisk</p></li>
+</ul>
+
+
+<p>Perintah untuk transfer ke external harddisk ini tidak saya jalankan secara otomatis via cron, karena harddisknya belum tentu terpasang.</p>
+
+<p>Demikianlah artikel tentang backup rutin. Mudah-mudahan kita semua bisa terhindar dari musibah harddisk.</p>
+
+<h3>Referensi</h3>
+
+<ul>
+<li><p><a href="http://www.mikerubel.org/computers/rsync_snapshots">Easy Automated Snapshot-Style Backups with Linux and Rsync</a></p></li>
+<li><p><a href="http://www.hermann-uwe.de/blog/simple-backups-using-rsync">Simple backup using rsync</a></p></li>
+<li><p><a href="http://rsync.samba.org/examples.html">rsync examples</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Instalasi Redmine di Tomcat]]></title>
+    <link href="http://endy.artivisi.com/blog/aplikasi/linux/redmine-jruby-tomca/"/>
+    <updated>2011-08-07T04:06:01+07:00</updated>
+    <id>http://endy.artivisi.com/blog/aplikasi/linux/redmine-jruby-tomca</id>
+    <content type="html"><![CDATA[<p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
+
+<ul>
+<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
+<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
+<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
+<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
+Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
+Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
+
+<ul>
+<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
+<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
+</ul>
+
+
+<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
+
+<p>Mari kita mulai.</p>
+
+<h2>Instalasi JRuby</h2>
+
+<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=install-jruby.sh'></script>
+<noscript><pre><code>cd /opt
+tar xzf ~/Downloads/jruby-bin-1.6.3.tar.gz
+chown -R endy.endy /opt/jruby-1.6.3
+ln -s jruby-1.6.3 jruby</code></pre></noscript></div>
+</p>
+
+<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
+Tulis baris berikut ini di dalam file ~/.bashrc</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=bashrc'></script>
+<noscript><pre><code>export JRUBY_HOME=/opt/jruby
+export PATH=$PATH:$JRUBY_HOME/bin</code></pre></noscript></div>
+</p>
+
+<p>Terakhir, test instalasi JRuby</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=test-jruby.sh'></script>
+<noscript><pre><code>jruby -v
+jruby 1.6.3 (ruby-1.8.7-p330) (2011-07-07 965162f) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]</code></pre></noscript></div>
+</p>
+
+<h2>Instalasi Paket Gem</h2>
+
+<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
+
+<ul>
+<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
+<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
+<li><p>jruby-openssl : supaya bisa melayani https</p></li>
+<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
+<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
+</ul>
+
+
+<p>Mari kita install</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=install-gem.sh'></script>
+<noscript><pre><code>gem install rack -v=1.1.1
+gem install rails -v=2.3.11
+gem install jruby-openssl activerecord-jdbcmysql-adapter warbler</code></pre></noscript></div>
+</p>
+
+<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
+
+<h2>Mengambil Redmine dari Subversion Repository</h2>
+
+<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
+Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=checkout-redmine.sh'></script>
+<noscript><pre><code>cd ~/Downloads
+svn co http://redmine.rubyforge.org/svn/branches/1.2-stable redmine-1.2</code></pre></noscript></div>
+</p>
+
+<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
+Saya menggunakan konfigurasi development sebagai berikut :</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=database.yml'></script>
+<noscript><pre><code>development:
+  adapter: jdbcmysql
+  database: redmine
+  host: localhost
+  username: redmine
+  password: redmine
+  encoding: utf8</code></pre></noscript></div>
+</p>
+
+<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=create-database.sh'></script>
+<noscript><pre><code>mysql -u root -p
+
+create database redmine character set utf8;
+create user 'redmine'@'localhost' identified by 'redmine';
+grant all privileges on redmine.* to 'redmine'@'localhost';</code></pre></noscript></div>
+</p>
+
+<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
+
+<h2>Inisialisasi Redmine</h2>
+
+<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-session.sh'></script>
+<noscript><pre><code>cd ~/Downloads/redmine-1.2
+rake generate_session_store</code></pre></noscript></div>
+</p>
+
+<p>Setelah itu, inisialisasi skema database.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-skema-db.sh'></script>
+<noscript><pre><code>RAILS_ENV=development rake db:migrate</code></pre></noscript></div>
+</p>
+
+<p>Isi data awal.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-data-awal.sh'></script>
+<noscript><pre><code>RAILS_ENV=development rake redmine:load_default_data</code></pre></noscript></div>
+</p>
+
+<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=start-webrick.sh'></script>
+<noscript><pre><code>jruby script/server webrick -e development</code></pre></noscript></div>
+</p>
+
+<p>Hasilnya bisa kita browse di http://localhost:3000
+Kemudian kita bisa login dengan username admin dan password admin.</p>
+
+<h2>Konfigurasi Email</h2>
+
+<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
+Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=configuration.yml'></script>
+<noscript><pre><code># = Outgoing email settings
+development:
+    email_delivery:
+        delivery_method: :smtp
+        smtp_settings:
+            tls: true
+            address: &quot;smtp.gmail.com&quot;
+            port: 587
+            authentication: :plain
+            user_name: &quot;nama.kita@gmail.com&quot;
+            password: &quot;passwordgmailkita&quot;</code></pre></noscript></div>
+</p>
+
+<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=install-action-mailer-tls.sh'></script>
+<noscript><pre><code>jruby script/plugin install git://github.com/collectiveidea/action_mailer_optional_tls.git
+</code></pre></noscript></div>
+</p>
+
+<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
+Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
+Kemudian pergi ke menu Administration > Settings > Email Notifications,
+kemudian klik link Send a test email di pojok kanan bawah.
+Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
+
+<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
+Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
+
+<h2>Generate WAR</h2>
+
+<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=warble-config.sh'></script>
+<noscript><pre><code>warble config
+</code></pre></noscript></div>
+</p>
+
+<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=warble.rb'></script>
+<noscript><pre><code>Warbler::Config.new do |config|
+  config.dirs = %w(app config lib log vendor tmp extra files lang)
+  config.gems += [&quot;activerecord-jdbcmysql-adapter&quot;, &quot;jruby-openssl&quot;, &quot;i18n&quot;, &quot;rack&quot;]
+  config.webxml.rails.env = ENV['RAILS_ENV'] || 'development'
+end</code></pre></noscript></div>
+</p>
+
+<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=warble-generate.sh'></script>
+<noscript><pre><code>warble
+warning: application directory `lang' does not exist or is not a directory; skipping
+rm -f redmine-1.2.war
+Creating redmine-1.2.war</code></pre></noscript></div>
+</p>
+
+<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
+
+<p><div><script src='https://gist.github.com/1129237.js?file=redmine-war-deploy.sh'></script>
+<noscript><pre><code>cp redmine-1.2.war /opt/apache-tomcat-7.0.12/webapps/redmine.war
+</code></pre></noscript></div>
+</p>
+
+<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Screencast]]></title>
+    <link href="http://endy.artivisi.com/blog/aplikasi/linux/membuat-screencast/"/>
+    <updated>2011-06-28T01:03:23+07:00</updated>
+    <id>http://endy.artivisi.com/blog/aplikasi/linux/membuat-screencast</id>
+    <content type="html"><![CDATA[<p>Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat bandwidth) menjadi multimedia (rakus bandwidth).</p>
+
+<p>Demi mengikuti perkembangan jaman, saya mengeksplorasi pembuatan tutorial dalam bentuk screencast. Ternyata hasilnya memuaskan. Dengan beberapa menit merekam screencast, informasi yang disampaikan sama dengan beberapa jam mengetik blog entry.</p>
+
+<p>Artikel ini saya tulis untuk mendokumentasikan langkah-langkah membuat screencast, mulai dari merekam screencast, sampai mempublikasikannya di blog.</p>
+
+<h2>Merekam video</h2>
+
+<p>Di Ubuntu ada dua aplikasi yang saya coba, yaitu Xvidcap dan Record My Desktop. Dua-duanya sama fungsinya dan tidak ada perbedaan yang signifikan. Setelah mencoba keduanya, pendapat saya adalah Record My Desktop lebih mudah digunakan. Jadi, inilah aplikasi yang saya pilih.</p>
+
+<p>Perlu diperhatikan kemampuan prosesor komputer Anda. Ini kaitannya dengan setting frame per second (fps). Bila fps melebihi kemampuan prosesor, video yang kita rekam akan terlihat lebih cepat dari sebenarnya. Di laptop saya, setting 15 fps akan menghasilkan video yang kira-kira 2x lebih cepat. Setelah trial and error, saya temukan bahwa 9 fps adalah setting yang tepat.</p>
+
+<p>Perbedaan yang utama di antara kedua aplikasi ini adalah format outputnya. Record My Desktop mengeluarkan format ogv sedangkan Xvidcap mengeluarkan format mpeg. Perbedaan format ini nantinya akan mempengaruhi langkah pemrosesan selanjutnya.</p>
+
+<h2>Merekam suara</h2>
+
+<p>Biasanya, saya merekam suara dalam proses yang terpisah, supaya tidak banyak ehm dan eee. Rekaman dibuat sambil menonton screencast yang sudah kita rekam. Setelah rekaman suara dibuat, bisa diedit dengan menggunakan aplikasi Audacity untuk menghilangkan noise, memotong bagian yang tidak penting, dan sebagainya.</p>
+
+<h2>Menggabungkan video dan audio</h2>
+
+<p>Selanjutnya, kita menggunakan aplikasi Avidemux untuk menggabungkan file audio dan file video menjadi satu file. Dengan aplikasi ini kita juga bisa mengedit video untuk menghilangkan bagian-bagian yang tidak perlu ataupun menyambung beberapa video menjadi satu.</p>
+
+<h2>Mempersiapkan format video untuk web</h2>
+
+<p>Ada berbagai format video yang tersedia. Masing-masing format memiliki dukungan browser yang berbeda-beda. Daftar lengkapnya bisa dilihat <a href="http://diveintohtml5.info/video.html#what-works">di sini</a></p>
+
+<p>Pada intinya, supaya bisa dilihat di berbagai browser, kita harus menyediakan file dengan format ogv, mp4, dan webm. Kita juga harus menyertakan poster dalam format jpg atau png supaya bisa ditampilkan dengan benar di browser.</p>
+
+<p>Ada beberapa script yang bisa digunakan, misalnya <a href="https://github.com/kwiliarty/vfe-sh">ini</a> atau <a href="http://brettterpstra.com/automating-html5-video-encodes/">ini</a></p>
+
+<p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
+
+<p>Konversi dari ogv menjadi mp4
+<div><script src='https://gist.github.com/1048657.js?file=ogv-to-mp4.sh'></script>
+<noscript><pre><code>ffmpeg -vcodec libx264 -vpre lossless_medium -i file-input.ogv file-output.mp4</code></pre></noscript></div>
+</p>
+
+<p>Konversi dari ogv menjadi webm
+<div><script src='https://gist.github.com/1048657.js?file=ogv-to-webm.sh'></script>
+<noscript><pre><code>ffmpeg -pass 1 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y tmp.webm
+
+rm tmp.webm
+
+ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y file-output.webm
+</code></pre></noscript></div>
+</p>
+
+<p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
+
+<p>Membuat poster
+<div><script src='https://gist.github.com/1048657.js?file=create-poster.sh'></script>
+<noscript><pre><code>ffmpeg -r 1 -t 1 -vframes 1 -i input-file.mp4  output-file.png</code></pre></noscript></div>
+</p>
+
+<h2>Upload</h2>
+
+<p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
+<div><script src='https://gist.github.com/1048657.js?file=upload-to-server.sh'></script>
+<noscript><pre><code>rsync -avz /path/to/video/folder user@example.com:/home/user/public_html/videos</code></pre></noscript></div>
+</p>
+
+<h2>Tampilkan di blog</h2>
+
+<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
+
+<p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Konsep Clustering]]></title>
+    <link href="http://endy.artivisi.com/blog/aplikasi/java/linux/konsep-clustering/"/>
+    <updated>2011-01-30T04:15:14+07:00</updated>
+    <id>http://endy.artivisi.com/blog/aplikasi/java/linux/konsep-clustering</id>
+    <content type="html"><![CDATA[<p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
+
+<p>Demikian pertanyaannya.</p>
+
+<blockquote></blockquote>
+
+<p>Ini sebetulnya dua hal yang berbeda.
+Load balancing ya membagi beban.
+Failover ya mencegah single point of failure.</p>
+
+<p>Load balancer terdiri dari satu balancer dan banyak worker.
+Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
+Bisa merata (round robin) bisa juga dengan bobot (weighted), misalnya worker X mendapat 2 kali worker Y karena dia specnya lebih tinggi.
+Atau bisa juga dynamic, artinya si LB akan mengetes kondisi semua worker, mana yang kira2 sedang idle itu yang dikasi.
+Mana yang sedang idle ini nanti ada lagi settingnya, apakah melihat CPU usage pakai SNMP, melihat ping response time, whatever.</p>
+
+<p>Failover minimal harus ada 2 titik.
+Kalo kita implement LB aja, point of failure (POF) nya adalah si LB.
+Begitu LB nya mati, ya udah semua worker gak bisa diakses.
+Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
+
+<p>Contoh aplikasi load balancer :</p>
+
+<blockquote><ul>
+<li><p>HAProxy</p></li>
+<li><p>ldirectord (Ultra Monkey)</p></li>
+<li><p>Pound</p></li>
+</ul>
+</blockquote>
+
+<p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
+
+<blockquote><ul>
+<li><p>Apache (mod_proxy_balancer)</p></li>
+<li><p>Nginx</p></li>
+<li><p>lighttpd</p></li>
+<li><p>bind (DNS Server)</p></li>
+</ul>
+</blockquote>
+
+<p>Contoh aplikasi failover :</p>
+
+<blockquote><ul>
+<li><p>heartbeat (Ultra Monkey)</p></li>
+<li><p>keepalived</p></li>
+</ul>
+</blockquote>
+
+<p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
+
+<blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
+Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
+
+<p>Tidak selalu, tergantung konfigurasinya.
+Ada konfigurasi sticky session.
+Artinya, pada hit pertama, si user akan diberikan penanda, biasanya berbentuk cookie.
+Pada hit berikutnya, LB akan melihat cookienya, dan mengarahkan ke server yang sebelumnya sudah mengurus si user ini.</p>
+
+<p>Ada juga konfigurasi non-sticky.
+Artinya tiap hit dianggap hit baru, dan didistribusikan ke semua server sesuai algoritma yang dipilih, round robin, weighted, atau dynamic, sesuai penjelasan di atas.</p>
+
+<p>Mau pilih yang mana? Ya tergantung kemampuan LB nya.
+Ada yang bisa 2-2 nya sehingga bisa pilih, dan ada juga yang rada stupid sehingga terpaksa pakai non-sticky.
+Istilahnya, LBnya layer berapa? Kalo layer 7 biasanya bisa sticky, kalo layer 4 ya gak bisa.
+Lebih jauh tentang urusan layer-layeran ini bisa dibaca <a href="http://blog.loadbalancer.org/why-layer-7-sucks/">di sini</a> dan <a href="http://1wt.eu/articles/2006_lb/">di sini</a></p>
+
+<p>Nah, apa impact sticky vs non-sticky?
+Ini pengaruhnya ke session data.
+Session data adalah data sementara masing-masing user.
+Karena sifatnya sementara, maka biasanya tidak disimpan secara persistent di tabel database.
+Contoh paling klasik adalah isi shopping cart.
+Itu barang belum diorder, tapi sudah dipilih, sehingga biasanya belum disimpan di database.</p>
+
+<p>Kalo pake non-sticky, si user pertama milih barang di server X.
+Pada saat dia pilih barang kedua, dilayani server Y.
+Karena pilihan pertama ada di server X, ya pas dia pilih barang kedua, cuma tercatat 1 barang padahal harusnya 2.</p>
+
+<p>Ini tidak terjadi kalo kita pakai sticky balancer.
+Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
+
+<p>Jadi, sticky atau non-sticky itu impactnya ke temporary data user, sering disebut dengan istilah session data atau user state.</p>
+
+<p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
+
+<blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
+
+<p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
+Secara umum, settingan standar appserver biasanya simpan data session di memori.
+Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain.
+Pada saat worker utama mati, request berikutnya akan diarahkan ke worker cadangannya, sehingga user gak kehilangan data belanjaan.
+Biasanya, satu state itu disimpan ke 2 worker saja, bukan direplikasi ke semua untuk alasan efisiensi bandwidth.</p>
+
+<p>Pada penjelasan di atas banyak sekali saya gunakan kata 'biasanya'. Ini karena kapabilitas dan konfigurasi masing-masing merek appserver sangat berbeda sehingga sulit untuk menggeneralisir kondisinya.</p>
+
+<p>Lalu bagaimana?
+Saya biasanya mengambil pendekatan yang universal, yang jalan di semua appserver, sehingga tidak perlu pusing menghafal appserver apa bisa apa settingnya gimana.
+Teknik universalnya sederhana: aplikasi webnya dibuat stateless.
+Jangan ada simpan data di memori. Simpan semua di database, atau di distributed cache (misalnya memcached).</p>
+
+<p>Di Java, data yang ada di memori antara lain : session variable, static variable, context variable.
+Di PHP, CMIIW cuma session dan global variable aja.</p>
+
+<p>Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terhadap appserver apa bisa apa settingnya gimana.
+Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya.
+Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah.
+Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
+
+<p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Simulasi Slow Network]]></title>
+    <link href="http://endy.artivisi.com/blog/linux/simulasi-slow-network/"/>
+    <updated>2009-06-15T15:21:33+07:00</updated>
+    <id>http://endy.artivisi.com/blog/linux/simulasi-slow-network</id>
+    <content type="html"><![CDATA[<p>Di salah satu proyek ArtiVisi, kita memiliki aplikasi client-server yang terhubung melalui koneksi internet berbandwidth kecil. Client menghubungi server melalui modem GPRS.</p>
+
+<p>Permasalahannya adalah bagaimana cara mengetes koneksi lemot ini pada saat development? Umumnya pada saat development kita menjalankan server dan client di komputer yang sama. Atau kalaupun di komputer berbeda, dijalankan di satu LAN, sehingga kecepatan bisa mencapai 100Mbps.</p>
+
+<p>Ada dua alternatif yang bisa kita gunakan. Yang pertama adalah aplikasi tc (traffic control) yang biasanya sudah terinstal secara default di Ubuntu. Kalau belum terinstal, kita bisa menginstal paket iproute atau iproute2, tergantung distro yang Anda gunakan.</p>
+
+<p>Alternatif kedua, menggunakan aplikasi ip_relay. Aplikasi ini bisa diinstal dengan nama paket iprelay.</p>
+
+<p>Berikut adalah referensi pemakaian tc :</p>
+
+<ul>
+<li><p><a href="http://www.kdedevelopers.org/node/1878">pipita's blog</a></p></li>
+<li><p><a href="http://henrydu.com/blog/how-to/simulate-a-slow-link-by-linux-bridge-123.html">Henry's Point</a></p></li>
+</ul>
+
+
+<p>Dan ini adalah referensi pemakaian iprelay :</p>
+
+<ul>
+<li><p><a href="http://ubuntuforums.org/showthread.php?t=670628">Ubuntu Forum</a></p></li>
+<li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

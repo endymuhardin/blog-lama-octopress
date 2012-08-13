@@ -1,0 +1,712 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Sebelumnya, saya telah membahas script backup untuk Trac maupun Subversion. Kali ini, kita akan bahas backup script untuk MySQL. Sama seperti backup &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://endy.artivisi.com/blog/page/13/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <div id="logo">
+  	<div id="logoLeft">{</div>
+  	<div id="logoText">endymuhardin</div>
+  	<div id="logoRight">}</div>
+  	<div class="clear"></div>
+  </div>
+  <h1><a href="/">Living life and make it better</a></h1>
+  
+    <h2>life, learn, contribute</h2>
+  
+  <div class="clear"></div>
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:endy.artivisi.com/blog" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/lain/backup-mysql/">Backup MySQL</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-02T15:23:43+07:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelumnya, saya telah membahas script backup untuk <a href="http://endy.artivisi.com/blog/lain/backup-trac/">Trac</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">Subversion</a>. Kali ini, kita akan bahas backup script untuk MySQL.</p>
+
+<p>Sama seperti backup script sebelumnya, script ini akan membuat folder sesuai dengan tanggal dan jam backup. Selanjutnya, script akan melakukan backup terhadap database MySQL sesuai dengan nama database yang ditentukan. Backup ini akan disimpan di folder yang kita tentukan.</p>
+
+<p>Berikut backup scriptnya.</p>
+
+<p>[Update - 7 Des 2009] Sudah ditambahkan perintah untuk kompresi hasil backupnya.</p>
+
+<pre><code>#!/bin/sh
+
+test -x /bin/date || exit -1
+test -x /usr/bin/mysqldump || exit -1
+test -x /bin/tar || exit -1
+test -x /bin/bzip2 || exit -1
+
+DBHOST=$1
+DBNAME=$2
+USERNAME=$3
+PASSWORD=$4
+BACKUP_FOLDER=$5
+CURR_DATE="$(/bin/date +%Y%m%d-%H%M)"
+
+
+if [ "$1" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$2" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$3" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$4" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+
+echo "Create backup folder $BACKUP_FOLDER/$CURR_DATE"
+echo "..."
+
+/bin/mkdir "$BACKUP_FOLDER/$CURR_DATE"
+
+echo "Backup $DBNAME schema to $BACKUP_FOLDER/$CURR_DATE/$DBNAME-schema-$CURR_DATE.sql"
+echo "..."
+
+/usr/bin/mysqldump $DBNAME -u $USERNAME -p$PASSWORD -h$DBHOST -d &gt; "$BACKUP_FOLDER/$CURR_DATE/$DBNAME-schema-$CURR_DATE.sql"
+
+echo "Backup $DBNAME data to $BACKUP_FOLDER/$CURR_DATE/$DBNAME-data-$CURR_DATE.sql"
+echo "..."
+
+/usr/bin/mysqldump $DBNAME -u $USERNAME -p$PASSWORD -h $DBHOST -n -c -t --single-transaction &gt; "$BACKUP_FOLDER/$CURR_DATE/$DBNAME-data-$CURR_DATE.sql"
+
+echo "Compressing folder $CURR_DATE"
+echo "..."
+
+/bin/tar cvf - "$BACKUP_FOLDER/$CURR_DATE" | /bin/bzip2 -c9 &gt; "$BACKUP_FOLDER/$CURR_DATE.tar.bz2"
+
+echo "Removing folder $BACKUP_FOLDER/$CURR_DATE"
+echo "..."
+
+/bin/rm -rf "$BACKUP_FOLDER/$CURR_DATE"
+
+echo "Completed"
+</code></pre>
+
+<p>Script di atas dapat dijalankan setiap Jumat malam jam 23.00 dengan konfigurasi sebagai berikut.</p>
+
+<pre><code>0 23 * * 5 /bin/sh /path/ke/mysql-backup.sh db_user db_pass db_name backup_folder_mysql
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/ssh-dengan-jsch/">SSH Dengan JSch</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-05-03T00:38:00+07:00" pubdate data-updated="true">May 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mengakses Remote Server dengan Java</p>
+
+<p>Kita sudah biasa mengakses komputer lain menggunakan SSH.
+Cukup ketikkan ssh username@namaserver, tekan enter, dan lakukan apa yang kita mau.
+Nah, bagaimana kalau kita ingin membuat aplikasi yang butuh mengakses komputer lain?
+Misalnya, kita ingin membuat aplikasi sederhana yang menampilkan input IP Address, Username, Password serta tombol Shutdown.
+Begitu input field kita isi dan tombol Shutdown ditekan, aplikasi kita akan melakukan ssh ke komputer tersebut dan menjalankan perintah shutdown -h now.</p>
+
+<p>Di Java, hal ini dapat dengan mudah dilakukan menggunakan pustaka <a href="http://www.jcraft.com/jsch/">JSch</a>. Berikut langkah-langkah untuk menggunakan JSch.</p>
+
+<h2>Mendapatkan Pustaka JSch</h2>
+
+<p>Tentunya yang pertama kita lakukan adalah membuka <a href="http://www.jcraft.com/jsch/">website JSch</a> dan mengunduh rilis terbaru. Pilih yang ZIP, jangan yang JAR, karena di dalamnya ada beberapa contoh penggunaan yang akan kita butuhkan untuk mencontek nantinya.</p>
+
+<p>Paket ZIP ini belum dikompilasi, dan kita membutuhkan <a href="http://ant.apache.org">Ant</a> untuk melakukan proses build. Jika Anda belum pernah menggunakan Ant, baca dulu <a href="http://endy.artivisi.com/downloads/writings/Tutorial-Ant.pdf">tutorial ini</a>. Setelah proses build selesai dilakukan, akan muncul file *jar di dalam folder dist.</p>
+
+<h2>Template Aplikasi Java</h2>
+
+<p>Buatlah project Java menggunakan editor yang Anda sukai. Pastikan jar JSch sudah terdaftar di project Java yang barusan dibuat. Setelah itu, buatlah Java Class sebagai berikut</p>
+
+<pre><code>public class JschDemo {
+    public static void main(String[] args) throws Exception {
+
+    }
+}
+</code></pre>
+
+<p>Untuk selanjutnya, kode program akan ditulis di dalam method main.</p>
+
+<h2>Parameter koneksi</h2>
+
+<p>Untuk melakukan koneksi ke komputer lain, kita memerlukan beberapa variabel, ditunjukkan dengan kode sebagai berikut.</p>
+
+<pre><code>String host = "localhost";
+String user = "endy";
+String pass = "java";
+String command = "shutdown -h now";
+</code></pre>
+
+<p>Kita akan melakukan koneksi ke komputer kita sendiri (localhost) dengan username endy dan password java. Setelah berhasil terhubung, kita akan menjalankan perintah shutdown -h now.</p>
+
+<h2>Pre Requisite</h2>
+
+<p>Agar kode program kita bisa dijalankan, ada beberapa persyaratan sebagai berikut:</p>
+
+<ul>
+<li><p>Komputer yang ingin dihubungi harus menjalankan SSH server</p></li>
+<li><p>Komputer yang ingin menghubungi harus melakukan koneksi SSH secara manual terlebih dulu,
+agar komputer tujuan terdaftar di file known_hosts</p></li>
+<li><p>User yang digunakan untuk koneksi harus memiliki akses yang cukup untuk melakukan perintah yang diinginkan</p></li>
+</ul>
+
+
+<h2>Menggunakan JSch</h2>
+
+<p>Setelah parameter koneksi kita deklarasikan, dan juga prasyarat di komputer tujuan dipenuhi, sekarang kita bisa mulai menggunakan JSch.
+Pertama, kita instankan dulu object dari class JSch.</p>
+
+<pre><code>JSch jsch = new JSch();
+</code></pre>
+
+<p>Kemudian, kita berikan database known_hosts, yaitu daftar komputer tujuan beserta public keynya. Ini berguna untuk melakukan verifikasi terhadap komputer tujuan.</p>
+
+<pre><code>jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
+</code></pre>
+
+<p>File known_hosts ini akan otomatis dibuat bila kita melakukan koneksi SSH ke komputer lain. Itulah sebabnya kita harus melakukan koneksi manual terlebih dulu, sehingga public key komputer tujuan sudah terdaftar dalam file ini. Alternatif dari menggunakan file ini adalah <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">mendaftarkan public key di komputer tujuan dan menggunakan private key untuk login</a>.</p>
+
+<p>Selanjutnya, kita membuka koneksi ke komputer tujuan</p>
+
+<pre><code>Session session = jsch.getSession(user, host);
+session.setPassword(pass);
+session.connect();
+</code></pre>
+
+<p>Lalu, kita membuka channel. Channel menggambarkan bentuk interaksi kita dengan komputer tujuan. JSch menyediakan beberapa jenis channel, misalnya exec dan shell. Kita menggunakan exec untuk mengeksekusi satu perintah saja. Sedangkan shell bisa digunakan untuk membuka terminal interaktif yang bisa kita berikan perintah sebanyak kita mau.</p>
+
+<pre><code>ChannelExec channel = (ChannelExec) session.openChannel("exec");
+channel.setCommand(command);
+channel.connect();
+</code></pre>
+
+<p>Kita bisa membaca output dari perintah yang kita jalankan menggunakan I/O Stream seperti biasa.</p>
+
+<pre><code>BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+String output = reader.readLine();
+while (output != null) {
+    System.out.println(output);
+    output = reader.readLine();
+}
+reader.close();
+</code></pre>
+
+<p>Segera setelah perintah selesai dijalankan, kita mengakhiri channel dan session.</p>
+
+<pre><code>channel.disconnect();
+session.disconnect();
+</code></pre>
+
+<p>Berikut adalah keseluruhan kode program.</p>
+
+<pre><code>public class JschDemo {
+
+    public static void main(String[] args) throws Exception {
+    String host = "localhost";
+    String user = "endy";
+    String pass = "java";
+    String command = "shutdown -h now";
+
+        JSch jsch = new JSch();
+        jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
+
+        Session session = jsch.getSession(user, host);
+        session.setPassword(pass);
+        session.connect();
+
+        ChannelExec channel = (ChannelExec) session.openChannel("exec");
+        channel.setCommand(command);
+        channel.connect();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+        String output = reader.readLine();
+        while (output != null) {
+            System.out.println(output);
+            output = reader.readLine();
+        }
+        reader.close();
+
+        channel.disconnect();
+        session.disconnect();
+
+    }
+}
+</code></pre>
+
+<p>Selamat mencoba. Bila percobaan Anda sukses, komputer yang sedang Anda gunakan akan shutdown setelah aplikasi selesai dijalankan.
+:D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/linux/upgrade-ubuntu/">Upgrade Ubuntu</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-04-22T23:10:37+07:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
+
+<ul>
+<li><p>Unduh ISO Ubuntu terbaru</p></li>
+<li><p>Bakar ke CD</p></li>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird</p></li>
+<li><p>Remove semua hidden file di home folder</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+</ul>
+
+
+<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
+
+<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
+
+<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
+
+<ul>
+<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
+<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa &#8216;dititipkan&#8217; di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
+</ul>
+
+
+<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
+
+<ul>
+<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
+<li><p>Lakukan proses instalasi</p></li>
+<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
+<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
+<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
+</ul>
+
+
+<h2>Membuat daftar aplikasi</h2>
+
+<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
+
+<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
+</code></pre>
+
+<p>Buka file daftar_aplikasi.txt dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
+
+<pre><code>ttf-inconsolata
+ttf-droid
+nautilus-open-terminal
+mc
+chmsee
+unrar
+comix
+keepassx
+subversion
+git-svn
+gimp
+network-manager-openvpn
+network-manager-openvpn-gnome
+network-manager-pptp
+network-manager-pptp-gnome
+network-manager-vpnc
+network-manager-vpnc-gnome
+openssh-server
+gnome-alsamixer
+vlc
+rtorrent
+hamster-applet
+timer-applet
+inkscape
+mysql-server
+mysql-query-browser
+mysql-admin
+sun-java6-jdk
+ubuntu-restricted-extras
+build-essential
+ant
+</code></pre>
+
+<h2>Proses Instalasi</h2>
+
+<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
+
+<ul>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird</p></li>
+<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+<li><p>Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
+<li><p>Jalankan apt-get update untuk mengupdate database aplikasi</p></li>
+</ul>
+
+
+<p>Berikut isi file /etc/apt/sources.list saya.</p>
+
+<pre><code>deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ intrepid-security main restricted universe multiverse
+</code></pre>
+
+<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
+
+<pre><code>deb http://kambing.ui.edu/ubuntu/ jaunty main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ jaunty-updates main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multiverse
+</code></pre>
+
+<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
+
+<h2>Membuat daftar URL untuk download</h2>
+
+<p>Jalankan perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt | xargs -i apt-get install -qq --print-uris {} | cut -d\' -f2 &gt; daftar_url.txt
+</code></pre>
+
+<p>Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
+
+<h2>Mengunduh *.deb</h2>
+
+<p>Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
+
+<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
+
+<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
+</code></pre>
+
+<p>Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini.</p>
+
+<pre><code>tail -f daftar_url.txt 
+</code></pre>
+
+<p>Tekan Ctrl+C untuk keluar dari tail.</p>
+
+<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
+
+<h2>Instalasi *.deb</h2>
+
+<p>Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt | xargs -i apt-get install -y {}
+</code></pre>
+
+<p>Tunggu sejenak sampai selesai.</p>
+
+<h2>Replikasi Instalasi</h2>
+
+<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
+
+<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
+
+<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
+</code></pre>
+
+<p>Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
+
+<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
+
+<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
+</code></pre>
+
+<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
+
+<pre><code>sudo apt-get dselect-upgrade
+</code></pre>
+
+<p>Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/page/14/">&larr; Older</a>
+    
+    <a href="/archives">Blog Archives</a>
+    
+    <a class="next" href="/page/12/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/manajemen/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/programming/instalasi-spket-ide/">Instalasi Spket IDE</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/php/tutorial-extjs/">Tutorial ExtJS</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/110971146012275775230?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
