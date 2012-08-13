@@ -126,38 +126,50 @@
 
 <p>Sebagai contoh, semua ISO tersebut saya mount ke folder <code>/home/endy/tmp/UbuntuRepo</code> dan <code>/home/endy/tmp/OpenSuSE</code>. Kemudian kedua folder tersebut saya publish melalui Apache. Berikut adalah konfigurasi <code>/etc/fstab</code> agar ISO tersebut dimount pada saat booting.</p>
 
-<pre><code>```# Ubuntu Repository DVDs
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-1_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD1 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-2_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD2 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-3_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD3 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-4_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD4 iso9660 loop,auto 0 0 
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Ubuntu Repository DVDs
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-1_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD1 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-2_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD2 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-3_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD3 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-4_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD4 iso9660 loop,auto 0 0 
+</span><span class='line'>
+</span><span class='line'># OpenSuSE CD
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD1.iso  /home/endy/tmp/OpenSuSE/CD1 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD2.iso  /home/endy/tmp/OpenSuSE/CD2 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD3.iso  /home/endy/tmp/OpenSuSE/CD3 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD4.iso  /home/endy/tmp/OpenSuSE/CD4 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD5.iso  /home/endy/tmp/OpenSuSE/CD5 iso9660 loop,auto 0 0 </span></code></pre></td></tr></table></div></figure>
 
-# OpenSuSE CD
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD1.iso  /home/endy/tmp/OpenSuSE/CD1 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD2.iso  /home/endy/tmp/OpenSuSE/CD2 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD3.iso  /home/endy/tmp/OpenSuSE/CD3 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD4.iso  /home/endy/tmp/OpenSuSE/CD4 iso9660 loop,auto 0 0 
-/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD5.iso  /home/endy/tmp/OpenSuSE/CD5 iso9660 loop,auto 0 0 
-```
-</code></pre>
 
 <p>Semakin banyak ISO yang dimount, semakin banyak juga loop device yang dibutuhkan. Instalasi Ubuntu standar cuma menyediakan 8 device loop, sehingga tidak cukup untuk memuat 4 ISO Ubuntu dan 5 ISO OpenSuSE.
 Untuk memeriksa berapa device loop yang tersedia, lihat di dalam <code>/dev/</code></p>
 
 <p>Untuk itu, device loop perlu ditambahkan. Di Ubuntu, tambahkan baris berikut di file <code>/etc/modprobe.d/options</code></p>
 
-<pre><code>```options loop max_loop=32 
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>options loop max_loop=32 </span></code></pre></td></tr></table></div></figure>
+
 
 <p>agar pada saat booting kernel menyediakan 32 device loop.</p>
 
 <p>Selanjutnya, kita lakukan mapping agar folder /home/endy/tmp tersebut dipublish di http server. Cara termudah adalah dengan membuat symlink ke folder DocumentRoot (untuk keluarga Debian adalah /var/www).</p>
 
-<pre><code>```ln -s /var/www/UbuntuRepo /home/endy/tmp/UbuntuRepo
-ln -s /var/www/OpenSuSE /home/endy/tmp/OpenSuSE
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ln -s /var/www/UbuntuRepo /home/endy/tmp/UbuntuRepo
+</span><span class='line'>ln -s /var/www/OpenSuSE /home/endy/tmp/OpenSuSE</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Berikutnya, buat boot CD atau boot USB agar pada saat instalasi kita cukup mengarahkan ke jaringan. Saya biasanya memulai instalasi pada sore hari agar bisa ditinggal pulang.</p>
 

@@ -127,15 +127,19 @@ Beres .. :D</p>
 
 <p>Ganti otentikasi dalam <code>pg_hba.conf</code> menjadi</p>
 
-<pre><code>```local   all         all                           password
-host    all         all         127.0.0.1/32      password
-host    all         all         ::1/128           password```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>local   all         all                           password
+</span><span class='line'>host    all         all         127.0.0.1/32      password
+</span><span class='line'>host    all         all         ::1/128           password</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File <code>pg_hba.conf</code> ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder <code>/etc/postgresql/8.2/main</code>. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini.</p>
 
-<pre><code>```sudo /etc/init.d/postgresql restart```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/postgresql restart</span></code></pre></td></tr></table></div></figure>
+
 
 <h3>Menambahkan User</h3>
 
@@ -144,15 +148,23 @@ host    all         all         ::1/128           password```
 
 <p>Selanjutnya, jalankan perintah <code>createuser</code> dengan argumen P untuk meminta password.</p>
 
-<pre><code>```createuser -P
-Enter name of role to add: belajar
-Enter password for new role: 
-Enter it again: 
-Shall the new role be a superuser? (y/n) n
-Shall the new role be allowed to create databases? (y/n) y
-Shall the new role be allowed to create more new roles? (y/n) n
-CREATE ROLE```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>createuser -P
+</span><span class='line'>Enter name of role to add: belajar
+</span><span class='line'>Enter password for new role: 
+</span><span class='line'>Enter it again: 
+</span><span class='line'>Shall the new role be a superuser? (y/n) n
+</span><span class='line'>Shall the new role be allowed to create databases? (y/n) y
+</span><span class='line'>Shall the new role be allowed to create more new roles? (y/n) n
+</span><span class='line'>CREATE ROLE</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Perintah di atas menambahkan user dengan username <code>belajar</code> yang memiliki ijin untuk membuat database baru.</p>
 
@@ -162,10 +174,13 @@ CREATE ROLE```
 
 <p>Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yang namanya <code>buku_tamu</code>. Gunakan perintah <code>createdb</code> dengan argumen U untuk menyebutkan username.</p>
 
-<pre><code>```createdb -U belajar buku_tamu
-Password: 
-CREATE DATABASE```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>createdb -U belajar buku_tamu
+</span><span class='line'>Password: 
+</span><span class='line'>CREATE DATABASE</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Setelah selesai, coba koneksi ke database tersebut.</p>
 
@@ -175,11 +190,15 @@ CREATE DATABASE```
 
 <p>Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut.</p>
 
-<pre><code>```jdbc.driver      = org.postgresql.Driver
-jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-jdbc.username    = belajar
-jdbc.password    = java```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
+</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Saya menggunakan Hibernate, sehingga butuh satu parameter lagi, yaitu dialek SQL yang digunakan.</p>
 
@@ -187,21 +206,31 @@ jdbc.password    = java```
 
 <p>Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti lima baris konfigurasi (bukan source code), dari seperti ini:</p>
 
-<pre><code>```jdbc.driver      = com.mysql.jdbc.Driver
-jdbc.url         = jdbc:mysql://localhost/buku_tamu
-jdbc.username    = belajar
-jdbc.password    = java
-hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url         = jdbc:mysql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java
+</span><span class='line'>hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Menjadi seperti ini:</p>
 
-<pre><code>```jdbc.driver      = org.postgresql.Driver
-jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-jdbc.username    = belajar
-jdbc.password    = java
-hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
+</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java
+</span><span class='line'>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Oh iya, jangan lupa <a href="http://jdbc.postgresql.org/download.html">unduh dulu driver JDBC untuk PostgreSQL</a>. Saya menggunakan versi <strong>8.2-506 JDBC 4</strong>.</p>
 

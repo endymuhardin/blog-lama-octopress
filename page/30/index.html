@@ -124,11 +124,13 @@ tulis alamat penerima dan alamat pengirim.</p>
 
 <p>Contoh paketnya kira-kira seperti ini.</p>
 
-<pre><code>```Dari  : 202.159.22.22
-Untuk : 202.159.11.11
-Pesan : halo
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.22.22
+</span><span class='line'>Untuk : 202.159.11.11
+</span><span class='line'>Pesan : halo</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Gateway harus punya mapping IP luar dan IP dalam.
 Begitu gateway terima paket yang ditujukan ke IP luar,
@@ -144,11 +146,13 @@ Contohnya adalah sebagai berikut:</p>
 
 <p>Setelah diDNAT, paketnya menjadi seperti ini:</p>
 
-<pre><code>```Dari  : 202.159.22.22
-Untuk : 192.168.0.1
-Pesan : halo
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.22.22
+</span><span class='line'>Untuk : 192.168.0.1
+</span><span class='line'>Pesan : halo</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut,
 karena dia kenal 192.168.0.1 itu mesin yang mana.</p>
@@ -164,11 +168,13 @@ Router akan lihat bahwa tujuannya adalah komputer di luar, maka dia kirim ke gat
 
 <p>Paketnya kira-kira seperti ini:</p>
 
-<pre><code>```Dari  : 192.168.0.1
-Untuk : 202.159.22.22
-Pesan : halo juga
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 192.168.0.1
+</span><span class='line'>Untuk : 202.159.22.22
+</span><span class='line'>Pesan : halo juga</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Gateway melihat bahwa alamat pengirim adalah IP dalam.
 Kalau diteruskan begitu saja, maka kalau ada balasan lagi, tidak akan sampai,
@@ -182,11 +188,13 @@ Proses ini dinamakan SNAT (Source NAT)</p>
 
 <p>Setelah diSNAT paketnya menjadi seperti ini:</p>
 
-<pre><code>```Dari  : 202.159.11.11
-Untuk : 202.159.22.22
-Pesan : halo juga
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.11.11
+</span><span class='line'>Untuk : 202.159.22.22
+</span><span class='line'>Pesan : halo juga</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Dengan menggunakan SNAT, kita bisa mengimplementasikan Internet Connection Sharing,
 yaitu satu koneksi internet dibagi beramai-ramai.</p>
@@ -286,18 +294,17 @@ Caranya, tergantung masing-masing distro.</p>
 <p>Kita bisa menginstal Tomcat melalui apt-get, tetapi saya lebih suka menggunakan cara manual.
 Unduh dari <a href="http://tomcat.apache.org">situsnya</a>, kemudian ekstrak di folder /opt.</p>
 
-<p>   &#8220;`cd /opt</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /opt
+</span><span class='line'>sudo tar xvzf apache-tomcat-xx.tar.gz</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>sudo tar xvzf apache-tomcat-xx.tar.gz
-</code></pre>
-
-<p>   &#8220;`</p>
 
 <p>Setelah itu, jalankan Tomcat.</p>
 
-<pre><code>```sudo /opt/tomcat/bin/startup.sh
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /opt/tomcat/bin/startup.sh</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Jangan lupa mengatur environment variable <code>JAVA_HOME</code> ke tempat instalasi Java SDK Anda sebelum menjalankan Tomcat.</p>
 
@@ -319,13 +326,17 @@ Letak file konfigurasi tidak penting, yang penting adalah file tersebut dibaca o
 
 <p>Berikut adalah isi file <code>/etc/apache2/mods-available/jk.conf</code>.</p>
 
-<pre><code>```JkWorkersFile /etc/apache2/mods-available/workers.properties
-JkShmFile     /var/log/apache2/mod_jk.shm
-JkLogFile     /var/log/apache2/mod_jk.log
-JkLogLevel    info
-JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>JkWorkersFile /etc/apache2/mods-available/workers.properties
+</span><span class='line'>JkShmFile     /var/log/apache2/mod_jk.shm
+</span><span class='line'>JkLogFile     /var/log/apache2/mod_jk.log
+</span><span class='line'>JkLogLevel    info
+</span><span class='line'>JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Seperti kita lihat di baris pertama, ada referensi ke file <code>workers.properties</code>. Kita akan bahas file ini di bagian selanjutnya.</p>
 
@@ -338,22 +349,28 @@ Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.</p>
 
 <p>Berikut adalah isi file <code>workers.properties</code></p>
 
-<pre><code>```worker.list=worker1
-worker.worker1.type=ajp13
-worker.worker1.host=localhost
-worker.worker1.port=8009
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>worker.list=worker1
+</span><span class='line'>worker.worker1.type=ajp13
+</span><span class='line'>worker.worker1.host=localhost
+</span><span class='line'>worker.worker1.port=8009</span></code></pre></td></tr></table></div></figure>
+
 
 <h3>Konfigurasi Virtual Host</h3>
 
 <p>Terakhir, kita akan mengkonfigurasi virtual host agar Apache HTTPD dapat melakukan forwarding dengan benar. Pada contoh ini, kita akan mengarahkan request ke <code>http://localhost/tomcat-docs</code> agar dilayani oleh Tomcat. Berikut konfigurasi Virtual Hostnya.</p>
 
-<pre><code>```&lt;VirtualHost&gt;
-    JkMount /tomcat-docs/* worker1
-&lt;/VirtualHost&gt;
-```
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;VirtualHost&gt;</span>
+</span><span class='line'>    JkMount /tomcat-docs/* worker1
+</span><span class='line'><span class="nt">&lt;/VirtualHost&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Jika ingin mempublikasikan banyak aplikasi Java sekaligus, duplikasi saja baris <code>JkMount</code> di atas agar mengarah ke masing-masing aplikasi kita yang sudah dideploy di dalam folder <code>[TOMCAT_HOME]/webapps</code>.</p>
 

@@ -126,8 +126,9 @@
 
 <p>Langkah pertama tentunya adalah menginstal Shorewall. Di Ubuntu tidak sulit, langsung saja</p>
 
-<pre><code>``` sudo apt-get install shorewall ```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install shorewall </span></code></pre></td></tr></table></div></figure>
+
 
 <p>Shorewall akan segera terinstal, tapi tidak aktif. Kita harus mengkonfigurasi dulu, baru kemudian mengaktifkannya.</p>
 
@@ -137,17 +138,19 @@
 
 <p>Jaringan komputer, dalam dunia Shorewall disebut dengan istilah zone. Konfigurasinya ditulis di file bernama <code>zones</code>. Karena kita cuma punya satu jaringan, yaitu internet, berikut adalah isi file tersebut.</p>
 
-<pre><code>```fw   firewall
-net ipv4
-```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>fw   firewall
+</span><span class='line'>net   ipv4</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Shorewall ingin menaruh dirinya sendiri ke dalam zone terpisah. Oleh karena itu kita punya dua zone di file tersebut, yaitu net dan fw. <code>ipv4</code> adalah jenis zone. Ada tiga jenis zone dalam shorewall, yaitu ipv4, firewall, dan ipsec. Bila kita menggunakan koneksi terenkripsi, kita bisa menggunakan opsi ipsec.</p>
 
 <p>Zone dan device dihubungkan di file yang namanya <code>interfaces</code>. Isinya adalah sebagai berikut</p>
 
-<pre><code>```net     eth0            detect          tcpflags,logmartians,nosmurfs,norfc1918```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>net     eth0            detect          tcpflags,logmartians,nosmurfs,norfc1918</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Kolom pertama menyatakan bahwa zone <code>net</code> dilayani oleh kartu jaringan <code>eth0</code> yang disebutkan di kolom kedua. Selain kartu jaringan, kita juga bisa mendaftarkan perangkat lain seperti modem.</p>
 
@@ -175,35 +178,53 @@ net ipv4
 
 <p>Konfigurasi kebijakan di atas ditulis di file bernama <code>policy</code>. Berikut isinya</p>
 
-<pre><code>```#SOURCE      DEST        POLICY      LOG LEVEL   LIMIT:BURST
-$FW     net     ACCEPT
-net     $FW     DROP        info
-net     all     DROP        info
-# The FOLLOWING POLICY MUST BE LAST
-all     all     REJECT      info
-#LAST LINE -- ADD YOUR ENTRIES ABOVE THIS LINE -- DO NOT REMOVE```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#SOURCE      DEST        POLICY      LOG LEVEL   LIMIT:BURST
+</span><span class='line'>$FW       net     ACCEPT
+</span><span class='line'>net       $FW     DROP        info
+</span><span class='line'>net       all     DROP        info
+</span><span class='line'># The FOLLOWING POLICY MUST BE LAST
+</span><span class='line'>all       all     REJECT      info
+</span><span class='line'>#LAST LINE -- ADD YOUR ENTRIES ABOVE THIS LINE -- DO NOT REMOVE</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Terakhir, baru kita buat pengecualian terhadap kebijakan di atas. Seperti disebutkan di awal artikel, saya ingin membuka akses untuk web server di port 80 dan ssh server di port 22. Sebagai tambahan pengamanan untuk mencegah flooding, kita juga akan menolak paket ping yang masuk. Tapi kita ingin tetap bisa ping keluar.</p>
 
 <p>Shorewall sudah punya konfigurasi standar (disebut dengan istilah macro) untuk aplikasi server yang umum digunakan. Kita tulis aturan ini di file <code>rules</code>. Berikut isinya</p>
 
-<pre><code>```Ping/REJECT  net     $FW
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Ping/REJECT  net     $FW
+</span><span class='line'>
+</span><span class='line'># Permit all ICMP traffic FROM the firewall TO the net zone
+</span><span class='line'>ACCEPT        $FW     net     icmp
+</span><span class='line'>
+</span><span class='line'># Open SSH Service
+</span><span class='line'>SSH/ACCEPT    net     $FW
+</span><span class='line'>
+</span><span class='line'># Open Web Server
+</span><span class='line'>Web/ACCEPT    net     $FW</span></code></pre></td></tr></table></div></figure>
 
-# Permit all ICMP traffic FROM the firewall TO the net zone
-ACCEPT      $FW     net     icmp
-
-# Open SSH Service
-SSH/ACCEPT  net     $FW
-
-# Open Web Server
-Web/ACCEPT  net     $FW```
-</code></pre>
 
 <p><code>Ping/REJECT</code>, <code>SSH/ACCEPT</code> dan <code>Web/ACCEPT</code> di atas adalah macro. Sebetulnya kita juga bisa membuka akses webserver di port 80 tanpa macro dengan konfigurasi seperti ini</p>
 
-<pre><code>```ACCEPT    net       $FW             tcp  80```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ACCEPT    net       $FW             tcp  80</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Tapi biasanya ada beberapa layanan yang membuka beberapa port sekaligus, misalnya FTP. Daripada harus menghafalkan port berapa saja yang harus dibuka untuk FTP, akan lebih mudah kalau kita gunakan macro <code>FTP/ACCEPT</code></p>
 
@@ -225,8 +246,9 @@ Web/ACCEPT  net     $FW```
 
 <p>Semuanya sudah siap. Silahkan nyalakan firewall Anda.</p>
 
-<pre><code>```sudo /etc/init.d/shorewall start```
-</code></pre>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/shorewall start</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Oh iya, berhati-hatilah kalau menginstal shorewall secara remote. Salah konfigurasi bisa menyebabkan kita terkunci di luar.</p>
 </div>

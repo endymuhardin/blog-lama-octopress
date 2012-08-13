@@ -481,35 +481,55 @@ ${body}
 
 <p>Berikut isi dari file post-commit saya</p>
 
-<pre><code>```#!/bin/sh
-REPOS="$1"
-REV="$2"
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/sh
+</span><span class='line'>REPOS="$1"
+</span><span class='line'>REV="$2"
+</span><span class='line'>
+</span><span class='line'>RECIPIENT=devteam@artivisi.com
+</span><span class='line'>SUBJECT=automated-commit-email
+</span><span class='line'>REPLY_TO=devteam@artivisi.com
+</span><span class='line'>HOST=artivisi.com
+</span><span class='line'>
+</span><span class='line'>$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT</span></code></pre></td></tr></table></div></figure>
 
-RECIPIENT=devteam@artivisi.com
-SUBJECT=automated-commit-email
-REPLY_TO=devteam@artivisi.com
-HOST=artivisi.com
-
-$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT
-```
-</code></pre>
 
 <p>Untuk di Windows, kita harus membuat file <code>post-commit.bat</code>, di folder hooks juga. Berikut isi dari <code>post-commit.bat</code></p>
 
-<pre><code>```@ECHO OFF
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@ECHO OFF
+</span><span class='line'>
+</span><span class='line'>SET RECIPIENT=devteam@artivisi.com
+</span><span class='line'>SET SUBJECT=automated-commit-email
+</span><span class='line'>SET REPLY_TO=devteam@artivisi.com
+</span><span class='line'>SET HOST=artivisi.com
+</span><span class='line'>
+</span><span class='line'>SET PERL=c:\usr\bin\perl
+</span><span class='line'>SET REPOS=%1
+</span><span class='line'>SET REV=%2
+</span><span class='line'>
+</span><span class='line'>%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%</span></code></pre></td></tr></table></div></figure>
 
-SET RECIPIENT=devteam@artivisi.com
-SET SUBJECT=automated-commit-email
-SET REPLY_TO=devteam@artivisi.com
-SET HOST=artivisi.com
-
-SET PERL=c:\usr\bin\perl
-SET REPOS=%1
-SET REV=%2
-
-%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%
-```
-</code></pre>
 
 <p>Tentunya kita harus menginstal dulu <a href="http://www.activestate.com/store/productdetail.aspx?prdGuid=81fbce82-6bd5-49bc-a915-08d58c2648ca">Perl untuk Windows</a> agar script ini bisa berjalan.</p>
 

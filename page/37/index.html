@@ -138,120 +138,207 @@
 
 <h3>Sender.java</h3>
 
-<pre><code>```
-package tutorial.spring.jms;
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">jms</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.JMSException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.Message</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.Session</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.jms.core.JmsTemplate</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.jms.core.MessageCreator</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sender</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;default message&quot;</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">JmsTemplate</span> <span class="n">jmsTemplate</span><span class="o">;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setJmsTemplate</span><span class="o">(</span><span class="n">JmsTemplate</span> <span class="n">jmsTemplate</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">jmsTemplate</span> <span class="o">=</span> <span class="n">jmsTemplate</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">send</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">jmsTemplate</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MessageCreator</span><span class="o">(){</span>
+</span><span class='line'>          <span class="kd">public</span> <span class="n">Message</span> <span class="nf">createMessage</span><span class="o">(</span><span class="n">Session</span> <span class="n">sess</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">JMSException</span> <span class="o">{</span>
+</span><span class='line'>              <span class="k">return</span> <span class="n">sess</span><span class="o">.</span><span class="na">createTextMessage</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+</span><span class='line'>          <span class="o">}</span>            
+</span><span class='line'>      <span class="o">});</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-
-public class Sender {
-    private String message = "default message";
-    private JmsTemplate jmsTemplate;
-
-    public void setJmsTemplate(JmsTemplate jmsTemplate) {
-        this.jmsTemplate = jmsTemplate;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void send() {
-        jmsTemplate.send(new MessageCreator(){
-            public Message createMessage(Session sess) throws JMSException {
-                return sess.createTextMessage(message);
-            }           
-        });
-    }
-}
-```
-</code></pre>
 
 <h3>Receiver.java</h3>
 
-<pre><code>```
-package tutorial.spring.jms;
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">jms</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.JMSException</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Receiver</span> <span class="kd">implements</span> <span class="n">MessageListener</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onMessage</span><span class="o">(</span><span class="n">Message</span> <span class="n">msg</span><span class="o">){</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">msg</span> <span class="k">instanceof</span> <span class="n">TextMessage</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">TextMessage</span> <span class="n">txtMsg</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextMessage</span><span class="o">)</span> <span class="n">msg</span><span class="o">;</span>
+</span><span class='line'>          <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>              <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">txtMsg</span><span class="o">.</span><span class="na">getText</span><span class="o">());</span>
+</span><span class='line'>          <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">JMSException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>              <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Unsupported message type : &quot;</span><span class="o">+</span><span class="n">msg</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>    
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-import javax.jms.JMSException;
-
-public class Receiver implements MessageListener {
-
-    public void onMessage(Message msg){
-        if (msg instanceof TextMessage) {
-            TextMessage txtMsg = (TextMessage) msg;
-            try {
-                System.out.println(txtMsg.getText());
-            } catch (JMSException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Unsupported message type : "+msg.getClass());
-        }
-    }   
-}
-```
-</code></pre>
 
 <h3>Main.java</h3>
 
-<pre><code>```
-package tutorial.spring.jms;
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">jms</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationContext</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.support.ClassPathXmlApplicationContext</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">ApplicationContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;jms-ctx.xml&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">Sender</span> <span class="n">sender</span> <span class="o">=</span> <span class="o">(</span><span class="n">Sender</span><span class="o">)</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;sender&quot;</span><span class="o">);</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">&quot;Percobaan menggunakan JMS dengan Spring. &quot;</span><span class="o">);</span>        
+</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">send</span><span class="o">();</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">&quot;Pesan ini seharusnya diterima oleh Message Driven POJO&quot;</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">send</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-public class Main {
-    public static void main(String[] args) {
-        ApplicationContext ctx = new ClassPathXmlApplicationContext("jms-ctx.xml");
-        Sender sender = (Sender) ctx.getBean("sender");
-
-        sender.setMessage("Percobaan menggunakan JMS dengan Spring. ");     
-        sender.send();
-
-        sender.setMessage("Pesan ini seharusnya diterima oleh Message Driven POJO");
-        sender.send();
-    }
-}
-```
-</code></pre>
 
 <p>Integrasi antara kode Java dan ActiveMQ diatur di konfigurasi Spring, jms-ctx.xml. Berikut kodenya.</p>
 
 <h3>jms-ctx.xml</h3>
 
-<pre><code>```
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd"&gt;
-&lt;beans&gt;
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN 2.0//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans-2.0.dtd&quot;&gt;</span>
+</span><span class='line'><span class="nt">&lt;beans&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;messageListener&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.spring.jms.Receiver&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;listenerContainer&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jms.listener.SimpleMessageListenerContainer&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;connectionFactory&quot;</span> <span class="na">ref=</span><span class="s">&quot;jmsConnectionFactory&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;destinationName&quot;</span> <span class="na">value=</span><span class="s">&quot;TEST.FOO&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;messageListener&quot;</span> <span class="na">ref=</span><span class="s">&quot;messageListener&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jmsConnectionFactory&quot;</span> <span class="na">class=</span><span class="s">&quot;org.apache.activemq.ActiveMQConnectionFactory&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;&lt;null/&gt;&lt;/constructor-arg&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;&lt;null/&gt;&lt;/constructor-arg&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">value=</span><span class="s">&quot;tcp://localhost:61616&quot;</span><span class="nt">&gt;&lt;/constructor-arg&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>   
+</span><span class='line'>  
+</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sender&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.spring.jms.Sender&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;jmsTemplate&quot;</span> <span class="na">ref=</span><span class="s">&quot;jmsTemplate&quot;</span><span class="nt">/&gt;</span>        
+</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jmsTemplate&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jms.core.JmsTemplate&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;connectionFactory&quot;</span> <span class="na">ref=</span><span class="s">&quot;jmsConnectionFactory&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultDestinationName&quot;</span> <span class="na">value=</span><span class="s">&quot;TEST.FOO&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/beans&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
 
-    &lt;bean id="messageListener" class="tutorial.spring.jms.Receiver" /&gt;
-    &lt;bean id="listenerContainer" class="org.springframework.jms.listener.SimpleMessageListenerContainer"&gt;
-        &lt;property name="connectionFactory" ref="jmsConnectionFactory"/&gt;
-        &lt;property name="destinationName" value="TEST.FOO"/&gt;
-        &lt;property name="messageListener" ref="messageListener"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory"&gt;
-        &lt;constructor-arg index="0"&gt;&lt;null/&gt;&lt;/constructor-arg&gt;
-        &lt;constructor-arg index="1"&gt;&lt;null/&gt;&lt;/constructor-arg&gt;
-        &lt;constructor-arg index="2" value="tcp://localhost:61616"&gt;&lt;/constructor-arg&gt;
-    &lt;/bean&gt; 
-
-    &lt;bean id="sender" class="tutorial.spring.jms.Sender"&gt;
-        &lt;property name="jmsTemplate" ref="jmsTemplate"/&gt;        
-    &lt;/bean&gt;
-
-    &lt;bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate"&gt;
-        &lt;property name="connectionFactory" ref="jmsConnectionFactory"/&gt;
-        &lt;property name="defaultDestinationName" value="TEST.FOO"/&gt;
-    &lt;/bean&gt;
-
-&lt;/beans&gt;
-```
-</code></pre>
 
 <p>Apabila kita ingin menggunakan JMS server yang lain (selain ActiveMQ), cukup ganti deklarasi <em>jmsConnectionFactory</em> pada <em>jms-ctx.xml</em> di atas. Destination name juga di-hard code dengan nilai <em>TEST.FOO</em>. Nantinya pada aplikasi nyata, nilai ini mungkin ingin kita konfigurasi lebih jauh, atau diparameterisasi dalam database.</p>
 
