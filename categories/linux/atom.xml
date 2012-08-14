@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Living life and make it better]]></title>
   <link href="http://endy.artivisi.com/blog/categories/linux/atom.xml" rel="self"/>
   <link href="http://endy.artivisi.com/blog/"/>
-  <updated>2012-08-14T23:40:34+07:00</updated>
+  <updated>2012-08-15T00:03:16+07:00</updated>
   <id>http://endy.artivisi.com/blog/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -193,227 +193,6 @@ rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Instalasi Redmine di Tomcat]]></title>
-    <link href="http://endy.artivisi.com/blog/aplikasi/linux/redmine-jruby-tomca/"/>
-    <updated>2011-08-07T04:06:01+07:00</updated>
-    <id>http://endy.artivisi.com/blog/aplikasi/linux/redmine-jruby-tomca</id>
-    <content type="html"><![CDATA[<p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
-
-<ul>
-<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
-<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
-<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
-<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
-</ul>
-
-
-<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
-Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
-Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
-
-<ul>
-<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
-<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
-</ul>
-
-
-<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
-
-<p>Mari kita mulai.</p>
-
-<h2>Instalasi JRuby</h2>
-
-<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=install-jruby.sh'></script>
-<noscript><pre><code>cd /opt
-tar xzf ~/Downloads/jruby-bin-1.6.3.tar.gz
-chown -R endy.endy /opt/jruby-1.6.3
-ln -s jruby-1.6.3 jruby</code></pre></noscript></div>
-</p>
-
-<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
-Tulis baris berikut ini di dalam file ~/.bashrc</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=bashrc'></script>
-<noscript><pre><code>export JRUBY_HOME=/opt/jruby
-export PATH=$PATH:$JRUBY_HOME/bin</code></pre></noscript></div>
-</p>
-
-<p>Terakhir, test instalasi JRuby</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=test-jruby.sh'></script>
-<noscript><pre><code>jruby -v
-jruby 1.6.3 (ruby-1.8.7-p330) (2011-07-07 965162f) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]</code></pre></noscript></div>
-</p>
-
-<h2>Instalasi Paket Gem</h2>
-
-<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
-
-<ul>
-<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
-<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
-<li><p>jruby-openssl : supaya bisa melayani https</p></li>
-<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
-<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
-</ul>
-
-
-<p>Mari kita install</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=install-gem.sh'></script>
-<noscript><pre><code>gem install rack -v=1.1.1
-gem install rails -v=2.3.11
-gem install jruby-openssl activerecord-jdbcmysql-adapter warbler</code></pre></noscript></div>
-</p>
-
-<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
-
-<h2>Mengambil Redmine dari Subversion Repository</h2>
-
-<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
-Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=checkout-redmine.sh'></script>
-<noscript><pre><code>cd ~/Downloads
-svn co http://redmine.rubyforge.org/svn/branches/1.2-stable redmine-1.2</code></pre></noscript></div>
-</p>
-
-<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
-
-<h2>Konfigurasi Database</h2>
-
-<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
-Saya menggunakan konfigurasi development sebagai berikut :</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=database.yml'></script>
-<noscript><pre><code>development:
-  adapter: jdbcmysql
-  database: redmine
-  host: localhost
-  username: redmine
-  password: redmine
-  encoding: utf8</code></pre></noscript></div>
-</p>
-
-<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=create-database.sh'></script>
-<noscript><pre><code>mysql -u root -p
-
-create database redmine character set utf8;
-create user 'redmine'@'localhost' identified by 'redmine';
-grant all privileges on redmine.* to 'redmine'@'localhost';</code></pre></noscript></div>
-</p>
-
-<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
-
-<h2>Inisialisasi Redmine</h2>
-
-<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-session.sh'></script>
-<noscript><pre><code>cd ~/Downloads/redmine-1.2
-rake generate_session_store</code></pre></noscript></div>
-</p>
-
-<p>Setelah itu, inisialisasi skema database.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-skema-db.sh'></script>
-<noscript><pre><code>RAILS_ENV=development rake db:migrate</code></pre></noscript></div>
-</p>
-
-<p>Isi data awal.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=inisialisasi-data-awal.sh'></script>
-<noscript><pre><code>RAILS_ENV=development rake redmine:load_default_data</code></pre></noscript></div>
-</p>
-
-<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=start-webrick.sh'></script>
-<noscript><pre><code>jruby script/server webrick -e development</code></pre></noscript></div>
-</p>
-
-<p>Hasilnya bisa kita browse di http://localhost:3000
-Kemudian kita bisa login dengan username admin dan password admin.</p>
-
-<h2>Konfigurasi Email</h2>
-
-<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
-Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=configuration.yml'></script>
-<noscript><pre><code># = Outgoing email settings
-development:
-    email_delivery:
-        delivery_method: :smtp
-        smtp_settings:
-            tls: true
-            address: &quot;smtp.gmail.com&quot;
-            port: 587
-            authentication: :plain
-            user_name: &quot;nama.kita@gmail.com&quot;
-            password: &quot;passwordgmailkita&quot;</code></pre></noscript></div>
-</p>
-
-<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=install-action-mailer-tls.sh'></script>
-<noscript><pre><code>jruby script/plugin install git://github.com/collectiveidea/action_mailer_optional_tls.git
-</code></pre></noscript></div>
-</p>
-
-<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
-Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
-Kemudian pergi ke menu Administration > Settings > Email Notifications,
-kemudian klik link Send a test email di pojok kanan bawah.
-Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
-
-<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
-Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
-
-<h2>Generate WAR</h2>
-
-<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=warble-config.sh'></script>
-<noscript><pre><code>warble config
-</code></pre></noscript></div>
-</p>
-
-<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=warble.rb'></script>
-<noscript><pre><code>Warbler::Config.new do |config|
-  config.dirs = %w(app config lib log vendor tmp extra files lang)
-  config.gems += [&quot;activerecord-jdbcmysql-adapter&quot;, &quot;jruby-openssl&quot;, &quot;i18n&quot;, &quot;rack&quot;]
-  config.webxml.rails.env = ENV['RAILS_ENV'] || 'development'
-end</code></pre></noscript></div>
-</p>
-
-<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=warble-generate.sh'></script>
-<noscript><pre><code>warble
-warning: application directory `lang' does not exist or is not a directory; skipping
-rm -f redmine-1.2.war
-Creating redmine-1.2.war</code></pre></noscript></div>
-</p>
-
-<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
-
-<p><div><script src='https://gist.github.com/1129237.js?file=redmine-war-deploy.sh'></script>
-<noscript><pre><code>cp redmine-1.2.war /opt/apache-tomcat-7.0.12/webapps/redmine.war
-</code></pre></noscript></div>
-</p>
-
-<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
-]]></content>
-  </entry>
-  
-  <entry>
     <title type="html"><![CDATA[Membuat Screencast]]></title>
     <link href="http://endy.artivisi.com/blog/aplikasi/linux/membuat-screencast/"/>
     <updated>2011-06-28T01:03:23+07:00</updated>
@@ -488,122 +267,6 @@ ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -sk
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Konsep Clustering]]></title>
-    <link href="http://endy.artivisi.com/blog/aplikasi/java/linux/konsep-clustering/"/>
-    <updated>2011-01-30T04:15:14+07:00</updated>
-    <id>http://endy.artivisi.com/blog/aplikasi/java/linux/konsep-clustering</id>
-    <content type="html"><![CDATA[<p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
-
-<p>Demikian pertanyaannya.</p>
-
-<blockquote></blockquote>
-
-<p>Ini sebetulnya dua hal yang berbeda.
-Load balancing ya membagi beban.
-Failover ya mencegah single point of failure.</p>
-
-<p>Load balancer terdiri dari satu balancer dan banyak worker.
-Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
-Bisa merata (round robin) bisa juga dengan bobot (weighted), misalnya worker X mendapat 2 kali worker Y karena dia specnya lebih tinggi.
-Atau bisa juga dynamic, artinya si LB akan mengetes kondisi semua worker, mana yang kira2 sedang idle itu yang dikasi.
-Mana yang sedang idle ini nanti ada lagi settingnya, apakah melihat CPU usage pakai SNMP, melihat ping response time, whatever.</p>
-
-<p>Failover minimal harus ada 2 titik.
-Kalo kita implement LB aja, point of failure (POF) nya adalah si LB.
-Begitu LB nya mati, ya udah semua worker gak bisa diakses.
-Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
-
-<p>Contoh aplikasi load balancer :</p>
-
-<blockquote><ul>
-<li><p>HAProxy</p></li>
-<li><p>ldirectord (Ultra Monkey)</p></li>
-<li><p>Pound</p></li>
-</ul>
-</blockquote>
-
-<p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
-
-<blockquote><ul>
-<li><p>Apache (mod_proxy_balancer)</p></li>
-<li><p>Nginx</p></li>
-<li><p>lighttpd</p></li>
-<li><p>bind (DNS Server)</p></li>
-</ul>
-</blockquote>
-
-<p>Contoh aplikasi failover :</p>
-
-<blockquote><ul>
-<li><p>heartbeat (Ultra Monkey)</p></li>
-<li><p>keepalived</p></li>
-</ul>
-</blockquote>
-
-<p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
-
-<blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
-Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
-
-<p>Tidak selalu, tergantung konfigurasinya.
-Ada konfigurasi sticky session.
-Artinya, pada hit pertama, si user akan diberikan penanda, biasanya berbentuk cookie.
-Pada hit berikutnya, LB akan melihat cookienya, dan mengarahkan ke server yang sebelumnya sudah mengurus si user ini.</p>
-
-<p>Ada juga konfigurasi non-sticky.
-Artinya tiap hit dianggap hit baru, dan didistribusikan ke semua server sesuai algoritma yang dipilih, round robin, weighted, atau dynamic, sesuai penjelasan di atas.</p>
-
-<p>Mau pilih yang mana? Ya tergantung kemampuan LB nya.
-Ada yang bisa 2-2 nya sehingga bisa pilih, dan ada juga yang rada stupid sehingga terpaksa pakai non-sticky.
-Istilahnya, LBnya layer berapa? Kalo layer 7 biasanya bisa sticky, kalo layer 4 ya gak bisa.
-Lebih jauh tentang urusan layer-layeran ini bisa dibaca <a href="http://blog.loadbalancer.org/why-layer-7-sucks/">di sini</a> dan <a href="http://1wt.eu/articles/2006_lb/">di sini</a></p>
-
-<p>Nah, apa impact sticky vs non-sticky?
-Ini pengaruhnya ke session data.
-Session data adalah data sementara masing-masing user.
-Karena sifatnya sementara, maka biasanya tidak disimpan secara persistent di tabel database.
-Contoh paling klasik adalah isi shopping cart.
-Itu barang belum diorder, tapi sudah dipilih, sehingga biasanya belum disimpan di database.</p>
-
-<p>Kalo pake non-sticky, si user pertama milih barang di server X.
-Pada saat dia pilih barang kedua, dilayani server Y.
-Karena pilihan pertama ada di server X, ya pas dia pilih barang kedua, cuma tercatat 1 barang padahal harusnya 2.</p>
-
-<p>Ini tidak terjadi kalo kita pakai sticky balancer.
-Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
-
-<p>Jadi, sticky atau non-sticky itu impactnya ke temporary data user, sering disebut dengan istilah session data atau user state.</p>
-
-<p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
-
-<blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
-
-<p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
-Secara umum, settingan standar appserver biasanya simpan data session di memori.
-Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain.
-Pada saat worker utama mati, request berikutnya akan diarahkan ke worker cadangannya, sehingga user gak kehilangan data belanjaan.
-Biasanya, satu state itu disimpan ke 2 worker saja, bukan direplikasi ke semua untuk alasan efisiensi bandwidth.</p>
-
-<p>Pada penjelasan di atas banyak sekali saya gunakan kata 'biasanya'. Ini karena kapabilitas dan konfigurasi masing-masing merek appserver sangat berbeda sehingga sulit untuk menggeneralisir kondisinya.</p>
-
-<p>Lalu bagaimana?
-Saya biasanya mengambil pendekatan yang universal, yang jalan di semua appserver, sehingga tidak perlu pusing menghafal appserver apa bisa apa settingnya gimana.
-Teknik universalnya sederhana: aplikasi webnya dibuat stateless.
-Jangan ada simpan data di memori. Simpan semua di database, atau di distributed cache (misalnya memcached).</p>
-
-<p>Di Java, data yang ada di memori antara lain : session variable, static variable, context variable.
-Di PHP, CMIIW cuma session dan global variable aja.</p>
-
-<p>Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terhadap appserver apa bisa apa settingnya gimana.
-Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya.
-Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah.
-Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
-
-<p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
-]]></content>
-  </entry>
-  
-  <entry>
     <title type="html"><![CDATA[Simulasi Slow Network]]></title>
     <link href="http://endy.artivisi.com/blog/linux/simulasi-slow-network/"/>
     <updated>2009-06-15T15:21:33+07:00</updated>
@@ -631,6 +294,213 @@ Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey
 <li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
 </ul>
 
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Upgrade Ubuntu]]></title>
+    <link href="http://endy.artivisi.com/blog/linux/upgrade-ubuntu/"/>
+    <updated>2009-04-22T23:10:37+07:00</updated>
+    <id>http://endy.artivisi.com/blog/linux/upgrade-ubuntu</id>
+    <content type="html"><![CDATA[<p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
+
+<ul>
+<li><p>Unduh ISO Ubuntu terbaru</p></li>
+<li><p>Bakar ke CD</p></li>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird</p></li>
+<li><p>Remove semua hidden file di home folder</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+</ul>
+
+
+<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
+
+<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
+
+<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
+
+<ul>
+<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
+<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa 'dititipkan' di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
+</ul>
+
+
+<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
+
+<ul>
+<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
+<li><p>Lakukan proses instalasi</p></li>
+<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
+<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
+<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
+</ul>
+
+
+<h2>Membuat daftar aplikasi</h2>
+
+<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
+
+<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
+</code></pre>
+
+<p>Buka file daftar_aplikasi.txt dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
+
+<pre><code>ttf-inconsolata
+ttf-droid
+nautilus-open-terminal
+mc
+chmsee
+unrar
+comix
+keepassx
+subversion
+git-svn
+gimp
+network-manager-openvpn
+network-manager-openvpn-gnome
+network-manager-pptp
+network-manager-pptp-gnome
+network-manager-vpnc
+network-manager-vpnc-gnome
+openssh-server
+gnome-alsamixer
+vlc
+rtorrent
+hamster-applet
+timer-applet
+inkscape
+mysql-server
+mysql-query-browser
+mysql-admin
+sun-java6-jdk
+ubuntu-restricted-extras
+build-essential
+ant
+</code></pre>
+
+<h2>Proses Instalasi</h2>
+
+<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
+
+<ul>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird</p></li>
+<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+<li><p>Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
+<li><p>Jalankan apt-get update untuk mengupdate database aplikasi</p></li>
+</ul>
+
+
+<p>Berikut isi file /etc/apt/sources.list saya.</p>
+
+<pre><code>deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ intrepid-security main restricted universe multiverse
+</code></pre>
+
+<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
+
+<pre><code>deb http://kambing.ui.edu/ubuntu/ jaunty main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ jaunty-updates main restricted universe multiverse
+deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multiverse
+</code></pre>
+
+<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
+
+<h2>Membuat daftar URL untuk download</h2>
+
+<p>Jalankan perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt | xargs -i apt-get install -qq --print-uris {} | cut -d\' -f2 &gt; daftar_url.txt
+</code></pre>
+
+<p>Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
+
+<h2>Mengunduh *.deb</h2>
+
+<p>Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
+
+<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
+
+<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
+</code></pre>
+
+<p>Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini.</p>
+
+<pre><code>tail -f daftar_url.txt 
+</code></pre>
+
+<p>Tekan Ctrl+C untuk keluar dari tail.</p>
+
+<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
+
+<h2>Instalasi *.deb</h2>
+
+<p>Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt | xargs -i apt-get install -y {}
+</code></pre>
+
+<p>Tunggu sejenak sampai selesai.</p>
+
+<h2>Replikasi Instalasi</h2>
+
+<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
+
+<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
+
+<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
+</code></pre>
+
+<p>Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
+
+<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
+
+<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
+</code></pre>
+
+<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
+
+<pre><code>sudo apt-get dselect-upgrade
+</code></pre>
+
+<p>Semoga bermanfaat.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Network Device menghilang di VMWare]]></title>
+    <link href="http://endy.artivisi.com/blog/linux/vmware-eth/"/>
+    <updated>2009-03-03T15:04:24+07:00</updated>
+    <id>http://endy.artivisi.com/blog/linux/vmware-eth</id>
+    <content type="html"><![CDATA[<p>Saya menggunakan VMWare secara intensif dalam proses development.
+Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik client. Beberapa merek database seperti Oracle relatif invasif terhadap sistem, misalnya mendikte jumlah swap ataupun mengharuskan mengedit kernel parameter. Tentunya ini membuat kotor sistem operasi saya.</p>
+
+<p>Selain itu, kadangkala client menggunakan sistem operasi yang berbeda dengan yang saya gunakan. Ini juga dapat diselesaikan dengan menggunakan VMWare.</p>
+
+<p>Saya menyimpan file-file VM di harddisk eksternal, untuk meningkatkan performance. Menurut <a href="http://www.codinghorror.com">Jeff Atwood</a>, kinerja VM akan meningkat bila dia berada di harddisk yang berbeda dengan hostnya.</p>
+
+<p>Penyimpanan di harddisk eksternal ini ternyata mengundang sedikit masalah. Kadangkala network interface VM saya menghilang. Masalah ini terjadi pada kombinasi host Ubuntu dan guest Ubuntu.</p>
+
+<p>Setelah googling kesana kemari, ternyata ini disebabkan oleh beberapa hal :</p>
+
+<ol>
+<li><p>Ubuntu me-mount partisi harddisk eksternal secara acak. Kadang partisi 1 dimount ke /media/disk-1, kadang ke /media-disk-2</p></li>
+<li><p>Bila posisi mount berubah, VMWare akan menggenerate UUID (ID unik untuk guest VM) baru</p></li>
+<li><p>Setiap kali UUID berubah, MAC Address network interface guest VM juga berubah.</p></li>
+<li><p>Ubuntu di guest VM meng-cache MAC address, sehingga kalau MAC yang dia cache tidak ada, network interface tersebut tidak akan diload</p></li>
+</ol>
+
+
+<p>Solusinya mudah, yaitu menghapus cache MAC address di guest Ubuntu, dan merestartnya. Caranya, login ke guest OS, lalu hapus file /etc/udev/rules.d/70-persistent-net.rules. Setelah itu restart.</p>
+
+<pre><code>sudo rm /etc/udev/rules.d/70-persistent-net.rules
+sudo reboot
+</code></pre>
+
+<p>Setelah restart, guest VM akan kembali memiliki ethernet card.</p>
 ]]></content>
   </entry>
   
