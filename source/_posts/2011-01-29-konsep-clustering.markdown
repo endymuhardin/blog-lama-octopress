@@ -7,8 +7,6 @@ title: Konsep Clustering
 wordpress_id: 654
 categories:
 - aplikasi
-- java
-- linux
 ---
 
 Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi. 

@@ -7,7 +7,6 @@ title: Staged Deployment
 wordpress_id: 764
 categories:
 - java
-- manajemen
 ---
 
 Staged Deployment

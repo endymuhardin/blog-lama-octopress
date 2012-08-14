@@ -6,7 +6,6 @@ slug: vmware-eth
 title: Network Device menghilang di VMWare
 wordpress_id: 404
 categories:
-- lain
 - linux
 ---
 

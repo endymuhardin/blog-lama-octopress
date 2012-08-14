@@ -7,7 +7,6 @@ title: Interview Java
 wordpress_id: 54
 categories:
 - java
-- life
 ---
 
 Hasil interview online saya dengan Sony AK sudah dipublish.

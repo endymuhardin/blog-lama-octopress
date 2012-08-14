@@ -7,7 +7,6 @@ title: Lowongan Programmer
 wordpress_id: 215
 categories:
 - java
-- lain
 ---
 
 Di tempat saya bekerja saat ini (BaliCamp), saya sedang membutuhkan anggota tim. Tidak butuh yang terlalu canggih, saya justru cari fresh graduate. Nantinya kandidat yang lolos akan ditempatkan di tim saya, mengembangkan aplikasi untuk mengelola software development process. 

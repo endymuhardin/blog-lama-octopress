@@ -6,7 +6,6 @@ slug: membuat-installer-dengan-izpack
 title: Membuat Installer dengan IzPack
 wordpress_id: 148
 categories:
-- aplikasi
 - java
 ---
 

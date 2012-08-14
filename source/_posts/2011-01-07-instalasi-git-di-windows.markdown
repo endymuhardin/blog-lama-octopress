@@ -7,7 +7,6 @@ title: Instalasi Git di Windows
 wordpress_id: 578
 categories:
 - aplikasi
-- lain
 ---
 
 Setelah kemarin kita bahas [migrasi di sisi server](http://endy.artivisi.com/blog/lain/migrasi-subversion-ke-git/), sekarang kita bahas instalasi di client. Kenapa yang dijelaskan hanya Windows, sedangkan Linux tidak? Well, ini karena di Linux instalasinya begitu mudah sehingga terlalu pendek kalau ingin dijadikan satu posting sendiri. 

@@ -7,7 +7,6 @@ title: Instalasi Spket IDE
 wordpress_id: 716
 categories:
 - aplikasi
-- programming
 ---
 
 Beberapa minggu terakhir ini, saya mencari-cari cara terbaik untuk melakukan development dengan ExtJS. 

@@ -7,7 +7,6 @@ title: Autobackup to Gmail
 wordpress_id: 11
 categories:
 - aplikasi
-- life
 ---
 
 Wordpress memang hebat, ada [plugin untuk membackup isi blog (isi tabel MySQL) secara periodik ke email](http://www.lifehut.org/2005/08/17/wordpress-google-killer-combo/).

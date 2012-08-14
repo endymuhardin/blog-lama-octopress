@@ -7,7 +7,6 @@ title: Menggunakan Version Control untuk Dokumen
 wordpress_id: 12
 categories:
 - aplikasi
-- life
 ---
 
 Aplikasi version control yang bagus dapat mengelola binary file (misalnya jpg, doc, pdf, dsb) dengan baik, seperti halnya mengelola source code yang berformat text. Salah satu diantaranya adalah [Subversion](http://subversion.tigris.org). 

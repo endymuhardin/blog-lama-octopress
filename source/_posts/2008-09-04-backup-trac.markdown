@@ -6,7 +6,6 @@ slug: backup-trac
 title: Backup Trac
 wordpress_id: 364
 categories:
-- lain
 - linux
 ---
 

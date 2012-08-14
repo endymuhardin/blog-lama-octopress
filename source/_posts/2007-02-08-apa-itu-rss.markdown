@@ -7,7 +7,6 @@ title: Apa itu RSS ?
 wordpress_id: 197
 categories:
 - aplikasi
-- lain
 ---
 
 Sudah tau RSS? 

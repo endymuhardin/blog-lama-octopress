@@ -6,7 +6,6 @@ slug: katak-dalam-tempurung
 title: Katak dalam tempurung
 wordpress_id: 56
 categories:
-- java
 - life
 ---
 

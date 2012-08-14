@@ -7,7 +7,6 @@ title: Instalasi Redmine di Tomcat
 wordpress_id: 750
 categories:
 - aplikasi
-- linux
 ---
 
 Ada berbagai cara instalasi Redmine, diantaranya:

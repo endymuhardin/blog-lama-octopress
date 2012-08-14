@@ -6,7 +6,6 @@ slug: netbeans-50-dan-matisse
 title: Netbeans 5.0 dan Matisse
 wordpress_id: 50
 categories:
-- aplikasi
 - java
 ---
 

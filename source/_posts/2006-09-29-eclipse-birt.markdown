@@ -6,7 +6,6 @@ slug: eclipse-birt
 title: Menggunakan Eclipse BIRT [bagian 1]
 wordpress_id: 178
 categories:
-- aplikasi
 - java
 ---
 

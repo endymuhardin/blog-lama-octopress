@@ -7,8 +7,6 @@ title: Cruise Control
 wordpress_id: 232
 categories:
 - aplikasi
-- java
-- manajemen
 ---
 
 Kalau Anda programmer Java, tentunya sudah tidak asing lagi dengan Tomcat atau Eclipse. Yang satu adalah application server, satunya lagi adalah Integrated Development Environment (IDE). Ada satu kesamaan dalam kedua produk ini, keduanya adalah proyek open source yang dikelola secara profesional. 

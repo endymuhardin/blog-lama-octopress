@@ -7,7 +7,6 @@ title: Ruthless Testing 5
 wordpress_id: 182
 categories:
 - java
-- manajemen
 ---
 
 Setelah beberapa seri artikel Ruthless Testing, ternyata lebih banyak yang skeptis daripada yang antusias. Respon yang paling banyak ditemukan adalah:

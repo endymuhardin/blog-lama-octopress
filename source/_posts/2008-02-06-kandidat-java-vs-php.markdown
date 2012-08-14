@@ -6,9 +6,7 @@ slug: kandidat-java-vs-php
 title: Kandidat Java vs PHP
 wordpress_id: 329
 categories:
-- java
 - life
-- php
 ---
 
 Disclaimer : kondisi dan pengalaman Anda SANGAT MUNGKIN BERBEDA.

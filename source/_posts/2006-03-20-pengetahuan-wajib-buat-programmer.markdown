@@ -6,7 +6,6 @@ slug: pengetahuan-wajib-buat-programmer
 title: Pengetahuan wajib buat programmer
 wordpress_id: 40
 categories:
-- java
 - life
 ---
 

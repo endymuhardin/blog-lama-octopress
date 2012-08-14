@@ -6,8 +6,7 @@ slug: tutorial-extjs
 title: Tutorial ExtJS
 wordpress_id: 696
 categories:
-- java
-- php
+- javascript
 ---
 
 Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang diikuti oleh programmer ArtiVisi dan sister company. Berikut adalah materi trainingnya. 

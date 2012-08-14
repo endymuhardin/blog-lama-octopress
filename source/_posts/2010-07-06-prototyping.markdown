@@ -6,7 +6,6 @@ slug: prototyping
 title: Prototyping
 wordpress_id: 562
 categories:
-- java
 - manajemen
 ---
 
@@ -52,7 +51,7 @@ Jangan sampai effort untuk prototyping lebih besar dari effort untuk coding.
 2. Gampang diubah
 Tujuan prototype adalah supaya user bisa merasakan seperti apa aplikasinya nanti. 
 Kalau dirasakan kurang sesuai, tentunya dia ingin mengubahnya. 
-Nah, jangan sampai minta geser tombol aja harus nunggu 30 menit.  
+Nah, jangan sampai minta geser tombol aja harus nunggu 30 menit.
 
 3. Mirip aslinya. 
 Kalo ini lebih ke sisi development. 
