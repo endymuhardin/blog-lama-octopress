@@ -73,7 +73,8 @@ Proses migrasi berjalan sebagai berikut :
 6. Generate dan deploy
 
 # Setup Octopress #
-Octopress disiapkan dengan beberapa langkah berikut : 
+Octopress disiapkan dengan beberapa langkah berikut :
+
 1. Install Ruby dengan RVM
 2. Install Jekyll
 3. Clone repository Octopress
