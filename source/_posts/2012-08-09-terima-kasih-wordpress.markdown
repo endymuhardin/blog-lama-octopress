@@ -125,14 +125,14 @@ Selanjutnya, saya harus membersihkan tag image dan caption bawaan Wordpress, kar
 Berikut perintah untuk memperbaiki tag image yang tadinya seperti ini <code>!\[Synergy Screenshot](/images/uploads/2006/05/synergy.gif)</code> menjadi seperti ini <code>{% img /uploads/2006/05/synergy.gif Synergy Screenshot %} </code>, saya gunakan perintah berikut : 
 
 
-```
+``` sh
 find . -name "*.markdown" -print | xargs sed -i "s|\[!\[\(.*\)\](\(.*\))\](\(.*\))|{% img \2 \1 %}|g"
 ```
 
 
 Tag caption juga harus dihilangkan, berikut perintahnya: 
 
-```
+``` sh
 find . -name "*.markdown" -print | xargs sed -i "s|\[caption.*\]\(.*\)\[/caption\]|\1|g"
 ```
 
@@ -140,14 +140,14 @@ Secara default, exitwp akan menghasilkan tag image dengan URL lengkap, misalnya 
 
 Berikut perintahnya : 
 
-```
+``` sh
 find . -name "*.markdown" -print | xargs sed -i "s|http://endy.artivisi.com/blog/wp-content|/images|g"
 ```
 
 ## Memproses tag gist ##
 Seperti saya tuliskan di sini, saya menggunakan plugin Wordpress untuk [menampilkan Gist](http://endy.artivisi.com/blog/Aplikasi/menggunakan-gist/). Octopress sudah memiliki dukungan sendiri terhadap Gist, sehingga harus ada proses konversi. Berikut perintahnya : 
 
-```
+``` sh
 find . -name "*.markdown" -print | xargs sed -i "s|\[gist id=\(.*\) file=\(.*\)\]|{% gist \1 \2 %}|g"
 find . -name "*.markdown" -print | xargs sed -i "s| bump=.||g"
 ```
