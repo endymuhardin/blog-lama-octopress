@@ -254,15 +254,15 @@ Sisi positifnya :</p>
 
 <p>Berikut perintah untuk memperbaiki tag image yang tadinya seperti ini <code>![Synergy Screenshot](/images/uploads/2006/05/synergy.gif)</code> menjadi seperti ini <code>{% img /uploads/2006/05/synergy.gif Synergy Screenshot %} </code>, saya gunakan perintah berikut :</p>
 
-<figure class='code'><figcaption><span>_config.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="nb">name</span> <span class="s2">&quot;*.markdown&quot;</span> <span class="o">-</span><span class="nb">print</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;s|\[!\[\(.*\)\](\(.*\))\](\(.*\))|{% img </span><span class="se">\2</span><span class="s2"> </span><span class="se">\1</span><span class="s2"> %}|g&quot;</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>find . -name <span class="s2">&quot;*.markdown&quot;</span> -print | xargs sed -i <span class="s2">&quot;s|\[!\[\(.*\)\](\(.*\))\](\(.*\))|{% img \2 \1 %}|g&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
 <p>Tag caption juga harus dihilangkan, berikut perintahnya:</p>
 
-<figure class='code'><figcaption><span>_config.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="nb">name</span> <span class="s2">&quot;*.markdown&quot;</span> <span class="o">-</span><span class="nb">print</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;s|\[caption.*\]\(.*\)\[/caption\]|</span><span class="se">\1</span><span class="s2">|g&quot;</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>find . -name <span class="s2">&quot;*.markdown&quot;</span> -print | xargs sed -i <span class="s2">&quot;s|\[caption.*\]\(.*\)\[/caption\]|\1|g&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -270,8 +270,8 @@ Sisi positifnya :</p>
 
 <p>Berikut perintahnya :</p>
 
-<figure class='code'><figcaption><span>_config.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="nb">name</span> <span class="s2">&quot;*.markdown&quot;</span> <span class="o">-</span><span class="nb">print</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;s|http://endy.artivisi.com/blog/wp-content|/images|g&quot;</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>find . -name <span class="s2">&quot;*.markdown&quot;</span> -print | xargs sed -i <span class="s2">&quot;s|http://endy.artivisi.com/blog/wp-content|/images|g&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -279,10 +279,10 @@ Sisi positifnya :</p>
 
 <p>Seperti saya tuliskan di sini, saya menggunakan plugin Wordpress untuk <a href="http://endy.artivisi.com/blog/Aplikasi/menggunakan-gist/">menampilkan Gist</a>. Octopress sudah memiliki dukungan sendiri terhadap Gist, sehingga harus ada proses konversi. Berikut perintahnya :</p>
 
-<figure class='code'><figcaption><span>_config.yml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="nb">name</span> <span class="s2">&quot;*.markdown&quot;</span> <span class="o">-</span><span class="nb">print</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;s|\[gist id=\(.*\) file=\(.*\)\]|{% gist </span><span class="se">\1</span><span class="s2"> </span><span class="se">\2</span><span class="s2"> %}|g&quot;</span>
-</span><span class='line'><span class="n">find</span> <span class="o">.</span> <span class="o">-</span><span class="nb">name</span> <span class="s2">&quot;*.markdown&quot;</span> <span class="o">-</span><span class="nb">print</span> <span class="o">|</span> <span class="n">xargs</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="s2">&quot;s| bump=.||g&quot;</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>find . -name <span class="s2">&quot;*.markdown&quot;</span> -print | xargs sed -i <span class="s2">&quot;s|\[gist id=\(.*\) file=\(.*\)\]|{% gist \1 \2 %}|g&quot;</span>
+</span><span class='line'>find . -name <span class="s2">&quot;*.markdown&quot;</span> -print | xargs sed -i <span class="s2">&quot;s| bump=.||g&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
