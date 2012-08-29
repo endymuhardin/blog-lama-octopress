@@ -9,8 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Saya menggunakan VMWare secara intensif dalam proses development.
-Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik &hellip;">
+  <meta name="description" content="Null Date di MySQL Bila memiliki tipe data DATE di database MySQL, format standarnya adalah yyyy-MM-dd.
+Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +77,82 @@ Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik &h
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/null-date-di-mysql/">Null Date Di MySQL</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-04T17:01:52+07:00" pubdate data-updated="true">Mar 4<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Null Date di MySQL</p>
+
+<p>Bila memiliki tipe data DATE di database MySQL, format standarnya adalah yyyy-MM-dd.
+Jadi, bila kita mau mengisi 17 Agustus 1945, kita lakukan seperti ini</p>
+
+<pre><code>INSERT INTO hari_besar_nasional (tanggal, keterangan)
+VALUES ('1945-08-17', 'Hari Kemerdekaan RI');
+</code></pre>
+
+<p>Bila kita tidak mengisikan tanggal alias NULL, maka MySQL akan mengisi kolom tersebut dengan nilai 0000-00-00. Sayangnya, nilai ini tidak diterima dengan baik oleh driver JDBC MySQL.</p>
+
+<p>Berikut contoh kode program dalam Java</p>
+
+<pre><code>String sql = "select * from hari_besar_nasional";
+ResultSet rs = connection.createStatement().executeQuery(sql);
+
+while(rs.next()){
+  System.out.println("Tanggal : "+rs.getDate("tanggal");
+  System.out.println("Keterangan : "+rs.getString("keterangan");
+}
+
+rs.close();
+</code></pre>
+
+<p>Jika ada data yang berisi 0000-00-00, maka akan terjadi exception sebagai berikut:</p>
+
+<blockquote><p>java.sql.SQLException: Cannot convert value &#8216;0000-00-00 00:00:00&#8217;</p></blockquote>
+
+<p>Masalah ini dijelaskan di <a href="http://dev.mysql.com/doc/refman/5.0/en/using-date.html">dokumentasi MySQL ini</a>.</p>
+
+<p>Solusinya adalah mengganti parameter koneksi database, yang tadinya seperti ini :</p>
+
+<pre><code>jdbc:mysql://localhost/nama_database
+</code></pre>
+
+<p>menjadi seperti ini</p>
+
+<pre><code>jdbc:mysql://localhost/nama_database?zeroDateTimeBehavior=convertToNull
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -257,85 +333,6 @@ Gampang, buat saja kode Java sederhana seperti ini.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/lain/svn-externals/">SVN Externals</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-11-10T21:40:10+07:00" pubdate data-updated="true">Nov 10<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Dalam membuat aplikasi, seringkali kita membutuhkan source-code dari aplikasi lainnya. Misalnya, jika kita sudah membuat cukup banyak aplikasi, maka fitur login dan logout pasti sudah sering kita buat.</p>
-
-<p>Daripada menulis ulang fitur tersebut, alangkah lebih baiknya jika kita reuse kode programnya dalam aplikasi yang akan dibuat. Dengan demikian, setelah melewati beberapa project, kode program yang direuse tersebut akan bertambah kemampuannya dan semakin canggih.</p>
-
-<p>Kita dapat melakukan hal ini dengan menggunakan fitur svn external. Misalnya struktur kode program kita terdiri dari modul berikut:</p>
-
-<ul>
-<li><p>Master Data</p></li>
-<li><p>Transaksi</p></li>
-<li><p>Report</p></li>
-<li><p>Security</p></li>
-</ul>
-
-
-<p>Kita ingin me-reuse kode program security yang ada di aplikasi lain. Dengan demikian, kita perlu menambahkan folder tersebut ke dalam source-tree kita.</p>
-
-<p>Untuk melakukan hal tersebut, kita mengedit property Subversion yang bernama svn:externals. Berikut cara menambah property tersebut :</p>
-
-<ol>
-<li><p>Checkout dulu seluruh trunk.</p>
-
-<p> svn co http://repo.server.com/svn/nama-project/trunk project-saya</p></li>
-<li><p>Tambahkan property svn:externals ke project yang sudah ada.</p>
-
-<p> svn propset svn:externals &#8220;modul-security http://repo.server.com/svn/project-lain/trunk/modul-security&#8221; project-saya</p></li>
-<li><p>Commit deh</p>
-
-<p> cd project-saya
- svn ci -m &#8220;tambahkan property svn:external&#8221;</p></li>
-<li><p>Untuk mengambil source code modul-security, lakukan svn update</p>
-
-<p> svn update</p></li>
-</ol>
-
-
-<p>Kode program modul-security siap digunakan. Ingat, kalau kita melakukan perubahan di dalamnya dan melakukan commit, maka perubahan akan dikirim ke repository asalnya, yaitu http://repo.server.com/svn/project-lain/trunk/modul-security</p>
-
-<p>Lalu bagaimana kalau kita tidak ingin mengikuti perkembangan modul-security? Bisa saja ada programmer lain yang mengubah modul-security dan menyebabkan kode kita rusak.</p>
-
-<p>Caranya, referensikan modul-security ke tags, jangan ke trunk.</p>
-
-<p>Demikian cara berbagi kode program lintas project. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/16/">&larr; Older</a>
@@ -398,6 +395,10 @@ Gampang, buat saja kode Java sederhana seperti ini.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/release-management/">Release Management</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
       </li>
     
@@ -431,10 +432,6 @@ Gampang, buat saja kode Java sederhana seperti ini.</p>
     
       <li class="post">
         <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/tutorial-extjs/">Tutorial ExtJS</a>
       </li>
     
   </ul>

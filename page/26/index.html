@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring &hellip;">
+  <meta name="description" content="Salah satu komentator bertanya seperti ini, kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,185 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/konfigurasi-anotasi-vs-xml/">Annotation Dan XML</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-07T21:30:47+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu <a href="http://endy.artivisi.com/blog/java/akses-database-spring25/#comment-9582">komentator bertanya seperti ini</a>,</p>
+
+<blockquote><p>kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring membuat kontrol kita lebih sentralisasi, sehingga lebih mudah dimaintain ?</p></blockquote>
+
+<p>Hmm&#8230; saya tidak ingin terlibat flame war annotation vs xml. Masing-masing memiliki plus minusnya. Ada saatnya kita memakai annotation dan ada saatnya XML lebih tepat. Mari kita bahas.</p>
+
+<p>Beberapa waktu yang lalu, saya pernah ditugaskan untuk memeriksa aplikasi finansial yang error. Pada salah satu halaman, bila tombol Submit ditekan, aplikasi akan hang. Aplikasi ini dibuat menggunakan teknologi VB 6 (RIP) untuk komponen akses database, ASP untuk tampilan, dan Stored Procedure MS-SQL Server 2005 untuk sebagian logika bisnis.</p>
+
+<p>Setelah memasukkan trace statement ke dalam Stored Procedure (ternyata bukan hal yang mudah, tidak semudah menyisipkan System.out.println(), terlihat penyebabnya karena ada cyclic dependency antar transaksi database. Transaksi A mencoba mengurangi saldo, tapi sebelumnya memeriksa posisi saldo, kalau-kalau tidak mencukupi. Pemeriksaan saldo dilakukan melalui transaksi B. Transaksi B mencoba melihat tabel saldo, yang ternyata sudah dikunci oleh transaksi A. Ya sampai kapanpun transaksi A dan B akan saling menunggu.</p>
+
+<p>Baiklah, masalah sudah ditemukan, saatnya untuk memperbaiki. Memperbaiki jauh lebih mudah daripada menemukan bug, kan?</p>
+
+<p>Sayangnya tidak demikian. Ada berbagai faktor, salah satunya yang paling signifikan adalah saya awam dengan teknologi Microsoft. Saya sama sekali tidak mengerti bagaimana cara mengatur transaksi di VB dan Stored Procedure.</p>
+
+<p>Akhirnya setelah google kesana kemari, saya menemukan empat cara untuk melakukan setting transaksi:</p>
+
+<ul>
+<li>coding di VB</li>
+<li>coding di Stored Procedure</li>
+<li>konfigurasi class properties di VB</li>
+<li>konfigurasi di COM service pada Control Panel Windows</li>
+</ul>
+
+
+<p>Waduh &#8230; ini mimpi buruk. Berarti ada banyak kombinasi yang harus dicoba. Saya yakin para MVP pasti dengan cepat bisa memilih, tapi saya hanyalah seorang programmer Java. Mana saya tahu hal beginian.</p>
+
+<p>Dari kejadian ini, saya mendapat pelajaran penting. Pengaturan transaksi haruslah dekat dengan kode yang melakukan transaksi. Alasannya, kode program yang mengakses database sangat erat hubungannya dengan pengaturan transaksi. Tidak mungkin kita menulis kode untuk transfer antar rekening tapi menon-aktifkan transaksi database.</p>
+
+<p>Kode seperti ini mudah dipahami dan mudah didebug.</p>
+
+<pre><code>@Transactional(readOnly=false)
+public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Kode seperti ini perlu banyak Alt-Tab untuk mendebugnya.</p>
+
+<p>Di Java:</p>
+
+<pre><code>public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Di XML</p>
+
+<pre><code>&lt;property name="transactionAttributes"&gt;
+  &lt;props&gt;
+    &lt;prop key="transfer*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+  &lt;/props&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Bedakan antara cara melakukan transaksi, dan cara melakukan konfigurasi. Di Java, kita bisa memilih beberapa cara transaksi:</p>
+
+<ul>
+<li>Local Transaction: mengelola transaksi melalui java.sql.Connection dalam source code</li>
+<li>Programmatic Transaction: mengambil object Transaction dari JTS provider, kemudian menggunakannya untuk commit/rollback. Ini juga dilakukan dalam source code.</li>
+<li>Declarative Transaction: mengatur transaksi melalui konfigurasi.</li>
+</ul>
+
+
+<p>Kalau kita pilih declarative transaction, ada beberapa cara konfigurasinya:</p>
+
+<ul>
+<li>Melalui XML</li>
+<li>Melalui Annotation</li>
+</ul>
+
+
+<p>Yang mana yang paling dekat dengan source code yang bertransaksi? Tentu saja annotation.</p>
+
+<p>Ok, sudah jelas mengenai transaction, sebaiknya di annotation saja.</p>
+
+<p>Berikutnya, deklarasi DAO. Sebelumnya kita melakukan deklarasi DAO di XML. Yang biasa saya lakukan kalau ada DAO baru biasanya sama:</p>
+
+<ul>
+<li>copy paste deklarasi DAO di atasnya</li>
+<li>ganti bean id</li>
+<li>ganti nama class</li>
+</ul>
+
+
+<p>Beres. Tidak ada added value di sini. Deklarasi manual di XML tidak membuat konfigurasi Spring jadi lebih mudah dipahami. Juga tidak membuat kita makin pintar. Ini adalah overhead pemrograman dengan Spring. Boilerplate code. Kode yang ditulis hanya untuk memuaskan framework.</p>
+
+<p>Jadi, lebih baik kalau kita suruh Spring autodetect saja dari annotation @Repository.</p>
+
+<p>Bagaimana dengan relasi dengan datasource? Bukankah kalau di XML jadi terlihat DAO mana menggunakan DataSource mana?</p>
+
+<p>Hmm &#8230; untuk kasus datasource, ada dua kemungkinan:</p>
+
+<ul>
+<li>menggunakan satu datasource</li>
+<li>menggunakan lebih dari satu datasource</li>
+</ul>
+
+
+<p>Untuk kasus pertama, biasanya sebagian aplikasi seperti ini, tidak perlu ada deklarasi eksplisit untuk injeksi dataSource. Lha wong cuma satu, apanya yang ambigu? @Autowired saja semuanya.</p>
+
+<p>Untuk kasus kedua, mau tidak mau memang harus XML. Soalnya @Autowired by type tidak akan bisa, karena ada lebih dari satu bean bertipe DataSource.</p>
+
+<p>Sekarang kita lihat, apa yang tertinggal di konfigurasi XML, setelah banyak hal kita pindahkan ke annotation:</p>
+
+<ul>
+<li>deklarasi datasource</li>
+<li>deklarasi transaction manager</li>
+</ul>
+
+
+<p>Kedua hal ini tidak logis bila kita pindahkan ke annotation. Dua-duanya adalah konfigurasi, sangat mungkin berubah tergantung strategi deployment. Bila kita mengelola koneksi database melalui application server, maka kita akan menggunakan JNDI. Bila kita deploy di <a href="http://winstone.sourceforge.net">Winstone</a>, maka kita tidak menggunakan JTA, jadi transaction manager menggunakan LocalTransactionManager.</p>
+
+<p>Setelah selesai dengan isu backend, mari sekarang kita bahas presentation layer. Ada beberapa anotasi di sini:</p>
+
+<ul>
+<li>@Controller : untuk menandai class Controller</li>
+<li>@RequestMapping : untuk mapping URL atau Request Method ke handlernya</li>
+<li>@RequestParam : untuk mem-bind request parameter ke variabel</li>
+<li>@ModelAttribute : untuk mem-bind object ke request attribute</li>
+<li>@SessionAttribute : untuk mem-bind object ke session attribute</li>
+</ul>
+
+
+<p>@Controller sama dengan @Repository. Keberadaannya menghilangkan boilerplate deklarasi di XML. Menurut saya, ini sangat mengurangi clutter dan duplikasi di XML.</p>
+
+<p>@RequestMapping, saya 50:50 di sini.</p>
+
+<p>Di satu sisi, seharusnya kita tidak mengikat handler method dengan URL pattern, supaya kita bisa mengganti skema URL sesuai trend terbaru (RESTful, etc) atau sebaliknya, supaya bisa mengganti handler method tanpa mengubah URL.</p>
+
+<p>Tapi di sisi lain, saya ingin menggunakan Convention over Configuration ala <a href="http://rubyonrails.org">Rails</a>. Yaitu nama view otomatis diambil dari request URL. Ini benar-benar mengurangi jumlah konfigurasi yang harus ditulis. Lagipula, seberapa sering sih kita mengganti pasangan URL-Handler?</p>
+
+<p>Jadi untuk @RequestMapping, posisi saya adalah, tergantung situasi. Ada saatnya mapping di XML, dan ada saatnya mapping dengan annotation.</p>
+
+<p>@RequestParam, @ModelAttribute, dan @SessionAttribute setahu saya tidak punya padanan XML. Ini adalah anotasi untuk memudahkan coding saja. Jadi tidak perlu diperdebatkan apakah sebaiknya di XML saja.</p>
+
+<p>Yah, begitulah sekilas perbandingan antara konfigurasi melalui anotasi dan XML. Sepertinya menambah bingung. Tapi jangan khawatir, untuk bisa mengerti harus bingung dulu.</p>
+
+<p>Semoga bermanfaat.</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -657,390 +836,6 @@ public class PersonController {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/akses-database-spring25/">Akses Database Dengan Spring 2.5</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-03T21:12:07+07:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Akses database dengan Spring 2.5</p>
-
-<p>Spring 2.5 baru saja keluar. Rilis kali ini membawa penambahan fitur yang cukup signifikan di sisi konfigurasi. Dalam Spring yang baru ini, kita bisa mengkonfigurasi aplikasi melalui annotation. Suatu hal yang sangat bermanfaat untuk mengurangi jumlah baris kode XML kita.</p>
-
-<p>Sebetulnya tidak ada yang salah dengan XML. Walaupun demikian, ada beberapa hal yang menurut saya kurang tepat kalau dikonfigurasi melalui XML, diantaranya:</p>
-
-<ul>
-<li>konfigurasi transaction</li>
-<li>deklarasi bean standar</li>
-</ul>
-
-
-<p>Konfigurasi transaction biasanya tergantung dari kode program yang ingin ber-transaction. Bila kita konfigurasi di XML, maka untuk memikirkan satu logika akses database, kita harus melihat di dua tempat yang berbeda; file java dan file XML. Menurut pendapat saya, fitur declarative transaction walaupun kelihatannya mirip konfigurasi, tapi pada dasarnya adalah logika aplikasi. Tempatnya bukan di konfigurasi XML, tapi di kode Java.</p>
-
-<p>Di Spring, kita harus mendaftarkan object aplikasi kita ke dalam object ApplicationContext agar bisa dikelola oleh Spring. Pada rilis sebelumnya, pendaftaran ini dilakukan dalam file XML. Cara ini memiliki incremental cost yang tinggi. Bila kita punya 100 object yang ingin dikelola, maka kita harus punya 100 deklarasi di konfigurasi XML Spring. Sekarang kita bisa menandai object yang akan dikelola Spring melalui annotation. Jadi walaupun ada 100 object, konfigurasi XML kita tidak bertambah.</p>
-
-<p>Ok, cukup berteori. Saatnya melihat contoh kode.</p>
-
-<p>Pada artikel kali ini, kita akan membuat kode akses database untuk class Person. Class ini tidak istimewa, cuma POJO biasa dengan tiga property: id, name, dan email. Berikut kodenya.</p>
-
-<h3>Person.java</h3>
-
-<pre><code>package tutorial.spring25.model;
-public class Person {
-  private Long id;
-  private String name;
-  private String email;
-}
-</code></pre>
-
-<p>Jangan lupa membuat getter dan setter.</p>
-
-<p>Class ini akan kita simpan di database dalam tabel bernama T_PERSON. Berikut definisinya untuk database MySQL.</p>
-
-<h3>MySQL-schema.sql</h3>
-
-<pre><code>create table T_PERSON (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT, 
-  name VARCHAR(255), 
-  email VARCHAR(255)
-);
-</code></pre>
-
-<p>Operasi database yang akan kita buat dijelaskan oleh interface PersonDao, sebagai berikut.</p>
-
-<h3>PersonDao.java</h3>
-
-<pre><code>package tutorial.spring25.dao
-public interface PersonDao {
-  public List&lt;person&gt; getAll();
-  public Person getById(Long id);
-  public void save(Person p);
-}
-</code></pre>
-
-<p>Untuk tahap pertama, kita akan lihat cara mengakses database dengan JDBC helper yang disediakan Spring. Akses database dengan Hibernate akan dijelaskan pada artikel terpisah.</p>
-
-<p>Berikut adalah kerangka implementasi PersonDao dengan JDBC helper dari Spring.</p>
-
-<h3>PersonDaoSpringJdbc.java</h3>
-
-<pre><code>package tutorial.spring25.dao.springjdbc;
-
-@Repository("personDao")
-@Transactional(readOnly=true)
-public class PersonDaoSpringJdbc implements PersonDao { 
-    @Autowired
-    public void setDataSource(final DataSource dataSource) {
-
-    }
-
-    @Override
-    public List&lt;person&gt; getAll() {
-        return null;
-    }
-
-    @Override
-    public Person getById(final Long id) {
-        return null;
-    }
-
-    @Override
-    @Transactional(readOnly=false)
-    public void save(final Person person) {
-
-    }
-}
-</code></pre>
-
-<p>Ada beberapa hal yang baru pada kode di atas. Kita melihat ada annotation @Repository, @Transactional, dan @Autowired.</p>
-
-<p>Annotation @Repository memberi tahu pada Spring bahwa class ini adalah salah satu @Component dalam aplikasi kita. Semua @Component akan dipindai pada waktu inisialisasi dan kemudian diregistrasi ke dalam object ApplicationContext milik Spring. Selain @Repository, @Component juga memiliki turunan @Service dan @Controller. @Service biasanya digunakan untuk menandai class-class facade atau business delegate. Sedangkan @Controller digunakan untuk aplikasi web. @Service dan @Controller akan kita bahas di artikel terpisah.</p>
-
-<p>Annotation @Transactional menandakan bahwa semua method dalam class ini akan dijalankan dalam transaksi database. Kita memberikan nilai readOnly=true pada deklarasi class, menandakan bahwa secara default transaksi hanya digunakan untuk mengambil data dari database. Perhatikan method save. Pada method ini, kita akan memasukkan atau mengubah data dalam database. Untuk satu method ini, kita membutuhkan transaksi yang tidak readOnly. Karena itu, kita override konfigurasi default dengan cara memberikan annotation @Transactional(readOnly=false).</p>
-
-<p>Sekarang mari kita lihat konfigurasi Application Context.</p>
-
-<h3>applicationContext.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:aop="http://www.springframework.org/schema/aop"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:jee="http://www.springframework.org/schema/jee"
-    xmlns:tx="http://www.springframework.org/schema/tx"
-    xsi:schemaLocation="
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
-    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-    http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"&gt;
-
-    &lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
-    &lt;context:annotation-config/&gt;
-    &lt;context:component-scan base-package="tutorial.spring25"/&gt; &lt;!-- tidak perlu deklarasi masing2 DAO --&gt;
-    &lt;tx:annotation-driven /&gt; &lt;!-- tidak perlu deklarasi transaction setting per method --&gt;
-
-    &lt;bean id="dataSource"
-        class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-        destroy-method="close" 
-        p:driverClassName="${jdbc.driver}"
-        p:url="${jdbc.url}" 
-        p:username="${jdbc.username}"
-        p:password="${jdbc.password}" /&gt;
-
-    &lt;bean id="transactionManager"
-        class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
-        p:dataSource-ref="dataSource" /&gt;
-
-&lt;/beans&gt;
-</code></pre>
-
-<p>Seperti kita lihat di atas, kita tidak lagi membutuhkan deklarasi untuk object personDao seperti pada Spring sebelumnya. Kita juga tidak perlu membuat konfigurasi transaksi untuk masing-masing method dalam PersonDao. Sebagai gambaran, kita menghilangkan beberapa baris yang seperti ini.</p>
-
-<h3>Konfigurasi DAO dan Transaksi</h3>
-
-<pre><code>&lt;bean id="personDaoImpl" class="tutorial.spring25.dao.springjdbc.PersonDaoSpringJdbc"&gt;
-    &lt;property name="dataSource" ref="dataSource"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-
-&lt;bean id="personDao" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"&gt;
-    &lt;property name="target" ref="personDao"&gt;&lt;/property&gt;
-    &lt;property name="transactionManager" ref="transactionManager"&gt;&lt;/property&gt;
-    &lt;property name="transactionAttributes"&gt;
-        &lt;props&gt;
-            &lt;prop key="*"&gt;PROPAGATION_REQUIRED,readOnly&lt;/prop&gt;
-            &lt;prop key="save*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
-        &lt;/props&gt;
-    &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Semakin banyak class DAO kita, deklarasinya juga akan semakin banyak. Pada aplikasi skala menengah, jumlah DAO bisa mencapai ratusan. Bisa dibayangkan dampaknya terhadap file xml tersebut. Dengan mencantumkan satu baris seperti ini,</p>
-
-<pre><code>&lt;context:component-scan base-package="tutorial.spring25"/&gt;
-</code></pre>
-
-<p>Spring dapat secara otomatis memeriksa seluruh package tutorial.spring dan mendaftarkan semua class yang memiliki annotation @Component, @Repository, @Service, dan @Controller.</p>
-
-<p>Kita sudah lihat bagaimana keseluruhan kode program ditulis. Kecuali implementasi sebenarnya tentu saja. Sebelum melihat secara detail bagaimana kode program untuk INSERT dan SELECT, terlebih dulu kita lihat bagaimana class PersonDaoSpringJdbc ini digunakan.</p>
-
-<p>Daripada menggunakan cara yang kurang berwawasan (menggunakan method main), saya akan mengambil pendekatan yang lebih berpendidikan, yaitu menggunakan Unit Test. Lihat <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel saya tentang Unit Test dan Integration Test</a> untuk memahami kode berikut.</p>
-
-<p>Ini adalah kerangka class test untuk PersonDaoSpringJdbc. Class ini dibuat dengan menggunakan JUnit 4. Isinya masih belum lengkap. Kita akan lengkapi sambil jalan.</p>
-
-<h3>PersonDaoSpringJdbcTest.java</h3>
-
-<pre><code>package test.spring25.dao.springjdbc
-public class PersonDaoSpringJdbcTest {
-
-  private static final ApplicationContext applicationContext;
-  private static final DataSource dataSource;
-  private static final PersonDao personDao;
-
-  @BeforeClass public static void init(){}
-  @Before public void resetDatabase(){}
-
-  @Test public void testGetById(){}
-  @Test public void testGetAll(){}
-  @Test public void testSave(){}
-}
-</code></pre>
-
-<p>Seperti kita lihat, kita sudah menggunakan annotation untuk menandai method test dan inisialisasi. Penjelasan tentang JUnit 4 akan dibahas pada artikel terpisah.</p>
-
-<p>Sekarang kita lihat isi masing-masing method. Method init isinya seperti ini.</p>
-
-<pre><code>@BeforeClass public static void init(){
-  ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
-  dataSource = (DataSource) ctx.getBean("dataSource");
-  personDao = (PersonDao) ctx.getBean("personDao");
-}
-</code></pre>
-
-<p>Method resetDatabase dijalankan sebelum masing-masing test method. Fungsinya untuk menghapus isi tabel T_PERSON dan mengisi sampel data sesuai yang kita inginkan. Ini dilakukan menggunakan DBUnit. Isinya sebagai berikut</p>
-
-<pre><code>@Before public void resetDatabase() throws Exception {
-  final Connection conn = ds.getConnection();
-  DatabaseOperation.CLEAN_INSERT.execute(new DatabaseConnection(conn), new FlatXmlDataSet(new FileInputStream("fixtures/person.xml")));
-  conn.close();
-}
-</code></pre>
-
-<p>Method ini akan menggunakan sampel data yang ada di file person.xml. Isinya seperti ini,</p>
-
-<pre><code>&lt;dataset&gt;
-  &lt;T_PERSON
-    id="100"
-    name="Endy Muhardin"
-    email="endy.muhardin@gmail.com" 
-  /&gt;
-&lt;/dataset&gt;
-</code></pre>
-
-<p>Cukup satu record saja.</p>
-
-<p>Pertama kali, kita akan implementasi method getById. Isi testnya tidak rumit. Cukup jalankan method getById dan periksa hasilnya.</p>
-
-<pre><code>@Test public void testGetById() throws Exception {
-  Person endy = personDao.getById(100L);
-  assertEquals("Endy Muhardin", endy.getName());
-  assertEquals("endy.muhardin@gmail.com", endy.getEmail());
-}
-</code></pre>
-
-<p>Implementasi getById dalam PersonDaoSpringJdbc seperti ini.</p>
-
-<pre><code>public Person getById(Long id) {
-  return simpleJdbcTemplate.queryForObject("select * from T_PERSON where id=?", new PersonMapper(), id);
-}
-</code></pre>
-
-<p>Cukup satu baris saja.</p>
-
-<p>Method ini membutuhkan class PersonMapper untuk mengkonversi object ResultSet menjadi object Person. Class ini dibuat menjadi static final inner class dalam PersonDaoSpringJdbc.</p>
-
-<pre><code>public class PersonDaoSpringJdbc implements PersonDao {
-  private static final class PersonMapper implements ParameterizedRowMapper&lt;Person&gt;{
-    @Override
-    public Person mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-      final Person result = new Person();
-      result.setId(rs.getLong("id"));
-      result.setName(rs.getString("name"));
-      result.setEmail(rs.getString("email"));
-      return result;
-    }
-  }
-}
-</code></pre>
-
-<p>Selanjutnya, kita akan implementasikan method getAll. Berikut test methodnya.</p>
-
-<pre><code>@Test public void testGetAll() throws Exception {
-  List&lt;Person&gt; result = personDao.getAll();
-  assertEquals(1, result.size());
-  Person endy = result.get(0);
-  assertEquals("Endy Muhardin", endy.getName());
-  assertEquals("endy.muhardin@gmail.com", endy.getEmail());
-}
-</code></pre>
-
-<p>Dan ini implementasi dari method getAll.</p>
-
-<pre><code>public List&lt;Person&gt; getAll() {
-  return simpleJdbcTemplate.query("select * from T_PERSON", new PersonMapper(), new HashMap&lt;String, String&gt;());
-}
-</code></pre>
-
-<p>Terakhir, mari kita implementasi method save. Method testnya sedikit lebih panjang, karena untuk yakin akan hasilnya, kita harus melakukan query ke database dengan JDBC murni.</p>
-
-<pre><code>@Test public void testSave() throws Exception {
-  Person dhiku = new Person();
-  dhiku.setName("Hadikusuma Wahab");
-  dhiku.setEmail("dhiku@gmail.com");
-  assertNull(dhiku.getId());
-  personDao.save(dhiku);
-  assertNotNull(dhiku.getId());
-
-  final Connection conn = ds.getConnection();
-  final PreparedStatement ps = conn.prepareStatement("select * from T_PERSON where id=?");
-  ps.setLong(1, dhiku.getId());
-  final ResultSet rs = ps.executeQuery();
-  assertTrue(rs.next());
-
-  assertEquals(dhiku.getName(), rs.getString("name"));
-  assertEquals(dhiku.getEmail(), rs.getString("email"));
-
-  ps.close();
-  rs.close();
-  conn.close();
-}
-</code></pre>
-
-<p>Untungnya implementasi method save juga hanya satu baris.</p>
-
-<pre><code>@Transactional(readOnly=false)
-public void save(final Person person) {
-  person.setId(simpleJdbcInsert.executeAndReturnKey(new BeanPropertySqlParameterSource(person)).longValue());
-}
-</code></pre>
-
-<p>Ada beberapa hal yang perlu dijelaskan dari kode di atas.
-Pertama, kita perlu mengaktifkan transaksi database untuk mengubah isi database. Kita lakukan dengan @Transactional(readOnly=false).</p>
-
-<p>Kedua, kita bisa menggunakan fitur terbaru Spring JDBC, yaitu SimpleJdbcInsert. Fitur ini mampu melihat ke dalam database dan mengambil daftar nama fieldnya. Object ini diinisialisasi pada saat kita menginjeksi DataSource. Berikut kodenya.</p>
-
-<pre><code>@Autowired
-public void setDataSource(final DataSource dataSource) {
-  this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
-  this.simpleJdbcInsert = new SimpleJdbcInsert(dataSource).withTableName("T_PERSON").usingGeneratedKeyColumns("id");
-}
-</code></pre>
-
-<p>Pada saat menginisialisasi object SimpleJdbcInsert kita memberi tahu Spring tentang nama tabel dan field yang isinya autogenerated, misalnya id.</p>
-
-<p>Selama nama field dalam T_PERSON sama dengan nama properti di class Person, kita bisa menghilangkan kode untuk mapping properti ke PreparedStatement. Kode yang biasanya tiga baris seperti ini</p>
-
-<pre><code>PreparedStatement ps = conn.prepareStatement("insert into T_PERSON (name, email) values(?,?)");
-ps.setString(1, person.getName());
-ps.setString(2, person.getEmail());
-</code></pre>
-
-<p>Dapat direduksi menjadi satu baris seperti ini:</p>
-
-<pre><code>SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(person);
-</code></pre>
-
-<p>Object parameterSource ini bisa langsung diumpankan ke simpleJdbcInsert seperti ini untuk melakukan insert sekaligus mengambil nilai id yang digenerate database.</p>
-
-<pre><code>Long newId = simpleJdbcInsert.executeAndReturnKey(parameterSource).longValue()
-</code></pre>
-
-<p>Fitur SimpleJdbcInsert ini sangat bermanfaat kalau entity class kita terdiri dari puluhan field. Adanya method executeAndReturnKey untuk mengambil auto-generated primary key dari database juga akan sangat membantu kita untuk menghilangkan perbedaan antar database. Biasanya masing-masing merek database memiliki cara yang berbeda-beda untuk mengambil nilai ini.</p>
-
-<p>Sebagai contoh, bila kita lakukan secara manual untuk database MySQL, kodenya akan tampak seperti ini.</p>
-
-<pre><code>@Transactional(readOnly=false)
-public void save(final Person person) {
-  simpleJdbcInsert.execute(new BeanPropertySqlParameterSource(person));
-  Long newId = simpleJdbcInsert.getJdbcOperations().queryForLong("select last_insert_id()");
-  person.setId(newId);
-}
-</code></pre>
-
-<p>Demikianlah sekilas tentang penggunaan fitur Spring terbaru untuk mengakses database. Pada artikel selanjutnya, kita akan lihat fitur-fitur baru di sisi MVC framework.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/27/">&larr; Older</a>
@@ -1103,6 +898,10 @@ public void save(final Person person) {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/release-management/">Release Management</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
       </li>
     
@@ -1136,10 +935,6 @@ public void save(final Person person) {
     
       <li class="post">
         <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/tutorial-extjs/">Tutorial ExtJS</a>
       </li>
     
   </ul>

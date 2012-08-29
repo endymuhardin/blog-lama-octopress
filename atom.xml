@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://endy.artivisi.com/blog/atom.xml" rel="self"/>
   <link href="http://endy.artivisi.com/blog/"/>
-  <updated>2012-08-18T10:20:52+07:00</updated>
+  <updated>2012-08-29T18:30:14+07:00</updated>
   <id>http://endy.artivisi.com/blog/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,319 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Release Management]]></title>
+    <link href="http://endy.artivisi.com/blog/manajemen/release-management/"/>
+    <updated>2012-08-29T18:01:00+07:00</updated>
+    <id>http://endy.artivisi.com/blog/manajemen/release-management</id>
+    <content type="html"><![CDATA[<p>Release, atau di-Indonesia-kan menjadi rilis, adalah tahap yang paling penting dalam software development. Segala kegiatan hulu (upstream activity) lainnya seperti <a href="http://endy.artivisi.com/blog/manajemen/fase-requirement/" title="Fase Requirement">requirement</a>, desain aplikasi, coding, testing, dan lainnya, semua dilakukan demi untuk menghasilkan software yang bisa dirilis. Sebagus apapun kita melakukan kegiatan lainnya, jika rilisnya tidak bagus, maka semua yang kita kerjakan menjadi tidak bagus. Sebaliknya, berbagai kesalahan dan kekurangan di kegiatan lain akan mudah dimaafkan dan dilupakan kalau kita menghasilkan rilis yang baik. Walaupun demikian, perlu diingat bahwa bila kita melakukan kegiatan hulu dengan baik, biasanya kita bisa menghasilkan rilis yang berkualitas baik secara konsisten.</p>
+
+<p>Pada artikel ini, kita akan membahas pernak-pernik yang berkaitan dengan rilis. Apa itu rilis, berbagai jenis rilis, syarat dan ketentuan rilis, dan juga prosedur yang kita gunakan di ArtiVisi.</p>
+
+<!--more-->
+
+
+<h1>Apa itu rilis</h1>
+
+<p>Rilis pada intinya adalah menyerahkan software yang sudah kita kerjakan ke pihak lain. Berdasarkan siapa yang dimaksud dengan pihak lain, kita membedakan rilis menjadi :</p>
+
+<ul>
+<li>rilis internal : menyerahkan software ke pihak internal tim pengembang, misalnya dari programmer ke tester.</li>
+<li>rilis eksternal : menyerahkan ke pihak luar seperti client atau customer.</li>
+</ul>
+
+
+<p>Kita tidak harus menunggu sampai software selesai dikerjakan 100% untuk melakukan rilis. Berdasarkan tingkat penyelesaian pekerjaan, kita bisa membedakan rilis menjadi :</p>
+
+<ul>
+<li><p>development release : Ini adalah rilis yang dilakukan sebelum software selesai dikerjakan. Rilis ini dibuat untuk menunjukkan kemajuan dalam proses development, misalnya menunjukkan tambahan fitur baru ataupun sekedar menunjukkan perbedaan dengan rilis sebelumnya. Development release biasa dilakukan secara rutin dan periodik. Ada yang melakukannya secara mingguan, harian, bahkan dua kali sehari. Rilis jenis ini juga biasa disebut dengan unstable release (karena softwarenya belum stabil - sering hang atau error), milestone release, daily/nightly build release, atau alpha release.</p></li>
+<li><p>testing release : Ini adalah rilis yang dilakukan setelah aplikasi siap untuk dites. Pada titik ini biasanya sudah tidak ada penambahan fitur lagi. Software yang dibuat diserahkan ke tester untuk dicari bugnya. Hasil laporan bug itu kemudian akan ditindak lanjuti sehingga menghasilkan testing release berikutnya. Kalau kita pernah mendengar istilah beta release, biasanya itu maksudnya adalah testing release. Orang sering membagi lagi testing release menjadi beta release dan release candidate. Pada prinsipnya, beta dan release candidate sama saja, bedanya ada di cakupan tester. Beta release khusus untuk dites oleh tester, sedangkan release candidate bisa juga dites oleh end-user.</p></li>
+<li><p>final release : Rilis jenis ini menyatakan bahwa software sudah selesai dikerjakan, dites, dan laporan bugnya sudah ditindak lanjuti. Biasa disebut juga stable release, karena software yang dihasilkan bisa digunakan dengan lancar dan nyaman (stabil).</p></li>
+</ul>
+
+
+<h1>Manfaat Rilis</h1>
+
+<p>Manfaat rilis tentunya adalah supaya software yang sudah susah payah kita buat, bisa bermanfaat bagi penggunanya dan sukur-sukur bisa menghasilkan uang bagi pembuatnya. Karena di atas kita sudah membahas berbagai jenis rilis, tentu juga ada macam-macam manfaat dari berbagai jenis rilis tersebut.</p>
+
+<p>Development release sebaiknya dilakukan sesering mungkin. Agar tidak merepotkan, dilakukan menggunakan perangkat otomasi seperti <a href="http://jenkins-ci.org/" title="Jenkins Continuous Integration">Jenkins</a>. Manfaat dari development release adalah untuk memastikan integrasi antara fitur berjalan dengan baik. Sering kali pada saat membuat fitur X, secara tidak sengaja mempengaruhi fitur Y sehingga tidak berjalan dengan baik. Hal inilah yang coba dicegah dengan development release.</p>
+
+<p>Testing release manfaatnya adalah supaya software yang kita buat bisa diperiksa oleh orang lain dengan perspektif yang berbeda dan lebih fresh. Programmer yang membuat aplikasi pastinya sudah hafal perilaku aplikasi yang dibuatnya, sehingga bisa menghindari error yang mungkin terjadi. Tapi tester atau user tidak memiliki pengetahuan tentang cara kerja internal aplikasi, sehingga lebih mungkin menemukan skenario yang belum diantisipasi oleh software.</p>
+
+<p>Final release tentunya berguna supaya software kita bisa digunakan oleh masyarakat umum. Para pengguna (end user) biasanya menunggu sampai suatu software dinyatakan selesai, baru dia mau menggunakannya. Demikian juga bila aplikasi yang kita buat akan dibundel oleh orang lain (contohnya distro Linux, integrasi dengan aplikasi lain, dsb), tentu mereka akan menunggu keluarnya rilis final.</p>
+
+<h1>Aturan Rilis</h1>
+
+<p>Seperti kita bahas sebelumnya, tujuan rilis adalah supaya software kita bisa digunakan oleh orang lain. Oleh karena itu, kita harus memudahkan pengguna dalam memahami rilis yang kita keluarkan.</p>
+
+<p>Hal paling penting dalam melakukan rilis adalah aturan penamaan. Dengan aturan penamaan yang baik, kita bisa:</p>
+
+<ul>
+<li>menjelaskan status rilis, apakah ini development release, testing, atau final.</li>
+<li>menjelaskan kompatibilitas dengan versi sebelumnya dan aplikasi lain. Ini akan dijelaskan secara lebih detail sebentar lagi.</li>
+<li>menjelaskan hubungan dengan rilis lainnya. Bila kita memiliki dua rilis, kita bisa membedakan mana rilis yang duluan dan mana yang belakangan.</li>
+</ul>
+
+
+<h1>Studi Kasus</h1>
+
+<p>Untuk memudahkan pemahaman tentang penamaan rilis, mari kita karang studi kasusnya, yaitu Facebook Contact Backup.</p>
+
+<blockquote><p>Aplikasi Facebook Contact Backup (FCB) adalah aplikasi yang bisa mendownload daftar contact kita di facebook, kemudian menuliskannya ke dalam text file. Contoh textfile akan dilampirkan di bawah. Untuk versi pertama, informasi kontak yang ditampilkan adalah : nama, email, no HP.</p></blockquote>
+
+<p>Berikut contoh file yang dihasilkan oleh aplikasi FCB</p>
+
+<figure class='code'><figcaption><span>facebook_contact.xml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;contacts&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Endy Muhardin<span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;email&gt;</span>endy@geemail.com<span class="nt">&lt;/email&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>081298000468<span class="nt">&lt;/mobile&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Ifnu Bima<span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;email&gt;</span>ifnu@geemail.com<span class="nt">&lt;/email&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>+6281234567890<span class="nt">&lt;/mobile&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'><span class="nt">&lt;/contacts&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>Karena aplikasi FCB kemudian menjadi populer, ada orang lain yang membuat aplikasi untuk mengisi phonebook di handphone bernama Handphone Contact Importer (HCI). Aplikasi HCI ini menggunakan aplikasi FCB untuk connect ke facebook dan mengambil data contact. Setelah datanya ada dalam format textfile, aplikasi HCI akan membaca text file tersebut dan kemudian mengisinya ke phonebook handphone.</p></blockquote>
+
+<p>Aplikasi FCB dikembangkan dengan cepat sehingga menghasilkan beberapa rilis sebagai berikut:</p>
+
+<h2>Rilis Pertama</h2>
+
+<p>Memperbaiki format nomer handphone, sehingga semua diseragamkan menjadi format internasional. Nomer <code>081298000468</code> pada contoh di atas akan dikonversi menjadi <code>+6281298000468</code></p>
+
+<h2>Rilis Kedua</h2>
+
+<p>Fix protokol komunikasi ke Facebook, karena ada perubahan di Facebook API.</p>
+
+<h2>Rilis Ketiga</h2>
+
+<p>Menambahkan field ulang tahun sehingga format text file menjadi sebagai berikut :</p>
+
+<figure class='code'><figcaption><span>facebook_contact.xml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;contacts&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Endy Muhardin<span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;email&gt;</span>endy@geemail.com<span class="nt">&lt;/email&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>+6281298000468<span class="nt">&lt;/mobile&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;birthdate&gt;</span>1945-08-17<span class="nt">&lt;/birthdate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Ifnu Bima<span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;email&gt;</span>ifnu@geemail.com<span class="nt">&lt;/email&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>+6281234567890<span class="nt">&lt;/mobile&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;birthdate&gt;</span>2011-11-11<span class="nt">&lt;/birthdate&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
+</span><span class='line'><span class="nt">&lt;/contacts&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Rilis Keempat</h2>
+
+<p>Ganti format xml menjadi json, mengikuti trend masa kini.</p>
+
+<figure class='code'><figcaption><span>facebook_contact.json</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Endy Muhardin&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">email</span><span class="o">:</span> <span class="s2">&quot;endy@geemail.com&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">mobile</span><span class="o">:</span> <span class="s2">&quot;+6281298000468&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">birthdate</span><span class="o">:</span> <span class="s2">&quot;1945-08-17&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Ifnu Bima&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">email</span><span class="o">:</span> <span class="s2">&quot;ifnu@geemail.com&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">mobile</span><span class="o">:</span> <span class="s2">&quot;+6281234567890&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">birthdate</span><span class="o">:</span> <span class="s2">&quot;2011-11-11&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dengan studi kasus di atas, kita harus mempertimbangkan penomoran rilis untuk aplikasi FCB dengan benar, supaya aplikasi HCI bisa tahu apa yang harus dilakukan pada saat aplikasi FCB mengeluarkan rilis baru.</p>
+
+<h1>Kompatibilitas</h1>
+
+<p>Dalam mengeluarkan rilis untuk aplikasi FCB, kita harus mempertimbangkan aplikasi HCI agar tidak rusak. Pengaruh aplikasi FCB terhadap HCI dikenal dengan istilah kompatibilitas. Kompatibilitas dibedakan berdasarkan ketergantungan secara programmatic:</p>
+
+<ul>
+<li>binary compatibility : FCB terbaru disebut binary-compatible dengan HCI bila FCB yang sudah dicompile bisa langsung ditaruh di folder dan dipakai oleh HCI.</li>
+<li>source compatibility : FCB terbaru disebut source-compatible dengan HCI bila FCB yang sudah dicompile tidak bisa langsung ditaruh begitu saja. HCI harus dicompile ulang dulu dengan FCB terbaru, baru HCI bisa dijalankan.</li>
+</ul>
+
+
+<p>Lebih lanjut tentang binary vs source compatibility bisa dibaca <a href="http://blogs.msdn.com/b/jmstall/archive/2008/03/10/binary-vs-source-compatibility.aspx">di artikel ini</a>.</p>
+
+<p>Dan juga bisa dibedakan berdasarkan hubungannya dengan rilis terdahulu.</p>
+
+<ul>
+<li>backward compatibility : bila HCI versi terbaru bisa menggunakan format data FCB yang terdahulu. Misalnya, aplikasi HCI terbaru bisa membaca data versi baru (json), versi sebelumnya (xml), dan sebelumnya lagi (xml tanpa field birthdate)</li>
+<li>forward compatibility : bila HCI versi jadul bisa membaca format data FCB yang lama (xml tanpa birthdate) dan yang lebih baru yang dirilis setelah HCI jadul tersebut (xml dengan birhtdate).</li>
+</ul>
+
+
+<p>Setelah kita memahami urusan kompatibilitas, kita bisa menentukan skema penamaan rilis, atau dikenal dengan istilah version numbering.</p>
+
+<h1>Version Numbering</h1>
+
+<p>Kita akan menggunakan <a href="http://apr.apache.org/versioning.html" title="Version Numbering APR">aturan dari Apache Portable Runtime</a> yang sudah diakui sebagai best-practices dalam version numbering. Aturan APR mengharuskan ada tiga komponen version number, yaitu :</p>
+
+<ul>
+<li>major number</li>
+<li>minor number</li>
+<li>patch number</li>
+</ul>
+
+
+<p>Contohnya, waktu pertama kita merilis FCB, kita beri nama <code>FCB-1.0.0</code>. Major numbernya 1, minor numbernya 0, patch numbernya 0.</p>
+
+<p>Untuk rilis selanjutnya, kita menaikkan major/minor/patch number sesuai dengan pengaruhnya terhadap kompatibilitas. Aturannya sebagai berikut:</p>
+
+<ul>
+<li>major number dinaikkan bila FCB baru tidak kompatibel dengan FCB rilis sebelumnya. Bila HCI dipasang dengan FCB terbaru ini, HCI akan error.</li>
+<li>minor number dinaikkan bila FCB baru mengandung penambahan fitur, tapi tetap kompatibel dengan HCI yang dibuat berdasarkan FCB lama. HCI versi lama tetap bisa jalan, walaupun tidak bisa memanfaatkan fitur yang baru.</li>
+<li>patch dinaikkan bila tidak ada perubahan secara fitur, tapi cuma ada perbaikan di internal FCB yang tidak terlihat dari luar (misalnya optimasi koneksi jaringan, perubahan protokol ke arah Facebook, dsb)</li>
+</ul>
+
+
+<p>Selanjutnya, mari kita beri nomer sesuai studi kasus kita di atas.</p>
+
+<ol>
+<li>Rilis Pertama : diberi nama <code>1.1.0</code>, karena cuma terjadi perubahan di content saja. HCI yang dibuat dengan FCB versi <code>1.0.0</code> akan tetap berjalan lancar</li>
+<li>Rilis Kedua : diberi nama <code>1.1.1</code>, karena perubahan protokol komunikasi dengan Facebook tidak mempengaruhi HCI sama sekali. HCI versi lama tetap bisa jalan dengan lancar.</li>
+<li>Rilis Ketiga : diberi nama <code>1.2.0</code>, sama dengan rilis pertama. Ada penambahan fitur, tapi tidak membuat HCI jadi error. Dengan rilis ini, programmer HCI bisa menambahkan fitur baru misalnya reminder ulang tahun. Tapi HCI versi lama (tanpa reminder ulang tahun) tetap bisa digunakan dengan <code>FCB-1.2.0</code></li>
+<li>Rilis Keempat : diberi nama <code>2.0.0</code>. Ini adalah perubahan signifikan. Untuk dapat menggunakan <code>FCB-2.0.0</code> ini, HCI harus mengalami perubahan signifikan. HCI versi lama tidak bisa digunakan dengan <code>FCB-2.0.0</code>. Agar dapat digunakan, programmer HCI harus mengeluarkan rilis baru yang bisa mengakomodasi format data JSON.</li>
+</ol>
+
+
+<p>Berikutnya, mari kita lihat pengaruhnya untuk HCI.</p>
+
+<ol>
+<li><code>HCI-1.0.0</code> : versi pertama, dibuat dengan <code>FCB-1.0.0</code></li>
+<li>Rilis <code>FCB-1.1.0</code> : tidak ada tambahan fitur yang bisa dibuat di HCI, sehingga programmernya tidak coding.</li>
+<li>Rilis <code>FCB-1.1.1</code> : tidak ada perubahan yang terlihat. Programmer HCI makan gaji buta sambil update status Facebook. Nganggurnya programmer HCI ini berarti <code>HCI-1.0.0</code> forward-compatible dengan <code>FCB-1.0.0</code>, <code>FCB-1.1.0</code>, hingga <code>FCB-1.1.1</code>.</li>
+<li>Rilis <code>FCB-1.2.0</code> : ada field baru (birthdate) yang bisa dimanfaatkan, programmer HCI mulai coding.</li>
+<li><code>HCI-1.1.0</code> : tambahan fitur reminder ulang tahun. <code>HCI-1.1.0</code> ini backward-compatible dengan <code>FCB-1.1.1</code>, <code>FCB-1.1.0</code>, maupun <code>FCB-1.0.0</code>.</li>
+<li>Rilis <code>FCB-2.0.0</code> : HCI semua versi tidak dapat digunakan bila user meng-upgrade FCB-nya. Programmer HCI harus segera mengeluarkan rilis baru, tidak boleh coding sambil facebookan.</li>
+<li><code>HCI-1.1.1</code> : bagi end-user, HCI terbaru ini tidak ada tambahan fiturnya. Tapi dia fixing bug, yang tadinya error pada waktu dijalankan (karena FCB-nya tidak kompatibel), menjadi tidak error.</li>
+</ol>
+
+
+<p>Selain major.minor.patch, ada kalanya orang juga menambahkan satu informasi lagi yang menyatakan kestabilan rilis. Berikut beberapa contohnya:</p>
+
+<ul>
+<li><code>FCB-1.0.1-SNAPSHOT</code> : ini biasanya digunakan untuk mencerminkan rilis daily build terbaru</li>
+<li><code>FCB-1.0.0-20121212080808</code> : ini biasanya digunakan untuk menunjukkan hasil daily build tertentu</li>
+<li><code>FCB-1.0.1-RC-01</code> : release candidate pertama</li>
+<li><code>FCB-1.0.0-M2</code> : milestone kedua</li>
+<li><code>FCB-1.0.0-Final</code> : final release. Ada orang yang menambahkan keyword Final, ada juga yang tidak.</li>
+<li><code>FCB-1.0.0-GA</code> : generally available, sama dengan final release</li>
+<li><code>FCB-1.0.0-RELEASE</code> : sama dengan GA dan Final</li>
+</ul>
+
+
+<p>Penomoran versi ini terlihat sepele saja. Tapi kalau kita tidak punya aturan penamaan yang jelas, maka orang lain akan bingung setiap kali ada rilis baru. Mereka tidak bisa menentukan apakah harus upgrade atau tidak, karena mereka tidak bisa tahu bagaimana kompatibilitas rilis ini dengan aplikasi lainnya. Salah satu contoh populer kekacauan yang disebabkan penomoran versi yang sembarangan <a href="http://news.ycombinator.com/item?id=1734936">bisa dilihat di komunitas Ruby</a>. Akibat aturan rilis Ruby tidak jelas, sehingga dibutuhkan aplikasi lain seperti RVM atau rbenv supaya antar versi Ruby tidak saling bentrok. Effort yang dikeluarkan untuk membuat dan memantain RVM dan rbenv tentu tidak sedikit. Ini semua disebabkan <em>hanya karena</em> penomoran versi belaka. Hasil akhir dari semua ini, sampai saat artikel ini ditulis, <a href="http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you/">Ruby belum bisa dipaket dengan benar di distro Debian</a> dan turunannya (termasuk Ubuntu).</p>
+
+<h1>Release Notes</h1>
+
+<p>Tentunya penomoran versi saja tidak bisa memuat informasi yang detail. Kita membutuhkan sarana lain untuk memberikan informasi yang detail tentang isi dari suatu rilis. Untuk keperluan ini, biasanya orang membuat dokumen yang disebut Release Notes. Beberapa hal yang biasanya dicantumkan dalam release notes antara lain:</p>
+
+<ul>
+<li>fitur baru</li>
+<li>bug yang diperbaiki</li>
+<li>enhancement/improvement, yaitu perbaikan pada fitur yang ada</li>
+<li>known issues, yaitu bug atau error yang sudah teridentifikasi tapi belum difix. Informasi ini menunjukkan bahwa programmernya sudah tahu bahwa ada bug, tapi karena satu dan lain hal belum memperbaikinya</li>
+<li>kontributor, yaitu siapa saja yang berkontribusi di rilis ini.</li>
+<li>to do, yaitu fitur apa yang direncanakan akan dibuat pada rilis berikut. Informasi ini bisa juga ditulis di dokumen terpisah bernama roadmap</li>
+</ul>
+
+
+<p>Contoh release notes bisa dilihat <a href="http://endy.artivisi.com/blog/images/uploads/2012/08/RELEASE.txt" title="Contoh Release Notes">di sini</a>.</p>
+
+<h1>Tools</h1>
+
+<p>Ada beberapa hal yang perlu dilakukan pada waktu kita akan melakukan rilis, yaitu:</p>
+
+<ul>
+<li>menaikkan nomor versi di source code. Biasanya kita ada mencantumkan nomor versi di aplikasi, misalnya di halaman About.</li>
+<li>membuat rekap perubahan yang terjadi sejak rilis sebelumnya</li>
+<li>membuat tag di version control database</li>
+</ul>
+
+
+<p>Semua kegiatan di atas dapat dioptimasi dengan tools misalnya <a href="http://maven.apache.org/plugins/maven-release-plugin/" title="Maven Release Plugin">maven-release-plugin</a>. Cara pakainya bisa dilihat <a href="http://java.dzone.com/articles/automating-releases-maven-0">di sini</a>. Tapi beberapa orang melihat bahwa maven-release-plugin ini tidak memenuhi kebutuhannya, sehingga dia pakai <a href="http://www.axelfontaine.com/2011/01/maven-releases-on-steroids-adios.html">cara yang lain</a>.</p>
+
+<p>Di ArtiVisi, kita sudah mencoba maven-release-plugin, dan berpendapat bahwa dia <a href="http://www.sonatype.com/people/2011/01/using-the-maven-release-plugin-things-to-know/">terlalu kaku</a> sehingga sulit dikonfigurasi agar sesuai dengan kebutuhan kita. Akhirnya kita menggunakan cara manual dengan prosedur sebagai berikut:</p>
+
+<h2>Prosedur Rilis ArtiVisi</h2>
+
+<p>Contoh skenario :</p>
+
+<ul>
+<li>Rilis sebelumnya : <code>1.2.0</code></li>
+<li>Rilis sekarang : <code>1.2.1</code></li>
+</ul>
+
+
+<p>Langkah-langkah melakukan rilis :</p>
+
+<ol>
+<li><p>Generate Changelog dengan perintah <code>git shortlog 1.2.0..HEAD</code></p></li>
+<li><p>Copy paste output dari langkah 1 ke dalam release notes.</p></li>
+<li><p>Naikkan version number di dalam source code menggunakan Eclipse. Search file <code>pom.xml</code>, find <code>1.2.0</code> dan replace menjadi <code>1.2.1</code>.</p></li>
+<li><p>Save semua file, kemudian commit ke Git dengan perintah <code>git commit -m "release 1.2.1"</code></p></li>
+<li><p>Buat tag di Git dengan perintah <code>git tag -a -F RELEASE.txt 1.2.1</code></p></li>
+</ol>
+
+
+<h1>Penutup</h1>
+
+<p>Demikianlah penjelasan tentang serba-serbi release management dalam software development. Mudah-mudahan bisa membuat project dan produk yang kita hasilkan lebih mudah dikelola.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Terima kasih Wordpress]]></title>
@@ -2960,119 +3273,6 @@ Nah, bagaimana menurut Anda? Pilihan tepat atau malas belajar?</p>
 <p>Sekilas tidak terlihat bedanya antara pakai plugin dan tidak. Tapi coba lihat source halaman ini, klik kanan kemudian View Source. Yang menggunakan plugin, source codenya benar-benar ada tulisannya. Sedangkan yang pakai tag script tidak ada source code hello worldnya.</p>
 
 <p>Nah, kalau sudah pakai ini, tidak perlu bingung lagi mewarnai source code di blog. Kalau mau revisi, tinggal edit aja di Github, dan otomatis di blog langsung terupdate.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Instalasi Git di Windows]]></title>
-    <link href="http://endy.artivisi.com/blog/aplikasi/instalasi-git-di-windows/"/>
-    <updated>2011-01-07T18:28:25+07:00</updated>
-    <id>http://endy.artivisi.com/blog/aplikasi/instalasi-git-di-windows</id>
-    <content type="html"><![CDATA[<p>Setelah kemarin kita bahas <a href="http://endy.artivisi.com/blog/lain/migrasi-subversion-ke-git/">migrasi di sisi server</a>, sekarang kita bahas instalasi di client. Kenapa yang dijelaskan hanya Windows, sedangkan Linux tidak? Well, ini karena di Linux instalasinya begitu mudah sehingga terlalu pendek kalau ingin dijadikan satu posting sendiri.</p>
-
-<p>Gak percaya? Ini caranya install di Ubuntu. Buka command prompt, dan ketik</p>
-
-<pre><code>sudo apt-get install git-core git-svn git-gui gitk
-</code></pre>
-
-<p>Sedikit konfigurasi standar.</p>
-
-<pre><code>git config --global user.name "Endy Muhardin"
-git config --global user.email "endy.muhardin@geemail.com"
-git config --global color.ui "true"
-</code></pre>
-
-<p>Kemudian, bila kita belum punya public key, silahkan bikin seperti <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">tutorial di sini</a>.</p>
-
-<p>Dan selesailah sudah. Seperti saya bilang sebelumnya, singkat dan sama sekali gak seru. Gak ada screenshotnya :D</p>
-
-<p>Nah, mari kita bahas instalasi di Windows.</p>
-
-<p>Pada intinya, langkah-langkahnya adalah sebagai berikut :</p>
-
-<ol>
-<li><p>Instalasi Putty : Ini kita perlukan untuk membuat public key. Public key digunakan untuk berinteraksi dengan repository git di server. Apa itu public key dan apa manfaatnya sedikit banyak sudah dibahas <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">di artikel ini</a>.</p></li>
-<li><p>Instalasi Git : Ini adalah aplikasi Git nya sendiri. Ada dua varian, Cygwin dan MSysGit. Kita akan gunakan yang lebih populer, yaitu MSysGit.</p></li>
-<li><p>Instalasi TortoiseGit : Seperti TortoiseSVN, ini adalah aplikasi GUI yang terintegrasi dengan Windows Explorer, sehingga pengelolaan repository dapat dilakukan di Windows Explorer seperti manipulasi file/folder biasa.</p></li>
-</ol>
-
-
-<h2>Instalasi Putty</h2>
-
-<p>Putty bisa diunduh <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">di sini</a>. Pilih saja versi installer, supaya tidak pusing.</p>
-
-<p>Putty ini akan kita gunakan untuk membuat pasangan public key dan private key. Caranya adalah menggunakan aplikasi PuttyGen. Jalankan PuttyGen, dan klik tombol Generate.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/01-ssh-generate-keypair-300x290.png" title="Generate keypair" ></p>
-
-<p>PuttyGen akan membuatkan public key dan private key. Save private keynya. Kita akan membutuhkan ini nanti. Klik tombol Save Private Key, dan simpan di folder mana saja.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/02-ssh-save-keypair-300x210.png" title="" ></p>
-
-<p>Terakhir, copy-paste text public keynya. Ini akan kita perlukan untuk dipasang di server supaya kita bisa mengakses repository di server, misalnya Github atau repository kantor.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/03-ssh-export-public-key-300x236.png" title="" ></p>
-
-<h2>Instalasi Git</h2>
-
-<p>Pertama, <a href="http://code.google.com/p/msysgit/">unduh dulu MSysGit</a>. Di websitenya ada banyak file yang bisa diunduh. Kita perlu yang Git, bukan msysgit. Nama filenya diawali Git, seperti ini: Git-1.7.3.1-preview20101002.exe. Ambil saja versi yang terbaru.</p>
-
-<p>Setelah diunduh, tentu kita jalankan. Berikut screenshot next-next seperti biasa.</p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/01-msysgit-install-welcome-300x230.png" title="" ></p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/02-msysgit-install-component-300x233.png" title="" ></p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/03-msysgit-install-path-300x232.png" title="" ></p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/04-msysgit-install-crlf-300x232.png" title="" ></p>
-
-<h2>Instalasi TortoiseGit</h2>
-
-<p>TortoiseGit bisa <a href="http://code.google.com/p/tortoisegit/">diunduh di sini</a>.
-Setelah selesai mengunduh, lagi-lagi klik next-next.</p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/01-tortoisegit-install-welcome-300x233.png" title="" ></p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/02-tortoisegit-install-sshclient-300x231.png" title="" ></p>
-
-<p>Sampai di sini, instalasi Git sudah selesai. Tapi masih ada langkah tambahan supaya kita bisa melakukan clone dari repository server (misalnya Github).</p>
-
-<h2>Clone dari Github</h2>
-
-<p>Untuk bisa clone dari github, pertama kali kita harus punya account Github. Silahkan <a href="https://github.com/plans">daftar dulu</a>.</p>
-
-<p>Setelah punya account, login, dan kita akan melihat dashboard.</p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/01-github-dashboard-300x208.png" title="" ></p>
-
-<p>Klik account setting, dan masuk ke menu SSH Public Keys</p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/02-github-add-pubkey-300x206.png" title="" ></p>
-
-<p>Pastekan public key yang sudah kita export menggunakan PuttyGen di atas. Setelah diadd, public key kita akan terdaftar. Kita boleh pasang public key banyak-banyak, karena biasanya satu public key mencerminkan satu komputer. Bisa saja kita punya PC dan juga Laptop.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/03-github-add-pubkey-completed-300x201.png" title="" ></p>
-
-<p>Setelah public key didaftarkan, selanjutnya kita lihat repository yang kita punya.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/04-github-repositories-300x183.png" title="" ></p>
-
-<p>Kalau belum punya repository, Anda bisa fork <a href="https://github.com/endymuhardin/belajarGit">repository belajarGit punya saya</a>, sehingga nanti Anda punya repo belajarGit sendiri.</p>
-
-<p>Setiap repository punya URL untuk melakukan clone. Copy paste URL clone repository.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/05-github-repo-belajarGit-300x208.png" title="" ></p>
-
-<p>Untuk melakukan clone, buka Windows Explorer, klik kanan, dan pilih Git Clone.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/03-tortoisegit-use-clone-300x208.png" title="" ></p>
-
-<p>Masukkan URL yang tadi kita copy dari Github, dan load private key yang kita buat dengan PuttyGen.</p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/04-tortoisegit-clone-info-300x200.png" title="" ></p>
-
-<p>Putty akan melakukan komunikasi dengan Github. Kalau kita belum pernah clone dari Github sebelumnya, Putty akan menanyakan apakah kita ingin menerima koneksi dari Github. Jawab saja Yes.
-<img src="http://endy.artivisi.com/blog/images/uploads/2011/01/05-tortoisegit-clone-save-host-key-300x210.png" title="" ></p>
-
-<p>Setelah kita jawab Yes, TortoiseGit akan mendownload repository dari Github untuk kita pakai di local, yang lebih dikenal dengan istilah clone. Ini ditunjukkan dengan progress bar kura-kura salto. Jumlah kura-kura yang salto tergantung dari ukuran repository kita. Semakin besar repositorynya, semakin banyak kura-kura yang salto. Bersabarlah, dan tunggu sampai semua kura-kura selesai melakukan aksinya.</p>
-
-<p><img src="http://endy.artivisi.com/blog/images/uploads/2011/01/06-tortoisegit-clone-complete-300x211.png" title="" ></p>
-
-<p>Sekarang repository sudah ada di local, dan siap digunakan. Bagaimana cara menggunakannya, stay tuned. Akan dibahas di posting berikutnya.</p>
 ]]></content>
   </entry>
   

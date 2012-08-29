@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Jika Anda adalah kolektor PDF obsesif-kompulsif seperti saya, pasti cepat atau lambat Anda akan mencari cara yang paling efektif untuk mencetak &hellip;">
+  <meta name="description" content="Adanya fitur annotation di Java 5 membuka dunia baru bagi para coder Java. Dulu semua metadata mau tidak mau harus disimpan di XML file. Sekarang ada &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,250 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/hello-hibernate-annotation/">Hello Hibernate Annotation</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-05T00:49:49+07:00" pubdate data-updated="true">May 5<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Adanya fitur annotation di Java 5 membuka dunia baru bagi para coder Java. Dulu semua metadata mau tidak mau harus disimpan di XML file. Sekarang ada pilihan baru, kita bisa taruh di XML file, atau juga bisa di source code melalui annotation.</p>
+
+<p>Salah satu implementasinya adalah <a href="http://hibernate.org/247.html">annotation untuk hibernate</a> untuk mendefinisikan mapping <a href="http://www.hibernate.org">Hibernate</a>. Sekarang kita tidak perlu lagi <a href="http://endy.artivisi.com/downloads/writings/Hibernate.pdf">membuat *.hbm.xml</a> untuk menyatakan mapping antara Java class dengan tabel di database.</p>
+
+<p>Mari kita lihat kodenya.</p>
+
+<h2>Category.java</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">id</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">tutorial</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Category</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getDescription</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDescription</span><span class="o">(</span><span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Class di atas akan kita simpan ke database dengan skema tabel (MySQL) sebagai berikut:</p>
+
+<h2>Category-ddl.sql</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">Category</span> <span class="p">(</span>
+</span><span class='line'>  <span class="n">id</span> <span class="nb">INT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+</span><span class='line'>  <span class="n">description</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sebelum jaman annotation, kita harus buat mapping file sebagai berikut.</p>
+
+<h2>Category.hbm.xml</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE hibernate-mapping PUBLIC</span>
+</span><span class='line'><span class="cp">    &quot;-//Hibernate/Hibernate Mapping DTD//EN&quot;</span>
+</span><span class='line'><span class="cp">    &quot;http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd&quot;&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;hibernate-mapping&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">&quot;id.web.endy.tutorial.Category&quot;</span> <span class="na">table=</span><span class="s">&quot;Category&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;id</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;generator</span> <span class="na">class=</span><span class="s">&quot;auto&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">column=</span><span class="s">&quot;description&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/class&gt;</span>
+</span><span class='line'><span class="nt">&lt;/hibernate-mapping&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tapi dengan menggunakan annotation, kita bisa lupakan file Category.hbm.xml. Sebagai gantinya, kita tambahkan sedikit annotation pada class Category sebagai berikut</p>
+
+<h2>Category.java dengan Annotation</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">id</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">tutorial</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Entity</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Category</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getDescription</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDescription</span><span class="o">(</span><span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Id</span><span class="o">(</span><span class="n">generate</span><span class="o">=</span><span class="n">GeneratorType</span><span class="o">.</span><span class="na">AUTO</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perbedaan pada kode di atas cuma dua baris saja, yaitu:</p>
+
+<ul>
+<li>@Entity</li>
+<li>@Id(generate=GeneratorType.AUTO)</li>
+</ul>
+
+
+<p>Selain untuk property dan id biasa, hibernate annotation juga dapat digunakan untuk one-to-many, many-to-many, dan teknik-teknik advanced lainnya.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -269,120 +513,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/belajar-java-mulai-dari-mana/">Belajar Java, Mulai Dari Mana?</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-04-28T18:43:54+07:00" pubdate data-updated="true">Apr 28<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ini adalah pertanyaan yang paling sering ditanyakan ke saya, baik melalui Y!, email, ataupun tatap muka di kelas.</p>
-
-<p>Saya sendiri belajar Java secara otodidak. Tidak melalui bangku kuliah (saya kuliah Teknik Industri), tidak juga ikut kursus atau pelatihan. Pada waktu itu -sekitar tahun 2002- milis <a href="http://groups.yahoo.com/group/jug-indonesia/">jug-indonesia</a> dan <a href="http://groups.yahoo.com/group/jlinux/">jlinux</a> belum seramai sekarang. Sehingga untuk konsultasi dan tanya-jawab agak sulit. Perlu diperhatikan juga bahwa pada masa itu blog belum ngetren. Jarang ada blog yang membahas pemrograman Java dalam bahasa Indonesia.</p>
-
-<p>Singkat kata, resource di internet tidak sebanyak saat ini (awal 2006).</p>
-
-<p>Sebelum mulai belajar Java, kemampuan teknis saya adalah sebagai berikut:</p>
-
-<ul>
-<li><p>Bisa menggunakan Linux, tapi sebatas user, bukan administrator ahli.</p></li>
-<li><p>Mengerti tentang basic networking (IP Address, Subnet, cara kerja DNS, dan sedikit tentang routing)</p></li>
-<li><p>Mengerti sedikit tentang relational database. SELECT, INSERT, UPDATE sih bisa.</p></li>
-<li><p>Bisa PHP sedikit-sedikit. Cuma bisa HelloWorld, dan simpan isian form HTML ke dalam database. Tapi untuk aplikasi skala besar belum pernah buat.</p></li>
-</ul>
-
-
-<p>Dengan modal pas-pasan seperti itu, saya berhasil diterima bekerja di sebuah kursus pendidikan franchise dari India. Waktu itu mereka baru membuka cabang di Surabaya, dan saya masuk sebelum grand-launching dilakukan.</p>
-
-<p>Karena masih baru, siswa peserta kursus juga masih sedikit.Seingat saya, sehari cuma ada satu kelas selama 4 jam sehari. 4 jam sisanya, 20 perangkat komputer terbaru terhubung dengan jaringan termasuk satu asisten lab (tidak lain dan tidak bukan adalah saya) praktis menjadi pengangguran. Internet di sana dial-up, tapi ada beberapa buku pelajaran dan referensi di perpustakaan mini.</p>
-
-<p>Waktu luang banyak, komputer banyak, buku banyak, internet agak lemot. Ya sudah, akhirnya saya ngoprek saja sendirian. Instruktur di sana, walaupun native speaker India, nampaknya kurang kompeten, sehingga kalo tanya ke dia, yang ada malah tambah bingung.</p>
-
-<p>Minggu-minggu pertama saya habiskan membuat website dengan PHP. Berusaha bikin Content Management System kecil-kecilan. Tapi karena belum pengalaman, yang ada malah berantakan. Pengguna bukannya menjadi mudah malah menjadi sulit, karena untuk posting artikel harus mengerti HTML dan PHP :D. Padahal niatnya mau memudahkan. Yah, mau bagaimana lagi &#8230; ada masanya ketika kita masih muda dan bodoh :P</p>
-
-<p>Bosan dengan PHP, saya mulai lihat-lihat buku di perpustakaan. Ada VB, Java, Windows 2000 Server, Oracle, dan sebagainya. Entah karena background saya yang pengguna Linux, saya kurang tertarik belajar VB. Selain itu, instruktur di sana (menganggap dirinya) master VB. Jadi saya tidak mau kompetitif dengan belajar VB juga. Oracle terlalu sulit buat saya (waktu itu). Instalasi saja sulitnya setengah mati. Installernya terlalu banyak tanya ini-itu yang saya gak ngerti apa jawabannya. Windows 2000 Server juga kelihatan kurang menarik. Jadilah akhirnya saya pilih belajar Java saja.</p>
-
-<p>Saya coba belajar dari buku yang ada. Referensinya waktu itu Core Java vol 1 dan 2 karangan Cay Horstmann. Belakangan saya tau kalo buku itu sangat bagus dan lengkap. Ada beberapa konsep rumit seperti <em>anonymous inner class</em> yang dijelaskan dengan sangat baik di sana. Tapi untuk pemula, Core Java itu relatif sulit dimengerti.</p>
-
-<p>Sekitar sebulan saya berputar-putar mencari cara belajar dan referensi yang bagus. Karena kualitas dan kecocokan referensi dengan cara belajar kita akan sangat berpengaruh terhadap kecepatan belajar.</p>
-
-<p>Setelah browsing ke <a href="http://java.sun.com">website Sun</a>, saya berhasil menemukan <a href="http://java.sun.com/docs/books/tutorial/index.html">tutorial Java</a> dan <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html">dokumentasi Java</a>. Ini merupakan referensi yang benar-benar cocok buat saya. Dengan bermodalkan dua bahan tersebut, akhirnya dua bulan berikutnya menjadi terang-benderang.</p>
-
-<p>Satu demi satu konsep Java saya pelajari:</p>
-
-<ol>
-<li><p>Sintaks dan Semantic (for loop, statement, if-else, dsb)</p></li>
-<li><p>Konsep OOP</p></li>
-<li><p>Implementasi Class dan Object di Java</p></li>
-<li><p>Package</p></li>
-<li><p>I/O</p></li>
-<li><p>Collection</p></li>
-<li><p>Swing</p></li>
-<li><p>Thread</p></li>
-<li><p>JDBC</p></li>
-<li><p>dsb</p></li>
-</ol>
-
-
-<p>Sampai akhirnya saya lumayan bisa membuat aplikasi desktop sederhana yang mengakses database.</p>
-
-<p>Pada bulan keempat, saya masuk ke kantornya instruktur dan menemukan buku baru. Modul pelatihan Java Servlet. Wah, ada mainan baru. Segera saja saya coba semua contoh kodenya. Lumayan dari buku tersebut saya bisa memahami web.xml, servlet, dan application server. Waktu itu <a href="http://tomcat.apache.org">Tomcat</a> belum terkenal seperti sekarang. Saya pakai Java Web Server untuk mendeploy servlet.</p>
-
-<p>Sekitar enam bulan kemudian, saya sudah cukup mengerti apa itu EJB (waktu itu masih versi 1.x) dan bisa mendeploy EJB kecil-kecilan.</p>
-
-<p>Kemudian saya ditugaskan menjadi dosen di Stikom, sebagai bagian dari paket kerjasama kursus tempat saya bekerja dengan Stikom. Di sana lebih banyak teman diskusi dan buku.</p>
-
-<p>Dari titik ini, perjalanan belajar Java menjadi lebih mudah. Karena selain perpustakaan cukup lengkap, milis java juga sudah lumayan aktif. Sehingga saya dapat mainan baru seperti Hibernate dan Ant.</p>
-
-<p>Sudah cukup panjang ceritanya. Pesan moral dari cerita ini adalah:</p>
-
-<ol>
-<li><p>Dengan waktu luang dan referensi yang tepat, belajar Java secara otodidak sangat mungkin dilakukan</p></li>
-<li><p>Download <a href="http://java.sun.com/docs/books/tutorialNB/download/tutorial.zip">tutorial</a> dan <a href="http://java.sun.com/j2se/1.5.0/download.jsp">dokumentasi</a> Java yang dikeluarkan Sun.</p></li>
-<li><p>Banyak berlatih (saya berlatih 6-8 jam sehari, setelah jam kantor saya masih stay untuk belajar)</p></li>
-<li><p>Untuk dapat melakukan poin #1 dan #2, kemampuan bahasa Inggris (read-only sudah cukup) wajib dimiliki.</p></li>
-</ol>
-
-
-<p>Sedikit saran dari saya, cobalah berkontribusi di milis. Baik bertanya maupun menjawab. &#8220;Bagaimana kalo saya menjawab tapi jawabannya salah? Nanti diketawain &#8230;  &#8221;
-Jangan takut. Menjawab itu bagian dari belajar. Ini berarti kita mengujicoba pemahaman kita terhadap sesuatu.</p>
-
-<p>Kalau pemahaman kita benar, komunitas akan memperkuat, dan kadang menambahkan sudut pandang yang berbeda sehingga pengetahuan kita semakin kaya.
-Kalau kita salah, akan ada yang mengoreksi. Sehingga pemahaman kita yang salah tersebut tidak akan terbawa sampai tua dan terungkap dalam event yang jauh lebih memalukan.</p>
-
-<p>Nada-nada pedas dan komentar tidak ramah jangan sampai mengendurkan semangat. Anggap saja sebagai biaya kursus, karena : &#8220;Hei, ternyata bertanya di milis gak bayar. GRATIISS !!!&#8221;</p>
-
-<p>Ok, selamat belajar mandiri :D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/48/">&larr; Older</a>
@@ -445,6 +575,10 @@ Kalau kita salah, akan ada yang mengoreksi. Sehingga pemahaman kita yang salah t
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/release-management/">Release Management</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
       </li>
     
@@ -478,10 +612,6 @@ Kalau kita salah, akan ada yang mengoreksi. Sehingga pemahaman kita yang salah t
     
       <li class="post">
         <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/tutorial-extjs/">Tutorial ExtJS</a>
       </li>
     
   </ul>

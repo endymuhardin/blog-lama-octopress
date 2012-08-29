@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel sebelumnya, kita telah menyimpan artifact modul person-model di shared repository melalui mekanisme scp dengan private key. Pada artikel &hellip;">
+  <meta name="description" content="Pada artikel sebelumnya, kita telah menghubungkan dua modul berbeda dengan deklarasi dependensi. Tapi hal itu belum cukup, karena pada aplikasi yang &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,188 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/ant-ivy-6/">External Dependency Dengan Ivy</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-01T17:06:24+07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-5/">artikel sebelumnya</a>, kita telah menghubungkan dua modul berbeda dengan deklarasi dependensi. Tapi hal itu belum cukup, karena pada aplikasi yang sebenarnya, kita akan banyak menggunakan pustaka yang tidak kita buat sendiri.</p>
+
+<p>Agar kita bisa menggunakan pustaka luar tersebut, kita harus mengetahui alamat repository yang menyimpan pustaka yang kita inginkan, berikut dependensinya. Misalnya, bila kita ingin menggunakan Hibernate, kita harus mengetahui repository yang memuat artifak hibernate.jar dan juga dependensinya seperti asm.jar, cglib.jar, dan segudang *.jar lainnya.</p>
+
+<p>Selanjutnya, untuk menghemat bandwidth perusahaan, kita dapat menaruh pustaka yang sering digunakan tersebut dalam jaringan perusahaan. Dengan demikian semua orang yang akan menggunakan *.jar tersebut tidak perlu mendonlod dari lokasi asalnya, tapi cukup dari jaringan lokal. Pembuatan mirror ini akan kita diskusikan di artikel terakhir dalam seri ini.</p>
+
+<p>Ada dua masalah utama yang kita hadapi dalam menggunakan pustaka luar. Pertama, bagaimana mencari dan memilih repository yang baik. Kedua, bagaimana mendaftarkannya dalam project kita.</p>
+
+<p>Mencari dan memilih repository merupakan hal yang krusial. Para pengguna Maven, tools untuk dependency management seperti Ivy, memiliki repository yang dapat diakses melalui internet. Akan tetapi, ada satu masalah besar, isinya tidak lengkap dan deklarasi metadatanya banyak yang berantakan. Sebagai ilustrasi, dari dokumentasi Hibernate kita mengetahui bahwa hibernate.jar membutuhkan asm.jar, commons-collection.jar, dan cglib.jar. Tapi di repository Maven, kadang hanya tersedia asm.jar. Artifak commons-collection.jar ada di deklarasi dependensi, tapi filenya tidak ada. Bahkan cglib.jar sama sekali tidak dicantumkan dalam deklarasi dependensi. Nah, kira-kira seperti itulah kondisi repository yang tidak dipelihara dengan baik. Metadata dependensinya tidak akurat, dan koleksi artifaknya tidak lengkap.</p>
+
+<p>Untungnya &#8211;SpringSource, perusahaan yang membekingi Spring Framework&#8211; telah membuatkan <a href="http://www.springsource.com/repository/">repository</a> yang cukup mumpuni. Mereka menjamin bahwa repository tersebut transitively complete. Artinya, bila hibernate.jar membutuhkan commons-collection.jar dan commons-collection.jar membutuhkan commons-lang.jar, kita bisa yakin bahwa ketiga .jar tersebut ada dalam repository. SpringSource menyediakan metadata untuk ivy dan maven2. Jadi selain kita pengguna Ivy, pengguna Maven2 juga bisa menggunakan repository tersebut. Semua *.jar yang ada dalam repo ini sudah dijamin OSGi compliant. Ini akan sangat berguna apabila kita membangun di platform OSGi. Yang paling penting, repository ini memiliki fasilitas pencarian.</p>
+
+<p>Bila dependensi yang kita inginkan tidak tersedia di repository SpringSource, kita masih dapat mencari ke repository Maven2 yang disediakan oleh ibiblio.</p>
+
+<p>Baiklah, masalah pertama sudah terpecahkan. Sekarang mari kita selesaikan masalah kedua, yaitu menggunakan kedua repository tersebut dalam aplikasi kita.</p>
+
+<p>Repository ini, sama dengan internal repository yang sudah kita bahas pada artikel terdahulu, akan dideklarasikan dalam file ivysettings.xml. Berikut adalah entri untuk repository SpringSource.</p>
+
+<pre><code>&lt;url name="springsource.release.repo.resolver"&gt;
+    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/url&gt;
+
+&lt;url name="springsource.external.repo.resolver"&gt;
+    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/url&gt;
+</code></pre>
+
+<p>Cara konfigurasi ini juga bisa dilihat di situs repository SpringSource.
+Dan ini adalah konfigurasi untuk repository iBiblio.</p>
+
+<pre><code>&lt;ibiblio name="maven2" m2compatible="true" /&gt;
+</code></pre>
+
+<p>Kita dapat menyuruh Ivy untuk terlebih dulu mencari di repo SpringSource. Bila ditemukan, hentikan pencarian. Bila tidak ditemukan, lanjutkan ke iBiblio. Untuk mengaktifkan mekanisme ini, gunakan ChainResolver sebagai berikut.</p>
+
+<pre><code>&lt;chain name="external-repository"&gt;
+
+    &lt;chain name="springsource-repository" returnFirst="true"&gt;
+        &lt;url name="springsource.release.repo.resolver"&gt;
+            &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+            &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+        &lt;/url&gt;
+        &lt;url name="springsource.external.repo.resolver"&gt;
+            &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+            &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+        &lt;/url&gt;
+    &lt;/chain&gt;
+
+    &lt;chain name="ibiblio.repo.resolver"&gt;
+        &lt;ibiblio name="maven2" m2compatible="true" /&gt;
+    &lt;/chain&gt;
+
+&lt;/chain&gt;
+</code></pre>
+
+<p>Atribut <code>returnFirst</code> digunakan untuk menghentikan pencarian bila artifak sudah ditemukan.</p>
+
+<p>Setelah repository kita daftarkan, kita tinggal mengkonfigurasi dependensi di project kita. Modul person-dao-impl akan menggunakan Spring Framework 2.5.5.A dan juga Hibernate 3.2.6.ga. Kita dapat mencari di situs repository SpringSource untuk mendapatkan deklarasi dependensi yang sesuai untuk <a href="http://www.springsource.com/repository/app/search?query=spring">Spring Framework</a> dan <a href="http://www.springsource.com/repository/app/search?query=hibernate">Hibernate</a>.</p>
+
+<p>Berikut adalah file ivy.xml dari modul person-dao-impl.</p>
+
+<pre><code>&lt;ivy-module version="1.0"&gt;
+    &lt;info organisation="com.artivisi" module="com.artivisi.tutorial.ivy.dao.impl"/&gt;
+    &lt;publications&gt;    
+        &lt;artifact name="${ant.project.name}"/&gt;
+        &lt;artifact name="${ant.project.name}-sources" type="src" ext="jar"/&gt;
+    &lt;/publications&gt;
+
+    &lt;dependencies&gt;
+
+        &lt;dependency
+            org="com.artivisi"
+            name="com.artivisi.tutorial.ivy.dao.api"
+            rev="latest.integration"
+        /&gt;
+
+        &lt;dependency 
+            org="org.springframework" 
+            name="org.springframework.orm" 
+            rev="2.5.5.A"
+        /&gt;
+
+        &lt;dependency 
+            org="org.hibernate" 
+            name="com.springsource.org.hibernate" 
+            rev="3.2.6.ga"
+        /&gt;
+
+    &lt;/dependencies&gt;
+
+&lt;/ivy-module&gt;
+</code></pre>
+
+<p>Terlihat dari ivy.xml bahwa modul ini memiliki dependensi terhadap modul person-dao-api, yang mana memiliki dependensi terhadap person-model. Dengan fitur transitive-dependency yang dimiliki Ivy, kita tidak perlu mendeklarasikan dependensi terhadap person-model, karena sudah secara otomatis didaftarkan melalui person-dao-api.</p>
+
+<p>Modul ini memiliki satu source code, yaitu PersonDaoHibernate, sebagai berikut.</p>
+
+<pre><code>package com.artivisi.tutorial.ivy.dao.impl;
+
+import java.util.List;
+
+import com.artivisi.tutorial.ivy.model.Person;
+import com.artivisi.tutorial.ivy.dao.PersonDao;
+
+@Transactional
+public class PersonDaoHibernate implements PersonDao {
+
+    private SessionFactory sessionFactory;
+
+    @Autowired
+    public void setSessionFactory(SessionFactory sf) {
+        this.sessionFactory = sf;
+    }
+
+    public void save(Person person) {
+        sessionFactory.getCurrentSession()
+        .saveOrUpdate(person);
+    }
+
+    @SuppressWarnings("unchecked")      
+    public List&lt;Person&gt; getAll(){
+        return sessionFactory.getCurrentSession()
+        .createCriteria(Person.class)
+        .list();
+    }
+
+    public Person getById(Long id){
+        return (Person) sessionFactory.getCurrentSession()
+        .get(Person.class, id);
+    }
+}
+</code></pre>
+
+<p>Seperti kita lihat, kode program tersebut menggunakan @Transactional dari Spring Framework, dan SessionFactory milik Hibernate. Mari kita lakukan kompilasi.</p>
+
+<pre><code>ant build
+</code></pre>
+
+<blockquote><p>PERHATIAN!!! Perintah build ini akan mengakses internet dan mendonlod semua *.jar yang dibutuhkan. Ini akan memakan banyak bandwidth internasional Anda.</p></blockquote>
+
+<p>Dari output kita bisa lihat bahwa Ivy menemukan dependensi yang dibutuhkan di repository SpringSource, dan kemudian mendonlodnya. Hasil donlod akan disimpan dalam cache, sehingga bila kita melakukan build lagi, tidak perlu mendonlod berkali-kali.</p>
+
+<p>Demikianlah penjelasan tentang dependensi eksternal. Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-7/">artikel selanjutnya</a>, kita akan bahas tentang configuration, fitur yang sangat canggih dari Ivy.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -549,190 +731,6 @@ release.type = integration
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/ant-ivy-3/">Otomasi Build Process Dengan Ant</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-09T16:48:30+07:00" pubdate data-updated="true">Sep 9<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita memahami <a href="http://endy.artivisi.com/blog/java/ant-ivy-2">mengapa dan kapan kita butuh Ivy</a>, mulai dari artikel ini, kita akan menjalani langkah demi langkah supaya kegiatan build kita benar-benar terintegrasi dan efisien.</p>
-
-<p>Pada artikel ini, kita akan membuat satu modul dulu, yang sama sekali tidak memiliki dependensi, yaitu modul <code>person-model</code>.
-Kita akan mengotomasi proses build untuk modul ini, kemudian menyiapkan infrastruktur lainnya sehingga siap untuk digunakan oleh modul lainnya.</p>
-
-<p>Tiap modul yang kita buat, setara dengan satu project dalam IDE. Dalam IDE kita dapat mendaftarkan (membuat referensi ke) project lain dalam build-path sehingga tidak muncul peringatan compile error.</p>
-
-<p>Berikut struktur folder modul <code>person-model</code>.</p>
-
-<p><img src="/images/uploads/2008/09/01-project-person-model.png" title="" ></p>
-
-<p>Tidak ada yang istimewa, kita memiliki build.xml disertai dengan folder <code>src</code> yang berisi source code java. Kita ingin agar struktur folder kita seragam di semua modul, jadi untuk seluruh modul nantinya strukturnya akan sama.</p>
-
-<p>Kita hanya memiliki satu file source code sederhana, <code>Person.java</code> sebagai berikut.</p>
-
-<pre><code>package com.artivisi.tutorial.ivy.model;
-
-import java.util.Date;
-
-public class Person {
-    private Integer id;
-    private String name;
-    private Date birthdate;
-
-    public Integer getId() {
-        return id;
-    }
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Date getBirthdate() {
-        return birthdate;
-    }
-    public void setBirthdate(Date birthdate) {
-        this.birthdate = birthdate;
-    }   
-}
-</code></pre>
-
-<p>Sebagai rangkaian build, kita akan melakukan kegiatan sebagai berikut:</p>
-
-<ul>
-<li><p>Bersihkan hasil kompilasi sebelumnya (clean)</p></li>
-<li><p>Kompilasi (compile)</p></li>
-<li><p>Distribusi, membuat file *.jar dari hasil kompilasi (build)</p></li>
-</ul>
-
-
-<p>Rangkaian kegiatan tersebut kita tuliskan dalam file <code>build.xml</code>, sebagai berikut</p>
-
-<pre><code>&lt;project name="person-model"&gt;
-
-    &lt;property name="src.java.dir" value="src/java" /&gt;
-    &lt;property name="compile.dir" value="build/bin" /&gt;
-    &lt;property name="dist.dir" value="build/dist" /&gt;
-
-    &lt;path id="compile.classpath"&gt;
-        &lt;pathelement location="${src.java.dir}" /&gt;
-        &lt;fileset dir="lib" includes="**/*.jar" /&gt;
-    &lt;/path&gt;
-
-    &lt;target name="prepare"&gt;
-        &lt;mkdir dir="lib" /&gt;
-        &lt;mkdir dir="build" /&gt;
-        &lt;mkdir dir="${compile.dir}" /&gt;
-        &lt;mkdir dir="${dist.dir}" /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="clean"&gt;
-        &lt;delete dir="build" /&gt;
-        &lt;delete dir="lib" /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="compile" depends="prepare"&gt;
-        &lt;javac srcdir="${src.java.dir}" destdir="${compile.dir}" classpathref="compile.classpath" /&gt;
-    &lt;/target&gt;
-
-    &lt;target name="build" depends="compile"&gt;
-        &lt;!-- binary distribution --&gt;
-        &lt;jar destfile="${dist.dir}/${ant.project.name}.jar"&gt;
-            &lt;fileset dir="${compile.dir}"&gt;
-                &lt;exclude name="**/*Test.class"/&gt;
-            &lt;/fileset&gt;
-        &lt;/jar&gt;
-
-        &lt;!-- source distribution --&gt;
-        &lt;jar destfile="${dist.dir}/${ant.project.name}-sources.jar"&gt;
-            &lt;fileset dir="${src.java.dir}"&gt;
-                &lt;exclude name="**/*Test.java"/&gt;
-            &lt;/fileset&gt;
-        &lt;/jar&gt;
-    &lt;/target&gt;
-&lt;/project&gt;
-</code></pre>
-
-<p>Selanjutnya, kita bisa coba melakukan build.</p>
-
-<pre><code>ant build
-</code></pre>
-
-<p>Nanti Ant akan menghasilkan file <code>person-model.jar</code> dan <code>person-model-sources.jar</code> dalam folder dist.</p>
-
-<p>File <code>build.xml</code> ini nantinya akan kita gunakan di seluruh modul. Seluruh modul tentunya butuh kegiatan kompilasi dan membuat jar. Untuk menghindari perulangan dan copy-paste, kita simpan <code>build.xml</code> ini di folder bersama, kita beri nama saja person-build.</p>
-
-<p>Karena digunakan di banyak modul, kita perlu melakukan penyesuaian sedikit, yaitu namanya kita ganti menjadi <code>default.xml</code>. Deklarasi nama project juga diganti, dari seperti ini:</p>
-
-<pre><code>&lt;project name="person-model"&gt;
-</code></pre>
-
-<p>menjadi seperti ini:</p>
-
-<pre><code>&lt;project name="default-build"&gt;
-</code></pre>
-
-<p>Struktur foldernya menjadi seperti ini</p>
-
-<p><img src="/images/uploads/2008/09/02-project-person-build.png" title="" ></p>
-
-<p>Selanjutnya, dalam build.xml di project person-model, kita hanya perlu melakukan import saja. Isi <code>build.xml</code> menjadi seperti ini:</p>
-
-<pre><code>&lt;project name="person-model" default="build"&gt;
-
-    &lt;import file="${basedir}/../person-build/build.xml"/&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>Silahkan coba lakukan build di dalam folder <code>person-model</code>. Seharusnya modul ini bisa dibuild tanpa error, sama seperti sebelumnya.</p>
-
-<p>Bila modul person-model sudah lancar, kita bisa mulai mereplikasi modul-modul yang lainnya. Dengan semua modul sudah dibuatkan sesuai template, berikut struktur foldernya.</p>
-
-<p><img src="/images/uploads/2008/09/03-project-all.png" title="" ></p>
-
-<p>File <code>build.xml</code> di masing-masing project mirip dengan person-model, hanya dibedakan di baris pertama saja.</p>
-
-<pre><code>&lt;project name="person-model"&gt;
-</code></pre>
-
-<p>Sesuaikan dengan nama modul masing-masing.</p>
-
-<p>Persiapan template project kita sudah selesai. Sampai tahap ini, kita hanya memiliki satu source-code java, yaitu Person.java. Source-code ini akan dipaket menjadi file distribusi <code>person-model.jar</code> (binary) dan <code>person-model-sources.jar</code> (source-code). Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel selanjutnya</a>, kita akan mempublikasikan distribusi ini agar bisa digunakan oleh modul lain.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/18/">&larr; Older</a>
@@ -795,6 +793,10 @@ public class Person {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/release-management/">Release Management</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
       </li>
     
@@ -828,10 +830,6 @@ public class Person {
     
       <li class="post">
         <a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/tutorial-extjs/">Tutorial ExtJS</a>
       </li>
     
   </ul>
