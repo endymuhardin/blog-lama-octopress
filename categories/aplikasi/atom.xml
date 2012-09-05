@@ -4,7 +4,7 @@
   <title><![CDATA[Category: aplikasi | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/aplikasi/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2012-08-30T20:24:40+07:00</updated>
+  <updated>2012-09-05T11:59:57+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,119 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat dokumen dengan Markdown dan Pandoc]]></title>
+    <link href="http://software.endy.muhardin.com/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc/"/>
+    <updated>2012-09-05T11:53:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc</id>
+    <content type="html"><![CDATA[<p>Sudah lama saya mencari format yang tepat untuk membuat dokumentasi. Baik untuk menulis ebook, user manual, modul pelatihan, dan berbagai keperluan penulisan lainnya. Beberapa fitur yang saya inginkan antara lain:</p>
+
+<ol>
+<li>berbentuk text file biasa. Dengan menggunakan format text file biasa, ada beberapa keuntungan yang bisa diambil:
+
+<ul>
+<li>Bisa dikelola di version control seperti Git atau Subversion</li>
+<li>Bisa diedit di komputer, handphone, ataupun tablet</li>
+<li>Ukurannya kecil, sehingga memudahkan penyimpanan di cloud storage seperti Dropbox</li>
+</ul>
+</li>
+<li>Bisa dikonversi ke format lain, terutama pdf</li>
+<li>Mudah dipahami</li>
+<li>Bisa diwarnai dengan syntax highlighting</li>
+<li>Bisa autocomplete</li>
+</ol>
+
+
+<p>Dari empat fitur di atas, yang wajib cuma yang pertama dan kedua saja. Fitur lainnya bersifat <em>nice to have</em>, ada syukur, gak ada juga tidak terlalu masalah.</p>
+
+<!--more-->
+
+
+<p>Setelah google kesana-kemari, ada dua format yang kira-kira memenuhi syarat di atas, yaitu <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> dan <a href="http://en.wikipedia.org/wiki/DocBook">Docbook</a>. Dua-duanya mudah dipahami. Walaupun demikian, format Markdown lebih mudah diedit, karena menggunakan markup yang enak dilihat mata. Sedangkan Docbook menggunakan format XML, selain kurang WYSYWIG, juga bikin capek kelingking karena harus mengetik kurung siku terus menerus. Kurung siku ini juga menyulitkan kalau kita mengetik di handphone atau tablet.</p>
+
+<p>Jadi, disimpulkan kita akan menggunakan format Markdown saja. Ini juga sejalan dengan aplikasi yang saya gunakan untuk menulis blog, yaitu <a href="http://octopress.org/">Octopress</a>. Untuk melihat bagaimana tampilan file markdown, silahkan unduh <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/01-akses-database-spring-25.md">file contoh yang saya gunakan di bawah</a>, kemudian buka dengan text editor primitif seperti Notepad atau Gedit.</p>
+
+<p>Setelah dokumen ditulis, kita bisa melakukan konversi dengan menggunakan aplikasi bernama <a href="http://johnmacfarlane.net/pandoc/index.html">Pandoc</a>. Pandoc ini adalah aplikasi yang dibuat oleh <a href="http://johnmacfarlane.net/">John MacFarlane</a>, seorang profesor filosofi di University of California, Berkeley. Pandoc dibuat dengan bahasa pemrograman <a href="http://en.wikipedia.org/wiki/Haskell_(programming_language">Haskell</a>).</p>
+
+<h1>Instalasi Pandoc</h1>
+
+<p>Di Ubuntu, instalasinya tidak sulit, cukup jalankan perintah berikut:</p>
+
+<p><code>sudo apt-get install pandoc texlive-latex-base texlive-xetex latex-beamer</code></p>
+
+<p>Instalasi untuk Windows saya tidak tahu dan juga tidak berminat untuk cari tahu. Silahkan baca <a href="http://johnmacfarlane.net/pandoc/installing.html">petunjuk instalasi</a>.</p>
+
+<h1>Cara Pemakaian</h1>
+
+<p>Cara pakainya tidak sulit, cukup dengan perintah sederhana seperti ini:</p>
+
+<p><code>pandoc -o hasil.pdf input.md</code></p>
+
+<p>File <code>input.md</code> adalah tulisan kita dalam format markdown, sedangkan opsi <code>-o hasil.pdf</code> menunjukkan file output yang ingin dihasilkan. Pandoc cukup cerdas untuk mengetahui format output yang diinginkan dengan melihat ekstensi di nama file. Jadi, kalau kita berikan opsi <code>-o hasil.html</code>, dia akan mengkonversi tulisan kita menjadi file HTML.</p>
+
+<p>Lebih jauh tentang cara pemakaian Pandoc bisa dilihat di <a href="http://johnmacfarlane.net/pandoc/README.html">user manualnya</a>. Selain itu, kita juga bisa melihat <a href="http://johnmacfarlane.net/pandoc/demos.html">berbagai contoh pemakaian Pandoc</a> di websitenya. Beberapa contoh yang menarik diantaranya adalah cara menghasilkan slide presentasi dengan format HTML, yaitu di contoh nomer 16.</p>
+
+<h1>Customization</h1>
+
+<p>Untuk kebutuhan modul pelatihan ArtiVisi, tentu kita membutuhkan sedikit penyesuaian, yaitu:</p>
+
+<ul>
+<li>font serif diganti menjadi Droid Serif. Font serif ini biasa digunakan untuk paragraf.</li>
+<li>font sans diganti menjadi Droid Sans. Font sans biasa digunakan untuk judul.</li>
+<li>font monospace diganti menjadi Inconsolata. Font monospace biasa digunakan untuk contoh kode program.</li>
+<li>cover depan. Pandoc secara default tidak membuatkan cover depan. Kita perlu membuat template cover sendiri.</li>
+</ul>
+
+
+<p>Penyesuaian di atas dilakukan dengan cara membuat template dokumen. Template ini berbeda-beda tergantung jenis output yang akan dihasilkan.</p>
+
+<h2>Template Open Office</h2>
+
+<p>Untuk membuat template dokumen Open Office, berikut langkah-langkahnya:</p>
+
+<ol>
+<li>Generate dulu dokumen Open Office dengan perintah <code>pandoc -o hasil.odt input.md</code></li>
+<li>Buka <code>hasil.odt</code> dengan Open Office.</li>
+<li>Edit masing-masing style yang digunakan, misalnya TextBody, PreformattedText, dsb.</li>
+<li>Simpan dokumen tersebut, dan rename menjadi <code>template.odt</code></li>
+<li>Generate lagi dokumen Open Office menggunakan template tersebut dengan perintah <code>pandoc --reference-odt=template.odt -o hasil.odt input.md</code></li>
+</ol>
+
+
+<p>Cara ini saya dapatkan dari <a href="http://maketecheasier.com/use-pandoc-convert-text-to-ebook/2012/09/01">tutorial ini</a>.</p>
+
+<h2>Template PDF</h2>
+
+<p>Pandoc menghasilkan dokumen PDF secara dua tahap. Tahap pertama adalah konversi dari <code>Markdown</code> menjadi <code>LaTeX</code>. Kemudian dari format <code>LaTeX</code> akan dikonversi lagi menjadi <code>PDF</code>. Perlu diperhatikan, yang dimaksud <code>LaTeX</code> di sini adalah format penulisan dokumen, bukan bahan baku pembuatan alat kontrasepsi.</p>
+
+<p>Dengan demikian, untuk menyesuaikan output PDF, kita perlu membuat template <code>LaTeX</code>. Prof John sudah memberi tahu cara pakai template di contoh nomer 14. Di situ kita bisa mengunduh <a href="http://johnmacfarlane.net/pandoc/demo/mytemplate.tex">contoh template</a> yang dia gunakan. Contoh template ini akan menjadi titik awal kita untuk melakukan penyesuaian.</p>
+
+<p>Di contoh template tersebut, beliau sudah memasang font yang bisa dicustomize melalui opsi <code>--variable</code>. Yang kurang adalah halaman sampul (cover page). Saya menemukan <a href="http://www.latextemplates.com/">daftar template cover yang siap pakai</a>, dan juga <a href="http://en.wikibooks.org/wiki/LaTeX/Title_Creation">tutorial cara mendesain cover sendiri</a>. Untuk penyesuaian lebih lanjut, kita bisa berpedoman pada <a href="http://en.wikibooks.org/wiki/LaTeX/Command_Glossary">dokumentasi perintah Latex</a>.</p>
+
+<p>Setelah template selesai dibuat, kita bisa langsung gunakan dengan perintah sebagai berikut:</p>
+
+<p><code>sh
+pandoc --template artivisi-template.tex  --variable mainfont="Droid Serif" --variable sansfont="Droid Sans" --variable monofont="Inconsolata" --variable fontsize=12pt --variable version=1.9 --variable subtitle="Mengakses database menggunakan Spring-JDBC" --latex-engine=xelatex --toc -N -o output/coba.pdf *md
+</code></p>
+
+<p>Anda bisa melihat <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/output/coba.pdf">file PDF yang dihasilkan</a>, <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/00-cover.md">file markdown untuk cover</a>, <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/01-akses-database-spring-25.md">file markdown isi artikel</a>, dan <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/artivisi-template.tex">template LaTeX yang digunakan</a>. Atau bisa juga unduh <a href="https://nodeload.github.com/endymuhardin/belajar-pandoc/zipball/master">file zip</a> yang berisi semua file yang dibutuhkan untuk menjalankan perintah di atas.</p>
+
+<h1>Kesimpulan</h1>
+
+<p>Dengan menggunakan format berbasis text, kita bisa memperoleh keuntungan sebagai berikut:</p>
+
+<ul>
+<li>bisa diedit menggunakan aplikasi apa saja, termasuk Notepad</li>
+<li>bisa dikelola menggunakan aplikasi version control</li>
+<li>bisa diedit kapan saja dan di mana saja (menggunakan Dropbox) dengan device apa saja (handphone, tablet, komputer)</li>
+<li>penulis bisa lebih fokus pada isi artikel, tidak memusingkan urusan formatting seperti besar kecil huruf, jenis font, penomoran bab, dan hal-hal lain yang bersifat tampilan</li>
+</ul>
+
+
+<p>Aplikasi pandoc bisa digunakan untuk mengkonversi berbagai format file seperti Markdown, Docbook, LaTeX, dan sebagainya menjadi berbagai format seperti PDF, HTML, Open Office, Microsoft Word, dan sebagainya.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Terima kasih Wordpress]]></title>
@@ -621,49 +734,6 @@ ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -sk
 <p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
 
 <p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Menghapus file secara permanen di Git]]></title>
-    <link href="http://software.endy.muhardin.com/aplikasi/menghapus-file-secara-permanen-di-git/"/>
-    <updated>2011-04-03T05:06:42+07:00</updated>
-    <id>http://software.endy.muhardin.com/aplikasi/menghapus-file-secara-permanen-di-git</id>
-    <content type="html"><![CDATA[<p>Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus satu file tertentu, sebetulnya file tersebut masih ada di repository dan bisa dimunculkan kembali kapan saja.</p>
-
-<p>Hal ini menimbulkan beberapa konsekuensi, diantaranya</p>
-
-<ul>
-<li><p>Ukuran repository menjadi besar. Ini terutama sangat terasa di Git, karena pada waktu clone, kita akan mengambil keseluruhan perubahan dari pertama hingga terakhir. Berbeda dengan Subversion, dimana kita hanya mendapat perubahan terakhir saja.</p></li>
-<li><p>File-file yang mengandung informasi rahasia --seperti misalnya password-- tidak terhapus secara sempurna, sehingga bisa disalahgunakan orang lain.</p></li>
-</ul>
-
-
-<p>Untuk itu, kita perlu cara untuk menghilangkan file ini secara permanen.</p>
-
-<p>Di Git, caranya adalah menggunakan perintah <code>git filter-branch</code> seperti <a href="http://help.github.com/removing-sensitive-data/">dijelaskan di sini</a>. Walaupun demikian, tutorial tersebut tidak menjelaskan bagaimana cara menghapus folder.</p>
-
-<p>Di ArtiVisi, <a href="https://github.com/dadang">Dadang</a> dan <a href="https://github.com/donraakan">Doni</a> mengalami kejadian tersebut, dimana folder konfigurasi Eclipse (.project, .classpath, .settings) dan file hasil kompilasi Maven (target) ikut serta dicommit. Ini menyulitkan fakir bandwidth yang ingin melakukan clone, karena ukuran reponya menjadi besar sekali. Karena itu, file dan folder tersebut harus dihapus secara permanen.</p>
-
-<p>Cara menghapusnya adalah sebagai berikut.</p>
-
-<h2>Pastikan versi repository di local dan di remote sudah sama</h2>
-
-<p>Ini bisa dilakukan dengan menggunakan perintah git pull dan git push. Selanjutnya, kita masuk ke folder kerja, dan memanggil perintah berikut.</p>
-
-<p>Perintah di atas akan memodifikasi seluruh commit untuk menghilangkan file dan folder tersebut. Konsekuensinya, seluruh downline Anda akan terpaksa melakukan clone ulang, karena ini sama saja mengganti repository tersebut dengan repository baru. Akibatnya, commit, push, pull, dan merge tidak akan berjalan dengan baik.</p>
-
-<p>Periksa kembali repository Git Anda setelah melakukan perintah di atas, pastikan semuanya baik-baik saja.
-Begitu yakin, kita push ke remote.</p>
-
-<p><code>
-git push origin master --force
-</code></p>
-
-<p>Setelah melakukan perintah di atas, file yang terhapus itu masih ada di object database Git kita di local, sehingga ukuran reponya masih belum berkurang secara signifikan.
-Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakukan clone ulang dari remote.</p>
-
-<p>Demikian cara membersihkan repository dari file yang tidak sengaja dicommit. Silahkan mencoba.</p>
 ]]></content>
   </entry>
   
