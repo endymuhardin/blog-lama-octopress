@@ -78,7 +78,7 @@ Di contoh template tersebut, beliau sudah memasang font yang bisa dicustomize me
 Setelah template selesai dibuat, kita bisa langsung gunakan dengan perintah sebagai berikut:
 
 ``` sh
-pandoc --template artivisi-template.tex  --variable mainfont="Droid Serif" --variable sansfont="Droid Sans" --variable monofont="Inconsolata" --variable fontsize=12pt --variable version=1.9 --variable subtitle="Mengakses database menggunakan Spring-JDBC" --latex-engine=xelatex --toc -N -o output/coba.pdf *md
+pandoc --template artivisi-template.tex  --variable mainfont="Droid Serif" --variable sansfont="Droid Sans" --variable fontsize=12pt --variable version=1.0 --variable subtitle="Mengakses database menggunakan Spring-JDBC" --latex-engine=xelatex --toc -N -o hasil.pdf *md
 ```
 
 Anda bisa melihat [file PDF yang dihasilkan](https://raw.github.com/endymuhardin/belajar-pandoc/master/output/coba.pdf), [file markdown untuk cover](https://raw.github.com/endymuhardin/belajar-pandoc/master/00-cover.md), [file markdown isi artikel](https://raw.github.com/endymuhardin/belajar-pandoc/master/01-akses-database-spring-25.md), dan [template LaTeX yang digunakan](https://raw.github.com/endymuhardin/belajar-pandoc/master/artivisi-template.tex). Atau bisa juga unduh [file zip](https://nodeload.github.com/endymuhardin/belajar-pandoc/zipball/master) yang berisi semua file yang dibutuhkan untuk menjalankan perintah di atas.
