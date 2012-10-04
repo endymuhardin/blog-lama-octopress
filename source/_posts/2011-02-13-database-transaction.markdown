@@ -13,14 +13,12 @@ Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql
 
 
 
-> 
+> halo rekan2 dba & developer
 
-halo rekan2 dba & developer
-
-mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
-mau nanya, dalam implementasi real di aplikasi,
-contoh bussiness process/use case apa aja yang menggunakan transaction?
-kemudian contoh kasus rollbacknya gimana?
+> mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
+> mau nanya, dalam implementasi real di aplikasi,
+> contoh bussiness process/use case apa aja yang menggunakan transaction?
+> kemudian contoh kasus rollbacknya gimana?
 
 
 
@@ -30,9 +28,8 @@ Tadinya saya kurang semangat menjawab, karena asumsi saya, ini pertanyaan mendas
 
 
 
-> 
-Ada yang pernah punya pengalaman pake software accounting tanpa feature 
-transaction?
+> Ada yang pernah punya pengalaman pake software accounting tanpa feature 
+> transaction?
 
 
 
@@ -42,33 +39,33 @@ Dan jawabannya ternyata sangat mengerikan.
 
 
 > 
-yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
-dan tidak menggunakan feature transaction...
-skrng sedang garap accounting lainnya untuk perusahan dagang, dan
-sudah direncakan tanpa feature transaction.
+> yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
+> dan tidak menggunakan feature transaction...
+> skrng sedang garap accounting lainnya untuk perusahan dagang, dan
+> sudah direncakan tanpa feature transaction.
 
-yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
-oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
-dipakai, beberapa tdk dipakai karena masalah internal mereka.
-dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.
+> yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
+> oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
+> dipakai, beberapa tdk dipakai karena masalah internal mereka.
+> dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.
 
-menurut singkat saya, jika peng-handle php nya sudah cukup
-menanggulangi masalah transaksi data, tidak harus menggunakan feature
-transaction pada database nya.
-karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
-pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
-oleh beberapa user, dan juga optimize database, dengan begitu menurut
-hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
-feature transaction yg sedikit memberatkan proses data.
+> menurut singkat saya, jika peng-handle php nya sudah cukup
+> menanggulangi masalah transaksi data, tidak harus menggunakan feature
+> transaction pada database nya.
+> karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
+> pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
+> oleh beberapa user, dan juga optimize database, dengan begitu menurut
+> hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
+> feature transaction yg sedikit memberatkan proses data.
 
-oya, untuk case mengharuskan memakai feature transaction itu misalnya
-pada kasus:
-- jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
-dihapus/update/input yg mengharuskan ada link data yg juga ikut
-terupdate/terhapus/terinput
+> oya, untuk case mengharuskan memakai feature transaction itu misalnya
+> pada kasus:
+> jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
+> dihapus/update/input yg mengharuskan ada link data yg juga ikut
+> terupdate/terhapus/terinput
 
-untuk yg sudah menggunakan feature transaction, silahkan saya juga
-menunggu tanggapan dan pengalamannya.
+> untuk yg sudah menggunakan feature transaction, silahkan saya juga
+> menunggu tanggapan dan pengalamannya.
 
 
 
