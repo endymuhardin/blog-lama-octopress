@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2012-10-08T14:52:11+07:00</updated>
+  <updated>2012-10-08T14:53:30+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -60,23 +60,7 @@ Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilka
 
 <p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
 
-<p><div><script src='https://gist.github.com/3205393.js?file='></script>
-<noscript><pre><code># by default, levelnya adalah INFO, tampilkan ke System.out
-log4j.rootLogger=INFO,Konsole 
-
-# untuk package com.artivisi, tampilkan level DEBUG ke System.out
-log4j.logger.com.artivisi=DEBUG,Konsole
-
-# untuk spring, error saja yang ditampilkan
-log4j.logger.org.springframework=ERROR,Konsole
-
-# Appender Konsole adalah System.out
-log4j.appender.Konsole=org.apache.log4j.ConsoleAppender 
-log4j.appender.Konsole.layout=org.apache.log4j.PatternLayout 
-# Format tanggal menurut ISO­8601 : %d 
-log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
-</code></pre></noscript></div>
-</p>
+<p>{% gist 3205393 %}</p>
 
 <p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
 ]]></content>
@@ -242,60 +226,21 @@ log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
 
 <p>Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut :</p>
 
-<p><div><script src='https://gist.github.com/3192086.js?file=pom.xml'></script>
-<noscript><pre><code>&lt;dependency&gt;
-	&lt;groupId&gt;net.bull.javamelody&lt;/groupId&gt;
-	&lt;artifactId&gt;javamelody-core&lt;/artifactId&gt;
-	&lt;version&gt;1.39.0&lt;/version&gt;
-&lt;/dependency&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192086 pom.xml %}</p>
 
 <p>Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml</p>
 
-<p><div><script src='https://gist.github.com/3192086.js?file=applicationContext.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;facadeMonitoringAdvisor&quot; 
-      class=&quot;net.bull.javamelody.MonitoringSpringAdvisor&quot;&gt;
-	&lt;property name=&quot;pointcut&quot;&gt;
-		&lt;bean class=&quot;net.bull.javamelody.MonitoredWithInterfacePointcut&quot;&gt;
-			&lt;property name=&quot;interfaceName&quot;
-			          value=&quot;com.artivisi.belajar.restful.service.MonitoredService&quot; 
-	                /&gt;
-		&lt;/bean&gt;
-	&lt;/property&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192086 applicationContext.xml %}</p>
 
 <p>Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut</p>
 
-<p><div><script src='https://gist.github.com/3192086.js?file=web.xml'></script>
-<noscript><pre><code>&lt;context-param&gt;
-	&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-	&lt;param-value&gt;
-		classpath:net/bull/javamelody/monitoring-spring.xml
-        classpath*:com/artivisi/**/applicationContext.xml
-    &lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;listener&gt;
-	&lt;listener-class&gt;net.bull.javamelody.SessionListener&lt;/listener-class&gt;
-&lt;/listener&gt;
-
-&lt;!-- Monitor aplikasi menggunakan javamelody --&gt;
-&lt;filter&gt;
-	&lt;filter-name&gt;monitoring&lt;/filter-name&gt;
-	&lt;filter-class&gt;net.bull.javamelody.MonitoringFilter&lt;/filter-class&gt;
-&lt;/filter&gt;
-&lt;filter-mapping&gt;
-	&lt;filter-name&gt;monitoring&lt;/filter-name&gt;
-	&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192086 web.xml %}</p>
 
 <p>Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring.</p>
 
 <p>Berikut adalah screenshotnya.</p>
 
-<p><img src="/images/uploads/2012/07/JavaMelody-Charts.png" title="JavaMelody-Charts" ></p>
+<p>{% img /images/uploads/2012/07/JavaMelody-Charts.png JavaMelody-Charts %}</p>
 
 <h2>Mengaktifkan MBean</h2>
 
@@ -310,61 +255,34 @@ log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
 
 <p>Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut :</p>
 
-<p><div><script src='https://gist.github.com/3192099.js?file=hibernate-statistics.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;sessionFactory&quot;
-	class=&quot;org.springframework.orm.hibernate4.LocalSessionFactoryBean&quot;
-	p:dataSource-ref=&quot;dataSource&quot;&gt;
-	&lt;property name=&quot;hibernateProperties&quot;&gt;
-		&lt;props&gt;
-			&lt;prop key=&quot;hibernate.generate_statistics&quot;&gt;true&lt;/prop&gt;
-		&lt;/props&gt;
-	&lt;/property&gt;
-	&lt;property name=&quot;packagesToScan&quot; value=&quot;com.artivisi.belajar.restful.domain&quot; /&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192099 hibernate-statistics.xml %}</p>
 
 <p>Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean.</p>
 
-<p><div><script src='https://gist.github.com/3192099.js?file=hibernateMBean.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;hibernateStatisticsMBean&quot; class=&quot;org.hibernate.jmx.StatisticsService&quot;&gt;
-	&lt;property name=&quot;sessionFactory&quot; ref=&quot;sessionFactory&quot; /&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192099 hibernateMBean.xml %}</p>
 
-<p><div><script src='https://gist.github.com/3192099.js?file=mbeanExporter.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;mbeanExporter&quot; class=&quot;org.springframework.jmx.export.MBeanExporter&quot;&gt;
-  &lt;property name=&quot;beans&quot;&gt;
-    &lt;map&gt;
-      &lt;entry 
-        key=&quot;SpringBeans:name=hibernateStatisticsMBean&quot; 
-        value-ref=&quot;hibernateStatisticsMBean&quot; /&gt;
-    &lt;/map&gt;
-  &lt;/property&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192099 mbeanExporter.xml %}</p>
 
 <p>Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru</p>
 
-<p><div><script src='https://gist.github.com/3192099.js?file=mbean-server.xml'></script>
-<noscript><pre><code>&lt;context:mbean-server/&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 3192099 mbean-server.xml %}</p>
 
 <p>Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb.
 Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
 
 <p>Jalankan JConsole, dan pilih proses yang akan dimonitor.</p>
 
-<p><img src="/images/uploads/2012/07/jconsole-select-pid.png" title="jconsole-select-pid" ></p>
+<p>{% img /images/uploads/2012/07/jconsole-select-pid.png jconsole-select-pid %}</p>
 
 <p>Tampilkan MBean Hibernate Statistics</p>
 
-<p><img src="/images/uploads/2012/07/jconsole-hibernate-statistics.png" title="jconsole-hibernate-statistics" ></p>
+<p>{% img /images/uploads/2012/07/jconsole-hibernate-statistics.png jconsole-hibernate-statistics %}</p>
 
 <p>Kita bisa lihat bahwa statistik Hibernate sudah dapat diakses. Informasi ini juga bisa ditampilkan di aplikasi monitoring seperti OpenNMS, Hyperic, dan aplikasi lain yang support JMX.</p>
 
 <p>Selain itu, kalau kita sudah mengaktifkan JavaMelody seperti dijelaskan di atas, MBean ini juga bisa ditampilkan di url yang sama seperti screenshot di bawah</p>
 
-<p><img src="/images/uploads/2012/07/javamelody-mbeans.png" title="javamelody-mbeans" ></p>
+<p>{% img /images/uploads/2012/07/javamelody-mbeans.png javamelody-mbeans %}</p>
 
 <h2>Kesimpulan</h2>
 
@@ -415,15 +333,11 @@ Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
 
 <p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
-<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 maven-profile.sh %}</p>
 
 <p>atau</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
-<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 maven-env-var.sh %}</p>
 
 <p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
 
@@ -445,94 +359,25 @@ Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
 
 
 <p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
-<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
-jdbc.username = kasbon
-jdbc.password = kasbon</code></pre></noscript></div>
-</p>
+{% gist 1134126 jdbc.properties %}</p>
 
 <p>Kemudian, ini file jdbc.testing.properties :</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
-jdbc.username = root
-jdbc.password = admin</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 jdbc.testing.properties %}</p>
 
 <p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
 
 <p>Terakhir, jdbc.production.properties</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
-jdbc.username = root
-jdbc.password = admin</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 jdbc.production.properties %}</p>
 
 <p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-	xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
-	xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
-
-	&lt;context:property-placeholder location=&quot;
-	classpath*:jdbc.properties,
-	classpath*:jdbc.${stage}.properties
-	&quot; /&gt;
-
-	&lt;tx:annotation-driven /&gt;
-
-	&lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
-		destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
-		p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
-		p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
-
-	&lt;bean id=&quot;transactionManager&quot;
-		class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
-		p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
-
-
-	&lt;bean id=&quot;sessionFactory&quot;
-		class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
-		p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
-		&lt;property name=&quot;hibernateProperties&quot;&gt;
-			&lt;props&gt;
-				&lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
-			&lt;/props&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-
-	&lt;bean id=&quot;messageSource&quot;
-		class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
-		&lt;property name=&quot;basenames&quot;&gt;
-			&lt;list&gt;
-				&lt;value&gt;messages&lt;/value&gt;
-			&lt;/list&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-
-&lt;/beans&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 applicationContext.xml %}</p>
 
 <p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
-<noscript><pre><code>&lt;context:property-placeholder location=&quot;
-	classpath*:jdbc.properties, 
-	classpath*:jdbc.${stage}.properties
-&quot; /&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 context-loading.xml %}</p>
 
 <p>Di sana kita melihat ada variabel ${stage}.
 Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
@@ -553,21 +398,15 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 
 <p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
-<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 startup.sh %}</p>
 
 <p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
-<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 mvn-jetty-run.sh %}</p>
 
 <p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
-<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 linux-env-var.sh %}</p>
 
 <h2>Konfigurasi Logger</h2>
 
@@ -594,33 +433,11 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 
 <p>Berikut isi file logback.xml.</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;configuration&gt;
-
-	&lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
-		&lt;encoder&gt;
-			&lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
-		&lt;/encoder&gt;
-	&lt;/appender&gt;
-
-	&lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
-		&lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
-		&lt;encoder&gt;
-			&lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
-		&lt;/encoder&gt;
-	&lt;/appender&gt;
-
-	&lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
-
-&lt;/configuration&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 logback.xml %}</p>
 
 <p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
 
-<p><div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
-<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
-</p>
+<p>{% gist 1134126 logback-variable.txt %}</p>
 
 <p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
 
@@ -810,10 +627,7 @@ Jauh lebih efisien.</p>
 
 <p>Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project.</p>
 
-<p><div><script src='https://gist.github.com/794650.js?file=folder-structure.sh'></script>
-<noscript><pre><code>mkdir -p project-contoh/com.artivisi.contoh.{config,domain,service.impl,ui.springmvc,ui.web}/src/{main,test}/{java,resources}
-mkdir -p project-contoh/com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</code></pre></noscript></div>
-</p>
+<p>{% gist 794650 folder-structure.sh %}</p>
 
 <p>Outputnya bisa kita lihat sebagai berikut</p>
 
@@ -865,114 +679,11 @@ mkdir -p project-contoh/com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</code
 <p>Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle.
 Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle</p>
 
-<p><div><script src='https://gist.github.com/794650.js?file=settings.gradle'></script>
-<noscript><pre><code>include &quot;com.artivisi.contoh.config&quot;
-include &quot;com.artivisi.contoh.domain&quot;
-include &quot;com.artivisi.contoh.service.impl&quot;
-include &quot;com.artivisi.contoh.ui.springmvc&quot;
-include &quot;com.artivisi.contoh.ui.web&quot;</code></pre></noscript></div>
-</p>
+<p>{% gist 794650 settings.gradle %}</p>
 
 <p>Dan ini build file Gradle.</p>
 
-<p><div><script src='https://gist.github.com/794650.js?file=build.gradle'></script>
-<noscript><pre><code>springVersion = &quot;3.0.5.RELEASE&quot;
-springSecurityVersion = &quot;3.0.5.RELEASE&quot;
-slf4jVersion = &quot;1.6.1&quot;
-logbackVersion = &quot;0.9.27&quot;
-jodaTimeVersion = &quot;1.6.2&quot;
-sourceCompatibility = 1.6
- 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'eclipse'
- 
-    configurations {
-        all*.exclude group: &quot;commons-logging&quot;, module: &quot;commons-logging&quot;
-    }
- 
-    repositories {
-        mavenCentral()
-    }
- 
-    dependencies {
-        compile &quot;org.slf4j:jcl-over-slf4j:$slf4jVersion&quot;,
-                &quot;org.slf4j:jul-to-slf4j:$slf4jVersion&quot;
-                
-        runtime &quot;joda-time:joda-time:$jodaTimeVersion&quot;        
-                
-        runtime &quot;ch.qos.logback:logback-classic:$logbackVersion&quot;
-  
-        testCompile 'junit:junit:4.7'
-    }
- 
-    group = 'com.artivisi.contoh'
-    version = '1.0-SNAPSHOT'
-    sourceCompatibility = 1.6
-    
-    task wrapper(type: Wrapper) {
-        gradleVersion = '0.9.1'
-        jarFile = 'wrapper/wrapper.jar'
-    }
-}
-
-project('com.artivisi.contoh.domain') {
-    dependencies { 
-        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
-     
-        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
-                &quot;org.springframework:spring-orm:$springVersion&quot;,
-                &quot;org.springframework:spring-jdbc:$springVersion&quot;
-                
-     
-    }
-}
-
-project('com.artivisi.contoh.service.impl') {
-    dependencies { 
-        compile project(':com.artivisi.contoh.domain')
-        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
-     
-        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
-                &quot;org.springframework:spring-orm:$springVersion&quot;,
-                &quot;org.springframework:spring-jdbc:$springVersion&quot;
-                
-     
-    }
-}
-
-project('com.artivisi.contoh.ui.springmvc') {
-    dependencies {
-        compile project(':com.artivisi.contoh.service.impl')
-     
-        compile &quot;org.springframework:spring-webmvc:$springVersion&quot;,
-                &quot;org.springframework:spring-aop:$springVersion&quot;
-     
-        compile &quot;org.springframework.security:spring-security-web:$springSecurityVersion&quot;,
-                &quot;org.springframework.security:spring-security-config:$springSecurityVersion&quot;
-     
-        compile &quot;javax.validation:validation-api:1.0.0.GA&quot;,
-                &quot;org.hibernate:hibernate-validator:4.0.2.GA&quot;
-     
-    }
-}
-
-project('com.artivisi.contoh.ui.web') {
-    apply plugin: 'war'
-    apply plugin: 'jetty'
-     
-    dependencies {
-        compile project(':com.artivisi.contoh.ui.springmvc')
-        runtime project(':com.artivisi.contoh.config')
-      
-        runtime &quot;javax.servlet:jstl:1.1.2&quot;,
-                &quot;taglibs:standard:1.1.2&quot;,
-                &quot;opensymphony:sitemesh:2.4.2&quot;
-     
-        providedCompile &quot;javax.servlet:servlet-api:2.5&quot;
-    }
-}</code></pre></noscript></div>
-</p>
+<p>{% gist 794650 build.gradle %}</p>
 
 <p>Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project.</p>
 
@@ -983,9 +694,7 @@ project('com.artivisi.contoh.ui.web') {
 
 <p>dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini.</p>
 
-<p><div><script src='https://gist.github.com/794650.js?file=export-eclipse.sh'></script>
-<noscript><pre><code>for d in */; do cd &quot;$d&quot;; gradle eclipse; cd ..; done</code></pre></noscript></div>
-</p>
+<p>{% gist 794650 export-eclipse.sh %}</p>
 
 <p>Untung saja pakai linux, jadi bisa coding di command prompt :D</p>
 
@@ -1008,118 +717,33 @@ gradle jetty
 </code></pre>
 
 <p>Outputnya bisa kita lihat di browser, dengan port 8080.
-<img src="/images/uploads/2011/01/jetty-run-300x216.png" title="" ></p>
+{% img /images/uploads/2011/01/jetty-run-300x216.png  %}</p>
 
 <p>Di situ ada link menuju aplikasi kita. Silahkan diklik.
-<img src="/images/uploads/2011/01/klik-context-path-300x214.png" title="" ></p>
+{% img /images/uploads/2011/01/klik-context-path-300x214.png  %}</p>
 
 <p>Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</p>
 
-<p><div><script src='https://gist.github.com/794650.js?file=web.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;web-app version=&quot;2.5&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;
-	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-	xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;&gt;
-
-	&lt;!-- Reads request input using UTF-8 encoding --&gt;
-	&lt;filter&gt;
-		&lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
-		&lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
-		&lt;init-param&gt;
-			&lt;param-name&gt;encoding&lt;/param-name&gt;
-			&lt;param-value&gt;UTF-8&lt;/param-value&gt;
-		&lt;/init-param&gt;
-		&lt;init-param&gt;
-			&lt;param-name&gt;forceEncoding&lt;/param-name&gt;
-			&lt;param-value&gt;true&lt;/param-value&gt;
-		&lt;/init-param&gt;
-	&lt;/filter&gt;
-
-	&lt;filter-mapping&gt;
-		&lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
-		&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-	&lt;/filter-mapping&gt;
-	
-	&lt;!-- Handles all requests into the application --&gt;
-	&lt;servlet&gt;
-		&lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-		&lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-		&lt;init-param&gt;
-			&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-			&lt;param-value&gt;
-				/WEB-INF/springmvc-context.xml
-			&lt;/param-value&gt;
-		&lt;/init-param&gt;
-		&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-	&lt;/servlet&gt;
-
-	&lt;servlet-mapping&gt;
-		&lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-		&lt;url-pattern&gt;/&lt;/url-pattern&gt;
-	&lt;/servlet-mapping&gt;
-
-&lt;/web-app&gt;</code></pre></noscript></div>
-</p>
+<p>{% gist 794650 web.xml %}</p>
 
 <p>Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml</p>
 
-<p><div><script src='https://gist.github.com/794650.js?file=springmvc-context.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-	xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-	xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
-	xsi:schemaLocation=&quot;http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
-
-	&lt;!-- Scans the classpath of this application for @Components to deploy as beans --&gt;
-	&lt;context:component-scan base-package=&quot;com.artivisi.contoh.ui.web&quot; /&gt;
-
-	&lt;!-- Configures the @Controller programming model --&gt;
-	&lt;mvc:annotation-driven /&gt;
-	
-	&lt;!-- mengganti default servletnya Tomcat dan Jetty --&gt;
-	&lt;!-- ini diperlukan kalau kita mapping DispatcherServlet ke / --&gt;
-	&lt;!-- sehingga tetap bisa mengakses folder selain WEB-INF, misalnya img, css, js --&gt;
-	&lt;mvc:default-servlet-handler/&gt;
-
-	&lt;!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources/ directory --&gt;
-	&lt;mvc:resources mapping=&quot;/resources/**&quot; location=&quot;/resources/&quot; /&gt;
-
-	&lt;!-- Application Message Bundle --&gt;
-	&lt;bean id=&quot;messageSource&quot; class=&quot;org.springframework.context.support.ReloadableResourceBundleMessageSource&quot;&gt;
-		&lt;property name=&quot;basename&quot; value=&quot;/WEB-INF/messages/messages&quot; /&gt;
-		&lt;property name=&quot;cacheSeconds&quot; value=&quot;0&quot; /&gt;
-	&lt;/bean&gt;
-
-	&lt;!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory --&gt;
-	&lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;
-		&lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/templates/jsp/&quot;/&gt;
-		&lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;/&gt;
-	&lt;/bean&gt;
-	
-	&lt;!-- Forwards requests to the &quot;/&quot; resource to the &quot;hello&quot; view --&gt;
-	&lt;mvc:view-controller path=&quot;/&quot; view-name=&quot;hello&quot;/&gt;
-
-&lt;/beans&gt;
-</code></pre></noscript></div>
-</p>
+<p>{% gist 794650 springmvc-context.xml %}</p>
 
 <p>Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import.</p>
 
 <p>Pertama, arahkan workspace ke folder project-contoh.
-<img src="/images/uploads/2011/01/01-pilih-workspace-300x154.png" title="" ></p>
+{% img /images/uploads/2011/01/01-pilih-workspace-300x154.png  %}</p>
 
 <p>Setelah Eclipse terbuka, kita pilih menu Import Project, untuk membuka 4 project yang tadi sudah kita buat.
-<img src="/images/uploads/2011/01/02-import-existing-300x272.png" title="" ></p>
+{% img /images/uploads/2011/01/02-import-existing-300x272.png  %}</p>
 
 <p>Pilih folder induknya.
-<img src="/images/uploads/2011/01/03-select-root-directory-272x300.png" title="" ></p>
+{% img /images/uploads/2011/01/03-select-root-directory-272x300.png  %}</p>
 
 <p>Selesai, semua project kita bisa dibuka. Bahkan kita bisa menjalankan project ui.web dengan cara klik kanan Run in Server. Ini bisa dilihat dari icon project tersebut yang berbentuk bola dunia.</p>
 
-<p><img src="/images/uploads/2011/01/04-import-result-300x139.png" title="" ></p>
+<p>{% img /images/uploads/2011/01/04-import-result-300x139.png  %}</p>
 
 <p>Selesai sudah, mari kita <a href="http://endy.artivisi.com/blog/aplikasi/sharing-repository-git/">share dengan rekan yang lain</a>.</p>
 ]]></content>
