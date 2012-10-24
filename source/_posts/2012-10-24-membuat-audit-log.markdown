@@ -15,6 +15,7 @@ Dalam membuat aplikasi bisnis, kita sering diminta membuat audit log.
 
 Audit log adalah catatan mengenai perubahan data dalam aplikasi.
 Yang dicatat biasanya : 
+
 - kolom mana yang berubah
 - siapa yang mengubah
 - diubah dari apa menjadi apa
