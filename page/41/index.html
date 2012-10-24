@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="JFreeChart adalah library untuk menghasilkan chart dengan Java. Berbagai chart bisa dihasilkan, dari Pie Chart, Bar Chart, dan sebagainya. Pada &hellip;">
+  <meta name="description" content="Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,216 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/eclipse-birt/">Menggunakan Eclipse BIRT [Bagian 1]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-29T16:54:11+07:00" pubdate data-updated="true">Sep 29<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk membuat laporan dari sumber data yang sudah ada.</p>
+
+<p>Cara kerjanya sederhana. Bagi yang belum pernah menggunakan aplikasi reporting dan ingin memahaminya secara sederhana, dapat menggunakan fasilitas mail merge yang dimiliki aplikasi <em>office</em> seperti Microsoft Word atau OpenOffice Writer.</p>
+
+<p>Intinya, kita membuat satu template. Di dalam template tersebut kita isikan variabel-variabel yang kita ingin tampilkan. Pada saat dijalankan (runtime), variabel ini akan digantikan oleh template processor dengan data yang diambil dari sumber data eksternal.</p>
+
+<p>Contoh umum penggunaan fasilitas mail merge adalah untuk mencetak label alamat pada undangan. Kita definisikan variabel yang akan tampil, misalnya:</p>
+
+<ul>
+<li>Nama</li>
+<li>Alamat</li>
+<li>Kota</li>
+</ul>
+
+
+<p>Kemudian, kita sediakan file lain di spreadsheet (MS Excel atau OO Calc) yang memuat data tersebut. Data yang disimpan bisa saja ratusan atau ribuan. Untuk Open Office, database yang digunakan tidak hanya dari spreadsheet, tapi bisa juga dari <em>database betulan</em> seperti MySQL atau Oracle.</p>
+
+<p>Setelah template dan data siap, aplikasi dijalankan untuk melakukan <em>merge</em>. Hasilnya adalah ratusan label yang sudah terisi dengan data dari database.</p>
+
+<p>Logika yang sama digunakan oleh perlengkapan reporting seperti Crystal Report dan kompetitor lainnya. Biasanya template dibuat dalam format XML. Selanjutnya, prosesnya sama. Desain templatenya, kemudian siapkan datanya.</p>
+
+<p>Saya tidak akan membahas Crystal Report di sini. Kita akan membahas aplikasi reporting yang gratis, yaitu <a href="http://www.eclipse.org/birt" title="BIRT Homepage">Eclipse BIRT</a>. Sebagai bagian dari Eclipse, aplikasi ini gratis dan berkualitas tinggi.</p>
+
+<p>Fitur BIRT juga tidak kalah dengan aplikasi reporting lain, diantaranya adalah:</p>
+
+<ol>
+<li>Berbagai pilihan datasource; RDBMS, XML, Text File, dan lain-lain. Lain-lain maksudnya di sini adalah sumber lain yang dapat diakses melalui scripting language BIRT.</li>
+<li>Berbagai pilihan output; PDF, XLS, CSV, HTML, XML adalah format yang didukung. Untuk format lain, asalkan berbasis text, bisa menggunakan output XML yang kemudian diproses lagi menggunakan XSLT.</li>
+<li>Berbagai pilihan integrasi. BIRT dapat dijalankan sebagai standalone report server, atau juga diembed (digabungkan) dengan aplikasi kita. Bila dijalankan sebagai standalone server, BIRT dapat berkomunikasi dengan aplikasi dengan bahasa pemrograman yang berbeda, misalnya PHP, Ruby, .Net, atau yang lainnya.</li>
+<li>Visual Designer. Eclipse sudah melengkapi BIRT dengan database explorer, drag-and-drop query builder, dan fitur canggih lainnya. Kita akan lihat fitur ini dalam screenshot di bawah.</li>
+<li>Integrated dengan IDE. Bila kita menggunakan Java, kita bisa coding di Eclipse, dan membuat report di Eclipse juga. Jadi tidak perlu menggunakan beberapa tools yang berbeda.</li>
+</ol>
+
+
+<p>Baiklah, mari kita coba saja.</p>
+
+<p>Pertama, kita harus donlod dulu dari <a href="http://www.eclipse.org/birt" title="Homepage BIRT">homepagenya</a>. Ukurannya relatif besar, sekitar 200 MB. Tapi jangan khawatir, ada mirrornya di <a href="http://anak.kambing.vlsm.org" title="Mirror Kambing">server Universitas Indonesia</a>. Kalau kita sudah punya Eclipse terbaru, bisa langsung gunakan fitur updatenya. Jalankan downloadnya sebelum pulang kantor. Dengan demikian, besok pagi ketika kita datang, BIRT sudah terinstal.</p>
+
+<p>Setelah terinstal, kita bisa langsung menggunakannya. BIRT terinstal lengkap bersama contoh database. <a href="http://www.eclipse.org/birt/phoenix/tutorial/basic/index.php" title="Cara penggunaan BIRT">Tutorial cara penggunaannya</a> juga cukup jelas dan lengkap. Sayangnya tidak ada screenshotnya. Jangan khawatir, pada artikel ini, saya akan sediakan screenshotnya.</p>
+
+<p>Berikut adalah tampilan Eclipse pada saat sudah dijalankan.</p>
+
+<p><img src="/images/uploads/2006/09/eclipse.png" title="Eclipse Interface" ></p>
+
+<p>Selanjutnya, kita langsung membuat project baru. Klik File > New, kemudian pilih Report Project</p>
+
+<p><img src="/images/uploads/2006/09/new-report-project.png" title="Create Report Project" ></p>
+
+<p>Beri nama projectnya. Kemudian klik Next. Eclipse akan menanyakan apakah kita ingin bekerja dalam Report Perspective. Jawab saja Yes.</p>
+
+<p>Report perspective tampil seperti screenshot berikut</p>
+
+<p><img src="/images/uploads/2006/09/eclipse-report.png" title="Report Perspective" ></p>
+
+<p>Perhatikan di sebelah kiri ada tiga tab : Pallete, Data Explorer, dan Library. Kita akan gunakan tab ini untuk mendesain report.</p>
+
+<p>Kemudian, mari kita buat report pertama kita. Datasource yang akan digunakan sudah disediakan Eclipse sebagai database sample. Sesuai tutorial Eclipse, kita akan membuat laporan yang berisi daftar nama pelanggan, dikelompokkan berdasarkan provinsi (State) dan kota (City).</p>
+
+<p>Untuk membuat report baru, klik File > New > Report. Kalau pilihan Report belum ada, pilih Others dan cari di daftar yang tersedia, dalam kategori Business Intelligence and Reporting Tools.</p>
+
+<p><img src="/images/uploads/2006/09/new-report.png" title="Create Report" ></p>
+
+<p>Beri nama reportnya</p>
+
+<p><img src="/images/uploads/2006/09/new-report-1.png" title="Define Report" ></p>
+
+<p>Kemudian pilih templatenya. Supaya lebih seru, kita akan gunakan Blank Template</p>
+
+<p><img src="/images/uploads/2006/09/new-report-blank2.png" title="Blank Template" ></p>
+
+<p>Selanjutnya, template report kita tampil di layar dalam Design View. Kita dapat berganti ke berbagai view melalui tab di bawah editor report.</p>
+
+<p>Setelah report tampil, kita dapat menambahkan label. Tambahkan saja satu label untuk judul, yaitu Laporan Data Pelanggan. Jenis huruf, rata tengah, dan setting lainnya dapat dilakukan melalui toolbar yang ada di bagian bawah.</p>
+
+<p><img src="/images/uploads/2006/09/report-design-label.png" title="Add Label" ></p>
+
+<p>Sebelum melangkah lebih jauh, kita perlu mendefinisikan Data Source untuk report ini. Buat Data Source baru melalui panel sebelah kiri.</p>
+
+<p><img src="/images/uploads/2006/09/report-datasource-new.png" title="Create DataSource" ></p>
+
+<p>Pilihan datasource akan muncul. Kita akan menggunakan database sample yang sudah ada. Untuk project betulan, kita dapat gunakan database atau sumber data yang lainnya.</p>
+
+<p><img src="/images/uploads/2006/09/report-datasource-new-1.png" title="Select DataSource" ></p>
+
+<p>Beri nama Sample di kolom Data Source Name, kemudian klik Finish.</p>
+
+<p>Dari datasource yang ada, kita dapat mendefinsikan Data Set. Data Set ini adalah sebagian dari isi Data Source yang akan kita gunakan dalam report.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new.png" title="Create Dataset" ></p>
+
+<p>Muncul pilihan datasource dan jenis data set. Kita bisa menggunakan lebih dari satu datasource dalam satu report. Untuk kali ini, cuma ada satu data source. Pilih tipe data set SQL Select Query. Jangan lupa beri nama yang deskriptif untuk dataset yang dibuat.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-1.png" title="Create Dataset" ></p>
+
+<p>Setelah kita tekan Next, akan muncul database explorer di panel kiri, dan SQL editor di kanan. Kita dapat melakukan drag and drop pada layar ini.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-2.png" title="Database Explorer" ></p>
+
+<p>Edit SQL menjadi seperti ini:</p>
+
+<pre><code>select * 
+from
+</code></pre>
+
+<p>Kemudian drag-and-drop tabel Customer ke sebelah kanan <em>from</em>, sehingga kodenya menjadi seperti ini:</p>
+
+<pre><code>select * 
+from CLASSICMODELS.CUSTOMERS
+</code></pre>
+
+<p>Klik Next. Selanjutnya muncul Data Set Editor.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-3.png" title="DataSet Editor" ></p>
+
+<p>Kita tidak melakukan perubahan apa-apa di sini. Tapi bila ingin tahu apa isi tabelnya, kita dapat melihat <em>Preview Result</em> seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-4.png" title="Preview DataSet" ></p>
+
+<p>Klik OK. Dataset siap digunakan.</p>
+
+<p>Selanjutnya, kita akan tampilkan data pelanggan dalam bentuk tabel. Pilih Table di Pallete, dan letakkan di report. Kita akan tampilkan 4 kolom dan 1 baris detail. Kolom yang nantinya akan ditampilkan adalah:</p>
+
+<ol>
+<li>Provinsi</li>
+<li>Kota</li>
+<li>Nama Pelanggan</li>
+<li>Nomer Telepon</li>
+</ol>
+
+
+<p>Tampilan yang dihasilkan adalah seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-1.png" title="Initial Table" ></p>
+
+<p>Dari seluruh data pelanggan yang ada, kita akan kelompokkan berdasarkan provinsi, kemudian kota. Untuk itu, kita tambahkan Group di tabel. Caranya, klik tombol pemilih tabel, kemudian klik kanan di baris detail.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-2.png" title="Insert Group" ></p>
+
+<p>Group Editor akan muncul. Beri nama State, kemudian klik OK.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-3.png" title="Group Editor" ></p>
+
+<p>Hasilnya akan tampak seperti ini</p>
+
+<p><img src="/images/uploads/2006/09/report-table-4.png" title="Group by State" ></p>
+
+<p>Untuk mengisikan State ke Group Row tersebut, drag-and-drop dari panel kiri ke kolom <em>paling kiri</em> di baris Group Header Row. Layar Select Data Binding akan muncul, langsung saja klik OK.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-5.png" title="State Data Binding" ></p>
+
+<p>Kita perlu memasukkan Group Row satu lagi untuk City. Caranya sama, yaitu dengan menambahkan Group Row di <em>bawah</em> Group Header State.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-6.png" title="Insert Group Below" ></p>
+
+<p>Beri nama City, kemudian klik OK. Lalu pilih field city dari Data Explorer di sebelah kiri, dan pasang di kolom kedua di Group Header Row 2. Hasilnya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-7.png" title="Group by City" ></p>
+
+<p>Terakhir, masukkan field CUSTOMERNAME dan PHONE ke Detail Row. Kolom judul CUSTOMERNAME kurang enak dibaca, jadi kita bisa ganti labelnya di baris paling atas menjadi Customer Name. Hasil akhirnya adalah seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-8.png" title="Final Design" ></p>
+
+<p>Report kita sudah selesai. Silahkan disave, kemudian lihat previewnya. Kalau semua dilakukan dengan benar, kita akan melihat tampilan seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-9.png" title="Report Preview" ></p>
+
+<p>Kita akan lihat bahwa data pelanggan sudah diurutkan dan dikelompokkan berdasarkan State dan City.</p>
+
+<p>Kalau kita tekan menu <em>File</em>, kita akan menemui pilihan View Report in Web Viewer, as HTML, dan as PDF. Silahkan gunakan sesuai kebutuhan.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-10.png" title="Export Format HTML PDF" ></p>
+
+<p>Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -443,69 +653,6 @@ Mari kita coba jalankan file installer tersebut.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/tapestry-vs-spring/">Tapestry vs Spring MVC</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-09-27T15:13:51+07:00" pubdate data-updated="true">Sep 27<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Dalam beberapa project terakhir, saya menggunakan <a href="http://www.springframework.org" title="Spring Framework">Spring</a> MVC untuk membuat presentation layer. Spring sangat fleksibel dan mudah dipelajari. Ini menambah fleksibilitas dalam menyusun tim programmer. Dengan kemudahannya, programmer yang sudah pernah membuat aplikasi web &#8211;baik menggunakan Struts, PHP, Ruby on Rails, atau bahkan yang cuma mengerti servlet&#8211; dapat beradaptasi dalam hitungan hari dan langsung produktif.</p>
-
-<p>Di lain pihak, saya sering sekali mendengar kehebatan <a href="http://tapestry.apache.org" title="Tapestry Framework">Tapestry</a>. Para pendukungnya menggembar-gemborkan peningkatan produktifitas (baca: kecepatan membuat aplikasi) yang signifikan. Harga yang harus dibayar untuk produktifitas tersebut adalah kompleksitas. Tapestry terkenal sulit. Dia menggunakan paradigma event-driven. Jadi kita harus berpikir seolah-olah kita membangun aplikasi desktop dengan Swing atau VB. Kompleksitas ini menyebabkan kita tidak bisa sembarangan menyusun tim programmer. Butuh orang yang pemahaman Java-nya menengah ke atas agar aplikasi dapat diselesaikan dengan baik.</p>
-
-<p>Setelah merasa nyaman menggunakan Spring di beberapa project terakhir, saya putuskan untuk keluar dari zona aman dan belajar Tapestry. Masa depan aplikasi web nampaknya adalah component-mania. Berbagai komponen siap pakai yang tersedia di pasaran (baik gratis maupun bayar) yang tinggal kita tempelkan di aplikasi kita, akan menjadi trend. Terutama dengan maraknya penggunaan Ajax belakangan ini. Pasti akan banyak orang yang membuat komponen Ajax-ready yang bisa langsung digunakan.</p>
-
-<p>Prediksi ini diperkuat dengan presentasi Chuk Mun Lee di Sun Developer Day 2006 kemarin. Dia menunjukkan bagaimana cepatnya orang bisa membuat aplikasi web. Cukup mendownload kumpulan komponen dari <a href="https://ajax.dev.java.net" title="Ajax-based component">jMaki</a>, dan langsung <em>menggambar</em> di IDE. Kalau para pesaing bekerja seperti ini, sementara kita masih secara manual memparsing request, wah &#8230; kita akan ketinggalan.</p>
-
-<p>Sebagai titik awal pelajaran, saya akan mulai dari Spring Framework. Ada beberapa kegiatan utama dalam pembangunan aplikasi web yang terjadi berulang-ulang. Dalam membandingkan Spring vs Tapestry, kegiatan-kegiatan ini akan menjadi kriteria penilaian. Dalam setiap kegiatan, saya akan memberi nilai dan menyatakan pemenangnya. Masing-masing kegiatan bobotnya berbeda, tergantung frekuensi kemunculannya dalam aplikasi.</p>
-
-<p>Berikut adalah kriteria penilaiannya :</p>
-
-<ol>
-<li>Hello World. Yaitu kegiatan setup pertama kali sampai Hello World muncul. Bobotnya cuma 5%, karena kegiatan ini cuma dilakukan sekali saja di awal.</li>
-<li>Form binding. Bagaimana semua variabel dalam form bisa diambil sebagai satu domain object. Bobotnya 20%, karena ini adalah kegiatan wajib, inti dari aplikasi.</li>
-<li>Validasi form. Bagaimana mencegah invalid input, baik secara server-side maupun client-side. Bobotnya 20%, saudara kembar dengan Form Binding.</li>
-<li>Web Asset. Bagaimana penanganan image, css, javascript. Bobotnya 10%.</li>
-<li>Security. Bagaimana kemudahan mengaktifkan otentikasi dan otorisasi. Bobotnya 20%. Ini juga bagian yang penting. Kalau penanganan di sisi ini tidak elegan, akan banyak duplikasi kode bertebaran di dalam kode program.</li>
-<li>Ajax readiness. Bobotnya 10%.</li>
-<li>Reusability. Bagaimana kemudahan menggunakan komponen/library yang sudah ada. Bobotnya 10%.</li>
-</ol>
-
-
-<p><em>Disclaimer: dalam kegiatan membandingkan ini, tidak ada tujuan untuk menjelekkan yang satu terhadap yang lainnya. Ini murni adalah pekerjaan harian software designer, yaitu memilih framework dan teknologi. Berbagai saran dan masukan dari pendukung masing-masing framework sangat diharapkan.</em></p>
-
-<p>Hello World akan dibahas di artikel selanjutnya.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/42/">&larr; Older</a>
@@ -568,6 +715,10 @@ Mari kita coba jalankan file installer tersebut.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/buku-panduan-markdown-dan-pandoc/">Buku Panduan Markdown dan Pandoc</a>
       </li>
     
@@ -601,10 +752,6 @@ Mari kita coba jalankan file installer tersebut.</p>
     
       <li class="post">
         <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
       </li>
     
   </ul>

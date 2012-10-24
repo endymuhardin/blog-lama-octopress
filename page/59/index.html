@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Selamat Lebaran Idul Fitri 1426 H.
-Mohon maaf lahir dan batin. Seperti tahun yang lalu, lebaran ini diramaikan dengan kegiatan mudik. Ini adalah &hellip;">
+  <meta name="description" content="Sebelum diinstal di tempat customer, aplikasi yang kita buat harus ditest. Itu jelas. Semua orang melakukannya. Hanya saja, teknik melakukan testing &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +76,109 @@ Mohon maaf lahir dan batin. Seperti tahun yang lalu, lebaran ini diramaikan deng
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/testing-aplikasi/">Testing Aplikasi</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-16T00:15:01+07:00" pubdate data-updated="true">Nov 16<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelum diinstal di tempat customer, aplikasi yang kita buat harus ditest. Itu jelas. Semua orang melakukannya. Hanya saja, teknik melakukan testing akan membedakan antara yang pro dan belajaran (apalagi yang baru lulus kuliah :P)</p>
+
+<p>Mari kita ambil contoh nyata. Misalkan kita punya class Calculator, dengan satu method divide yang tugasnya membagi dua bilangan. Berikut kodenya :</p>
+
+<pre><code>public class Calculator {
+    public double divide (double a, double b) {
+          return 0;
+    }
+}
+</code></pre>
+
+<p>Programmer pemula (atau pro yang kurang wawasan), hampir pasti akan segera menulis</p>
+
+<pre><code>public static void main(String[] xxx) {
+    Calculator c = new Calculator();
+    System.out.println("10 dibagi 2 adalah : " +c.divide(10,2));  // hasilnya harus 5
+}
+</code></pre>
+
+<p>Hmm&#8230; primitif sekali. Dengan segala kecanggihan teknologi komputer, kita yang berada di tengah dunia komputer, membuat program komputer, masih menggunakan teknologi jaman DOS prompt untuk melakukan test.</p>
+
+<p>Apa yang salah dengan kode test di atas?
+Salah, karena programmer harus mengeksekusi kode di atas, melihat bahwa tampilan yang dihasilkan seperti ini :</p>
+
+<pre><code>10 / 2 adalah : 0
+</code></pre>
+
+<p>membetulkan kode, kemudian lihat lagi, memastikan kali ini tampilannya seperti ini :</p>
+
+<pre><code>10 / 2 adalah : 5
+</code></pre>
+
+<p>Mengapa salah?
+Karena ini tidak otomatis.
+Bagaimana kalau kita punya 100 method?
+Bagaimana kalau tiap method punya 2 kemungkinan yang harus ditest (misalnya: pembagian dengan 0, pembagian dengan bilangan negatif)?
+Berarti ada sekitar 200 baris yang harus diteliti. Dan ini akan menjadi membosankan dan melelahkan.</p>
+
+<p>Programmer profesional (baca: menghidupi anak istri dari coding) yang berwawasan luas akan menggunakan <a href="http://www.junit.org">Automated Unit Testing</a>. Tools ini akan memungkinkan kita untuk melakukan test secara :</p>
+
+<ul>
+<li><p>Cepat</p></li>
+<li><p>Otomatis</p></li>
+<li><p>Dapat dieksekusi dengan tekan satu tombol</p></li>
+</ul>
+
+
+<p>Programmer profesional yang berwawasan tersebut akan menulis test seperti ini :</p>
+
+<pre><code>public void testDivide() {
+    Calculator c = new Calculator();
+    assertEquals(5, c.divide(10,2));
+}
+</code></pre>
+
+<p>Dengan cara ini, komputerlah yang akan memeriksa kode kita. Pada waktu kita jalankan, komputer akan mencetak tanda titik bila sukses, huruf F bila gagal, dan huruf E bila terjadi Exception. Tidak perlu lagi periksa secara manual.
+200 test? Tidak perlu khawatir. Tinggal jalankan dan lihat. Berapa huruf yang muncul, itulah yang diperbaiki.</p>
+
+<p>Bagusnya lagi, semua test tadi dapat dikonfigurasi sehingga dapat dijalankan sekaligus. Jadi dengan sekali tekan tombol, kita dapat menjalankan semua test yang telah kita buat dari sejak project dimulai.</p>
+
+<p>Proses ini dapat diotomasi lebih jauh lagi, apabila kita menggunakan Ant, atau plugin IDE (misalnya Eclipse). Proses testing dapat diintegrasikan. Sehingga kalau biasanya setelah melakukan perubahan di source code kita lakukan save dan compile, dengan sedikit konfigurasi, kita ubah menjadi save-compile-test.
+Dengan sekali tekan tombol, kode yang baru saja kita edit telah ditest.</p>
+
+<p>Ingatlah, programmer profesional mencari nafkah dari coding. Semakin cepat menyelesaikan aplikasi, semakin cepat dapat mengirimkan tagihan ke customer, dan semakin cepat pula istri akan tersenyum.</p>
+
+<p>Tulisan ini merupakan bagian pertama dari rangkaian tulisan tentang Otomasi Pembuatan Aplikasi.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -216,47 +318,6 @@ Menurut saya, inilah faktor utama yang membuat KO kendaraan berkondisi pas-pasan
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/aplikasi/autobackup-to-gmail/">Autobackup to Gmail</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-10-25T02:50:42+07:00" pubdate data-updated="true">Oct 25<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Wordpress memang hebat, ada <a href="http://www.lifehut.org/2005/08/17/wordpress-google-killer-combo/">plugin untuk membackup isi blog (isi tabel MySQL) secara periodik ke email</a>.
-Email yang kita gunakan bisa ditentukan di konfigurasi. Gunakan <a href="http://www.gmail.com">Gmail</a> untuk kapasitas yang besar.</p>
-
-<p>Sekarang kita bisa memikirkan tulisan dan tidak perlu mengkhawatirkan backup.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/60/">&larr; Older</a>
@@ -319,6 +380,10 @@ Email yang kita gunakan bisa ditentukan di konfigurasi. Gunakan <a href="http://
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/buku-panduan-markdown-dan-pandoc/">Buku Panduan Markdown dan Pandoc</a>
       </li>
     
@@ -352,10 +417,6 @@ Email yang kita gunakan bisa ditentukan di konfigurasi. Gunakan <a href="http://
     
       <li class="post">
         <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/redmine-jruby-tomca/">Instalasi Redmine di Tomcat</a>
       </li>
     
   </ul>

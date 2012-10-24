@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2012-10-08T14:53:07+07:00</updated>
+  <updated>2012-10-24T12:06:34+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,61 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Audit Log]]></title>
+    <link href="http://software.endy.muhardin.com/java/membuat-audit-log/"/>
+    <updated>2012-10-24T11:44:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/membuat-audit-log</id>
+    <content type="html"><![CDATA[<h1>Membuat Audit Log dalam Aplikasi</h1>
+
+<p>Dalam membuat aplikasi bisnis, kita sering diminta membuat audit log.</p>
+
+<blockquote><p>Apa itu audit log?</p></blockquote>
+
+<p>Audit log adalah catatan mengenai perubahan data dalam aplikasi.
+Yang dicatat biasanya :</p>
+
+<ul>
+<li>kolom mana yang berubah</li>
+<li>siapa yang mengubah</li>
+<li>diubah dari apa menjadi apa</li>
+<li>kapan dia berubah</li>
+</ul>
+
+
+<!--more-->
+
+
+<p>Dengan menggunakan <a href="http://docs.jboss.org/hibernate/orm/4.1/devguide/en-US/html/ch15.html">Hibernate Envers</a>,
+audit log ini bisa dibuat dengan mudah sekali.
+Hibernate Envers adalah salah satu modul tambahan <a href="http://hibernate.org/">Hibernate</a> untuk keperluan ini.
+Tentunya aplikasi kita harus menggunakan Hibernate supaya bisa memanfaatkan fitur ini.</p>
+
+<p>Caranya sangat mudah, yaitu:</p>
+
+<ol>
+<li>Tambahkan JAR hibernate-envers ke dalam aplikasi</li>
+<li>Tambahkan anotasi <code>@Audited</code> di class <code>@Entity</code> kita.</li>
+</ol>
+
+
+<p>Contoh perubahan ini bisa dilihat <a href="https://github.com/endymuhardin/belajar-auditlog/commit/05ca0c7c90b10cf64560d4cec933774aa91a8a81">di sini</a>.</p>
+
+<p>Secara default, Hibernate Envers hanya mencatat data yang berubah dan kapan dia berubah.
+Untuk menambahkan catatan tentang username, perlu ada sedikit coding seperti bisa dilihat <a href="https://github.com/endymuhardin/belajar-auditlog/commit/e910b6bc5ef33ee61f0137c8297b0f2ec4f502fe">di sini</a>. Kita harus :</p>
+
+<ol>
+<li>Extends <code>DefaultRevisionEntity</code> dan menambahkan kolom username</li>
+<li>Membuat <code>RevisionListener</code> untuk mengisi kolom username tersebut</li>
+</ol>
+
+
+<p>Data username biasanya diambilkan dari user yang sedang login di aplikasi (dan dengan sendirinya dialah yang melakukan perubahan data).</p>
+
+<p>Contoh kode yang lengkap bisa diambil di <a href="https://github.com/endymuhardin/belajar-auditlog">repository saya di Github</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Buku Panduan Markdown dan Pandoc]]></title>
@@ -3230,73 +3285,6 @@ Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai 
 Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
 
 <p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Development Stack 2011]]></title>
-    <link href="http://software.endy.muhardin.com/java/development-stack-2011/"/>
-    <updated>2011-01-25T20:33:18+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/development-stack-2011</id>
-    <content type="html"><![CDATA[<p>Posting ini adalah update dari <a href="http://endy.artivisi.com/blog/java/stack-2008-1/">posting tiga tahun yang lalu</a>. Tidak banyak yang berubah dalam stack ini, yang bisa berarti dua hal: pilihan tiga tahun yang lalu sudah tepat atau malas belajar selama 3 tahun ini.
-Mudah-mudahan alasannya yang pertama :D</p>
-
-<blockquote><p>Update : Gradle tidak jadi dipakai, karena kita tidak mau maintain 2 skillset. Maven 2 ternyata stabil dan bekerja sesuai harapan. Hudson terlibat kerusuhan dengan Oracle, akhirnya fork jadi Jenkins.</p></blockquote>
-
-<h3>Presentation Layer</h3>
-
-<ul>
-<li><p>Spring MVC</p></li>
-<li><p>SiteMesh</p></li>
-<li><p>Dojo Toolkit</p></li>
-<li><p>ExtJS</p></li>
-<li><p>Spring Security</p></li>
-<li><p>Jasper Report</p></li>
-<li><p>Jackson</p></li>
-</ul>
-
-
-<h3>Business Layer</h3>
-
-<ul>
-<li><p>Spring Framework</p></li>
-<li><p>Hibernate</p></li>
-</ul>
-
-
-<h3>Library lain yang sering digunakan</h3>
-
-<ul>
-<li><p>Logback</p></li>
-<li><p>Joda Time</p></li>
-<li><p>Velocity</p></li>
-<li><p>JPos</p></li>
-</ul>
-
-
-<h3>Infrastruktur</h3>
-
-<ul>
-<li><p>Version Control : Git + Gitosis</p></li>
-<li><p>Testing Tools : JUnit, DBUnit, JMeter, Sonar</p></li>
-<li><p>Issue Tracker : Redmine</p></li>
-<li><p>Build Tools : <del>Gradle</del>, Maven</p></li>
-<li><p>Continuous Integration : <del>Hudson</del> Jenkins</p></li>
-<li><p>OS Programmer : Ubuntu Desktop</p></li>
-<li><p>OS Server : Ubuntu Server, Debian</p></li>
-</ul>
-
-
-<h3>Deployment Target</h3>
-
-<ul>
-<li><p>Database Server : MySQL, Oracle</p></li>
-<li><p>Application Server : Tomcat, Glassfish</p></li>
-</ul>
-
-
-<p>Praktis perubahan yang terjadi hanyalah dari Subversion ganti menjadi Git.
-Nah, bagaimana menurut Anda? Pilihan tepat atau malas belajar?</p>
 ]]></content>
   </entry>
   

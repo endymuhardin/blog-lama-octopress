@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Konfigurasi SVN-HTTP di OpenSuSE 10.2 - Living life and make it better</title>
+  <title>Membuat Audit Log - Living life and make it better</title>
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Artikel ini akan menjelaskan tentang konfigurasi Apache dan OpenLDAP di OpenSuSE 10.2 agar Subversion Repository yang kita miliki bisa diakses &hellip;">
+  <meta name="description" content="Membuat Audit Log dalam Aplikasi Dalam membuat aplikasi bisnis, kita sering diminta membuat audit log. Apa itu audit log? Audit log adalah catatan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://software.endy.muhardin.com/linux/konfigurasi-svn-http-di-opensuse-102/">
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/membuat-audit-log/">
   <link href="/favicon.ico" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -80,7 +80,7 @@
   <header>
     
       
-        <h1 class="entry-title">Konfigurasi SVN-HTTP Di OpenSuSE 10.2</h1>
+        <h1 class="entry-title">Membuat Audit Log</h1>
       
     
     
@@ -97,73 +97,60 @@
   
 
 
-<time datetime="2007-06-27T21:24:53+07:00" pubdate data-updated="true">Jun 27<span>th</span>, 2007</time>
+<time datetime="2012-10-24T11:44:00+07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2012</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Artikel ini akan menjelaskan tentang konfigurasi Apache dan OpenLDAP di OpenSuSE 10.2 agar Subversion Repository yang kita miliki bisa diakses melalui protokol HTTP.</p>
+<div class="entry-content"><h1>Membuat Audit Log dalam Aplikasi</h1>
 
-<p>Pertama, instal software yang dibutuhkan. Jalankan Yast dan instal paket-paket berikut:</p>
+<p>Dalam membuat aplikasi bisnis, kita sering diminta membuat audit log.</p>
+
+<blockquote><p>Apa itu audit log?</p></blockquote>
+
+<p>Audit log adalah catatan mengenai perubahan data dalam aplikasi.
+Yang dicatat biasanya :</p>
 
 <ul>
-<li><p>subversion</p></li>
-<li><p>apache2</p></li>
-<li><p>subversion-server</p></li>
-<li><p>yast2-http-server</p></li>
+<li>kolom mana yang berubah</li>
+<li>siapa yang mengubah</li>
+<li>diubah dari apa menjadi apa</li>
+<li>kapan dia berubah</li>
 </ul>
 
 
-<p>Setelah itu, modifikasi executable Subversion agar repository yang dihasilkan memiliki nilai umask yang tepat. Caranya dapat dilihat <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">di sini</a>.</p>
+<!--more-->
 
-<p>Lalu buat repository untuk percobaan, sebagai contoh saya akan membuat repository di folder <code>/opt/repository/repo-percobaan</code>.</p>
 
-<pre><code>&lt;code&gt;svnadmin create --fs-type fsfs /opt/repository/repo-percobaan&lt;/code&gt;
-</code></pre>
+<p>Dengan menggunakan <a href="http://docs.jboss.org/hibernate/orm/4.1/devguide/en-US/html/ch15.html">Hibernate Envers</a>,
+audit log ini bisa dibuat dengan mudah sekali.
+Hibernate Envers adalah salah satu modul tambahan <a href="http://hibernate.org/">Hibernate</a> untuk keperluan ini.
+Tentunya aplikasi kita harus menggunakan Hibernate supaya bisa memanfaatkan fitur ini.</p>
 
-<p>Selanjutnya, kita akan mengkonfigurasi Apache agar membaca folder tersebut dan memetakannya ke URL /svn. Jadi, bila kita mengakses <code>http://localhost/svn/repo-percobaan</code> di browser, Apache akan menampilkan isi repository kita.</p>
+<p>Caranya sangat mudah, yaitu:</p>
 
-<p>Caranya, buka Yast, kemudian masuk ke Network Services > HTTP Server.
-<img src="/images/uploads/2007/06/yast-http-server.png" title="Yast Control Panel" ></p>
+<ol>
+<li>Tambahkan JAR hibernate-envers ke dalam aplikasi</li>
+<li>Tambahkan anotasi <code>@Audited</code> di class <code>@Entity</code> kita.</li>
+</ol>
 
-<p>Ikuti wizard tanpa perubahan sampai layar terakhir. Setelah itu, klik Expert Configuration.</p>
 
-<p><img src="/images/uploads/2007/06/yast-http-server5.png" title="Expert Configuration" ></p>
+<p>Contoh perubahan ini bisa dilihat <a href="https://github.com/endymuhardin/belajar-auditlog/commit/05ca0c7c90b10cf64560d4cec933774aa91a8a81">di sini</a>.</p>
 
-<p>Layar pertama adalah pilihan port yang dilayani Apache. Tambahkan port 443 untuk mengaktifkan SSL.</p>
+<p>Secara default, Hibernate Envers hanya mencatat data yang berubah dan kapan dia berubah.
+Untuk menambahkan catatan tentang username, perlu ada sedikit coding seperti bisa dilihat <a href="https://github.com/endymuhardin/belajar-auditlog/commit/e910b6bc5ef33ee61f0137c8297b0f2ec4f502fe">di sini</a>. Kita harus :</p>
 
-<p><img src="/images/uploads/2007/06/yast-http-server7.png" title="Port SSL" ></p>
+<ol>
+<li>Extends <code>DefaultRevisionEntity</code> dan menambahkan kolom username</li>
+<li>Membuat <code>RevisionListener</code> untuk mengisi kolom username tersebut</li>
+</ol>
 
-<p>Setelah itu, masuk ke tab Server Modules. Aktifkan module <code>dav</code>, <code>dav_fs</code>.</p>
 
-<p><img src="/images/uploads/2007/06/yast-http-server8.png" title="Apache Module" ></p>
+<p>Data username biasanya diambilkan dari user yang sedang login di aplikasi (dan dengan sendirinya dialah yang melakukan perubahan data).</p>
 
-<p>Kita juga butuh modul tambahan untuk Subversion. Klik Add Module, tambahkan modul <code>dav_svn</code> dan <code>authz_svn</code>.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server9.png" title="Add Subversion Module" ></p>
-
-<p>Selesai dengan Yast. Klik OK untuk menyimpan perubahan. Sekarang kita akan mengedit konfigurasi modul Subversion agar membaca folder repository kita.</p>
-
-<p>Buka file /etc/apache2/conf.d/subversion.conf. Di sana sudah disediakan template yang siap diedit sesuai kebutuhan. Untuk tahap pertama ini, ubah isi file tersebut menjadi seperti ini.</p>
-
-<pre><code>&lt;code&gt;&lt;IfModule mod_dav_svn.c&gt;
-&lt;Location /svn&gt;
-   DAV svn
-   SVNParentPath /opt/repository
-&lt;/Location&gt;
-
-&lt;/IfModule&gt;&lt;/code&gt;
-</code></pre>
-
-<p>Server ini akan digunakan untuk beberapa project sekaligus. Untuk setiap repository baru yang dibuat di kemudian hari, tidak perlu setting ulang Apache. Cukup buat folder repository baru di dalam <code>/opt/repository</code>.</p>
-
-<p>Save file tersebut, dan restart Apache melalui Yast. Repository sudah bisa dibaca. Arahkan browser Anda ke <code>http://localhost/svn/repo-percobaan</code>. Instalasi yang sukses akan menghasilkan tampilan seperti ini.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server11.png" title="Browse Repository Content" ></p>
-
-<p>Silahkan baca <a href="http://endy.artivisi.com/blog/aplikasi/otentikasi-apache-menggunakan-ldap/">artikel ini</a> untuk mengaktifkan otentikasi melalui OpenLDAP.</p>
+<p>Contoh kode yang lengkap bisa diambil di <a href="https://github.com/endymuhardin/belajar-auditlog">repository saya di Github</a>.</p>
 </div>
 
 
@@ -186,12 +173,12 @@
   
 
 
-<time datetime="2007-06-27T21:24:53+07:00" pubdate data-updated="true">Jun 27<span>th</span>, 2007</time>
+<time datetime="2012-10-24T11:44:00+07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2012</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/categories/linux/'>linux</a>
+    <a class='category' href='/categories/java/'>java</a>
   
 </span>
 
@@ -200,7 +187,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/linux/konfigurasi-svn-http-di-opensuse-102/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/linux/konfigurasi-svn-http-di-opensuse-102/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/membuat-audit-log/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/membuat-audit-log/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -213,10 +200,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left articlenav" href="/linux/mp3-di-linux/" title="Previous Post: MP3 di Linux">&laquo; MP3 di Linux</a>
+        <a class="basic-alignment left articlenav" href="/aplikasi/buku-panduan-markdown-dan-pandoc/" title="Previous Post: Buku Panduan Markdown dan Pandoc">&laquo; Buku Panduan Markdown dan Pandoc</a>
       
-      
-        <a class="basic-alignment right articlenav" href="/linux/ubuntu-dual-head/" title="Next Post: Dual Head Ubuntu">Dual Head Ubuntu &raquo;</a>
       
     </p>
   </footer>
@@ -228,7 +213,7 @@
       <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
 <div
   class="fb-comments"
-  data-href="http://software.endy.muhardin.com/linux/konfigurasi-svn-http-di-opensuse-102/"
+  data-href="http://software.endy.muhardin.com/java/membuat-audit-log/"
   data-num-posts="2"
   data-width="470"
   data-colorscheme="light" ></div>
