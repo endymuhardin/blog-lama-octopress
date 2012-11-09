@@ -186,7 +186,7 @@ Jalankan perintah berikut di command prompt.
 
 
     
-    cat daftar_aplikasi.txt | xargs -i apt-get install -qq --print-uris {} | cut -d\' -f2 > daftar_url.txt
+    cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 > daftar_url.txt
 
 
 
@@ -229,7 +229,7 @@ Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu ba
 
 
     
-    cat daftar_aplikasi.txt | xargs -i apt-get install -y {}
+    cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
 
 
 
