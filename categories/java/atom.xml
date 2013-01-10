@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2012-11-09T11:38:55+07:00</updated>
+  <updated>2013-01-10T10:13:13+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,321 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Changelog Liquibase]]></title>
+    <link href="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/"/>
+    <updated>2013-01-10T10:03:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/membuat-changelog-liquibase</id>
+    <content type="html"><![CDATA[<p>Di ArtiVisi, kami menggunakan tools bernama <a href="http://liquibase.org/">Liquibase</a> untuk mendefinisikan skema database.
+Dengan Liquibase ini, skema database dapat disimpan dan dikelola versinya dalam Git.
+Dia juga memiliki fitur untuk melakukan migrasi database pada saat aplikasi kita naik versi.
+Bila terjadi error di versi baru, Liquibase juga bisa melakukan rollback
+agar skema database kita kembali ke kondisi sebelum naik versi.</p>
+
+<p>Skema database dalam Liquibase ditulis dalam format XML, disebut dengan istilah <code>changelog</code>.
+Untuk project baru, ini bisa ditulis tangan secara manual,
+tetapi untuk aplikasi yang sudah ada,
+terlalu merepotkan kalau semua tabel yang sudah ada harus ditulis ulang skemanya.</p>
+
+<!--more-->
+
+
+<p>Untungnya Liquibase memiliki fitur untuk menulis changelog dari skema yang sudah ada.
+Berikut langkah-langkahnya:</p>
+
+<ol>
+<li>Siapkan jar liquibase dan database</li>
+<li>Siapkan file konfigurasi</li>
+<li>Jalankan liquibase</li>
+<li>Cek hasilnya</li>
+</ol>
+
+
+<h2>Siapkan jar liquibase dan database</h2>
+
+<p>Database yang akan saya import memiliki konfigurasi sebagai berikut:</p>
+
+<ul>
+<li>Jenis Database : MySQL</li>
+<li>Nama Database : merchant-simulator_development</li>
+<li>Username Database : root</li>
+<li>Password Database : admin</li>
+</ul>
+
+
+<p>Untuk itu, saya siapkan dua file jar, yaitu :</p>
+
+<ul>
+<li>mysql-connector-java-5.1.22.jar</li>
+<li>liquibase-core-2.0.5.jar</li>
+</ul>
+
+
+<h2>File Konfigurasi</h2>
+
+<p>Sebetulnya semua informasi ini bisa disebutkan dalam command line argument.
+Tapi saya lebih suka menulis di file supaya mudah diedit.
+Berikut isinya</p>
+
+<p>```</p>
+
+<h1>liquibase.properties</h1>
+
+<p>driver: com.mysql.jdbc.Driver
+classpath: mysql-connector-java-5.1.22.jar
+url: jdbc:mysql://localhost/merchant-simulator_development
+username: root
+password: admin
+changeLogFile: liquibase-output.xml
+```</p>
+
+<p>Simpan file ini dengan nama <code>liquibase.properties</code> dan letakkan di folder yang sama dengan kedua file jar tersebut.</p>
+
+<h2>Jalankan Liquibase</h2>
+
+<p>Mari kita jalankan proses import dengan command berikut:</p>
+
+<p><code>
+java -jar liquibase-core-2.0.5.jar generateChangelog
+</code></p>
+
+<h2>Cek Hasilnya</h2>
+
+<p>Perintah di atas akan menghasilkan file <code>liquibase-output.xml</code> yang isinya seperti ini:</p>
+
+<p>```xml
+&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd"></p>
+
+<pre><code>&lt;changeSet author="endy (generated)" id="1357786892853-1"&gt;
+    &lt;createTable tableName="c_application_config"&gt;
+        &lt;column name="id" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false" primaryKey="true"/&gt;
+        &lt;/column&gt;
+        &lt;column name="name" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="label" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="value" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-2"&gt;
+    &lt;createTable tableName="c_security_menu"&gt;
+        &lt;column name="id" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false" primaryKey="true"/&gt;
+        &lt;/column&gt;
+        &lt;column name="label" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="menu_action" type="VARCHAR(255)"/&gt;
+        &lt;column name="menu_level" type="INT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="menu_order" type="INT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="menu_options" type="VARCHAR(255)"/&gt;
+        &lt;column name="id_parent" type="VARCHAR(255)"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-3"&gt;
+    &lt;createTable tableName="c_security_permission"&gt;
+        &lt;column name="id" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false" primaryKey="true"/&gt;
+        &lt;/column&gt;
+        &lt;column name="permission_label" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="permission_value" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-4"&gt;
+    &lt;createTable tableName="c_security_role"&gt;
+        &lt;column name="id" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false" primaryKey="true"/&gt;
+        &lt;/column&gt;
+        &lt;column name="name" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="description" type="VARCHAR(255)"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-5"&gt;
+    &lt;createTable tableName="c_security_role_menu"&gt;
+        &lt;column name="id_role" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="id_menu" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-6"&gt;
+    &lt;createTable tableName="c_security_role_permission"&gt;
+        &lt;column name="id_role" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="id_permission" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-7"&gt;
+    &lt;createTable tableName="c_security_user"&gt;
+        &lt;column name="id" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false" primaryKey="true"/&gt;
+        &lt;/column&gt;
+        &lt;column name="username" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="password" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="fullname" type="VARCHAR(255)"/&gt;
+        &lt;column name="active" type="BIT"/&gt;
+        &lt;column name="id_role" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-8"&gt;
+    &lt;createTable tableName="t_tagihan_listrik"&gt;
+        &lt;column name="id" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false" primaryKey="true"/&gt;
+        &lt;/column&gt;
+        &lt;column name="admin" type="DECIMAL(19,2)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="bulan_tagihan" type="DATE"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="current_meter_reading_1" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="current_meter_reading_2" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="current_meter_reading_3" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="denda" type="DECIMAL(19,2)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="id_pelanggan" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="jatuh_tempo" type="DATE"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="lunas" type="BIT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="meter_read_date" type="DATE"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="mitra_lunas" type="VARCHAR(255)"/&gt;
+        &lt;column name="nama_pelanggan" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="nilai" type="DECIMAL(19,2)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="pajak" type="DECIMAL(19,2)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="power_consuming_category" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="previous_meter_reading_1" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="previous_meter_reading_2" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="previous_meter_reading_3" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="referensi_lunas" type="VARCHAR(255)"/&gt;
+        &lt;column name="service_unit" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="service_unit_hone" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="subscriber_segmentation" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+        &lt;column name="waktu_lunas" type="DATETIME"/&gt;
+    &lt;/createTable&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-9"&gt;
+    &lt;addPrimaryKey columnNames="id_role, id_menu" tableName="c_security_role_menu"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-10"&gt;
+    &lt;addPrimaryKey columnNames="id_role, id_permission" tableName="c_security_role_permission"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-11"&gt;
+    &lt;addForeignKeyConstraint baseColumnNames="id_parent" baseTableName="c_security_menu" baseTableSchemaName="merchant-simulator_development" constraintName="fk_menu_parent" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_menu" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-12"&gt;
+    &lt;addForeignKeyConstraint baseColumnNames="id_menu" baseTableName="c_security_role_menu" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_menu_menu" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_menu" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-13"&gt;
+    &lt;addForeignKeyConstraint baseColumnNames="id_role" baseTableName="c_security_role_menu" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_menu_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_role" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-14"&gt;
+    &lt;addForeignKeyConstraint baseColumnNames="id_permission" baseTableName="c_security_role_permission" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_permission_permission" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_permission" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-15"&gt;
+    &lt;addForeignKeyConstraint baseColumnNames="id_role" baseTableName="c_security_role_permission" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_permission_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_role" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-16"&gt;
+    &lt;addForeignKeyConstraint baseColumnNames="id_role" baseTableName="c_security_user" baseTableSchemaName="merchant-simulator_development" constraintName="fk_user_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_role" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-17"&gt;
+    &lt;createIndex indexName="name" tableName="c_application_config" unique="true"&gt;
+        &lt;column name="name"/&gt;
+    &lt;/createIndex&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-18"&gt;
+    &lt;createIndex indexName="unique_permission_value" tableName="c_security_permission" unique="true"&gt;
+        &lt;column name="permission_value"/&gt;
+    &lt;/createIndex&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-19"&gt;
+    &lt;createIndex indexName="unique_role_name" tableName="c_security_role" unique="true"&gt;
+        &lt;column name="name"/&gt;
+    &lt;/createIndex&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1357786892853-20"&gt;
+    &lt;createIndex indexName="unique_user_username" tableName="c_security_user" unique="true"&gt;
+        &lt;column name="username"/&gt;
+    &lt;/createIndex&gt;
+&lt;/changeSet&gt;
+</code></pre>
+
+<p></databaseChangeLog>
+```</p>
+
+<p>File di atas siap diedit dan disimpan di repository version control.
+Biasanya, edit yang saya lakukan:</p>
+
+<ul>
+<li>menggabungkan semua <code>createTable</code> menjadi satu changeset</li>
+<li>menggabungkan semua <code>addForeignKeyConstraint</code> dan <code>createIndex</code> menjadi satu changeset</li>
+<li>menambahkan loader untuk file csv sebagai data awal</li>
+<li>mengganti nama file</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Membuat Audit Log]]></title>
@@ -871,157 +1186,6 @@ Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/s
 <p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
 
 <p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Database Transaction]]></title>
-    <link href="http://software.endy.muhardin.com/java/database-transaction/"/>
-    <updated>2011-02-14T04:14:22+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/database-transaction</id>
-    <content type="html"><![CDATA[<p>Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini,</p>
-
-<blockquote><p>halo rekan2 dba &amp; developer</p>
-
-<p>mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
-mau nanya, dalam implementasi real di aplikasi,
-contoh bussiness process/use case apa aja yang menggunakan transaction?
-kemudian contoh kasus rollbacknya gimana?</p></blockquote>
-
-<p>Tadinya saya kurang semangat menjawab, karena asumsi saya, ini pertanyaan mendasar, dan pastilah banyak yang bisa menjawab secara benar dan tidak menyesatkan. Tapi apa lacur, saya membaca pertanyaan lanjutan seperti ini.</p>
-
-<blockquote><p>Ada yang pernah punya pengalaman pake software accounting tanpa feature
-transaction?</p></blockquote>
-
-<p>Dan jawabannya ternyata sangat mengerikan.</p>
-
-<blockquote><p>yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
-dan tidak menggunakan feature transaction...
-skrng sedang garap accounting lainnya untuk perusahan dagang, dan
-sudah direncakan tanpa feature transaction.</p>
-
-<p>yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
-oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
-dipakai, beberapa tdk dipakai karena masalah internal mereka.
-dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.</p>
-
-<p>menurut singkat saya, jika peng-handle php nya sudah cukup
-menanggulangi masalah transaksi data, tidak harus menggunakan feature
-transaction pada database nya.
-karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
-pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
-oleh beberapa user, dan juga optimize database, dengan begitu menurut
-hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
-feature transaction yg sedikit memberatkan proses data.</p>
-
-<p>oya, untuk case mengharuskan memakai feature transaction itu misalnya
-pada kasus:
-jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
-dihapus/update/input yg mengharuskan ada link data yg juga ikut
-terupdate/terhapus/terinput</p>
-
-<p>untuk yg sudah menggunakan feature transaction, silahkan saya juga
-menunggu tanggapan dan pengalamannya.</p></blockquote>
-
-<p>What the @#$!
-Ini kalo meminjam istilah MUI, harus dibimbing untuk kembali ke jalan yang benar, tapi tidak boleh anarkis :D</p>
-
-<p>Salah satu poin penting dalam database transaction adalah atomic, yaitu beberapa perintah dianggap sebagai satu kesatuan.
-Kalau satu gagal, yang lain harus dibatalkan.</p>
-
-<p>Ini adalah fundamental dari pemrograman dengan menggunakan database relasional.</p>
-
-<p>Pada kasus apa perlu transaction?
-Ya pada semua kasus yang perlu atomic.
-Contohnya : header detail. Sekali insert, 1 header dan beberapa detail.
-Kalo pada waktu insert detail gagal, ya headernya harus diundo, kalo ngga ada header yang gantung tanpa detail sehingga datanya juga jadi salah.</p>
-
-<p>Sekarang balik saya tanya, aplikasi apa yang gak pake skema header detail?
-Kecuali aplikasi prakarya tugas sekolah, aplikasi bisnis <strong>pasti</strong> pake header detail.</p>
-
-<p>Itu masalah atomicity. Kemudian ada masalah isolation.
-Isolation ini artinya, transaction yang belum dicommit, tidak akan bisa dibaca oleh session lain.
-Contohnya gini, kita terima order 1000 item.
-Tentunya butuh waktu untuk menginsert 1000 record, misalnya butuh waktu 2 detik.
-Di dunia prosesor, 2 detik itu lama sekali, dan banyak hal bisa terjadi dalam rentang waktu tersebut.
-Nah, akan terjadi musibah, kalo kita ternyata ada fitur untuk menghitung jumlah order, katakan saja querynya seperti ini.</p>
-
-<pre><code>select sum(nilai) from t_order where tanggal = '2011-02-02'
-</code></pre>
-
-<p>yang berjalan di tengah-tengah proses insert tadi, misalnya pada waktu baru terinsert 53 order saja. Query hitung ini dijalankan oleh user lain. Suatu hal yang sangat umum terjadi, aplikasi diakses beberapa user berbarengan.</p>
-
-<p>Query ini akan menghasilkan nilai yang salah, karena 1000 order itu belum tentu sukses diinsert.
-Misalnya pada record ke 143 terjadi mati lampu, hardisk penuh, komputer hang, browser ketutup, laptop kesiram kopi, usernya menekan tombol cancel, validasi stok produk tidak cukup, atau whatever kejadian remeh-temeh yang umum terjadi dalam kehidupan sehari-hari, tentu akan terjadi kekacauan.
-Karena tidak atomic, maka kita tidak tau sudah berapa record yang terinsert, sehingga menyulitkan proses recovery. Order mana yang harus diinsert ulang, dan order mana yang sudah masuk?
-Karena tidak ada isolation, maka user yang menjalankan perhitungan order akan mendapat hasil yang tidak sahih kebenarannya.</p>
-
-<p>Seandainya saja kita menggunakan transaction dengan benar, maka pada waktu terjadi sesuatu pada waktu proses insert tadi, maka posisi database akan dikembalikan ke posisi sebelum insert dilakukan. Karena posisi sebelum insert kita tahu dengan pasti, maka recovery gampang.
-Insert ulang saja 1000 order tadi tanpa kecuali. Sederhana dan mudah.</p>
-
-<p>Jadi kalo ada di sini yang bilang bikin aplikasi bisnis tanpa transaction, maka itu adalah nonsense.
-Tidak peduli kalo sampe saat ini jalan lancar, maka itu hanyalah kebetulan belaka, dan kita tidak mau selamanya mengandalkan keberuntungan kan?
-Kalau sampai saat ini berjalan lancar, ya mungkin aplikasinya cuma dipakai 1 concurrent user saja dan itupun jarang-jarang pake.</p>
-
-<p>Nah, jadi transaction itu adalah fitur fundamental yang harus digunakan, sama seperti kalo kita keluar rumah ya harus pake celana.
-Di daerah lain sana orang kemana2 cuma pake koteka, dan saya tidak mau berdebat dengan mereka urusan celana.
-Jadi kalo masih ada yang bersikukuh bikin aplikasi bisnis gak pake transaction, ya silahkan, saya tidak mau berdebat urusan ini.
-Percuma berdebat sama orang yang gak pake celana ;p</p>
-
-<p>Selanjutnya, sebetulnya apa benar transaction itu memberatkan aplikasi?
-Hmm ... ini sebetulnya hanyalah mitos belaka.
-Yang mau mendebat silahkan sajikan benchmark antara non-transactional dan transactional.
-Kalo selisih performance cuma 100%, artinya kalo non-transactional cuma 2 kali lebih lemot, saya mendingan upgrade hardware daripada mengorbankan data integrity untuk gain performance yang tidak seberapa ini.</p>
-
-<p>Jadi, apa kita tidak boleh pakai MyISAM ?
-Tentu ada waktu dan tempatnya.
-Data2 read only seperti misalnya tabel kategori, master produk, bolehlah pake MyISAM.
-Tapi kalo sudah data header detail, ya harus InnoDB dan harus menggunakan transaction supaya atomic.</p>
-
-<p>Setelah kita menggunakan InnoDB, sebetulnya kita tidak bisa non-transactional.
-Kalo kita tidak begin dan commit secara explisit, sebenarnya untuk tiap SQL statement, itu dianggap satu transaction.
-Sehingga SQL seperti ini :</p>
-
-<pre><code>update table harga set nilai = nilai + 1000;
-</code></pre>
-
-<p>Sebetulnya akan dijalankan seperti ini ;</p>
-
-<pre><code>begin;
-update table harga set nilai = nilai + 1000;
-commit;
-</code></pre>
-
-<p>Ini namanya fitur autocommit. Di MySQL defaultnya dienable.</p>
-
-<p>Dengan adanya autocommit ini, justru kita akan lebih lemot kalo tidak menggunakan transaction secara benar.
-Contoh, insert 100 data produk.
-Kalo tanpa begin dan commit explisit, berarti ada 100 begin dan ada 100 commit, artinya 100 kali menjalankan transaction.
-Akan lebih efisien kalo kita lakukan explisit, seperti ini :</p>
-
-<pre><code>begin; 
-insert into table produk (kode) values ('P-001');
-... ulangi 99 kali lagi ..
-commit; 
-</code></pre>
-
-<p>Cara di atas hanya akan membutuhkan satu transaction saja.
-Jauh lebih efisien.</p>
-
-<p>Baiklah, ada beberapa pesan moral di artikel ini</p>
-
-<ol>
-<li><p>Header detail harus dioperasikan secara atomic</p></li>
-<li><p>Operasi yang belum selesai, tidak boleh dilihat session lain, sehingga untuk aplikasi multiuser, pasti butuh isolation</p></li>
-<li><p>Karena aplikasi bisnis umumnya multiuser, dan pasti punya skema header-detail, maka <strong>pasti harus</strong>menggunakan transaction</p></li>
-<li><p>Masalah performance di transaction umumnya mitos belaka, dan walaupun ada, tidak sebanding dengan mengabaikan integritas data</p></li>
-<li><p>Jangan lupa pakai celana kalau keluar rumah</p></li>
-</ol>
-
-
-<p>Pembaca setia blog saya tentu paham bahwa biasanya saya memberikan anjuran dengan kata-kata sebaiknya, tergantung situasi, dan istilah-istilah yang relatif. Tapi di artikel ini, banyak kata-kata pasti, harus, dan sejenisnya. Ini karena masalah transaction ini berkaitan dengan integritas data. Aplikasi yang kita buat haruslah bisa dipercaya untuk menghasilkan perhitungan yang benar. Tanpa menjaga integritas data dengan transaction, mustahil perhitungan yang benar bisa didapatkan.</p>
-
-<p>Lebih lanjut tentang masalah-masalah yang bisa terjadi, bisa lihat <a href="http://en.wikipedia.org/wiki/Database_transaction">di Wikipedia</a>.</p>
 ]]></content>
   </entry>
   

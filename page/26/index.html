@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Bila kita ingin mempublish komputer di internet, hal pertama yang kita pikirkan adalah firewall. Bagaimana membatasi akses hanya ke port-port yang &hellip;">
+  <meta name="description" content="Tools untuk Continuous Integration sudah sering dibahas di sini. Ada CruiseControl, Luntbuild, dan Hudson. Apa yang begitu pentingnya dari proses ini &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,176 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/manajemen/continuous-integration/">Continuous Integration</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-16T22:37:23+07:00" pubdate data-updated="true">Jan 16<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Tools untuk Continuous Integration sudah sering dibahas di sini. Ada <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a>, <a href="http://endy.artivisi.com/blog/java/luntbuild/">Luntbuild</a>, dan <a href="http://endy.artivisi.com/blog/java/hudson/">Hudson</a>. Apa yang begitu pentingnya dari proses ini sehingga saya meluangkan waktu untuk melihat setiap tools yang ada?</p>
+
+<p>Continuous Integration, <a href="http://martinfowler.com/articles/continuousIntegration.html">menurut Martin Fowler</a>, begini:</p>
+
+<blockquote><p>Continuous Integration is a software development practice where members of a team integrate their work frequently, usually each person integrates at least daily - leading to multiple integrations per day.</p></blockquote>
+
+<p>Each integration is verified by an automated build (including test) to detect integration errors as quickly as possible.</p>
+
+<p>Many teams find that this approach leads to significantly reduced integration problems and allows a team to develop cohesive software more rapidly.</p>
+
+<p>Ada beberapa keyword di sini:</p>
+
+<ul>
+<li>integrate their work</li>
+<li>frequently</li>
+<li>verified by automated build (including test)</li>
+<li>detect errors as quickly as possible</li>
+<li>significant reduced problems</li>
+<li>develop .. rapidly</li>
+</ul>
+
+
+<p>Mari kita bahas lebih jauh.</p>
+
+<p>Sebagai contoh, kita membuat aplikasi dengan bahasa pemrograman Java. Langkah-langkah yang harus dilakukan sampai suatu kode program bisa digunakan antara lain:</p>
+
+<ol>
+<li>tulis source code</li>
+<li>kompilasi</li>
+<li>coba dijalankan sendiri (unit-test)</li>
+<li>coba gabungkan dengan kode lain (integration-test)</li>
+<li>deploy / install</li>
+<li>coba fitur-fiturnya</li>
+<li>kalau semua OK, cepat-cepat diarsip</li>
+</ol>
+
+
+<p>Cukup banyak kegiatan yang harus dilakukan untuk menambah satu fitur. Penggunaan bahasa dinamik (seperti PHP atau Ruby) hanya mengurangi langkah kedua. Sisanya sama.</p>
+
+<p>Kegiatan yang banyak ini akan sangat membosankan kalau dikerjakan secara manual. Bukan cuma boring, tapi juga rawan error. Di tengah tekanan deadline, sangat mungkin kita akan melewatkan test yang sudah pernah dijalankan sebelumnya.</p>
+
+<blockquote><p>Hei, dulu saja jalan .. kenapa sekarang tidak?</p></blockquote>
+
+<p>Ya belum tentu. Membangun aplikasi mirip seperti membangun rumah-rumahan dari kartu. Sedikit penambahan bisa merobohkan seluruh bangunan. Jadi sangat penting kita untuk sering-sering melakukan integrasi. Dan yang juga penting, test yang sudah ada harus dijalankan semuanya.</p>
+
+<p>Sekarang sudah ada tools yang membantu kita melakukannya. Cukup investasi waktu 10 menit untuk melakukan instalasi dan konfigurasi. Investasi 10 menit ini akan menghasilkan:</p>
+
+<ul>
+<li>build scheduler</li>
+<li>laporan kemajuan project setiap saat</li>
+<li>notifikasi setiap ada error</li>
+<li>arsip build</li>
+</ul>
+
+
+<p>Lalu apa manfaat dari fitur-fitur ini?</p>
+
+<p>Banyak, mari kita bahas satu persatu.</p>
+
+<h3>Build Scheduler</h3>
+
+<p>Semua kegiatan build kita tadi, mulai dari checkout dari version control sampai membuat installer aplikasi bisa dilakukan secara terjadwal. Misalnya satu jam sekali, satu hari tiga kali, dan sebagainya.</p>
+
+<p>Kita juga bisa mengkonfigurasi macam-macam jadwal. Misalnya untuk test dengan data sedikit bisa dijalankan sering-sering. Test yang melibatkan data banyak &#8211;seperti test End Of Day process atau simulasi performance aplikasi dengan satu tahun data&#8211; bisa dijalankan di malam hari, waktu semua orang sedang tidur.</p>
+
+<h3>Laporan Kemajuan Project</h3>
+
+<p>Pernahkah Anda, sedang asyik coding, puluhan variabel beterbangan di dalam otak, tiba-tiba dipanggil oleh Project Manager.</p>
+
+<blockquote><p>Fitur XX sudah selesai?</p></blockquote>
+
+<p>Kita jawab, &#8220;Sudah&#8221;. Kemudian balik lagi ke kode program, hanya untuk menyadari bahwa seluruh konsentrasi sudah buyar, sehingga butuh waktu 10 menit untuk mengingat-ingat apa yang tadi sedang dikerjakan.</p>
+
+<p>Dengan adanya tools Continuous Integration, Project Manager bisa langsung melihat kemajuan project di websitenya. Sehingga dia tidak perlu mengganggu konsentrasi orang lain.</p>
+
+<h3>Notifikasi Error</h3>
+
+<p>Misalnya kita mengubah nama kolom di database, ternyata menyebabkan fungsi-fungsi lain jadi error. Akan lebih cepat untuk memperbaiki hal ini jika antara kita mengubah nama kolom dan saat error ketahuan selisihnya singkat. Bagaimana cara supaya error cepat ketahuan? Ada dua cara:</p>
+
+<ol>
+<li>test suite harus lengkap, sehingga mencakup seluruh bagian kode.</li>
+<li>test suite harus sering-sering dijalankan.</li>
+</ol>
+
+
+<p>Tools CI membantu kita di item #2. Tetapi test suite tetap harus kita yang membuatnya.</p>
+
+<h3>Arsip Build</h3>
+
+<p>Project Manager lagi-lagi mengganggu konsentrasi kita. Kali ini dia mau presentasi ke customer dan mau menunjukkan aplikasi terbaru. Sialnya, tadi pagi kita baru saja mulai mengganti framework, tadinya pakai <a href="http://www.icefaces.org/main/home/index.jsp">IceFaces</a> mau diganti jadi <a href="http://labs.jboss.com/jbossrichfaces/">RichFaces</a>. Wow, kenapa harus diganti?? Hmm .. sayangnya itu diluar pembahasan artikel ini.</p>
+
+<p>Karena ada perombakan arsitektur besar-besaran, maka aplikasi saat ini sedang berantakan. Tidak mungkin kita memberikan aplikasi terbaru ini untuk dibawa presentasi. Bisa-bisa Project Manager kita mendapat malu karena bukannya mendemokan aplikasi, malah mendemokan stack trace.</p>
+
+<p>Untuk mengambil versi sebelum dirombak juga belum tentu pekerjaan mudah. Tergantung apakah Anda menggunakan Subversion atau tidak. Dan apakah kita rajin membuat tag untuk menandai titik-titik penting.</p>
+
+<p>Continuous Integration Tools to the rescue &#8230;.</p>
+
+<p>Langsung saja buka arsip build. Cari build terakhir yang sukses, dan berikan pada bos. Jangan lupa diberi pesan, &#8220;Kapan-kapan kalau butuh yang seperti ini lagi, langsung saja buka URL ini ya.&#8221;</p>
+
+<p>Bila proses CI ini berjalan lancar, hidup programmer jadi jauh lebih nyaman. Dia tinggal:</p>
+
+<ul>
+<li>coding</li>
+<li>buat unit test dan integration test</li>
+<li>jalankan dua-duanya</li>
+<li>kalau OK, commit</li>
+<li>balik lagi ke coding</li>
+</ul>
+
+
+<p>Sekarang kita kembali ke daftar keywordnya Martin Fowler di atas. Agar proses CI ini bisa berjalan baik, semua orang harus <em>integrate their work</em>. Setiap kode yang ditulis harus segera digabungkan dengan kode yang lainnya (yang ditulis anggota tim lainnya).</p>
+
+<p>Ini harus dilakukan <em>frequently</em>, sering-sering. Ini agar error yang muncul bisa segera terdeteksi.</p>
+
+<p>Seluruh kegiatan mulai dari kompilasi sampai <a href="http://endy.artivisi.com/blog/java/membuat-installer-dengan-izpack/">bikin installer</a> harus diotomasi. Kalau sudah otomatis, CI tools akan bisa mengeksekusinya dengan mudah.</p>
+
+<p>Kalau semua ini dilakukan, Martin Fowler berjanji bahwa kegiatan coding akan menjadi lebih <em>rapid</em> dan <em>significantly reduces problem</em>.</p>
+
+<p>Nah, investasinya cuma 5-10 menit instalasi dan konfigurasi, keuntungannya banyak sekali. Lalu kenapa tidak banyak yang mengimplementasikannya?</p>
+
+<p>Oh iya, saya lupa kasi tau. Implementasi CI sendiri mungkin 5-10 menit. Tapi proses ini punya ketergantungan terhadap tools dan praktek lain, yaitu:</p>
+
+<ul>
+<li>Automated Testing</li>
+<li>Version Control</li>
+</ul>
+
+
+<p>Dua praktek ini mengharuskan kita mengubah pola pikir dan kebiasaan, mirip seperti orang yang mau kurus atau berhenti merokok.</p>
+
+<p>So &#8230; Good Luck</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -591,145 +761,6 @@ ${body}
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/aplikasi/svn-commit-email/">Mengaktifkan Commit Email Subversion</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-07T22:22:59+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota tim yang lain. Beberapa keuntungan dari pelaksanaan Peer Review antara lain:</p>
-
-<ul>
-<li>meningkatnya collective code ownership. Semua anggota tim akan merasa memiliki.</li>
-<li>membantu penyebaran pengetahuan dan pengalaman. Kode yang kurang optimal akan dikomentari di ruang publik (milis developer), sehingga semua anggota akan mendapat pencerahan.</li>
-<li>meningkatkan kualitas kode program secara keseluruhan. Bila setiap commit direview, anggota tim akan mendapat peer pressure untuk tidak mengulangi kesalahan yang pernah dibahas. Kalau ada kode yang kurang optimal, feedback akan datang dengan cepat, sehingga kualitas yang rendah tidak akan terakumulasi.</li>
-</ul>
-
-
-<p>Baiklah, sekarang kita sudah tahu manfaat praktek peer review. Sama seperti kita tahu kalau lari pagi itu sehat. Tapi seperti halnya lari pagi, banyak orang yang tidak melakukannya.</p>
-
-<p>Salah satu alasan peer review tidak dilakukan adalah semakin banyak kode program, semakin sulit reviewnya. Mau mulai dari mana? Apa kode yang kemarin sudah direview perlu dilihat lagi?</p>
-
-<p>Masalah yang sama dihadapi oleh seluruh pengembang aplikasi open source di seluruh dunia. Dan mereka sudah punya solusinya, yaitu commit email.</p>
-
-<p>Prinsipnya sederhana. Kita pasang trigger di version control. Setiap kali ada yang commit, trigger tersebut akan melihat apa yang baru saja dicommit. Kemudian membandingkannya dengan versi sebelumnya. Hasil perbandingan kemudian dikirim ke milis developer supaya bisa dilihat orang banyak.</p>
-
-<p>Dengan commit email ini, reviewer tidak perlu melihat keseluruhan kode program, tapi cukup yang berubah saja. Ini akan sangat meringankan kegiatan review.</p>
-
-<p>Subversion sudah mempaketkan script trigger untuk commit email. Di <a href="http://subversion.tigris.org/tools_contrib.html">halaman Tools &amp; Contrib</a> ada beberapa script untuk keperluan ini.</p>
-
-<p>Saya menggunakan <a href="http://svn.collab.net/repos/svn/trunk/tools/hook-scripts/commit-email.pl.in">commit script yang dibuat dengan Perl</a>. Sebelum dipakai, script ini harus diedit sedikit, di bagian SMTP server.</p>
-
-<p><code>$smtp_server = "127.0.0.1";</code></p>
-
-<p>dan bagian path menuju perintah svnlook.</p>
-
-<p><code>my $svnlook = "@SVN_BINDIR@/svnlook";</code></p>
-
-<p>Kalau di Windows, <code>svnlook</code> ada di <code>C:\Program Files\Subversion\bin</code>, sedangkan kalau di Linux biasanya ada di <code>/usr/bin</code>.</p>
-
-<p>Selanjutnya, kita harus menyuruh Subversion untuk menjalankan file ini pada saat ada orang commit. Caranya mudah, masuk ke folder repository Subversion, di dalam folder hooks.</p>
-
-<p>Untuk Linux mudah, cukup rename <code>post-commit.tmpl</code> menjadi <code>post-commit</code>, dan ganti modenya menjadi executable.</p>
-
-<p><code>chmod +x post-commit</code></p>
-
-<p>Kemudian edit sedikit untuk memasukkan beberapa parameter:</p>
-
-<ul>
-<li>Recipient : penerima commit email. Biasanya ini saya arahkan ke milis developer</li>
-<li>Subject : subject pada email yang dikirim</li>
-<li>Reply To : kalau penerima email menekan tombol Reply, inilah alamat yang akan muncul di field To</li>
-<li>Host : nama host otomatis yang akan ditambahkan ke nama user yang commit. Misalnya username yang commit endy, dan hostnya artivisi.com, maka nama pengirim otomatis menjadi endy@artivisi.com</li>
-</ul>
-
-
-<p>Berikut isi dari file post-commit saya</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/sh
-</span><span class='line'>REPOS="$1"
-</span><span class='line'>REV="$2"
-</span><span class='line'>
-</span><span class='line'>RECIPIENT=devteam@artivisi.com
-</span><span class='line'>SUBJECT=automated-commit-email
-</span><span class='line'>REPLY_TO=devteam@artivisi.com
-</span><span class='line'>HOST=artivisi.com
-</span><span class='line'>
-</span><span class='line'>$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Untuk di Windows, kita harus membuat file <code>post-commit.bat</code>, di folder hooks juga. Berikut isi dari <code>post-commit.bat</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>@ECHO OFF
-</span><span class='line'>
-</span><span class='line'>SET RECIPIENT=devteam@artivisi.com
-</span><span class='line'>SET SUBJECT=automated-commit-email
-</span><span class='line'>SET REPLY_TO=devteam@artivisi.com
-</span><span class='line'>SET HOST=artivisi.com
-</span><span class='line'>
-</span><span class='line'>SET PERL=c:\usr\bin\perl
-</span><span class='line'>SET REPOS=%1
-</span><span class='line'>SET REV=%2
-</span><span class='line'>
-</span><span class='line'>%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Tentunya kita harus menginstal dulu <a href="http://www.activestate.com/store/productdetail.aspx?prdGuid=81fbce82-6bd5-49bc-a915-08d58c2648ca">Perl untuk Windows</a> agar script ini bisa berjalan.</p>
-
-<p>Selamat mencoba</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/27/">&larr; Older</a>
@@ -792,6 +823,10 @@ ${body}
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
       </li>
     
@@ -827,10 +862,6 @@ ${body}
         <a href="/java/staged-deployment/">Staged Deployment</a>
       </li>
     
-      <li class="post">
-        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -858,7 +889,7 @@ ${body}
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Endy Muhardin -
+  Copyright &copy; 2013 - Endy Muhardin -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

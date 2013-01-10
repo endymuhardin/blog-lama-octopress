@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Dulu saya pernah menulis tentang backup script Subversion untuk Linux, maupun untuk Windows. Sayangnya, script tersebut hanya bisa digunakan untuk &hellip;">
+  <meta name="description" content="Aplikasi web &#8211;berbeda dengan aplikasi desktop&#8211; ditakdirkan untuk stateless. Artinya dia tidak menyimpan data untuk masing-masing user &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,288 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-5/">Aplikasi Web Dengan Spring 2.5 [Bagian 5]</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-18T16:15:08+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Aplikasi web &#8211;berbeda dengan aplikasi desktop&#8211; ditakdirkan untuk stateless. Artinya dia tidak menyimpan data untuk masing-masing user yang sedang aktif. Keputusan ini menyebabkan aplikasi web bisa diakses jutaan user sekaligus. Tapi juga menyebabkan perlu teknik khusus agar data user yang sedang aktif dapat disimpan dengan baik.</p>
+
+<p>Tanpa kemampuan penyimpanan state, semua data yang dikirim user akan hilang setelah dia pindah halaman. Misalnya user:</p>
+
+<ol>
+<li>mengisi form 1, kemudian menekan tombol Next</li>
+<li>mengisi form 2, kemudian menekan tombol Next</li>
+<li>tiba di form 3. Pada saat ini, data yang diisi di form 1 sudah hilang</li>
+</ol>
+
+
+<p>Sebelum kita melihat kode program dengan Spring 2.5, terlebih dulu kita bahas konsepnya.</p>
+
+<p>Data user yang kita bicarakan di sini adalah data sementara. Contoh klasik dari state user yang harus disimpan antara lain:</p>
+
+<ul>
+<li>kita berbelanja online. Barang-barang yang sudah kita pilih, tapi belum kita pesan, ini harus disimpan oleh aplikasi. Data ini sering disebut dengan istilah shopping cart (atau troli belanja)</li>
+<li>kita sudah login untuk melihat email. Selama kita belum menyatakan selesai (dengan cara logout), kita ingin aplikasi menyimpan username dan password kita. Sehingga kita tidak perlu memasukkan username dan password setiap kali pindah dari satu email ke email lain.</li>
+<li>kita mengisi form secara bertahap (wizard-style). Keseluruhan rangkaian proses baru berakhir pada saat form terakhir diisi. Tanpa state management yang baik, kita tidak bisa menggunakan rangkaian form. Kita terpaksa menggunakan satu form yang sangat panjang, dan menyuruh user mengisinya sekaligus dalam satu kali proses.</li>
+</ul>
+
+
+<p>Contoh yang kita sebutkan di atas membahas tentang data sementara yang harus dikelola sebelum disimpan ke database. Umurnya relatif lebih pendek daripada data permanen yang disimpan di database. Misalnya, username dan password selama user membaca email, disimpan dalam jangka waktu beberapa jam saja. Data wizard mungkin hanya disimpan beberapa menit saja, sampai form terakhir selesai dan keseluruhan data disimpan ke database. Walaupun beberapa situs, seperti Amazon, mungkin saja menyimpan data shopping-cart kita selama berbulan-bulan.</p>
+
+<p>Ada beberapa cara yang dapat kita pilih untuk menyimpan state. Setidaknya ada dua pilihan lokasi :</p>
+
+<ul>
+<li>di client. Dengan menggunakan mekanisme cookie, kita dapat menyimpan data di browser client. Cara ini tidak membebani server, tapi kapasitas cookie di client relatif kecil. Kita tidak bisa menyimpan data yang terlalu banyak di cookie.</li>
+<li>di server. Mekanismenya mirip dengan kalau kita belanja di hypermarket. Tas dan jaket kita titipkan di pintu masuk, kemudian kita akan diberikan token. Pada waktu kita keluar, token kita tukarkan dengan barang yang kita titipkan.</li>
+</ul>
+
+
+<p>Demikian juga dengan penyimpanan state. Ketika user pertama kali datang, dia akan mendapat token atau session ID. Aplikasi menyimpan state user di lokasi tertentu yang ditandai dengan session ID tersebut. Setiap request yang datang akan dilihat session IDnya dan datanya diambil untuk diproses.</p>
+
+<p>Ada beberapa cara untuk menitipkan token pada user, beberapa yang sering digunakan antara lain:</p>
+
+<ul>
+<li>masukkan ke cookie. Ya kita pakai cookie lagi, tapi tidak menyimpan keseluruhan data state, melainkan cuma session ID saja.</li>
+<li>disisipkan di setiap link dan form. URL yang tadinya seperti ini : <code>http://localhost/aplikasi/personlist</code> menjadi seperti ini: <code>http://localhost/aplikasi/personlist?session_id=12a75tj67</code>.</li>
+<li>dikirim ke server sebagai HTML input. Biasanya tipe yang dipilih adalah <em>hidden</em>. Cara ini memiliki kelemahan, karena tidak semua request bisa dibungkus dalam form.</li>
+</ul>
+
+
+<p>Data state yang disimpan di server juga memiliki beberapa pilihan lokasi penyimpanan, antara lain:</p>
+
+<ul>
+<li>di webserver. Webserver menulis satu file per satu session. Semua data disimpan di sini. Cara ini paling mudah dikonfigurasi, sehingga banyak webserver menjadikan cara ini sebagai default. Kelemahannya, metode ini menyulitkan kita untuk mengcluster webserver, karena kita kemudian harus memikirkan bagaimana mensinkronisasikan data session di masing-masing anggota cluster</li>
+<li>di database. Webserver dikonfigurasi agar menyimpan datanya di database. Cara ini cukup sulit, mengingat dialek SQL masing-masing database berbeda. Banyak vendor webserver tidak mau menulis adapter untuk masing-masing merek database, sehingga kita harus periksa dulu apakah database yang kita gunakan didukung atau tidak. Bila tidak, kita terpaksa menulis sendiri kode program untuk state management.</li>
+<li>di distributed cache. Ada beberapa aplikasi cache yang mengkhususkan diri untuk menyimpan data secara terdistribusi, misalnya <a href="name=">memcached</a> yang open source atau <a href="http://www.oracle.com/technology/products/coherence/index.html">Oracle Coherence</a> yang berbayar. Penyimpanan ini bisa dicluster sendiri, terpisah dari webserver. Dengan pendekatan ini, kita bisa mengcluster webserver sesuka hati, karena statenya tidak disimpan webserver, melainkan dititipkan di distributed cache. Kelemahan cara ini sama dengan metode database. Tidak semua webserver menyediakan support. Kadang kita harus tulis kodenya sendiri.</li>
+<li>di upstream layer. Beberapa orang menggunakan arsitektur empat layer : client - web layer - application layer - database. Dengan arsitektur ini, semua state disimpan di application layer. Biasanya server yang digunakan untuk application layer memiliki mekanisme state management yang lebih baik daripada webserver. Terutama jika kita ingin melakukan clustering.</li>
+</ul>
+
+
+<p>Sekarang setelah kita mengerti konsepnya, mari kita implementasikan pada contoh aplikasi kita. Kita akan menggunakan state management untuk menampilkan hasil upload data Person.</p>
+
+<p>Kode upload kita kemarin bekerja sebagai berikut :</p>
+
+<ol>
+<li>user melakukan upload dengan mensubmit form</li>
+<li>server memproses, kemudian mengirim redirect ke halaman berikut</li>
+<li>browser menerima perintah redirect, kemudian melakukan request GET ke URL lain sesuai perintah redirect</li>
+<li>server menerima request GET, kemudian melakukan proses dan merender hasilnya</li>
+<li>browser menampilkan respon dari server</li>
+</ol>
+
+
+<p>Teknik ini sering disebut Post-Redirect-Get (PRG) pattern.</p>
+
+<p>Kesalahan umum programmer web pemula adalah memproses form sebagai berikut:</p>
+
+<ol>
+<li>user melakukan upload dengan mensubmit form</li>
+<li>server memproses, kemudian merender hasilnya</li>
+<li>browser menampilkan respon dari server</li>
+</ol>
+
+
+<p>Bila user merefresh halaman hasil, maka yang dilakukan browser adalah mengulang dari langkah 1. Ini akan mengakibatkan form tersubmit dua kali. Berbeda dengan teknik PRG, kalau user merefresh halaman hasil, maka browser akan mengulangi dari langkah ketiga, yaitu GET untuk halaman hasil. Dengan demikian form tidak disubmit dua kali.</p>
+
+<p>Kita menghadapi tantangan untuk mengimplementasikan PRG pada halaman upload result. Kalau hanya sekedar pesan sukses, kita bisa membuat redirect ke <code>http://localhost/aplikasi/personuploadresult?msg=Sukses</code>. Tapi yang ingin kita tampilkan adalah daftar yang memuat mana data yang sukses diimport, dan mana data yang gagal. Sulit untuk dikirim melalui URL.</p>
+
+<p>Untuk itu, kita harus simpan data tersebut di session. Berikut adalah kode pemrosesan upload yang sudah dimodifikasi.</p>
+
+<h3>PersonUploadController.java</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+@RequestMapping("/personuploadform")
+public class PersonUploadController {
+    private static final Log LOG = LogFactory.getLog(PersonUploadController.class);
+    private static final String REDIRECT_PERSONUPLOADRESULT = "redirect:personuploadresult";
+
+
+    @RequestMapping(method=RequestMethod.POST) 
+    public String processForm(@RequestParam("persondata") MultipartFile file, final HttpSession session) {
+
+        // parse file into list of strings
+        List&lt;String&gt; contents = new ArrayList&lt;String&gt;();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            String content = reader.readLine();
+            while(content != null) {
+                contents.add(content);
+                content = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+
+        // parse list of strings into list of Persons
+        List&lt;Person&gt; persons = new ArrayList&lt;Person&gt;();
+        List&lt;ParseError&gt; errors = new ArrayList&lt;ParseError&gt;();
+        personDataParser.parse(contents, persons, errors);
+
+        for (Person person : persons) {
+            personDao.save(person);
+        }
+
+        session.setAttribute(Constants.PERSONUPLOAD_ERRORS_KEY, errors);
+        session.setAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY, persons);
+
+        return REDIRECT_PERSONUPLOADRESULT;
+    }
+}
+</code></pre>
+
+<p>Perhatikan dua baris <code>session.setAttribute</code> di bagian bawah.
+Setelah menyimpan data di session, kita redirect ke halaman hasil.</p>
+
+<p>Pada halaman hasil, terlebih dulu kita pindahkan data hasil upload dari session ke request. Kemudian data yang ada di session kita hapus, agar tidak membebani memori ataupun kapasitas penyimpanan server. Lalu baru kita render tampilannya.</p>
+
+<p>Berikut adalah kode untuk memindahkan data dari session ke request. Terletak di class <code>PersonController</code>, dalam method <code>uploadResult</code>.</p>
+
+<h3>PersonController</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+public class PersonController { 
+
+    @RequestMapping("/personuploadresult")
+    public ModelMap uploadResult(final HttpSession session){
+        final ModelMap modelMap = new ModelMap();
+
+        if (session.getAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY) != null) {
+
+            modelMap.addAttribute(
+                session.getAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY)
+            );
+
+            session.removeAttribute(Constants.PERSONUPLOAD_SUCCESS_KEY);
+        }
+
+        if (session.getAttribute(Constants.PERSONUPLOAD_ERRORS_KEY) != null) {
+
+            modelMap.addAttribute(
+                session.getAttribute(Constants.PERSONUPLOAD_ERRORS_KEY)
+            );
+
+            session.removeAttribute(Constants.PERSONUPLOAD_ERRORS_KEY);
+        }
+
+        return modelMap;
+    }
+}
+</code></pre>
+
+<p>Dan ini adalah template yang digunakan untuk menampilkan hasil upload.</p>
+
+<h3>personuploadresult.html</h3>
+
+<pre><code>&lt;html&gt;
+
+  &lt;head&gt;&lt;title&gt;:: Person Upload Result ::&lt;/title&gt;&lt;/head&gt;
+
+  &lt;body&gt;
+
+    &lt;h1&gt;Person Upload Result&lt;/h1&gt;
+
+    &lt;h2&gt;Successfully Imported Person Data&lt;/h2&gt;
+    #if (!$personList ||  ${personList.isEmpty()})
+
+      &lt;h3&gt;No Data&lt;/h3&gt;
+
+    #else
+
+    &lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+      &lt;/tr&gt;
+      #foreach($person in $personList)
+      &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;
+          &lt;a href="personform?id=$person.Id"&gt;edit&lt;/a&gt; | 
+          &lt;a href="persondetail?id=$person.Id"&gt;view&lt;/a&gt;
+        &lt;/td&gt;
+      &lt;/tr&gt;
+      #end
+    &lt;/table&gt;
+
+    #end
+
+
+    &lt;h2&gt;Erroneous Data&lt;/h2&gt;
+    #if (!$parseErrorList ||  ${parseErrorList.isEmpty()})
+
+    &lt;h3&gt;No Data&lt;/h3&gt;
+
+    #else
+
+    &lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;Row&lt;/th&gt;
+        &lt;th&gt;Data&lt;/th&gt;
+        &lt;th&gt;Reason&lt;/th&gt;
+      &lt;/tr&gt;
+
+      #foreach($error in $parseErrorList)
+      &lt;tr&gt;
+        &lt;td&gt;$error.Line&lt;/td&gt;
+        &lt;td&gt;$error.Text&lt;/td&gt;
+        &lt;td&gt;$error.Reason&lt;/td&gt;
+      &lt;/tr&gt;
+      #end
+    &lt;/table&gt;
+    #end
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Di framework Ruby on Rails, sudah ada dukungan untuk kegiatan ini, namanya flash message. Flash message akan menyimpan data di session, kemudian menghapusnya pada request berikutnya.</p>
+
+<p>Pada artikel ini kita sudah melakukan state management sederhana. Untuk kemampuan yang lebih canggih seperti pengelolaan shopping cart atau wizard, kita bisa menggunakan framework Spring Web Flow. Dengan SWF, flow aplikasi bisa diedit secara grafis. Ini akan memudahkan kita untuk mendokumentasikan flow navigasi aplikasi.</p>
+
+<p><img src="/images/uploads/2008/01/webflow_editor.png" title="Spring Web Flow Editor" ></p>
+
+<p>Gambar diambil dari <a href="http://springide.org/project/wiki/WebFlowEditorUsage">situsnya SWF</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -368,176 +650,6 @@ public class PersonUploadController {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/manajemen/continuous-integration/">Continuous Integration</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-01-16T22:37:23+07:00" pubdate data-updated="true">Jan 16<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tools untuk Continuous Integration sudah sering dibahas di sini. Ada <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a>, <a href="http://endy.artivisi.com/blog/java/luntbuild/">Luntbuild</a>, dan <a href="http://endy.artivisi.com/blog/java/hudson/">Hudson</a>. Apa yang begitu pentingnya dari proses ini sehingga saya meluangkan waktu untuk melihat setiap tools yang ada?</p>
-
-<p>Continuous Integration, <a href="http://martinfowler.com/articles/continuousIntegration.html">menurut Martin Fowler</a>, begini:</p>
-
-<blockquote><p>Continuous Integration is a software development practice where members of a team integrate their work frequently, usually each person integrates at least daily - leading to multiple integrations per day.</p></blockquote>
-
-<p>Each integration is verified by an automated build (including test) to detect integration errors as quickly as possible.</p>
-
-<p>Many teams find that this approach leads to significantly reduced integration problems and allows a team to develop cohesive software more rapidly.</p>
-
-<p>Ada beberapa keyword di sini:</p>
-
-<ul>
-<li>integrate their work</li>
-<li>frequently</li>
-<li>verified by automated build (including test)</li>
-<li>detect errors as quickly as possible</li>
-<li>significant reduced problems</li>
-<li>develop .. rapidly</li>
-</ul>
-
-
-<p>Mari kita bahas lebih jauh.</p>
-
-<p>Sebagai contoh, kita membuat aplikasi dengan bahasa pemrograman Java. Langkah-langkah yang harus dilakukan sampai suatu kode program bisa digunakan antara lain:</p>
-
-<ol>
-<li>tulis source code</li>
-<li>kompilasi</li>
-<li>coba dijalankan sendiri (unit-test)</li>
-<li>coba gabungkan dengan kode lain (integration-test)</li>
-<li>deploy / install</li>
-<li>coba fitur-fiturnya</li>
-<li>kalau semua OK, cepat-cepat diarsip</li>
-</ol>
-
-
-<p>Cukup banyak kegiatan yang harus dilakukan untuk menambah satu fitur. Penggunaan bahasa dinamik (seperti PHP atau Ruby) hanya mengurangi langkah kedua. Sisanya sama.</p>
-
-<p>Kegiatan yang banyak ini akan sangat membosankan kalau dikerjakan secara manual. Bukan cuma boring, tapi juga rawan error. Di tengah tekanan deadline, sangat mungkin kita akan melewatkan test yang sudah pernah dijalankan sebelumnya.</p>
-
-<blockquote><p>Hei, dulu saja jalan .. kenapa sekarang tidak?</p></blockquote>
-
-<p>Ya belum tentu. Membangun aplikasi mirip seperti membangun rumah-rumahan dari kartu. Sedikit penambahan bisa merobohkan seluruh bangunan. Jadi sangat penting kita untuk sering-sering melakukan integrasi. Dan yang juga penting, test yang sudah ada harus dijalankan semuanya.</p>
-
-<p>Sekarang sudah ada tools yang membantu kita melakukannya. Cukup investasi waktu 10 menit untuk melakukan instalasi dan konfigurasi. Investasi 10 menit ini akan menghasilkan:</p>
-
-<ul>
-<li>build scheduler</li>
-<li>laporan kemajuan project setiap saat</li>
-<li>notifikasi setiap ada error</li>
-<li>arsip build</li>
-</ul>
-
-
-<p>Lalu apa manfaat dari fitur-fitur ini?</p>
-
-<p>Banyak, mari kita bahas satu persatu.</p>
-
-<h3>Build Scheduler</h3>
-
-<p>Semua kegiatan build kita tadi, mulai dari checkout dari version control sampai membuat installer aplikasi bisa dilakukan secara terjadwal. Misalnya satu jam sekali, satu hari tiga kali, dan sebagainya.</p>
-
-<p>Kita juga bisa mengkonfigurasi macam-macam jadwal. Misalnya untuk test dengan data sedikit bisa dijalankan sering-sering. Test yang melibatkan data banyak &#8211;seperti test End Of Day process atau simulasi performance aplikasi dengan satu tahun data&#8211; bisa dijalankan di malam hari, waktu semua orang sedang tidur.</p>
-
-<h3>Laporan Kemajuan Project</h3>
-
-<p>Pernahkah Anda, sedang asyik coding, puluhan variabel beterbangan di dalam otak, tiba-tiba dipanggil oleh Project Manager.</p>
-
-<blockquote><p>Fitur XX sudah selesai?</p></blockquote>
-
-<p>Kita jawab, &#8220;Sudah&#8221;. Kemudian balik lagi ke kode program, hanya untuk menyadari bahwa seluruh konsentrasi sudah buyar, sehingga butuh waktu 10 menit untuk mengingat-ingat apa yang tadi sedang dikerjakan.</p>
-
-<p>Dengan adanya tools Continuous Integration, Project Manager bisa langsung melihat kemajuan project di websitenya. Sehingga dia tidak perlu mengganggu konsentrasi orang lain.</p>
-
-<h3>Notifikasi Error</h3>
-
-<p>Misalnya kita mengubah nama kolom di database, ternyata menyebabkan fungsi-fungsi lain jadi error. Akan lebih cepat untuk memperbaiki hal ini jika antara kita mengubah nama kolom dan saat error ketahuan selisihnya singkat. Bagaimana cara supaya error cepat ketahuan? Ada dua cara:</p>
-
-<ol>
-<li>test suite harus lengkap, sehingga mencakup seluruh bagian kode.</li>
-<li>test suite harus sering-sering dijalankan.</li>
-</ol>
-
-
-<p>Tools CI membantu kita di item #2. Tetapi test suite tetap harus kita yang membuatnya.</p>
-
-<h3>Arsip Build</h3>
-
-<p>Project Manager lagi-lagi mengganggu konsentrasi kita. Kali ini dia mau presentasi ke customer dan mau menunjukkan aplikasi terbaru. Sialnya, tadi pagi kita baru saja mulai mengganti framework, tadinya pakai <a href="http://www.icefaces.org/main/home/index.jsp">IceFaces</a> mau diganti jadi <a href="http://labs.jboss.com/jbossrichfaces/">RichFaces</a>. Wow, kenapa harus diganti?? Hmm .. sayangnya itu diluar pembahasan artikel ini.</p>
-
-<p>Karena ada perombakan arsitektur besar-besaran, maka aplikasi saat ini sedang berantakan. Tidak mungkin kita memberikan aplikasi terbaru ini untuk dibawa presentasi. Bisa-bisa Project Manager kita mendapat malu karena bukannya mendemokan aplikasi, malah mendemokan stack trace.</p>
-
-<p>Untuk mengambil versi sebelum dirombak juga belum tentu pekerjaan mudah. Tergantung apakah Anda menggunakan Subversion atau tidak. Dan apakah kita rajin membuat tag untuk menandai titik-titik penting.</p>
-
-<p>Continuous Integration Tools to the rescue &#8230;.</p>
-
-<p>Langsung saja buka arsip build. Cari build terakhir yang sukses, dan berikan pada bos. Jangan lupa diberi pesan, &#8220;Kapan-kapan kalau butuh yang seperti ini lagi, langsung saja buka URL ini ya.&#8221;</p>
-
-<p>Bila proses CI ini berjalan lancar, hidup programmer jadi jauh lebih nyaman. Dia tinggal:</p>
-
-<ul>
-<li>coding</li>
-<li>buat unit test dan integration test</li>
-<li>jalankan dua-duanya</li>
-<li>kalau OK, commit</li>
-<li>balik lagi ke coding</li>
-</ul>
-
-
-<p>Sekarang kita kembali ke daftar keywordnya Martin Fowler di atas. Agar proses CI ini bisa berjalan baik, semua orang harus <em>integrate their work</em>. Setiap kode yang ditulis harus segera digabungkan dengan kode yang lainnya (yang ditulis anggota tim lainnya).</p>
-
-<p>Ini harus dilakukan <em>frequently</em>, sering-sering. Ini agar error yang muncul bisa segera terdeteksi.</p>
-
-<p>Seluruh kegiatan mulai dari kompilasi sampai <a href="http://endy.artivisi.com/blog/java/membuat-installer-dengan-izpack/">bikin installer</a> harus diotomasi. Kalau sudah otomatis, CI tools akan bisa mengeksekusinya dengan mudah.</p>
-
-<p>Kalau semua ini dilakukan, Martin Fowler berjanji bahwa kegiatan coding akan menjadi lebih <em>rapid</em> dan <em>significantly reduces problem</em>.</p>
-
-<p>Nah, investasinya cuma 5-10 menit instalasi dan konfigurasi, keuntungannya banyak sekali. Lalu kenapa tidak banyak yang mengimplementasikannya?</p>
-
-<p>Oh iya, saya lupa kasi tau. Implementasi CI sendiri mungkin 5-10 menit. Tapi proses ini punya ketergantungan terhadap tools dan praktek lain, yaitu:</p>
-
-<ul>
-<li>Automated Testing</li>
-<li>Version Control</li>
-</ul>
-
-
-<p>Dua praktek ini mengharuskan kita mengubah pola pikir dan kebiasaan, mirip seperti orang yang mau kurus atau berhenti merokok.</p>
-
-<p>So &#8230; Good Luck</p>
-
-<p>:D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/26/">&larr; Older</a>
@@ -600,6 +712,10 @@ public class PersonUploadController {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
       </li>
     
@@ -635,10 +751,6 @@ public class PersonUploadController {
         <a href="/java/staged-deployment/">Staged Deployment</a>
       </li>
     
-      <li class="post">
-        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -666,7 +778,7 @@ public class PersonUploadController {
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Endy Muhardin -
+  Copyright &copy; 2013 - Endy Muhardin -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sudah tau RSS? Jika Anda bukan programmer, wajar jika tidak tahu. Tapi jika Anda programmer &#8230; jangan sampai tidak tahu. Apalagi bilang, RSS itu &hellip;">
+  <meta name="description" content="Pada artikel ini, kita akan belajar cara menambahkan feed aggregator di website kita. Untuk mudahnya, kita gunakan pustaka Magpie RSS. Dengan library &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,101 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/php/aggregator-magpierss/">Membuat Aggregator Dengan MagpieRSS</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-02-08T23:54:54+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel ini, kita akan belajar cara menambahkan feed aggregator di website kita. Untuk mudahnya, kita gunakan pustaka <a href="magpierss.sourceforge.net">Magpie RSS</a>. Dengan library ini, kita bisa membuat website yang berisi rangkuman dari website-website lain (web-based aggregator).</p>
+
+<p>Penjelasan tentang apa itu RSS dapat dilihat di <a href="http://endy.artivisi.com/blog/lain/apa-itu-rss/">artikel ini</a>.</p>
+
+<h2>Cara penggunaan Magpie RSS</h2>
+
+<p>Setelah donlod dan extract, copy empat file magpie:</p>
+
+<ul>
+<li><p>rss_cache.inc</p></li>
+<li><p>rss_fetch.inc</p></li>
+<li><p>rss_parse.inc</p></li>
+<li><p>rss_utils.inc</p></li>
+</ul>
+
+
+<p>Berikut file dependensinya yang ada di folder extlib.</p>
+
+<p>Selanjutnya, untuk mengolah RSS feed, hanya dibutuhkan tiga baris kode:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="x">require_once(&#39;inc/rss_fetch.inc&#39;);</span>
+</span><span class='line'><span class="x">$url = &quot;http://www.php.net/news.rss&quot;;</span>
+</span><span class='line'><span class="x">$rss = fetch_rss($url);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Variabel $rss tinggal dilooping dan ditampilkan sesuai keinginan. Sebagai contoh, saya tampilkan isi feed dalam tabel.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;table</span> <span class="na">border=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;tr&gt;&lt;th&gt;</span>No<span class="nt">&lt;/th&gt;&lt;th&gt;</span>Judul<span class="nt">&lt;/th&gt;&lt;th&gt;</span>Ringkasan<span class="nt">&lt;/th&gt;&lt;/tr&gt;</span>
+</span><span class='line'>    <span class="cp">&lt;? $i=0; foreach ($rss-&gt;items as $item) { $i++; ?&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;tr&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;td&gt;</span><span class="cp">&lt;?=$i ?&gt;</span><span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;&lt;? echo($item[link]); ?&gt;&quot;</span><span class="nt">&gt;</span><span class="cp">&lt;? echo($item[title]); ?&gt;</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;td&gt;</span><span class="cp">&lt;? echo($item[description]); ?&gt;</span><span class="nt">&lt;/td&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/tr&gt;</span>
+</span><span class='line'>    <span class="cp">&lt;? } ?&gt;</span>
+</span><span class='line'><span class="nt">&lt;/table&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hasilnya dapat dilihat <a href="http://endy.artivisi.com/downloads/code/magpie-rss/magpie.php">di sini</a>. Sedangkan source codenya dapat didownload <a href="http://endy.artivisi.com/downloads/code/magpie-rss.zip">di sini</a>.</p>
+
+<p>Demikian &#8230; cukup mudah bukan?
+Selamat menampilkan rangkuman website orang di website anda sendiri. Jangan lupa memperhatikan etika dan hak cipta.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -251,117 +346,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/interface-abstract/">Interface vs Abstract Class</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-01-25T23:31:25+07:00" pubdate data-updated="true">Jan 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><blockquote><p>Kapan pakai interface, dan kapan pakai abstract class?</p></blockquote>
-
-<p>Pertanyaan menarik ini muncul di milis jug-indonesia. Karena jawabannya cukup panjang, jadi saya copy-paste, sesuaikan sedikit, dan posting di blog.</p>
-
-<p>First of all, ini pertanyaan advanced. Kapan pakai interface, dan kapan pakai abstract class itu cuma bisa dipahami dengan coding banyak-banyak (learning by doing), berpikir secara abstrak, dan banyak belajar desain aplikasi. Jadi jangan berkecil hati kalau Anda bingung setelah membaca artikel ini. Bukannya Anda tidak berbakat coding, tapi hanya kurang jam terbang saja.</p>
-
-<p>Berikut jawaban saya.</p>
-
-<blockquote><p>Abstract class itu digunakan untuk mengimplementasikan pattern Template Method. Sedangkan interface digunakan (diantaranya) untuk mengimplementasikan pattern Observer.</p></blockquote>
-
-<p>Pakai interface bila satu class mau memiliki beberapa tipe data. Di Java, tipe data ditentukan oleh interface dan class. Mengacu pada buku Design Pattern, interface digunakan untuk menerapkan pattern Observer.</p>
-
-<p>Contoh mudahnya seperti ini. Misalnya kita membuat aplikasi GUI. dan menggunakan komponen text (JTextArea). Komponen ini memiliki beberapa method untuk mengaktifkan event handling, beberapa diantaranya:</p>
-
-<ul>
-<li>addMouseListener(MouseListener msl) : merespon gerakan mouse</li>
-<li>addCaretListener(CaretListener cls) : merespon gerakan kursor</li>
-</ul>
-
-
-<p>Kalau kita definsikan class seperti ini:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">EventLog</span> <span class="kd">implements</span> <span class="n">MouseListener</span><span class="o">,</span> <span class="n">CaretListener</span> <span class="o">{}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>maka class EventLog bisa diumpankan pada kedua method di atas, karena class EventLog bertipe data EventLog, MouseListener, dan juga CaretListener.</p>
-
-<p>Lalu, kapan kita menggunakan abstract class? Salah satunya apabila kita ingin membuat Template Method.</p>
-
-<p>Kutipan dari Design Pattern GoF</p>
-
-<blockquote><p>By defining some of the steps of an algorithm using abstract operations, the template method fixes their ordering, but it lets Application and Document subclasses vary those steps to suit their needs.</p></blockquote>
-
-<p>Seperti kita ketahui, Template Method itu salah satu methodnya concrete dan (sebaiknya) final.</p>
-
-<p>Contoh template method bisa dilihat di implementasi AbstractFormController di <a href="http://www.springframework.org">Spring Framework</a>.</p>
-
-<p>Untuk non-pengguna Spring, AbstractFormController itu mendefinisikan workflow pemrosesan HTML form. Method yang perlu diperhatikan di sini adalah method handleRequestInternal. Isi method ini kira2 seperti ini (dimodifikasi agar mudah dimengerti):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">handleRequestInternal</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">bindDataDariForm</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">setelahBindSebelumValidasi</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">validasiData</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">setelahValidasi</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">processFormSubmission</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Seperti kita lihat di atas, method ini memanggil beberapa method lain secara berurutan. Urutan ini penting, karena kita tidak mau validasi dipanggil setelah form diproses. Apa gunanya validasi kalau pemrosesan sudah selesai?</p>
-
-<p>Class AbstractFormController ini punya abstract method, yaitu:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">processFormSubmission</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Kenapa dibuat abstract? Karena pada saat menulis kode tersebut, Rod Johnson tidak tahu apa yang kita ingin lakukan pada saat form diproses. Ada yang mau simpan ke database, ada yang mau kirim email, dan berbagai kegiatan lain yang tidak terbayangkan sebelumnya. Oleh karena itu, method ini dibuat abstract, sehingga kita harus membuat implementasinya (override)</p>
-
-<p>Nah, kita sebagai end-user, biasanya hanya perlu mengimplement method processFormSubmission tersebut. Method lainnya hanya dioverride apabila perlu. Misalnya kita ingin pakai logika validasi sendiri, atau ada pemrosesan khusus setelah validasi.</p>
-
-<p>Teknik Template Method ini tidak bisa diimplement dengan interface, karena harus ada method concrete handleRequestInternal yang berfungsi untuk mendefinsikan workflow.</p>
-
-<p>Demikian, mudah-mudahan bisa dimengerti.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/38/">&larr; Older</a>
@@ -424,6 +408,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
       </li>
     
@@ -459,10 +447,6 @@
         <a href="/java/staged-deployment/">Staged Deployment</a>
       </li>
     
-      <li class="post">
-        <a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -490,7 +474,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2012 - Endy Muhardin -
+  Copyright &copy; 2013 - Endy Muhardin -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

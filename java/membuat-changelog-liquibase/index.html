@@ -1,0 +1,894 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Membuat Changelog Liquibase - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Di ArtiVisi, kami menggunakan tools bernama Liquibase untuk mendefinisikan skema database.
+Dengan Liquibase ini, skema database dapat disimpan dan &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      
+        <h1 class="entry-title">Membuat Changelog Liquibase</h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-10T10:03:00+07:00" pubdate data-updated="true">Jan 10<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Di ArtiVisi, kami menggunakan tools bernama <a href="http://liquibase.org/">Liquibase</a> untuk mendefinisikan skema database.
+Dengan Liquibase ini, skema database dapat disimpan dan dikelola versinya dalam Git.
+Dia juga memiliki fitur untuk melakukan migrasi database pada saat aplikasi kita naik versi.
+Bila terjadi error di versi baru, Liquibase juga bisa melakukan rollback
+agar skema database kita kembali ke kondisi sebelum naik versi.</p>
+
+<p>Skema database dalam Liquibase ditulis dalam format XML, disebut dengan istilah <code>changelog</code>.
+Untuk project baru, ini bisa ditulis tangan secara manual,
+tetapi untuk aplikasi yang sudah ada,
+terlalu merepotkan kalau semua tabel yang sudah ada harus ditulis ulang skemanya.</p>
+
+<!--more-->
+
+
+<p>Untungnya Liquibase memiliki fitur untuk menulis changelog dari skema yang sudah ada.
+Berikut langkah-langkahnya:</p>
+
+<ol>
+<li>Siapkan jar liquibase dan database</li>
+<li>Siapkan file konfigurasi</li>
+<li>Jalankan liquibase</li>
+<li>Cek hasilnya</li>
+</ol>
+
+
+<h2>Siapkan jar liquibase dan database</h2>
+
+<p>Database yang akan saya import memiliki konfigurasi sebagai berikut:</p>
+
+<ul>
+<li>Jenis Database : MySQL</li>
+<li>Nama Database : merchant-simulator_development</li>
+<li>Username Database : root</li>
+<li>Password Database : admin</li>
+</ul>
+
+
+<p>Untuk itu, saya siapkan dua file jar, yaitu :</p>
+
+<ul>
+<li>mysql-connector-java-5.1.22.jar</li>
+<li>liquibase-core-2.0.5.jar</li>
+</ul>
+
+
+<h2>File Konfigurasi</h2>
+
+<p>Sebetulnya semua informasi ini bisa disebutkan dalam command line argument.
+Tapi saya lebih suka menulis di file supaya mudah diedit.
+Berikut isinya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># liquibase.properties
+</span><span class='line'>driver: com.mysql.jdbc.Driver
+</span><span class='line'>classpath: mysql-connector-java-5.1.22.jar
+</span><span class='line'>url: jdbc:mysql://localhost/merchant-simulator_development
+</span><span class='line'>username: root
+</span><span class='line'>password: admin
+</span><span class='line'>changeLogFile: liquibase-output.xml</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Simpan file ini dengan nama <code>liquibase.properties</code> dan letakkan di folder yang sama dengan kedua file jar tersebut.</p>
+
+<h2>Jalankan Liquibase</h2>
+
+<p>Mari kita jalankan proses import dengan command berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>java -jar liquibase-core-2.0.5.jar generateChangelog</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cek Hasilnya</h2>
+
+<p>Perintah di atas akan menghasilkan file <code>liquibase-output.xml</code> yang isinya seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;databaseChangeLog</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.liquibase.org/xml/ns/dbchangelog&quot;</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-1&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_application_config&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span> <span class="na">primaryKey=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;label&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;value&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-2&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_security_menu&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span> <span class="na">primaryKey=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;label&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;menu_action&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;menu_level&quot;</span> <span class="na">type=</span><span class="s">&quot;INT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;menu_order&quot;</span> <span class="na">type=</span><span class="s">&quot;INT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;menu_options&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_parent&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-3&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_security_permission&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span> <span class="na">primaryKey=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;permission_label&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;permission_value&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-4&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_security_role&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span> <span class="na">primaryKey=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;description&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-5&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_security_role_menu&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_role&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_menu&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-6&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_security_role_permission&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_role&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_permission&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-7&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;c_security_user&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span> <span class="na">primaryKey=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;fullname&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;active&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_role&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-8&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createTable</span> <span class="na">tableName=</span><span class="s">&quot;t_tagihan_listrik&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span> <span class="na">primaryKey=</span><span class="s">&quot;true&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;admin&quot;</span> <span class="na">type=</span><span class="s">&quot;DECIMAL(19,2)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;bulan_tagihan&quot;</span> <span class="na">type=</span><span class="s">&quot;DATE&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;current_meter_reading_1&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;current_meter_reading_2&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;current_meter_reading_3&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;denda&quot;</span> <span class="na">type=</span><span class="s">&quot;DECIMAL(19,2)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;id_pelanggan&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;jatuh_tempo&quot;</span> <span class="na">type=</span><span class="s">&quot;DATE&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;lunas&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;meter_read_date&quot;</span> <span class="na">type=</span><span class="s">&quot;DATE&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;mitra_lunas&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;nama_pelanggan&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;nilai&quot;</span> <span class="na">type=</span><span class="s">&quot;DECIMAL(19,2)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;pajak&quot;</span> <span class="na">type=</span><span class="s">&quot;DECIMAL(19,2)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;power_consuming_category&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;previous_meter_reading_1&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;previous_meter_reading_2&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;previous_meter_reading_3&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;referensi_lunas&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;service_unit&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;service_unit_hone&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;subscriber_segmentation&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;waktu_lunas&quot;</span> <span class="na">type=</span><span class="s">&quot;DATETIME&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createTable&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-9&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addPrimaryKey</span> <span class="na">columnNames=</span><span class="s">&quot;id_role, id_menu&quot;</span> <span class="na">tableName=</span><span class="s">&quot;c_security_role_menu&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-10&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addPrimaryKey</span> <span class="na">columnNames=</span><span class="s">&quot;id_role, id_permission&quot;</span> <span class="na">tableName=</span><span class="s">&quot;c_security_role_permission&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-11&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addForeignKeyConstraint</span> <span class="na">baseColumnNames=</span><span class="s">&quot;id_parent&quot;</span> <span class="na">baseTableName=</span><span class="s">&quot;c_security_menu&quot;</span> <span class="na">baseTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">constraintName=</span><span class="s">&quot;fk_menu_parent&quot;</span> <span class="na">deferrable=</span><span class="s">&quot;false&quot;</span> <span class="na">initiallyDeferred=</span><span class="s">&quot;false&quot;</span> <span class="na">onDelete=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">onUpdate=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">referencedColumnNames=</span><span class="s">&quot;id&quot;</span> <span class="na">referencedTableName=</span><span class="s">&quot;c_security_menu&quot;</span> <span class="na">referencedTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">referencesUniqueColumn=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-12&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addForeignKeyConstraint</span> <span class="na">baseColumnNames=</span><span class="s">&quot;id_menu&quot;</span> <span class="na">baseTableName=</span><span class="s">&quot;c_security_role_menu&quot;</span> <span class="na">baseTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">constraintName=</span><span class="s">&quot;fk_role_menu_menu&quot;</span> <span class="na">deferrable=</span><span class="s">&quot;false&quot;</span> <span class="na">initiallyDeferred=</span><span class="s">&quot;false&quot;</span> <span class="na">onDelete=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">onUpdate=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">referencedColumnNames=</span><span class="s">&quot;id&quot;</span> <span class="na">referencedTableName=</span><span class="s">&quot;c_security_menu&quot;</span> <span class="na">referencedTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">referencesUniqueColumn=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-13&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addForeignKeyConstraint</span> <span class="na">baseColumnNames=</span><span class="s">&quot;id_role&quot;</span> <span class="na">baseTableName=</span><span class="s">&quot;c_security_role_menu&quot;</span> <span class="na">baseTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">constraintName=</span><span class="s">&quot;fk_role_menu_role&quot;</span> <span class="na">deferrable=</span><span class="s">&quot;false&quot;</span> <span class="na">initiallyDeferred=</span><span class="s">&quot;false&quot;</span> <span class="na">onDelete=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">onUpdate=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">referencedColumnNames=</span><span class="s">&quot;id&quot;</span> <span class="na">referencedTableName=</span><span class="s">&quot;c_security_role&quot;</span> <span class="na">referencedTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">referencesUniqueColumn=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-14&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addForeignKeyConstraint</span> <span class="na">baseColumnNames=</span><span class="s">&quot;id_permission&quot;</span> <span class="na">baseTableName=</span><span class="s">&quot;c_security_role_permission&quot;</span> <span class="na">baseTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">constraintName=</span><span class="s">&quot;fk_role_permission_permission&quot;</span> <span class="na">deferrable=</span><span class="s">&quot;false&quot;</span> <span class="na">initiallyDeferred=</span><span class="s">&quot;false&quot;</span> <span class="na">onDelete=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">onUpdate=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">referencedColumnNames=</span><span class="s">&quot;id&quot;</span> <span class="na">referencedTableName=</span><span class="s">&quot;c_security_permission&quot;</span> <span class="na">referencedTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">referencesUniqueColumn=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-15&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addForeignKeyConstraint</span> <span class="na">baseColumnNames=</span><span class="s">&quot;id_role&quot;</span> <span class="na">baseTableName=</span><span class="s">&quot;c_security_role_permission&quot;</span> <span class="na">baseTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">constraintName=</span><span class="s">&quot;fk_role_permission_role&quot;</span> <span class="na">deferrable=</span><span class="s">&quot;false&quot;</span> <span class="na">initiallyDeferred=</span><span class="s">&quot;false&quot;</span> <span class="na">onDelete=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">onUpdate=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">referencedColumnNames=</span><span class="s">&quot;id&quot;</span> <span class="na">referencedTableName=</span><span class="s">&quot;c_security_role&quot;</span> <span class="na">referencedTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">referencesUniqueColumn=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-16&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addForeignKeyConstraint</span> <span class="na">baseColumnNames=</span><span class="s">&quot;id_role&quot;</span> <span class="na">baseTableName=</span><span class="s">&quot;c_security_user&quot;</span> <span class="na">baseTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">constraintName=</span><span class="s">&quot;fk_user_role&quot;</span> <span class="na">deferrable=</span><span class="s">&quot;false&quot;</span> <span class="na">initiallyDeferred=</span><span class="s">&quot;false&quot;</span> <span class="na">onDelete=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">onUpdate=</span><span class="s">&quot;NO ACTION&quot;</span> <span class="na">referencedColumnNames=</span><span class="s">&quot;id&quot;</span> <span class="na">referencedTableName=</span><span class="s">&quot;c_security_role&quot;</span> <span class="na">referencedTableSchemaName=</span><span class="s">&quot;merchant-simulator_development&quot;</span> <span class="na">referencesUniqueColumn=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-17&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createIndex</span> <span class="na">indexName=</span><span class="s">&quot;name&quot;</span> <span class="na">tableName=</span><span class="s">&quot;c_application_config&quot;</span> <span class="na">unique=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createIndex&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-18&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createIndex</span> <span class="na">indexName=</span><span class="s">&quot;unique_permission_value&quot;</span> <span class="na">tableName=</span><span class="s">&quot;c_security_permission&quot;</span> <span class="na">unique=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;permission_value&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createIndex&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-19&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createIndex</span> <span class="na">indexName=</span><span class="s">&quot;unique_role_name&quot;</span> <span class="na">tableName=</span><span class="s">&quot;c_security_role&quot;</span> <span class="na">unique=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createIndex&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1357786892853-20&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;createIndex</span> <span class="na">indexName=</span><span class="s">&quot;unique_user_username&quot;</span> <span class="na">tableName=</span><span class="s">&quot;c_security_user&quot;</span> <span class="na">unique=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/createIndex&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'><span class="nt">&lt;/databaseChangeLog&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>File di atas siap diedit dan disimpan di repository version control.
+Biasanya, edit yang saya lakukan:</p>
+
+<ul>
+<li>menggabungkan semua <code>createTable</code> menjadi satu changeset</li>
+<li>menggabungkan semua <code>addForeignKeyConstraint</code> dan <code>createIndex</code> menjadi satu changeset</li>
+<li>menambahkan loader untuk file csv sebagai data awal</li>
+<li>mengganti nama file</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-10T10:03:00+07:00" pubdate data-updated="true">Jan 10<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left articlenav" href="/java/membuat-audit-log/" title="Previous Post: Membuat Audit Log">&laquo; Membuat Audit Log</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="facebook_comments" aria-live="polite">
+      <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+    </div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/buku-panduan-markdown-dan-pandoc/">Buku Panduan Markdown dan Pandoc</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc/">Membuat dokumen dengan Markdown dan Pandoc</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/release-management/">Release Management</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/staged-deployment/">Staged Deployment</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
