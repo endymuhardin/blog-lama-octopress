@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-01-10T10:13:13+07:00</updated>
+  <updated>2013-01-24T18:56:57+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,500 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Memahami Dependency Injection]]></title>
+    <link href="http://software.endy.muhardin.com/java/memahami-dependency-injection/"/>
+    <updated>2013-01-24T18:14:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/memahami-dependency-injection</id>
+    <content type="html"><![CDATA[<p><a href="http://www.springsource.org/spring-framework">Spring Framework</a>
+merupakan framework yang sangat populer
+dan banyak digunakan orang di seluruh dunia.
+Jargon utama yang sering kita dengar bersamaan dengan Spring Framework
+adalah prinsip <em>Dependency Injection</em>. Ini adalah teknik pemrograman
+yang digadang-gadang mampu merapikan aplikasi yang kita buat sehingga
+mudah dipahami dan dikelola.</p>
+
+<p>Tapi apakah yang dimaksud dengan <em>Dependency Injection</em> atau <em>Inversion of Control</em> itu?</p>
+
+<!--more-->
+
+
+<h1>Contoh Kasus</h1>
+
+<p>Sebagai programmer, kita akan lebih mudah memahami suatu konsep
+bila sudah melihat sendiri contoh kode program dan aplikasinya.
+Untuk itu, kita akan membuat sebuah contoh kasus sederhana,
+yaitu menyimpan data ke tabel <code>produk</code> dalam database.</p>
+
+<p>Untuk titik awal, misalnya kita memiliki class <code>Produk</code> sebagai berikut:</p>
+
+<h2>Produk.java</h2>
+
+<p>```java
+public class Produk {</p>
+
+<pre><code>private Integer id;
+private String kode;
+private String nama;
+private BigDecimal harga;
+
+// getter dan setter tidak ditampilkan
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Supaya rapi, kode program untuk Create (insert), Read (select),
+Update, dan Delete (CRUD), akan kita kumpulkan di dalam class <code>ProdukDao</code> sebagai berikut:</p>
+
+<h2>ProdukDao.java</h2>
+
+<p>```java
+public class ProdukDao {</p>
+
+<pre><code>private DataSource dataSource;
+
+public void create(Produk p) throws Exception {
+    String sql = "insert into produk (kode, nama, harga) ";
+    sql += "(?,?,?)";
+
+    Connection databaseConnection = dataSource.getConnection();
+    PreparedStatement ps = databaseConnection.prepareStatement(sql);
+    ps.setString(1, p.getKode());
+    ps.setString(2, p.getNama());
+    ps.setBigDecimal(3, p.getHarga());
+    ps.executeUpdate();
+    databaseConnection.close();
+}
+
+public Produk cariById(Integer id){
+    // implementasi tidak ditulis
+}
+
+
+public void update(Produk p){
+    // implementasi tidak ditulis
+}
+
+
+public void delete(Produk p){
+    // implementasi tidak ditulis
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Sebagai demonstrasi, kita akan menggunakan/memanggil <code>ProdukDao</code> ini dalam class
+<code>ProdukDaoTest</code> sebagai berikut:</p>
+
+<h2>ProdukDaoTest.java</h2>
+
+<p>```java
+public class ProdukDaoTest {</p>
+
+<pre><code>public static void main(String[] xx){
+    Produk p = new Produk();
+    p.setKode("P-001");
+    p.setNama("Produk 001");
+    p.setHarga(new BigDecimal(10000.00);
+
+    ProdukDao pd = new ProdukDao();
+    pd.simpan(p);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Dari ketiga class di atas, kita akan melihat:</p>
+
+<ul>
+<li>bagaimana implementasi tanpa Dependency Injection</li>
+<li>bagaimana konsep Dependency Injection</li>
+<li>bagaimana menggunakan Spring Framework untuk melakukan Dependency Injection</li>
+</ul>
+
+
+<p>Sebelumnya, apa itu dependency injection? Kalau diterjemahkan ke bahasa Indonesia,
+kira-kira artinya adalah <em>menyediakan kebutuhan</em>.
+Kebutuhan apa yang dimaksud?</p>
+
+<p>Coba lihat class <code>ProdukDao</code>. Untuk bisa menjalankan tugasnya dengan baik,
+dia membutuhkan object <code>DataSource</code>, yaitu koneksi ke database.
+Bagaimana <code>ProdukDao</code> mendapatkan <code>DataSource</code> inilah yang menjadi pembahasan dalam <em>Dependency Injection</em> (DI).</p>
+
+<h1>Tanpa DI</h1>
+
+<p>Kalau kita tidak menggunakan prinsip DI, maka <code>ProdukDao</code> harus mengadakan sendiri object <code>DataSource</code>.
+Kira-kira begini implementasinya:</p>
+
+<p>```java
+public class ProdukDao {</p>
+
+<pre><code>private DataSource dataSource;
+
+public ProdukDao() throws Exception {
+    DataSource dataSource = new BasicDataSource();
+    dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+    dataSource.setUsername("root");
+    dataSource.setPassword("admin");
+    dataSource.setUrl("jdbc:mysql://localhost/belajar");
+}
+
+public void create(Produk p) throws Exception {
+    String sql = "insert into produk (kode, nama, harga) ";
+    sql += "(?,?,?)";
+
+    Connection databaseConnection = dataSource.getConnection();
+    PreparedStatement ps = databaseConnection.prepareStatement(sql);
+    ps.setString(1, p.getKode());
+    ps.setString(2, p.getNama());
+    ps.setBigDecimal(3, p.getHarga());
+    ps.executeUpdate();
+    databaseConnection.close();
+}
+
+public Produk cariById(Integer id){
+    // implementasi tidak ditulis
+}
+
+
+public void update(Produk p){
+    // implementasi tidak ditulis
+}
+
+
+public void delete(Produk p){
+    // implementasi tidak ditulis
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Perlu kita sadari bahwa pada aplikasi yang sebenarnya, kode akses database tidak hanya <code>ProdukDao</code> saja.
+Nantinya juga ada <code>CustomerDao</code>, <code>PenjualanDao</code>, dan sebagainya.
+Di aplikasi berskala menengah, bisa ada ratusan class seperti ini,
+sehingga untuk memahami situasinya, kita tidak boleh berpikir hanya di satu class ini saja.</p>
+
+<p>Ada beberapa kelemahan dari cara tanpa DI ini, diantaranya:</p>
+
+<ul>
+<li>Konfigurasi koneksi database tersebar di banyak tempat, yaitu di semua <code>XxxDao</code></li>
+<li>Object <code>dataSource</code> juga tersebar, tidak bisa satu <code>dataSource</code> dipakai bersama oleh semua <code>XxxDao</code></li>
+<li>Karena konfigurasi dan inisialisasinya tersebar, bila ada perubahan (misalnya menggunakan <em>connection pooling</em>),
+harus dilakukan di banyak tempat.</li>
+<li>Semua perubahan di atas mengharuskan full compile karena banyaknya class yang terlibat.</li>
+</ul>
+
+
+<p>Untuk mengatasi keterbatasan di atas, kita gunakan prinsip DI.</p>
+
+<h1>DI manual</h1>
+
+<p>Bila kita gunakan prinsip DI, maka <code>ProdukDao</code> tidak lagi mengurus inisialisasi <code>dataSource</code>.
+Dia cukup tahu beres dan tinggal pakai. Lalu siapa yang melakukan inisialisasi?
+Boleh siapa saja, tapi untuk kesederhanaan ilustrasi, mari kita tulis saja di dalam <code>ProdukDaoTest</code>, sebagai berikut:</p>
+
+<p>```java
+public class ProdukDaoTest {</p>
+
+<pre><code>public static void main(String[] xx){
+    Produk p = new Produk();
+    p.setKode("P-001");
+    p.setNama("Produk 001");
+    p.setHarga(new BigDecimal(10000.00);
+
+    DataSource dataSource = new BasicDataSource();
+    dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+    dataSource.setUsername("root");
+    dataSource.setPassword("admin");
+    dataSource.setUrl("jdbc:mysql://localhost/belajar");
+
+    ProdukDao pd = new ProdukDao();
+    pd.simpan(p);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Lalu bagaimana cara memasukkan (inject) ke dalam <code>ProdukDao</code>?
+Kita harus sediakan jalan masuknya. Ada dua pilihan:</p>
+
+<ul>
+<li>membuat method untuk mengisi data (setter-injection)</li>
+<li>menambah argumen di constructor (constructor-injection)</li>
+</ul>
+
+
+<p>Agar jelas, kita akan buatkan dua-duanya.</p>
+
+<p>```java
+public class ProdukDao {</p>
+
+<pre><code>private DataSource dataSource;
+
+// ini kalau mau inject melalui constructor
+public ProdukDao(DataSource ds) {
+    this.dataSource = ds;
+}
+
+// ini kalau mau method sendiri (setter-injection)
+public void setDataSource(DataSource ds) {
+    this.dataSource = ds;
+}
+
+// method lain tidak ditampilkan supaya tidak bikin penuh
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Selanjutnya, dalam <code>ProdukDaoTest</code> kita bisa isikan object DataSource tersebut melalui constructor seperti ini:</p>
+
+<p><code>java
+ProdukDao pd = new ProdukDao(dataSource);
+</code></p>
+
+<p>ataupun melalui method setter seperti ini:</p>
+
+<p><code>java
+ProdukDao pd = new ProdukDao();
+pd.setDataSource(dataSource);
+</code></p>
+
+<p>Cara manual ini sudah lumayan merapikan kode program kita, karena bila ada perubahan terhadap inisialisasi dataSource, seperti misalnya:</p>
+
+<ul>
+<li>perubahan konfigurasi koneksi</li>
+<li>perubahan implementasi connection pooling</li>
+<li>ingin menggunakan managed DataSource melalui JNDI</li>
+<li>dsb</li>
+</ul>
+
+
+<p>Kita cukup melakukan perubahan di satu tempat saja, yaitu dimana dia diinisialisasikan.</p>
+
+<h1>DI Spring XML</h1>
+
+<p>Walaupun bisa dilakukan secara manual, tetapi ada baiknya kita menggunakan Spring Framework untuk melakukan DI.
+Beberapa alasannya antara lain:</p>
+
+<ul>
+<li>AOP (tidak dibahas pada artikel ini)</li>
+<li>keseragaman antar project/aplikasi</li>
+<li>standarisasi skillset. Bila cari programmer baru, cukup mensyaratkan pengetahuan Spring Framework.
+Tidak perlu lagi ditraining tentang teknik DI yang kita karang sendiri.</li>
+</ul>
+
+
+<p>Spring Framework <strong>umumnya</strong> dikonfigurasi dengan file XML (walaupun bisa juga full Java).
+Berikut adalah contoh file konfigurasinya, misalnya kita beri nama <code>konfig-spring.xml</code>:</p>
+
+<p>```xml
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;beans xmlns="http://www.springframework.org/schema/beans"</p>
+
+<pre><code>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"&gt;
+
+&lt;bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"&gt;
+    &lt;property name="driverClassName" value="com.mysql.jdbc.Driver" /&gt;
+    &lt;property name="url" value="jdbc:mysql://localhost/belajar" /&gt;
+    &lt;property name="username" value="root" /&gt;
+    &lt;property name="password" value="admin" /&gt;
+&lt;/bean&gt;
+
+&lt;bean id="produkDao" class="com.muhardin.endy.belajar.spring.ProdukDao"&gt;
+    &lt;property name="dataSource" ref="dataSource"/&gt;
+&lt;/bean&gt;
+</code></pre>
+
+<p></beans>
+```</p>
+
+<p>File konfigurasi tersebut kita baca dan gunakan dalam class <code>ProdukDaoTest</code>,
+perhatikan perbedaan inisialisasi <code>DataSource</code> dan <code>ProdukDao</code></p>
+
+<p>```java
+public class ProdukDaoTest {</p>
+
+<pre><code>public static void main(String[] xx){
+    Produk p = new Produk();
+    p.setKode("P-001");
+    p.setNama("Produk 001");
+    p.setHarga(new BigDecimal(10000.00);
+
+    ApplicationContext ctx 
+        = new ClassPathXmlApplicationContext("classpath:konfig-spring.xml");
+
+    ProdukDao pd = ctx.getBean(ProdukDao.class);
+    pd.simpan(p);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Pada contoh di atas, kita bisa lihat beberapa perbedaan yaitu:</p>
+
+<ul>
+<li>inisialisasi <code>DataSource</code> pindah ke dalam <code>konfig-spring.xml</code></li>
+<li>tidak perlu lagi <em>mengisikan</em> <code>DataSource</code> ke dalam <code>ProdukDao</code>, karena sudah dilakukan oleh Spring.</li>
+</ul>
+
+
+<p>Walaupun demikian, masih ada sedikit ganjalan, yaitu:</p>
+
+<ul>
+<li>bila <code>XxxDao</code> jumlahnya ratusan, maka file <code>konfig-spring.xml</code> akan membengkak.</li>
+</ul>
+
+
+<p>Apa solusinya?</p>
+
+<h1>DI Spring @Autowired</h1>
+
+<p>Spring Framework menyediakan fitur <em>component-scan</em>, yaitu dia akan melihat isi <em>package</em> yang kita sebutkan,
+kemudian akan mencari class-class yang diberi anotasi berikut:</p>
+
+<ul>
+<li><code>@Repository</code></li>
+<li><code>@Service</code></li>
+<li><code>@Controller</code></li>
+<li><code>@Component</code></li>
+</ul>
+
+
+<p>Setelah ditemukan, maka dia akan melakukan inisialisasi terhadap class tersebut, dan lalu mengisi (inject)
+semua kebutuhannya (dependency). Untuk injection ini, kita juga tidak perlu lagi menyediakan setter method maupun
+menambahkan argumen di constructor. Kita dapat menggunakan anotasi <code>@Autowired</code>.</p>
+
+<p>Berikut adalah konfigurasi <code>konfig-spring.xml</code> yang baru:</p>
+
+<p>```xml
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;beans xmlns="http://www.springframework.org/schema/beans"</p>
+
+<pre><code>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"&gt;
+
+&lt;bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"&gt;
+    &lt;property name="driverClassName" value="com.mysql.jdbc.Driver" /&gt;
+    &lt;property name="url" value="jdbc:mysql://localhost/belajar" /&gt;
+    &lt;property name="username" value="root" /&gt;
+    &lt;property name="password" value="admin" /&gt;
+&lt;/bean&gt;
+
+&lt;context:component-scan base-package="com.muhardin.endy.belajar.spring" /&gt;
+</code></pre>
+
+<p></beans>
+```</p>
+
+<p>Perhatikan bahwa deklarasi <code>produkDao</code> telah digantikan dengan perintah <code>context:component-scan</code>.</p>
+
+<p>Berikut adalah perubahan di <code>ProdukDao</code></p>
+
+<p>```java
+@Repository
+public class ProdukDao {</p>
+
+<pre><code>@Autowired private DataSource dataSource;
+
+public void create(Produk p){
+    String sql = "insert into produk (kode, nama, harga) ";
+    sql += "(?,?,?)";
+
+    Connection databaseConnection = dataSource.getConnection();
+    PreparedStatement ps = databaseConnection.prepareStatement(sql);
+    ps.setString(1, p.getKode());
+    ps.setString(2, p.getNama());
+    ps.setBigDecimal(3, p.getHarga());
+    ps.executeUpdate();
+    databaseConnection.close();
+}
+
+// method lain tidak ditampilkan supaya tidak bikin penuh
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Perhatikan bahwa setter dan constructor injection sudah dihapus,
+dan digantikan dengan anotasi <code>@Autowired</code>.
+Semua field/property yang memiliki anotasi <code>@Autowired</code> akan diisikan oleh Spring dengan object bertipe-data sesuai.
+Bila tidak ditemukan, maka aplikasi akan gagal start dengan pesan error seperti ini:</p>
+
+<p><code>
+SEVERE: Context initialization failed
+org.springframework.beans.factory.BeanCreationException:
+Error creating bean with name 'produkDao':
+Injection of autowired dependencies failed;
+nested exception is org.springframework.beans.factory.BeanCreationException:
+Could not autowire field:
+private javax.sql.DataSource dataSource;
+nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException:
+No matching bean of type [javax.sql.DataSource] found for dependency:
+expected at least 1 bean which qualifies as autowire candidate for this dependency.
+</code></p>
+
+<p>Bila menemukan pesan error tersebut, artinya Spring tidak memiliki satupun object bertipe <code>DataSource</code>
+dalam daftar pengelolaannya. Untuk bisa dikelola oleh Spring, ada beberapa caranya, yaitu:</p>
+
+<ul>
+<li>dideklarasikan secara tertulis seperti object <code>dataSource</code> di atas</li>
+<li>discan otomatis melalui <code>component-scan</code> dan anotasi <code>@Repository</code>, <code>@Service</code>, <code>@Controller</code>, ataupun<code>@Component</code>.
+Contohnya object <code>produkDao</code> di atas.</li>
+</ul>
+
+
+<p>Ada beberapa kesalahan yang umum terjadi sehingga muncul pesan error di atas, diantaranya</p>
+
+<ul>
+<li>sudah ada anotasi, tapi package tempatnya berada tidak didaftarkan dalam <code>component-scan</code></li>
+<li>package sudah didaftarkan dalam <code>component-scan</code>, tapi classnya tidak diberikan anotasi <code>@Repository</code>, <code>@Service</code>, <code>@Controller</code>, ataupun<code>@Component</code>.</li>
+<li>sudah ada anotasi, packagenya sudah didaftarkan, tapi file xml yang memuat konfigurasi tersebut tidak diload oleh aplikasi.
+Ini biasa terjadi kalau satu aplikasi terdiri dari banyak file konfigurasi Spring (yang mana ini adalah hal yang umum terjadi)</li>
+</ul>
+
+
+<p>Lalu kapan dan bagaimana Spring membaca file konfigurasi? Ada beberapa cara:</p>
+
+<ul>
+<li>Ditulis dalam kode program : <code>new ClassPathXmlApplicationContext("classpath:konfig-spring.xml")</code></li>
+<li>Bila aplikasinya berbasis web, biasanya diinisialisasi melalui <code>web.xml</code> seperti ini:</li>
+</ul>
+
+
+<p>```xml
+<context-param></p>
+
+<pre><code>&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+&lt;param-value&gt;
+    classpath*:konfig-spring.xml
+&lt;/param-value&gt;
+</code></pre>
+
+<p></context-param>
+<listener></p>
+
+<pre><code>&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+</code></pre>
+
+<p></listener>
+```</p>
+
+<p>Demikianlah penjelasan tentang konsep Dependency Injection dan Spring Framework. Semoga bermanfaat.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Membuat Changelog Liquibase]]></title>
@@ -939,253 +1433,6 @@ Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
 <li><p><a href="http://nurkiewicz.blogspot.com/2011/03/jolokia-highcharts-jmx-for-human-beings.html">Menampilkan data dari JMX dengan Jolokia</a></p></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Staged Deployment]]></title>
-    <link href="http://software.endy.muhardin.com/java/staged-deployment/"/>
-    <updated>2011-08-16T15:57:35+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/staged-deployment</id>
-    <content type="html"><![CDATA[<p>Staged Deployment</p>
-
-<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
-
-<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
-
-<ul>
-<li><p>development (komputer si programmer)</p></li>
-<li><p>testing (test server)</p></li>
-<li><p>production (live system)</p></li>
-</ul>
-
-
-<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
-
-<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
-
-<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
-
-<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
-
-<h2>Alternatif Solusi</h2>
-
-<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
-
-<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
-<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
-</p>
-
-<p>atau</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
-<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
-</p>
-
-<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
-
-<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
-
-<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
-
-<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
-
-<h2>Konfigurasi Database</h2>
-
-<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
-
-<ul>
-<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
-<li><p>jdbc.testing.properties : digunakan di server test</p></li>
-<li><p>jdbc.production.properties : digunakan di live</p></li>
-</ul>
-
-
-<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :
-<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
-jdbc.username = kasbon
-jdbc.password = kasbon</code></pre></noscript></div>
-</p>
-
-<p>Kemudian, ini file jdbc.testing.properties :</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
-jdbc.username = root
-jdbc.password = admin</code></pre></noscript></div>
-</p>
-
-<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
-
-<p>Terakhir, jdbc.production.properties</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
-jdbc.username = root
-jdbc.password = admin</code></pre></noscript></div>
-</p>
-
-<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-	xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-	xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
-	xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
-
-	&lt;context:property-placeholder location=&quot;
-	classpath*:jdbc.properties,
-	classpath*:jdbc.${stage}.properties
-	&quot; /&gt;
-
-	&lt;tx:annotation-driven /&gt;
-
-	&lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
-		destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
-		p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
-		p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
-
-	&lt;bean id=&quot;transactionManager&quot;
-		class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
-		p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
-
-
-	&lt;bean id=&quot;sessionFactory&quot;
-		class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
-		p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
-		&lt;property name=&quot;hibernateProperties&quot;&gt;
-			&lt;props&gt;
-				&lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
-			&lt;/props&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-
-	&lt;bean id=&quot;messageSource&quot;
-		class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
-		&lt;property name=&quot;basenames&quot;&gt;
-			&lt;list&gt;
-				&lt;value&gt;messages&lt;/value&gt;
-			&lt;/list&gt;
-		&lt;/property&gt;
-	&lt;/bean&gt;
-
-&lt;/beans&gt;</code></pre></noscript></div>
-</p>
-
-<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
-<noscript><pre><code>&lt;context:property-placeholder location=&quot;
-	classpath*:jdbc.properties, 
-	classpath*:jdbc.${stage}.properties
-&quot; /&gt;</code></pre></noscript></div>
-</p>
-
-<p>Di sana kita melihat ada variabel ${stage}.
-Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
-
-<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
-
-<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
-
-<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
-
-<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
-
-<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
-
-<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
-
-<h2>Setting Environment Variabel</h2>
-
-<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
-<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
-</p>
-
-<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
-<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
-</p>
-
-<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
-<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
-</p>
-
-<h2>Konfigurasi Logger</h2>
-
-<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
-
-<ul>
-<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
-<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
-<li><p>dsb</p></li>
-</ul>
-
-
-<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
-
-<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
-
-<ul>
-<li><p>logback.xml : file konfigurasi utama</p></li>
-<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
-<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
-<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
-</ul>
-
-
-<p>Berikut isi file logback.xml.</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;configuration&gt;
-
-	&lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
-		&lt;encoder&gt;
-			&lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
-		&lt;/encoder&gt;
-	&lt;/appender&gt;
-
-	&lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
-		&lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
-		&lt;encoder&gt;
-			&lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
-		&lt;/encoder&gt;
-	&lt;/appender&gt;
-
-	&lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
-
-&lt;/configuration&gt;</code></pre></noscript></div>
-</p>
-
-<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
-
-<p><div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
-<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
-</p>
-
-<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
-
-<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
-
-<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
 ]]></content>
   </entry>
   
