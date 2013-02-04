@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara &hellip;">
+  <meta name="description" content="Dulu saya pernah menulis tentang backup script Subversion untuk Linux, maupun untuk Windows. Sayangnya, script tersebut hanya bisa digunakan untuk &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@
 
   
   <link rel="canonical" href="http://software.endy.muhardin.com/page/26/">
-  <link href="/favicon.ico" rel="icon">
+  <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/ender.js"></script>
@@ -95,9 +95,92 @@
       
   <header>
     
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-4/">Aplikasi Web Dengan Spring 2.5 [Bagian 4]</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/svn-parentpath-backup/">Another Subversion Backup Script</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-18T01:05:30+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dulu saya pernah menulis tentang <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">backup script Subversion untuk Linux</a>, maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">untuk Windows</a>. Sayangnya, script tersebut hanya bisa digunakan untuk satu repository saja.</p>
+
+<p>Biasanya saya menghosting beberapa Subversion repository sekaligus, dipublikasikan menggunakan Apache dengan konfigurasi <code>SVNParentPath</code>. Setidaknya ada 10 repository yang saya kelola, sehingga untuk mengkonfigurasi backup otomatisnya cukup melelahkan juga.</p>
+
+<p>Oleh karena itu, saya membuat backup script lagi. Kali ini mampu menangani satu folder yang berisi banyak repository. Berikut scriptnya, masih dalam bahasa Ruby.</p>
+
+<h3>subversion-repos-full-backup.rb</h3>
+
+<pre><code>require 'zlib'
+
+if ARGV.length &lt; 2
+  puts "Usage : ruby full-backup.rb &lt;SVNParentPath folder&gt; &lt;backupfolder&gt;"  
+  exit
+end
+
+# some configuration
+svn_parent_path = ARGV[0]
+backup_folder = ARGV[1]
+
+# variable initialization
+current_date = Time.now.strftime("%Y%m%d")
+
+Dir.foreach(svn_parent_path) { |repo| 
+    next if('.' == repo || '..' == repo)
+    puts "Start to process folder : "+repo
+
+    puts "Performing svndump"
+    repo_name = svn_parent_path + File::SEPARATOR + repo
+    dumpfile_name = repo + '-' +current_date + '.dmp'
+    dumpfile = backup_folder + File::SEPARATOR + dumpfile_name
+
+    `svnadmin dump #{repo_name} &gt; #{dumpfile}`
+
+    puts "Compressing dumpfile"
+    Zlib::GzipWriter.open(dumpfile+".gz") do |gz|
+      gz.write(File.read(dumpfile))
+    end
+
+
+    puts "Deleting uncompressed file"
+    File.delete(dumpfile)
+}
+</code></pre>
+
+<p>Cara menjalankannya tidak sulit, cukup panggil dia melalui command prompt:</p>
+
+<pre><code>ruby subversion-repos-full-backup.rb /path/ke/repos /path/ke/backup-folder
+</code></pre>
+
+<p>Semoga bermanfaat</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
       
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-4/">Aplikasi Web Dengan Spring 2.5 [Bagian 4]</a></h1>
     
     
       <p class="meta">
@@ -286,9 +369,7 @@ public class PersonUploadController {
       
   <header>
     
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/manajemen/continuous-integration/">Continuous Integration</a></h1>
-      
+      <h1 class="entry-title"><a href="/manajemen/continuous-integration/">Continuous Integration</a></h1>
     
     
       <p class="meta">
@@ -451,191 +532,11 @@ public class PersonUploadController {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/aplikasi/linux/gutsy-shorewall/">Konfigurasi Shorewall Di Ubuntu Gutsy</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-27T23:51:27+07:00" pubdate data-updated="true">Dec 27<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Bila kita ingin mempublish komputer di internet, hal pertama yang kita pikirkan adalah firewall. Bagaimana membatasi akses hanya ke port-port yang kita ijinkan.</p>
-
-<p>Di Linux, firewall diimplementasikan dengan menggunakan aplikasi iptables. Aplikasi ini sangat powerful dan canggih. Menurut Peter Parker, with great power comes great responsibility. Akan tetapi, menurut saya, with great power comes great complexity. Untuk bisa mengoperasikan iptables dengan benar, setidaknya kita harus memahami konsep chain dan table. Setelah itu, baru kita bisa belajar tentang jenis-jenis protokol, state, port, dan hal-hal TCP/IP lainnya.</p>
-
-<p>Menjelaskan konsep ini saja butuh waktu setidaknya setengah hari pada rata-rata orang yang sudah memahami konsep dasar jaringan komputer. Daripada saya bolak-balik menjelaskan konsep chain dan table, baiklah kita cari saja aplikasi front end yang sederhana.</p>
-
-<p>Untungnya di Ubuntu tidak kekurangan aplikasi front end untuk iptables. Untuk komputer personal, kita bisa gunakan <a href="http://www.fs-security.com/">Firestarter</a>. Aplikasi ini sangat mudah digunakan. Tinggal jalankan wizardnya, dan dia akan segera mendeteksi segala perangkat jaringan yang kita miliki. Beri tahu Firestarter mana perangkat yang terhubung ke internet, dan mana perangkat yang terhubung ke jaringan lokal. Kemudian tentukan layanan atau port berapa yang ingin kita buka. Selesai sudah. Begitu mudah.</p>
-
-<p>Selain Firestarter, kita juga bisa menggunakan <a href="http://www.simonzone.com/software/guarddog/">GuardDog</a>.</p>
-
-<p>Sayangnya, kali ini saya ingin menginstal di server. Firestarter walaupun ampuh tapi kurang sesuai, karena dia berbasis GUI. Harus install Gnome dulu, kemudian kalau mau setting harus menggunakan X tunneling agar Firestarter bisa tampil di komputer yang me-remote.</p>
-
-<p>Setelah tanya kanan kiri, <a href="http://linux2.arinet.org">Bos Ari</a> memberikan petuah agar sebaiknya saya pakai <a href="http://www.shorewall.net/">Shorewall</a> saja. Selain Shorewall, masih ada beberapa alternatif, seperti <a href="http://rocky.molphys.leidenuniv.nl/">Arno&#8217;s Firewall</a> yang direkomendasikan <a href="http://www.antonraharja.web.id">Anton</a>. Tapi melihat sekilas dari tutorialnya, nampaknya Shorewall adalah yang paling intuitif untuk digunakan.</p>
-
-<p>Baiklah, mari kita install dan konfigurasi Shorewall. Sebagai gambaran, komputer yang ingin saya bentengi cuma memiliki satu kartu jaringan yang langsung terhubung ke internet. Saya ingin membuka layanan SSH di port 22 dan HTTP di port 80.</p>
-
-<p>Langkah pertama tentunya adalah menginstal Shorewall. Di Ubuntu tidak sulit, langsung saja</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install shorewall </span></code></pre></td></tr></table></div></figure>
-
-
-<p>Shorewall akan segera terinstal, tapi tidak aktif. Kita harus mengkonfigurasi dulu, baru kemudian mengaktifkannya.</p>
-
-<p>Konfigurasi Shorewall ada di folder <code>/etc/shorewall</code>.</p>
-
-<p>Setelah Shorewall terinstal, pertama kita tentukan dulu jaringan yang terhubung ke komputer kita. Untuk kasus saya tidak sulit, cuma ada satu jaringan terhubung ke eth0.</p>
-
-<p>Jaringan komputer, dalam dunia Shorewall disebut dengan istilah zone. Konfigurasinya ditulis di file bernama <code>zones</code>. Karena kita cuma punya satu jaringan, yaitu internet, berikut adalah isi file tersebut.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>fw   firewall
-</span><span class='line'>net   ipv4</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Shorewall ingin menaruh dirinya sendiri ke dalam zone terpisah. Oleh karena itu kita punya dua zone di file tersebut, yaitu net dan fw. <code>ipv4</code> adalah jenis zone. Ada tiga jenis zone dalam shorewall, yaitu ipv4, firewall, dan ipsec. Bila kita menggunakan koneksi terenkripsi, kita bisa menggunakan opsi ipsec.</p>
-
-<p>Zone dan device dihubungkan di file yang namanya <code>interfaces</code>. Isinya adalah sebagai berikut</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>net     eth0            detect          tcpflags,logmartians,nosmurfs,norfc1918</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Kolom pertama menyatakan bahwa zone <code>net</code> dilayani oleh kartu jaringan <code>eth0</code> yang disebutkan di kolom kedua. Selain kartu jaringan, kita juga bisa mendaftarkan perangkat lain seperti modem.</p>
-
-<p>Kolom ketiga adalah konfigurasi broadcast. Satu perangkat jaringan bisa saja memiliki banyak IP address, atau terhubung dengan koneksi peer to peer. Dengan demikian satu perangkat bisa memiliki banyak alamat broadcast. Untuk memudahkan konfigurasi, kita bisa suruh Shorewall mencari alamat broadcast yang sesuai. Inilah arti dari konfigurasi <code>detect</code>.</p>
-
-<p>Kolom terakhir paling kanan memuat opsi. Banyak opsi yang disediakan, saya cuma jelaskan opsi yang digunakan di atas saja.</p>
-
-<ul>
-<li>tcpflags : ini memeriksa paket-paket yang memiliki kombinasi flags tidak lazim.</li>
-<li>logmartians : ini artinya kita akan mencatat paket yang alamat asalnya aneh.</li>
-<li>nosmurfs : ini mengatasi paket yang alamat asalnya sama dengan alamat broadcast.</li>
-<li>norfc1918 : ini artinya kita akan mengabaikan semua paket dari dan menuju alamat private yang disebutkan di RFC 1918. Contoh alamat private antara lain adalah 192.168.0.1</li>
-</ul>
-
-
-<p>Setelah selesai dengan zone dan interface, kita menentukan kebijakan global atau policy. Kebijakan ini berlaku apabila tidak ada aturan yang spesifik terhadap suatu paket. Biasanya, kebijakan global yang kita gunakan adalah:</p>
-
-<ul>
-<li>mesin kita ini boleh menghubungi siapa saja. Semua paket keluar diijinkan (ACCEPT)</li>
-<li>paket yang berasal dari luar menuju firewall akan diabaikan (DROP)</li>
-<li>paket yang berasal dari luar menuju komputer dibalik firewall akan diabaikan (DROP)</li>
-<li>selain itu, tolak semua (REJECT)</li>
-</ul>
-
-
-<p>Konfigurasi kebijakan di atas ditulis di file bernama <code>policy</code>. Berikut isinya</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#SOURCE      DEST        POLICY      LOG LEVEL   LIMIT:BURST
-</span><span class='line'>$FW       net     ACCEPT
-</span><span class='line'>net       $FW     DROP        info
-</span><span class='line'>net       all     DROP        info
-</span><span class='line'># The FOLLOWING POLICY MUST BE LAST
-</span><span class='line'>all       all     REJECT      info
-</span><span class='line'>#LAST LINE -- ADD YOUR ENTRIES ABOVE THIS LINE -- DO NOT REMOVE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Terakhir, baru kita buat pengecualian terhadap kebijakan di atas. Seperti disebutkan di awal artikel, saya ingin membuka akses untuk web server di port 80 dan ssh server di port 22. Sebagai tambahan pengamanan untuk mencegah flooding, kita juga akan menolak paket ping yang masuk. Tapi kita ingin tetap bisa ping keluar.</p>
-
-<p>Shorewall sudah punya konfigurasi standar (disebut dengan istilah macro) untuk aplikasi server yang umum digunakan. Kita tulis aturan ini di file <code>rules</code>. Berikut isinya</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Ping/REJECT  net     $FW
-</span><span class='line'>
-</span><span class='line'># Permit all ICMP traffic FROM the firewall TO the net zone
-</span><span class='line'>ACCEPT        $FW     net     icmp
-</span><span class='line'>
-</span><span class='line'># Open SSH Service
-</span><span class='line'>SSH/ACCEPT    net     $FW
-</span><span class='line'>
-</span><span class='line'># Open Web Server
-</span><span class='line'>Web/ACCEPT    net     $FW</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>Ping/REJECT</code>, <code>SSH/ACCEPT</code> dan <code>Web/ACCEPT</code> di atas adalah macro. Sebetulnya kita juga bisa membuka akses webserver di port 80 tanpa macro dengan konfigurasi seperti ini</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ACCEPT    net       $FW             tcp  80</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Tapi biasanya ada beberapa layanan yang membuka beberapa port sekaligus, misalnya FTP. Daripada harus menghafalkan port berapa saja yang harus dibuka untuk FTP, akan lebih mudah kalau kita gunakan macro <code>FTP/ACCEPT</code></p>
-
-<p>Selanjutnya, kita edit file shorewall.conf. Ini adalah konfigurasi global. Isi konfigurasi yang disediakan Ubuntu Gutsy sudah cukup bagus. Saya cuma mengubah baris ini</p>
-
-<p><code>STARTUP_ENABLED=No</code></p>
-
-<p>menjadi</p>
-
-<p><code>STARTUP_ENABLED=Yes</code></p>
-
-<p>Selain itu, juga ada satu file lagi, yaitu <code>/etc/default/shorewall</code>. Ganti baris</p>
-
-<p><code>startup=0</code></p>
-
-<p>menjadi</p>
-
-<p><code>startup=1</code></p>
-
-<p>Semuanya sudah siap. Silahkan nyalakan firewall Anda.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/shorewall start</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Oh iya, berhati-hatilah kalau menginstal shorewall secara remote. Salah konfigurasi bisa menyebabkan kita terkunci di luar.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/27/">&larr; Older</a>
     
-    <a href="/archives">Blog Archives</a>
+    <a href="/blog/archives">Blog Archives</a>
     
     <a class="next" href="/page/25/">Newer &rarr;</a>
     
@@ -693,6 +594,10 @@ public class PersonUploadController {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/memahami-dependency-injection/">Memahami Dependency Injection</a>
       </li>
     
@@ -726,10 +631,6 @@ public class PersonUploadController {
     
       <li class="post">
         <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
       </li>
     
   </ul>
@@ -773,7 +674,7 @@ public class PersonUploadController {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
@@ -796,20 +697,6 @@ public class PersonUploadController {
       twitterWidgets.async = true;
       twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-36102948-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
 

@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel sebelumnya, kita sudah membahas penggunaan Luntbuild dan CruiseControl untuk menerapkan Continuous Integration (CI). Kali ini, kita akan &hellip;">
+  <meta name="description" content="Maraknya akses internet 3G rupanya berimbas pada turunnya harga layanan GPRS. Salah satu yang sudah turun harga adalah Mentari, dari Rp. 5/kB menjadi &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@
 
   
   <link rel="canonical" href="http://software.endy.muhardin.com/page/30/">
-  <link href="/favicon.ico" rel="icon">
+  <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="/javascripts/ender.js"></script>
@@ -95,9 +95,315 @@
       
   <header>
     
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/java/hudson/">Continuous Integration Dengan Hudson</a></h1>
+      <h1 class="entry-title"><a href="/linux/gprs-kg300/">Konfigurasi Mentari GPRS Dengan LG KG300 Di Ubuntu Gutsy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-10-26T16:34:32+07:00" pubdate data-updated="true">Oct 26<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Maraknya akses internet 3G rupanya berimbas pada turunnya harga layanan GPRS. Salah satu yang sudah turun harga adalah Mentari, dari Rp. 5/kB menjadi Rp. 1/kB, setidaknya sampai Januari 2008.</p>
+
+<p>Dengan adanya perkembangan yang menggembirakan ini, saya segera mengaktifkan koneksi GPRS tersebut agar bisa digunakan dari laptop. Caranya tidak terlalu sulit, seperti akan kita lihat segera.</p>
+
+<h3>Hardware</h3>
+
+<p>Laptop saya <a href="http://minisites.nec-computers-ap.com/e3100/techspecs.html">NEC Versa E3100</a>, tepatnya seri E3100-1800DR. Handphone yang saya gunakan adalah <a href="http://tokolg.com/productsDetail.asp?item=KG300&amp;kategori=HP">LG KG300</a>, seperti yang diiklankan Agnes Monica di TV. Jadi kalau kapan-kapan Agnes mau setting GPRS juga, bisa lihat artikel ini :D</p>
+
+<p>Koneksi handphone ke laptop menggunakan kabel data, karena laptop saya tidak ada blututnya.</p>
+
+<h3>Software</h3>
+
+<p>Saya menggunakan Ubuntu Gutsy Gibbon 7.10, yang sudah dilengkapi dengan wvdialconf dan wvdial untuk melakukan koneksi. Tidak perlu ada instalasi software tambahan, karena kedua aplikasi ini sudah terinstal dari sananya.</p>
+
+<h3>Provider</h3>
+
+<p>Saya pakai Mentari. Sebelum mencoba koneksi melalui komputer, pastikan dulu kita bisa browsing langsung dari HP. Ini untuk memastikan bahwa dari HP ke Provider sudah OK. Jangan sampai sudah pusing-pusing utak-atik Ubuntu, ternyata masalahnya ada di HP.
+Untuk LG KG300, kita bisa konfigurasi otomatis melalui OTA. Cukup kirim SMS ke 3000 dengan isi sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gprs lg kg300</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nanti kita akan terima SMS, yang bila dibuka akan ada konfirmasi apakah kita ingin mengkonfigurasi GPRS. Tentu saja jawab Yes.
+Silahkan browsing ke Yahoo di http://m.yahoo.com atau Gmail di http://gmail.com/app.</p>
+
+<p>Bila Anda punya akun YM, bisa dicoba chatting di sana.</p>
+
+<p>LG KG300 punya fasilitas Java dengan versi MIDP 2.0. Bila malas chat melalui antarmuka Yahoo, bisa gunakan aplikasi <a href="http://shmessenger.ro/lang_en/index.jsp">shMessenger</a>.</p>
+
+<h3>Konfigurasi</h3>
+
+<p>Setelah lancar browsing dan chatting di handphone, kini tiba saatnya kita browsing di laptop. Hubungkan handphone ke laptop melalui kabel data yang disediakan. Nanti di handphone akan muncul pertanyaan, apakah kita ingin terhubung sebagai Storage Media atau COM2. Pilih COM2. Storage Media dipilih bila ingin melakukan transfer file.</p>
+
+<p>Oh iya, untuk memudahkan troubleshooting, selama melakukan konfigurasi, tampilkan kernel log dengan perintah <code>tail -f /var/log/messages</code> di konsol. Biarkan window ini tetap terbuka selama konfigurasi.</p>
+
+<p>Di kernel log akan muncul laporan deteksi modem seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Oct 26 09:19:28 sweetdreams kernel: [  507.608000] usb 1-2: new full speed USB device using uhci_hcd and address 2
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  507.792000] usb 1-2: configuration #1 chosen from 1 choice
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.100000] cdc_acm 1-2:1.1: ttyACM0: USB ACM device
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.104000] usbcore: registered new interface driver cdc_acm
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.104000] /build/buildd/linux-source-2.6.22-2.6.22/drivers/usb/class/cdc-acm.c: v0.25:USB Abstract Control Model driver for USB modems and ISDN adapters</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, jalankan wvdialconf sebagai root.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo wvdialconf
+</span><span class='line'>Editing `/etc/wvdial.conf'.
+</span><span class='line'>
+</span><span class='line'>Scanning your serial ports for a modem.
+</span><span class='line'>
+</span><span class='line'>Modem Port Scan: S0   S1   S2   S3   SL0  
+</span><span class='line'>WvModem: Cannot get information for serial port.
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 Z -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
+</span><span class='line'>ttyACM0: Modem Identifier: ATI -- MTK2
+</span><span class='line'>ttyACM0: Speed 4800: AT -- OK
+</span><span class='line'>ttyACM0: Speed 9600: AT -- OK
+</span><span class='line'>ttyACM0: Speed 19200: AT -- OK
+</span><span class='line'>ttyACM0: Speed 38400: AT -- OK
+</span><span class='line'>ttyACM0: Speed 57600: AT -- OK
+</span><span class='line'>ttyACM0: Speed 115200: AT -- OK
+</span><span class='line'>ttyACM0: Speed 230400: AT -- OK
+</span><span class='line'>ttyACM0: Speed 460800: AT -- OK
+</span><span class='line'>ttyACM0: Max speed is 460800; that should be safe.
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
+</span><span class='line'>
+</span><span class='line'>Found an USB modem on /dev/ttyACM0.
+</span><span class='line'>/etc/wvdial.conf: Can't open '/etc/wvdial.conf' for reading: No such file or directory
+</span><span class='line'>/etc/wvdial.conf: ...starting with blank configuration.
+</span><span class='line'>Modem configuration written to /etc/wvdial.conf.
+</span><span class='line'>ttyACM0: Speed 460800; init "ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hasilnya adalah sebuah file <code>/etc/wvdial.conf</code> sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[Dialer Defaults]
+</span><span class='line'>Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>Modem Type = USB Modem
+</span><span class='line'>; Phone = 
+</span><span class='line'>ISDN = 0
+</span><span class='line'>; Username = 
+</span><span class='line'>Init1 = ATZ
+</span><span class='line'>; Password = 
+</span><span class='line'>Modem = /dev/ttyACM0
+</span><span class='line'>Baud = 460800</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Edit menjadi seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[Dialer Defaults]
+</span><span class='line'>Modem = /dev/ttyACM0
+</span><span class='line'>Init1 = ATZ
+</span><span class='line'>Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>Init3 = AT+CGDCONT=1,"IP","indosatgprs"
+</span><span class='line'>Stupid Mode = on
+</span><span class='line'>Modem Type = USB Modem
+</span><span class='line'>Phone = *99***1#
+</span><span class='line'>ISDN = 0
+</span><span class='line'>Username = indosat
+</span><span class='line'>Password = indosat
+</span><span class='line'>Baud = 460800</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Go Online</h3>
+
+<p>Kalau sudah, saatnya kita online. Gunakan perintah wvdial untuk melakukan dial-up.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo wvdial
+</span><span class='line'>WvDial&lt;*1&gt;: WvDial: Internet dialer version 1.56
+</span><span class='line'>WvModem&lt;*1&gt;: Cannot get information for serial port.
+</span><span class='line'>WvDial&lt;*1&gt;: Initializing modem.
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATZ
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ATZ
+</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: AT+CGDCONT=1,"IP","indosatgprs"
+</span><span class='line'>WvDial Modem&lt;*1&gt;: AT+CGDCONT=1,"IP","indosatgprs"
+</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
+</span><span class='line'>WvDial&lt;*1&gt;: Modem initialized.
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATDT*99***1#
+</span><span class='line'>WvDial&lt;*1&gt;: Waiting for carrier.
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ATDT*99***1#
+</span><span class='line'>WvDial Modem&lt;*1&gt;: CONNECT
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ~[7f]}#@!}!} } }2}"}&} } } } }#}$@#}'}"}(}"R[04]~
+</span><span class='line'>WvDial&lt;*1&gt;: Carrier detected.  Starting PPP immediately.
+</span><span class='line'>WvDial&lt;Notice&gt;: Starting pppd at Fri Oct 26 09:25:58 2007
+</span><span class='line'>WvDial&lt;Notice&gt;: Pid of pppd: 6028
+</span><span class='line'>WvDial&lt;*1&gt;: Using interface ppp0
+</span><span class='line'>WvDial&lt;*1&gt;: local  IP address 10.33.41.205
+</span><span class='line'>WvDial&lt;*1&gt;: remote IP address 10.64.64.64
+</span><span class='line'>WvDial&lt;*1&gt;: primary   DNS address 202.155.0.10
+</span><span class='line'>WvDial&lt;*1&gt;: secondary DNS address 202.155.46.77</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, silahkan coba browsing. Jangan tutup window wvdial supaya tidak disconnect.</p>
+
+<p>Untuk menghentikan koneksi, cukup ketik Ctrl-C di window wvdial.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Caught signal 2:  Attempting to exit gracefully...
+</span><span class='line'>WvDial&lt;*1&gt;: Terminating on signal 15
+</span><span class='line'>WvDial&lt;*1&gt;: Connect time 1.2 minutes.
+</span><span class='line'>WvDial&lt;*1&gt;: Disconnecting at Fri Oct 26 09:27:20 2007</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita dapat melihat keseluruhan sesi internet, berikut jumlah trafik yang kita gunakan di kernel log, sebagai berikut.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: pppd 2.4.4 started by root, uid 0
+</span><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: Using interface ppp0
+</span><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: Connect: ppp0 &lt;--&gt; /dev/ttyACM0
+</span><span class='line'>Oct 26 09:26:00 sweetdreams pppd[6028]: PAP authentication succeeded
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: Could not determine remote IP address: defaulting to 10.64.64.64
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: local  IP address 10.33.41.205
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: remote IP address 10.64.64.64
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: primary   DNS address 202.155.0.10
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: secondary DNS address 202.155.46.77
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Terminating on signal 15
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Connect time 1.2 minutes.
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Sent 0 bytes, received 0 bytes.
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Connection terminated.
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Demikianlah cara konfigurasi modem LG KG300 di Ubuntu. Mudah-mudahan dengan adanya artikel ini, Agnes Monica bisa segera online.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
       
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/hudson/">Continuous Integration Dengan Hudson</a></h1>
     
     
       <p class="meta">
@@ -255,9 +561,7 @@
       
   <header>
     
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/aplikasi/dump-restore-postgresql/">Dump Restore PostgreSQL</a></h1>
-      
+      <h1 class="entry-title"><a href="/aplikasi/dump-restore-postgresql/">Dump Restore PostgreSQL</a></h1>
     
     
       <p class="meta">
@@ -347,84 +651,11 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
-        <h1 class="entry-title"><a href="/lain/lowongan-experd/">Lowongan Experd</a></h1>
-      
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-25T15:36:49+07:00" pubdate data-updated="true">Sep 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Kemarin ada mbak-mbak yang kirim email ke saya, namanya mbak Hanna dari <a href="http://www.experd.org">Experd</a>, minta tolong dipostingkan lowongan. Entah kenapa, waktu saya cek websitenya, tulisannya Service Unavailable. Sedangkan www.experd.com bisa diakses. Entahlah, mungkin yang .org sedang bermasalah.</p>
-
-<p>Begini katanya,</p>
-
-<blockquote><p>Sekedar share informasi lowongan, bahwa saat ini kami ada klien, sebuah konsultan IT yang berpusat di New Jersey, sedang membutuhkan JAVA/J2EE programmer. Nantinya kandidat yang dihired ini akan ditugaskan untuk proyek salah satu top bank di Malaysia. Status pekerjaan yang ditawarkan permanent employee. (selengkapnya di bawah ini).</p></blockquote>
-
-<p>Berikut detail lowongannya.</p>
-
-<ul>
-<li><p>Has 2-7 years experience in Java/J2EE Development</p></li>
-<li><p>Experience in DB2/Oracle and Unix is an advantage</p></li>
-<li><p>Preferably with Banking Project Experience</p></li>
-<li><p>Can join in 2-6 weeks</p></li>
-<li><p>Willing to work in Kuala Lumpur, Malaysia</p></li>
-</ul>
-
-
-<p>Mbak Hanna juga memberikan alamat kantornya, yaitu di:</p>
-
-<p>Plaza 3 Pondok Indah Blok C2, Jl. T.B. Simatupang, Jakarta 12310</p>
-
-<p>Telp. 62-21-75906448, Fax. 62-21-75906442</p>
-
-<p>Email. hanna [at] experd [dot] org, http://www.experd.com</p>
-
-<p>Jangan kirim lamaran ke saya, menurut mbak Hanna, kirimkan ke databank [at] experd [dot] org.</p>
-
-<p><strong>Disclaimer: Saya tidak kenal sama mbak Hanna. Artikel ini juga bukan anjuran kepada pembaca untuk mengirim lamaran</strong></p>
-
-<p>Saya juga sudah membaca bukunya Kevin Mitnick yang berjudul <a href="http://www.flazx.com/ebook1002.php">The Art of Deception</a>, yang berisi tentang <a href="http://en.wikipedia.org/wiki/Social_engineering_%28security%29">Social Engineering</a>. Jadi, saran saya bagi pembaca yang berminat, luangkan waktu beberapa menit untuk melakukan cross-check ke alamat dan nomer telepon yang ada di atas untuk memastikan kesahihan info lowongan ini sebelum mengirim resume Anda.</p>
-
-<p>Sekedar smoke-test, saya sudah lookup ke <a href="http://www.who.is/">layanan whois</a>, dan hasilnya experd.com dan experd.org diregistrasi oleh orang yang sama, dan alamatnya sama dengan alamat kantornya di atas.</p>
-
-<p>Untuk mbak Hanna, mohon maaf ya &#8230; bukannya tidak percaya. Tapi baca sendiri deh <a href="http://www.flazx.com/ebook4179.php">The Art of Deception</a>, nanti Anda akan mengerti kenapa saya <em>terkesan paranoid</em>. Anyway &#8230; terima kasih atas info lowongannya. Mudah-mudahan mendapatkan kandidat yang sesuai.</p>
-
-<p>Kalau ada orang Experd yang membaca artikel ini, mohon konfirmasi atau sanggahannya.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/31/">&larr; Older</a>
     
-    <a href="/archives">Blog Archives</a>
+    <a href="/blog/archives">Blog Archives</a>
     
     <a class="next" href="/page/29/">Newer &rarr;</a>
     
@@ -482,6 +713,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/memahami-dependency-injection/">Memahami Dependency Injection</a>
       </li>
     
@@ -515,10 +750,6 @@
     
       <li class="post">
         <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/backup-home-folder/">Backup Home Folder</a>
       </li>
     
   </ul>
@@ -562,7 +793,7 @@
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
@@ -585,20 +816,6 @@
       twitterWidgets.async = true;
       twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
       document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-  <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'UA-36102948-1']);
-    _gaq.push(['_trackPageview']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
 
