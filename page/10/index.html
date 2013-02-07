@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di tahun yang baru ini, kami di ArtiVisi juga beralih menggunakan version control baru, yaitu Git.
-Menggantikan Subversion yang sudah kita gunakan &hellip;">
+  <meta name="description" content="Setelah kemarin kita bahas migrasi di sisi server, sekarang kita bahas instalasi di client. Kenapa yang dijelaskan hanya Windows, sedangkan Linux &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,146 @@ Menggantikan Subversion yang sudah kita gunakan &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/instalasi-git-di-windows/">Instalasi Git Di Windows</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-07T18:28:25+07:00" pubdate data-updated="true">Jan 7<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah kemarin kita bahas <a href="http://endy.artivisi.com/blog/lain/migrasi-subversion-ke-git/">migrasi di sisi server</a>, sekarang kita bahas instalasi di client. Kenapa yang dijelaskan hanya Windows, sedangkan Linux tidak? Well, ini karena di Linux instalasinya begitu mudah sehingga terlalu pendek kalau ingin dijadikan satu posting sendiri.</p>
+
+<p>Gak percaya? Ini caranya install di Ubuntu. Buka command prompt, dan ketik</p>
+
+<pre><code>sudo apt-get install git-core git-svn git-gui gitk
+</code></pre>
+
+<p>Sedikit konfigurasi standar.</p>
+
+<pre><code>git config --global user.name "Endy Muhardin"
+git config --global user.email "endy.muhardin@geemail.com"
+git config --global color.ui "true"
+</code></pre>
+
+<p>Kemudian, bila kita belum punya public key, silahkan bikin seperti <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">tutorial di sini</a>.</p>
+
+<p>Dan selesailah sudah. Seperti saya bilang sebelumnya, singkat dan sama sekali gak seru. Gak ada screenshotnya :D</p>
+
+<p>Nah, mari kita bahas instalasi di Windows.</p>
+
+<p>Pada intinya, langkah-langkahnya adalah sebagai berikut :</p>
+
+<ol>
+<li><p>Instalasi Putty : Ini kita perlukan untuk membuat public key. Public key digunakan untuk berinteraksi dengan repository git di server. Apa itu public key dan apa manfaatnya sedikit banyak sudah dibahas <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">di artikel ini</a>.</p></li>
+<li><p>Instalasi Git : Ini adalah aplikasi Git nya sendiri. Ada dua varian, Cygwin dan MSysGit. Kita akan gunakan yang lebih populer, yaitu MSysGit.</p></li>
+<li><p>Instalasi TortoiseGit : Seperti TortoiseSVN, ini adalah aplikasi GUI yang terintegrasi dengan Windows Explorer, sehingga pengelolaan repository dapat dilakukan di Windows Explorer seperti manipulasi file/folder biasa.</p></li>
+</ol>
+
+
+<h2>Instalasi Putty</h2>
+
+<p>Putty bisa diunduh <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">di sini</a>. Pilih saja versi installer, supaya tidak pusing.</p>
+
+<p>Putty ini akan kita gunakan untuk membuat pasangan public key dan private key. Caranya adalah menggunakan aplikasi PuttyGen. Jalankan PuttyGen, dan klik tombol Generate.
+<img src="/images/uploads/2011/01/01-ssh-generate-keypair-300x290.png" title="Generate keypair" ></p>
+
+<p>PuttyGen akan membuatkan public key dan private key. Save private keynya. Kita akan membutuhkan ini nanti. Klik tombol Save Private Key, dan simpan di folder mana saja.
+<img src="/images/uploads/2011/01/02-ssh-save-keypair-300x210.png" title="" ></p>
+
+<p>Terakhir, copy-paste text public keynya. Ini akan kita perlukan untuk dipasang di server supaya kita bisa mengakses repository di server, misalnya Github atau repository kantor.
+<img src="/images/uploads/2011/01/03-ssh-export-public-key-300x236.png" title="" ></p>
+
+<h2>Instalasi Git</h2>
+
+<p>Pertama, <a href="http://code.google.com/p/msysgit/">unduh dulu MSysGit</a>. Di websitenya ada banyak file yang bisa diunduh. Kita perlu yang Git, bukan msysgit. Nama filenya diawali Git, seperti ini: Git-1.7.3.1-preview20101002.exe. Ambil saja versi yang terbaru.</p>
+
+<p>Setelah diunduh, tentu kita jalankan. Berikut screenshot next-next seperti biasa.</p>
+
+<p><img src="/images/uploads/2011/01/01-msysgit-install-welcome-300x230.png" title="" ></p>
+
+<p><img src="/images/uploads/2011/01/02-msysgit-install-component-300x233.png" title="" ></p>
+
+<p><img src="/images/uploads/2011/01/03-msysgit-install-path-300x232.png" title="" ></p>
+
+<p><img src="/images/uploads/2011/01/04-msysgit-install-crlf-300x232.png" title="" ></p>
+
+<h2>Instalasi TortoiseGit</h2>
+
+<p>TortoiseGit bisa <a href="http://code.google.com/p/tortoisegit/">diunduh di sini</a>.
+Setelah selesai mengunduh, lagi-lagi klik next-next.</p>
+
+<p><img src="/images/uploads/2011/01/01-tortoisegit-install-welcome-300x233.png" title="" ></p>
+
+<p><img src="/images/uploads/2011/01/02-tortoisegit-install-sshclient-300x231.png" title="" ></p>
+
+<p>Sampai di sini, instalasi Git sudah selesai. Tapi masih ada langkah tambahan supaya kita bisa melakukan clone dari repository server (misalnya Github).</p>
+
+<h2>Clone dari Github</h2>
+
+<p>Untuk bisa clone dari github, pertama kali kita harus punya account Github. Silahkan <a href="https://github.com/plans">daftar dulu</a>.</p>
+
+<p>Setelah punya account, login, dan kita akan melihat dashboard.</p>
+
+<p><img src="/images/uploads/2011/01/01-github-dashboard-300x208.png" title="" ></p>
+
+<p>Klik account setting, dan masuk ke menu SSH Public Keys</p>
+
+<p><img src="/images/uploads/2011/01/02-github-add-pubkey-300x206.png" title="" ></p>
+
+<p>Pastekan public key yang sudah kita export menggunakan PuttyGen di atas. Setelah diadd, public key kita akan terdaftar. Kita boleh pasang public key banyak-banyak, karena biasanya satu public key mencerminkan satu komputer. Bisa saja kita punya PC dan juga Laptop.
+<img src="/images/uploads/2011/01/03-github-add-pubkey-completed-300x201.png" title="" ></p>
+
+<p>Setelah public key didaftarkan, selanjutnya kita lihat repository yang kita punya.
+<img src="/images/uploads/2011/01/04-github-repositories-300x183.png" title="" ></p>
+
+<p>Kalau belum punya repository, Anda bisa fork <a href="https://github.com/endymuhardin/belajarGit">repository belajarGit punya saya</a>, sehingga nanti Anda punya repo belajarGit sendiri.</p>
+
+<p>Setiap repository punya URL untuk melakukan clone. Copy paste URL clone repository.
+<img src="/images/uploads/2011/01/05-github-repo-belajarGit-300x208.png" title="" ></p>
+
+<p>Untuk melakukan clone, buka Windows Explorer, klik kanan, dan pilih Git Clone.
+<img src="/images/uploads/2011/01/03-tortoisegit-use-clone-300x208.png" title="" ></p>
+
+<p>Masukkan URL yang tadi kita copy dari Github, dan load private key yang kita buat dengan PuttyGen.</p>
+
+<p><img src="/images/uploads/2011/01/04-tortoisegit-clone-info-300x200.png" title="" ></p>
+
+<p>Putty akan melakukan komunikasi dengan Github. Kalau kita belum pernah clone dari Github sebelumnya, Putty akan menanyakan apakah kita ingin menerima koneksi dari Github. Jawab saja Yes.
+<img src="/images/uploads/2011/01/05-tortoisegit-clone-save-host-key-300x210.png" title="" ></p>
+
+<p>Setelah kita jawab Yes, TortoiseGit akan mendownload repository dari Github untuk kita pakai di local, yang lebih dikenal dengan istilah clone. Ini ditunjukkan dengan progress bar kura-kura salto. Jumlah kura-kura yang salto tergantung dari ukuran repository kita. Semakin besar repositorynya, semakin banyak kura-kura yang salto. Bersabarlah, dan tunggu sampai semua kura-kura selesai melakukan aksinya.</p>
+
+<p><img src="/images/uploads/2011/01/06-tortoisegit-clone-complete-300x211.png" title="" ></p>
+
+<p>Sekarang repository sudah ada di local, dan siap digunakan. Bagaimana cara menggunakannya, stay tuned. Akan dibahas di posting berikutnya.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -403,338 +542,6 @@ Tools ini lumayan bagus, dijalankan sebagai Firefox Add Ons. Sudah ada palette u
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/mendebug-database-production/">Mendebug Database Production</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-06-30T14:44:11+07:00" pubdate data-updated="true">Jun 30<span>th</span>, 2010</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di environment development karena berbagai hal, misalnya variasi data, jumlah data, dan sebagainya.</p>
-
-<p>Langkah pertama ketika kita mengetahui ada bug tentunya adalah melokalisir masalah. Pada kondisi mana saja bug tersebut muncul. Setelah itu, kita dapat memfokuskan pencarian masalah di lokasi tersebut. Ini lebih efisien daripada kita harus menelusuri keseluruhan sistem.</p>
-
-<p>Misalnya kita sudah berhasil melokalisir masalah, yaitu transaksi di bulan tertentu. Langkah selanjutnya adalah memindahkan data production di lokasi tersebut ke environment development. Ini kita lakukan supaya kita bebas bereksperimen dengan data tersebut tanpa khawatir membahayakan data production.</p>
-
-<p>Masalahnya, tools backup database yang tersedia biasanya tidak bisa digunakan untuk mengambil sebagian data. Walaupun bisa (mysqldump menyediakan opsi where untuk membatasi record yang diambil), biasanya terbatas hanya di satu tabel saja. Sedangkan untuk bisa merestore-nya di development, kita butuh semua relasinya.</p>
-
-<p>Sebagai contoh, coba lihat skema berikut.</p>
-
-<p><img src="/images/uploads/2010/06/diagram-er-payment.png" title="" ></p>
-
-<p>Untuk mengambil data payment, tentunya kita juga harus menarik data lain yang berelasi dengannya, yaitu di tabel grup loket, loket, payment value, payment info dan fee loket. Ini sangat sulit dilakukan, apalagi kalau data payment tersebut jumlahnya ratusan ribu record.</p>
-
-<p>Untunglah ada tools untuk mengatasi masalah ini, namanya <a href="http://jailer.sourceforge.net/">Jailer</a>. Dengan menggunakan Jailer, kita dapat menentukan tabel mana yang akan diambil datanya (payment), kriteria pengambilan (bulan tertentu saja), dan relasi mana saja yang ingin kita ambil. Hasilnya adalah satu set data lengkap dengan dependensinya yang bisa kita restore di development.</p>
-
-<h2>Persiapan Jailer</h2>
-
-<p>Pertama, tentunya kita unduh dulu Jailer di websitenya. Jangan lupa teriakkan, &#8220;Hidup Open Source !!!&#8221;, karena aplikasi ini tersedia secara gratis berkat gerakan open source.</p>
-
-<p>Setelah berhasil diunduh, extract ke folder tertentu. Jailer tidak menyertakan driver untuk koneksi ke database, sehingga kita harus sediakan sendiri. Karena saya menggunakan MySQL, saya masukkan file mysql-connector.jar ke dalam folder lib. Kita mengikutkan driver database ke folder Jailer karena nantinya folder ini akan kita pack dan upload ke server production.</p>
-
-<p>Jailer ini akan kita jalankan di mesin development yang sudah terisi skema database. Kita akan coba dulu ambil data di development, kalau sudah sukses baru kita jalankan di production.</p>
-
-<p>Ada dua script untuk menjalankan jailer, yaitu jailerGUI dan jailer. jailerGUI digunakan untuk mendesain pengambilan data, sedangkan jailer adalah antarmuka command line untuk menjalankan pengambilan data. Karena kita ingin mendesain proses pengambilannya, kita gunakan jailerGUI.</p>
-
-<pre><code>$ sh jailerGUI.sh
-</code></pre>
-
-<p>Berikut adalah tampilan awal Jailer.</p>
-
-<p><img src="/images/uploads/2010/06/01-jailer-welcome-300x206.png" title="Jailer Welcome Page" ></p>
-
-<p>Jailer memberitahu kita bahwa belum ada data model yang bisa dikerjakan, dan menyarankan kita untuk menganalisa database. Klik Analyze Database. Selanjutnya Jailer akan meminta informasi cara koneksi ke database.</p>
-
-<p><img src="/images/uploads/2010/06/02-analyze-db-300x134.png" title="Analyze Database" ></p>
-
-<p>Isikan informasi koneksi database dan driver yang digunakan. Driver yang kita gunakan adalah yang tadi sudah kita copy ke folder lib.</p>
-
-<p><img src="/images/uploads/2010/06/03-mysql-connectorj-300x128.png" title="Konfigurasi MySQL" ></p>
-
-<p>Klik OK untuk menganalisa database.</p>
-
-<p><img src="/images/uploads/2010/06/04-connect-to-db-300x212.png" title="Koneksi ke database" ></p>
-
-<p>Setelah itu, Jailer akan menghubungi database untuk mengambil informasi. Lognya akan ditampilkan di log output. Jailer akan memberi tahu kita tabel-tabel yang tidak ada primary keynya. Jailer tidak dapat memproses tabel tanpa primary key.</p>
-
-<p><img src="/images/uploads/2010/06/05-autodetect-result-300x233.png" title="Hasil Autodetect" ></p>
-
-<p>Klik tabel yang berwarna merah, dan definisikan primary keynya. Primary key yang kita definisikan di sini hanya digunakan Jailer, sehingga tidak perlu khawatir skema aslinya akan berubah.</p>
-
-<p><img src="/images/uploads/2010/06/06-edit-table-pk-300x200.png" title="Add Primary Key" ></p>
-
-<p>Setelah itu, klik OK. Jailer akan menampilkan screen Extraction Model Editor. Pilih tabel payment, di dropdown subject, karena inilah tabel yang akan kita gunakan sebagai pusat extraction.</p>
-
-<p><img src="/images/uploads/2010/06/07-payment-relasi-300x206.png" title="Pilih tabel yang ingin diimport" ></p>
-
-<p>Jailer mendeteksi relasi antar tabel berdasarkan constraint foreign key yang kita pasang di database. Kadangkala ada tabel-tabel yang berelasi, namun tidak ada constraintnya. Entah karena malas mendefinisikan, atau memang sengaja tidak dikaitkan. Kita bisa mendaftarkan relasi tanpa constraint ini dengan membuka lagi Data Model Editor, kemudian klik Add di kotak Association sebelah kanan.</p>
-
-<p><img src="/images/uploads/2010/06/08-relasi-non-fk-300x234.png" title="Relasi non Foreign Key" ></p>
-
-<p>Setelah diklik OK, maka skema relasi di Extraction Model Editor akan berubah sesuai relasi yang ditambahkan. Sama dengan definisi primary key di atas, relasi ini hanya disimpan oleh Jailer dan tidak diaplikasikan ke skema database.</p>
-
-<p><img src="/images/uploads/2010/06/09-payment-relasi-2-300x168.png" title="Relasi Payment - Loket" ></p>
-
-<p>Kita perlu mendefinisikan batasan record payment yang akan diambil, yaitu yang terjadi di bulan Juni 2010. Dalam bentuk SQL, berikut adalah query yang digunakan</p>
-
-<pre><code>select * from payment where date_format(paid_date, '%Y-%m') = '2010-06'
-</code></pre>
-
-<p>Kita ambil expression setelah where dan pasang di textfield where dalam Extraction Model Editor.</p>
-
-<p><img src="/images/uploads/2010/06/10-payment-where-300x206.png" title="Restriction" ></p>
-
-<p>Simpan dulu extraction modelnya.</p>
-
-<p><img src="/images/uploads/2010/06/11-save-extraction-300x208.png" title="Save Extraction" ></p>
-
-<p>Beri nama yang representatif, misalnya payment-201006. Jailer akan menyimpan extraction model ini dalam format csv. Kalau sudah memahami formatnya, kita bisa membuatnya dengan text editor tanpa GUI (kalau mau).</p>
-
-<p>Setelah tersimpan, kita bisa klik Export Data sehingga memunculkan dialog berikut.</p>
-
-<p><img src="/images/uploads/2010/06/12-data-export-300x283.png" title="Export Data" ></p>
-
-<p>Di screen tersebut kita bisa mengatur konfigurasi pengambilan data. Bagi saya, nilai defaultnya sudah memadai sehingga tidak ada yang diubah.</p>
-
-<p>Di box paling bawah ada command line yang bisa kita copy-paste untuk dijalankan tanpa GUI. Copy saja isinya ke text file untuk digunakan nanti.</p>
-
-<p>Yang harus kita isi di screen ini adalah textfield Into. Ini adalah nama file yang akan menampung script SQL berisi data yang diinginkan. Isi saja dengan nama payment-201006.sql.</p>
-
-<p><img src="/images/uploads/2010/06/13-export-into-300x205.png" title="Export Into File" ></p>
-
-<p>Setelah itu, klik Export Data. Jailer akan segera bekerja dan menampilkan hasilnya dalam bentuk tree.</p>
-
-<p><img src="/images/uploads/2010/06/14-export-result-300x168.png" title="Hasil Export" ></p>
-
-<p>Di situ kita bisa lihat berapa row yang akan diambil dari masing-masing tabel.
-Seperti kita lihat, cukup signifikan, yaitu 2000an record. Ini disebabkan karena jailer mengambil record secara rekursif tanpa ada batasan.</p>
-
-<p>Setelah dianalisa, kita hanya ingin mengambil tabel-tabel yang berkaitan langsung, yaitu payment, payment_info, payment_value, dan fee_loket. Sedangkan tabel sisanya dapat diabaikan karena bersifat pelengkap atau master data yang sudah ada di database development.</p>
-
-<p>Dengan melihat ke tree-nya, kita bisa memutus relasi fee_loket ke loket, karena dari situlah semua data lain akan ikut terbawa.</p>
-
-<p>Tutup screennya, dan kembali ke Extraction Model Editor.</p>
-
-<p><img src="/images/uploads/2010/06/15-restricted-dependency-300x168.png" title="Membatasi Relasi" ></p>
-
-<p>Di kotak Association, expand node yang ingin kita putuskan, yaitu fee loket. Klik relasi loket, dan centang checkbox disabled di pojok kiri bawah. Setelah itu, jalankan lagi Export Data.</p>
-
-<p><img src="/images/uploads/2010/06/16-restricted-dependency-warning-300x153.png" title="Warning Restricted Dependency" ></p>
-
-<p>Jailer akan mengingatkan bahwa dengan membatasi dependensi, referential integrity akan rusak, karena relasi foreign key dari fee_loket ke loket akan terputus. Klik saja Yes, karena di database development kita tabel loket sudah terisi lengkap.</p>
-
-<p>Inilah hasilnya</p>
-
-<p><img src="/images/uploads/2010/06/17-restricted-export-result-300x82.png" title="Hasil Export setelah dibatasi" ></p>
-
-<p>Seperti kita lihat di atas, kita cuma mendapatkan 84 record dan pengambilan data berhenti di tabel fee_loket.
-Periksa output payment-201006.sql di folder Jailer untuk memastikan hasilnya sudah benar.</p>
-
-<p>Setelah sukses dijalankan di database development, compress lagi jailer yang sudah dimodifikasi barusan dan upload ke server production. Setibanya di server production, extract, kemudian jalankan script yang tadi kita copy-paste.</p>
-
-<p>Kalau baru pertama kali dijalankan, script ini akan menimbulkan error sebagai berikut :</p>
-
-<pre><code>$ ./export-payment-201006.sh 
-2010-06-28 14:15:08,114 [main] INFO   - Jailer 3.4.5
-2010-06-28 14:15:08,117 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
-2010-06-28 14:15:08,119 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
-2010-06-28 14:15:08,700 [main] INFO   - begin guessing SQL dialect
-2010-06-28 14:15:08,711 [main] INFO   - end guessing SQL dialect
-2010-06-28 14:15:08,718 [main] ERROR  - Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
-java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
-    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:122)
-    at net.sf.jailer.Jailer.export(Jailer.java:1142)
-    at net.sf.jailer.Jailer.jailerMain(Jailer.java:1064)
-    at net.sf.jailer.Jailer.jailerMain(Jailer.java:989)
-    at net.sf.jailer.Jailer.main(Jailer.java:967)
-Caused by: java.sql.SQLException: "Table 'ppobgsp_test.JAILER_GRAPH' doesn't exist" in statement "Insert into JAILER_GRAPH(id, age) values (2104021762, 1)"
-    at net.sf.jailer.database.Session.executeUpdate(Session.java:470)
-    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:120)
-    ... 4 more
-Error: java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
-2010-06-28 14:15:08,724 [main] ERROR  - working directory is /opt/downloads/java/tools/test/integration-test/jailer
-</code></pre>
-
-<p>Ini disebabkan karena Jailer ternyata membuat beberapa tabel di database untuk kebutuhan internalnya. Ini dapat dilihat pada database development kita.</p>
-
-<p><img src="/images/uploads/2010/06/18-jailer-tables-300x226.png" title="Tabel Internal Jailer" ></p>
-
-<p>Untuk menggenerate tabel di atas, kita jalankan jailer dengan opsi create-ddl. Ini akan menghasilkan SQL di layar. SQL ini harus kita jalankan di database production supaya tabelnya terbentuk.</p>
-
-<pre><code>$ sh jailer.sh create-ddl
-DROP TABLE JAILER_ENTITY;
-DROP TABLE JAILER_DEPENDENCY;
-DROP TABLE JAILER_SET;
-DROP TABLE JAILER_GRAPH;
-DROP TABLE JAILER_CONFIG;
-DROP TABLE JAILER_TMP;
-
-CREATE TABLE JAILER_CONFIG
-(
-   jversion        VARCHAR(20),
-   jkey            VARCHAR(200),
-   jvalue          VARCHAR(200)
-) ;
-
-INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'magic', '837065098274756382534403654245288');
-
-CREATE TABLE JAILER_GRAPH
-(
-   id              INTEGER NOT NULL,
-   age             INTEGER NOT NULL
-
---   ,CONSTRAINT jlr_pk_graph PRIMARY KEY(id)
-) ;
-
-CREATE TABLE JAILER_ENTITY
-(
-   r_entitygraph   INTEGER NOT NULL,
-
-   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT ,
-   birthday        INTEGER NOT NULL,
-   type            VARCHAR(120) NOT NULL,
-
-   PRE_PK0 BIGINT , PRE_PK1 VARCHAR(255) , PRE_PK2 VARCHAR(255) , PRE_PK3 INT , PRE_PK4 VARCHAR(255) , PRE_PK5 BIGINT ,
-   PRE_TYPE        VARCHAR(120),
-   orig_birthday   INTEGER,
-   association     INTEGER
-
--- ,  CONSTRAINT jlr_fk_graph_e FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
-) ;
-
-CREATE INDEX jlr_enty_brthdy ON JAILER_ENTITY (r_entitygraph, birthday, type) ;
-CREATE INDEX jlr_enty_upk1 ON JAILER_ENTITY (r_entitygraph , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
-
-
-CREATE TABLE JAILER_SET
-(
-   set_id          INTEGER NOT NULL,
-   type            VARCHAR(120) NOT NULL,
-   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT 
-) ;
-
-CREATE INDEX jlr_pk_set1 ON JAILER_SET (set_id , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
-
-
-CREATE TABLE JAILER_DEPENDENCY
-(
-   r_entitygraph   INTEGER NOT NULL,
-   assoc           INTEGER NOT NULL,
-   depend_id       INTEGER NOT NULL,
-   traversed       INTEGER,
-   from_type       VARCHAR(120) NOT NULL,
-   to_type         VARCHAR(120) NOT NULL,
-   FROM_PK0 BIGINT , FROM_PK1 VARCHAR(255) , FROM_PK2 VARCHAR(255) , FROM_PK3 INT , FROM_PK4 VARCHAR(255) , FROM_PK5 BIGINT ,
-   TO_PK0 BIGINT , TO_PK1 VARCHAR(255) , TO_PK2 VARCHAR(255) , TO_PK3 INT , TO_PK4 VARCHAR(255) , TO_PK5 BIGINT    
-
--- ,  CONSTRAINT jlr_fk_graph_d FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
-) ;
-
-CREATE INDEX jlr_dep_from1 ON JAILER_DEPENDENCY (r_entitygraph, assoc , FROM_PK0, FROM_PK1, FROM_PK2, FROM_PK3, FROM_PK4, FROM_PK5) ;
-
-CREATE INDEX jlr_dep_to1 ON JAILER_DEPENDENCY (r_entitygraph , TO_PK0, TO_PK1, TO_PK2, TO_PK3, TO_PK4, TO_PK5) ;
-
-
-CREATE TABLE JAILER_TMP 
-(
-    c1 INTEGER, 
-    c2 INTEGER
-) ;
-
-INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547784');
-</code></pre>
-
-<p>Setelah tabelnya siap, jalankan kembali script yang error di atas. Berikut outputnya.</p>
-
-<pre><code>$ ./export-payment-201006.sh 
-2010-06-28 14:12:31,175 [main] INFO   - Jailer 3.4.5
-2010-06-28 14:12:31,190 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
-2010-06-28 14:12:31,191 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
-2010-06-28 14:12:32,850 [main] INFO   - SQL dialect is MYSQL
-2010-06-28 14:12:32,925 [main] INFO   - gather statistics after 0 inserted rows...
-2010-06-28 14:12:32,966 [main] INFO   - reading file 'renew.sql'
-2010-06-28 14:12:32,966 [main] INFO   - 0 statements (100%)
-2010-06-28 14:12:32,967 [main] INFO   - successfully read file 'renew.sql'
-2010-06-28 14:12:32,977 [main] INFO   - exporting payment Where date_format(paid_date,'%Y-%m') = '2010-06'
-2010-06-28 14:12:33,028 [main] INFO   - day 1, progress: payment
-2010-06-28 14:12:33,039 [main] INFO   - starting 4 jobs
-2010-06-28 14:12:33,040 [main] INFO   - gather statistics after 3 inserted rows...
-2010-06-28 14:12:33,041 [main] INFO   - reading file 'renew.sql'
-2010-06-28 14:12:33,042 [main] INFO   - 0 statements (100%)
-2010-06-28 14:12:33,042 [main] INFO   - successfully read file 'renew.sql'
-2010-06-28 14:12:33,047 [main] INFO   - resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,105 [main] INFO   - 66 entities found resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,105 [main] INFO   - resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,126 [main] INFO   - 0 entities found resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,126 [main] INFO   - resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,129 [main] INFO   - 3 entities found resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,131 [main] INFO   - resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,142 [main] INFO   - 12 entities found resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,143 [main] INFO   - executed 4 jobs
-2010-06-28 14:12:33,143 [main] INFO   - day 2, progress: payment_info, fee_loket, payment_value
-2010-06-28 14:12:33,144 [main] INFO   - skip reversal association payment_info -&gt; payment
-2010-06-28 14:12:33,144 [main] INFO   - skip reversal association fee_loket -&gt; payment
-2010-06-28 14:12:33,147 [main] INFO   - skip reversal association payment_value -&gt; payment
-2010-06-28 14:12:33,147 [main] INFO   - starting 1 jobs
-2010-06-28 14:12:33,148 [main] INFO   - executed 1 jobs
-2010-06-28 14:12:33,149 [main] INFO   - exported payment Where date_format(paid_date,'%Y-%m') = '2010-06'
-2010-06-28 14:12:33,149 [main] INFO   - total progress: payment_info, payment, fee_loket, payment_value
-2010-06-28 14:12:33,149 [main] INFO   - export statistic:
-2010-06-28 14:12:33,169 [main] INFO   - Exported Rows:     84
-2010-06-28 14:12:33,169 [main] INFO   -     fee_loket                      3
-2010-06-28 14:12:33,169 [main] INFO   -     payment                        3
-2010-06-28 14:12:33,172 [main] INFO   -     payment_info                   66
-2010-06-28 14:12:33,172 [main] INFO   -     payment_value                  12
-2010-06-28 14:12:33,173 [main] INFO   - writing file 'payment-201006.sql'...
-2010-06-28 14:12:33,178 [main] INFO   - independent tables: payment
-2010-06-28 14:12:33,179 [main] INFO   - starting 1 jobs
-2010-06-28 14:12:33,380 [main] INFO   - executed 1 jobs
-2010-06-28 14:12:33,380 [main] INFO   - independent tables: payment_info, fee_loket, payment_value
-2010-06-28 14:12:33,384 [main] INFO   - starting 3 jobs
-2010-06-28 14:12:33,447 [main] INFO   - executed 3 jobs
-2010-06-28 14:12:33,447 [main] INFO   - cyclic dependencies for: 
-2010-06-28 14:12:33,447 [main] INFO   - starting 0 jobs
-2010-06-28 14:12:33,448 [main] INFO   - executed 0 jobs
-2010-06-28 14:12:33,448 [main] INFO   - gather statistics after 84 inserted rows...
-2010-06-28 14:12:33,450 [main] INFO   - reading file 'renew.sql'
-2010-06-28 14:12:33,450 [main] INFO   - 0 statements (100%)
-2010-06-28 14:12:33,454 [main] INFO   - successfully read file 'renew.sql'
-2010-06-28 14:12:33,456 [main] INFO   - starting 0 jobs
-2010-06-28 14:12:33,467 [main] INFO   - executed 0 jobs
-2010-06-28 14:12:33,486 [main] INFO   - file 'payment-201006.sql' written.
-</code></pre>
-
-<p>Selesai sudah, data yang kita inginkan ada di file payment-201006.sql, siap diunduh dan dijalankan di database development.</p>
-
-<p>Semoga bermanfaat, kalau ada yang kurang jelas, silahkan baca <a href="http://jailer.sourceforge.net/exporting-data.htm">tutorial resminya</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -797,6 +604,10 @@ INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
       </li>
     
@@ -830,10 +641,6 @@ INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547
     
       <li class="post">
         <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a>
       </li>
     
   </ul>

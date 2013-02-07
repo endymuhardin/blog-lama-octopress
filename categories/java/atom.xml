@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-02-04T13:01:40+07:00</updated>
+  <updated>2013-02-07T16:24:22+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,80 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mencari Relasi Foreign Key ke Tabel MySQL]]></title>
+    <link href="http://software.endy.muhardin.com/java/mencari-relasi-foreign-key-ke-tabel-mysql/"/>
+    <updated>2013-02-07T15:24:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mencari-relasi-foreign-key-ke-tabel-mysql</id>
+    <content type="html"><![CDATA[<p>Di aplikasi yang kita buat, biasanya ada fitur untuk menghapus data atau record tertentu.
+Bila kita menggunakan database relasional yang memiliki fitur <em>referential integrity</em>,
+kita akan dicegah bila data yang ingin kita hapus memiliki relasi ke data lain.</p>
+
+<p>Contohnya, kita punya tabel <code>Produk</code>, yang kolom <code>id</code>nya digunakan sebagai <em>foreign key</em>
+oleh tabel <code>Penjualan</code>.
+Dengan demikian, pada waktu ingin menghapus data <code>Produk</code>, terlebih dulu kita cek ke tabel
+<code>Penjualan</code>, apakah ada data transaksi yang berelasi ke <code>Produk</code> yang ingin kita hapus.</p>
+
+<p>Akan menjadi masalah bila aplikasi kita sudah besar, tabelnya ada ratusan.
+Bagaimana cara kita mencari tabel mana saja yang memiliki relasi ke tabel <code>Produk</code>?
+Tentunya tidak mungkin dicek satu-persatu.</p>
+
+<p>Dengan bantuan paman Google, berikut adalah cara mendapatkannya untuk database MySQL.</p>
+
+<!--more-->
+
+
+<p>Pertama, login dulu ke MySQL</p>
+
+<p><code>
+mysql -u root -p
+Password:
+mysql&gt;
+</code></p>
+
+<p>Kemudian, gunakan database <code>information_schema</code></p>
+
+<p><code>
+use information_schema
+</code></p>
+
+<p>Terakhir, jalankan query SQL berikut</p>
+
+<p><code>sql
+SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME,
+REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
+FROM KEY_COLUMN_USAGE
+WHERE REFERENCED_TABLE_NAME = 'produk'
+AND REFERENCED_COLUMN_NAME = 'id'
+AND TABLE_SCHEMA='db_penjualan';
+</code></p>
+
+<p>Inilah hasilnya</p>
+
+<p><code>
++-------------------------------------------------------------------------------------------+
+| TABLE_NAME         | COLUMN_NAME | CONSTRAINT_NAME     | REFERENCED_TABLE_NAME | REFERENCED_COLUMN_NAME |
++-------------------------------------------------------------------------------------------+
+| penjualan          | id_produk   | fk_penjualan_produk | produk                | id                     |
+| stok               | id_produk   | fk_stok_produk      | produk                | id                     |
++-------------------------------------------------------------------------------------------+
+</code></p>
+
+<p>Penjelasan:</p>
+
+<ul>
+<li>Table Name : Nama Tabel yang memiliki referensi</li>
+<li>Column Name : Nama Kolom yang merupakan <em>foreign key</em></li>
+<li>Constraint Name : Nama constraint <em>foreign key</em></li>
+<li>Referenced Table Name : Nama tabel yang dituju</li>
+<li>Referenced Column Name : Nama kolom yang dituju <em>foreign key</em></li>
+</ul>
+
+
+<p>Demikian sekilas tutorial. Semoga bermanfaat dalam membuat validasi.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Memahami Dependency Injection]]></title>
@@ -1132,307 +1206,6 @@ log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
 </p>
 
 <p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Monitoring Aplikasi Java]]></title>
-    <link href="http://software.endy.muhardin.com/java/monitoring-aplikasi-java/"/>
-    <updated>2012-07-28T20:45:07+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/monitoring-aplikasi-java</id>
-    <content type="html"><![CDATA[<p>Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini disebut dengan transisi dari development menjadi operation.</p>
-
-<p>Salah satu aspek penting dalam fase operation adalah monitoring performance. Monitoring dilakukan untuk berbagai tujuan, diantaranya :</p>
-
-<ul>
-<li><p>Mengetahui karakteristik aplikasi dalam menggunakan resource. Informasi ini bisa kita gunakan untuk melakukan tuning performance</p></li>
-<li><p>Mengetahui karakteristik user dalam menggunakan aplikasi. Perilaku user ini berguna untuk menentukan waktu-waktu sibuk dan waktu-waktu idle, sehingga kita bisa melakukan capacity planning dengan akurat.</p></li>
-<li><p>Mengetahui berapa persen resource yang sudah terpakai, sehingga kita punya gambaran kapan harus melakukan upgrade, dan apa yang harus diupgrade</p></li>
-<li><p>Mendapatkan notifikasi secepat mungkin pada saat sistem mengalami gangguan</p></li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Pada umumnya, monitoring dilakukan dengan memantau bagian-bagian dalam sistem, diantaranya :</p>
-
-<ul>
-<li><p>Dalam sistem operasi</p>
-
-<ul>
-<li><p>Jumlah proses</p></li>
-<li><p>CPU</p></li>
-<li><p>Memori</p></li>
-<li><p>Disk I/O</p></li>
-<li><p>Network I/O</p></li>
-</ul>
-</li>
-<li><p>Dalam aplikasi</p>
-
-<ul>
-<li><p>Jumlah thread</p></li>
-<li><p>Alokasi memori</p></li>
-<li><p>Class/method yang mengkonsumsi resource terbesar</p></li>
-<li><p>Class/method yang memakan waktu lama</p></li>
-<li><p>Untuk bahasa pemrograman yang berjalan di virtual machine (seperti Java, .NET, Ruby, dsb), kita juga perlu memantau perilaku Garbage Collector</p></li>
-</ul>
-</li>
-<li><p>Database Server</p>
-
-<ul>
-<li><p>Jumlah koneksi yang dibuka baik yang idle maupun yang aktif</p></li>
-<li><p>Query yang memakan waktu lama</p></li>
-<li><p>Tabel yang sering diakses</p></li>
-</ul>
-</li>
-</ul>
-
-
-<p>Dalam melakukan monitoring, ada banyak tools yang digunakan. Beberapa aplikasi opensource yang populer diantaranya :</p>
-
-<ul>
-<li><p>Nagios</p></li>
-<li><p>Icinga : ini adalah fork dari Nagios</p></li>
-<li><p>Zenoss</p></li>
-<li><p>Zabbix</p></li>
-<li><p>OpenNMS</p></li>
-<li><p>Hyperic</p></li>
-</ul>
-
-
-<p>Pada umumnya, semua aplikasi di atas memiliki fitur yang mirip-mirip, yaitu :</p>
-
-<ul>
-<li><p>SNMP Monitoring. SNMP adalah protokol yang populer, tersedia di sistem operasi, network hardware (switch, router, dsb), bahkan aplikasi (Java VM, database server, dsb)</p></li>
-<li><p>JMX Monitoring. JMX adalah protokol untuk memonitor aplikasi Java. Dengan menggunakan JMX, informasi yang diperoleh akan lebih rinci.</p></li>
-<li><p>Agent dan Agentless Monitoring. Agent adalah aplikasi kecil yang diinstal di server yang ingin dimonitor. Dengan agent, informasi yang dikumpulkan bisa lebih detail. Di lain sisi, tidak semua tempat bisa dipasangi agent (misalnya router). Umumnya aplikasi monitoring mendukung monitoring dengan agent maupun tanpa agent.</p></li>
-</ul>
-
-
-<p>Cara instalasi dari aplikasi di atas bisa dibaca di websitenya masing-masing. Yang akan kita bahas di sini adalah cara konfigurasi aplikasi Java, khususnya yang menggunakan framework Spring dan Hibernate, agar bisa dimonitor oleh aplikasi-aplikasi di atas.</p>
-
-<p>Pada prinsipnya, berikut adalah hal-hal yang perlu dilakukan :</p>
-
-<ol>
-<li><p>Menentukan metric atau jenis data yang akan dimonitor</p></li>
-<li><p>Mengaktifkan MBean agar metric tersebut dipublish melalui JMX</p></li>
-<li><p>Mengaktifkan JMX server agar bisa dihubungi dari aplikasi monitoring</p></li>
-</ol>
-
-
-<p>Aplikasi yang akan kita jadikan contoh kasus adalah template standar aplikasi web ArtiVisi, yang <a href="https://github.com/endymuhardin/belajar-restful">source codenya tersedia di Github</a>.</p>
-
-<h2>Menentukan metric</h2>
-
-<p>Beda jenis datanya, tentu beda juga cara pengumpulan data dan tools yang digunakan untuk mengolahnya.</p>
-
-<h3>Tabel Metrik dan Tools</h3>
-
-<table>
-<thead>
-<tr>
-<th>Metric      </th>
-<th> Metode Pengumpulan </th>
-<th> Tools</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>CPU         </td>
-<td> SNMP atau Agent    </td>
-<td> Nagios,Zenoss,dkk</td>
-</tr>
-<tr>
-<td>Memori      </td>
-<td> SNMP atau Agent    </td>
-<td> Nagios,Zenoss,dkk</td>
-</tr>
-<tr>
-<td>Disk IO     </td>
-<td> SNMP atau Agent    </td>
-<td> Nagios,Zenoss,dkk</td>
-</tr>
-<tr>
-<td>Network     </td>
-<td> SNMP atau Agent    </td>
-<td> Nagios,Zenoss,dkk</td>
-</tr>
-<tr>
-<td>Tomcat      </td>
-<td> JMX                </td>
-<td> Hyperic</td>
-</tr>
-<tr>
-<td>MySQL       </td>
-<td> Agent              </td>
-<td> Hyperic</td>
-</tr>
-<tr>
-<td>Spring      </td>
-<td> AOP                </td>
-<td> Javamelody</td>
-</tr>
-<tr>
-<td>Hibernate   </td>
-<td> JMX                </td>
-<td> Hyperic</td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Monitoring dengan JavaMelody</h2>
-
-<p>Untuk mengaktifkan monitoring menggunakan JavaMelody, ada beberapa langkah yang perlu kita lakukan, yaitu :</p>
-
-<ol>
-<li>Menambahkan jar JavaMelody</li>
-<li>Memasang AOP interceptor supaya bisa memonitor beans dalam Spring</li>
-<li>Mengaktifkan monitoring JavaMelody</li>
-</ol>
-
-
-<p>Karena projectnya menggunakan Maven, maka menambahkan jar sangat mudah, cukup dengan menambahkan dependency sebagai berikut :</p>
-
-<p><div><script src='https://gist.github.com/3192086.js?file=pom.xml'></script>
-<noscript><pre><code>&lt;dependency&gt;
-	&lt;groupId&gt;net.bull.javamelody&lt;/groupId&gt;
-	&lt;artifactId&gt;javamelody-core&lt;/artifactId&gt;
-	&lt;version&gt;1.39.0&lt;/version&gt;
-&lt;/dependency&gt;</code></pre></noscript></div>
-</p>
-
-<p>Selanjutnya, kita memasang interceptor supaya object yang kita buat dimonitor oleh JavaMelody. Biasanya kita memonitor implementasi proses bisnis. Berikut konfigurasi applicationContext.xml</p>
-
-<p><div><script src='https://gist.github.com/3192086.js?file=applicationContext.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;facadeMonitoringAdvisor&quot; 
-      class=&quot;net.bull.javamelody.MonitoringSpringAdvisor&quot;&gt;
-	&lt;property name=&quot;pointcut&quot;&gt;
-		&lt;bean class=&quot;net.bull.javamelody.MonitoredWithInterfacePointcut&quot;&gt;
-			&lt;property name=&quot;interfaceName&quot;
-			          value=&quot;com.artivisi.belajar.restful.service.MonitoredService&quot; 
-	                /&gt;
-		&lt;/bean&gt;
-	&lt;/property&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
-
-<p>Terakhir, kita aktifkan JavaMelody. Karena aplikasinya adalah aplikasi web, maka inisialisasi dilakukan di dalam file web.xml sebagai berikut</p>
-
-<p><div><script src='https://gist.github.com/3192086.js?file=web.xml'></script>
-<noscript><pre><code>&lt;context-param&gt;
-	&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-	&lt;param-value&gt;
-		classpath:net/bull/javamelody/monitoring-spring.xml
-        classpath*:com/artivisi/**/applicationContext.xml
-    &lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;listener&gt;
-	&lt;listener-class&gt;net.bull.javamelody.SessionListener&lt;/listener-class&gt;
-&lt;/listener&gt;
-
-&lt;!-- Monitor aplikasi menggunakan javamelody --&gt;
-&lt;filter&gt;
-	&lt;filter-name&gt;monitoring&lt;/filter-name&gt;
-	&lt;filter-class&gt;net.bull.javamelody.MonitoringFilter&lt;/filter-class&gt;
-&lt;/filter&gt;
-&lt;filter-mapping&gt;
-	&lt;filter-name&gt;monitoring&lt;/filter-name&gt;
-	&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;</code></pre></noscript></div>
-</p>
-
-<p>Setelah selesai, kita bisa jalankan aplikasi seperti biasa. Untuk mengakses hasil monitoring, kita dapat mengakses url http://host:port/context-aplikasi/monitoring.</p>
-
-<p>Berikut adalah screenshotnya.</p>
-
-<p><img src="/images/uploads/2012/07/JavaMelody-Charts.png" title="JavaMelody-Charts" ></p>
-
-<h2>Mengaktifkan MBean</h2>
-
-<p>Selain menggunakan JavaMelody, kita juga bisa melakukan monitoring menggunakan JMX. Beruntung kita yang menggunakan Spring, JMX akan sangat mudah dikonfigurasi. Pada contoh berikut, kita akan mengaktifkan monitoring terhadap statistik Hibernate. Langkah-langkahnya adalah sebagai berikut :</p>
-
-<ol>
-<li>Mengaktifkan fitur statistik dalam Hibernate</li>
-<li>Mendeklarasikan MBean untuk memonitor statistik Hibernate</li>
-<li>Menginstankan JMX server (MBean Server)</li>
-</ol>
-
-
-<p>Aktifasi fitur statistik dalam Hibernate dilakukan dengan mengisi nilai true pada variabel konfigurasi hibernate.generate_statistics, sebagai berikut :</p>
-
-<p><div><script src='https://gist.github.com/3192099.js?file=hibernate-statistics.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;sessionFactory&quot;
-	class=&quot;org.springframework.orm.hibernate4.LocalSessionFactoryBean&quot;
-	p:dataSource-ref=&quot;dataSource&quot;&gt;
-	&lt;property name=&quot;hibernateProperties&quot;&gt;
-		&lt;props&gt;
-			&lt;prop key=&quot;hibernate.generate_statistics&quot;&gt;true&lt;/prop&gt;
-		&lt;/props&gt;
-	&lt;/property&gt;
-	&lt;property name=&quot;packagesToScan&quot; value=&quot;com.artivisi.belajar.restful.domain&quot; /&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
-
-<p>Selanjutnya, statistik yang telah dihitung ini dipublish menggunakan MBean.</p>
-
-<p><div><script src='https://gist.github.com/3192099.js?file=hibernateMBean.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;hibernateStatisticsMBean&quot; class=&quot;org.hibernate.jmx.StatisticsService&quot;&gt;
-	&lt;property name=&quot;sessionFactory&quot; ref=&quot;sessionFactory&quot; /&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
-
-<p><div><script src='https://gist.github.com/3192099.js?file=mbeanExporter.xml'></script>
-<noscript><pre><code>&lt;bean id=&quot;mbeanExporter&quot; class=&quot;org.springframework.jmx.export.MBeanExporter&quot;&gt;
-  &lt;property name=&quot;beans&quot;&gt;
-    &lt;map&gt;
-      &lt;entry 
-        key=&quot;SpringBeans:name=hibernateStatisticsMBean&quot; 
-        value-ref=&quot;hibernateStatisticsMBean&quot; /&gt;
-    &lt;/map&gt;
-  &lt;/property&gt;
-&lt;/bean&gt;</code></pre></noscript></div>
-</p>
-
-<p>Terakhir, kita sediakan MBean Server untuk menjalankan MBean yang sudah kita deklarasikan di atas. Spring sudah memudahkan konfigurasinya dengan namespace yang baru</p>
-
-<p><div><script src='https://gist.github.com/3192099.js?file=mbean-server.xml'></script>
-<noscript><pre><code>&lt;context:mbean-server/&gt;</code></pre></noscript></div>
-</p>
-
-<p>Selanjutnya, jalankan aplikasi kita seperti biasa di Tomcat, Jetty, dsb.
-Setelah aplikasi berjalan, kita dapat melihatnya menggunakan JConsole.</p>
-
-<p>Jalankan JConsole, dan pilih proses yang akan dimonitor.</p>
-
-<p><img src="/images/uploads/2012/07/jconsole-select-pid.png" title="jconsole-select-pid" ></p>
-
-<p>Tampilkan MBean Hibernate Statistics</p>
-
-<p><img src="/images/uploads/2012/07/jconsole-hibernate-statistics.png" title="jconsole-hibernate-statistics" ></p>
-
-<p>Kita bisa lihat bahwa statistik Hibernate sudah dapat diakses. Informasi ini juga bisa ditampilkan di aplikasi monitoring seperti OpenNMS, Hyperic, dan aplikasi lain yang support JMX.</p>
-
-<p>Selain itu, kalau kita sudah mengaktifkan JavaMelody seperti dijelaskan di atas, MBean ini juga bisa ditampilkan di url yang sama seperti screenshot di bawah</p>
-
-<p><img src="/images/uploads/2012/07/javamelody-mbeans.png" title="javamelody-mbeans" ></p>
-
-<h2>Kesimpulan</h2>
-
-<p>Demikianlah hasil oprek-oprek sambil menunggu motor servis rutin. Dengan beberapa langkah sederhana, kita dapat memperoleh informasi lengkap tentang apa yang terjadi di aplikasi kita. Informasi ini selanjutnya dapat dijadikan pedoman untuk melakukan tuning performance. Selain itu, dengan menggunakan aplikasi pengolah data seperti <a href="http://code.google.com/p/rocksteady/">Rocksteady</a>, kita dapat membuat early warning system, yaitu suatu sistem yang dapat memprediksi terjadinya bencana dan memberikan notifikasi, sehingga kita bisa melakukan antisipasi.</p>
-
-<h2>Referensi</h2>
-
-<ul>
-<li><p><a href="http://www.oracle.com/technetwork/java/javase/tech/javamanagement-140525.html">JMX Homepage</a></p></li>
-<li><p><a href="http://visualvm.java.net/">VisualVM Homepage</a></p></li>
-<li><p><a href="http://java.sun.com/developer/technicalArticles/J2SE/jconsole.html">Cara menggunakan JConsole</a></p></li>
-<li><p><a href="http://dzone.com/snippets/spring-jmx-sample">Cara konfigurasi Spring dan Hibernate</a></p></li>
-<li><p><a href="http://nurkiewicz.blogspot.com/2011/03/jolokia-highcharts-jmx-for-human-beings.html">Menampilkan data dari JMX dengan Jolokia</a></p></li>
-</ul>
-
 ]]></content>
   </entry>
   
