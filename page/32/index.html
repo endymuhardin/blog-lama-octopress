@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pertanyaan berikut muncul di milis netbeans-indonesia, &#8220;Di mana sebaiknya kita menulis aturan validasi? Di database, di business layer, atau di &hellip;">
+  <meta name="description" content="Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan ikan lumba-lumba menjadi gajah. Sebetulnya saya pernah menggunakan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,165 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/menggunakan-postgresql/">Menggunakan PostgreSQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-24T18:35:16+07:00" pubdate data-updated="true">Sep 24<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan <a href="http://www.mysql.org">ikan lumba-lumba</a> menjadi <a href="http://www.postgresql.org">gajah</a>. Sebetulnya saya pernah menggunakan database gajah ini pada tahun 2005, tapi setelah itu jarang digunakan sehingga butuh waktu agak lama untuk melakukan porting ini.</p>
+
+<p>Agar lain kali tidak lupa lagi, baiklah saya tulis di sini saja. Mudah-mudahan bermanfaat juga untuk pembaca :D</p>
+
+<h3>Instalasi</h3>
+
+<p>Saya menggunakan Ubuntu, jadi instalasi tidak sulit. Cukup lakukan:
+<code>sudo apt-get install postgresql-8.2</code>
+Beres .. :D</p>
+
+<h3>Konfigurasi Akses Jaringan</h3>
+
+<p>Selanjutnya, konfigurasi Postgre agar meminta password setiap ada koneksi masuk, termasuk dari localhost. Ini dilakukan agar konfigurasi JDBCnya tidak terlalu berbeda dengan konfigurasi sebelumnya yang menggunakan MySQL.</p>
+
+<p>Ganti otentikasi dalam <code>pg_hba.conf</code> menjadi</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>local   all         all                           password
+</span><span class='line'>host    all         all         127.0.0.1/32      password
+</span><span class='line'>host    all         all         ::1/128           password</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File <code>pg_hba.conf</code> ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder <code>/etc/postgresql/8.2/main</code>. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/postgresql restart</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Menambahkan User</h3>
+
+<p>Untuk menambahkan user, kita perlu <em>menyamar</em> sebagai user <code>postgres</code>.  Gunakan <code>su</code>.
+<code>sudo su - postgres</code></p>
+
+<p>Selanjutnya, jalankan perintah <code>createuser</code> dengan argumen P untuk meminta password.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>createuser -P
+</span><span class='line'>Enter name of role to add: belajar
+</span><span class='line'>Enter password for new role: 
+</span><span class='line'>Enter it again: 
+</span><span class='line'>Shall the new role be a superuser? (y/n) n
+</span><span class='line'>Shall the new role be allowed to create databases? (y/n) y
+</span><span class='line'>Shall the new role be allowed to create more new roles? (y/n) n
+</span><span class='line'>CREATE ROLE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah di atas menambahkan user dengan username <code>belajar</code> yang memiliki ijin untuk membuat database baru.</p>
+
+<p>Selanjutnya, keluar dari user postgres dengan menggunakan perintah <code>exit</code>.</p>
+
+<h3>Membuat Database</h3>
+
+<p>Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yang namanya <code>buku_tamu</code>. Gunakan perintah <code>createdb</code> dengan argumen U untuk menyebutkan username.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>createdb -U belajar buku_tamu
+</span><span class='line'>Password: 
+</span><span class='line'>CREATE DATABASE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah selesai, coba koneksi ke database tersebut.</p>
+
+<p><code>psql -U belajar -d buku_tamu</code></p>
+
+<h3>Konfigurasi JDBC</h3>
+
+<p>Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
+</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Saya menggunakan Hibernate, sehingga butuh satu parameter lagi, yaitu dialek SQL yang digunakan.</p>
+
+<p><code>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</code></p>
+
+<p>Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti lima baris konfigurasi (bukan source code), dari seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url         = jdbc:mysql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java
+</span><span class='line'>hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Menjadi seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
+</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java
+</span><span class='line'>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Oh iya, jangan lupa <a href="http://jdbc.postgresql.org/download.html">unduh dulu driver JDBC untuk PostgreSQL</a>. Saya menggunakan versi <strong>8.2-506 JDBC 4</strong>.</p>
+
+<p>Demikian setup PostgreSQL agar bisa diakses dari Java.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -403,148 +562,6 @@ public class HelloQueueSender {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/network-address-translation/">Network Address Translation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-08-30T00:50:36+07:00" pubdate data-updated="true">Aug 30<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>NAT adalah singkatan dari Network Address Translation.</p>
-
-<p>Gunanya supaya kita bisa mempublish komputer di internal (misal, IP dalamnya : 192.168.0.1)
-ke internet (misal, IP luarnya : 202.159.11.11).
-Atau agar komputer di jaringan dalam bisa berbagi pakai akses internet.</p>
-
-<p>Setiap request ke satu komputer, komputer asal mengirim paket data ke komputer tujuan.
-Mirip dengan kalau kita kirim surat. Pesannya ditulis di kertas, masukkan amplop,
-tulis alamat penerima dan alamat pengirim.</p>
-
-<p>Contoh paketnya kira-kira seperti ini.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.22.22
-</span><span class='line'>Untuk : 202.159.11.11
-</span><span class='line'>Pesan : halo</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Gateway harus punya mapping IP luar dan IP dalam.
-Begitu gateway terima paket yang ditujukan ke IP luar,
-dia akan membungkus paket tersebut dengan amplop baru, alamat tujuannya diganti dengan IP dalam.
-Proses ini dinamakan DNAT (Destination NAT).</p>
-
-<p>Bila alamat tujuan tidak diganti, maka routernya akan bingung, karena dia tidak tahu IP luar itu mesinnya yang mana.</p>
-
-<p>Kalau di Linux, ini dilakukan dengan perintah iptables.
-Contohnya adalah sebagai berikut:</p>
-
-<p><code>iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT</code></p>
-
-<p>Setelah diDNAT, paketnya menjadi seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.22.22
-</span><span class='line'>Untuk : 192.168.0.1
-</span><span class='line'>Pesan : halo</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut,
-karena dia kenal 192.168.0.1 itu mesin yang mana.</p>
-
-<p>Akhirnya paket sampai di tujuan.</p>
-
-<p>Dengan menggunakan DNAT ini, kita bisa mempublikasikan mesin di jaringan internal agar bisa diakses dari luar.</p>
-
-<p>Bagaimana jika sebaliknya?</p>
-
-<p>Penerima akan mengirim balasan. Dia masukkan ke amplop, kirim ke router.
-Router akan lihat bahwa tujuannya adalah komputer di luar, maka dia kirim ke gateway.</p>
-
-<p>Paketnya kira-kira seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 192.168.0.1
-</span><span class='line'>Untuk : 202.159.22.22
-</span><span class='line'>Pesan : halo juga</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Gateway melihat bahwa alamat pengirim adalah IP dalam.
-Kalau diteruskan begitu saja, maka kalau ada balasan lagi, tidak akan sampai,
-karena IP dalam tidak dikenal di luar.
-Jadi dia harus membungkus lagi dengan amplop lagi, kali ini yang diganti adalah alamat pengirim.
-IP dalam diganti dengan IP public.
-Proses ini dinamakan SNAT (Source NAT)</p>
-
-<p>Contohnya adalah sebagai berikut:
-<code>iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT</code></p>
-
-<p>Setelah diSNAT paketnya menjadi seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.11.11
-</span><span class='line'>Untuk : 202.159.22.22
-</span><span class='line'>Pesan : halo juga</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dengan menggunakan SNAT, kita bisa mengimplementasikan Internet Connection Sharing,
-yaitu satu koneksi internet dibagi beramai-ramai.</p>
-
-<p>Ada satu kasus khusus untuk SNAT, namanya Masquerade.
-Ini digunakan apabila IP public yang digunakan berubah-ubah.
-Misalnya kalau kita pakai dialup connection.</p>
-
-<p>Kalau kita nekat pakai SNAT, nanti akan repot, karena harus update rule setiap dial ke internet.</p>
-
-<p>Jadi, kita gunakan masquerade.
-Berikut perintahnya:
-<code>iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE</code></p>
-
-<p>Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan cara :
-<code>cat 1 &gt; /proc/sys/net/ipv4/ip_forward</code></p>
-
-<p>Rangkaian perintah ini akan hilang pada saat reboot.
-Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen.
-Caranya, tergantung masing-masing distro.</p>
-
-<p>Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat tightly-coupled dengan kernel linux.</p>
-
-<p>Untuk Windows, kita dapat gunakan fitur Internet Connection Sharing apabila ada. Beberapa versi Windows (misalnya XP Home), tidak punya fitur ini. Jadi solusinya adalah dengan menggunakan aplikasi tambahan seperti misalnya <a href="http://www.wingate.com/product-wingate.php">WinGate</a> atau <a href="http://www.kerio.com/kwf_home.html">WinRoute</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/33/">&larr; Older</a>
@@ -607,6 +624,10 @@ Caranya, tergantung masing-masing distro.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
       </li>
     
@@ -640,10 +661,6 @@ Caranya, tergantung masing-masing distro.</p>
     
       <li class="post">
         <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
       </li>
     
   </ul>

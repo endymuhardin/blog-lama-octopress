@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota &hellip;">
+  <meta name="description" content="Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,325 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-3/">Aplikasi Web Dengan Spring 2.5 [Bagian 3]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-21T21:07:10+07:00" pubdate data-updated="true">Dec 21<span>st</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, dan menu navigasi.</p>
+
+<p>Ada beberapa cara untuk memasang header dan footer tanpa duplikasi kode. Cara paling sederhana tentunya dengan menggunakan include di setiap halaman. Contohnya kira-kira seperti ini.</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>#parse("header.html")
+
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+    &lt;/tr&gt;
+    #foreach($person in $personList)
+    &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
+            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    #end
+&lt;/table&gt;
+
+
+#parse("footer.html")
+</code></pre>
+
+<h3>header.html</h3>
+
+<p>berisi kira-kira seperti ini</p>
+
+<pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+    &lt;title&gt;:: List of All Person ::&lt;/title&gt;
+  &lt;/head&gt;
+
+  &lt;body&gt;
+</code></pre>
+
+<p>dan</p>
+
+<h3>footer.html</h3>
+
+<pre><code>&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Saya sendiri kurang suka dengan pendekatan seperti ini, karena:</p>
+
+<ul>
+<li>kita terpaksa membuat halaman html yang tidak lengkap. Di header.html tidak ada tutup body dan di footer.html tidak ada tag pembuka body.</li>
+<li>perintah include untuk header dan footer akan diulangi di setiap halaman.</li>
+</ul>
+
+
+<p>Ada cara yang lebih baik, yaitu menggunakan decorator.</p>
+
+<p>Pustaka decorator di Java cukup banyak, antara lain:</p>
+
+<ul>
+<li>SiteMesh</li>
+<li>Tiles</li>
+<li>Facelets</li>
+</ul>
+
+
+<p>Tiles tadinya adalah decorator khusus untuk framework Struts. Tapi seiring dengan populernya penggunaan decorator, maka Tiles direfactor sehingga dapat berdiri sendiri tanpa Struts. Saat artikel ini ditulis, baik Tiles maupun penerusnya Tiles 2 cuma bisa digunakan untuk JSP. Jadi tidak bisa kita terapkan untuk aplikasi kita yang menggunakan Velocity.</p>
+
+<p>Facelets bukan hanya sekedar decorator. Dia adalah teknologi templating untuk JSF. Jadi posisinya kurang lebih mirip dengan Velocity, yaitu template engine. Decorator hanyalah salah satu fitur tambahan Facelets. Sayangnya Facelets hanya bisa digunakan untuk JSF.</p>
+
+<p>Sitemesh adalah decorator independen. Tidak terikat dengan framework apa-apa. Dia juga mendukung JSP, Freemarker, dan Velocity. Kita akan menggunakan SiteMesh pada artikel ini.</p>
+
+<p>SiteMesh bekerja secara transparan. Pada saat membuat halaman aplikasi, kita bisa langsung coding seperti biasa. Tidak ada perubahan kode HTML di dalam template Velocity. Ketika dideploy, SiteMesh akan mencegat semua respon yang dikirim appserver ke browser dan menambahkan header dan footer.</p>
+
+<p>Sebagai contoh,</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+&lt;title&gt;:: List of All Person ::&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+    &lt;/tr&gt;
+    #foreach($person in $personList)
+    &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
+            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    #end
+&lt;/table&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Seperti kita lihat, tidak ada kode khusus. Kodenya sama persis dengan artikel sebelumnya.</p>
+
+<p>Ini adalah decoratornya, kita beri nama main.html.</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+
+&lt;link href="${base}/css/main.css" rel="stylesheet" type="text/css" /&gt;
+&lt;link href="${base}/css/layout.css" rel="stylesheet" type="text/css" /&gt;
+
+&lt;title&gt;${title}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div id="header"&gt;
+&lt;h1&gt;Hello Spring 2.5&lt;/h1&gt;
+&lt;h2&gt;Tutorial Spring 2.5 Annotation Configuration&lt;/h2&gt;
+&lt;/div&gt;
+
+&lt;div id="top-bar"&gt;
+&lt;ul&gt;
+    &lt;li&gt;hola, endymuhardin&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;help&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;logout&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div id="menu-bar"&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;manage person&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;generate report&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;prevent global warming&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;div id="main"&gt;
+
+&lt;div id="sidebar"&gt;
+
+&lt;h1&gt;Manage Person&lt;/h1&gt;
+&lt;ul&gt;
+    &lt;li&gt;&lt;a href="${base}/tutorial/personform"&gt;add person&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;list of person&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;/div&gt;
+
+&lt;div id="content"&gt;
+
+${body}
+
+&lt;/div&gt;
+
+
+&lt;/div&gt;
+
+
+&lt;div id="footer"&gt;
+
+&lt;div id="copyright"&gt;Copyright &amp;copy; 2008 :: ArtiVisi Intermedia
+::&lt;/div&gt;
+
+&lt;div id="company-logo"&gt;Company Logo&lt;/div&gt;
+
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Ada beberapa tag khusus yang digunakan dalam decorator kita, yaitu</p>
+
+<ul>
+<li>${base}</li>
+<li>${title}</li>
+<li>${body}</li>
+</ul>
+
+
+<p>Ini adalah variabel yang disediakan SiteMesh untuk kita. ${base} adalah path menuju aplikasi web kita. Kita menggunakan ${base} untuk membuat URL yang lengkap. Variabel ini sangat berguna agar aplikasi kita bisa dideploy ke berbagai context.</p>
+
+<p>Pada saat mendekorasi, SiteMesh akan membaca respon HTML yang dikeluarkan appserver dan mengambil isi tag title dan body, kemudian memasangnya di tempat kita menaruh tag ${title} dan ${body}. Setelah itu, barulah keseluruhan respon yang sudah didekorasi akan dikirim ke client.</p>
+
+<p>Kita sudah punya halaman yang akan ditampilkan (personlist.html) dan decoratornya (main.html). Untuk menggabungkan keduanya, kita harus memasang SiteMesh sebagai Servlet Filter. Servlet Filter memiliki kemampuan untuk mencegat baik request maupun response. Kita mendaftarkan filter di web.xml. Berikut deklarasi filter SiteMesh berikut mappingnya.</p>
+
+<pre><code>&lt;filter&gt;
+  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
+  &lt;filter-class&gt;com.opensymphony.module.sitemesh.filter.PageFilter&lt;/filter-class&gt;
+&lt;/filter&gt;   
+
+
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</code></pre>
+
+<p>Selain itu, kita juga perlu memasang servlet SiteMesh. Servlet ini yang akan mencegat semua pemanggilan template velocity, yaitu semua file yang berakhiran *.html. Berikut adalah deklarasi servlet berikut mappingnya.</p>
+
+<pre><code>&lt;servlet&gt;
+  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
+  &lt;servlet-class&gt;com.opensymphony.module.sitemesh.velocity.VelocityDecoratorServlet&lt;/servlet-class&gt;
+&lt;/servlet&gt;
+
+&lt;servlet-mapping&gt;
+  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
+  &lt;url-pattern&gt;*.html&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+</code></pre>
+
+<p>Selanjutnya, kita harus memberi tahu SiteMesh di mana kita meletakkan decorator dan URL apa saja yang ingin didekorasi. Biasanya kita punya beberapa decorator yang berbeda untuk (misalnya):</p>
+
+<ul>
+<li>halaman utama. Lengkap dengan menubar, header, dan footer</li>
+<li>halaman login. Tanpa menubar, header, dan footer</li>
+<li>tampilan siap print. Tanpa warna-warni.</li>
+</ul>
+
+
+<p>Sebagai contoh, kita cuma akan menggunakan satu decorator, yaitu main.html. Decorator ini berlaku untuk semua request. Berikut konfigurasinya.</p>
+
+<pre><code>&lt;decorators defaultdir="/WEB-INF/decorators"&gt;
+  &lt;decorator name="default" page="main.html"&gt;
+    &lt;pattern&gt;/*&lt;/pattern&gt;
+  &lt;/decorator&gt;
+&lt;/decorators&gt;
+</code></pre>
+
+<p>File ini diletakkan di dalam folder WEB-INF, bersama-sama dengan web.xml.</p>
+
+<p>Pada konfigurasi decorator tersebut, kita jelaskan bahwa semua request (/*) akan dicegat dan didekorasi dengan main.html yang ada di folder /WEB-INF/decorators.</p>
+
+<p>Terakhir, kita lengkapi pustaka yang dibutuhkan. Jar yang dibutuhkan adalah:</p>
+
+<ul>
+<li>sitemesh.jar</li>
+<li>commons-digester.jar</li>
+<li>velocity-tools-view.jar</li>
+</ul>
+
+
+<p>Perhatikan bahwa velocity-tools-view.jar ini sudah mengandung velocity-tools-generic.jar yang kita gunakan pada artikel sebelumnya. Jadi pastikan bahwa kita tidak lupa membuang velocity-tools-generic.jar.</p>
+
+<p>Selesai sudah. Mudah bukan?</p>
+
+<p>Contoh ini sudah dipublish di GoogleCode, Anda bisa mengunduh:</p>
+
+<ul>
+<li><a href="http://hello-spring-25.googlecode.com/files/hello-spring-25-sitemesh.tar.bz2">keseluruhan project folder</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh.war">File *.war yang siap deploy</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh-winstone.jar">File *.jar yang siap dijalankan secara standalone</a></li>
+</ul>
+
+
+<p>Atau Anda juga bisa menggunakan Subversion untuk menarik keseluruhan project folder, dengan perintah:</p>
+
+<pre><code>svn export http://hello-spring-25.googlecode.com/svn/trunk/ hello-spring-25-read-only 
+</code></pre>
+
+<p>Setelah project folder diperoleh, dibutuhkan database MySQL dengan konfigurasi sebagai berikut:</p>
+
+<ul>
+<li>nama database : belajar</li>
+<li>username : belajar</li>
+<li>password : java</li>
+</ul>
+
+
+<p>Tabel T_PERSON yang digunakan pada contoh ini dapat dibuat dengan menggunakan script sql yang ada di folder src/sql/mysql-schema.sql.</p>
+
+<p>Untuk menjalankan aplikasi ini, dibutuhkan Ant 1.7.0 dan Java 6. Cukup ketik ant run di konsol. Kemudian browse ke http://localhost:8080/</p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -404,239 +723,6 @@ public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jum
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-2/">Aplikasi Web Dengan Spring 2.5 [Bagian 2]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-06T18:27:16+07:00" pubdate data-updated="true">Dec 6<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring, cara menyuplai data ke form, melakukan validasi, dan memproses form ketika tombol Submit ditekan.</p>
-
-<p>Kita akan menggunakan template yang sama untuk pengeditan Person yang sudah ada maupun pendaftaran Person baru. Templatenya bernama personform.html. Berikut kodenya.</p>
-
-<h3>personform.html</h3>
-
-<pre><code>&lt;html&gt;
-
-&lt;head&gt;
-&lt;title&gt;:: Edit Person ::&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-&lt;form method="POST"&gt;
-&lt;input type="hidden" name="id" value="$!person.Id"&gt;
-
-&lt;table&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Nama&lt;/td&gt;
-    &lt;td&gt;&lt;input type="text" name="name" value="$!person.Name"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Email&lt;/td&gt;
-    &lt;td&gt;&lt;input type="text" name="email" value="$!person.Email"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td colspan="2"&gt;&lt;input type="submit" value="Save"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;/form&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-</code></pre>
-
-<p>Kita melihat ada variabel yang agak berbeda pada contoh di atas, yaitu $!person. Ini merupakan variabel opsional dalam Velocity. Bila variabel $person tidak ada isinya, Velocity akan menampilkan apa adanya, yaitu $person ke halaman web. Kita ingin bila $person null, jangan tampilkan apa-apa. Untuk itu, kita mengubah variabel $person menjadi $!person.</p>
-
-<p>Kalau dijadikan kode Java, kira-kira $!person sama dengan ini:</p>
-
-<pre><code>String personName;
-if(person != null &amp;&amp; person.getName() != null) {
-  personName = person.getName();
-} else {
-  personName = "";
-}
-</code></pre>
-
-<p>Variabel $!person ini digunakan karena form ini menangani New Person dan juga Edit Person. Untuk kasus Edit Person, kita dapat memberikan object person yang sudah ada di database. Sedangkan untuk New Person, objectnya belum ada atau null. Dengan $!person, kita dapat menangani kedua skenario ini.</p>
-
-<p>Berikut kerangka class PersonFormController.</p>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-@RequestMapping("/personform")
-public class PersonFormController { 
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(final PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
-
-  }
-
-  @RequestMapping(method = RequestMethod.POST)
-  public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
-
-  }
-}
-</code></pre>
-
-<p>Ada dua method di sini, yaitu displayForm dan processForm. Yang satu untuk menampilkan form, dan satu lagi untuk memproses hasil submit. Nama method bebas saja, tidak ada aturan yang harus dipatuhi.</p>
-
-<p>Kedua method dimapping ke request /personform. Dengan demikian, request ke <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> akan memanggil class PersonFormController. Di dalam form htmlnya juga action setelah submit dikosongkan. Artinya, kalau dia disubmit, form tersebut akan memanggil URL yang sama dengan yang memanggilnya.</p>
-
-<p>Tetapi, bagaimana kita memilih kapan harus mendisplay form dan memproses form? Kita membedakannya dengan memasang annotation <code>@RequestMapping</code> dengan parameter <code>RequestMethod</code>. Bila requestnya GET (terjadi bila kita mengetik <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> di browser dan menekan Enter), maka jalankan method displayForm. Tapi bila requestnya POST (terjadi bila kita menekan tombol Submit di <code>personform.html</code>), maka jalankan method processForm.</p>
-
-<p>Sekarang mari kita isi method displayForm. Berikut isinya</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.GET)
-public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
-  Person person = personDao.getById(id);
-
-  if (person == null) person = new Person();
-
-  return new ModelMap(person);
-}
-</code></pre>
-
-<p>Di sini kita melakukan binding untuk request parameter person_id. Berbeda dengan tampilan detail pada artikel sebelumnya, di form ini parameter person_id belum tentu ada. Bila kita membuat object Person baru, field id akan berisi null. Untuk itu, kita berikan parameter required yang bernilai false pada anotasi @RequestMapping.</p>
-
-<p>Logika pada method ini tidak rumit. Ambil object Person dari database berdasarkan id. Kalau tidak ada, berikan saja object baru.</p>
-
-<p>Method ini bisa langsung dicoba dengan mengakses personform dengan memberikan parameter person_id, misalnya dengan URL http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100. Tentunya kita harus memiliki record di tabel T_PERSON dengan id 100. Kalau codingnya benar, maka akan tampil form yang terisi dengan data record tersebut.</p>
-
-<p>Berikutnya, kita akan implementasi method untuk memproses form. Berikut isi method processForm</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.POST)
-public String processForm(@ModelAttribute("person") Person person) {
-  personDao.save(person);
-  return "redirect:personlist";
-}
-</code></pre>
-
-<p>Mudah kan? Cukup gunakan personDao untuk menyimpan object ke database, kemudian redirect ke halaman personlist.</p>
-
-<p>Begitu saja? Tidak ada yang lupa?</p>
-
-<p>Ya untuk memproses form begitu saja langkahnya, tidak perlu susah-susah.</p>
-
-<p>Bagaimana dengan validasi? Mana ada form tanpa validasi.</p>
-
-<p>Baiklah, mari kita tambahkan kode validasi. Untuk itu, method processForm perlu dimodifikasi menjadi seperti ini</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.POST)
-public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
-  new PersonValidator().validate(person, result);
-  if (result.hasErrors()) {
-    return "personform";
-  } else {
-    personDao.save(person);
-    status.setComplete();
-    return "redirect:personlist";
-  }
-}
-</code></pre>
-
-<p>Tidak terlalu rumit, kan? Cukup buat class PersonValidator, kemudian jalankan method validate dengan input object person yang ingin divalidasi, dan object result untuk menampung error validasi bila ada.</p>
-
-<p>Selanjutnya, kita periksa object result. Bila ada errornya, kembali ke form. Bila tidak ada, langsung save dengan personDao, set status menjadi complete, dan redirect ke personlist.</p>
-
-<p>Isi class PersonValidator juga tidak banyak. Berikut kodenya.</p>
-
-<pre><code>package tutorial.spring25.validator;
-public class PersonValidator {
-
-  private static final String EMAIL_FORMAT = ".*@.*\\.com";
-
-  public void validate(Person person, Errors errors) {
-    // field nama harus diisi
-    if(!StringUtils.hasText(person.getName())) {
-      errors.rejectValue("name", "required", "nama harus diisi");
-    }
-
-    // bila field email diisi, formatnya harus benar
-    if (StringUtils.hasLength(person.getEmail()) &amp;&amp; !person.getEmail().matches(EMAIL_FORMAT) ) {
-      errors.rejectValue("email", "email.format", "format email salah");
-    }
-  }
-}
-</code></pre>
-
-<p>Mudah bukan?</p>
-
-<p>Para penggemar framework berbasis komponen (seperti Tapestry atau JSF) mungkin bertanya, untuk apa saya belajar lagi Spring MVC? Sepertinya tidak lebih mudah.</p>
-
-<p>Coba perhatikan URL yang kita gunakan:</p>
-
-<ul>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personlist</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/persondetail?person_id=100</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100</p></li>
-</ul>
-
-
-<p>Semuanya bersih dan <em>bookmarkable</em>. Dengan Spring MVC kita bisa mengatur URL sesuai keinginan.</p>
-
-<p>Selanjutnya, coba perhatikan kode Java kita. Jangankan lokasi template Velocity kita, bahkan dia tidak tahu menahu kalau kita pakai Velocity. Tugas kode Java cuma menerima input dan mengembalikan data. Terserah data itu mau diformat seperti apa. Dia tidak peduli teknologi view yang digunakan.</p>
-
-<p>Implikasinya, selama data yang disuplai tidak berubah, hanya dengan mengubah konfigurasi kita dapat mengubah tampilan. Tentunya kita harus menyediakan template yang sesuai.</p>
-
-<p>Kita bisa membuat template dengan teknologi yang lain, misalnya JSP, Freemarker, atau Jasper Report. Kita juga bisa merender tampilan tidak hanya dalam format HTML, tapi juga PDF, XLS, XML, JSON, plain-text, atau mengkonversinya menjadi grafik SVG.</p>
-
-<p>Kelebihan lainnya, kita mengendalikan secara penuh output HTML aplikasi kita. Implikasinya, kita bisa menerapkan teknik-teknik teruji dalam protokol HTTP seperti <a href="http://www.mnot.net/cache_docs/">Cache Control pada HTTP Header</a>.</p>
-
-<p>Atau kita bisa manfaatkan <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">HTTP Response Code</a> <em>304 Not Modified</em> untuk memberi tahu client bahwa halaman yang dia akses belum berubah sejak terakhir diakses, sehingga client tidak mendownload lagi keseluruhan page, melainkan langsung menampilkan local cache-nya.</p>
-
-<p>Teknik seperti ini sederhana, mudah, sudah teruji di lapangan, berlaku untuk berbagai bahasa pemrograman, dan sangat efektif. Hanya dengan mengubah HTTP response code, kita bisa menghemat bandwidth dan mengurangi load application server. Sayangnya teknik ini belum tentu dapat digunakan pada framework yang terlalu canggih. Spring MVC memungkinkan kita untuk memanipulasi HTTP response dengan mudah kalau kita mau.</p>
-
-<p>Source code untuk rangkaian artikel ini sudah dipublish di GoogleCode. Anda bisa:</p>
-
-<ul>
-<li><a href="http://code.google.com/p/hello-spring-25/source">Checkout project</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.war">Download WAR</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-winstone.jar">Download JAR</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.tar.bz2"> Download keseluruhan project folder</a></li>
-</ul>
-
-
-<p>Jangan lupa membaca <a href="http://code.google.com/p/hello-spring-25/">instruksi untuk menjalankannya</a>.</p>
-
-<p>Demikian sekilas tentang framework Spring MVC. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/29/">&larr; Older</a>
@@ -699,6 +785,10 @@ public class PersonValidator {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
       </li>
     
@@ -732,10 +822,6 @@ public class PersonValidator {
     
       <li class="post">
         <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a>
       </li>
     
   </ul>

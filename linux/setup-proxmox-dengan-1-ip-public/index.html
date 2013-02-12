@@ -1,0 +1,591 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Setup Proxmox dengan 1 IP Public - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Jaman sekarang, membuat server untuk cloud tidak lagi sulit.
+Cukup cari server nganggur, unduh Proxmox,
+kemudian instal. Instalasinya pun tidak sulit &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/linux/setup-proxmox-dengan-1-ip-public/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Setup Proxmox Dengan 1 IP Public</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-12T20:05:00+07:00" pubdate data-updated="true">Feb 12<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Jaman sekarang, membuat server untuk cloud tidak lagi sulit.
+Cukup cari server nganggur, unduh <a href="http://pve.proxmox.com/">Proxmox</a>,
+kemudian instal.</p>
+
+<p>Instalasinya pun tidak sulit, dia cuma menanyakan mau diberi IP berapa,
+password untuk user root, dan selesai sudah.
+Selanjutnya, server ini tinggal kita taruh di data center.</p>
+
+<p>Dengan Proxmox ini, kita dapat membuat virtual machine (VM) sebanyak-banyaknya
+yang mampu ditangani oleh hardware servernya.
+Pembuatan VM ini dilakukan melalui antarmuka berbasis web,
+sehingga kita tidak perlu lagi menghafalkan perintah-perintah command line.</p>
+
+<p>Walaupun VM bisa dibuat sesuka hati, seringkali IP public yang tersedia terbatas jumlahnya.
+Punya VM banyak tapi tidak bisa diakses dari luar tentu percuma saja.
+Pada artikel ini, kita akan membahas cara supaya satu IP public bisa dimanfaatkan oleh banyak VM.</p>
+
+<!--more-->
+
+
+<h1>Konfigurasi Host</h1>
+
+<p>Agar ada gambaran, berikut adalah konfigurasi awal setelah instalasi.
+Tentunya pembaca maklum bahwa semua IP yang ditulis di sini adalah palsu belaka.</p>
+
+<ul>
+<li>IP public (digunakan oleh Proxmox Host) : 202.202.202.202</li>
+<li>Network Device : eth0, dibridge menjadi vmbr0</li>
+<li>Versi Proxmox : 2-2-24</li>
+</ul>
+
+
+<p>Berikut adalah hasil keluaran perintah <code>ifconfig</code> dalam host :</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>eth0      Link encap:Ethernet  HWaddr 00:21:5e:27:05:30  
+</span><span class='line'>          inet6 addr: fe80::221:5eff:fe27:530/64 Scope:Link
+</span><span class='line'>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+</span><span class='line'>          RX packets:643194 errors:0 dropped:0 overruns:0 frame:0
+</span><span class='line'>          TX packets:225604 errors:0 dropped:0 overruns:0 carrier:0
+</span><span class='line'>          collisions:0 txqueuelen:1000 
+</span><span class='line'>          RX bytes:196913694 (187.7 MiB)  TX bytes:35911168 (34.2 MiB)
+</span><span class='line'>          Interrupt:16 Memory:ce000000-ce012800
+</span><span class='line'>
+</span><span class='line'>vmbr0     Link encap:Ethernet  HWaddr 00:21:5e:27:05:30  
+</span><span class='line'>          inet addr:202.202.202.202  Bcast:202.202.202.203  Mask:255.255.255.248
+</span><span class='line'>          inet6 addr: fe80::221:5eff:fe27:530/64 Scope:Link
+</span><span class='line'>          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+</span><span class='line'>          RX packets:571124 errors:0 dropped:0 overruns:0 frame:0
+</span><span class='line'>          TX packets:206100 errors:0 dropped:0 overruns:0 carrier:0
+</span><span class='line'>          collisions:0 txqueuelen:0 
+</span><span class='line'>          RX bytes:177290314 (169.0 MiB)  TX bytes:31457704 (30.0 MiB)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan ini adalah isi file <code>/etc/network/interfaces</code> dalam host</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iface eth0 inet manual
+</span><span class='line'>
+</span><span class='line'>auto vmbr0
+</span><span class='line'>iface vmbr0 inet static
+</span><span class='line'>  address  202.202.202.202
+</span><span class='line'>  netmask  255.255.255.248
+</span><span class='line'>  gateway  202.202.202.201
+</span><span class='line'>  bridge_ports eth0
+</span><span class='line'>  bridge_stp off
+</span><span class='line'>  bridge_fd 0</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Konfigurasi VM</h1>
+
+<p>Kita mempunyai satu VM dengan konfigurasi berikut :</p>
+
+<ul>
+<li>IP Address : 192.168.100.100</li>
+<li>Jenis Interface : venet</li>
+</ul>
+
+
+<p>Berikut adalah output dari <code>ifconfig</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>lo        Link encap:Local Loopback  
+</span><span class='line'>          inet addr:127.0.0.1  Mask:255.0.0.0
+</span><span class='line'>          inet6 addr: ::1/128 Scope:Host
+</span><span class='line'>          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+</span><span class='line'>          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+</span><span class='line'>          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+</span><span class='line'>          collisions:0 txqueuelen:0 
+</span><span class='line'>          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+</span><span class='line'>
+</span><span class='line'>venet0    Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  
+</span><span class='line'>          inet addr:127.0.0.2  P-t-P:127.0.0.2  Bcast:0.0.0.0  Mask:255.255.255.255
+</span><span class='line'>          UP BROADCAST POINTOPOINT RUNNING NOARP  MTU:1500  Metric:1
+</span><span class='line'>          RX packets:33307 errors:0 dropped:0 overruns:0 frame:0
+</span><span class='line'>          TX packets:16717 errors:0 dropped:8 overruns:0 carrier:0
+</span><span class='line'>          collisions:0 txqueuelen:0 
+</span><span class='line'>          RX bytes:49576164 (49.5 MB)  TX bytes:916607 (916.6 KB)
+</span><span class='line'>
+</span><span class='line'>venet0:0  Link encap:UNSPEC  HWaddr 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  
+</span><span class='line'>          inet addr:192.168.100.100  P-t-P:192.168.100.100  Bcast:0.0.0.0  Mask:255.255.255.255
+</span><span class='line'>          UP BROADCAST POINTOPOINT RUNNING NOARP  MTU:1500  Metric:1
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Akses dari dalam VM ke Internet</h1>
+
+<p>Yang pertama kita kerjakan adalah bagaimana caranya supaya VM ini bisa mengakses internet.
+Caranya adalah memasang NAT di Proxmox Host supaya paket data dari network <code>192.168.100.0/24</code>
+diijinkan untuk keluar dan melalui proses Network Address Translation (NAT).</p>
+
+<p>Perintahnya adalah sebagai berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A POSTROUTING -s 192.168.100.0/24 -o vmbr0 -j MASQUERADE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah ini tentunya tidak asing bagi yang sering mengkonfigurasi internet gateway dengan Linux.
+Caranya sama persis, seolah-olah ada banyak komputer dengan IP <code>192.168.100.xxx</code> yang ingin mengakses internet.</p>
+
+<p>Setelah ini dijalankan, kita coba tes akses internet dari dalam VM.
+Jalankan perintah berikut dari Proxmox Host untuk masuk ke dalam VM.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vzctl enter 107</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>107</code> adalah ID dari VM yang ingin kita masuki.</p>
+
+<p>Begitu sudah masuk, coba ping ke alamat internet.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ping google.com
+</span><span class='line'>PING google.com (173.194.38.137) 56(84) bytes of data.
+</span><span class='line'>64 bytes from sin04s01-in-f9.1e100.net (173.194.38.137): icmp_req=1 ttl=57 time=12.2 ms
+</span><span class='line'>64 bytes from sin04s01-in-f9.1e100.net (173.194.38.137): icmp_req=2 ttl=57 time=12.3 ms
+</span><span class='line'>^C
+</span><span class='line'>--- google.com ping statistics ---
+</span><span class='line'>2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+</span><span class='line'>rtt min/avg/max/mdev = 12.257/12.293/12.330/0.116 ms</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tentunya kita harus pastikan dulu Proxmox Host bisa ping ke Google.
+Bila Proxmox Host saja tidak bisa akses internet, ya jangan harap VM bisa akses internet.
+Ini kan bukan acara sulap.</p>
+
+<p>Baiklah, VM kita sudah bisa mengakses internet, lanjut ke langkah berikut.</p>
+
+<h1>Mengakses VM dari Internet</h1>
+
+<p>Minimal kita ingin agar VM kita tersebut bisa diakses melalui SSH.
+Service SSH di Linux biasanya jalan di port <code>22</code>.
+Karena port <code>22</code> di Proxmox Host sudah dipakai oleh dirinya sendiri,
+kita harus pilih port lain, misalnya <code>10722</code>.
+Teknik ini disebut dengan istilah <em>port forwarding</em></p>
+
+<p>Perintahnya juga sama dengan perintah untuk NAT dari internet ke jaringan LAN,
+tentu rekan-rekan yang biasa mengkonfigurasi internet gateway tidak merasa asing.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A PREROUTING -i vmbr0 -p tcp -m tcp --dport 10722 -j DNAT --to-destination 192.168.100.100:22</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, kita test dari komputer kita</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssh root@202.202.202.202 -p 10722</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seharusnya kita sudah bisa login ke dalam VM.</p>
+
+<p>Selanjutnya, kalau ingin membuat <em>port forwarding</em> untuk port lain caranya sama.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A PREROUTING -i vmbr0 -p tcp -m tcp --dport 10780 -j DNAT --to-destination 192.168.100.100:80</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah di atas akan membuka port <code>10780</code> di IP public Proxmox Host
+dan data yang datang ke sana diarahkan ke port <code>80</code> di VM <code>107</code> yang memiliki IP private <code>192.168.100.100</code>.</p>
+
+<p>Demikianlah, satu IP public yang kita miliki bisa dipakai oleh banyak VM yang ada dalam satu server tersebut.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-02-12T20:05:00+07:00" pubdate data-updated="true">Feb 12<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/linux/setup-proxmox-dengan-1-ip-public/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/linux/setup-proxmox-dengan-1-ip-public/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/" title="Previous Post: Mencari Relasi Foreign Key ke Tabel MySQL">&laquo; Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/linux/setup-proxmox-dengan-1-ip-public/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/memahami-dependency-injection/">Memahami Dependency Injection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/buku-panduan-markdown-dan-pandoc/">Buku Panduan Markdown dan Pandoc</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc/">Membuat dokumen dengan Markdown dan Pandoc</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/release-management/">Release Management</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
