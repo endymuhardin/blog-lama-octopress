@@ -121,7 +121,7 @@ public class ProdukDao {
     private DataSource dataSource;
     
     public ProdukDao() throws Exception {
-        DataSource dataSource = new BasicDataSource();
+        dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUsername("root");
         dataSource.setPassword("admin");
