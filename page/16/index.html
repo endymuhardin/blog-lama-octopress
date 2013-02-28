@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sebelumnya, saya telah membahas script backup untuk Trac maupun Subversion. Kali ini, kita akan bahas backup script untuk MySQL. Sama seperti backup &hellip;">
+  <meta name="description" content="Mengakses EJB secara Remote Beberapa buku tentang EJB, seperti EJB 3 in Action karangan Reza Rahman maupun Enterprise Java Beans 3.0 karangan Bill &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,111 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ejb-remote-clien/">Mengakses EJB Secara Remote</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-03T20:46:00+07:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mengakses EJB secara Remote</p>
+
+<p>Beberapa buku tentang EJB, seperti EJB 3 in Action karangan Reza Rahman maupun Enterprise Java Beans 3.0 karangan Bill Burke, membahas secara detail tentang penggunaan EJB. Akan tetapi, ada satu hal kecil namun penting yang tidak dibahas. Bagaimana cara mengakses EJB secara remote?</p>
+
+<p>Di sisi server, ini mudah. Cukup membuat remote interface saja beres. Tapi bagaimana cara lookupnya dari client? Artikel ini akan membahas cara memanggil EJB dari method main.</p>
+
+<p>Sebelumnya, berikut adalah EJB yang akan kita panggil.</p>
+
+<h3>HaloBean.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.session;
+
+@Stateless
+public class HaloBean implements HaloRemote {
+   public String halo(String nama) {
+     return "Halo "+nama;
+   }
+}
+</code></pre>
+
+<h3>HaloRemote.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.session;
+
+@Remote
+public interface HaloRemote {
+   public String halo(String nama);
+}
+</code></pre>
+
+<p>EJB ini akan kita deploy ke Glassfish menggunakan Netbeans. Bagaimana caranya? Silahkan buka menu Help Netbeans.</p>
+
+<p>Berikut adalah kode untuk memanggil HaloBean secara remote.</p>
+
+<h3>HaloClient.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.client;
+
+public class HaloClient {
+  public static void main(String[] args){
+    // 0. Konfigurasi host dan port
+    String ejbHost = "localhost";
+    String ejbPort = 12345;
+    String ejbName = HaloRemote.class.getName();
+
+    // 1. JNDI Context
+    Properties props = new Properties();
+    props.put("org.omg.CORBA.ORBInitialHost", ejbHost);
+    props.put("org.omg.CORBA.ORBInitialPort", ejbPort);
+
+    InitialContext ctx = new InitialContext(props);
+
+    // 2. Lookup EJB
+    HaloRemote haloBean = (HaloRemote) ctx.lookup(ejbName);
+
+    // 3. Panggil methodnya
+    System.out.println("Halo EJB : "+haloBean.halo("endy"));
+  }
+}
+</code></pre>
+
+<p>Ada beberapa variabel yang perlu diperhatikan di sini, yaitu ejbHost, ejbPort, dan ejbName. Variabel ejbHost tentunya adalah komputer tempat EJB dideploy. Variabel ejbPort adalah port yang digunakan oleh Application Server untuk mempublish EJB. Port ini berbeda-beda tergantung merek application server dan cara deploymentnya. Karena saya menggunakan Netbeans untuk mendeploy ke Glassfish, maka saya harus cari tahu dulu berapa port yang digunakan Netbeans.</p>
+
+<p>Caranya, login ke admin console Glassfish melalui Netbeans. Buka tab Services, klik kanan Glassfish, dan pilih View Admin Console.
+(/images/uploads/2009/06/netbeans-view-admin-console.png)
+Browser akan terbuka dan menampilkan halaman login Glassfish.
+(/images/uploads/2009/06/glassfish-login.png)
+Setelah login, klik Application Server di panel kiri. Port yang digunakan akan ditampilkan di panel kanan, yaitu dengan nama IIOP Port(s). Coba-coba saja semuanya. Di komputer saya, port yang benar adalah 10275.
+(/images/uploads/2009/06/glassfish-iiop-port.png)
+Variabel ejbName juga berbeda tergantung dari application server yang digunakan. Baca dokumentasi server Anda untuk memastikannya.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -373,206 +478,6 @@ session.disconnect();
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/upgrade-ubuntu/">Upgrade Ubuntu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-04-22T23:10:37+07:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
-
-<ul>
-<li><p>Unduh ISO Ubuntu terbaru</p></li>
-<li><p>Bakar ke CD</p></li>
-<li><p>Backup isi home folder</p></li>
-<li><p>Backup mailbox Thunderbird</p></li>
-<li><p>Remove semua hidden file di home folder</p></li>
-<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-</ul>
-
-
-<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
-
-<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
-
-<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
-
-<ul>
-<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
-<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa &#8216;dititipkan&#8217; di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
-</ul>
-
-
-<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
-
-<ul>
-<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
-<li><p>Lakukan proses instalasi</p></li>
-<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
-<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
-<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
-</ul>
-
-
-<h2>Membuat daftar aplikasi</h2>
-
-<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
-
-<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
-</code></pre>
-
-<p>Buka file daftar_aplikasi.txt dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
-
-<pre><code>ttf-inconsolata
-ttf-droid
-nautilus-open-terminal
-mc
-chmsee
-unrar
-comix
-keepassx
-subversion
-git-svn
-gimp
-network-manager-openvpn
-network-manager-openvpn-gnome
-network-manager-pptp
-network-manager-pptp-gnome
-network-manager-vpnc
-network-manager-vpnc-gnome
-openssh-server
-gnome-alsamixer
-vlc
-rtorrent
-hamster-applet
-timer-applet
-inkscape
-mysql-server
-mysql-query-browser
-mysql-admin
-sun-java6-jdk
-ubuntu-restricted-extras
-build-essential
-ant
-</code></pre>
-
-<h2>Proses Instalasi</h2>
-
-<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
-
-<ul>
-<li><p>Backup isi home folder</p></li>
-<li><p>Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird</p></li>
-<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
-<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-<li><p>Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
-<li><p>Jalankan apt-get update untuk mengupdate database aplikasi</p></li>
-</ul>
-
-
-<p>Berikut isi file /etc/apt/sources.list saya.</p>
-
-<pre><code>deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ intrepid-security main restricted universe multiverse
-</code></pre>
-
-<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
-
-<pre><code>deb http://kambing.ui.edu/ubuntu/ jaunty main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ jaunty-updates main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multiverse
-</code></pre>
-
-<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
-
-<h2>Membuat daftar URL untuk download</h2>
-
-<p>Jalankan perintah berikut di command prompt.</p>
-
-<pre><code>cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 &gt; daftar_url.txt
-</code></pre>
-
-<p>Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
-
-<h2>Mengunduh *.deb</h2>
-
-<p>Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
-
-<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
-
-<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
-</code></pre>
-
-<p>Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini.</p>
-
-<pre><code>tail -f daftar_url.txt 
-</code></pre>
-
-<p>Tekan Ctrl+C untuk keluar dari tail.</p>
-
-<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
-
-<h2>Instalasi *.deb</h2>
-
-<p>Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
-
-<pre><code>cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
-</code></pre>
-
-<p>Tunggu sejenak sampai selesai.</p>
-
-<h2>Replikasi Instalasi</h2>
-
-<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
-
-<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
-
-<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
-</code></pre>
-
-<p>Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
-
-<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
-
-<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
-</code></pre>
-
-<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
-
-<pre><code>sudo apt-get dselect-upgrade
-</code></pre>
-
-<p>Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/17/">&larr; Older</a>
@@ -635,6 +540,10 @@ deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multi
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
       </li>
     
@@ -668,10 +577,6 @@ deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multi
     
       <li class="post">
         <a href="/manajemen/release-management/">Release Management</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
       </li>
     
   </ul>

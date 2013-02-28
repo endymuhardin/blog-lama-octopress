@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/linux/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-02-14T14:46:45+07:00</updated>
+  <updated>2013-02-28T14:47:33+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,115 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Akses VM Proxmox Tanpa Applet]]></title>
+    <link href="http://software.endy.muhardin.com/linux/akses-vm-proxmox-tanpa-applet/"/>
+    <updated>2013-02-28T14:22:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/linux/akses-vm-proxmox-tanpa-applet</id>
+    <content type="html"><![CDATA[<p>Jika kita ingin mengakses virtual machine di dalam Proxmox,
+ada beberapa opsi yang bisa kita gunakan, yaitu:</p>
+
+<ul>
+<li>SSH langsung ke IP virtual machine tersebut.</li>
+<li>Login ke web management Proxmox, kemudian pilih virtual machine, dan jalankan VNC console yang berupa aplikasi Java applet.</li>
+<li>SSH ke mesin host, dan kemudian masuk ke console virtual machine</li>
+<li>Membuat VNC server yang bisa diakses dari luar</li>
+</ul>
+
+
+<p>Kadangkala, kita tidak bisa menjalankan opsi pertama, karena belum menginstal SSH server di VM.
+Opsi kedua sering tidak lancar di Linux.
+Opsi ketiga hanya bisa dijalankan untuk OpenVZ, saya belum ketemu caranya untuk KVM.
+Dengan demikian, kita harus menggunakan cara keempat.</p>
+
+<!--more-->
+
+
+<p>Berikut adalah caranya. Pertama kita ssh dulu ke mesin host.
+Setelah itu kita tampilkan daftar semua VM yang bertipe KVM
+dengan perintah <code>qm list</code></p>
+
+<p>```</p>
+
+<h1>qm list</h1>
+
+<pre><code>  VMID NAME                 STATUS     MEM(MB)    BOOTDISK(GB) PID
+   101 vm110                running    512               30.00 16474
+   103 vm103                stopped    512               80.00 0
+   104 vm104                running    256               80.00 16256
+   107 vm107                running    2000              50.00 16348
+   113 vm113                stopped    512               32.00 0
+   115 vm115                running    8000             100.00 16316
+   116 vm116                running    1000              80.00 16460
+   119 vm119                running    1000              20.00 16390
+   120 vm120                running    1000              40.00 16284
+   166 vm166                running    1024             150.00 16440
+   190 vm190                running    512               20.00 16270
+   199 vm199                running    1024               5.00 16300
+</code></pre>
+
+<p>```</p>
+
+<p>Kita bisa membuka VNC server yang mengarah ke VM dengan ID tertentu
+dengan perintah berikut:</p>
+
+<p><code>
+nc -l -p portvnc -c "qm vncproxy vmid passwdvnc"
+</code></p>
+
+<p>Misalnya, bila kita ingin mengakses VMID <code>166</code> di port <code>10166</code> dengan password <code>abc321</code>,
+maka perintahnya adalah sebagai berikut</p>
+
+<p><code>
+nc -l -p 10166 -c "qm vncproxy 166 abc321"
+</code></p>
+
+<p>Setelah itu, kita bisa mengakses VM tersebut menggunakan VNC client seperti pada screenshot.</p>
+
+<p><img src="/images/uploads/2013/02/28/vnc-kvm.png" title="Konfigurasi VNC Client" ></p>
+
+<p>Kosongkan saja username dan password, nanti kita akan dimintai password oleh aplikasinya.</p>
+
+<p>Hal yang sama bisa dilakukan juga dengan OpenVZ.</p>
+
+<p>Pertama, cari dulu VM yang mau diakses dengan perintah <code>vzlist</code></p>
+
+<p>```</p>
+
+<h1>vzlist</h1>
+
+<pre><code>  CTID      NPROC STATUS    IP_ADDR         HOSTNAME
+   102        229 running   202.202.202.200  vm102
+   105         40 running   202.202.202.201  vm105
+   106         27 running   202.202.202.202  vm106
+   108         21 running   202.202.202.203  vm108
+   110         46 running   202.202.202.204  vm110
+   111         61 running   202.202.202.205  vm111
+   112         16 running   202.202.202.206  vm112
+   114         39 running   202.202.202.207  vm114
+   117         18 running   202.202.202.208  vm117
+   121         43 running   202.202.202.209  vm121
+   130         32 running   202.202.202.210  vm130
+</code></pre>
+
+<p>```</p>
+
+<p>Kemudian gunakan perintah berikut</p>
+
+<p><code>
+vncterm -c vzctl enter VMID
+</code></p>
+
+<p>Misalnya, bila ingin mengakses VM 111, maka perintahnya adalah</p>
+
+<p><code>
+vncterm -rfbport 10111 -c vzctl enter 104
+</code></p>
+
+<p>Referensi : <a href="http://forum.proxmox.com/threads/612-External-VNC-viewer">Forum Proxmox</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Setup Proxmox dengan 1 IP Public]]></title>
@@ -497,179 +606,6 @@ ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -sk
 <li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Upgrade Ubuntu]]></title>
-    <link href="http://software.endy.muhardin.com/linux/upgrade-ubuntu/"/>
-    <updated>2009-04-22T23:10:37+07:00</updated>
-    <id>http://software.endy.muhardin.com/linux/upgrade-ubuntu</id>
-    <content type="html"><![CDATA[<p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
-
-<ul>
-<li><p>Unduh ISO Ubuntu terbaru</p></li>
-<li><p>Bakar ke CD</p></li>
-<li><p>Backup isi home folder</p></li>
-<li><p>Backup mailbox Thunderbird</p></li>
-<li><p>Remove semua hidden file di home folder</p></li>
-<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-</ul>
-
-
-<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
-
-<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
-
-<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
-
-<ul>
-<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
-<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa 'dititipkan' di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
-</ul>
-
-
-<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
-
-<ul>
-<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
-<li><p>Lakukan proses instalasi</p></li>
-<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
-<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
-<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
-</ul>
-
-
-<h2>Membuat daftar aplikasi</h2>
-
-<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
-
-<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
-</code></pre>
-
-<p>Buka file daftar_aplikasi.txt dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
-
-<pre><code>ttf-inconsolata
-ttf-droid
-nautilus-open-terminal
-mc
-chmsee
-unrar
-comix
-keepassx
-subversion
-git-svn
-gimp
-network-manager-openvpn
-network-manager-openvpn-gnome
-network-manager-pptp
-network-manager-pptp-gnome
-network-manager-vpnc
-network-manager-vpnc-gnome
-openssh-server
-gnome-alsamixer
-vlc
-rtorrent
-hamster-applet
-timer-applet
-inkscape
-mysql-server
-mysql-query-browser
-mysql-admin
-sun-java6-jdk
-ubuntu-restricted-extras
-build-essential
-ant
-</code></pre>
-
-<h2>Proses Instalasi</h2>
-
-<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
-
-<ul>
-<li><p>Backup isi home folder</p></li>
-<li><p>Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird</p></li>
-<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
-<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-<li><p>Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
-<li><p>Jalankan apt-get update untuk mengupdate database aplikasi</p></li>
-</ul>
-
-
-<p>Berikut isi file /etc/apt/sources.list saya.</p>
-
-<pre><code>deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ intrepid-security main restricted universe multiverse
-</code></pre>
-
-<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
-
-<pre><code>deb http://kambing.ui.edu/ubuntu/ jaunty main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ jaunty-updates main restricted universe multiverse
-deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multiverse
-</code></pre>
-
-<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
-
-<h2>Membuat daftar URL untuk download</h2>
-
-<p>Jalankan perintah berikut di command prompt.</p>
-
-<pre><code>cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 &gt; daftar_url.txt
-</code></pre>
-
-<p>Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
-
-<h2>Mengunduh *.deb</h2>
-
-<p>Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
-
-<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
-
-<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
-</code></pre>
-
-<p>Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini.</p>
-
-<pre><code>tail -f daftar_url.txt 
-</code></pre>
-
-<p>Tekan Ctrl+C untuk keluar dari tail.</p>
-
-<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
-
-<h2>Instalasi *.deb</h2>
-
-<p>Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
-
-<pre><code>cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
-</code></pre>
-
-<p>Tunggu sejenak sampai selesai.</p>
-
-<h2>Replikasi Instalasi</h2>
-
-<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
-
-<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
-
-<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
-</code></pre>
-
-<p>Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
-
-<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
-
-<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
-</code></pre>
-
-<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
-
-<pre><code>sudo apt-get dselect-upgrade
-</code></pre>
-
-<p>Semoga bermanfaat.</p>
 ]]></content>
   </entry>
   

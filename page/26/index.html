@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel kali ini, kita akan mengurusi masalah sepele tapi penting, yaitu Internationalization (i18n) dan Localization (l10n). i18n adalah &hellip;">
+  <meta name="description" content="Di milis Java sedang dibahas tentang kombinasi teknologi yang digunakan untuk membuat aplikasi Java. Ada beberapa kategori teknologi, yaitu: &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,130 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/stack-2008-1/">Java Stack 2008</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-24T16:59:36+07:00" pubdate data-updated="true">Jan 24<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di milis Java sedang dibahas tentang kombinasi teknologi yang digunakan untuk membuat aplikasi Java.</p>
+
+<p>Ada beberapa kategori teknologi, yaitu:</p>
+
+<ul>
+<li><p>Presentation Layer. Yaitu teknologi untuk membangun User Interface</p></li>
+<li><p>Business Layer. Yaitu teknologi untuk menyediakan logika proses bisnis.</p></li>
+<li><p>Data Access Layer. Yaitu teknologi untuk mengakses penyimpanan data, misalnya database.</p></li>
+<li><p>Security Framework. Teknologi untuk mengelola otentikasi dan otorisasi.</p></li>
+<li><p>Build System. Sistem untuk mengotomasi proses build.</p></li>
+<li><p>Testing System. Sistem untuk mengotomasi pengetesan aplikasi.</p></li>
+<li><p>Application Server</p></li>
+<li><p>Database Server</p></li>
+<li><p>Project Management Tools. Perangkat pembantu untuk mengelola project.</p></li>
+</ul>
+
+
+<p>Berikut adalah stack yang saya gunakan, per Januari 2008. Sesuai perkembangan jaman, mungkin sekali stack ini akan berubah.</p>
+
+<h3>Presentation Layer</h3>
+
+<p>Tergantung tujuan developmentnya. Kalau butuh rapid, saya pakai JSF 1.2 dengan komponen RichFaces. Kalau ingin sederhana dan fleksibel, saya pakai Spring MVC.</p>
+
+<p>Sebagai tambahan, sekarang saya sedang mengeksplorasi  Spring Web Flow untuk mengelola state aplikasi. Framework ini bisa digunakan baik untuk JSF maupun Spring MVC.</p>
+
+<p>Baik dalam Spring MVC maupun JSF,  kita dapat memilih View Engine yang digunakan. Kebanyakan orang tidak tahu, atau tidak mau repot, atau mungkin juga merasa nyaman menggunakan JSP. Tapi saya tidak. Saya lebih suka pakai Velocity atau Freemarker untuk Spring MVC, dan pakai Facelets di JSF.</p>
+
+<h3>Business Layer</h3>
+
+<p>Saya menggunakan Spring Framework untuk mengorkestrasi transaction, integrasi dengan berbagai data access layer, messaging system, dan sebagainya.</p>
+
+<h3>Data Access Layer</h3>
+
+<p>Bila ingin rapid development, saya pakai Hibernate. Bila ingin main low level SQL, saya pakai Spring JDBC.</p>
+
+<p>Saya tidak pakai JPA. Dulu pernah pakai iBatis, tapi belakangan sepertinya sudah cukup dengan Spring JDBC saja.</p>
+
+<h3>Security Framework</h3>
+
+<p>Pakai Spring Security. Fiturnya cukup lengkap dan desainnya sudah teruji di skenario dunia nyata.</p>
+
+<h3>Build System</h3>
+
+<p>Orang-orang pada pakai Maven. Saya sudah merasa cukup pakai Ant saja.</p>
+
+<h3>Testing System</h3>
+
+<p>Saat ini pakai JUnit 4 dan DBUnit. Tapi sedang eksplorasi TestNG. Saya tertarik dengan kemampuan test-grouping. Ini penting apabila kita ingin memisahkan test yang harus dieksekusi programmer sebelum dia commit (sehingga harus cepat), dan test yang dieksekusi oleh tools Continuous Integration saja (karena butuh waktu lama).</p>
+
+<p>Test sebelum commit contohnya adalah unit test dan integration test. Selain itu, ada test yang butuh waktu lama, misalnya test End of Day/Month/Year process, dan test simulasi kinerja aplikasi dengan data satu tahun kedepan.</p>
+
+<p>Untuk coverage test, saya gunakan Cobertura. Sedangkan untuk Static Code Analysis saya gunakan PMD.</p>
+
+<p>Ke depan, saya sedang menganalisa efektifitas penggunakan JDepend untuk memastikan dependensi antar modul yang sudah ditentukan di awal tidak dilanggar programmer lain. Misalnya, tidak ada urusannya presentation layer melakukan import HibernateException. Nah, ini sepertinya bisa dienforce oleh JDepend, tapi belum sempat saya coba.</p>
+
+<h3>Application Server</h3>
+
+<p>Saya gunakan Winstone untuk tutorial dan pelatihan. Untuk development saya gunakan Tomcat. Untuk production saya gunakan Glassfish.</p>
+
+<h3>Database Server</h3>
+
+<p>Untuk development dan production, saya menggunakan PostgreSQL. Untuk pelatihan dan tutorial, saya gunakan MySQL.</p>
+
+<h3>Project Management Tools</h3>
+
+<p>Untuk melakukan tracking terhadap:</p>
+
+<ul>
+<li><p>implementasi fitur</p></li>
+<li><p>resiko dalam project</p></li>
+<li><p>masalah dalam project</p></li>
+<li><p>penyelesaian bug</p></li>
+<li><p>perbaikan dokumen berdasarkan review/audit</p></li>
+</ul>
+
+
+<p>saya menggunakan Redmine.</p>
+
+<p>Untuk membantu proses Configuration Management, saya menggunakan Subversion. Kadang-kadang dibantu dengan SVK bila ingin kerja offline.</p>
+
+<p>Sebelum saya tutup artikel ini, pasti nanti ada yang ingin berkomentar seperti ini,</p>
+
+<blockquote><p>Wuah, banyak sekali persenjataannya. Kok repot-repot sekali sih?</p></blockquote>
+
+<p>Di sebelah rumah saya, tetangga sedang membangun rumah. Para pekerjanya (2-3 orang) cukup bermodalkan cangkul untuk mengaduk semen. Bila mereka ingin mengecor lantai dua, cukup membuat bekisting dari triplek dan papan bekas, yang setelah pakai bisa langsung dibuang. Sekali-sekali, saya melihat mereka menggotong perkakas dan bahan baku bila lokasi kerjanya pindah.</p>
+
+<p>Di depan jendela saya di kantor, sedang dibangun gedung perkantoran yang baru. Untuk mengaduk semen, tidak pakai cangkul, melainkan dituang dari truk molen. Tim pekerjanya (200-300 orang) punya cetakan/bekisting khusus yang reusable untuk mengecor tiang dan lantai. Bila ada perkakas atau bahan baku yang perlu dipindahkan, mereka tidak gotong sendiri. Untuk keperluan itu, ada alat sendiri yang namanya <a href="http://science.howstuffworks.com/tower-crane.htm">tower crane</a>. Bahkan ada pilotnya khusus.</p>
+
+<p>Nah, itu analoginya. Silahkan simpulkan sendiri, kenapa harus repot-repot.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -580,91 +704,6 @@ public class PersonController {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/svn-parentpath-backup/">Another Subversion Backup Script</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-01-18T01:05:30+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Dulu saya pernah menulis tentang <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">backup script Subversion untuk Linux</a>, maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">untuk Windows</a>. Sayangnya, script tersebut hanya bisa digunakan untuk satu repository saja.</p>
-
-<p>Biasanya saya menghosting beberapa Subversion repository sekaligus, dipublikasikan menggunakan Apache dengan konfigurasi <code>SVNParentPath</code>. Setidaknya ada 10 repository yang saya kelola, sehingga untuk mengkonfigurasi backup otomatisnya cukup melelahkan juga.</p>
-
-<p>Oleh karena itu, saya membuat backup script lagi. Kali ini mampu menangani satu folder yang berisi banyak repository. Berikut scriptnya, masih dalam bahasa Ruby.</p>
-
-<h3>subversion-repos-full-backup.rb</h3>
-
-<pre><code>require 'zlib'
-
-if ARGV.length &lt; 2
-  puts "Usage : ruby full-backup.rb &lt;SVNParentPath folder&gt; &lt;backupfolder&gt;"  
-  exit
-end
-
-# some configuration
-svn_parent_path = ARGV[0]
-backup_folder = ARGV[1]
-
-# variable initialization
-current_date = Time.now.strftime("%Y%m%d")
-
-Dir.foreach(svn_parent_path) { |repo| 
-    next if('.' == repo || '..' == repo)
-    puts "Start to process folder : "+repo
-
-    puts "Performing svndump"
-    repo_name = svn_parent_path + File::SEPARATOR + repo
-    dumpfile_name = repo + '-' +current_date + '.dmp'
-    dumpfile = backup_folder + File::SEPARATOR + dumpfile_name
-
-    `svnadmin dump #{repo_name} &gt; #{dumpfile}`
-
-    puts "Compressing dumpfile"
-    Zlib::GzipWriter.open(dumpfile+".gz") do |gz|
-      gz.write(File.read(dumpfile))
-    end
-
-
-    puts "Deleting uncompressed file"
-    File.delete(dumpfile)
-}
-</code></pre>
-
-<p>Cara menjalankannya tidak sulit, cukup panggil dia melalui command prompt:</p>
-
-<pre><code>ruby subversion-repos-full-backup.rb /path/ke/repos /path/ke/backup-folder
-</code></pre>
-
-<p>Semoga bermanfaat</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/27/">&larr; Older</a>
@@ -727,6 +766,10 @@ Dir.foreach(svn_parent_path) { |repo|
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
       </li>
     
@@ -760,10 +803,6 @@ Dir.foreach(svn_parent_path) { |repo|
     
       <li class="post">
         <a href="/manajemen/release-management/">Release Management</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/terima-kasih-wordpress/">Terima kasih Wordpress</a>
       </li>
     
   </ul>

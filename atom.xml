@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-02-14T14:46:45+07:00</updated>
+  <updated>2013-02-28T14:47:33+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,132 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Akses VM Proxmox Tanpa Applet]]></title>
+    <link href="http://software.endy.muhardin.com/linux/akses-vm-proxmox-tanpa-applet/"/>
+    <updated>2013-02-28T14:22:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/linux/akses-vm-proxmox-tanpa-applet</id>
+    <content type="html"><![CDATA[<p>Jika kita ingin mengakses virtual machine di dalam Proxmox,
+ada beberapa opsi yang bisa kita gunakan, yaitu:</p>
+
+<ul>
+<li>SSH langsung ke IP virtual machine tersebut.</li>
+<li>Login ke web management Proxmox, kemudian pilih virtual machine, dan jalankan VNC console yang berupa aplikasi Java applet.</li>
+<li>SSH ke mesin host, dan kemudian masuk ke console virtual machine</li>
+<li>Membuat VNC server yang bisa diakses dari luar</li>
+</ul>
+
+
+<p>Kadangkala, kita tidak bisa menjalankan opsi pertama, karena belum menginstal SSH server di VM.
+Opsi kedua sering tidak lancar di Linux.
+Opsi ketiga hanya bisa dijalankan untuk OpenVZ, saya belum ketemu caranya untuk KVM.
+Dengan demikian, kita harus menggunakan cara keempat.</p>
+
+<!--more-->
+
+
+<p>Berikut adalah caranya. Pertama kita ssh dulu ke mesin host.
+Setelah itu kita tampilkan daftar semua VM yang bertipe KVM
+dengan perintah <code>qm list</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># qm list
+</span><span class='line'>      VMID NAME                 STATUS     MEM(MB)    BOOTDISK(GB) PID
+</span><span class='line'>       101 vm110                running    512               30.00 16474
+</span><span class='line'>       103 vm103                stopped    512               80.00 0
+</span><span class='line'>       104 vm104                running    256               80.00 16256
+</span><span class='line'>       107 vm107                running    2000              50.00 16348
+</span><span class='line'>       113 vm113                stopped    512               32.00 0
+</span><span class='line'>       115 vm115                running    8000             100.00 16316
+</span><span class='line'>       116 vm116                running    1000              80.00 16460
+</span><span class='line'>       119 vm119                running    1000              20.00 16390
+</span><span class='line'>       120 vm120                running    1000              40.00 16284
+</span><span class='line'>       166 vm166                running    1024             150.00 16440
+</span><span class='line'>       190 vm190                running    512               20.00 16270
+</span><span class='line'>       199 vm199                running    1024               5.00 16300</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita bisa membuka VNC server yang mengarah ke VM dengan ID tertentu
+dengan perintah berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nc -l -p portvnc -c "qm vncproxy vmid passwdvnc"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Misalnya, bila kita ingin mengakses VMID <code>166</code> di port <code>10166</code> dengan password <code>abc321</code>,
+maka perintahnya adalah sebagai berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nc -l -p 10166 -c "qm vncproxy 166 abc321"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, kita bisa mengakses VM tersebut menggunakan VNC client seperti pada screenshot.</p>
+
+<p><img src="http://software.endy.muhardin.com/images/uploads/2013/02/28/vnc-kvm.png" title="Konfigurasi VNC Client" ></p>
+
+<p>Kosongkan saja username dan password, nanti kita akan dimintai password oleh aplikasinya.</p>
+
+<p>Hal yang sama bisa dilakukan juga dengan OpenVZ.</p>
+
+<p>Pertama, cari dulu VM yang mau diakses dengan perintah <code>vzlist</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># vzlist
+</span><span class='line'>      CTID      NPROC STATUS    IP_ADDR         HOSTNAME
+</span><span class='line'>       102        229 running   202.202.202.200  vm102
+</span><span class='line'>       105         40 running   202.202.202.201  vm105
+</span><span class='line'>       106         27 running   202.202.202.202  vm106
+</span><span class='line'>       108         21 running   202.202.202.203  vm108
+</span><span class='line'>       110         46 running   202.202.202.204  vm110
+</span><span class='line'>       111         61 running   202.202.202.205  vm111
+</span><span class='line'>       112         16 running   202.202.202.206  vm112
+</span><span class='line'>       114         39 running   202.202.202.207  vm114
+</span><span class='line'>       117         18 running   202.202.202.208  vm117
+</span><span class='line'>       121         43 running   202.202.202.209  vm121
+</span><span class='line'>       130         32 running   202.202.202.210  vm130</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kemudian gunakan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vncterm -c vzctl enter VMID</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Misalnya, bila ingin mengakses VM 111, maka perintahnya adalah</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>vncterm -rfbport 10111 -c vzctl enter 104</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Referensi : <a href="http://forum.proxmox.com/threads/612-External-VNC-viewer">Forum Proxmox</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Setup Proxmox dengan 1 IP Public]]></title>
@@ -4065,125 +4191,6 @@ ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -sk
 
 
 <p>Kode program yang digunakan pada training ini dapat diikuti di <a href="https://github.com/endymuhardin/belajar-extjs">Github page saya</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Estimasi Proyek Software]]></title>
-    <link href="http://software.endy.muhardin.com/manajemen/estimasi-proyek-software/"/>
-    <updated>2011-05-11T06:37:12+07:00</updated>
-    <id>http://software.endy.muhardin.com/manajemen/estimasi-proyek-software</id>
-    <content type="html"><![CDATA[<blockquote><p>Saya ingin membuat aplikasi akunting, berapa lama dan berapa biayanya?</p></blockquote>
-
-<p>Demikian pertanyaan yang amat sering kita temui di profesi software developer.</p>
-
-<p>Topik estimasi proyek merupakan topik yang sulit. Steve McConnell menyebutnya Black Art,
-sehingga dia mengarang buku yang sangat bagus tentang topik ini,
-judulnya Software Estimation, Demystifying the Black Art.</p>
-
-<p>Menurut Steve, dalam membuat estimasi, ada 3 metode yang dilakukan, yaitu</p>
-
-<ul>
-<li><p>count</p></li>
-<li><p>compute</p></li>
-<li><p>judge</p></li>
-</ul>
-
-
-<p>Kita harus selalu berusaha count, karena ini yang paling akurat.
-Kalo ditanya berapa tinggi pohon, paling baik adalah ambil meteran dan ukur pohonnya.
-Dimana kita tidak bisa count, maka kita compute.
-Contohnya, di sebelah pohon ada pagar dan di atas pagar ada tiang lampu.
-Kita compute jumlah tinggi pagar dan tinggi tiang lampu, sehingga dapat tinggi pohon.
-Hanya kalau tidak ada cara lain, baru kita judge.
-Dikira2 tingginya berapa.</p>
-
-<p>Dalam kaitannya dalam estimasi, idealnya yang kita estimasi hanyalah project size.
-Metric lainnya akan kita compute dari project size ini.</p>
-
-<h2>Apa itu project size?</h2>
-
-<p>Project size merupakan ukuran suatu project.
-Dengan project size, kita bisa membandingkan dua aplikasi yang berbeda,
-misalnya aplikasi akunting dan aplikasi toko online.</p>
-
-<p>Ada banyak metric untuk mengukur ukuran project. Metric yang paling lazim digunakan
-adalah jumlah baris kode program, dalam bahasa Inggris disebut Source Lines of Code (SLOC)
-atau Non Commenting Source Code (NCSS).</p>
-
-<p>Walaupun SLOC sangat akurat dalam menentukan ukuran project, tapi jumlah baris kode sulit diperkirakan di awal project.
-Oleh karena itu, beberapa orang kreatif lalu mengarang metode baru yang disebut Function Point Calculation.
-Metode ini pada intinya adalah menghitung berapa screen input, screen output, jumlah tabel database, dan interaksinya dengan aplikasi lain.</p>
-
-<p>Setelah kita mendapatkan estimasi ukuran project, kita akan menggunakannya untuk mengestimasi effort, durasi, dan cost.</p>
-
-<p>Sebelum lebih jauh, mari kita jelaskan istilah-istilahnya.</p>
-
-<p>Effort, adalah kerja real yang kita lakukan dalam menyelesaikan project. Satuannya adalah mandays atau manhour.
-Misalnya suatu aplikasi diestimasi membutuhkan effort 10 mandays. Artinya aplikasi ini akan selesai bila dikerjakan 1 orang selama 10 hari terus menerus.
-Atau 5 hari bila ada 2 pekerja. Effort tidak mempertimbangkan libur ataupun cuti.</p>
-
-<p>Durasi (bahasa Inggrisnya schedule), adalah jangka waktu penyelesaian project. Ini biasanya dinyatakan dalam satuan hari kerja atau hari kalender.
-Bila durasi project dinyatakan 10 hari kalender, maka bila dimulai tanggal 1, akan selesai tanggal 10.</p>
-
-<p>Jadi, untuk mendapatkan durasi, kita harus punya asumsi berikut :</p>
-
-<ul>
-<li><p>berapa orang yang dipekerjakan</p></li>
-<li><p>berapa hari libur</p></li>
-<li><p>berapa alokasi waktu non-pekerjaan seperti meeting, presentasi, dsb</p></li>
-</ul>
-
-
-<p>Asumsi tersebut, digabungkan dengan estimasi effort, akan menghasilkan estimasi durasi.</p>
-
-<p>Setelah durasi didapatkan, menghitung estimasi cost mudah saja. Kita membutuhkan matriks gaji per role.
-Berapa gaji project manager, gaji programmer, dan role lain dalam setahun, termasuk THR, tunjangan kesehatan, benefit lain dan bonus.
-Bagilah dengan hari kerja setahun sehingga didapatkan nilai gaji sehari.
-Kemudian petakan penggunaan masing-masing role dalam schedule yang sudah kita estimasi, dan kita akan mendapat biaya personel.
-Tambahkan dengan biaya lain-lain seperti transport, komunikasi, dsb untuk mendapatkan biaya total.
-Masukkan juga faktor resiko project, misalnya kalau clientnya terkenal sulit ditagih, tentu perlu ada koefisien pengali.
-Karena tagihan macet sama dengan kita memberi hutang ke client.</p>
-
-<p>Nah, akhirnya biaya total sudah didapatkan, silahkan tambahkan profit yang diinginkan, buffer negosiasi, dan voila, dapatlah harga penawaran.</p>
-
-<p>Selesai? Belum dong :D</p>
-
-<p>Pembaca yang teliti tentu akan menemukan satu celah di penjelasan di atas. Bagaimana mengkonversi estimasi project size menjadi estimasi effort?
-Nah disinilah bedanya perusahaan besar kaya pengalaman dengan startup mahasiswa baru lulus. Perusahaan dengan jam terbang tinggi biasanya punya data historis.
-Dia punya data misalnya berapa mandays yang dibutuhkan programmer untuk membuat aplikasi dengan 3 tabel database.
-Tentunya data ini harus dikumpulkan, diolah, dan diupdate agar bisa dijadikan pedoman. Ini sebabnya tidak semua perusahaan besar punya data ini.
-Dengan bermodalkan data ini, perusahaan tinggal mengkonversi project size menjadi effort.
-Setidaknya ada dua jenis data yang kita butuhkan, yaitu berapa effort yang dibutuhkan untuk menyelesaikan satu baris kode, dan bagaimana distribusi effort selama fase project. Maksudnya, bila project kita diestimasi 100 mandays, berapa mandays habis di analisa, coding, testing, implementasi, dan maintenance.
-Selain itu, juga perlu ada matriks distribusi effort per role. Dengan adanya matriks ini, kita akan lebih mudah menkonversi effort menjadi durasi dan cost.</p>
-
-<p>Startup mahasiswa, karena tidak punya data, maka cuma bisa tebak-tebak buah manggis. Atau kalo mau sedikit ilmiah, bisa mengikuti cara kami di ArtiVisi waktu baru mulai dulu. Kita membuat aplikasi kecil, kemudian datanya dikumpulkan dan dijadikan pedoman.</p>
-
-<p>Jadi, kesimpulannya, begini metode estimasinya.</p>
-
-<p><strong>Kebutuhan Data</strong></p>
-
-<ol>
-<li><p>Tabel konversi size ke mandays</p></li>
-<li><p>Tabel gaji pegawai per role per hari</p></li>
-<li><p>Tabel distribusi effort per fase</p></li>
-<li><p>Tabel distribusi effort per role</p></li>
-</ol>
-
-
-<p>Flow Estimasi</p>
-
-<ol>
-<li><p>Estimasi Size</p></li>
-<li><p>Dari size, gunakan tabel #1 untuk mendapatkan effort</p></li>
-<li><p>Dari effort, gunakan tabel #3 untuk mendapatkan durasi</p></li>
-<li><p>Dari effort, gunakan tabel #4 untuk mendapatkan effort per personel</p></li>
-<li><p>Dari effort per personel, gunakan tabel #2 untuk menghitung biaya personel</p></li>
-<li><p>Gunakan durasi untuk menghitung biaya lain-lain</p></li>
-</ol>
-
-
-<p>Demikian metodologi untuk melakukan estimasi project software. Membuat estimasi saja tidak cukup, kita juga harus bisa mempresentasikan dan mempertahankannya dari negosiasi pihak lain. Ini akan dibahas di lain kesempatan.</p>
 ]]></content>
   </entry>
   
