@@ -95,4 +95,7 @@ Misalnya, bila ingin mengakses VM 111, maka perintahnya adalah
 vncterm -rfbport 10111 -c vzctl enter 104
 ```
 
-Referensi : [Forum Proxmox](http://forum.proxmox.com/threads/612-External-VNC-viewer)
+Referensi : 
+
+* [Forum Proxmox](http://forum.proxmox.com/threads/612-External-VNC-viewer)
+* [UNIX/LINUX TECH NOTES](http://honglus.blogspot.com/2011/02/access-guest-vm-console-via-text-mode.html)
