@@ -76,17 +76,17 @@ Mari kita lanjutkan.
 
 Kita menggunakan aplikasi tentu ingin mencapai tujuan tertentu. Ingin menyimpan data customer, menampilkan laporan bulanan, dan lain sebagainya. Nah, tujuan ini harus disampaikan ke programmer. Soalnya sering terjadi percakapan seperti ini : 
 
-User (U) : Pak, fitur daftar produknya error. 
-Programmer (P) : Harusnya bisa kok, sudah kami test di sini tidak ada masalah. 
-U : Tapi saya coba tidak bisa
-P : Coba jelaskan langkahnya
+User (U) : Pak, fitur daftar produknya error.  
+Programmer (P) : Harusnya bisa kok, sudah kami test di sini tidak ada masalah.  
+U : Tapi saya coba tidak bisa  
+P : Coba jelaskan langkahnya  
 U : Saya buka menu daftar produk, muncul tabel berisi produk. 
 Kemudian saya klik dua kali nama produk dalam tabel, saya ganti isinya. 
-Setelah itu, saya tutup screennya. 
-Pas dibuka lagi, datanya tetap sama. 
-P : Lho, memangnya Ibu mau melakukan apa?
-U : Saya mau edit harga produknya
-P : Walah, bukan dari situ Bu. Gunakan menu edit produk
+Setelah itu, saya tutup screennya.
+Pas dibuka lagi, datanya tetap sama.  
+P : Lho, memangnya Ibu mau melakukan apa?  
+U : Saya mau edit harga produknya  
+P : Walah, bukan dari situ Bu. Gunakan menu edit produk  
 
 Nah, seringkali tujuan user tidak sesuai dengan fitur aplikasi. Jadi, beri tahukan tujuan user pada programmer. 
 
@@ -98,19 +98,21 @@ Nah, seringkali tujuan user tidak sesuai dengan fitur aplikasi. Jadi, beri tahuk
 
 Begitu programmer akan mencoba memperbaiki error, dia akan mencoba mereproduksi error tersebut di komputernya sendiri. Nah di sinilah biasanya terjadi percakapan seperti ini : 
 
-U : Ini aplikasi error, tidak bisa simpan data
-P : Oh, di sini saya coba bisa kok
-U : Di sini tidak bisa
-P : Di sini bisa
-U : Tidak bisa
-P : Bisa
-dst
+U : Ini aplikasi error, tidak bisa simpan data  
+P : Oh, di sini saya coba bisa kok  
+U : Di sini tidak bisa  
+P : Di sini bisa  
+U : Tidak bisa  
+P : Bisa  
+dst  
 
 Akan lebih produktif kalau percakapannya seperti ini : 
-U : Ini aplikasi error, tidak bisa simpan data
-P : Apa yang dilakukan?
 
-U : Seperti ini : 
+U : Ini aplikasi error, tidak bisa simpan data  
+P : Apa yang dilakukan?  
+
+U : Seperti ini :
+
 1. Buka screen Edit Produk
 2. Pilih kategori Komputer dan Elektronik
 3. Isi kode produk
@@ -129,12 +131,13 @@ Apakah langkah repro saja sudah cukup? Belum, masih ada 1 hal penting lainnya.
 
 Mari kita lanjutkan percakapan di atas. 
 
-U : Setelah ditekan tombol simpan, datanya tidak tersimpan. 
-P : Di tempat saya masuk kok ke database. 
-U : Di sini, setelah ditekan simpan tidak terjadi apa-apa
-P : Maksudnya?
-U : Ya harusnya kan ada pesan, "Data sudah tersimpan"
+U : Setelah ditekan tombol simpan, datanya tidak tersimpan.  
+P : Di tempat saya masuk kok ke database.  
+U : Di sini, setelah ditekan simpan tidak terjadi apa-apa  
+P : Maksudnya?  
+U : Ya harusnya kan ada pesan, "Data sudah tersimpan"  
 Ini tidak ada. 
+
 
 Nah, di sini harapan user adalah ada notifikasi dari aplikasi bahwa data sudah tersimpan. Tapi kenyataannya tidak ada notifikasi apa-apa dari aplikasi. User mengira ini error, 
 padahal programmer memang tidak menyediakan notifikasi tersebut, walaupun datanya sudah masuk ke database. Dari sini, programmer bisa menambahkan notifikasi sesuai harapan user. 
@@ -166,13 +169,13 @@ Sering terjadi aplikasi error hanya di Linux saja, atau di Mac saja, tapi berjal
 
 Demikian juga dengan versi aplikasi dan aplikasi lain yang terinstal. Seringkali sudah diketahui bahwa aplikasi kita tidak kompatibel dengan versi library tertentu, versi OS tertentu, atau dengan aplikasi lain. Misalnya seperti ini : 
 
-Tanya (T) : Saya instal Tomcat tapi error
-Jawab (J) : Errornya gimana?
-T : Katanya port 8080 tidak bisa digunakan. 
-J : Apakah ada webserver lain yang terinstal?
-T : Web server sih tidak ada, saya cuma install database Oracle saja. 
-J : Oh, Oracle itu membawa web server sendiri, jalannya juga di 8080. 
-Coba matikan Oraclenya, atau ganti port Tomcat ke angka lain. 
+Tanya (T) : Saya instal Tomcat tapi error  
+Jawab (J) : Errornya gimana?  
+T : Katanya port 8080 tidak bisa digunakan.   
+J : Apakah ada webserver lain yang terinstal?  
+T : Web server sih tidak ada, saya cuma install database Oracle saja.  
+J : Oh, Oracle itu membawa web server sendiri, jalannya juga di 8080.  
+Coba matikan Oraclenya, atau ganti port Tomcat ke angka lain.  
 
 Demikian beberapa tips melaporkan error. 
 
