@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-10T14:26:49+07:00</updated>
+  <updated>2013-05-20T21:28:06+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,128 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Integrasi Aplikasi]]></title>
+    <link href="http://software.endy.muhardin.com/java/integrasi-aplikasi/"/>
+    <updated>2013-05-20T21:20:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/integrasi-aplikasi</id>
+    <content type="html"><![CDATA[<p>Aplikasi jaman sekarang jarang sekali yang berdiri sendiri.
+Umumnya aplikasi yang kita buat harus terhubung dengan aplikasi yang dibuat orang lain.
+Beberapa contohnya:</p>
+
+<ul>
+<li>kita membuat aplikasi mobile, terhubung ke social network seperti Facebook dan Twitter</li>
+<li>kita membuat aplikasi bisnis, harus terhubung ke aplikasi akunting yang sudah lebih dulu ada</li>
+<li>kita membuat aplikasi pembayaran tagihan, harus terhubung ke penyedia tagihan seperti PLN, Telkom, dsb</li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan membahas beberapa strategi untuk menghubungkan aplikasi yang kita buat dengan aplikasi lain.</p>
+
+<!--more-->
+
+
+<p>Secara umum, ada empat strategi untuk menghubungkan aplikasi satu dengan lainnya:</p>
+
+<ul>
+<li>pemanggilan prosedur/function</li>
+<li>messaging</li>
+<li>sharing database</li>
+<li>kirim/terima file</li>
+</ul>
+
+
+<p>Mari kita bahas satu persatu.</p>
+
+<h2>Pemanggilan prosedur</h2>
+
+<p>Pada metode ini, aplikasi yang akan melayani (kita sebut aplikasi server),
+harus menyediakan mekanisme agar bisa dipanggil aplikasi lain (kita sebut aplikasi client).</p>
+
+<p>Ada beberapa protokol yang populer digunakan dalam strategi ini, misalnya:</p>
+
+<ul>
+<li>SOAP</li>
+<li>REST</li>
+<li>ISO-8583</li>
+<li>XMLRPC</li>
+</ul>
+
+
+<p>Ciri utama dalam strategi ini adalah:</p>
+
+<ul>
+<li>ada kesepakatan nama method yang akan dipanggil</li>
+<li>ada kesepakatan jumlah dan tipe data yang dikirim dan diterima</li>
+<li>client dan server harus online dalam waktu yang berbarengan.</li>
+<li>setelah client memanggil server, dia akan menunggu sampai ada balasan dari server. Sebelum terima balasan, client tidak bisa melanjutkan. Fenomena ini dikenal dengan istilah synchronous invocation.</li>
+</ul>
+
+
+<p>Berikut beberapa contoh implementasi dari strategi ini:</p>
+
+<ul>
+<li><a href="http://software.endy.muhardin.com/java/remoting-dengan-spring/">Remoting dengan Spring Framework</a></li>
+<li><a href="http://martinusadyh.web.id/tulisanku/berkenalan-dengan-iso-8583-menggunakan-java/">Transaksi Finansial dengan ISO-8583</a></li>
+</ul>
+
+
+<h2>Messaging</h2>
+
+<p>Konsep messaging sebetulnya sudah tidak asing lagi bagi kita. Sering kita gunakan sehari-hari dalam bentuk email, chatting, sms, dan sejenisnya.</p>
+
+<p>Beberapa ciri dari messaging antara lain:</p>
+
+<ul>
+<li>pengirim dan penerima tidak harus online berbarengan. Bisa saja pengirim mengirim pesan pada saat penerima offline, setelah itu pengirim juga offline. Pada waktu penerima online, dia akan menerima pesan yang ditujukan kepadanya pada waktu dia sedang offline.</li>
+<li>ada satu pihak yang berfungsi sebagai penyimpan message. Dalam dunia messaging, pihak ini disebut sebagai message broker.</li>
+<li>karena sifatnya yang memungkinkan tidak online barengan, maka biasanya ada mekanisme status delivery</li>
+<li>biasanya ada juga masa kadaluarsa message di dalam database broker. Sebagai contoh, bila handphone kita mati lebih dari tiga hari, maka sms yang ditujukan ke handphone tersebut dan belum sampai di handphone kita akan dihapus oleh operator telekomunikasi.</li>
+<li>tidak ada aturan mengenai format dan tipe data. Pengirim bebas mengirim apa saja. Penerima yang harus melakukan validasi terhadap format message</li>
+<li>tidak ada mekanisme notifikasi ketika ada message baru. Penerima harus secara periodik mengecek (polling) ke broker untuk mengetahui ada-tidaknya message baru</li>
+</ul>
+
+
+<p>Dalam Java, ada beberapa pilihan untuk implementasi strategi messaging, diantaranya:</p>
+
+<ul>
+<li><a href="http://software.endy.muhardin.com/java/integrasi-pusat-cabang-2/">melalui email</a></li>
+<li><a href="http://www.playsms.org/">melalui sms</a></li>
+<li><a href="http://software.endy.muhardin.com/java/intro-jms/">menggunakan protokol JMS</a></li>
+<li>menggunakan protokol AMQP</li>
+</ul>
+
+
+<h2>Sharing Database</h2>
+
+<p>Pada strategi ini, pengirim dan penerima menggunakan database sebagai media pertukaran data. Pengirim menaruh datanya ke suatu tabel di database untuk kemudian dibaca oleh penerima.</p>
+
+<p>Karena menggunakan database, maka mekanisme ini memiliki beberapa ciri khusus interaksi dengan database, yaitu:</p>
+
+<ul>
+<li>transaction. Pengirim bisa memastikan datanya terkirim secara utuh. Bila terjadi error di tengah pengiriman data, maka data yang sudah terlanjur ditulis bisa dibatalkan</li>
+<li>tipe data bisa di-enforce. Kita bisa menggunakan tipe data angka, text, dan tanggal. Bila pengirim salah memasukkan data, maka database server akan menolaknya.</li>
+</ul>
+
+
+<p>Mirip dengan messaging, tidak ada mekanisme notifikasi ketika ada data baru yang ditaruh pengirim. Penerima harus secara periodik mengecek (polling) ke database untuk mengetahui ada-tidaknya data baru. Untuk memudahkan polling, biasanya tiap data diberikan kolom status untuk membedakan mana data yang sudah diproses dan mana yang belum.</p>
+
+<p>Bila kita menggunakan Spring Integration, kita bisa langsung menggunakan <a href="http://static.springsource.org/spring-integration/reference/htmlsingle/#jdbc">implementasi yang tersedia</a> sehingga tidak perlu lagi membuatkan mekanisme pengecekan data baru. <a href="https://github.com/SpringSource/spring-integration-samples/tree/master/basic/jdbc">Contoh pemakaian juga sudah disediakan</a>, tinggal diikuti.</p>
+
+<h2>File Transfer</h2>
+
+<p>Sama seperti messaging, dengan strategi ini pengirim dan penerima tidak harus online berbarengan. Yang membedakannya dengan messaging adalah pada mekanisme ini biasanya format file dan struktur data di dalamnya sudah ditentukan. Demikian juga dengan lokasi penyimpanan file dan aturan penamaannya.</p>
+
+<p>Berbeda dengan sharing database, mekanisme file transfer tidak memiliki mekanisme untuk memastikan data sampai dengan utuh. Kita sendiri yang harus memastikan keutuhan data, misalnya dengan mengirim file checksum bersama dengan file berisi data. File checksum ini bisa digunakan untuk memastikan file data terkirim secara utuh.</p>
+
+<p>Pada mekanisme ini kita juga tidak bisa tahu progress pengiriman data. Apakah pengirim masih dalam proses mengirim atau sudah selesai? Kita tidak tahu secara pasti. Biasanya diakali dengan cara memeriksa ukuran file dalam selang waktu tertentu. Bila ukurannya masih terus bertambah, berarti proses pengiriman masih berjalan. Bila ukurannya tidak membesar lagi, ada indikasi bahwa pengiriman sudah selesai.</p>
+
+<p>Untungnya prosedur pengecekan ini sudah dibuatkan <a href="http://static.springsource.org/spring-integration/reference/htmlsingle/#files">implementasinya</a> oleh rekan-rekan Spring Integration, sehingga kita tinggal mengikuti <a href="https://github.com/SpringSource/spring-integration-samples/tree/master/basic/file">contoh yang tersedia</a>.</p>
+
+<p>Demikianlah sedikit informasi mengenai integrasi antar aplikasi. Semoga bermanfaat :)</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mencari Relasi Foreign Key ke Tabel MySQL]]></title>
@@ -1137,75 +1259,6 @@ select * from REVINFO;
 <p>Keterangan apa saja yang bisa diubah dan cara mengubahnya dapat dilihat di <a href="http://docs.jboss.org/hibernate/orm/4.1/devguide/en-US/html/ch15.html#d5e3937">dokumentasi konfigurasi Envers</a>.</p>
 
 <p>Contoh kode yang lengkap bisa diambil di <a href="https://github.com/endymuhardin/belajar-auditlog">repository saya di Github</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Konsep Dasar Log4j]]></title>
-    <link href="http://software.endy.muhardin.com/java/konsep-dasar-log4/"/>
-    <updated>2012-07-30T20:59:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/konsep-dasar-log4</id>
-    <content type="html"><![CDATA[<p>Walaupun sudah dibuatkan <a href="http://endy.artivisi.com/blog/java/menggunakan-log4j">minibook</a>, tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.</p>
-
-<!--more-->
-
-
-<p>Ada beberapa komponen penting dalam aplikasi logging :</p>
-
-<ul>
-<li><p>logger : ini adalah yang kita gunakan di aplikasi untuk mengeluarkan pesan.
-tadinya System.out.println("Coba");
-diganti menjadi logger.info("Coba");</p></li>
-<li><p>appender : komponen yang bertugas menampilkan log message
-misalnya : console appender : menampilkan ke System.out
-File appender : menulis log ke file
-Rolling file appender : menulis ke file, lalu dirolling berdasarkan kriteria tertentu (size atau time)
-misalnya, setelah mencapai 1 MB, tulis ke file berbeda, atau tiap 1 jam ganti file</p></li>
-<li><p>category : ini adalah sumber log message, yaitu package atau realm.
-<strong>biasanya</strong> category == package
-Ini digunakan untuk memfilter log mana yang akan ditampilkan ke appender mana</p></li>
-</ul>
-
-
-<p>Selain 3 komponen itu, ada terminologi yang namanya level.
-Contoh level : error, warn, info, debug, trace
-Level ini berlaku bertingkat, jadi kalau kita bilang info, artinya info, warn, error.
-Kalau kita bilang debug, maka hasilnya debug, info, warn, error.</p>
-
-<p>Log message ditampilkan atau tidak, tergantung category dan level.</p>
-
-<p>Contoh kasus :
-Saya membuat aplikasi, berisi package com.artivisi.belajar.logging.
-Isinya ada 2 class, Coba dan Halo.</p>
-
-<p>Aplikasi saya ini menggunakan framework Spring, yang mana berisi package org.springframework, yang berisi banyak sub package, seperti org.springframework.core, org.springframework.jdbc, dsb.</p>
-
-<p>Untuk source code yang saya tulis sendiri (Coba dan Halo), saya ingin menampilkan level debug, karena masih fase development. Nantinya kalau sudah production, cukup level warn saja yang ditampilkan.
-Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilkan.</p>
-
-<p>Semua log message ditampilkan ke terminal, supaya mudah diamati.</p>
-
-<p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
-
-<p><div><script src='https://gist.github.com/3205393.js'></script>
-<noscript><pre><code># by default, levelnya adalah INFO, tampilkan ke System.out
-log4j.rootLogger=INFO,Konsole 
-
-# untuk package com.artivisi, tampilkan level DEBUG ke System.out
-log4j.logger.com.artivisi=DEBUG,Konsole
-
-# untuk spring, error saja yang ditampilkan
-log4j.logger.org.springframework=ERROR,Konsole
-
-# Appender Konsole adalah System.out
-log4j.appender.Konsole=org.apache.log4j.ConsoleAppender 
-log4j.appender.Konsole.layout=org.apache.log4j.PatternLayout 
-# Format tanggal menurut ISO­8601 : %d 
-log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
-</code></pre></noscript></div>
-</p>
-
-<p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
 ]]></content>
   </entry>
   
