@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Mendebug Aplikasi AJAX - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Di jaman modern ini, penggunaan AJAX sudah sangat mendunia, sehingga jarang sekali kita temui aplikasi yang tidak menggunakan AJAX. Demikian juga &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Mendebug Aplikasi AJAX</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-22T16:46:00+07:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Di jaman modern ini, penggunaan AJAX sudah sangat mendunia, sehingga jarang sekali kita temui aplikasi yang tidak menggunakan AJAX. Demikian juga dengan template aplikasi standar yang digunakan di ArtiVisi, yaitu <a href="https://github.com/endymuhardin/belajar-restful">Belajar RESTful</a>.</p>
+
+<p>Bagi yang baru mendengar atau sering dengar tapi belum paham, berikut penjelasan singkat mengenai AJAX.</p>
+
+<ul>
+<li>AJAX adalah salah satu teknik pemrograman web</li>
+<li>AJAX bukanlah nama library atau framework, dia adalah cara membuat aplikasi</li>
+<li><p>Pada aplikasi non-AJAX, siklusnya sebagai berikut :</p>
+
+<ol>
+<li>Ketik URL</li>
+<li>Tampil HTML</li>
+<li>Lakukan sesuatu (isi form + tekan submit)</li>
+<li>Browser mengirim data</li>
+<li>Server mengembalikan HTML full satu halaman</li>
+</ol>
+</li>
+<li><p>Pada aplikasi AJAX, request ke server dilakukan oleh javascript, bukan oleh form submit.</p></li>
+<li>Response dari server biasanya hanya berupa data dalam format XML atau JSON, bukan data + tampilan seperti HTML</li>
+<li>Data yang dikirim server digunakan javascript hanya untuk mengubah sebagian halaman tampilan, bukan seluruh halaman seperti aplikasi non-AJAX.</li>
+</ul>
+
+
+<p>Karena perbedaan cara kerja aplikasi AJAX, maka cara debug errornya juga berbeda. Untuk mendebug aplikasi AJAX, kita perlu melengkapi browser yang kita gunakan supaya bisa memantau request dan response yang dilakukan aplikasi.</p>
+
+<p>Pada artikel ini, kita akan membahas bagaimana cara mendebug aplikasi AJAX. Sebagai contoh kasus, kita akan gunakan aplikasi <a href="https://github.com/endymuhardin/belajar-restful">Belajar RESTful</a>.</p>
+
+<!--more-->
+
+
+<h2>Studi Kasus</h2>
+
+<p>Sebagai contoh, kita akan mendebug form entri user berikut</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/01-screen-form-user.png" title="Form Entri User" ></p>
+
+<p>dan tampilan daftar user berikut</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/02-screen-list-user.png" title="Daftar User" ></p>
+
+<h2>Persenjataan</h2>
+
+<p>Agar bisa mendebug aplikasi AJAX, browser kita harus bisa menampilkan lalu lintas request dan response. Bila menggunakan Firefox, instal plugin <a href="https://addons.mozilla.org/en-US/firefox/addon/firebug/">Firebug</a>. Bila menggunakan Chrome, kemampuan ini sudah ada di menu Tools > Developer Tools sehingga kita tidak perlu menginstal apa-apa.</p>
+
+<p>Setelah terinstal, pantau tab Network untuk melihat detail request dan response.</p>
+
+<p>Berikut contohnya di Firebug</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/03-network-tab-firebug.png" title="Network Tab Firebug" ></p>
+
+<p>Dan ini tampilannya di Chrome Developer Tools</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/04-network-tab-chrome.png" title="Network Tab Chrome Developer Tools" ></p>
+
+<p>Seiring waktu, tab ini bisa penuh, kita bisa bersihkan menggunakan tombol Clear.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/05-clear-log.png" title="Tombol Clear" ></p>
+
+<p>Beberapa aplikasi AJAX yang mengikuti kaidah REST mengirim data ke server dalam format JSON dengan HTTP method yang sesuai fungsi seperti GET, POST, PUT, DELETE. Seringkali kita juga perlu memanipulasi HTTP request header dan melihat isi HTTP response header. Untuk itu, kita perlu menambah plugin lagi di browser.</p>
+
+<p>Silahkan install <a href="https://addons.mozilla.org/En-us/firefox/addon/poster/">Poster</a> untuk Firefox, atau <a href="https://chrome.google.com/webstore/detail/rest-console/cokgbflfommojglbmbpenpphppikmonn?hl=en">Rest Console</a> untuk Chrome.</p>
+
+<h2>Mendebug Form Submit</h2>
+
+<p>Di aplikasi Belajar RESTful, ketika kita mengisi form dan menekan tombol Simpan, prosesnya agak berbeda dengan aplikasi web tradisional.
+Pada aplikasi ini, semua form data dikumpulkan dan dikonversi menjadi format JSON, dan kemudian dikirim dalam HTTP request body. Ini dilakukan menggunakan Javascript.</p>
+
+<p>Di aplikasi web tradisional, data form ini disubmit dalam format HTTP request parameter dan tidak melibatkan Javascript sama sekali.</p>
+
+<p>Karena ada proses konversi menjadi JSON ini, selama proses development kita ingin melihat dan memeriksa apakah nama variabel dan datanya sudah benar. Untuk itu kita bisa menggunakan Chrome Developer Tools, seperti bisa dilihat di screenshot berikut.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/06-debug-siklus-cdt.png" title="Debug Request di Chrome Developer Tools" ></p>
+
+<p>Screen debug di Firebug bentuknya seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/09-debug-siklus-firebug.png" title="Debug Request di Firebug" ></p>
+
+<p>Hal-hal yang perlu kita amati adalah :</p>
+
+<ul>
+<li><p>Request</p>
+
+<ul>
+<li>Request Method : GET, POST, PUT, atau DELETE</li>
+<li>Request Header, terutama Accept dan Content-Type</li>
+<li>Request Parameter</li>
+<li>Data yang dikirim (bila ada)</li>
+</ul>
+</li>
+<li><p>Response</p>
+
+<ul>
+<li>Response Status : Sukses (200, 201, 204) atau Gagal (4xx atau 5xx)</li>
+<li>Response Header, terutama Content-Type dan Location</li>
+<li>Response Data (bila ada)</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Berikut adalah data-data tersebut di Chrome Developer Tools</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/07-detail-request-cdt.png" title="Detail Request Chrome Developer Tools" ></p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/08-detail-response-cdt.png" title="Detail Response Chrome Developer Tools" ></p>
+
+<p>Di Firebug, header dan data dipisahkan</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/10-detail-request-firebug.png" title="Tab Header" ></p>
+
+<p>Request data ditampilkan di tab terpisah</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/11-detail-post-data-firebug.png" title="Tab Request Data" ></p>
+
+<p>Pada waktu membaca data response, kita bisa melihat data aslinya</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/12-detail-response-firebug.png" title="Detail Response Firebug" ></p>
+
+<p>dan bisa juga melihat yang sudah diformat dengan rapi</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/13-detail-json-firebug.png" title="Detail JSON Firebug" ></p>
+
+<h2>Mendebug REST Server</h2>
+
+<p>Pada waktu kita mengisi form dan menekan tombol Submit, client mengirim HTTP request dan data berbentuk JSON. Kemudian server memproses data yang diterima dan mengirim kembalian berupa JSON juga. Agar development lebih mudah, kita ingin melakukan request dan melihat response secara langsung, tanpa direpotkan dengan tampilan HTML dan coding Javascript. Kita bisa menggunakan plugin browser untuk melakukan hal ini.</p>
+
+<p>Beberapa hal yang harus kita ketahui untuk mengetes proses di sisi server adalah:</p>
+
+<ul>
+<li>URL</li>
+<li>HTTP Method</li>
+<li>Tipe data yang dikirim</li>
+<li>Data yang akan dikirim</li>
+</ul>
+
+
+<h3>Menggunakan Chrome</h3>
+
+<p>Berikut adalah tampilan plugin Chrome, yaitu REST Console yang sudah terisi data di atas.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/14-request-form-rest-console.png" title="Request Form REST Console" ></p>
+
+<p>Selanjutnya kita tinggal menekan tombol yang sesuai dengan HTTP Method yang dibutuhkan. Bila sukses, kita akan mendapatkan tampilan seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/15-response-sukses-rest-console.png" title="Response Sukses REST Console" ></p>
+
+<p>Bila gagal, kita akan melihat tampilan seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/16-response-error-rest-console.png" title="Response Gagal REST Console" ></p>
+
+<h3>Menggunakan Firefox</h3>
+
+<p>Hal yang sama bisa dilakukan dengan Poster di Firefox. Berikut adalah form yang digunakan untuk entri data.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/17-request-form-poster.png" title="Request Form Poster" ></p>
+
+<p>Bila sukses, kita mendapatkan hasil seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/18-response-sukses-poster.png" title="Response Sukses Poster" ></p>
+
+<p>Bila gagal berikut tampilannya</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/19-response-error-poster.png" title="Response Gagal Poster" ></p>
+
+<p>Dengan menggunakan REST Console dan Poster, kita dapat mengurus coding di sisi server tanpa perlu dipusingkan dengan coding di sisi client (HTML, CSS, dan JS).</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-22T16:46:00+07:00" pubdate data-updated="true">May 22<span>nd</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/integrasi-aplikasi/" title="Previous Post: Integrasi Aplikasi">&laquo; Integrasi Aplikasi</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/training-cmmi/">Training CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/memahami-dependency-injection/">Memahami Dependency Injection</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

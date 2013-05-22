@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada posting sebelumnya, saya telah membahas tentang cara instalasi Ivy, dan juga sedikit pengantar tentang apa itu Ivy. Ivy adalah dependency &hellip;">
+  <meta name="description" content="Setelah pada artikel sebelumnya kita memahami mengapa dan kapan kita butuh Ivy, mulai dari artikel ini, kita akan menjalani langkah demi langkah &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,188 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ant-ivy-3/">Otomasi Build Process Dengan Ant</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-09-09T16:48:30+07:00" pubdate data-updated="true">Sep 9<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita memahami <a href="http://endy.artivisi.com/blog/java/ant-ivy-2">mengapa dan kapan kita butuh Ivy</a>, mulai dari artikel ini, kita akan menjalani langkah demi langkah supaya kegiatan build kita benar-benar terintegrasi dan efisien.</p>
+
+<p>Pada artikel ini, kita akan membuat satu modul dulu, yang sama sekali tidak memiliki dependensi, yaitu modul <code>person-model</code>.
+Kita akan mengotomasi proses build untuk modul ini, kemudian menyiapkan infrastruktur lainnya sehingga siap untuk digunakan oleh modul lainnya.</p>
+
+<p>Tiap modul yang kita buat, setara dengan satu project dalam IDE. Dalam IDE kita dapat mendaftarkan (membuat referensi ke) project lain dalam build-path sehingga tidak muncul peringatan compile error.</p>
+
+<p>Berikut struktur folder modul <code>person-model</code>.</p>
+
+<p><img src="/images/uploads/2008/09/01-project-person-model.png" title="" ></p>
+
+<p>Tidak ada yang istimewa, kita memiliki build.xml disertai dengan folder <code>src</code> yang berisi source code java. Kita ingin agar struktur folder kita seragam di semua modul, jadi untuk seluruh modul nantinya strukturnya akan sama.</p>
+
+<p>Kita hanya memiliki satu file source code sederhana, <code>Person.java</code> sebagai berikut.</p>
+
+<pre><code>package com.artivisi.tutorial.ivy.model;
+
+import java.util.Date;
+
+public class Person {
+    private Integer id;
+    private String name;
+    private Date birthdate;
+
+    public Integer getId() {
+        return id;
+    }
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Date getBirthdate() {
+        return birthdate;
+    }
+    public void setBirthdate(Date birthdate) {
+        this.birthdate = birthdate;
+    }   
+}
+</code></pre>
+
+<p>Sebagai rangkaian build, kita akan melakukan kegiatan sebagai berikut:</p>
+
+<ul>
+<li><p>Bersihkan hasil kompilasi sebelumnya (clean)</p></li>
+<li><p>Kompilasi (compile)</p></li>
+<li><p>Distribusi, membuat file *.jar dari hasil kompilasi (build)</p></li>
+</ul>
+
+
+<p>Rangkaian kegiatan tersebut kita tuliskan dalam file <code>build.xml</code>, sebagai berikut</p>
+
+<pre><code>&lt;project name="person-model"&gt;
+
+    &lt;property name="src.java.dir" value="src/java" /&gt;
+    &lt;property name="compile.dir" value="build/bin" /&gt;
+    &lt;property name="dist.dir" value="build/dist" /&gt;
+
+    &lt;path id="compile.classpath"&gt;
+        &lt;pathelement location="${src.java.dir}" /&gt;
+        &lt;fileset dir="lib" includes="**/*.jar" /&gt;
+    &lt;/path&gt;
+
+    &lt;target name="prepare"&gt;
+        &lt;mkdir dir="lib" /&gt;
+        &lt;mkdir dir="build" /&gt;
+        &lt;mkdir dir="${compile.dir}" /&gt;
+        &lt;mkdir dir="${dist.dir}" /&gt;
+    &lt;/target&gt;
+
+    &lt;target name="clean"&gt;
+        &lt;delete dir="build" /&gt;
+        &lt;delete dir="lib" /&gt;
+    &lt;/target&gt;
+
+    &lt;target name="compile" depends="prepare"&gt;
+        &lt;javac srcdir="${src.java.dir}" destdir="${compile.dir}" classpathref="compile.classpath" /&gt;
+    &lt;/target&gt;
+
+    &lt;target name="build" depends="compile"&gt;
+        &lt;!-- binary distribution --&gt;
+        &lt;jar destfile="${dist.dir}/${ant.project.name}.jar"&gt;
+            &lt;fileset dir="${compile.dir}"&gt;
+                &lt;exclude name="**/*Test.class"/&gt;
+            &lt;/fileset&gt;
+        &lt;/jar&gt;
+
+        &lt;!-- source distribution --&gt;
+        &lt;jar destfile="${dist.dir}/${ant.project.name}-sources.jar"&gt;
+            &lt;fileset dir="${src.java.dir}"&gt;
+                &lt;exclude name="**/*Test.java"/&gt;
+            &lt;/fileset&gt;
+        &lt;/jar&gt;
+    &lt;/target&gt;
+&lt;/project&gt;
+</code></pre>
+
+<p>Selanjutnya, kita bisa coba melakukan build.</p>
+
+<pre><code>ant build
+</code></pre>
+
+<p>Nanti Ant akan menghasilkan file <code>person-model.jar</code> dan <code>person-model-sources.jar</code> dalam folder dist.</p>
+
+<p>File <code>build.xml</code> ini nantinya akan kita gunakan di seluruh modul. Seluruh modul tentunya butuh kegiatan kompilasi dan membuat jar. Untuk menghindari perulangan dan copy-paste, kita simpan <code>build.xml</code> ini di folder bersama, kita beri nama saja person-build.</p>
+
+<p>Karena digunakan di banyak modul, kita perlu melakukan penyesuaian sedikit, yaitu namanya kita ganti menjadi <code>default.xml</code>. Deklarasi nama project juga diganti, dari seperti ini:</p>
+
+<pre><code>&lt;project name="person-model"&gt;
+</code></pre>
+
+<p>menjadi seperti ini:</p>
+
+<pre><code>&lt;project name="default-build"&gt;
+</code></pre>
+
+<p>Struktur foldernya menjadi seperti ini</p>
+
+<p><img src="/images/uploads/2008/09/02-project-person-build.png" title="" ></p>
+
+<p>Selanjutnya, dalam build.xml di project person-model, kita hanya perlu melakukan import saja. Isi <code>build.xml</code> menjadi seperti ini:</p>
+
+<pre><code>&lt;project name="person-model" default="build"&gt;
+
+    &lt;import file="${basedir}/../person-build/build.xml"/&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<p>Silahkan coba lakukan build di dalam folder <code>person-model</code>. Seharusnya modul ini bisa dibuild tanpa error, sama seperti sebelumnya.</p>
+
+<p>Bila modul person-model sudah lancar, kita bisa mulai mereplikasi modul-modul yang lainnya. Dengan semua modul sudah dibuatkan sesuai template, berikut struktur foldernya.</p>
+
+<p><img src="/images/uploads/2008/09/03-project-all.png" title="" ></p>
+
+<p>File <code>build.xml</code> di masing-masing project mirip dengan person-model, hanya dibedakan di baris pertama saja.</p>
+
+<pre><code>&lt;project name="person-model"&gt;
+</code></pre>
+
+<p>Sesuaikan dengan nama modul masing-masing.</p>
+
+<p>Persiapan template project kita sudah selesai. Sampai tahap ini, kita hanya memiliki satu source-code java, yaitu Person.java. Source-code ini akan dipaket menjadi file distribusi <code>person-model.jar</code> (binary) dan <code>person-model-sources.jar</code> (source-code). Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel selanjutnya</a>, kita akan mempublikasikan distribusi ini agar bisa digunakan oleh modul lain.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -359,107 +541,6 @@ The key fingerprint is:
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/backup-trac/">Backup Trac</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-04T19:41:14+07:00" pubdate data-updated="true">Sep 4<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://endy.artivisi.com/blog/linux/instalasi-trac">Trac sudah terinstal</a>, sekarang harus diamankan melalui prosedur backup.</p>
-
-<p>Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau tidak begitu, pasti tidak akan dijalankan. Jadi, selain kegiatan memburn CD, kegiatan backup lainnya harus diotomasi.</p>
-
-<p>Di website Trac sudah dijelaskan tentang <a href="http://trac.edgewall.org/wiki/TracBackup">cara melakukan backup terhadap instalasi Trac</a>. Kita hanya perlu membuat script sedikit supaya bisa membackup seluruh project dalam folder parent trac, dan mengkompresnya.</p>
-
-<p>Berikut scriptnya, seperti biasa, menggunakan Ruby.</p>
-
-<p>Script ini diadaptasi dari <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">script sebelumnya untuk backup Subversion repo</a>.</p>
-
-<p>Berikut scriptnya</p>
-
-<pre><code>require 'zlib'
-require 'fileutils' 
-
-if ARGV.length &lt; 2
-  puts "Usage : ruby trac-backup.rb &lt;Trac Parent folder&gt; &lt;backupfolder&gt;"
-  exit
-end
-
-# some configuration
-trac_parent_path = ARGV[0]
-backup_folder = ARGV[1]
-
-# variable initialization
-current_date = Time.now.strftime("%Y%m%d")
-
-Dir.foreach(trac_parent_path) { |trac|
-    next if('.' == trac || '..' == trac)
-    puts "Start to process folder : "+trac
-
-    puts "Performing trac hotcopy"
-    project_name = trac_parent_path + File::SEPARATOR + trac
-    dumpfile_folder = trac + '-' +current_date
-    dumpfile = backup_folder + File::SEPARATOR + dumpfile_folder
-
-    `trac-admin #{project_name} hotcopy #{dumpfile}`
-
-    puts "Compressing dumpfile"
-    `tar czf #{backup_folder}/#{dumpfile_folder}.tar.gz -C #{backup_folder} #{dumpfile_folder}`
-
-    puts "Deleting uncompressed backup"
-    FileUtils.rm_r dumpfile
-}
-</code></pre>
-
-<p>Save dengan nama <code>trac-backup.rb</code>.</p>
-
-<p>Warning, kode di atas tidak bisa dijalankan di Windows, karena menggunakan command line tar untuk mengkompres file. Jika Anda ingin menggunakan di Windows, silahkan gunakan TugZIP seperti <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">contoh ini</a>.</p>
-
-<p>Untuk menjalankannya, cukup panggil dari command prompt.</p>
-
-<pre><code>ruby trac-backup.rb /var/lib/trac /folder/tempat/backup
-</code></pre>
-
-<p>Supaya fully-automated, daftarkan di cron. Buka editor crontab.</p>
-
-<pre><code>crontab -e
-</code></pre>
-
-<p>Kemudian ketikkan entri sebagai berikut</p>
-
-<pre><code>0 23 * * 5 /usr/bin/ruby /full/path/ke/trac-backup.rb /var/lib/trac /full/path/ke/folder/backup
-</code></pre>
-
-<p>Backup akan dijalankan setiap jam 23.00 pada hari Jumat. Lebih lanjut tentang cron bisa <a href="http://bandung.linux.or.id/node/24">dibaca di sini</a>. Jika bingung dengan formatnya, bisa gunakan <a href="http://www.htmlbasix.com/crontab.shtml">generator crontab online</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/23/">&larr; Older</a>
@@ -522,6 +603,10 @@ Dir.foreach(trac_parent_path) { |trac|
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
       </li>
     
@@ -555,10 +640,6 @@ Dir.foreach(trac_parent_path) { |trac|
     
       <li class="post">
         <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/buku-panduan-markdown-dan-pandoc/">Buku Panduan Markdown dan Pandoc</a>
       </li>
     
   </ul>

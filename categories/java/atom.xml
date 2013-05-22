@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-20T21:28:06+07:00</updated>
+  <updated>2013-05-22T16:52:10+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,179 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mendebug Aplikasi AJAX]]></title>
+    <link href="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/"/>
+    <updated>2013-05-22T16:46:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax</id>
+    <content type="html"><![CDATA[<p>Di jaman modern ini, penggunaan AJAX sudah sangat mendunia, sehingga jarang sekali kita temui aplikasi yang tidak menggunakan AJAX. Demikian juga dengan template aplikasi standar yang digunakan di ArtiVisi, yaitu <a href="https://github.com/endymuhardin/belajar-restful">Belajar RESTful</a>.</p>
+
+<p>Bagi yang baru mendengar atau sering dengar tapi belum paham, berikut penjelasan singkat mengenai AJAX.</p>
+
+<ul>
+<li>AJAX adalah salah satu teknik pemrograman web</li>
+<li>AJAX bukanlah nama library atau framework, dia adalah cara membuat aplikasi</li>
+<li><p>Pada aplikasi non-AJAX, siklusnya sebagai berikut :</p>
+
+<ol>
+<li>Ketik URL</li>
+<li>Tampil HTML</li>
+<li>Lakukan sesuatu (isi form + tekan submit)</li>
+<li>Browser mengirim data</li>
+<li>Server mengembalikan HTML full satu halaman</li>
+</ol>
+</li>
+<li><p>Pada aplikasi AJAX, request ke server dilakukan oleh javascript, bukan oleh form submit.</p></li>
+<li>Response dari server biasanya hanya berupa data dalam format XML atau JSON, bukan data + tampilan seperti HTML</li>
+<li>Data yang dikirim server digunakan javascript hanya untuk mengubah sebagian halaman tampilan, bukan seluruh halaman seperti aplikasi non-AJAX.</li>
+</ul>
+
+
+<p>Karena perbedaan cara kerja aplikasi AJAX, maka cara debug errornya juga berbeda. Untuk mendebug aplikasi AJAX, kita perlu melengkapi browser yang kita gunakan supaya bisa memantau request dan response yang dilakukan aplikasi.</p>
+
+<p>Pada artikel ini, kita akan membahas bagaimana cara mendebug aplikasi AJAX. Sebagai contoh kasus, kita akan gunakan aplikasi <a href="https://github.com/endymuhardin/belajar-restful">Belajar RESTful</a>.</p>
+
+<!--more-->
+
+
+<h2>Studi Kasus</h2>
+
+<p>Sebagai contoh, kita akan mendebug form entri user berikut</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/01-screen-form-user.png" title="Form Entri User" ></p>
+
+<p>dan tampilan daftar user berikut</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/02-screen-list-user.png" title="Daftar User" ></p>
+
+<h2>Persenjataan</h2>
+
+<p>Agar bisa mendebug aplikasi AJAX, browser kita harus bisa menampilkan lalu lintas request dan response. Bila menggunakan Firefox, instal plugin <a href="https://addons.mozilla.org/en-US/firefox/addon/firebug/">Firebug</a>. Bila menggunakan Chrome, kemampuan ini sudah ada di menu Tools > Developer Tools sehingga kita tidak perlu menginstal apa-apa.</p>
+
+<p>Setelah terinstal, pantau tab Network untuk melihat detail request dan response.</p>
+
+<p>Berikut contohnya di Firebug</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/03-network-tab-firebug.png" title="Network Tab Firebug" ></p>
+
+<p>Dan ini tampilannya di Chrome Developer Tools</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/04-network-tab-chrome.png" title="Network Tab Chrome Developer Tools" ></p>
+
+<p>Seiring waktu, tab ini bisa penuh, kita bisa bersihkan menggunakan tombol Clear.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/05-clear-log.png" title="Tombol Clear" ></p>
+
+<p>Beberapa aplikasi AJAX yang mengikuti kaidah REST mengirim data ke server dalam format JSON dengan HTTP method yang sesuai fungsi seperti GET, POST, PUT, DELETE. Seringkali kita juga perlu memanipulasi HTTP request header dan melihat isi HTTP response header. Untuk itu, kita perlu menambah plugin lagi di browser.</p>
+
+<p>Silahkan install <a href="https://addons.mozilla.org/En-us/firefox/addon/poster/">Poster</a> untuk Firefox, atau <a href="https://chrome.google.com/webstore/detail/rest-console/cokgbflfommojglbmbpenpphppikmonn?hl=en">Rest Console</a> untuk Chrome.</p>
+
+<h2>Mendebug Form Submit</h2>
+
+<p>Di aplikasi Belajar RESTful, ketika kita mengisi form dan menekan tombol Simpan, prosesnya agak berbeda dengan aplikasi web tradisional.
+Pada aplikasi ini, semua form data dikumpulkan dan dikonversi menjadi format JSON, dan kemudian dikirim dalam HTTP request body. Ini dilakukan menggunakan Javascript.</p>
+
+<p>Di aplikasi web tradisional, data form ini disubmit dalam format HTTP request parameter dan tidak melibatkan Javascript sama sekali.</p>
+
+<p>Karena ada proses konversi menjadi JSON ini, selama proses development kita ingin melihat dan memeriksa apakah nama variabel dan datanya sudah benar. Untuk itu kita bisa menggunakan Chrome Developer Tools, seperti bisa dilihat di screenshot berikut.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/06-debug-siklus-cdt.png" title="Debug Request di Chrome Developer Tools" ></p>
+
+<p>Screen debug di Firebug bentuknya seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/09-debug-siklus-firebug.png" title="Debug Request di Firebug" ></p>
+
+<p>Hal-hal yang perlu kita amati adalah :</p>
+
+<ul>
+<li><p>Request</p>
+
+<ul>
+<li>Request Method : GET, POST, PUT, atau DELETE</li>
+<li>Request Header, terutama Accept dan Content-Type</li>
+<li>Request Parameter</li>
+<li>Data yang dikirim (bila ada)</li>
+</ul>
+</li>
+<li><p>Response</p>
+
+<ul>
+<li>Response Status : Sukses (200, 201, 204) atau Gagal (4xx atau 5xx)</li>
+<li>Response Header, terutama Content-Type dan Location</li>
+<li>Response Data (bila ada)</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Berikut adalah data-data tersebut di Chrome Developer Tools</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/07-detail-request-cdt.png" title="Detail Request Chrome Developer Tools" ></p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/08-detail-response-cdt.png" title="Detail Response Chrome Developer Tools" ></p>
+
+<p>Di Firebug, header dan data dipisahkan</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/10-detail-request-firebug.png" title="Tab Header" ></p>
+
+<p>Request data ditampilkan di tab terpisah</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/11-detail-post-data-firebug.png" title="Tab Request Data" ></p>
+
+<p>Pada waktu membaca data response, kita bisa melihat data aslinya</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/12-detail-response-firebug.png" title="Detail Response Firebug" ></p>
+
+<p>dan bisa juga melihat yang sudah diformat dengan rapi</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/13-detail-json-firebug.png" title="Detail JSON Firebug" ></p>
+
+<h2>Mendebug REST Server</h2>
+
+<p>Pada waktu kita mengisi form dan menekan tombol Submit, client mengirim HTTP request dan data berbentuk JSON. Kemudian server memproses data yang diterima dan mengirim kembalian berupa JSON juga. Agar development lebih mudah, kita ingin melakukan request dan melihat response secara langsung, tanpa direpotkan dengan tampilan HTML dan coding Javascript. Kita bisa menggunakan plugin browser untuk melakukan hal ini.</p>
+
+<p>Beberapa hal yang harus kita ketahui untuk mengetes proses di sisi server adalah:</p>
+
+<ul>
+<li>URL</li>
+<li>HTTP Method</li>
+<li>Tipe data yang dikirim</li>
+<li>Data yang akan dikirim</li>
+</ul>
+
+
+<h3>Menggunakan Chrome</h3>
+
+<p>Berikut adalah tampilan plugin Chrome, yaitu REST Console yang sudah terisi data di atas.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/14-request-form-rest-console.png" title="Request Form REST Console" ></p>
+
+<p>Selanjutnya kita tinggal menekan tombol yang sesuai dengan HTTP Method yang dibutuhkan. Bila sukses, kita akan mendapatkan tampilan seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/15-response-sukses-rest-console.png" title="Response Sukses REST Console" ></p>
+
+<p>Bila gagal, kita akan melihat tampilan seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/16-response-error-rest-console.png" title="Response Gagal REST Console" ></p>
+
+<h3>Menggunakan Firefox</h3>
+
+<p>Hal yang sama bisa dilakukan dengan Poster di Firefox. Berikut adalah form yang digunakan untuk entri data.</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/17-request-form-poster.png" title="Request Form Poster" ></p>
+
+<p>Bila sukses, kita mendapatkan hasil seperti ini</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/18-response-sukses-poster.png" title="Response Sukses Poster" ></p>
+
+<p>Bila gagal berikut tampilannya</p>
+
+<p><img src="/images/uploads/2013/05/debug-ajax/19-response-error-poster.png" title="Response Gagal Poster" ></p>
+
+<p>Dengan menggunakan REST Console dan Poster, kita dapat mengurus coding di sisi server tanpa perlu dipusingkan dengan coding di sisi client (HTML, CSS, dan JS).</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Integrasi Aplikasi]]></title>
@@ -1015,250 +1188,6 @@ Biasanya, edit yang saya lakukan:</p>
 <li>mengganti nama file</li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Membuat Audit Log]]></title>
-    <link href="http://software.endy.muhardin.com/java/membuat-audit-log/"/>
-    <updated>2012-10-24T11:44:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/membuat-audit-log</id>
-    <content type="html"><![CDATA[<h1>Membuat Audit Log dalam Aplikasi</h1>
-
-<p>Dalam membuat aplikasi bisnis, kita sering diminta membuat audit log.</p>
-
-<blockquote><p>Apa itu audit log?</p></blockquote>
-
-<p>Audit log adalah catatan mengenai perubahan data dalam aplikasi.
-Yang dicatat biasanya :</p>
-
-<ul>
-<li>kolom mana yang berubah</li>
-<li>siapa yang mengubah</li>
-<li>diubah dari apa menjadi apa</li>
-<li>kapan dia berubah</li>
-</ul>
-
-
-<!--more-->
-
-
-<p>Dengan menggunakan <a href="http://docs.jboss.org/hibernate/orm/4.1/devguide/en-US/html/ch15.html">Hibernate Envers</a>,
-audit log ini bisa dibuat dengan mudah sekali.
-Hibernate Envers adalah salah satu modul tambahan <a href="http://hibernate.org/">Hibernate</a> untuk keperluan ini.
-Tentunya aplikasi kita harus menggunakan Hibernate supaya bisa memanfaatkan fitur ini.</p>
-
-<h2>Konfigurasi Awal</h2>
-
-<p>Konfigurasi dan setup awal sangat mudah, yaitu:</p>
-
-<ol>
-<li>Tambahkan JAR hibernate-envers ke dalam aplikasi</li>
-<li>Tambahkan anotasi <code>@Audited</code> di class <code>@Entity</code> kita.</li>
-</ol>
-
-
-<p>Contoh perubahan ini bisa dilihat <a href="https://github.com/endymuhardin/belajar-auditlog/commit/05ca0c7c90b10cf64560d4cec933774aa91a8a81">di sini</a>.</p>
-
-<h2>Audit Log Sederhana</h2>
-
-<p>Entity class yang sudah ditambahi dengan annotation <code>@Audited</code> tampak seperti ini:</p>
-
-<p>```java Kategori.java
-@Entity @Audited
-@Table(name="m_kategori")
-public class Kategori {</p>
-
-<pre><code>@Id @GeneratedValue(strategy= GenerationType.AUTO)
-private Integer id;
-
-@Column(nullable=false, unique=true)
-private String kode;
-private String nama;
-
-// getter setter tidak ditampilkan
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Pada awalnya, mapping di atas akan menghasilkan skema database seperti ini:</p>
-
-<p><code>sql
-CREATE TABLE `m_kategori` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `kode` varchar(255) NOT NULL,
-  `nama` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `kode` (`kode`)
-) ENGINE=InnoDB;
-</code></p>
-
-<p>Setelah ditambahi <code>@Audited</code>, Envers akan menambahkan satu tabel untuk keperluan audit log <code>m_kategori</code> dengan nama tabel ditambahi akhiran <code>_AUD</code> dan memiliki skema seperti ini:</p>
-
-<p><code>sql
-CREATE TABLE `m_kategori_AUD` (
-  `id` int(11) NOT NULL,
-  `REV` int(11) NOT NULL,
-  `REVTYPE` tinyint(4) DEFAULT NULL,
-  `kode` varchar(255) DEFAULT NULL,
-  `nama` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`,`REV`),
-  KEY `FK4263149C625F360` (`REV`),
-  CONSTRAINT `FK4263149C625F360` FOREIGN KEY (`REV`) REFERENCES `REVINFO` (`id`)
-) ENGINE=InnoDB;
-</code></p>
-
-<p>Kolom dalam tabelnya tidak jauh berbeda, dengan perbedaan sebagai berikut:</p>
-
-<ul>
-<li><p>tambahan kolom <code>REV</code> yang menunjukkan urutan perubahan.
-  Nilai <code>REV</code> ini tidak berurut karena penambahannya (increment) sharing dengan semua tabel lain.
-  Bisa saja <code>REV</code> <code>1</code> mencatat perubahan di <code>m_kategori</code> sedangkan <code>REV</code> <code>2</code> mencatat perubahan <code>m_produk</code>.</p></li>
-<li><p>kolom <code>REVTYPE</code> yang menunjukkan jenis perubahan.
-  Nilainya <code>0</code> untuk <strong>insert</strong> record baru, <code>1</code> untuk <strong>modifikasi</strong>, dan <code>2</code> untuk <strong>hapus</strong></p></li>
-<li><p>kolom <code>id</code> tidak lagi menjadi primary key sendirian, tapi bersama dengan kolom <code>REV</code></p></li>
-</ul>
-
-
-<p>Kita juga lihat ada relasi ke tabel <code>REVINFO</code>. Skemanya sebagai berikut:</p>
-
-<p><code>sql
-CREATE TABLE `REVINFO` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `timestamp` bigint(20) NOT NULL
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-</code></p>
-
-<p>Kolom <code>id</code> merupakan nilai yang bertambah terus (auto increment). Tabel ini akan diisi setiap kali ada revisi di tabel yang dipantau oleh Envers seperti tabel <code>m_kategori</code> kita di atas.
-Tabel ini dishare oleh semua tabel audit log sehingga untuk satu tabel yang sama, nomer <code>REV</code> belum tentu berurutan. Bisa saja diselingi oleh nomer <code>REV</code> yang berkaitan dengan tabel lain. Kolom <code>timestamp</code> menunjukkan kapan revisi terjadi.</p>
-
-<p>Untuk lebih memahami penggunaan tabel-tabel ini, mari kita lihat isi datanya.</p>
-
-<p>Pertama, kita jalankan kode berikut dari aplikasi kita:</p>
-
-<p>```java
-@Test
-public void testCrudKategori() {</p>
-
-<pre><code>Kategori k = new Kategori();
-k.setKode("K-999");
-k.setNama("Kategori 999");
-
-assertNull(k.getId());
-belajarService.simpan(k);
-assertNotNull(k.getId());
-
-k.setKode("K-999-X");
-k.setNama("Kategori 999-X");
-belajarService.simpan(k);
-Kategori kx = belajarService.cariKategoriById(k.getId());
-assertEquals("K-999-X", kx.getKode());
-assertEquals("Kategori 999-X", kx.getNama());
-
-belajarService.hapus(k);
-assertNull(belajarService.cariKategoriById(k.getId()));
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Operasi di atas akan mengisi tabel audit sebagai berikut:</p>
-
-<p><code>
-select * from m_kategori_AUD order by id,REV,REVTYPE;
-+-----+-----+---------+---------+-----------------------+
-| id  | REV | REVTYPE | kode    | nama                  |
-+-----+-----+---------+---------+-----------------------+
-| 101 |   2 |       0 | K-999   | Kategori 999          |
-| 101 |   3 |       1 | K-999-X | Kategori 999-X        |
-| 101 |   4 |       2 | NULL    | NULL                  |
-+-----+-----+---------+---------+-----------------------+
-</code></p>
-
-<p>Data dengan <code>REV</code> <code>1</code> dan <code>2</code> tidak ditampilkan karena mencatat record lain.
-Dari isi tabel ini, kita bisa melihat bahwa terjadi tiga kali operasi pada record kategori dengan id 101, yaitu:</p>
-
-<ol>
-<li>Insert record baru. <code>REVTYPE</code> berisi <code>0</code>, artinya record baru. Kolom id, kode, dan nama berisi nilai yang pertama diisi.</li>
-<li>Update kode dan nama. <code>REVTYPE</code> berisi <code>1</code>, artinya modifikasi. Kolom kode dan nama diisi dengan nilai setelah modifikasi</li>
-<li>Delete record. <code>REVTYPE</code> berisi <code>2</code>, artinya hapus. Kolom kode dan nama diisi null karena datanya sudah tidak relevan (karena record dihapus).</li>
-</ol>
-
-
-<p>Berikut isi tabel <code>REVINFO</code></p>
-
-<p><code>
-select * from REVINFO;
-+----+---------------+
-| id | timestamp     |
-+----+---------------+
-|  2 | 1351521839648 |
-|  3 | 1351521839718 |
-|  4 | 1351521839801 |
-+----+---------------+
-</code></p>
-
-<p>Karena hanya mencatat timestamp saja, maka tidak ada yang perlu dijelaskan mengenai isi tabel <code>REVINFO</code>.</p>
-
-<h2>Penambahan informasi yang ingin dicatat</h2>
-
-<p>Secara default, Hibernate Envers hanya mencatat data yang berubah dan kapan dia berubah.
-Untuk menambahkan catatan tentang username, perlu ada sedikit coding seperti bisa dilihat <a href="https://github.com/endymuhardin/belajar-auditlog/commit/e910b6bc5ef33ee61f0137c8297b0f2ec4f502fe">di sini</a>. Kita harus :</p>
-
-<ol>
-<li>Extends <code>DefaultRevisionEntity</code> dan menambahkan kolom username</li>
-<li>Membuat <code>RevisionListener</code> untuk mengisi kolom username tersebut</li>
-</ol>
-
-
-<p>Data username biasanya diambilkan dari user yang sedang login di aplikasi (dan dengan sendirinya dialah yang melakukan perubahan data).</p>
-
-<p>Setelah dilakukan dua modifikasi di atas, skema REVINFO menjadi sebagai berikut:</p>
-
-<p><code>sql
-CREATE TABLE `REVINFO` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `timestamp` bigint(20) NOT NULL,
-  `username` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
-</code></p>
-
-<p>Berikut yang sudah terisi data:</p>
-
-<p><code>
-select * from REVINFO;
-+----+---------------+----------+
-| id | timestamp     | username |
-+----+---------------+----------+
-|  1 | 1351521839220 | endy     |
-|  2 | 1351521839648 | endy     |
-|  3 | 1351521839718 | endy     |
-|  4 | 1351521839801 | endy     |
-|  5 | 1351521840174 | endy     |
-|  6 | 1351521840571 | endy     |
-|  7 | 1351521840959 | endy     |
-|  8 | 1351521841351 | endy     |
-+----+---------------+----------+
-</code></p>
-
-<h2>Penyesuaian Lain</h2>
-
-<p>Selain penambahan kolom yang ingin dicatat, biasanya kita juga ingin melakukan penyesuaian lain seperti:</p>
-
-<ul>
-<li>akhiran di nama tabel audit (<code>_AUD</code>)</li>
-<li>nama kolom nomer revisi (<code>REV</code>)</li>
-<li>nama kolom jenis revisi (<code>REVTYPE</code>)</li>
-<li>dan sebagainya</li>
-</ul>
-
-
-<p>Keterangan apa saja yang bisa diubah dan cara mengubahnya dapat dilihat di <a href="http://docs.jboss.org/hibernate/orm/4.1/devguide/en-US/html/ch15.html#d5e3937">dokumentasi konfigurasi Envers</a>.</p>
-
-<p>Contoh kode yang lengkap bisa diambil di <a href="https://github.com/endymuhardin/belajar-auditlog">repository saya di Github</a>.</p>
 ]]></content>
   </entry>
   

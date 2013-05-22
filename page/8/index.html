@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang diikuti oleh programmer ArtiVisi dan sister company. Berikut adalah &hellip;">
+  <meta name="description" content="Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,111 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/linux/membuat-screencast/">Membuat Screencast</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-06-28T01:03:23+07:00" pubdate data-updated="true">Jun 28<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat bandwidth) menjadi multimedia (rakus bandwidth).</p>
+
+<p>Demi mengikuti perkembangan jaman, saya mengeksplorasi pembuatan tutorial dalam bentuk screencast. Ternyata hasilnya memuaskan. Dengan beberapa menit merekam screencast, informasi yang disampaikan sama dengan beberapa jam mengetik blog entry.</p>
+
+<p>Artikel ini saya tulis untuk mendokumentasikan langkah-langkah membuat screencast, mulai dari merekam screencast, sampai mempublikasikannya di blog.</p>
+
+<h2>Merekam video</h2>
+
+<p>Di Ubuntu ada dua aplikasi yang saya coba, yaitu Xvidcap dan Record My Desktop. Dua-duanya sama fungsinya dan tidak ada perbedaan yang signifikan. Setelah mencoba keduanya, pendapat saya adalah Record My Desktop lebih mudah digunakan. Jadi, inilah aplikasi yang saya pilih.</p>
+
+<p>Perlu diperhatikan kemampuan prosesor komputer Anda. Ini kaitannya dengan setting frame per second (fps). Bila fps melebihi kemampuan prosesor, video yang kita rekam akan terlihat lebih cepat dari sebenarnya. Di laptop saya, setting 15 fps akan menghasilkan video yang kira-kira 2x lebih cepat. Setelah trial and error, saya temukan bahwa 9 fps adalah setting yang tepat.</p>
+
+<p>Perbedaan yang utama di antara kedua aplikasi ini adalah format outputnya. Record My Desktop mengeluarkan format ogv sedangkan Xvidcap mengeluarkan format mpeg. Perbedaan format ini nantinya akan mempengaruhi langkah pemrosesan selanjutnya.</p>
+
+<h2>Merekam suara</h2>
+
+<p>Biasanya, saya merekam suara dalam proses yang terpisah, supaya tidak banyak ehm dan eee. Rekaman dibuat sambil menonton screencast yang sudah kita rekam. Setelah rekaman suara dibuat, bisa diedit dengan menggunakan aplikasi Audacity untuk menghilangkan noise, memotong bagian yang tidak penting, dan sebagainya.</p>
+
+<h2>Menggabungkan video dan audio</h2>
+
+<p>Selanjutnya, kita menggunakan aplikasi Avidemux untuk menggabungkan file audio dan file video menjadi satu file. Dengan aplikasi ini kita juga bisa mengedit video untuk menghilangkan bagian-bagian yang tidak perlu ataupun menyambung beberapa video menjadi satu.</p>
+
+<h2>Mempersiapkan format video untuk web</h2>
+
+<p>Ada berbagai format video yang tersedia. Masing-masing format memiliki dukungan browser yang berbeda-beda. Daftar lengkapnya bisa dilihat <a href="http://diveintohtml5.info/video.html#what-works">di sini</a></p>
+
+<p>Pada intinya, supaya bisa dilihat di berbagai browser, kita harus menyediakan file dengan format ogv, mp4, dan webm. Kita juga harus menyertakan poster dalam format jpg atau png supaya bisa ditampilkan dengan benar di browser.</p>
+
+<p>Ada beberapa script yang bisa digunakan, misalnya <a href="https://github.com/kwiliarty/vfe-sh">ini</a> atau <a href="http://brettterpstra.com/automating-html5-video-encodes/">ini</a></p>
+
+<p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
+
+<p>Konversi dari ogv menjadi mp4</p>
+
+<div><script src='https://gist.github.com/1048657.js?file=ogv-to-mp4.sh'></script>
+<noscript><pre><code>ffmpeg -vcodec libx264 -vpre lossless_medium -i file-input.ogv file-output.mp4</code></pre></noscript></div>
+
+
+<p>Konversi dari ogv menjadi webm</p>
+
+<div><script src='https://gist.github.com/1048657.js?file=ogv-to-webm.sh'></script>
+<noscript><pre><code>ffmpeg -pass 1 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y tmp.webm
+
+rm tmp.webm
+
+ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y file-output.webm
+</code></pre></noscript></div>
+
+
+<p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
+
+<p>Membuat poster</p>
+
+<div><script src='https://gist.github.com/1048657.js?file=create-poster.sh'></script>
+<noscript><pre><code>ffmpeg -r 1 -t 1 -vframes 1 -i input-file.mp4  output-file.png</code></pre></noscript></div>
+
+
+<h2>Upload</h2>
+
+<p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync</p>
+
+<div><script src='https://gist.github.com/1048657.js?file=upload-to-server.sh'></script>
+<noscript><pre><code>rsync -avz /path/to/video/folder user@example.com:/home/user/public_html/videos</code></pre></noscript></div>
+
+
+<h2>Tampilkan di blog</h2>
+
+<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
+
+<p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -303,76 +408,6 @@ Selain itu, juga perlu ada matriks distribusi effort per role. Dengan adanya mat
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/menghapus-file-secara-permanen-di-git/">Menghapus File Secara Permanen Di Git</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-04-03T05:06:42+07:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus satu file tertentu, sebetulnya file tersebut masih ada di repository dan bisa dimunculkan kembali kapan saja.</p>
-
-<p>Hal ini menimbulkan beberapa konsekuensi, diantaranya</p>
-
-<ul>
-<li><p>Ukuran repository menjadi besar. Ini terutama sangat terasa di Git, karena pada waktu clone, kita akan mengambil keseluruhan perubahan dari pertama hingga terakhir. Berbeda dengan Subversion, dimana kita hanya mendapat perubahan terakhir saja.</p></li>
-<li><p>File-file yang mengandung informasi rahasia &#8211;seperti misalnya password&#8211; tidak terhapus secara sempurna, sehingga bisa disalahgunakan orang lain.</p></li>
-</ul>
-
-
-<p>Untuk itu, kita perlu cara untuk menghilangkan file ini secara permanen.</p>
-
-<p>Di Git, caranya adalah menggunakan perintah <code>git filter-branch</code> seperti <a href="http://help.github.com/removing-sensitive-data/">dijelaskan di sini</a>. Walaupun demikian, tutorial tersebut tidak menjelaskan bagaimana cara menghapus folder.</p>
-
-<p>Di ArtiVisi, <a href="https://github.com/dadang">Dadang</a> dan <a href="https://github.com/donraakan">Doni</a> mengalami kejadian tersebut, dimana folder konfigurasi Eclipse (.project, .classpath, .settings) dan file hasil kompilasi Maven (target) ikut serta dicommit. Ini menyulitkan fakir bandwidth yang ingin melakukan clone, karena ukuran reponya menjadi besar sekali. Karena itu, file dan folder tersebut harus dihapus secara permanen.</p>
-
-<p>Cara menghapusnya adalah sebagai berikut.</p>
-
-<h2>Pastikan versi repository di local dan di remote sudah sama</h2>
-
-<p>Ini bisa dilakukan dengan menggunakan perintah git pull dan git push. Selanjutnya, kita masuk ke folder kerja, dan memanggil perintah berikut.</p>
-
-<p>Perintah di atas akan memodifikasi seluruh commit untuk menghilangkan file dan folder tersebut. Konsekuensinya, seluruh downline Anda akan terpaksa melakukan clone ulang, karena ini sama saja mengganti repository tersebut dengan repository baru. Akibatnya, commit, push, pull, dan merge tidak akan berjalan dengan baik.</p>
-
-<p>Periksa kembali repository Git Anda setelah melakukan perintah di atas, pastikan semuanya baik-baik saja.
-Begitu yakin, kita push ke remote.</p>
-
-<p><code>
-git push origin master --force
-</code></p>
-
-<p>Setelah melakukan perintah di atas, file yang terhapus itu masih ada di object database Git kita di local, sehingga ukuran reponya masih belum berkurang secara signifikan.
-Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakukan clone ulang dari remote.</p>
-
-<p>Demikian cara membersihkan repository dari file yang tidak sengaja dicommit. Silahkan mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -435,6 +470,10 @@ Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakuk
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
       </li>
     
@@ -468,10 +507,6 @@ Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakuk
     
       <li class="post">
         <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/buku-panduan-markdown-dan-pandoc/">Buku Panduan Markdown dan Pandoc</a>
       </li>
     
   </ul>
