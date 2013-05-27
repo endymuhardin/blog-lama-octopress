@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-22T16:52:10+07:00</updated>
+  <updated>2013-05-27T17:16:49+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,361 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Konfigurasi Koneksi Database dengan Spring]]></title>
+    <link href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/"/>
+    <updated>2013-05-27T17:02:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring</id>
+    <content type="html"><![CDATA[<h1>Pengantar</h1>
+
+<p>Di Java, ada banyak cara untuk mengakses database, diantaranya:</p>
+
+<ul>
+<li><a href="http://docs.oracle.com/javase/tutorial/jdbc/">JDBC polos tanpa framework apapun</a></li>
+<li><a href="http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/jdbc.html">JDBC dengan Spring (Spring JDBC)</a></li>
+<li>JDBC dengan <a href="http://blog.mybatis.org/">iBatis/MyBatis</a></li>
+<li><a href="http://docs.jboss.org/hibernate/orm/4.2/manual/en-US/html/">Hibernate</a></li>
+<li><a href="http://www.datanucleus.org/products/datanucleus/jdo/guides/tutorial_rdbms.html">JDO</a></li>
+<li><a href="http://docs.oracle.com/javaee/6/tutorial/doc/bnbpz.html">JPA</a></li>
+<li><a href="http://www.springsource.org/spring-data/jpa">Spring Data JPA</a></li>
+</ul>
+
+
+<p>Masing-masing memiliki kelebihan dan kekurangan masing-masing yang tidak akan kita bahas di artikel ini.
+Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan JDBC murni.</p>
+
+<p>Artikel ini merupakan bagian pertama dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li>Konfigurasi koneksi database (artikel ini)</li>
+<li>Insert, update, dan delete data</li>
+<li>Mengambil data (query)</li>
+</ol>
+
+
+<p>Keseluruhan kode program dapat dilihat di <a href="https://github.com/endymuhardin/belajar-akses-database-java">repository belajar-akses-database-java di Github saya</a>, khususnya <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc">branch spring-jdbc</a>.</p>
+
+<!--more-->
+
+
+<h2>Perbandingan JDBC polos dan Spring JDBC</h2>
+
+<p>Menggunakan JDBC polos tanpa library memang mudah, karena tidak perlu pusing mempelajari library lain. Tapi ada beberapa keterbatasan dan kesulitan, diantaranya:</p>
+
+<ul>
+<li>semua method throws Exception, sehingga kode program kita menjadi kotor dengan try-catch</li>
+<li>tidak ada manajemen koneksi database, kita harus buka-tutup sendiri</li>
+<li>tidak ada declarative transaction, kita harus secara manual melakukan begin-commit/rollback</li>
+</ul>
+
+
+<p>Dengan berbagai keterbatasan tersebut, ada baiknya kita menggunakan bantuan Spring Framework, yaitu modul <code>spring-jdbc</code> untuk memudahkan berbagai kegiatan di atas. Tentunya masih banyak hal yang harus kita lakukan sendiri, tidak seperti penggunaan library Object Relational Mapping (ORM) seperti Hibernate atau JPA, di antaranya:</p>
+
+<ul>
+<li>mapping dari result set menjadi Java object</li>
+<li>mapping dari Java object menjadi isi parameter PreparedStatement</li>
+<li>cache</li>
+<li>cascading operation</li>
+<li>generate primary key secara otomatis</li>
+<li>dsb</li>
+</ul>
+
+
+<p>Ada beberapa tahapan dalam menggunakan Spring JDBC, yaitu :</p>
+
+<ol>
+<li>Konfigurasi Koneksi Database</li>
+<li>Membuat class Data Access Object (DAO)</li>
+<li>Membuat class implementasi business process/service</li>
+<li>Membuat test otomatis menggunakan JUnit</li>
+</ol>
+
+
+<h1>Studi Kasus</h1>
+
+<p>Agar lebih konkrit, kita akan menggunakan skema database yang umum digunakan di aplikasi bisnis,
+yaitu memiliki tabel :</p>
+
+<ul>
+<li>Master Data / Referensi</li>
+<li>Header Transaksi</li>
+<li>Detail Transaksi</li>
+</ul>
+
+
+<p>Berikut adalah skema database yang akan kita gunakan:</p>
+
+<p>```sql
+create table m_produk (</p>
+
+<pre><code>id int primary key auto_increment,
+kode varchar(20) not null,
+nama varchar(255) not null,
+harga decimal(19,2) not null
+</code></pre>
+
+<p>) engine=InnoDB ;</p>
+
+<p>create table t_penjualan (</p>
+
+<pre><code>id int primary key auto_increment,
+waktu_transaksi datetime not null
+</code></pre>
+
+<p>) engine=InnoDB AUTO_INCREMENT=100;</p>
+
+<p>create table t_penjualan_detail (</p>
+
+<pre><code>id int primary key auto_increment,
+id_penjualan int not null,
+id_produk int not null,
+harga decimal(19,2) not null,
+jumlah int not null, 
+foreign key(id_penjualan) references t_penjualan(id) on delete cascade,
+foreign key(id_produk) references m_produk(id) on delete restrict
+</code></pre>
+
+<p>) engine=InnoDB AUTO_INCREMENT=100;
+```</p>
+
+<p>Untuk keperluan test, jangan lupa kita sertakan beberapa baris data.</p>
+
+<p>```sql
+insert into m_produk (id,kode,nama,harga) values
+(1, 'K-001', 'Keyboard USB', 150000),
+(2, 'M-001', 'Mouse USB', 50000),
+(3, 'L-001', 'Laptop', 10000000);</p>
+
+<p>insert into t_penjualan (id,waktu_transaksi) values
+(1,'2013-01-01 20:30:30'),
+(2,'2013-01-02 15:15:15'),
+(3,'2013-02-02 09:09:09');</p>
+
+<p>insert into t_penjualan_detail (id,id_penjualan, id_produk, harga, jumlah) values
+(1,1,1,150000,2),
+(2,1,2,50000,5),
+(3,2,1,150000,3),
+(4,2,2,50000,3),
+(5,3,3,10000000,1);
+```</p>
+
+<p>Tabel dan data di atas kita masukkan ke database dengan rincian sebagai berikut:</p>
+
+<ul>
+<li>Jenis Database : MySQL</li>
+<li>Server Database : localhost</li>
+<li>Nama Database : belajar</li>
+<li>Username Database : root</li>
+<li>Password Database : admin</li>
+</ul>
+
+
+<p>Selanjutnya kita akan mengkonfigurasi Spring supaya bisa terkoneksi dengan database tersebut.</p>
+
+<h1>Konfigurasi Koneksi Database</h1>
+
+<h2>Dependensi</h2>
+
+<p>Kita membutuhkan beberapa library, dinyatakan dalam dependensi Maven sebagai berikut:</p>
+
+<h3>Driver database MySQL</h3>
+
+<p>```xml
+<dependency></p>
+
+<pre><code>&lt;groupId&gt;mysql&lt;/groupId&gt;
+&lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+&lt;version&gt;${mysql.version}&lt;/version&gt;
+&lt;scope&gt;runtime&lt;/scope&gt;
+</code></pre>
+
+<p></dependency>
+```</p>
+
+<h3>Library manajemen koneksi database (database connection pooling)</h3>
+
+<p>```xml
+<dependency></p>
+
+<pre><code>&lt;groupId&gt;commons-dbcp&lt;/groupId&gt;
+&lt;artifactId&gt;commons-dbcp&lt;/artifactId&gt;
+&lt;version&gt;${commons-dbcp.version}&lt;/version&gt;
+</code></pre>
+
+<p></dependency>
+```</p>
+
+<h3>Spring JDBC</h3>
+
+<p>```xml
+<dependency></p>
+
+<pre><code>&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+&lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+&lt;version&gt;${org.springframework.version}&lt;/version&gt;
+</code></pre>
+
+<p></dependency></p>
+
+<p><dependency></p>
+
+<pre><code>&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+&lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;
+&lt;version&gt;${org.springframework.version}&lt;/version&gt;
+</code></pre>
+
+<p></dependency></p>
+
+<p><dependency></p>
+
+<pre><code>&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+&lt;artifactId&gt;spring-test&lt;/artifactId&gt;
+&lt;version&gt;${org.springframework.version}&lt;/version&gt;
+&lt;scope&gt;test&lt;/scope&gt;
+</code></pre>
+
+<p></dependency>
+```</p>
+
+<p>Selanjutnya, kita membuat konfigurasi database untuk Spring. Kita beri nama saja file konfigurasinya <code>spring-jdbc-ctx.xml</code>
+dan kita letakkan di folder <code>src/main/resources</code>. File ini berisi :</p>
+
+<ul>
+<li>konfigurasi data source untuk koneksi ke database. Kita menggunakan pustaka <code>commons-dbcp</code> untuk menangani connection pooling ke database.</li>
+<li>transaction manager. Ini dibutuhkan supaya kita tidak perlu lagi membuat coding untuk rangkaian <code>begin-commit/rollback</code>.</li>
+<li>component scan. Ini dibutuhkan agar object DAO dan Service kita otomatis dideteksi dan diinisialisasi oleh Spring</li>
+</ul>
+
+
+<h2>Koneksi Database</h2>
+
+<p>Berikut konfigurasi koneksi database</p>
+
+<p>```xml
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"></p>
+
+<pre><code>&lt;property name="driverClassName" value="com.mysql.jdbc.Driver" /&gt;
+&lt;property name="url" value="jdbc:mysql://localhost/belajar" /&gt;
+&lt;property name="username" value="root" /&gt;
+&lt;property name="password" value="admin" /&gt;
+&lt;property name="maxActive" value="80" /&gt;
+&lt;property name="maxWait" value="40000" /&gt;
+&lt;property name="maxIdle" value="20" /&gt;
+</code></pre>
+
+<p></bean>
+```</p>
+
+<p>Penjelasannya sebagai berikut:</p>
+
+<h3>Database Connection Pooling</h3>
+
+<p>Koneksi ke database sebetulnya merupakan operasi yang <em>mahal</em>. Kenapa <em>mahal</em>?
+Karena setiap kali kita membuat koneksi, ada serangkaian kegiatan yang harus dilakukan oleh database server seperti:</p>
+
+<ul>
+<li>memeriksa username dan password</li>
+<li>memeriksa apakah komputer kita (dilihat dari alamat IP atau nama host) diijinkan untuk masuk</li>
+<li>memeriksa apakah database, tabel, dan tindakan yang kita lakukan memiliki ijin akses yang mencukupi</li>
+</ul>
+
+
+<p>Oleh karena itu, idealnya koneksi database dibuat sekali saja dan digunakan terus sepanjang aplikasi berjalan.
+Tentunya kalau koneksi database hanya satu, setiap request dari user akan mengantri.
+Untuk itu kita buat banyak koneksi sekaligus yang nantinya akan <em>dipinjamkan</em> pada request yang membutuhkan.
+Teknik ini disebut dengan istilah database connection pooling.</p>
+
+<p>Library yang kita gunakan untuk itu adalah <a href="http://commons.apache.org/proper/commons-dbcp/configuration.html">Apache Commons DBCP</a>, yang ditandai dengan penggunaan class <code>org.apache.commons.dbcp.BasicDataSource</code> di atas.</p>
+
+<p>Ada banyak hal yang bisa disetting, tapi kita akan fokus ke beberapa saja yaitu:</p>
+
+<ul>
+<li><code>driverClassName</code> : nama class untuk koneksi ke database. Ini harus sesuai dengan merek dan versi database yang digunakan</li>
+<li><code>url</code> : informasi koneksi database. Biasanya berisi alamat server (IP atau Hostname) dan nama database</li>
+<li><code>username</code> : username untuk connect ke database</li>
+<li><code>password</code> : passwordnya user tersebut</li>
+</ul>
+
+
+<p>Keempat informasi di atas adalah informasi umum yang kita butuhkan apapun metode koneksi database yang kita gunakan, tidak terkait dengan penggunaan Apache Commons DBCP. Konfigurasi berikut barulah berkaitan dengan Apache Commons DBCP:</p>
+
+<ul>
+<li><p><code>maxActive</code> : jumlah koneksi yang boleh aktif secara berbarengan. Ini harus disetting dibawah angka yang kita ijinkan di database server. Misalnya di MySQL kita ijinkan 100 koneksi berbarengan, maka angkanya harus dibawah 100. Jangan juga dihabiskan 100, untuk berjaga-jaga siapa tahu kita butuh koneksi langsung ke MySQL tanpa lewat aplikasi (misalnya untuk keperluan debug). Pertimbangkan juga apabila ada aplikasi lain yang menggunakan database yang sama.</p></li>
+<li><p><code>maxWait</code> : bila semua koneksi sebanyak <code>maxActive</code> sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai <code>maxWait</code> menentukan berapa milidetik request tersebut menunggu. Bila lebih dari <code>maxWait</code> dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan <code>Exception</code>.</p></li>
+<li><p><code>maxIdle</code> : ada kalanya aplikasi kita sedang sepi dari request user sehingga banyak koneksi database yang menganggur (idle). Angka <code>maxIdle</code> ini menentukan berapa koneksi yang akan tetap dipegang walaupun idle. Bila ada 20 koneksi idle, padahal <code>maxIdle</code> berisi 15, maka 5 koneksi akan ditutup. Ini merupakan trade-off. Bila terlalu banyak idle, maka memori database server akan terpakai untuk koneksi yang standby ini. Tapi bila terlalu sedikit, pada waktu aplikasi mendadak diserbu user, akan butuh waktu lama untuk dia membuatkan lagi koneksi baru.</p></li>
+</ul>
+
+
+<h2>Transaction Manager</h2>
+
+<p>Setelah terhubung ke database, selanjutnya kita akan mengkonfigurasi transaction manager. Ini adalah fitur dari Spring Framework yang membebaskan kita dari coding manual untuk urusan transaction. Bila tidak menggunakan ini, maka kode program kita akan tampak seperti ini:</p>
+
+<p>```java
+public void simpan(Produk p){</p>
+
+<pre><code>Connection conn; // inisialisasi koneksi di sini
+
+try {
+    conn.setAutocommit(false);
+
+    String sql = "insert into m_produk ... ";
+    conn.createStatement().executeUpdate(sql);
+
+    conn.commit();
+
+} catch (Exception err){
+    conn.rollback();
+} finally {
+    conn.setAutocommit(true);
+    conn.close();
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Untuk dua baris perintah seperti di atas, kita harus menambahkan 8 baris hanya untuk mengurus transaction <strong>pada setiap method</strong>. Bayangkan kalau aplikasi kita punya 100 method, maka kode program untuk mengelola transaksi saja sudah 800 baris. Dengan fitur transaction manager, maka method di atas bisa ditulis ulang seperti ini:</p>
+
+<p>```java
+@Transactional
+public void simpan(Produk p){</p>
+
+<pre><code>String sql = "insert into m_produk ... ";
+conn.createStatement().executeUpdate(sql);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Jauh lebih bersih dan rapi. Kode program jadi mudah dibaca dan akibatnya tentu memudahkan kita pada waktu bugfix, perubahan, ataupun penambahan fitur.</p>
+
+<p>Nah ini dia konfigurasi transaction manager:</p>
+
+<p>```xml
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"></p>
+
+<pre><code>&lt;property name="dataSource" ref="dataSource"/&gt;
+</code></pre>
+
+<p></bean></p>
+
+<p>&lt;tx:annotation-driven/>
+```</p>
+
+<p>Class transaction manager yang digunakan berbeda tergantung metode akses database yang digunakan dan juga bagaimana cara kita mendeploy aplikasi. Beberapa pilihan transaction manager yang lain antara lain:</p>
+
+<ul>
+<li><code>DataSourceTransactionManager</code> : digunakan untuk koneksi database menggunakan <code>javax.sql.DataSource</code>. Ini artinya koneksi langsung dari aplikasi ke database server.</li>
+<li><code>JtaTransactionManager</code> : digunakan bila aplikasi kita dideploy di application server yang memiliki transaction manager sendiri (seperti Glassfish, JBoss, Websphere, Weblogic, dsb) <em>dan menggunakan</em> transaction manager yang disediakan tersebut. Bila kita deploy di Tomcat, hampir pasti kita tidak menggunakan JTA. Bila kita deploy ke Glassfish dan menggunakan konfigurasi <code>dataSource</code> Apache Commons DBCP, berarti kita juga tidak menggunakan JTA.</li>
+<li><code>HibernateTransactionManager</code> : seperti ditunjukkan oleh namanya, gunakan ini bila kita menggunakan Hibernate</li>
+<li><code>JpaTransactionManager</code> : ini juga sudah jelas dari namanya. Bila kita pakai JPA, gunakan transaction manager ini.</li>
+</ul>
+
+
+<p>Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan membuat kode program untuk menyimpan, mengubah, dan menghapus data dalam database.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mendebug Aplikasi AJAX]]></title>
@@ -873,321 +1228,6 @@ Ini biasa terjadi kalau satu aplikasi terdiri dari banyak file konfigurasi Sprin
 ```</p>
 
 <p>Demikianlah penjelasan tentang konsep Dependency Injection dan Spring Framework. Semoga bermanfaat.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Membuat Changelog Liquibase]]></title>
-    <link href="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/"/>
-    <updated>2013-01-10T10:03:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/membuat-changelog-liquibase</id>
-    <content type="html"><![CDATA[<p>Di ArtiVisi, kami menggunakan tools bernama <a href="http://liquibase.org/">Liquibase</a> untuk mendefinisikan skema database.
-Dengan Liquibase ini, skema database dapat disimpan dan dikelola versinya dalam Git.
-Dia juga memiliki fitur untuk melakukan migrasi database pada saat aplikasi kita naik versi.
-Bila terjadi error di versi baru, Liquibase juga bisa melakukan rollback
-agar skema database kita kembali ke kondisi sebelum naik versi.</p>
-
-<p>Skema database dalam Liquibase ditulis dalam format XML, disebut dengan istilah <code>changelog</code>.
-Untuk project baru, ini bisa ditulis tangan secara manual,
-tetapi untuk aplikasi yang sudah ada,
-terlalu merepotkan kalau semua tabel yang sudah ada harus ditulis ulang skemanya.</p>
-
-<!--more-->
-
-
-<p>Untungnya Liquibase memiliki fitur untuk menulis changelog dari skema yang sudah ada.
-Berikut langkah-langkahnya:</p>
-
-<ol>
-<li>Siapkan jar liquibase dan database</li>
-<li>Siapkan file konfigurasi</li>
-<li>Jalankan liquibase</li>
-<li>Cek hasilnya</li>
-</ol>
-
-
-<h2>Siapkan jar liquibase dan database</h2>
-
-<p>Database yang akan saya import memiliki konfigurasi sebagai berikut:</p>
-
-<ul>
-<li>Jenis Database : MySQL</li>
-<li>Nama Database : merchant-simulator_development</li>
-<li>Username Database : root</li>
-<li>Password Database : admin</li>
-</ul>
-
-
-<p>Untuk itu, saya siapkan dua file jar, yaitu :</p>
-
-<ul>
-<li>mysql-connector-java-5.1.22.jar</li>
-<li>liquibase-core-2.0.5.jar</li>
-</ul>
-
-
-<h2>File Konfigurasi</h2>
-
-<p>Sebetulnya semua informasi ini bisa disebutkan dalam command line argument.
-Tapi saya lebih suka menulis di file supaya mudah diedit.
-Berikut isinya</p>
-
-<p>```</p>
-
-<h1>liquibase.properties</h1>
-
-<p>driver: com.mysql.jdbc.Driver
-classpath: mysql-connector-java-5.1.22.jar
-url: jdbc:mysql://localhost/merchant-simulator_development
-username: root
-password: admin
-changeLogFile: liquibase-output.xml
-```</p>
-
-<p>Simpan file ini dengan nama <code>liquibase.properties</code> dan letakkan di folder yang sama dengan kedua file jar tersebut.</p>
-
-<h2>Jalankan Liquibase</h2>
-
-<p>Mari kita jalankan proses import dengan command berikut:</p>
-
-<p><code>
-java -jar liquibase-core-2.0.5.jar generateChangelog
-</code></p>
-
-<h2>Cek Hasilnya</h2>
-
-<p>Perintah di atas akan menghasilkan file <code>liquibase-output.xml</code> yang isinya seperti ini:</p>
-
-<p>```xml
-&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd"></p>
-
-<pre><code>&lt;changeSet author="endy (generated)" id="1357786892853-1"&gt;
-    &lt;createTable tableName="c_application_config"&gt;
-        &lt;column name="id" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false" primaryKey="true"/&gt;
-        &lt;/column&gt;
-        &lt;column name="name" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="label" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="value" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-2"&gt;
-    &lt;createTable tableName="c_security_menu"&gt;
-        &lt;column name="id" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false" primaryKey="true"/&gt;
-        &lt;/column&gt;
-        &lt;column name="label" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="menu_action" type="VARCHAR(255)"/&gt;
-        &lt;column name="menu_level" type="INT"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="menu_order" type="INT"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="menu_options" type="VARCHAR(255)"/&gt;
-        &lt;column name="id_parent" type="VARCHAR(255)"/&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-3"&gt;
-    &lt;createTable tableName="c_security_permission"&gt;
-        &lt;column name="id" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false" primaryKey="true"/&gt;
-        &lt;/column&gt;
-        &lt;column name="permission_label" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="permission_value" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-4"&gt;
-    &lt;createTable tableName="c_security_role"&gt;
-        &lt;column name="id" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false" primaryKey="true"/&gt;
-        &lt;/column&gt;
-        &lt;column name="name" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="description" type="VARCHAR(255)"/&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-5"&gt;
-    &lt;createTable tableName="c_security_role_menu"&gt;
-        &lt;column name="id_role" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="id_menu" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-6"&gt;
-    &lt;createTable tableName="c_security_role_permission"&gt;
-        &lt;column name="id_role" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="id_permission" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-7"&gt;
-    &lt;createTable tableName="c_security_user"&gt;
-        &lt;column name="id" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false" primaryKey="true"/&gt;
-        &lt;/column&gt;
-        &lt;column name="username" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="password" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="fullname" type="VARCHAR(255)"/&gt;
-        &lt;column name="active" type="BIT"/&gt;
-        &lt;column name="id_role" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-8"&gt;
-    &lt;createTable tableName="t_tagihan_listrik"&gt;
-        &lt;column name="id" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false" primaryKey="true"/&gt;
-        &lt;/column&gt;
-        &lt;column name="admin" type="DECIMAL(19,2)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="bulan_tagihan" type="DATE"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="current_meter_reading_1" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="current_meter_reading_2" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="current_meter_reading_3" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="denda" type="DECIMAL(19,2)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="id_pelanggan" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="jatuh_tempo" type="DATE"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="lunas" type="BIT"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="meter_read_date" type="DATE"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="mitra_lunas" type="VARCHAR(255)"/&gt;
-        &lt;column name="nama_pelanggan" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="nilai" type="DECIMAL(19,2)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="pajak" type="DECIMAL(19,2)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="power_consuming_category" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="previous_meter_reading_1" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="previous_meter_reading_2" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="previous_meter_reading_3" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="referensi_lunas" type="VARCHAR(255)"/&gt;
-        &lt;column name="service_unit" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="service_unit_hone" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="subscriber_segmentation" type="VARCHAR(255)"&gt;
-            &lt;constraints nullable="false"/&gt;
-        &lt;/column&gt;
-        &lt;column name="waktu_lunas" type="DATETIME"/&gt;
-    &lt;/createTable&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-9"&gt;
-    &lt;addPrimaryKey columnNames="id_role, id_menu" tableName="c_security_role_menu"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-10"&gt;
-    &lt;addPrimaryKey columnNames="id_role, id_permission" tableName="c_security_role_permission"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-11"&gt;
-    &lt;addForeignKeyConstraint baseColumnNames="id_parent" baseTableName="c_security_menu" baseTableSchemaName="merchant-simulator_development" constraintName="fk_menu_parent" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_menu" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-12"&gt;
-    &lt;addForeignKeyConstraint baseColumnNames="id_menu" baseTableName="c_security_role_menu" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_menu_menu" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_menu" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-13"&gt;
-    &lt;addForeignKeyConstraint baseColumnNames="id_role" baseTableName="c_security_role_menu" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_menu_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_role" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-14"&gt;
-    &lt;addForeignKeyConstraint baseColumnNames="id_permission" baseTableName="c_security_role_permission" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_permission_permission" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_permission" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-15"&gt;
-    &lt;addForeignKeyConstraint baseColumnNames="id_role" baseTableName="c_security_role_permission" baseTableSchemaName="merchant-simulator_development" constraintName="fk_role_permission_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_role" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-16"&gt;
-    &lt;addForeignKeyConstraint baseColumnNames="id_role" baseTableName="c_security_user" baseTableSchemaName="merchant-simulator_development" constraintName="fk_user_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="c_security_role" referencedTableSchemaName="merchant-simulator_development" referencesUniqueColumn="false"/&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-17"&gt;
-    &lt;createIndex indexName="name" tableName="c_application_config" unique="true"&gt;
-        &lt;column name="name"/&gt;
-    &lt;/createIndex&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-18"&gt;
-    &lt;createIndex indexName="unique_permission_value" tableName="c_security_permission" unique="true"&gt;
-        &lt;column name="permission_value"/&gt;
-    &lt;/createIndex&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-19"&gt;
-    &lt;createIndex indexName="unique_role_name" tableName="c_security_role" unique="true"&gt;
-        &lt;column name="name"/&gt;
-    &lt;/createIndex&gt;
-&lt;/changeSet&gt;
-&lt;changeSet author="endy (generated)" id="1357786892853-20"&gt;
-    &lt;createIndex indexName="unique_user_username" tableName="c_security_user" unique="true"&gt;
-        &lt;column name="username"/&gt;
-    &lt;/createIndex&gt;
-&lt;/changeSet&gt;
-</code></pre>
-
-<p></databaseChangeLog>
-```</p>
-
-<p>File di atas siap diedit dan disimpan di repository version control.
-Biasanya, edit yang saya lakukan:</p>
-
-<ul>
-<li>menggabungkan semua <code>createTable</code> menjadi satu changeset</li>
-<li>menggabungkan semua <code>addForeignKeyConstraint</code> dan <code>createIndex</code> menjadi satu changeset</li>
-<li>menambahkan loader untuk file csv sebagai data awal</li>
-<li>mengganti nama file</li>
-</ul>
-
 ]]></content>
   </entry>
   

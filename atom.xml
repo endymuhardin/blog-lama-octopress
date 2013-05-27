@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-22T16:52:10+07:00</updated>
+  <updated>2013-05-27T17:16:49+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,428 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Konfigurasi Koneksi Database dengan Spring]]></title>
+    <link href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/"/>
+    <updated>2013-05-27T17:02:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring</id>
+    <content type="html"><![CDATA[<h1>Pengantar</h1>
+
+<p>Di Java, ada banyak cara untuk mengakses database, diantaranya:</p>
+
+<ul>
+<li><a href="http://docs.oracle.com/javase/tutorial/jdbc/">JDBC polos tanpa framework apapun</a></li>
+<li><a href="http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/jdbc.html">JDBC dengan Spring (Spring JDBC)</a></li>
+<li>JDBC dengan <a href="http://blog.mybatis.org/">iBatis/MyBatis</a></li>
+<li><a href="http://docs.jboss.org/hibernate/orm/4.2/manual/en-US/html/">Hibernate</a></li>
+<li><a href="http://www.datanucleus.org/products/datanucleus/jdo/guides/tutorial_rdbms.html">JDO</a></li>
+<li><a href="http://docs.oracle.com/javaee/6/tutorial/doc/bnbpz.html">JPA</a></li>
+<li><a href="http://www.springsource.org/spring-data/jpa">Spring Data JPA</a></li>
+</ul>
+
+
+<p>Masing-masing memiliki kelebihan dan kekurangan masing-masing yang tidak akan kita bahas di artikel ini.
+Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan JDBC murni.</p>
+
+<p>Artikel ini merupakan bagian pertama dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li>Konfigurasi koneksi database (artikel ini)</li>
+<li>Insert, update, dan delete data</li>
+<li>Mengambil data (query)</li>
+</ol>
+
+
+<p>Keseluruhan kode program dapat dilihat di <a href="https://github.com/endymuhardin/belajar-akses-database-java">repository belajar-akses-database-java di Github saya</a>, khususnya <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc">branch spring-jdbc</a>.</p>
+
+<!--more-->
+
+
+<h2>Perbandingan JDBC polos dan Spring JDBC</h2>
+
+<p>Menggunakan JDBC polos tanpa library memang mudah, karena tidak perlu pusing mempelajari library lain. Tapi ada beberapa keterbatasan dan kesulitan, diantaranya:</p>
+
+<ul>
+<li>semua method throws Exception, sehingga kode program kita menjadi kotor dengan try-catch</li>
+<li>tidak ada manajemen koneksi database, kita harus buka-tutup sendiri</li>
+<li>tidak ada declarative transaction, kita harus secara manual melakukan begin-commit/rollback</li>
+</ul>
+
+
+<p>Dengan berbagai keterbatasan tersebut, ada baiknya kita menggunakan bantuan Spring Framework, yaitu modul <code>spring-jdbc</code> untuk memudahkan berbagai kegiatan di atas. Tentunya masih banyak hal yang harus kita lakukan sendiri, tidak seperti penggunaan library Object Relational Mapping (ORM) seperti Hibernate atau JPA, di antaranya:</p>
+
+<ul>
+<li>mapping dari result set menjadi Java object</li>
+<li>mapping dari Java object menjadi isi parameter PreparedStatement</li>
+<li>cache</li>
+<li>cascading operation</li>
+<li>generate primary key secara otomatis</li>
+<li>dsb</li>
+</ul>
+
+
+<p>Ada beberapa tahapan dalam menggunakan Spring JDBC, yaitu :</p>
+
+<ol>
+<li>Konfigurasi Koneksi Database</li>
+<li>Membuat class Data Access Object (DAO)</li>
+<li>Membuat class implementasi business process/service</li>
+<li>Membuat test otomatis menggunakan JUnit</li>
+</ol>
+
+
+<h1>Studi Kasus</h1>
+
+<p>Agar lebih konkrit, kita akan menggunakan skema database yang umum digunakan di aplikasi bisnis,
+yaitu memiliki tabel :</p>
+
+<ul>
+<li>Master Data / Referensi</li>
+<li>Header Transaksi</li>
+<li>Detail Transaksi</li>
+</ul>
+
+
+<p>Berikut adalah skema database yang akan kita gunakan:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">m_produk</span> <span class="p">(</span>
+</span><span class='line'>    <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span> <span class="n">auto_increment</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">kode</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">nama</span> <span class="nb">varchar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">harga</span> <span class="nb">decimal</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span>
+</span><span class='line'><span class="p">)</span> <span class="n">engine</span><span class="o">=</span><span class="n">InnoDB</span> <span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">t_penjualan</span> <span class="p">(</span>
+</span><span class='line'>    <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span> <span class="n">auto_increment</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">waktu_transaksi</span> <span class="n">datetime</span> <span class="k">not</span> <span class="k">null</span>
+</span><span class='line'><span class="p">)</span> <span class="n">engine</span><span class="o">=</span><span class="n">InnoDB</span> <span class="n">AUTO_INCREMENT</span><span class="o">=</span><span class="mi">100</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">t_penjualan_detail</span> <span class="p">(</span>
+</span><span class='line'>    <span class="n">id</span> <span class="nb">int</span> <span class="k">primary</span> <span class="k">key</span> <span class="n">auto_increment</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">id_penjualan</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">id_produk</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">harga</span> <span class="nb">decimal</span><span class="p">(</span><span class="mi">19</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">jumlah</span> <span class="nb">int</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">id_penjualan</span><span class="p">)</span> <span class="k">references</span> <span class="n">t_penjualan</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">cascade</span><span class="p">,</span>
+</span><span class='line'>    <span class="k">foreign</span> <span class="k">key</span><span class="p">(</span><span class="n">id_produk</span><span class="p">)</span> <span class="k">references</span> <span class="n">m_produk</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="k">on</span> <span class="k">delete</span> <span class="k">restrict</span>
+</span><span class='line'><span class="p">)</span> <span class="n">engine</span><span class="o">=</span><span class="n">InnoDB</span> <span class="n">AUTO_INCREMENT</span><span class="o">=</span><span class="mi">100</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Untuk keperluan test, jangan lupa kita sertakan beberapa baris data.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">insert</span> <span class="k">into</span> <span class="n">m_produk</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="n">kode</span><span class="p">,</span><span class="n">nama</span><span class="p">,</span><span class="n">harga</span><span class="p">)</span> <span class="k">values</span>
+</span><span class='line'><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;K-001&#39;</span><span class="p">,</span> <span class="s1">&#39;Keyboard USB&#39;</span><span class="p">,</span> <span class="mi">150000</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;M-001&#39;</span><span class="p">,</span> <span class="s1">&#39;Mouse USB&#39;</span><span class="p">,</span> <span class="mi">50000</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;L-001&#39;</span><span class="p">,</span> <span class="s1">&#39;Laptop&#39;</span><span class="p">,</span> <span class="mi">10000000</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">insert</span> <span class="k">into</span> <span class="n">t_penjualan</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="n">waktu_transaksi</span><span class="p">)</span> <span class="k">values</span>
+</span><span class='line'><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;2013-01-01 20:30:30&#39;</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="s1">&#39;2013-01-02 15:15:15&#39;</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="s1">&#39;2013-02-02 09:09:09&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">insert</span> <span class="k">into</span> <span class="n">t_penjualan_detail</span> <span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="n">id_penjualan</span><span class="p">,</span> <span class="n">id_produk</span><span class="p">,</span> <span class="n">harga</span><span class="p">,</span> <span class="n">jumlah</span><span class="p">)</span> <span class="k">values</span>
+</span><span class='line'><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">150000</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">50000</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">150000</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">50000</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+</span><span class='line'><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">10000000</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tabel dan data di atas kita masukkan ke database dengan rincian sebagai berikut:</p>
+
+<ul>
+<li>Jenis Database : MySQL</li>
+<li>Server Database : localhost</li>
+<li>Nama Database : belajar</li>
+<li>Username Database : root</li>
+<li>Password Database : admin</li>
+</ul>
+
+
+<p>Selanjutnya kita akan mengkonfigurasi Spring supaya bisa terkoneksi dengan database tersebut.</p>
+
+<h1>Konfigurasi Koneksi Database</h1>
+
+<h2>Dependensi</h2>
+
+<p>Kita membutuhkan beberapa library, dinyatakan dalam dependensi Maven sebagai berikut:</p>
+
+<h3>Driver database MySQL</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>mysql<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>mysql-connector-java<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${mysql.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;scope&gt;</span>runtime<span class="nt">&lt;/scope&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Library manajemen koneksi database (database connection pooling)</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>commons-dbcp<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>commons-dbcp<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${commons-dbcp.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Spring JDBC</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>spring-context<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${org.springframework.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>spring-jdbc<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${org.springframework.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>spring-test<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${org.springframework.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selanjutnya, kita membuat konfigurasi database untuk Spring. Kita beri nama saja file konfigurasinya <code>spring-jdbc-ctx.xml</code>
+dan kita letakkan di folder <code>src/main/resources</code>. File ini berisi :</p>
+
+<ul>
+<li>konfigurasi data source untuk koneksi ke database. Kita menggunakan pustaka <code>commons-dbcp</code> untuk menangani connection pooling ke database.</li>
+<li>transaction manager. Ini dibutuhkan supaya kita tidak perlu lagi membuat coding untuk rangkaian <code>begin-commit/rollback</code>.</li>
+<li>component scan. Ini dibutuhkan agar object DAO dan Service kita otomatis dideteksi dan diinisialisasi oleh Spring</li>
+</ul>
+
+
+<h2>Koneksi Database</h2>
+
+<p>Berikut konfigurasi koneksi database</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">class=</span><span class="s">&quot;org.apache.commons.dbcp.BasicDataSource&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;driverClassName&quot;</span> <span class="na">value=</span><span class="s">&quot;com.mysql.jdbc.Driver&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;url&quot;</span> <span class="na">value=</span><span class="s">&quot;jdbc:mysql://localhost/belajar&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;root&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;admin&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxActive&quot;</span> <span class="na">value=</span><span class="s">&quot;80&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxWait&quot;</span> <span class="na">value=</span><span class="s">&quot;40000&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;maxIdle&quot;</span> <span class="na">value=</span><span class="s">&quot;20&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Penjelasannya sebagai berikut:</p>
+
+<h3>Database Connection Pooling</h3>
+
+<p>Koneksi ke database sebetulnya merupakan operasi yang <em>mahal</em>. Kenapa <em>mahal</em>?
+Karena setiap kali kita membuat koneksi, ada serangkaian kegiatan yang harus dilakukan oleh database server seperti:</p>
+
+<ul>
+<li>memeriksa username dan password</li>
+<li>memeriksa apakah komputer kita (dilihat dari alamat IP atau nama host) diijinkan untuk masuk</li>
+<li>memeriksa apakah database, tabel, dan tindakan yang kita lakukan memiliki ijin akses yang mencukupi</li>
+</ul>
+
+
+<p>Oleh karena itu, idealnya koneksi database dibuat sekali saja dan digunakan terus sepanjang aplikasi berjalan.
+Tentunya kalau koneksi database hanya satu, setiap request dari user akan mengantri.
+Untuk itu kita buat banyak koneksi sekaligus yang nantinya akan <em>dipinjamkan</em> pada request yang membutuhkan.
+Teknik ini disebut dengan istilah database connection pooling.</p>
+
+<p>Library yang kita gunakan untuk itu adalah <a href="http://commons.apache.org/proper/commons-dbcp/configuration.html">Apache Commons DBCP</a>, yang ditandai dengan penggunaan class <code>org.apache.commons.dbcp.BasicDataSource</code> di atas.</p>
+
+<p>Ada banyak hal yang bisa disetting, tapi kita akan fokus ke beberapa saja yaitu:</p>
+
+<ul>
+<li><code>driverClassName</code> : nama class untuk koneksi ke database. Ini harus sesuai dengan merek dan versi database yang digunakan</li>
+<li><code>url</code> : informasi koneksi database. Biasanya berisi alamat server (IP atau Hostname) dan nama database</li>
+<li><code>username</code> : username untuk connect ke database</li>
+<li><code>password</code> : passwordnya user tersebut</li>
+</ul>
+
+
+<p>Keempat informasi di atas adalah informasi umum yang kita butuhkan apapun metode koneksi database yang kita gunakan, tidak terkait dengan penggunaan Apache Commons DBCP. Konfigurasi berikut barulah berkaitan dengan Apache Commons DBCP:</p>
+
+<ul>
+<li><p><code>maxActive</code> : jumlah koneksi yang boleh aktif secara berbarengan. Ini harus disetting dibawah angka yang kita ijinkan di database server. Misalnya di MySQL kita ijinkan 100 koneksi berbarengan, maka angkanya harus dibawah 100. Jangan juga dihabiskan 100, untuk berjaga-jaga siapa tahu kita butuh koneksi langsung ke MySQL tanpa lewat aplikasi (misalnya untuk keperluan debug). Pertimbangkan juga apabila ada aplikasi lain yang menggunakan database yang sama.</p></li>
+<li><p><code>maxWait</code> : bila semua koneksi sebanyak <code>maxActive</code> sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai <code>maxWait</code> menentukan berapa milidetik request tersebut menunggu. Bila lebih dari <code>maxWait</code> dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan <code>Exception</code>.</p></li>
+<li><p><code>maxIdle</code> : ada kalanya aplikasi kita sedang sepi dari request user sehingga banyak koneksi database yang menganggur (idle). Angka <code>maxIdle</code> ini menentukan berapa koneksi yang akan tetap dipegang walaupun idle. Bila ada 20 koneksi idle, padahal <code>maxIdle</code> berisi 15, maka 5 koneksi akan ditutup. Ini merupakan trade-off. Bila terlalu banyak idle, maka memori database server akan terpakai untuk koneksi yang standby ini. Tapi bila terlalu sedikit, pada waktu aplikasi mendadak diserbu user, akan butuh waktu lama untuk dia membuatkan lagi koneksi baru.</p></li>
+</ul>
+
+
+<h2>Transaction Manager</h2>
+
+<p>Setelah terhubung ke database, selanjutnya kita akan mengkonfigurasi transaction manager. Ini adalah fitur dari Spring Framework yang membebaskan kita dari coding manual untuk urusan transaction. Bila tidak menggunakan ini, maka kode program kita akan tampak seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span><span class="o">;</span> <span class="c1">// inisialisasi koneksi di sini</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">setAutocommit</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;insert into m_produk ... &quot;</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">createStatement</span><span class="o">().</span><span class="na">executeUpdate</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">err</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">setAutocommit</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Untuk dua baris perintah seperti di atas, kita harus menambahkan 8 baris hanya untuk mengurus transaction <strong>pada setiap method</strong>. Bayangkan kalau aplikasi kita punya 100 method, maka kode program untuk mengelola transaksi saja sudah 800 baris. Dengan fitur transaction manager, maka method di atas bisa ditulis ulang seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Transactional</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;insert into m_produk ... &quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">conn</span><span class="o">.</span><span class="na">createStatement</span><span class="o">().</span><span class="na">executeUpdate</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Jauh lebih bersih dan rapi. Kode program jadi mudah dibaca dan akibatnya tentu memudahkan kita pada waktu bugfix, perubahan, ataupun penambahan fitur.</p>
+
+<p>Nah ini dia konfigurasi transaction manager:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;transactionManager&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;tx:annotation-driven/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Class transaction manager yang digunakan berbeda tergantung metode akses database yang digunakan dan juga bagaimana cara kita mendeploy aplikasi. Beberapa pilihan transaction manager yang lain antara lain:</p>
+
+<ul>
+<li><code>DataSourceTransactionManager</code> : digunakan untuk koneksi database menggunakan <code>javax.sql.DataSource</code>. Ini artinya koneksi langsung dari aplikasi ke database server.</li>
+<li><code>JtaTransactionManager</code> : digunakan bila aplikasi kita dideploy di application server yang memiliki transaction manager sendiri (seperti Glassfish, JBoss, Websphere, Weblogic, dsb) <em>dan menggunakan</em> transaction manager yang disediakan tersebut. Bila kita deploy di Tomcat, hampir pasti kita tidak menggunakan JTA. Bila kita deploy ke Glassfish dan menggunakan konfigurasi <code>dataSource</code> Apache Commons DBCP, berarti kita juga tidak menggunakan JTA.</li>
+<li><code>HibernateTransactionManager</code> : seperti ditunjukkan oleh namanya, gunakan ini bila kita menggunakan Hibernate</li>
+<li><code>JpaTransactionManager</code> : ini juga sudah jelas dari namanya. Bila kita pakai JPA, gunakan transaction manager ini.</li>
+</ul>
+
+
+<p>Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan membuat kode program untuk menyimpan, mengubah, dan menghapus data dalam database.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mendebug Aplikasi AJAX]]></title>
@@ -4113,227 +4535,6 @@ dibutuhkan kegiatan tambahan di level organisasi, misalnya :</p>
 
 
 <p>Jadi, CMMI = banyak dokumen hanyalah mitos belaka. Untuk bisa melakukan verifikasi, auditor tentu butuh melihat evidence. Di jaman modern seperti sekarang, evidence bentuknya tidak harus dokumen tertulis yang dibuat dengan aplikasi office.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Instalasi Redmine di Tomcat]]></title>
-    <link href="http://software.endy.muhardin.com/aplikasi/redmine-jruby-tomca/"/>
-    <updated>2011-08-07T04:06:01+07:00</updated>
-    <id>http://software.endy.muhardin.com/aplikasi/redmine-jruby-tomca</id>
-    <content type="html"><![CDATA[<p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
-
-<ul>
-<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
-<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
-<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
-<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
-</ul>
-
-
-<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
-Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
-Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
-
-<ul>
-<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
-<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
-</ul>
-
-
-<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
-
-<p>Mari kita mulai.</p>
-
-<h2>Instalasi JRuby</h2>
-
-<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=install-jruby.sh'></script>
-<noscript><pre><code>cd /opt
-tar xzf ~/Downloads/jruby-bin-1.6.3.tar.gz
-chown -R endy.endy /opt/jruby-1.6.3
-ln -s jruby-1.6.3 jruby</code></pre></noscript></div>
-
-
-<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
-Tulis baris berikut ini di dalam file ~/.bashrc</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=bashrc'></script>
-<noscript><pre><code>export JRUBY_HOME=/opt/jruby
-export PATH=$PATH:$JRUBY_HOME/bin</code></pre></noscript></div>
-
-
-<p>Terakhir, test instalasi JRuby</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=test-jruby.sh'></script>
-<noscript><pre><code>jruby -v
-jruby 1.6.3 (ruby-1.8.7-p330) (2011-07-07 965162f) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]</code></pre></noscript></div>
-
-
-<h2>Instalasi Paket Gem</h2>
-
-<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
-
-<ul>
-<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
-<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
-<li><p>jruby-openssl : supaya bisa melayani https</p></li>
-<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
-<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
-</ul>
-
-
-<p>Mari kita install</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=install-gem.sh'></script>
-<noscript><pre><code>gem install rack -v=1.1.1
-gem install rails -v=2.3.11
-gem install jruby-openssl activerecord-jdbcmysql-adapter warbler</code></pre></noscript></div>
-
-
-<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
-
-<h2>Mengambil Redmine dari Subversion Repository</h2>
-
-<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
-Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=checkout-redmine.sh'></script>
-<noscript><pre><code>cd ~/Downloads
-svn co http://redmine.rubyforge.org/svn/branches/1.2-stable redmine-1.2</code></pre></noscript></div>
-
-
-<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
-
-<h2>Konfigurasi Database</h2>
-
-<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
-Saya menggunakan konfigurasi development sebagai berikut :</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=database.yml'></script>
-<noscript><pre><code>development:
-  adapter: jdbcmysql
-  database: redmine
-  host: localhost
-  username: redmine
-  password: redmine
-  encoding: utf8</code></pre></noscript></div>
-
-
-<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=create-database.sh'></script>
-<noscript><pre><code>mysql -u root -p
-
-create database redmine character set utf8;
-create user 'redmine'@'localhost' identified by 'redmine';
-grant all privileges on redmine.* to 'redmine'@'localhost';</code></pre></noscript></div>
-
-
-<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
-
-<h2>Inisialisasi Redmine</h2>
-
-<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-session.sh'></script>
-<noscript><pre><code>cd ~/Downloads/redmine-1.2
-rake generate_session_store</code></pre></noscript></div>
-
-
-<p>Setelah itu, inisialisasi skema database.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-skema-db.sh'></script>
-<noscript><pre><code>RAILS_ENV=development rake db:migrate</code></pre></noscript></div>
-
-
-<p>Isi data awal.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-data-awal.sh'></script>
-<noscript><pre><code>RAILS_ENV=development rake redmine:load_default_data</code></pre></noscript></div>
-
-
-<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=start-webrick.sh'></script>
-<noscript><pre><code>jruby script/server webrick -e development</code></pre></noscript></div>
-
-
-<p>Hasilnya bisa kita browse di http://localhost:3000
-Kemudian kita bisa login dengan username admin dan password admin.</p>
-
-<h2>Konfigurasi Email</h2>
-
-<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
-Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=configuration.yml'></script>
-<noscript><pre><code># = Outgoing email settings
-development:
-    email_delivery:
-        delivery_method: :smtp
-        smtp_settings:
-            tls: true
-            address: &quot;smtp.gmail.com&quot;
-            port: 587
-            authentication: :plain
-            user_name: &quot;nama.kita@gmail.com&quot;
-            password: &quot;passwordgmailkita&quot;</code></pre></noscript></div>
-
-
-<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=install-action-mailer-tls.sh'></script>
-<noscript><pre><code>jruby script/plugin install git://github.com/collectiveidea/action_mailer_optional_tls.git
-</code></pre></noscript></div>
-
-
-<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
-Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
-Kemudian pergi ke menu Administration > Settings > Email Notifications,
-kemudian klik link Send a test email di pojok kanan bawah.
-Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
-
-<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
-Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
-
-<h2>Generate WAR</h2>
-
-<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=warble-config.sh'></script>
-<noscript><pre><code>warble config
-</code></pre></noscript></div>
-
-
-<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=warble.rb'></script>
-<noscript><pre><code>Warbler::Config.new do |config|
-  config.dirs = %w(app config lib log vendor tmp extra files lang)
-  config.gems += [&quot;activerecord-jdbcmysql-adapter&quot;, &quot;jruby-openssl&quot;, &quot;i18n&quot;, &quot;rack&quot;]
-  config.webxml.rails.env = ENV['RAILS_ENV'] || 'development'
-end</code></pre></noscript></div>
-
-
-<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=warble-generate.sh'></script>
-<noscript><pre><code>warble
-warning: application directory `lang' does not exist or is not a directory; skipping
-rm -f redmine-1.2.war
-Creating redmine-1.2.war</code></pre></noscript></div>
-
-
-<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=redmine-war-deploy.sh'></script>
-<noscript><pre><code>cp redmine-1.2.war /opt/apache-tomcat-7.0.12/webapps/redmine.war
-</code></pre></noscript></div>
-
-
-<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
 ]]></content>
   </entry>
   

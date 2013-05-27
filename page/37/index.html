@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di kantor saya sekarang sedang terjadi euforia Linux. Hmm&#8230;. bukan euforia. Tampaknya histeria lebih tepat. Karena semua orang tampak histeris &hellip;">
+  <meta name="description" content="Di Ubuntu, menulis ke partisi NTFS sangat mudah. Cukup lakukan sudo apt-get install ntfs-config dan partisi NTFS siap ditulisi. Di OpenSuSE 10.2, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,101 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/ntfs-write-di-opensuse-102/">NTFS Write Di OpenSuSE 10.2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-06-22T01:39:23+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di Ubuntu, menulis ke partisi NTFS sangat mudah. Cukup lakukan</p>
+
+<pre><code>sudo apt-get install ntfs-config
+</code></pre>
+
+<p>dan partisi NTFS siap ditulisi.</p>
+
+<p>Di OpenSuSE 10.2, tidak semudah ini. Secara default, repository OpenSuSE tidak mengandung <code>ntfs-3g</code>, paket yang dibutuhkan untuk menulis ke NTFS, yang siap digunakan. Oleh karena itu, beberapa orang memilih untuk mengkompilasi sendiri, salah satunya <a href="http://sugandi.blogspot.com/2007/01/how-to-write-to-ntfs-partition-on-linux.html">Oom Andi Sugandi</a>.</p>
+
+<p>Tetapi akhirnya saya menemukan cara yang mudah, tidak melibatkan kompilasi ulang. Berikut caranya.</p>
+
+<h3>Tambah Repository</h3>
+
+<p>Pertama, kita harus menggunakan repository milik Jan Engel***. Masuk ke Yast, dan pilih Installation Source. Kita akan menggunakan protokol FTP. Alamat servernya adalah <code>ftp-1.gwdg.de</code> dan folder repositorynya adalah <code>/pub/linux/misc/suser-jengelh/SUSE-10.2/</code>. Silahkan tambahkan entri tersebut dan klik OK. Yast akan segera memperbaharui database aplikasinya.</p>
+
+<h3>Instalasi Paket</h3>
+
+<p>Selanjutnya, kita bisa langsung menginstal paketnya. Dari Yast, buka Software Management, dan cari dengan keyword <code>ntfs</code>. Kita akan menemukan paket <code>ntfs-3g</code>. Instal paket tersebut.
+Yast akan meminta paket tambahan, yaitu <code>fuse</code>. Instal saja dua-duanya.</p>
+
+<h3>Edit fstab</h3>
+
+<p>Sebelum mengubah isi <code>/etc/fstab</code>, jangan lupa untuk melakukan umount pada partisi windows yang kita miliki.
+Agar partisi windows kita dimount secara otomatis pada saat boot, kita perlu mengedit file <code>/etc/fstab</code>. Temukan entri seperti ini,</p>
+
+<pre><code>/dev/sda1            /media/windows/C     ntfs    ro,users,gid=users,umask=0002,nls=utf8 0 0
+</code></pre>
+
+<p>dan ubah menjadi seperti ini</p>
+
+<pre><code>/dev/sda1            /media/windows/C     ntfs-3g    silent,unmask=0,locale=en_US.utf8 0 0
+</code></pre>
+
+<p>Setelah itu, kita bisa menguji coba dengan perintah <code>mount -a</code>. Di komputer saya muncul warning sebagai berikut.</p>
+
+<pre><code>WARNING: Deficient Linux kernel detected. Some driver features are
+         not available (swap file on NTFS, boot from NTFS by LILO), and
+         unmount is not safe unless it's made sure the ntfs-3g process
+         naturally terminates after calling 'umount'. If you wish this
+         message to disappear then you should upgrade to at least kernel
+         version 2.6.20, or request help from your distribution to fix
+         the kernel problem. The below web page has more information:
+         http://ntfs-3g.org/support.html#fuse26
+</code></pre>
+
+<p>Tapi warning ini tidak berbahaya.</p>
+
+<h3>Edit Boot Config</h3>
+
+<p>Selain fstab, ada satu file lagi yang harus diedit agar mounting otomatis berjalan lancar pada saat booting. Edit file <code>/etc/sysconfig/kernel</code>. Cari baris berikut</p>
+
+<pre><code>MODULES_LOADED_ON_BOOT=""
+</code></pre>
+
+<p>dan ganti menjadi seperti ini</p>
+
+<pre><code>MODULES_LOADED_ON_BOOT="fuse"
+</code></pre>
+
+<p>Partisi NTFS siap digunakan. Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -328,91 +423,6 @@ $iface_title['eth2'] = 'Wired';
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/lowongan-programmer/">Lowongan Programmer</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-18T23:31:01+07:00" pubdate data-updated="true">Apr 18<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di tempat saya bekerja saat ini (BaliCamp), saya sedang membutuhkan anggota tim. Tidak butuh yang terlalu canggih, saya justru cari fresh graduate. Nantinya kandidat yang lolos akan ditempatkan di tim saya, mengembangkan aplikasi untuk mengelola software development process.</p>
-
-<p>Ada banyak nilai tambah yang bisa diperoleh dari pekerjaan ini, selain tentunya gaji dan fasilitas standar seperti layaknya karyawan lainnya. Biar saya jelaskan sedikit.</p>
-
-<p>Pertama, yang akan kita buat di sini adalah aplikasi manajemen proyek yang spesifik untuk software development. Artinya, kita nanti akan melihat secara langsung bagaimana proyek software dikelola dengan mengikuti kaidah <a href="http://www.sei.cmu.edu/cmmi/">CMMI</a>. Pengetahuan yang selama ini hanya dipelajari (sambil ngantuk) di kelas tentang RUP, XP, Waterfall, dsb akan dilihat langsung implementasinya di lapangan. Dan dibuatkan softwarenya. Jadi, dengan membuat aplikasi ini, kita jadi memahami bagaimana best-practices dalam pengelolaan proyek.</p>
-
-<p>Kedua, kita akan bekerja dengan menggunakan <a href="http://www.springframework.org">Spring Framework</a> dan <a href="http://www.hibernate.org">Hibernate</a>. Ini adalah dua framework utama dalam dunia Java. Anggota tim (yang nota bene adalah fresh graduate) akan mengikuti training tentang kedua teknologi ini. Saya sendiri yang akan memberikan trainingnya.</p>
-
-<p>Ketiga, dalam proses pembuatan aplikasi ini, kita akan menggunakan teknologi tercanggih yang tersedia di dunia open source. Kita akan <a href="http://endy.artivisi.com/blog/lain/presentasi-subversion/">menyimpan source-code dan dokumentasi proyek dalam Subversion</a>. Semua best-practices yang saya tulis di <a href="http://endy.artivisi.com/blog/lain/pesan-buku-subversion/">buku Subversion</a> akan diimplementasikan dalam proyek. Issue atau bug akan dikelola dengan bug tracker. Testing akan dilakukan di segala lini, sesuai dengan artikel yang pernah saya tulis di <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">sini</a>, <a href="http://endy.artivisi.com/blog/java/ruthless-testing-2/">sini</a>, <a href="http://endy.artivisi.com/blog/java/ruthless-testing-3/">sini</a>, dan <a href="http://endy.artivisi.com/blog/java/ruthless-testing-4/">sini</a>. Secara harian, <a href="http://cruisecontrol.sourceforge.net/">CruiseControl</a> akan mengambil semua source code terbaru dan melakukan daily build. Singkatnya, <a href="http://endy.artivisi.com/blog/manajemen/starter-kit/">semua persenjataan proyek</a> akan kita gunakan secara optimal.</p>
-
-<p>Jangan khawatir kalau merasa asing dengan berbagai teknologi tersebut. Akan ada sesi training khusus untuk itu. Lagi-lagi saya yang akan memberikan trainingnya.</p>
-
-<p>Baiklah, sekarang apa persyaratannya?</p>
-
-<p>Pelanggan blog ini tentunya sudah tahu kalau saya <a href="http://endy.artivisi.com/blog/life/pengetahuan-wajib-buat-programmer/">sangat pemilih dalam menentukan anggota tim</a>. Jadi, persiapkan diri dengan baik.</p>
-
-<p>Tidak seperti lowongan lainnya yang biasa Anda lihat di milis atau portal tenaga kerja, saya tidak mempermasalahkan latar belakang pendidikan. SMU ke atas boleh daftar. <a href="http://endy.artivisi.com/blog/life/ipk-tiarap/">IPK Anda Tiarap?? </a> Jangan khawatir, silahkan layangkan lamaran Anda. Tidak akan didiskriminasi.</p>
-
-<p>Persyaratan yang wajib dimiliki oleh peminat adalah:</p>
-
-<ol>
-<li><p>Konsep dasar OOP</p></li>
-<li><p>Dasar-dasar Java</p></li>
-<li><p>Pernah menggunakan minimal 2 (dua) bahasa pemrograman</p></li>
-<li><p>Konsep struktur data, misalnya tree, list</p></li>
-<li><p>Konsep relasional termasuk join dan subquery</p></li>
-<li><p>Mengerti SQL untuk minimal satu produk database</p></li>
-<li><p>HTML dan CSS</p></li>
-<li><p>Dasar-dasar jaringan komputer</p></li>
-<li><p>Bahasa Inggris (minimal membaca)</p></li>
-<li><p>Pernah membuat minimal satu aplikasi utuh (dari tampilan depan sampai ke database, lengkap dengan validasi) dengan minimal 4 (empat) tabel yang berelasi.</p></li>
-</ol>
-
-
-<p>Seperti layaknya lowongan pekerjaan yang lain, ada beberapa hal yang masuk kategori <em>lebih diutamakan bila menguasai</em> atau dalam istilah programmer, <em>nice to have</em>. Berikut daftarnya:</p>
-
-<ul>
-<li><p>Bisa menulis Ant buildfile</p></li>
-<li><p>Memiliki personal website (blog)</p></li>
-<li><p>Sehari-hari menggunakan Linux</p></li>
-</ul>
-
-
-<p>Lokasi kerja saat ini di Menara Dea, Kawasan Mega Kuningan, 10 menit berjalan kaki dari Mal Ambassador. Ada <strong>sedikit</strong> kemungkinan tim akan pindah ke Desa Sigma di German Centre, Bumi Serpong Damai.</p>
-
-<p>Berminat?? Silahkan klik Compose New Mail di aplikasi email Anda, dan attach resume dalam format PDF. Kemudian kirimkan ke endy [at] artivisi [dot] com atau emuhardin [at] balicamp [dot] com.</p>
-
-<p>Bila resume Anda meyakinkan, saya akan panggil untuk interview. Siapkan aplikasi yang pernah dibuat dalam CD, paket sedemikian rupa sehingga mudah diinstal. Sertakan semua file yang dibutuhkan. Nantinya saya akan sediakan PC kosong yang hanya berisi sistem operasi agar Anda bisa mendemokan aplikasi tersebut.</p>
-
-<p>Kalau ada pertanyaan, silahkan langsung posting komentar di bawah tulisan ini.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/38/">&larr; Older</a>
@@ -475,6 +485,10 @@ $iface_title['eth2'] = 'Wired';
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
       </li>
     
@@ -508,10 +522,6 @@ $iface_title['eth2'] = 'Wired';
     
       <li class="post">
         <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
       </li>
     
   </ul>

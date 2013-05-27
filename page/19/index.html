@@ -9,8 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Null Date di MySQL Bila memiliki tipe data DATE di database MySQL, format standarnya adalah yyyy-MM-dd.
-Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
+  <meta name="description" content="Martinus dan Ifnu kalo baca ini pasti merasa familiar dengan struktur folder dan prosesnya. Saya gak nyontek lho &#8230; :p
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +90,44 @@ Jadi, bila kita mau mengisi 17 Agustus 1945, &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/spring-build/">Spring Build</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-04T20:22:32+07:00" pubdate data-updated="true">Mar 4<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://martinus.artivisi.com">Martinus</a> dan <a href="http://ifnu.artivisi.com">Ifnu</a> kalo <a href="http://blog.springsource.com/2009/03/03/building-spring-3/">baca ini</a> pasti merasa familiar dengan struktur folder dan prosesnya.</p>
+
+<p>Saya gak nyontek lho &#8230; :p</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -226,120 +264,6 @@ sudo reboot
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/enkripsi-jdbc-properties/">Enkripsi JDBC Properties</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-01-16T22:24:04+07:00" pubdate data-updated="true">Jan 16<span>th</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Enkripsi Password Database dengan Jasypt</p>
-
-<p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
-
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = java
-</code></pre>
-
-<p>Cepat atau lambat, kita akan menemui kebutuhan untuk menyembunyikan nilai yang diisikan ke dalam file tersebut untuk alasan keamanan. Tentunya kita tidak ingin orang yang bisa membaca file tersebut login ke database dan melihat berbagai data rahasia dalam database.</p>
-
-<p>Kita ingin mengenkripsi minimal variabel jdbc.password, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan Jasypt yang mampu menangani masalah enkripsi file tersebut.</p>
-
-<p>Biasanya, kita membaca file jdbc.properties di dalam konfigurasi Spring, seperti ini.</p>
-
-<pre><code>&lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
-</code></pre>
-
-<p>atau dalam versi yang lebih konvensional, seperti ini</p>
-
-<pre><code>&lt;bean id="propertyConfigurer" 
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"&gt;
-    &lt;property name="location" value="classpath:jdbc.properties"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>dan menggunakannya dalam konfigurasi dataSource seperti ini.</p>
-
-<pre><code>&lt;bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"&gt;
-    &lt;property name="driverClassName" value="${jdbc.driver}"&gt;&lt;/property&gt;
-    &lt;property name="url" value="${jdbc.url}"&gt;&lt;/property&gt;
-    &lt;property name="username" value="${jdbc.username}"&gt;&lt;/property&gt;
-    &lt;property name="password" value="${jdbc.password}"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Dengan menggunakan Jasypt, kita dapat mengenkripsi jdbc.properties sehingga menjadi seperti ini.</p>
-
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = ENC(y5+6JdRA4Xv/qbYjmYdo7A==)
-</code></pre>
-
-<p>Agar jdbc.password bisa dibaca dengan baik, kita ganti PropertyPlaceholderConfigurer dengan miliknya Jasypt, sehingga konfigurasi Spring kita menjadi seperti ini.</p>
-
-<pre><code>&lt;bean class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"&gt;
-    &lt;constructor-arg&gt;
-        &lt;bean class="org.jasypt.util.text.BasicTextEncryptor"&gt;
-        &lt;property name="password" value="test1234"/&gt;
-        &lt;/bean&gt;
-    &lt;/constructor-arg&gt;
-    &lt;property name="locations"&gt;
-        &lt;list&gt;
-        &lt;value&gt;classpath:jdbc.properties&lt;/value&gt;
-        &lt;/list&gt;
-    &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Terakhir, bagaimana cara kita mengetahui bahwa hasil enkripsi dari &#8216;java&#8217; adalah &#8216;y5+6JdRA4Xv/qbYjmYdo7A==&#8217; ??
-Gampang, buat saja kode Java sederhana seperti ini.</p>
-
-<pre><code>public class Main {
-
-    public static void main(String[] args) {
-        String encryptionPassword = "test1234";
-        BasicTextEncryptor encryptor = new BasicTextEncryptor();
-        encryptor.setPassword(encryptionPassword);
-
-        String jdbcPassword = "java";
-
-        System.out.println("String "+jdbcPassword+" diencrypt menjadi : "+encryptor.encrypt(jdbcPassword));
-
-    }
-
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/20/">&larr; Older</a>
@@ -402,6 +326,10 @@ Gampang, buat saja kode Java sederhana seperti ini.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
       </li>
     
@@ -435,10 +363,6 @@ Gampang, buat saja kode Java sederhana seperti ini.</p>
     
       <li class="post">
         <a href="/java/membuat-changelog-liquibase/">Membuat Changelog Liquibase</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/membuat-audit-log/">Membuat Audit Log</a>
       </li>
     
   </ul>
