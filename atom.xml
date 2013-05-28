@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-27T17:16:49+07:00</updated>
+  <updated>2013-05-28T11:50:37+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -341,9 +341,19 @@ Teknik ini disebut dengan istilah database connection pooling.</p>
 
 <ul>
 <li><p><code>maxActive</code> : jumlah koneksi yang boleh aktif secara berbarengan. Ini harus disetting dibawah angka yang kita ijinkan di database server. Misalnya di MySQL kita ijinkan 100 koneksi berbarengan, maka angkanya harus dibawah 100. Jangan juga dihabiskan 100, untuk berjaga-jaga siapa tahu kita butuh koneksi langsung ke MySQL tanpa lewat aplikasi (misalnya untuk keperluan debug). Pertimbangkan juga apabila ada aplikasi lain yang menggunakan database yang sama.</p></li>
-<li><p><code>maxWait</code> : bila semua koneksi sebanyak <code>maxActive</code> sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai <code>maxWait</code> menentukan berapa milidetik request tersebut menunggu. Bila lebih dari <code>maxWait</code> dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan <code>Exception</code>.</p></li>
 <li><p><code>maxIdle</code> : ada kalanya aplikasi kita sedang sepi dari request user sehingga banyak koneksi database yang menganggur (idle). Angka <code>maxIdle</code> ini menentukan berapa koneksi yang akan tetap dipegang walaupun idle. Bila ada 20 koneksi idle, padahal <code>maxIdle</code> berisi 15, maka 5 koneksi akan ditutup. Ini merupakan trade-off. Bila terlalu banyak idle, maka memori database server akan terpakai untuk koneksi yang standby ini. Tapi bila terlalu sedikit, pada waktu aplikasi mendadak diserbu user, akan butuh waktu lama untuk dia membuatkan lagi koneksi baru.</p></li>
+<li><p><code>maxWait</code> : bila semua koneksi sebanyak <code>maxActive</code> sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai <code>maxWait</code> menentukan berapa milidetik request tersebut menunggu. Bila lebih dari <code>maxWait</code> dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan <code>Exception</code>. Konfigurasi ini perlu diperhatikan karena nilai defaultnya adalah <code>indefinitely</code> yaitu menunggu selamanya.</p></li>
 </ul>
+
+
+<p>Saya pernah mendapatkan masalah karena setting default ini. Aplikasi bengong seolah hang. Dicek ke log file tidak ada error. Ternyata masalahnya ada query yang kurang optimal sehingga memakan waktu lama. Pada saat banyak request yang menjalankan query tersebut, request lain menunggu lama tanpa ada pemberitahuan, sehingga terkesan hang. Setelah nilai <code>maxWait</code> saya ganti menjadi 30 detik, mulai banyak error message bermunculan dari request yang menunggu > 30 detik. Dengan adanya error message, query bermasalah tersebut menjadi terlihat sehingga bisa diperbaiki.</p>
+
+<blockquote><p>Pesan moral pertama : pesan error itu penting untuk mengetahui sumber masalah. Dalam bugfixing, yang paling penting adalah menemukan masalah. Kalau masalah sudah ditemukan, siapa saja bisa memperbaiki. Jadi kalau aplikasi kita bermasalah, prioritas pertama kita adalah membuat dia mengeluarkan pesan error yang jelas.</p></blockquote>
+
+
+<p>Baca <a href="http://software.endy.muhardin.com/java/tips-melaporkan-error/">artikel ini</a> untuk mengetahui apa yang dimaksud dengan pesan error yang jelas.</p>
+
+<blockquote><p>Pesan moral kedua : Dalam bugfixing, sering kali kita tidak langsung mendapatkan masalah utama. Pada kasus di atas, pertama kali saya menemukan bahwa perilaku defaultnya Commons DBCP adalah menunggu koneksi dengan sabar sampai selamanya. Setelah ini diubah, barulah saya menemukan masalah utama, yaitu ada query yang tidak optimal.</p></blockquote>
 
 
 <h2>Transaction Manager</h2>
