@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-28T11:50:37+07:00</updated>
+  <updated>2013-05-28T15:33:48+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -14,13 +14,747 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Struktur Aplikasi Java dengan Spring dan Maven]]></title>
+    <link href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/"/>
+    <updated>2013-05-28T15:06:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven</id>
+    <content type="html"><![CDATA[<p>Pada <a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">bagian sebelumnya</a> kita telah membahas konfigurasi awal
+dan studi kasus yang akan digunakan untuk menunjukkan fitur Spring JDBC.</p>
+
+<p>Di artikel bagian kedua ini, kita akan membahas tentang kerangka aplikasi yang akan dibuat.
+Sebelum membuat implementasi detail, sangat penting kita buat dulu kerangkanya supaya jelas
+apa saja bagian-bagian dalam aplikasi dan bagaimana mereka saling terhubung.</p>
+
+<p>Artikel ini merupakan bagian kedua dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li>Insert, update, dan delete data</li>
+<li>Mengambil data (query)</li>
+<li>Melakukan pengetesan</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Daftar class yang akan dibuat</h2>
+
+<p>Class yang akan dibuat kita bagi menjadi empat fungsi utama, yaitu:</p>
+
+<ul>
+<li>domain object : class yang mewakili struktur data dalam aplikasi kita</li>
+<li>interface business service : class yang mendefinisikan daftar fitur-fitur dalam aplikasi</li>
+<li>implementasi business service : implementasi dari interface business service. Kalau di interface hanya ada nama method, argumen, dan tipe data kembalian (return value), di sini sudah ada implementasi konkritnya, yaitu bagaimana query database, logika perhitungan, dan sebagainya.</li>
+<li>automated test : memeriksa apakah method kita berjalan benar itu melelahkan. Jadi kita buatkan kode program untuk mengetesnya, sehingga tes yang sama bisa dijalankan berulang-ulang tanpa membuat kita lelah. Lebih lanjut tentang automated test bisa dibaca di <a href="http://software.endy.muhardin.com/java/ruthless-testing-1/">artikel lain yang membahas masalah ini</a>.</li>
+</ul>
+
+
+<h3>Domain Object</h3>
+
+<p>Sesuai dengan skema database, kita akan membuat tiga class, yaitu:</p>
+
+<ul>
+<li>Produk</li>
+<li>Penjualan</li>
+<li>PenjualanDetail</li>
+</ul>
+
+
+<p>Buat yang sudah pernah coding JDBC biasanya akan bertanya,</p>
+
+<p><blockquote><p>Kenapa repot-repot membuat domain class, kemudian harus konversi bolak balik?<br/>Kan bisa saja kita kirim <code>ResultSet</code> ke tampilan, ataupun insert langsung dari array ke <code>PreparedStatement</code>.</p></blockquote></p>
+
+<p>Pertanyaan ini biasanya muncul dari programmer PHP yang terbiasa langsung menampilkan kembalian <code>mysql_fetch_array</code> dalam looping tabel.</p>
+
+<p>Ada beberapa alasan:</p>
+
+<ol>
+<li><p>Sebenarnya bisa saja kita buat aplikasi dengan menggunakan tipe data yang disediakan Java seperti Integer, String, Map, List, dan lainnya. Tapi akibatnya kode program kita menjadi sulit dimengerti. Coba bandingkan, lebih mudah dimengerti <code>public void simpan(Produk p)</code> atau <code>public void simpan(Map p)</code>? Dengan membuat tipe data sesuai istilah yang digunakan di domain kita, maka kode program akan lebih mudah dipahami.</p></li>
+<li><p>Java merupakan bahasa yang <a href="http://en.wikipedia.org/wiki/Strong_and_weak_typing">strongly-typed</a>, dia memeriksa tipe data/class dari tiap variabel. Pada ilustrasi di atas, method <code>public void simpan(Map p)</code> akan menerima apapun data yang kita masukkan ke dalam variabel <code>p</code>. Kalau ada kesalahan dalam nama variabel (misalnya nama ditulis name), baru akan terdeteksi pada waktu aplikasi dijalankan. Berbeda dengan <code>public void simpan(Produk p)</code> yang akan langsung menimbulkan pesan error apabila kita isi dengan tipe data selain <code>Produk</code>. Bug yang ditemukan pada waktu coding (compile-time) akan jauh lebih cepat diperbaiki daripada bug yang baru ditemukan pada waktu aplikasi dijalankan (runtime). Programmer PHP ada benarnya juga. Di bahasa PHP memang domain class ini tidak diperlukan, karena PHP tidak ada pemeriksaan compile-time. Tapi karena kita menggunakan Java, ada baiknya kita manfaatkan pemeriksaan compile-time ini.</p></li>
+<li><p>Memisahkan antara layer database dan layer antarmuka. Apabila ada perubahan skema database, asalkan fitur di tampilan tidak berubah, kita cukup mengubah mapping domain object dan skema database. Tidak perlu mengubah kode program di layer antarmuka.</p></li>
+<li><p>Pustaka siap pakai untuk validasi. Di Java, ada yang namanya <a href="http://jcp.org/en/jsr/detail?id=303">JSR-303</a>, yaitu suatu pustaka yang berguna untuk validasi. Dengan <a href="http://www.mkyong.com/spring-mvc/spring-3-mvc-and-jsr303-valid-example/">menggunakan JSR-303</a> ini kita tidak perlu lagi melakukan pengecekan <code>if(produk.getKode() == null)</code>. Cukup kita gunakan deklarasi <code>@NotNull private String kode;</code> dalam class <code>Produk</code></p></li>
+</ol>
+
+
+<h3>Interface Business Service</h3>
+
+<p>Interface di Java artinya class yang methodnya abstrak semua. Lebih detail tentang method abstrak bisa dibaca di <a href="http://software.endy.muhardin.com/java/interface-abstract/">artikel ini</a>. Ada beberapa alasan kenapa kita harus memisahkan interface dan implementasinya, antara lain:</p>
+
+<ul>
+<li><p>pada waktu <a href="http://software.endy.muhardin.com/java/remoting-dengan-spring/">membuat aplikasi client-server</a>, kita cukup memberikan domain object dan interface ini kepada programmer aplikasi client. Sedangkan implementasinya (yang berisi kode program akses database) tetap di server. Ini akan meringankan ukuran aplikasi client, karena tidak perlu menyertakan implementasi (beserta library pendukungnya yang biasanya besar) yang tidak dia gunakan.</p></li>
+<li><p>kita bebas mengubah strategi implementasi (misalnya ganti database dari MySQL menjadi PostgreSQL) tanpa perlu mengganggu aplikasi client</p></li>
+<li><p>fitur declarative transaction yang dimiliki Spring akan lebih optimal bekerja bila kita memisahkan interface dan implementasi.</p></li>
+</ul>
+
+
+<p>Interface ini cukup satu class saja, yaitu <code>AplikasiPenjualanService</code>.</p>
+
+<h3>Implementasi Business Service</h3>
+
+<p>Ini merupakan implementasi dari interface <code>AplikasiPenjualanService</code>. Pada prakteknya, ada dua variasi yang biasa saya gunakan dalam membuat implementasi, yaitu:</p>
+
+<ul>
+<li>cukup membuat class implementasi service saja</li>
+<li>membuat class implementasi service dan juga class data access object (DAO)</li>
+</ul>
+
+
+<p>Kapan memilih variasi yang mana?</p>
+
+<ul>
+<li>Bila menggunakan framework Spring Data JPA, kita harus pakai DAO karena frameworknya minta seperti itu</li>
+<li>Selain Spring Data JPA, bebas mau pakai yang mana. Pilih saja yang lebih rapi dan mudah maintenance. Untuk aplikasi kecil, class implementasi service saja sudah cukup. Kalau aplikasinya besar, akan lebih mudah membaca 10 class DAO yang masing-masingnya terdiri dari 100 baris kode daripada 1000 baris dalam satu class implementasi service. Walaupun demikian, tidak ada pertimbangan teknis yang signifikan (seperti isu performance dan lainnya) antara pakai DAO atau tidak.</li>
+</ul>
+
+
+<h3>Automated Test</h3>
+
+<p>Ini adalah kode program yang fungsinya mengetes kode program lainnya, dalam hal ini class implementasi dan class DAO. Konsep dasar tentang automated testing dibahas di <a href="http://software.endy.muhardin.com/java/ruthless-testing-1/">artikel ini</a>. Sedangkan untuk pengetesan database dibahas <a href="http://software.endy.muhardin.com/java/ruthless-testing-4/">di sini</a>.</p>
+
+<p>Pada contoh aplikasi ini, kita menghadapi tantangan khusus, yaitu bagaimana caranya menggunakan test case yang sama untuk konfigurasi berbeda. Nantinya aplikasi ini akan dikembangkan untuk mendemonstrasikan akses database menggunakan framework lain seperti Hibernate, Spring Data JPA, dan JDBC polos tanpa framework. Logika pengetesan akan sama persis, yaitu:</p>
+
+<ul>
+<li>test insert</li>
+<li>test update</li>
+<li>test delete</li>
+<li>test cari berdasarkan id</li>
+<li>test ambil semua data dari tabel tertentu</li>
+<li>test cari data dengan kriteria tertentu</li>
+</ul>
+
+
+<p>Tabel database yang diakses sama, sample data sama, bahkan nama method yang dijalankan juga sama. Bedanya hanyalah class implementasi mana yang digunakan dan konfigurasi mana yang dipakai.</p>
+
+<p>Untuk itu, kita akan menggunakan teknik khusus yang disebut <code>abstract junit test case</code>. Secara garis besar, langkahnya seperti ini:</p>
+
+<ol>
+<li>Buat semua method test di superclass. Superclass ini memiliki abstract method, sehingga dengan sendirinya dia juga abstract.</li>
+<li>Untuk mendapatkan class implementasi dan melakukan inisialisasi konfigurasi, gunakan abstract method</li>
+<li>Buat subclass untuk masing-masing implementasi (Spring JDBC, Hibernate, dst) yang hanya berisi implementasi dari abstract method tersebut.</li>
+</ol>
+
+
+<p>Agar lebih jelas, silahkan lihat <a href="https://github.com/endymuhardin/belajar-akses-database-java/blob/spring-jdbc/src/test/java/com/muhardin/endy/training/java/aksesdb/service/ProdukServiceTest.java">superclassnya</a> dan <a href="https://github.com/endymuhardin/belajar-akses-database-java/blob/spring-jdbc/src/test/java/com/muhardin/endy/training/java/aksesdb/service/springjdbc/ProdukServiceSpringJdbcTest.java">subclass untuk Spring JDBC</a>.</p>
+
+<h2>Struktur folder</h2>
+
+<p>Sekian banyak class, bagaimana penempatannya? Silahkan lihat struktur folder berikut:</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/01-struktur-folder-top-level.png" title="Top Level Folder" ></p>
+
+<p>Tidak ada yang istimewa dari struktur di atas, cuma struktur folder standar Maven. Mari kita lihat source code aplikasi.</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/02-struktur-folder-main-java.png" title="Source Folder Java" ></p>
+
+<p>Di sini kita bisa lihat class sudah diatur ke dalam package berbeda sesuai fungsinya, yaitu domain, service, dao. Untuk implementasi service dengan Spring JDBC kita buatkan package tersendiri. Selanjutnya kita lihat lokasi file konfigurasi.</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/03-struktur-folder-main-resources.png" title="Source Folder Konfigurasi" ></p>
+
+<p>File konfigurasi ditaruh dalam package. Sebetulnya ditaruh di top level juga boleh, ini hanya sekedar kebiasaan saja.</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/04-struktur-folder-test.png" title="Source Test Folder" ></p>
+
+<p>Lokasi penempatan test class bisa dilihat di atas. Abstract class yang saya ceritakan di atas terlihat di package <code>com.muhardin.endy.training.java.aksesdb.service</code>, sedangkan implementasi konfigurasinya ada di subpackage <code>springjdbc</code> di bawahnya.</p>
+
+<p>Setelah kita melihat penempatan file dan folder, mari kita lihat kerangka kode program di masing-masing class/file. Supaya bisa mendapatkan <em>big-picture</em>, kita akan lihat kerangka class dan method saja. Implementasinya menyusul pada bagian selanjutnya.</p>
+
+<h1>Domain Object</h1>
+
+<h2>Class Produk</h2>
+
+<p>Class ini merupakan padanan tabel m_produk di database.
+Dia memiliki beberapa property sesuai dengan kolom di database.
+Berikut penjelasannya</p>
+
+<table>
+<thead>
+<tr>
+<th>Nama Property </th>
+<th> Nama Kolom Database </th>
+<th> Tipe Data Java </th>
+<th> Tipe Data MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id            </td>
+<td> id                  </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>kode          </td>
+<td> kode                </td>
+<td> String         </td>
+<td> varchar</td>
+</tr>
+<tr>
+<td>nama          </td>
+<td> nama                </td>
+<td> String         </td>
+<td> varchar</td>
+</tr>
+<tr>
+<td>harga         </td>
+<td> harga               </td>
+<td> BigDecimal     </td>
+<td> decimal(19,2)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Berikut kode program untuk class Produk.</p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.domain;</p>
+
+<p>import java.math.BigDecimal;</p>
+
+<p>public class Produk {</p>
+
+<pre><code>private Integer id;
+private String kode;
+private String nama;
+private BigDecimal harga;
+
+// getter dan setter generate dari IDE
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Class Penjualan</h2>
+
+<p>Mapping Java ke SQL</p>
+
+<table>
+<thead>
+<tr>
+<th>Nama Property  </th>
+<th> Nama Kolom Database </th>
+<th> Tipe Data Java </th>
+<th> Tipe Data MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id             </td>
+<td> id                  </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>waktuTransaksi </td>
+<td> waktu_transaksi     </td>
+<td> Date           </td>
+<td> datetime</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Kode program class Penjualan</p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.domain;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>public class Penjualan {</p>
+
+<pre><code>private Integer id;
+private Date waktuTransaksi;
+private List&lt;PenjualanDetail&gt; daftarPenjualanDetail 
+    = new ArrayList&lt;PenjualanDetail&gt;();
+
+// getter dan setter generate dari IDE
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Class Penjualan Detail</h2>
+
+<p>Mapping Java ke SQL</p>
+
+<table>
+<thead>
+<tr>
+<th>Nama Property  </th>
+<th> Nama Kolom Database </th>
+<th> Tipe Data Java </th>
+<th> Tipe Data MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id             </td>
+<td> id                  </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>penjualan      </td>
+<td> id_penjualan        </td>
+<td> Penjualan      </td>
+<td> integer foreign key</td>
+</tr>
+<tr>
+<td>produk         </td>
+<td> id_produk           </td>
+<td> Produk         </td>
+<td> integer foreign key</td>
+</tr>
+<tr>
+<td>jumlah         </td>
+<td> jumlah              </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>harga          </td>
+<td> harga               </td>
+<td> BigDecimal     </td>
+<td> decimal(19,2)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Kode program class PenjualanDetail</p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.domain;</p>
+
+<p>import java.math.BigDecimal;</p>
+
+<p>public class PenjualanDetail {</p>
+
+<pre><code>private Integer id;
+private Penjualan penjualan;
+private Produk produk;
+private BigDecimal harga;
+private Integer jumlah;
+
+// getter dan setter generate dari IDE
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Yang perlu diperhatikan di sini adalah perbedaan cara perlakuan relasi antara Java dan database.
+Di Java, kita perlu mendefinisikan relasi di dua tempat, yaitu variabel <code>daftarPenjualanDetail</code> di class <code>Penjualan</code>
+dan variabel <code>penjualan</code> di class <code>PenjualanDetail</code>. Sedangkan di database, relasi ini cukup didefinisikan melalui foreign key
+<code>id_penjualan</code> di tabel <code>t_penjualan_detail</code>.</p>
+
+<p>Perbedaan lain, di database relasi ini cukup diwakili satu nilai saja, yaitu nilai foreign key.
+Sedangkan di Java diwakili satu class penuh (<code>Produk</code> atau <code>Penjualan</code>) yang di dalamnya memuat banyak nilai.</p>
+
+<p>Untuk menjembatani perbedaan ini, kita perlu membuat mapper untuk mengubah data dari database menjadi object Java dan sebaliknya. Contoh kode program untuk mapper ini akan dibahas pada bagian selanjutnya.</p>
+
+<h1>Interface Business Service</h1>
+
+<p>Ini adalah daftar fitur yang ada di aplikasi, didefinisikan berupa class/interface dan method.</p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>public interface PenjualanService {</p>
+
+<pre><code>// service berkaitan dengan produk
+void simpan(Produk p);
+Produk cariProdukById(Integer id);
+Produk cariProdukByKode(String kode);
+Long hitungSemuaProduk();
+List&lt;Produk&gt; cariSemuaProduk(Integer halaman, Integer baris);
+Long hitungProdukByNama(String nama);
+List&lt;Produk&gt; cariProdukByNama(String nama, Integer halaman, Integer baris);
+
+// service yang berkaitan dengan transaksi
+void simpan(Penjualan p);
+Penjualan cariPenjualanById(Integer id);
+Long hitungPenjualanByPeriode(Date mulai, Date sampai);
+List&lt;Penjualan&gt; cariPenjualanByPeriode(Date mulai, Date sampai, Integer halaman, Integer baris);
+Long hitungPenjualanDetailByProdukDanPeriode(Produk p, Date mulai, Date sampai);
+List&lt;PenjualanDetail&gt; cariPenjualanDetailByProdukDanPeriode(Produk p, Date mulai, Date sampai, Integer halaman, Integer baris);
+</code></pre>
+
+<p>}
+```</p>
+
+<h1>Implementasi Business Service</h1>
+
+<p>Implementasi dari interface di atas kita bagi menjadi dua kategori, yaitu class implementasi service yang nantinya akan memanggil class DAO. Pertimbangan dan alasan mengapa begini sudah dijelaskan di atas.</p>
+
+<h2>Class ServiceSpringJdbc</h2>
+
+<p>Class ini sebetulnya hanya memanggil class DAO saja, jadi baiklah kita tampilkan seluruh isinya di sini.</p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
+
+<p>// import statement generate dari IDE</p>
+
+<p>@Service @Transactional
+public class PenjualanServiceSpringJdbc implements PenjualanService{</p>
+
+<pre><code>@Autowired private ProdukDao produkDao;
+@Autowired private PenjualanDao penjualanDao;
+@Autowired private PenjualanDetailDao penjualanDetailDao;
+
+@Override
+public void simpan(Produk p) {
+    produkDao.simpan(p);
+}
+
+@Override
+public Produk cariProdukById(Integer id) {
+    return produkDao.cariById(id);
+}
+
+@Override
+public Produk cariProdukByKode(String kode) {
+    return produkDao.cariByKode(kode);
+}
+
+@Override
+public Long hitungSemuaProduk() {
+    return produkDao.hitungSemua();
+}
+
+@Override
+public List&lt;Produk&gt; cariSemuaProduk(Integer halaman, Integer baris) {
+    return produkDao.cariSemua(halaman, baris);
+}
+
+@Override
+public Long hitungProdukByNama(String nama) {
+    return produkDao.hitungByNama(nama);
+}
+
+@Override
+public List&lt;Produk&gt; cariProdukByNama(String nama, Integer halaman, Integer baris) {
+    return produkDao.cariByNama(nama, halaman, baris);
+}
+
+@Override
+public void simpan(Penjualan p) {
+    penjualanDao.simpan(p);
+}
+
+@Override
+public Penjualan cariPenjualanById(Integer id) {
+    return penjualanDao.cariById(id);
+}
+
+@Override
+public Long hitungPenjualanByPeriode(Date mulai, Date sampai) {
+    return penjualanDao.hitungByPeriode(mulai, sampai);
+}
+
+@Override
+public List&lt;Penjualan&gt; cariPenjualanByPeriode(Date mulai, Date sampai, 
+        Integer halaman, Integer baris) {
+    return penjualanDao.cariByPeriode(mulai, sampai, halaman, baris);
+}
+
+@Override
+public Long hitungPenjualanDetailByProdukDanPeriode(Produk p, 
+        Date mulai, Date sampai) {
+    return penjualanDetailDao.hitungByProdukDanPeriode(p, mulai, sampai);
+}
+
+@Override
+public List&lt;PenjualanDetail&gt; cariPenjualanDetailByProdukDanPeriode(Produk p, 
+        Date mulai, Date sampai, Integer halaman, Integer baris) {
+    return penjualanDetailDao.cariByProdukDanPeriode(p, mulai, sampai, halaman, baris);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Class DAO</h2>
+
+<p>Class DAO akan kita bahas secara mendetail di bagian selanjutnya. Pada kesempatan ini kita hanya tampilkan deklarasi class dan method saja supaya jelas mana method yang dipanggil dari implementasi service di atas.</p>
+
+<h3>ProdukDAO</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.dao.springjdbc;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>@Repository
+public class ProdukDao {</p>
+
+<pre><code>public void simpan(Produk p) {}
+
+public Produk cariById(Integer id) {}
+
+public Produk cariByKode(String kode) {}
+
+public Long hitungSemua() {}
+
+public List&lt;Produk&gt; cariSemua(Integer halaman, Integer baris) {}
+
+public Long hitungByNama(String nama) {}
+
+public List&lt;Produk&gt; cariByNama(String nama, Integer halaman, Integer baris) {}
+
+private class ResultSetJadiProduk implements RowMapper&lt;Produk&gt; {
+    @Override
+    public Produk mapRow(ResultSet rs, int i) throws SQLException {}
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>PenjualanDao</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.dao.springjdbc;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>@Repository
+public class PenjualanDao {</p>
+
+<pre><code>public void simpan(Penjualan p) {}
+
+public Penjualan cariById(Integer id) {}
+
+public Long hitungByPeriode(Date mulai, Date sampai) {}
+
+public List&lt;Penjualan&gt; cariByPeriode(Date mulai, Date sampai, Integer halaman, Integer baris) {}
+
+
+private class ResultSetJadiPenjualan implements RowMapper&lt;Penjualan&gt; {
+    @Override
+    public Penjualan mapRow(ResultSet rs, int i) throws SQLException {}
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>PenjualanDetailDao</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.dao.springjdbc;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>@Repository
+public class PenjualanDetailDao {</p>
+
+<pre><code>public void simpan(final PenjualanDetail p) {}
+
+public List&lt;PenjualanDetail&gt; cariByPenjualan(Penjualan p) {}
+
+public Long hitungByProdukDanPeriode(Produk p, Date mulai, Date sampai) {}
+
+public List&lt;PenjualanDetail&gt; cariByProdukDanPeriode(Produk p, Date mulai, Date sampai, Integer halaman, Integer baris) {}
+
+
+private class ResultSetJadiPenjualanDetail implements RowMapper&lt;PenjualanDetail&gt; {
+    @Override
+    public PenjualanDetail mapRow(ResultSet rs, int i) throws SQLException {}
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h1>Automated Test</h1>
+
+<p>Seperti dijelaskan di atas, automated test kita bagi menjadi dua kategori, yaitu abstract class yang menampung semua logika pengetesan, dan concrete class yang menyediakan konfigurasi.</p>
+
+<h2>Abstract Base Class</h2>
+
+<h3>ProdukServiceTest</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>public abstract class ProdukServiceTest {</p>
+
+<pre><code>public abstract PenjualanService getPenjualanService();
+public abstract DataSource getDataSource();
+
+@Before
+public void bersihkanDataTest() throws Exception {}
+
+@Test
+public void testSimpanProduk() {}
+
+@Test
+public void testCariProdukById() {}
+
+@Test
+public void testCariProdukByKode() {}
+
+@Test
+public void testHitungSemuaProduk() {}
+
+@Test
+public void testCariSemuaProduk() {}
+
+@Test
+public void testHitungProdukByNama() {}
+
+@Test
+public void testCariProdukByNama() {}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>PenjualanServiceTest</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>public abstract class PenjualanServiceTest {</p>
+
+<pre><code>public abstract PenjualanService getPenjualanService();
+public abstract DataSource getDataSource();
+
+@Before
+public void bersihkanDataTest() throws Exception {}
+
+@Test
+public void testSimpanPenjualan() throws Exception {}
+
+@Test
+public void testCariPenjualanById(){}
+
+@Test
+public void testHitungPenjualanByPeriode(){}
+
+@Test
+public void testCariPenjualanByPeriode(){}
+
+@Test
+public void testHitungPenjualanDetailByProdukDanPeriode(){}
+
+@Test
+public void testCariPenjualanDetailByProdukDanPeriode(){}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Seperti kita lihat di atas, kedua class tersebut memiliki dua abstract method, yaitu:</p>
+
+<ul>
+<li><code>public abstract PenjualanService getPenjualanService()</code></li>
+<li><code>public abstract DataSource getDataSource();</code></li>
+</ul>
+
+
+<p>Kedua object <code>PenjualanService</code> dan <code>DataSource</code> didapatkan dari konfigurasi Spring.
+Konfigurasi Spring dibuat berdasarkan teknologi yang digunakan.
+Konfigurasi Spring JDBC berbeda dengan konfigurasi Hibernate ataupun Spring Data JPA.</p>
+
+<p>Dengan teknik ini, bila di kemudian hari kita membuat implementasi dengan Hibernate atau Spring Data JPA,
+kita tidak perlu lagi copy-paste test class, cukup buat subclass yang menyediakan kedua object tersebut.</p>
+
+<p>Berikut adalah subclassnya</p>
+
+<h2>Implementasi Test Business Service</h2>
+
+<p>Karena hanya beberapa baris dan tidak butuh banyak penjelasan, kita tampilkan di sini full source code, bukan hanya kerangkanya saja.</p>
+
+<h3>ProdukServiceSpringJdbcTest</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath*:com/muhardin/**/spring-jdbc-ctx.xml")
+public class ProdukServiceSpringJdbcTest extends ProdukServiceTest {</p>
+
+<pre><code>@Autowired private DataSource dataSource;
+@Autowired private PenjualanService penjualanService;
+
+@Override
+public PenjualanService getPenjualanService() {
+    return penjualanService;
+}
+
+@Override
+public DataSource getDataSource() {
+    return dataSource;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>PenjualanServiceSpringJdbcTest</h3>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
+
+<p>// import generate dari IDE</p>
+
+<p>@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath*:com/muhardin/**/spring-jdbc-ctx.xml")
+public class PenjualanServiceSpringJdbcTest extends PenjualanServiceTest {</p>
+
+<pre><code>@Autowired private DataSource dataSource;
+@Autowired private PenjualanService penjualanService;
+
+@Override
+public PenjualanService getPenjualanService() {
+    return penjualanService;
+}
+
+@Override
+public DataSource getDataSource() {
+    return dataSource;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Seperti kita lihat di atas, <code>dataSource</code> dan <code>penjualanService</code> disediakan melalui Dependency Injection.</p>
+
+<p>Cara kerjanya sebagai berikut:</p>
+
+<ol>
+<li>Kita jalankan JUnit melalui IDE atau Maven. IDE atau Maven akan membaca semua file dalam folder <code>src/test/java</code> dan memproses semua class yang namanya berakhiran <code>Test</code> seperti <code>PenjualanServiceSpringJdbcTest</code>. IDE/Maven juga memproses <code>PenjualanServiceTest</code>, tapi karena classnya abstract maka tidak diproses lebih lanjut.</li>
+<li>JUnit melihat annotation <code>@RunWith</code>, jadi dia tidak menjalankan sendiri melainkan menyuruh <code>SpringJUnit4ClassRunner</code> untuk menjalankan test</li>
+<li><code>SpringJUnit4ClassRunner</code> membaca annotation <code>@ContextConfiguration</code>, lalu menggunakan nilai di dalamnya untuk melakukan inisialisasi <code>ApplicationContext</code>, kemudian mengisi variabel yang ditandai dengan <code>@Autowired</code></li>
+<li>Karena <code>PenjualanServiceSpringJdbcTest</code> merupakan subclass dari <code>PenjualanServiceTest</code>, maka dia akan mewarisi semua method <code>@Test</code> yang dimiliki <code>PenjualanServiceTest</code>. Method <code>@Test</code> ini akan dijalankan oleh IDE/Maven.</li>
+<li>Pada waktu method <code>@Test</code> dijalankan, bila perlu object <code>PenjualanService</code>, maka akan didapat dengan cara memanggil method <code>getPenjualanService</code>. Karena methodnya sudah dibuatkan implementasinya (tidak abstract lagi) dan sudah ada isinya, maka method <code>@Test</code> dapat bekerja dengan baik.</li>
+</ol>
+
+
+<p>Demikianlah bagian kedua dari tutorial mengakses database menggunakan Spring JDBC. Pada bagian ini kita sudah melihat bagaimana cara pengaturan file/folder dan interaksi antar class/method. Di bagian selanjutnya kita akan lihat bagaimana cara menjalankan perintah SQL.</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Konfigurasi Koneksi Database dengan Spring]]></title>
     <link href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/"/>
     <updated>2013-05-27T17:02:00+07:00</updated>
     <id>http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring</id>
-    <content type="html"><![CDATA[<h1>Pengantar</h1>
-
-<p>Di Java, ada banyak cara untuk mengakses database, diantaranya:</p>
+    <content type="html"><![CDATA[<p>Di Java, ada banyak cara untuk mengakses database, diantaranya:</p>
 
 <ul>
 <li><a href="http://docs.oracle.com/javase/tutorial/jdbc/">JDBC polos tanpa framework apapun</a></li>
@@ -39,9 +773,11 @@ Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan 
 <p>Artikel ini merupakan bagian pertama dari rangkaian artikel Spring JDBC, yaitu</p>
 
 <ol>
-<li>Konfigurasi koneksi database (artikel ini)</li>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li>Insert, update, dan delete data</li>
 <li>Mengambil data (query)</li>
+<li>Melakukan pengetesan</li>
 </ol>
 
 
@@ -372,7 +1108,7 @@ conn.createStatement().executeUpdate(sql);
 </ul>
 
 
-<p>Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan membuat kode program untuk menyimpan, mengubah, dan menghapus data dalam database.</p>
+<p>Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan <a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">menyiapkan kerangka aplikasinya dulu</a>.</p>
 ]]></content>
   </entry>
   
@@ -742,500 +1478,6 @@ AND TABLE_SCHEMA='db_penjualan';
 
 
 <p>Demikian sekilas tutorial. Semoga bermanfaat dalam membuat validasi.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Memahami Dependency Injection]]></title>
-    <link href="http://software.endy.muhardin.com/java/memahami-dependency-injection/"/>
-    <updated>2013-01-24T18:14:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/memahami-dependency-injection</id>
-    <content type="html"><![CDATA[<p><a href="http://www.springsource.org/spring-framework">Spring Framework</a>
-merupakan framework yang sangat populer
-dan banyak digunakan orang di seluruh dunia.
-Jargon utama yang sering kita dengar bersamaan dengan Spring Framework
-adalah prinsip <em>Dependency Injection</em>. Ini adalah teknik pemrograman
-yang digadang-gadang mampu merapikan aplikasi yang kita buat sehingga
-mudah dipahami dan dikelola.</p>
-
-<p>Tapi apakah yang dimaksud dengan <em>Dependency Injection</em> atau <em>Inversion of Control</em> itu?</p>
-
-<!--more-->
-
-
-<h1>Contoh Kasus</h1>
-
-<p>Sebagai programmer, kita akan lebih mudah memahami suatu konsep
-bila sudah melihat sendiri contoh kode program dan aplikasinya.
-Untuk itu, kita akan membuat sebuah contoh kasus sederhana,
-yaitu menyimpan data ke tabel <code>produk</code> dalam database.</p>
-
-<p>Untuk titik awal, misalnya kita memiliki class <code>Produk</code> sebagai berikut:</p>
-
-<h2>Produk.java</h2>
-
-<p>```java
-public class Produk {</p>
-
-<pre><code>private Integer id;
-private String kode;
-private String nama;
-private BigDecimal harga;
-
-// getter dan setter tidak ditampilkan
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Supaya rapi, kode program untuk Create (insert), Read (select),
-Update, dan Delete (CRUD), akan kita kumpulkan di dalam class <code>ProdukDao</code> sebagai berikut:</p>
-
-<h2>ProdukDao.java</h2>
-
-<p>```java
-public class ProdukDao {</p>
-
-<pre><code>private DataSource dataSource;
-
-public void create(Produk p) throws Exception {
-    String sql = "insert into produk (kode, nama, harga) ";
-    sql += "(?,?,?)";
-
-    Connection databaseConnection = dataSource.getConnection();
-    PreparedStatement ps = databaseConnection.prepareStatement(sql);
-    ps.setString(1, p.getKode());
-    ps.setString(2, p.getNama());
-    ps.setBigDecimal(3, p.getHarga());
-    ps.executeUpdate();
-    databaseConnection.close();
-}
-
-public Produk cariById(Integer id){
-    // implementasi tidak ditulis
-}
-
-
-public void update(Produk p){
-    // implementasi tidak ditulis
-}
-
-
-public void delete(Produk p){
-    // implementasi tidak ditulis
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Sebagai demonstrasi, kita akan menggunakan/memanggil <code>ProdukDao</code> ini dalam class
-<code>ProdukDaoTest</code> sebagai berikut:</p>
-
-<h2>ProdukDaoTest.java</h2>
-
-<p>```java
-public class ProdukDaoTest {</p>
-
-<pre><code>public static void main(String[] xx){
-    Produk p = new Produk();
-    p.setKode("P-001");
-    p.setNama("Produk 001");
-    p.setHarga(new BigDecimal(10000.00);
-
-    ProdukDao pd = new ProdukDao();
-    pd.simpan(p);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Dari ketiga class di atas, kita akan melihat:</p>
-
-<ul>
-<li>bagaimana implementasi tanpa Dependency Injection</li>
-<li>bagaimana konsep Dependency Injection</li>
-<li>bagaimana menggunakan Spring Framework untuk melakukan Dependency Injection</li>
-</ul>
-
-
-<p>Sebelumnya, apa itu dependency injection? Kalau diterjemahkan ke bahasa Indonesia,
-kira-kira artinya adalah <em>menyediakan kebutuhan</em>.
-Kebutuhan apa yang dimaksud?</p>
-
-<p>Coba lihat class <code>ProdukDao</code>. Untuk bisa menjalankan tugasnya dengan baik,
-dia membutuhkan object <code>DataSource</code>, yaitu koneksi ke database.
-Bagaimana <code>ProdukDao</code> mendapatkan <code>DataSource</code> inilah yang menjadi pembahasan dalam <em>Dependency Injection</em> (DI).</p>
-
-<h1>Tanpa DI</h1>
-
-<p>Kalau kita tidak menggunakan prinsip DI, maka <code>ProdukDao</code> harus mengadakan sendiri object <code>DataSource</code>.
-Kira-kira begini implementasinya:</p>
-
-<p>```java
-public class ProdukDao {</p>
-
-<pre><code>private DataSource dataSource;
-
-public ProdukDao() throws Exception {
-    dataSource = new BasicDataSource();
-    dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-    dataSource.setUsername("root");
-    dataSource.setPassword("admin");
-    dataSource.setUrl("jdbc:mysql://localhost/belajar");
-}
-
-public void create(Produk p) throws Exception {
-    String sql = "insert into produk (kode, nama, harga) ";
-    sql += "(?,?,?)";
-
-    Connection databaseConnection = dataSource.getConnection();
-    PreparedStatement ps = databaseConnection.prepareStatement(sql);
-    ps.setString(1, p.getKode());
-    ps.setString(2, p.getNama());
-    ps.setBigDecimal(3, p.getHarga());
-    ps.executeUpdate();
-    databaseConnection.close();
-}
-
-public Produk cariById(Integer id){
-    // implementasi tidak ditulis
-}
-
-
-public void update(Produk p){
-    // implementasi tidak ditulis
-}
-
-
-public void delete(Produk p){
-    // implementasi tidak ditulis
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Perlu kita sadari bahwa pada aplikasi yang sebenarnya, kode akses database tidak hanya <code>ProdukDao</code> saja.
-Nantinya juga ada <code>CustomerDao</code>, <code>PenjualanDao</code>, dan sebagainya.
-Di aplikasi berskala menengah, bisa ada ratusan class seperti ini,
-sehingga untuk memahami situasinya, kita tidak boleh berpikir hanya di satu class ini saja.</p>
-
-<p>Ada beberapa kelemahan dari cara tanpa DI ini, diantaranya:</p>
-
-<ul>
-<li>Konfigurasi koneksi database tersebar di banyak tempat, yaitu di semua <code>XxxDao</code></li>
-<li>Object <code>dataSource</code> juga tersebar, tidak bisa satu <code>dataSource</code> dipakai bersama oleh semua <code>XxxDao</code></li>
-<li>Karena konfigurasi dan inisialisasinya tersebar, bila ada perubahan (misalnya menggunakan <em>connection pooling</em>),
-harus dilakukan di banyak tempat.</li>
-<li>Semua perubahan di atas mengharuskan full compile karena banyaknya class yang terlibat.</li>
-</ul>
-
-
-<p>Untuk mengatasi keterbatasan di atas, kita gunakan prinsip DI.</p>
-
-<h1>DI manual</h1>
-
-<p>Bila kita gunakan prinsip DI, maka <code>ProdukDao</code> tidak lagi mengurus inisialisasi <code>dataSource</code>.
-Dia cukup tahu beres dan tinggal pakai. Lalu siapa yang melakukan inisialisasi?
-Boleh siapa saja, tapi untuk kesederhanaan ilustrasi, mari kita tulis saja di dalam <code>ProdukDaoTest</code>, sebagai berikut:</p>
-
-<p>```java
-public class ProdukDaoTest {</p>
-
-<pre><code>public static void main(String[] xx){
-    Produk p = new Produk();
-    p.setKode("P-001");
-    p.setNama("Produk 001");
-    p.setHarga(new BigDecimal(10000.00);
-
-    DataSource dataSource = new BasicDataSource();
-    dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-    dataSource.setUsername("root");
-    dataSource.setPassword("admin");
-    dataSource.setUrl("jdbc:mysql://localhost/belajar");
-
-    ProdukDao pd = new ProdukDao();
-    pd.simpan(p);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Lalu bagaimana cara memasukkan (inject) ke dalam <code>ProdukDao</code>?
-Kita harus sediakan jalan masuknya. Ada dua pilihan:</p>
-
-<ul>
-<li>membuat method untuk mengisi data (setter-injection)</li>
-<li>menambah argumen di constructor (constructor-injection)</li>
-</ul>
-
-
-<p>Agar jelas, kita akan buatkan dua-duanya.</p>
-
-<p>```java
-public class ProdukDao {</p>
-
-<pre><code>private DataSource dataSource;
-
-// ini kalau mau inject melalui constructor
-public ProdukDao(DataSource ds) {
-    this.dataSource = ds;
-}
-
-// ini kalau mau method sendiri (setter-injection)
-public void setDataSource(DataSource ds) {
-    this.dataSource = ds;
-}
-
-// method lain tidak ditampilkan supaya tidak bikin penuh
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Selanjutnya, dalam <code>ProdukDaoTest</code> kita bisa isikan object DataSource tersebut melalui constructor seperti ini:</p>
-
-<p><code>java
-ProdukDao pd = new ProdukDao(dataSource);
-</code></p>
-
-<p>ataupun melalui method setter seperti ini:</p>
-
-<p><code>java
-ProdukDao pd = new ProdukDao();
-pd.setDataSource(dataSource);
-</code></p>
-
-<p>Cara manual ini sudah lumayan merapikan kode program kita, karena bila ada perubahan terhadap inisialisasi dataSource, seperti misalnya:</p>
-
-<ul>
-<li>perubahan konfigurasi koneksi</li>
-<li>perubahan implementasi connection pooling</li>
-<li>ingin menggunakan managed DataSource melalui JNDI</li>
-<li>dsb</li>
-</ul>
-
-
-<p>Kita cukup melakukan perubahan di satu tempat saja, yaitu dimana dia diinisialisasikan.</p>
-
-<h1>DI Spring XML</h1>
-
-<p>Walaupun bisa dilakukan secara manual, tetapi ada baiknya kita menggunakan Spring Framework untuk melakukan DI.
-Beberapa alasannya antara lain:</p>
-
-<ul>
-<li>AOP (tidak dibahas pada artikel ini)</li>
-<li>keseragaman antar project/aplikasi</li>
-<li>standarisasi skillset. Bila cari programmer baru, cukup mensyaratkan pengetahuan Spring Framework.
-Tidak perlu lagi ditraining tentang teknik DI yang kita karang sendiri.</li>
-</ul>
-
-
-<p>Spring Framework <strong>umumnya</strong> dikonfigurasi dengan file XML (walaupun bisa juga full Java).
-Berikut adalah contoh file konfigurasinya, misalnya kita beri nama <code>konfig-spring.xml</code>:</p>
-
-<p>```xml
-&lt;?xml version="1.0" encoding="UTF-8"?>
-&lt;beans xmlns="http://www.springframework.org/schema/beans"</p>
-
-<pre><code>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:context="http://www.springframework.org/schema/context"
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"&gt;
-
-&lt;bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"&gt;
-    &lt;property name="driverClassName" value="com.mysql.jdbc.Driver" /&gt;
-    &lt;property name="url" value="jdbc:mysql://localhost/belajar" /&gt;
-    &lt;property name="username" value="root" /&gt;
-    &lt;property name="password" value="admin" /&gt;
-&lt;/bean&gt;
-
-&lt;bean id="produkDao" class="com.muhardin.endy.belajar.spring.ProdukDao"&gt;
-    &lt;property name="dataSource" ref="dataSource"/&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p></beans>
-```</p>
-
-<p>File konfigurasi tersebut kita baca dan gunakan dalam class <code>ProdukDaoTest</code>,
-perhatikan perbedaan inisialisasi <code>DataSource</code> dan <code>ProdukDao</code></p>
-
-<p>```java
-public class ProdukDaoTest {</p>
-
-<pre><code>public static void main(String[] xx){
-    Produk p = new Produk();
-    p.setKode("P-001");
-    p.setNama("Produk 001");
-    p.setHarga(new BigDecimal(10000.00);
-
-    ApplicationContext ctx 
-        = new ClassPathXmlApplicationContext("classpath:konfig-spring.xml");
-
-    ProdukDao pd = ctx.getBean(ProdukDao.class);
-    pd.simpan(p);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Pada contoh di atas, kita bisa lihat beberapa perbedaan yaitu:</p>
-
-<ul>
-<li>inisialisasi <code>DataSource</code> pindah ke dalam <code>konfig-spring.xml</code></li>
-<li>tidak perlu lagi <em>mengisikan</em> <code>DataSource</code> ke dalam <code>ProdukDao</code>, karena sudah dilakukan oleh Spring.</li>
-</ul>
-
-
-<p>Walaupun demikian, masih ada sedikit ganjalan, yaitu:</p>
-
-<ul>
-<li>bila <code>XxxDao</code> jumlahnya ratusan, maka file <code>konfig-spring.xml</code> akan membengkak.</li>
-</ul>
-
-
-<p>Apa solusinya?</p>
-
-<h1>DI Spring @Autowired</h1>
-
-<p>Spring Framework menyediakan fitur <em>component-scan</em>, yaitu dia akan melihat isi <em>package</em> yang kita sebutkan,
-kemudian akan mencari class-class yang diberi anotasi berikut:</p>
-
-<ul>
-<li><code>@Repository</code></li>
-<li><code>@Service</code></li>
-<li><code>@Controller</code></li>
-<li><code>@Component</code></li>
-</ul>
-
-
-<p>Setelah ditemukan, maka dia akan melakukan inisialisasi terhadap class tersebut, dan lalu mengisi (inject)
-semua kebutuhannya (dependency). Untuk injection ini, kita juga tidak perlu lagi menyediakan setter method maupun
-menambahkan argumen di constructor. Kita dapat menggunakan anotasi <code>@Autowired</code>.</p>
-
-<p>Berikut adalah konfigurasi <code>konfig-spring.xml</code> yang baru:</p>
-
-<p>```xml
-&lt;?xml version="1.0" encoding="UTF-8"?>
-&lt;beans xmlns="http://www.springframework.org/schema/beans"</p>
-
-<pre><code>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xmlns:context="http://www.springframework.org/schema/context"
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"&gt;
-
-&lt;bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"&gt;
-    &lt;property name="driverClassName" value="com.mysql.jdbc.Driver" /&gt;
-    &lt;property name="url" value="jdbc:mysql://localhost/belajar" /&gt;
-    &lt;property name="username" value="root" /&gt;
-    &lt;property name="password" value="admin" /&gt;
-&lt;/bean&gt;
-
-&lt;context:component-scan base-package="com.muhardin.endy.belajar.spring" /&gt;
-</code></pre>
-
-<p></beans>
-```</p>
-
-<p>Perhatikan bahwa deklarasi <code>produkDao</code> telah digantikan dengan perintah <code>context:component-scan</code>.</p>
-
-<p>Berikut adalah perubahan di <code>ProdukDao</code></p>
-
-<p>```java
-@Repository
-public class ProdukDao {</p>
-
-<pre><code>@Autowired private DataSource dataSource;
-
-public void create(Produk p){
-    String sql = "insert into produk (kode, nama, harga) ";
-    sql += "(?,?,?)";
-
-    Connection databaseConnection = dataSource.getConnection();
-    PreparedStatement ps = databaseConnection.prepareStatement(sql);
-    ps.setString(1, p.getKode());
-    ps.setString(2, p.getNama());
-    ps.setBigDecimal(3, p.getHarga());
-    ps.executeUpdate();
-    databaseConnection.close();
-}
-
-// method lain tidak ditampilkan supaya tidak bikin penuh
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Perhatikan bahwa setter dan constructor injection sudah dihapus,
-dan digantikan dengan anotasi <code>@Autowired</code>.
-Semua field/property yang memiliki anotasi <code>@Autowired</code> akan diisikan oleh Spring dengan object bertipe-data sesuai.
-Bila tidak ditemukan, maka aplikasi akan gagal start dengan pesan error seperti ini:</p>
-
-<p><code>
-SEVERE: Context initialization failed
-org.springframework.beans.factory.BeanCreationException:
-Error creating bean with name 'produkDao':
-Injection of autowired dependencies failed;
-nested exception is org.springframework.beans.factory.BeanCreationException:
-Could not autowire field:
-private javax.sql.DataSource dataSource;
-nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException:
-No matching bean of type [javax.sql.DataSource] found for dependency:
-expected at least 1 bean which qualifies as autowire candidate for this dependency.
-</code></p>
-
-<p>Bila menemukan pesan error tersebut, artinya Spring tidak memiliki satupun object bertipe <code>DataSource</code>
-dalam daftar pengelolaannya. Untuk bisa dikelola oleh Spring, ada beberapa caranya, yaitu:</p>
-
-<ul>
-<li>dideklarasikan secara tertulis seperti object <code>dataSource</code> di atas</li>
-<li>discan otomatis melalui <code>component-scan</code> dan anotasi <code>@Repository</code>, <code>@Service</code>, <code>@Controller</code>, ataupun<code>@Component</code>.
-Contohnya object <code>produkDao</code> di atas.</li>
-</ul>
-
-
-<p>Ada beberapa kesalahan yang umum terjadi sehingga muncul pesan error di atas, diantaranya</p>
-
-<ul>
-<li>sudah ada anotasi, tapi package tempatnya berada tidak didaftarkan dalam <code>component-scan</code></li>
-<li>package sudah didaftarkan dalam <code>component-scan</code>, tapi classnya tidak diberikan anotasi <code>@Repository</code>, <code>@Service</code>, <code>@Controller</code>, ataupun<code>@Component</code>.</li>
-<li>sudah ada anotasi, packagenya sudah didaftarkan, tapi file xml yang memuat konfigurasi tersebut tidak diload oleh aplikasi.
-Ini biasa terjadi kalau satu aplikasi terdiri dari banyak file konfigurasi Spring (yang mana ini adalah hal yang umum terjadi)</li>
-</ul>
-
-
-<p>Lalu kapan dan bagaimana Spring membaca file konfigurasi? Ada beberapa cara:</p>
-
-<ul>
-<li>Ditulis dalam kode program : <code>new ClassPathXmlApplicationContext("classpath:konfig-spring.xml")</code></li>
-<li>Bila aplikasinya berbasis web, biasanya diinisialisasi melalui <code>web.xml</code> seperti ini:</li>
-</ul>
-
-
-<p>```xml
-<context-param></p>
-
-<pre><code>&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-&lt;param-value&gt;
-    classpath*:konfig-spring.xml
-&lt;/param-value&gt;
-</code></pre>
-
-<p></context-param>
-<listener></p>
-
-<pre><code>&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-</code></pre>
-
-<p></listener>
-```</p>
-
-<p>Demikianlah penjelasan tentang konsep Dependency Injection dan Spring Framework. Semoga bermanfaat.</p>
 ]]></content>
   </entry>
   

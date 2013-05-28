@@ -1,0 +1,1402 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Struktur Aplikasi Java dengan Spring dan Maven - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada bagian sebelumnya kita telah membahas konfigurasi awal
+dan studi kasus yang akan digunakan untuk menunjukkan fitur Spring JDBC. Di artikel &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Struktur Aplikasi Java Dengan Spring Dan Maven</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-28T15:06:00+07:00" pubdate data-updated="true">May 28<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada <a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">bagian sebelumnya</a> kita telah membahas konfigurasi awal
+dan studi kasus yang akan digunakan untuk menunjukkan fitur Spring JDBC.</p>
+
+<p>Di artikel bagian kedua ini, kita akan membahas tentang kerangka aplikasi yang akan dibuat.
+Sebelum membuat implementasi detail, sangat penting kita buat dulu kerangkanya supaya jelas
+apa saja bagian-bagian dalam aplikasi dan bagaimana mereka saling terhubung.</p>
+
+<p>Artikel ini merupakan bagian kedua dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li>Insert, update, dan delete data</li>
+<li>Mengambil data (query)</li>
+<li>Melakukan pengetesan</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Daftar class yang akan dibuat</h2>
+
+<p>Class yang akan dibuat kita bagi menjadi empat fungsi utama, yaitu:</p>
+
+<ul>
+<li>domain object : class yang mewakili struktur data dalam aplikasi kita</li>
+<li>interface business service : class yang mendefinisikan daftar fitur-fitur dalam aplikasi</li>
+<li>implementasi business service : implementasi dari interface business service. Kalau di interface hanya ada nama method, argumen, dan tipe data kembalian (return value), di sini sudah ada implementasi konkritnya, yaitu bagaimana query database, logika perhitungan, dan sebagainya.</li>
+<li>automated test : memeriksa apakah method kita berjalan benar itu melelahkan. Jadi kita buatkan kode program untuk mengetesnya, sehingga tes yang sama bisa dijalankan berulang-ulang tanpa membuat kita lelah. Lebih lanjut tentang automated test bisa dibaca di <a href="http://software.endy.muhardin.com/java/ruthless-testing-1/">artikel lain yang membahas masalah ini</a>.</li>
+</ul>
+
+
+<h3>Domain Object</h3>
+
+<p>Sesuai dengan skema database, kita akan membuat tiga class, yaitu:</p>
+
+<ul>
+<li>Produk</li>
+<li>Penjualan</li>
+<li>PenjualanDetail</li>
+</ul>
+
+
+<p>Buat yang sudah pernah coding JDBC biasanya akan bertanya,</p>
+
+<blockquote><p>Kenapa repot-repot membuat domain class, kemudian harus konversi bolak balik?<br/>Kan bisa saja kita kirim `ResultSet` ke tampilan, ataupun insert langsung dari array ke `PreparedStatement`.</p></blockquote>
+
+
+<p>Pertanyaan ini biasanya muncul dari programmer PHP yang terbiasa langsung menampilkan kembalian <code>mysql_fetch_array</code> dalam looping tabel.</p>
+
+<p>Ada beberapa alasan:</p>
+
+<ol>
+<li><p>Sebenarnya bisa saja kita buat aplikasi dengan menggunakan tipe data yang disediakan Java seperti Integer, String, Map, List, dan lainnya. Tapi akibatnya kode program kita menjadi sulit dimengerti. Coba bandingkan, lebih mudah dimengerti <code>public void simpan(Produk p)</code> atau <code>public void simpan(Map p)</code>? Dengan membuat tipe data sesuai istilah yang digunakan di domain kita, maka kode program akan lebih mudah dipahami.</p></li>
+<li><p>Java merupakan bahasa yang <a href="http://en.wikipedia.org/wiki/Strong_and_weak_typing">strongly-typed</a>, dia memeriksa tipe data/class dari tiap variabel. Pada ilustrasi di atas, method <code>public void simpan(Map p)</code> akan menerima apapun data yang kita masukkan ke dalam variabel <code>p</code>. Kalau ada kesalahan dalam nama variabel (misalnya nama ditulis name), baru akan terdeteksi pada waktu aplikasi dijalankan. Berbeda dengan <code>public void simpan(Produk p)</code> yang akan langsung menimbulkan pesan error apabila kita isi dengan tipe data selain <code>Produk</code>. Bug yang ditemukan pada waktu coding (compile-time) akan jauh lebih cepat diperbaiki daripada bug yang baru ditemukan pada waktu aplikasi dijalankan (runtime). Programmer PHP ada benarnya juga. Di bahasa PHP memang domain class ini tidak diperlukan, karena PHP tidak ada pemeriksaan compile-time. Tapi karena kita menggunakan Java, ada baiknya kita manfaatkan pemeriksaan compile-time ini.</p></li>
+<li><p>Memisahkan antara layer database dan layer antarmuka. Apabila ada perubahan skema database, asalkan fitur di tampilan tidak berubah, kita cukup mengubah mapping domain object dan skema database. Tidak perlu mengubah kode program di layer antarmuka.</p></li>
+<li><p>Pustaka siap pakai untuk validasi. Di Java, ada yang namanya <a href="http://jcp.org/en/jsr/detail?id=303">JSR-303</a>, yaitu suatu pustaka yang berguna untuk validasi. Dengan <a href="http://www.mkyong.com/spring-mvc/spring-3-mvc-and-jsr303-valid-example/">menggunakan JSR-303</a> ini kita tidak perlu lagi melakukan pengecekan <code>if(produk.getKode() == null)</code>. Cukup kita gunakan deklarasi <code>@NotNull private String kode;</code> dalam class <code>Produk</code></p></li>
+</ol>
+
+
+<h3>Interface Business Service</h3>
+
+<p>Interface di Java artinya class yang methodnya abstrak semua. Lebih detail tentang method abstrak bisa dibaca di <a href="http://software.endy.muhardin.com/java/interface-abstract/">artikel ini</a>. Ada beberapa alasan kenapa kita harus memisahkan interface dan implementasinya, antara lain:</p>
+
+<ul>
+<li><p>pada waktu <a href="http://software.endy.muhardin.com/java/remoting-dengan-spring/">membuat aplikasi client-server</a>, kita cukup memberikan domain object dan interface ini kepada programmer aplikasi client. Sedangkan implementasinya (yang berisi kode program akses database) tetap di server. Ini akan meringankan ukuran aplikasi client, karena tidak perlu menyertakan implementasi (beserta library pendukungnya yang biasanya besar) yang tidak dia gunakan.</p></li>
+<li><p>kita bebas mengubah strategi implementasi (misalnya ganti database dari MySQL menjadi PostgreSQL) tanpa perlu mengganggu aplikasi client</p></li>
+<li><p>fitur declarative transaction yang dimiliki Spring akan lebih optimal bekerja bila kita memisahkan interface dan implementasi.</p></li>
+</ul>
+
+
+<p>Interface ini cukup satu class saja, yaitu <code>AplikasiPenjualanService</code>.</p>
+
+<h3>Implementasi Business Service</h3>
+
+<p>Ini merupakan implementasi dari interface <code>AplikasiPenjualanService</code>. Pada prakteknya, ada dua variasi yang biasa saya gunakan dalam membuat implementasi, yaitu:</p>
+
+<ul>
+<li>cukup membuat class implementasi service saja</li>
+<li>membuat class implementasi service dan juga class data access object (DAO)</li>
+</ul>
+
+
+<p>Kapan memilih variasi yang mana?</p>
+
+<ul>
+<li>Bila menggunakan framework Spring Data JPA, kita harus pakai DAO karena frameworknya minta seperti itu</li>
+<li>Selain Spring Data JPA, bebas mau pakai yang mana. Pilih saja yang lebih rapi dan mudah maintenance. Untuk aplikasi kecil, class implementasi service saja sudah cukup. Kalau aplikasinya besar, akan lebih mudah membaca 10 class DAO yang masing-masingnya terdiri dari 100 baris kode daripada 1000 baris dalam satu class implementasi service. Walaupun demikian, tidak ada pertimbangan teknis yang signifikan (seperti isu performance dan lainnya) antara pakai DAO atau tidak.</li>
+</ul>
+
+
+<h3>Automated Test</h3>
+
+<p>Ini adalah kode program yang fungsinya mengetes kode program lainnya, dalam hal ini class implementasi dan class DAO. Konsep dasar tentang automated testing dibahas di <a href="http://software.endy.muhardin.com/java/ruthless-testing-1/">artikel ini</a>. Sedangkan untuk pengetesan database dibahas <a href="http://software.endy.muhardin.com/java/ruthless-testing-4/">di sini</a>.</p>
+
+<p>Pada contoh aplikasi ini, kita menghadapi tantangan khusus, yaitu bagaimana caranya menggunakan test case yang sama untuk konfigurasi berbeda. Nantinya aplikasi ini akan dikembangkan untuk mendemonstrasikan akses database menggunakan framework lain seperti Hibernate, Spring Data JPA, dan JDBC polos tanpa framework. Logika pengetesan akan sama persis, yaitu:</p>
+
+<ul>
+<li>test insert</li>
+<li>test update</li>
+<li>test delete</li>
+<li>test cari berdasarkan id</li>
+<li>test ambil semua data dari tabel tertentu</li>
+<li>test cari data dengan kriteria tertentu</li>
+</ul>
+
+
+<p>Tabel database yang diakses sama, sample data sama, bahkan nama method yang dijalankan juga sama. Bedanya hanyalah class implementasi mana yang digunakan dan konfigurasi mana yang dipakai.</p>
+
+<p>Untuk itu, kita akan menggunakan teknik khusus yang disebut <code>abstract junit test case</code>. Secara garis besar, langkahnya seperti ini:</p>
+
+<ol>
+<li>Buat semua method test di superclass. Superclass ini memiliki abstract method, sehingga dengan sendirinya dia juga abstract.</li>
+<li>Untuk mendapatkan class implementasi dan melakukan inisialisasi konfigurasi, gunakan abstract method</li>
+<li>Buat subclass untuk masing-masing implementasi (Spring JDBC, Hibernate, dst) yang hanya berisi implementasi dari abstract method tersebut.</li>
+</ol>
+
+
+<p>Agar lebih jelas, silahkan lihat <a href="https://github.com/endymuhardin/belajar-akses-database-java/blob/spring-jdbc/src/test/java/com/muhardin/endy/training/java/aksesdb/service/ProdukServiceTest.java">superclassnya</a> dan <a href="https://github.com/endymuhardin/belajar-akses-database-java/blob/spring-jdbc/src/test/java/com/muhardin/endy/training/java/aksesdb/service/springjdbc/ProdukServiceSpringJdbcTest.java">subclass untuk Spring JDBC</a>.</p>
+
+<h2>Struktur folder</h2>
+
+<p>Sekian banyak class, bagaimana penempatannya? Silahkan lihat struktur folder berikut:</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/01-struktur-folder-top-level.png" title="Top Level Folder" ></p>
+
+<p>Tidak ada yang istimewa dari struktur di atas, cuma struktur folder standar Maven. Mari kita lihat source code aplikasi.</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/02-struktur-folder-main-java.png" title="Source Folder Java" ></p>
+
+<p>Di sini kita bisa lihat class sudah diatur ke dalam package berbeda sesuai fungsinya, yaitu domain, service, dao. Untuk implementasi service dengan Spring JDBC kita buatkan package tersendiri. Selanjutnya kita lihat lokasi file konfigurasi.</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/03-struktur-folder-main-resources.png" title="Source Folder Konfigurasi" ></p>
+
+<p>File konfigurasi ditaruh dalam package. Sebetulnya ditaruh di top level juga boleh, ini hanya sekedar kebiasaan saja.</p>
+
+<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/04-struktur-folder-test.png" title="Source Test Folder" ></p>
+
+<p>Lokasi penempatan test class bisa dilihat di atas. Abstract class yang saya ceritakan di atas terlihat di package <code>com.muhardin.endy.training.java.aksesdb.service</code>, sedangkan implementasi konfigurasinya ada di subpackage <code>springjdbc</code> di bawahnya.</p>
+
+<p>Setelah kita melihat penempatan file dan folder, mari kita lihat kerangka kode program di masing-masing class/file. Supaya bisa mendapatkan <em>big-picture</em>, kita akan lihat kerangka class dan method saja. Implementasinya menyusul pada bagian selanjutnya.</p>
+
+<h1>Domain Object</h1>
+
+<h2>Class Produk</h2>
+
+<p>Class ini merupakan padanan tabel m_produk di database.
+Dia memiliki beberapa property sesuai dengan kolom di database.
+Berikut penjelasannya</p>
+
+<table>
+<thead>
+<tr>
+<th>Nama Property </th>
+<th> Nama Kolom Database </th>
+<th> Tipe Data Java </th>
+<th> Tipe Data MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id            </td>
+<td> id                  </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>kode          </td>
+<td> kode                </td>
+<td> String         </td>
+<td> varchar</td>
+</tr>
+<tr>
+<td>nama          </td>
+<td> nama                </td>
+<td> String         </td>
+<td> varchar</td>
+</tr>
+<tr>
+<td>harga         </td>
+<td> harga               </td>
+<td> BigDecimal     </td>
+<td> decimal(19,2)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Berikut kode program untuk class Produk.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">domain</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.math.BigDecimal</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Produk</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">String</span> <span class="n">kode</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">String</span> <span class="n">nama</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">BigDecimal</span> <span class="n">harga</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// getter dan setter generate dari IDE</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class Penjualan</h2>
+
+<p>Mapping Java ke SQL</p>
+
+<table>
+<thead>
+<tr>
+<th>Nama Property  </th>
+<th> Nama Kolom Database </th>
+<th> Tipe Data Java </th>
+<th> Tipe Data MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id             </td>
+<td> id                  </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>waktuTransaksi </td>
+<td> waktu_transaksi     </td>
+<td> Date           </td>
+<td> datetime</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Kode program class Penjualan</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">domain</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Penjualan</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Date</span> <span class="n">waktuTransaksi</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="n">daftarPenjualanDetail</span>
+</span><span class='line'>        <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// getter dan setter generate dari IDE</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class Penjualan Detail</h2>
+
+<p>Mapping Java ke SQL</p>
+
+<table>
+<thead>
+<tr>
+<th>Nama Property  </th>
+<th> Nama Kolom Database </th>
+<th> Tipe Data Java </th>
+<th> Tipe Data MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id             </td>
+<td> id                  </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>penjualan      </td>
+<td> id_penjualan        </td>
+<td> Penjualan      </td>
+<td> integer foreign key</td>
+</tr>
+<tr>
+<td>produk         </td>
+<td> id_produk           </td>
+<td> Produk         </td>
+<td> integer foreign key</td>
+</tr>
+<tr>
+<td>jumlah         </td>
+<td> jumlah              </td>
+<td> Integer        </td>
+<td> integer</td>
+</tr>
+<tr>
+<td>harga          </td>
+<td> harga               </td>
+<td> BigDecimal     </td>
+<td> decimal(19,2)</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Kode program class PenjualanDetail</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">domain</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.math.BigDecimal</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PenjualanDetail</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Penjualan</span> <span class="n">penjualan</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Produk</span> <span class="n">produk</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">BigDecimal</span> <span class="n">harga</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Integer</span> <span class="n">jumlah</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// getter dan setter generate dari IDE</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Yang perlu diperhatikan di sini adalah perbedaan cara perlakuan relasi antara Java dan database.
+Di Java, kita perlu mendefinisikan relasi di dua tempat, yaitu variabel <code>daftarPenjualanDetail</code> di class <code>Penjualan</code>
+dan variabel <code>penjualan</code> di class <code>PenjualanDetail</code>. Sedangkan di database, relasi ini cukup didefinisikan melalui foreign key
+<code>id_penjualan</code> di tabel <code>t_penjualan_detail</code>.</p>
+
+<p>Perbedaan lain, di database relasi ini cukup diwakili satu nilai saja, yaitu nilai foreign key.
+Sedangkan di Java diwakili satu class penuh (<code>Produk</code> atau <code>Penjualan</code>) yang di dalamnya memuat banyak nilai.</p>
+
+<p>Untuk menjembatani perbedaan ini, kita perlu membuat mapper untuk mengubah data dari database menjadi object Java dan sebaliknya. Contoh kode program untuk mapper ini akan dibahas pada bagian selanjutnya.</p>
+
+<h1>Interface Business Service</h1>
+
+<p>Ini adalah daftar fitur yang ada di aplikasi, didefinisikan berupa class/interface dan method.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">PenjualanService</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// service berkaitan dengan produk</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Produk</span> <span class="nf">cariProdukById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Produk</span> <span class="nf">cariProdukByKode</span><span class="o">(</span><span class="n">String</span> <span class="n">kode</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Long</span> <span class="nf">hitungSemuaProduk</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariSemuaProduk</span><span class="o">(</span><span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Long</span> <span class="nf">hitungProdukByNama</span><span class="o">(</span><span class="n">String</span> <span class="n">nama</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariProdukByNama</span><span class="o">(</span><span class="n">String</span> <span class="n">nama</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// service yang berkaitan dengan transaksi</span>
+</span><span class='line'>    <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Penjualan</span> <span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Penjualan</span> <span class="nf">cariPenjualanById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Long</span> <span class="nf">hitungPenjualanByPeriode</span><span class="o">(</span><span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;</span> <span class="nf">cariPenjualanByPeriode</span><span class="o">(</span><span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Long</span> <span class="nf">hitungPenjualanDetailByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span> <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="nf">cariPenjualanDetailByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span> <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Implementasi Business Service</h1>
+
+<p>Implementasi dari interface di atas kita bagi menjadi dua kategori, yaitu class implementasi service yang nantinya akan memanggil class DAO. Pertimbangan dan alasan mengapa begini sudah dijelaskan di atas.</p>
+
+<h2>Class ServiceSpringJdbc</h2>
+
+<p>Class ini sebetulnya hanya memanggil class DAO saja, jadi baiklah kita tampilkan seluruh isinya di sini.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import statement generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Service</span> <span class="nd">@Transactional</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PenjualanServiceSpringJdbc</span> <span class="kd">implements</span> <span class="n">PenjualanService</span><span class="o">{</span>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">ProdukDao</span> <span class="n">produkDao</span><span class="o">;</span>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">PenjualanDao</span> <span class="n">penjualanDao</span><span class="o">;</span>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">PenjualanDetailDao</span> <span class="n">penjualanDetailDao</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">produkDao</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Produk</span> <span class="nf">cariProdukById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">produkDao</span><span class="o">.</span><span class="na">cariById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Produk</span> <span class="nf">cariProdukByKode</span><span class="o">(</span><span class="n">String</span> <span class="n">kode</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">produkDao</span><span class="o">.</span><span class="na">cariByKode</span><span class="o">(</span><span class="n">kode</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungSemuaProduk</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">produkDao</span><span class="o">.</span><span class="na">hitungSemua</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariSemuaProduk</span><span class="o">(</span><span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">produkDao</span><span class="o">.</span><span class="na">cariSemua</span><span class="o">(</span><span class="n">halaman</span><span class="o">,</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungProdukByNama</span><span class="o">(</span><span class="n">String</span> <span class="n">nama</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">produkDao</span><span class="o">.</span><span class="na">hitungByNama</span><span class="o">(</span><span class="n">nama</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariProdukByNama</span><span class="o">(</span><span class="n">String</span> <span class="n">nama</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">produkDao</span><span class="o">.</span><span class="na">cariByNama</span><span class="o">(</span><span class="n">nama</span><span class="o">,</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Penjualan</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">penjualanDao</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Penjualan</span> <span class="nf">cariPenjualanById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanDao</span><span class="o">.</span><span class="na">cariById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungPenjualanByPeriode</span><span class="o">(</span><span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanDao</span><span class="o">.</span><span class="na">hitungByPeriode</span><span class="o">(</span><span class="n">mulai</span><span class="o">,</span> <span class="n">sampai</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;</span> <span class="nf">cariPenjualanByPeriode</span><span class="o">(</span><span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanDao</span><span class="o">.</span><span class="na">cariByPeriode</span><span class="o">(</span><span class="n">mulai</span><span class="o">,</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungPenjualanDetailByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanDetailDao</span><span class="o">.</span><span class="na">hitungByProdukDanPeriode</span><span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">sampai</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="nf">cariPenjualanDetailByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanDetailDao</span><span class="o">.</span><span class="na">cariByProdukDanPeriode</span><span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class DAO</h2>
+
+<p>Class DAO akan kita bahas secara mendetail di bagian selanjutnya. Pada kesempatan ini kita hanya tampilkan deklarasi class dan method saja supaya jelas mana method yang dipanggil dari implementasi service di atas.</p>
+
+<h3>ProdukDAO</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Repository</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProdukDao</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Produk</span> <span class="nf">cariById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Produk</span> <span class="nf">cariByKode</span><span class="o">(</span><span class="n">String</span> <span class="n">kode</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungSemua</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariSemua</span><span class="o">(</span><span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungByNama</span><span class="o">(</span><span class="n">String</span> <span class="n">nama</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariByNama</span><span class="o">(</span><span class="n">String</span> <span class="n">nama</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">class</span> <span class="nc">ResultSetJadiProduk</span> <span class="kd">implements</span> <span class="n">RowMapper</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="n">Produk</span> <span class="nf">mapRow</span><span class="o">(</span><span class="n">ResultSet</span> <span class="n">rs</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>PenjualanDao</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Repository</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PenjualanDao</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Penjualan</span> <span class="n">p</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Penjualan</span> <span class="nf">cariById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungByPeriode</span><span class="o">(</span><span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;</span> <span class="nf">cariByPeriode</span><span class="o">(</span><span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">class</span> <span class="nc">ResultSetJadiPenjualan</span> <span class="kd">implements</span> <span class="n">RowMapper</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="n">Penjualan</span> <span class="nf">mapRow</span><span class="o">(</span><span class="n">ResultSet</span> <span class="n">rs</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>PenjualanDetailDao</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Repository</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PenjualanDetailDao</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="kd">final</span> <span class="n">PenjualanDetail</span> <span class="n">p</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="nf">cariByPenjualan</span><span class="o">(</span><span class="n">Penjualan</span> <span class="n">p</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Long</span> <span class="nf">hitungByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span> <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="nf">cariByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span> <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">class</span> <span class="nc">ResultSetJadiPenjualanDetail</span> <span class="kd">implements</span> <span class="n">RowMapper</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="n">PenjualanDetail</span> <span class="nf">mapRow</span><span class="o">(</span><span class="n">ResultSet</span> <span class="n">rs</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Automated Test</h1>
+
+<p>Seperti dijelaskan di atas, automated test kita bagi menjadi dua kategori, yaitu abstract class yang menampung semua logika pengetesan, dan concrete class yang menyediakan konfigurasi.</p>
+
+<h2>Abstract Base Class</h2>
+
+<h3>ProdukServiceTest</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">ProdukServiceTest</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">PenjualanService</span> <span class="nf">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">DataSource</span> <span class="nf">getDataSource</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Before</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">bersihkanDataTest</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSimpanProduk</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariProdukById</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariProdukByKode</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testHitungSemuaProduk</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariSemuaProduk</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testHitungProdukByNama</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariProdukByNama</span><span class="o">()</span> <span class="o">{}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>PenjualanServiceTest</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">PenjualanServiceTest</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">PenjualanService</span> <span class="nf">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">DataSource</span> <span class="nf">getDataSource</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Before</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">bersihkanDataTest</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSimpanPenjualan</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariPenjualanById</span><span class="o">(){}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testHitungPenjualanByPeriode</span><span class="o">(){}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariPenjualanByPeriode</span><span class="o">(){}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testHitungPenjualanDetailByProdukDanPeriode</span><span class="o">(){}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariPenjualanDetailByProdukDanPeriode</span><span class="o">(){}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seperti kita lihat di atas, kedua class tersebut memiliki dua abstract method, yaitu:</p>
+
+<ul>
+<li><code>public abstract PenjualanService getPenjualanService()</code></li>
+<li><code>public abstract DataSource getDataSource();</code></li>
+</ul>
+
+
+<p>Kedua object <code>PenjualanService</code> dan <code>DataSource</code> didapatkan dari konfigurasi Spring.
+Konfigurasi Spring dibuat berdasarkan teknologi yang digunakan.
+Konfigurasi Spring JDBC berbeda dengan konfigurasi Hibernate ataupun Spring Data JPA.</p>
+
+<p>Dengan teknik ini, bila di kemudian hari kita membuat implementasi dengan Hibernate atau Spring Data JPA,
+kita tidak perlu lagi copy-paste test class, cukup buat subclass yang menyediakan kedua object tersebut.</p>
+
+<p>Berikut adalah subclassnya</p>
+
+<h2>Implementasi Test Business Service</h2>
+
+<p>Karena hanya beberapa baris dan tidak butuh banyak penjelasan, kita tampilkan di sini full source code, bukan hanya kerangkanya saja.</p>
+
+<h3>ProdukServiceSpringJdbcTest</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'><span class="nd">@ContextConfiguration</span><span class="o">(</span><span class="s">&quot;classpath*:com/muhardin/**/spring-jdbc-ctx.xml&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProdukServiceSpringJdbcTest</span> <span class="kd">extends</span> <span class="n">ProdukServiceTest</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">PenjualanService</span> <span class="n">penjualanService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">PenjualanService</span> <span class="nf">getPenjualanService</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanService</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">DataSource</span> <span class="nf">getDataSource</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">dataSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>PenjualanServiceSpringJdbcTest</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import generate dari IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'><span class="nd">@ContextConfiguration</span><span class="o">(</span><span class="s">&quot;classpath*:com/muhardin/**/spring-jdbc-ctx.xml&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PenjualanServiceSpringJdbcTest</span> <span class="kd">extends</span> <span class="n">PenjualanServiceTest</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">PenjualanService</span> <span class="n">penjualanService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">PenjualanService</span> <span class="nf">getPenjualanService</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanService</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">DataSource</span> <span class="nf">getDataSource</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">dataSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seperti kita lihat di atas, <code>dataSource</code> dan <code>penjualanService</code> disediakan melalui Dependency Injection.</p>
+
+<p>Cara kerjanya sebagai berikut:</p>
+
+<ol>
+<li>Kita jalankan JUnit melalui IDE atau Maven. IDE atau Maven akan membaca semua file dalam folder <code>src/test/java</code> dan memproses semua class yang namanya berakhiran <code>Test</code> seperti <code>PenjualanServiceSpringJdbcTest</code>. IDE/Maven juga memproses <code>PenjualanServiceTest</code>, tapi karena classnya abstract maka tidak diproses lebih lanjut.</li>
+<li>JUnit melihat annotation <code>@RunWith</code>, jadi dia tidak menjalankan sendiri melainkan menyuruh <code>SpringJUnit4ClassRunner</code> untuk menjalankan test</li>
+<li><code>SpringJUnit4ClassRunner</code> membaca annotation <code>@ContextConfiguration</code>, lalu menggunakan nilai di dalamnya untuk melakukan inisialisasi <code>ApplicationContext</code>, kemudian mengisi variabel yang ditandai dengan <code>@Autowired</code></li>
+<li>Karena <code>PenjualanServiceSpringJdbcTest</code> merupakan subclass dari <code>PenjualanServiceTest</code>, maka dia akan mewarisi semua method <code>@Test</code> yang dimiliki <code>PenjualanServiceTest</code>. Method <code>@Test</code> ini akan dijalankan oleh IDE/Maven.</li>
+<li>Pada waktu method <code>@Test</code> dijalankan, bila perlu object <code>PenjualanService</code>, maka akan didapat dengan cara memanggil method <code>getPenjualanService</code>. Karena methodnya sudah dibuatkan implementasinya (tidak abstract lagi) dan sudah ada isinya, maka method <code>@Test</code> dapat bekerja dengan baik.</li>
+</ol>
+
+
+<p>Demikianlah bagian kedua dari tutorial mengakses database menggunakan Spring JDBC. Pada bagian ini kita sudah melihat bagaimana cara pengaturan file/folder dan interaksi antar class/method. Di bagian selanjutnya kita akan lihat bagaimana cara menjalankan perintah SQL.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-28T15:06:00+07:00" pubdate data-updated="true">May 28<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/konfigurasi-koneksi-database-dengan-spring/" title="Previous Post: Konfigurasi Koneksi Database dengan Spring">&laquo; Konfigurasi Koneksi Database dengan Spring</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/training-cmmi/">Training CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/memahami-dependency-injection/">Memahami Dependency Injection</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
