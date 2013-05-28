@@ -7,8 +7,6 @@ categories:
 - java
 ---
 
-# Pengantar #
-
 Di Java, ada banyak cara untuk mengakses database, diantaranya:
 
 * [JDBC polos tanpa framework apapun](http://docs.oracle.com/javase/tutorial/jdbc/)
@@ -24,9 +22,11 @@ Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan 
 
 Artikel ini merupakan bagian pertama dari rangkaian artikel Spring JDBC, yaitu
 
-1. Konfigurasi koneksi database (artikel ini)
-2. Insert, update, dan delete data
-3. Mengambil data (query)
+1. [Konfigurasi koneksi database](http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/)
+2. [Struktur Aplikasi](http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/)
+3. Insert, update, dan delete data
+4. Mengambil data (query)
+5. Melakukan pengetesan
 
 Keseluruhan kode program dapat dilihat di [repository belajar-akses-database-java di Github saya](https://github.com/endymuhardin/belajar-akses-database-java), khususnya [branch spring-jdbc](https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc).
 
@@ -297,4 +297,4 @@ Class transaction manager yang digunakan berbeda tergantung metode akses databas
 * `HibernateTransactionManager` : seperti ditunjukkan oleh namanya, gunakan ini bila kita menggunakan Hibernate
 * `JpaTransactionManager` : ini juga sudah jelas dari namanya. Bila kita pakai JPA, gunakan transaction manager ini.
 
-Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan membuat kode program untuk menyimpan, mengubah, dan menghapus data dalam database.
+Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan [menyiapkan kerangka aplikasinya dulu](http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/).
