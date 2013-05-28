@@ -224,9 +224,23 @@ Keempat informasi di atas adalah informasi umum yang kita butuhkan apapun metode
 
 * `maxActive` : jumlah koneksi yang boleh aktif secara berbarengan. Ini harus disetting dibawah angka yang kita ijinkan di database server. Misalnya di MySQL kita ijinkan 100 koneksi berbarengan, maka angkanya harus dibawah 100. Jangan juga dihabiskan 100, untuk berjaga-jaga siapa tahu kita butuh koneksi langsung ke MySQL tanpa lewat aplikasi (misalnya untuk keperluan debug). Pertimbangkan juga apabila ada aplikasi lain yang menggunakan database yang sama.
 
-* `maxWait` : bila semua koneksi sebanyak `maxActive` sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai `maxWait` menentukan berapa milidetik request tersebut menunggu. Bila lebih dari `maxWait` dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan `Exception`.
-
 * `maxIdle` : ada kalanya aplikasi kita sedang sepi dari request user sehingga banyak koneksi database yang menganggur (idle). Angka `maxIdle` ini menentukan berapa koneksi yang akan tetap dipegang walaupun idle. Bila ada 20 koneksi idle, padahal `maxIdle` berisi 15, maka 5 koneksi akan ditutup. Ini merupakan trade-off. Bila terlalu banyak idle, maka memori database server akan terpakai untuk koneksi yang standby ini. Tapi bila terlalu sedikit, pada waktu aplikasi mendadak diserbu user, akan butuh waktu lama untuk dia membuatkan lagi koneksi baru.
+
+* `maxWait` : bila semua koneksi sebanyak `maxActive` sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai `maxWait` menentukan berapa milidetik request tersebut menunggu. Bila lebih dari `maxWait` dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan `Exception`. Konfigurasi ini perlu diperhatikan karena nilai defaultnya adalah `indefinitely` yaitu menunggu selamanya. 
+
+Saya pernah mendapatkan masalah karena setting default ini. Aplikasi bengong seolah hang. Dicek ke log file tidak ada error. Ternyata masalahnya ada query yang kurang optimal sehingga memakan waktu lama. Pada saat banyak request yang menjalankan query tersebut, request lain menunggu lama tanpa ada pemberitahuan, sehingga terkesan hang. Setelah nilai `maxWait` saya ganti menjadi 30 detik, mulai banyak error message bermunculan dari request yang menunggu > 30 detik. Dengan adanya error message, query bermasalah tersebut menjadi terlihat sehingga bisa diperbaiki.
+
+
+{% blockquote %}
+Pesan moral pertama : pesan error itu penting untuk mengetahui sumber masalah. Dalam bugfixing, yang paling penting adalah menemukan masalah. Kalau masalah sudah ditemukan, siapa saja bisa memperbaiki. Jadi kalau aplikasi kita bermasalah, prioritas pertama kita adalah membuat dia mengeluarkan pesan error yang jelas.
+{% endblockquote %}
+
+Baca [artikel ini](http://software.endy.muhardin.com/java/tips-melaporkan-error/) untuk mengetahui apa yang dimaksud dengan pesan error yang jelas.
+
+{% blockquote %}
+Pesan moral kedua : Dalam bugfixing, sering kali kita tidak langsung mendapatkan masalah utama. Pada kasus di atas, pertama kali saya menemukan bahwa perilaku defaultnya Commons DBCP adalah menunggu koneksi dengan sabar sampai selamanya. Setelah ini diubah, barulah saya menemukan masalah utama, yaitu ada query yang tidak optimal.
+{% endblockquote %}
+
 
 
 ## Transaction Manager ##
