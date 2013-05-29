@@ -193,7 +193,7 @@ public class ProdukDaoTest {
         dataSource.setUrl("jdbc:mysql://localhost/belajar");
         
         ProdukDao pd = new ProdukDao();
-        pd.simpan(p);
+        pd.create(p);
     }
 }
 ```
@@ -297,7 +297,7 @@ public class ProdukDaoTest {
             = new ClassPathXmlApplicationContext("classpath:konfig-spring.xml");
         
         ProdukDao pd = ctx.getBean(ProdukDao.class);
-        pd.simpan(p);
+        pd.create(p);
     }
 }
 ```
