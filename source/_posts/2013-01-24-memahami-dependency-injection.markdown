@@ -92,7 +92,7 @@ public class ProdukDaoTest {
         p.setHarga(new BigDecimal(10000.00);
         
         ProdukDao pd = new ProdukDao();
-        pd.simpan(p);
+        pd.create(p);
     }
 }
 ```
