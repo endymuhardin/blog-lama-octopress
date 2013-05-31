@@ -1,0 +1,765 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Insert Update Delete dengan Spring JDBC - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Setelah pada artikel sebelumnya kita membuat konfigurasi database dan membuat kerangka aplikasi, kali ini kita akan membuat implementasi akses &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Insert Update Delete Dengan Spring JDBC</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-31T13:26:00+07:00" pubdate data-updated="true">May 31<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Setelah pada artikel sebelumnya kita membuat konfigurasi database dan membuat kerangka aplikasi, kali ini kita akan membuat implementasi akses database menggunakan Spring JDBC.</p>
+
+<p>Artikel ini merupakan bagian ketiga dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
+<li>Mengambil data (query)</li>
+<li>Melakukan pengetesan</li>
+</ol>
+
+
+<!--more-->
+
+
+<h1>Setup DAO</h1>
+
+<p>Supaya bisa diinisialisasi oleh Spring Framework, kita harus menambahkan annotation <code>@Repository</code> di class <code>ProdukDao</code> dan juga class DAO lainnya. Pembahasan lebih detail tentang cara kerja Spring Framework dan fungsinya annotation <code>@Repository</code> dapat dibaca <a href="http://software.endy.muhardin.com/java/memahami-dependency-injection/">di artikel ini</a>.</p>
+
+<p>Selanjutnya, kita akan menambahkan beberapa variabel yang nantinya akan kita butuhkan, yaitu <code>JdbcTemplate</code> dan perintah SQL yang ingin dijalankan.</p>
+
+<h2>JDBC Template</h2>
+
+<p><code>JdbcTemplate</code> adalah class utama dalam Spring JDBC. Semua operasi database dilakukan melalui JdbcTemplate. Kita juga butuh rekannya yang bernama <code>NamedParameterJdbcTemplate</code>. Kelebihan dari <code>NamedParameterJdbcTemplate</code> ini, dia bisa menerima SQL dengan variabel yang diberi nama. Tanpa dia, kita cuma bisa menjalankan SQL yang variabelnya ditandai dengan <code>?</code>, sehingga membingungkan dan rawan terjadi kesalahan kalau jumlah variabelnya banyak.</p>
+
+<p>Kedua object ini kita deklarasikan menjadi object/instance variable, supaya bisa digunakan oleh semua method. Inisialisasinya membutuhkan object <code>DataSource</code>, sehingga sebaiknya kita lakukan inisialisasi di dalam setter injection. Bagi yang belum paham apa itu setter injection silahkan baca dulu <a href="http://software.endy.muhardin.com/java/memahami-dependency-injection/">artikel ini</a>.</p>
+
+<p>Berikut adalah kode programnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Repository</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProdukDao</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">JdbcTemplate</span> <span class="n">jdbcTemplate</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">NamedParameterJdbcTemplate</span> <span class="n">namedParameterJdbcTemplate</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Autowired</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDataSource</span><span class="o">(</span><span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">jdbcTemplate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JdbcTemplate</span><span class="o">(</span><span class="n">dataSource</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">namedParameterJdbcTemplate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">NamedParameterJdbcTemplate</span><span class="o">(</span><span class="n">dataSource</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>SQL</h2>
+
+<p>Agar lebih rapi, semua perintah SQL yang kita akan gunakan di dalam method sebaiknya kita deklarasikan sebagai konstanta. Berikut adalah berbagai SQL yang kita gunakan.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Repository</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProdukDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_INSERT</span> <span class="o">=</span> <span class="s">&quot;insert into m_produk (kode,nama,harga) values (:kode,:nama,:harga)&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_CARI_BY_ID</span> <span class="o">=</span> <span class="s">&quot;select * from m_produk where id = ?&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_CARI_BY_KODE</span> <span class="o">=</span> <span class="s">&quot;select * from m_produk where kode = ?&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_HITUNG_SEMUA</span> <span class="o">=</span> <span class="s">&quot;select count(*) from m_produk&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_CARI_SEMUA</span> <span class="o">=</span> <span class="s">&quot;select * from m_produk limit ?,?&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_HITUNG_BY_NAMA</span> <span class="o">=</span> <span class="s">&quot;select count(*) from m_produk where lower(nama) like ?&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_CARI_BY_NAMA</span> <span class="o">=</span> <span class="s">&quot;select * from m_produk where lower(nama) like ? limit ?,?&quot;</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Harap diperhatikan bahwa saya hanya menampilkan potongan kode program yang berkaitan dengan penjelasan saat ini saja, berikut sedikit tambahan supaya jelas di mana penempatannya. Untuk isi kode program yang lengkap silahkan lihat <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc/src/main/java/com/muhardin/endy/training/java/aksesdb/dao/springjdbc">di Github</a>.</p>
+
+<h1>Insert Data</h1>
+
+<p>Setelah kita punya <code>JdbcTemplate</code> dan perintah SQL, kita bisa gunakan untuk menyimpan data ke database.
+Mari kita implement method <code>simpan</code>.</p>
+
+<h2>Menggunakan parameter domain object</h2>
+
+<p>Class <code>Produk</code> memiliki properti yang bernama <code>kode</code>, <code>nama</code>, dan <code>harga</code>. Karena kita mengikuti aturan penamaan yang baku, maka kita buatkan method getter dan setter. Class yang dibuat mengikuti standar ini bisa langsung diproses oleh Spring JDBC. Dia akan secara otomatis memasangkan properti yang namanya sama dengan yang ada di perintah SQL. Jadi perintah SQL seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">insert</span> <span class="k">into</span> <span class="n">m_produk</span> <span class="p">(</span><span class="n">kode</span><span class="p">,</span><span class="n">nama</span><span class="p">,</span><span class="n">harga</span><span class="p">)</span> <span class="k">values</span> <span class="p">(:</span><span class="n">kode</span><span class="p">,:</span><span class="n">nama</span><span class="p">,:</span><span class="n">harga</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Akan diisikan dengan nilai yang didapat dari pemanggilan method berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Produk</span> <span class="n">p</span><span class="o">;</span> <span class="c1">// nantinya p diisi dari method parameter</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">p</span><span class="o">.</span><span class="na">getKode</span><span class="o">();</span>
+</span><span class='line'><span class="n">p</span><span class="o">.</span><span class="na">getNama</span><span class="o">();</span>
+</span><span class='line'><span class="n">p</span><span class="o">.</span><span class="na">getHarga</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Spring JDBC juga akan secara otomatis mendeteksi tipe data baik itu <code>Integer</code>, <code>String</code>, <code>BigDecimal</code>, dan sebagainya.</p>
+
+<p>Berikut adalah implementasi method <code>simpan</code> yang menggunakan konsep di atas.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">SqlParameterSource</span> <span class="n">namedParameters</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">KeyHolder</span> <span class="n">keyHolder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GeneratedKeyHolder</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">namedParameterJdbcTemplate</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">SQL_INSERT</span><span class="o">,</span> <span class="n">namedParameters</span><span class="o">,</span> <span class="n">keyHolder</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">keyHolder</span><span class="o">.</span><span class="na">getKey</span><span class="o">().</span><span class="na">intValue</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>BeanPropertySqlParameterSource</code> adalah class dari Spring JDBC yang berfungsi mengambil parameter dari Java object seperti telah dijelaskan di atas. Selain mengambil dari object dengan getter dan setter, ada lagi class lain yang bernama <code>MapSqlParameterSource</code>, digunakan untuk mengambil parameter dari object bertipe <code>java.util.Map</code>.</p>
+
+<h2>Mendapatkan nilai yang auto generated</h2>
+
+<p>Di tabel <code>m_produk</code>, primary key ada di kolom <code>id</code>. Nilainya digenerate otomatis oleh database pada saat kita melakukan insert. Kita perlu mengetahui nilai berapa yang dibuatkan database untuk data yang barusan kita insert agar bisa dipasang di object <code>Produk</code> yang kita insert. Untuk menampung nilai yang otomatis dibuatkan database, kita menggunakan class <code>GeneratedKeyHolder</code>.</p>
+
+<p>Setelah kita melakukan insert, <code>keyHolder</code> akan menampung nilai. Nilai inilah yang kita pasang di object produk dengan kode program berikut.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">namedParameterJdbcTemplate</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">SQL_INSERT</span><span class="o">,</span> <span class="n">namedParameters</span><span class="o">,</span> <span class="n">keyHolder</span><span class="o">);</span>
+</span><span class='line'><span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">keyHolder</span><span class="o">.</span><span class="na">getKey</span><span class="o">().</span><span class="na">intValue</span><span class="o">());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Menggunakan SimpleJdbcInsert</h2>
+
+<p>Object <code>produk</code> di atas hanya memiliki 4 property di Java dan 4 kolom di database. Bila propertynya banyak, tentu kita akan kerepotan menulis variabel dalam perintah SQL. Untuk membantu kita, Spring JDBC menyediakan fitur <code>SimpleJdbcInsert</code>. Cara kerjanya, dia akan <em>menanyakan</em> ke database kolom apa saja yang ada di tabel tertentu berikut tipe data untuk masing-masing kolom. Setelah itu, informasi tersebut digunakan untuk membuatkan SQL insert buat kita, sehingga kita tidak perlu membuat sendiri.</p>
+
+<p>Berikut adalah cara inisialisasi <code>SimpleJdbcInsert</code>, dilakukan di setter injection.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Repository</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProdukDao</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">SimpleJdbcInsert</span> <span class="n">insertProduk</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Autowired</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDataSource</span><span class="o">(</span><span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">insertProduk</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleJdbcInsert</span><span class="o">(</span><span class="n">dataSource</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">withTableName</span><span class="o">(</span><span class="s">&quot;m_produk&quot;</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">usingGeneratedKeyColumns</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita menyebutkan juga kolom mana yang nilainya digenerate database, sehingga dia bisa mengambilkannya. Selanjutnya, mari kita ganti implementasi method <code>simpan</code> dengan memanfaatkan <code>SimpleJdbcInsert</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">SqlParameterSource</span> <span class="n">produkParameter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Number</span> <span class="n">idBaru</span> <span class="o">=</span> <span class="n">insertProduk</span><span class="o">.</span><span class="na">executeAndReturnKey</span><span class="o">(</span><span class="n">produkParameter</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">idBaru</span><span class="o">.</span><span class="na">intValue</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Insert Data Header dan Detail</h2>
+
+<blockquote><p>Kenapa kita perlu mengambil primary key yang digenerate database?</p></blockquote>
+
+
+<p>Jawabannya karena kita membutuhkannya dalam skenario header dan detail. Di tabel detail, ada relasi foreign key ke tabel header. Sehingga untuk mengisi foreign key tersebut, kita harus mengetahui dulu primary key header.</p>
+
+<p>Selain masalah foreign key ini, sisanya sama dengan pembahasan insert sebelumnya. Berikut implementasi method <code>simpan(Penjualan p)</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Penjualan</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">SqlParameterSource</span> <span class="n">namedParameters</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">KeyHolder</span> <span class="n">keyHolder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GeneratedKeyHolder</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">namedParameterJdbcTemplate</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">SQL_INSERT</span><span class="o">,</span> <span class="n">namedParameters</span><span class="o">,</span> <span class="n">keyHolder</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">keyHolder</span><span class="o">.</span><span class="na">getKey</span><span class="o">().</span><span class="na">intValue</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">PenjualanDetail</span> <span class="n">detail</span> <span class="o">:</span> <span class="n">p</span><span class="o">.</span><span class="na">getDaftarPenjualanDetail</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">detail</span><span class="o">.</span><span class="na">setPenjualan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">penjualanDetailDao</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">detail</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seperti kita lihat pada kode program di atas, kita insert ke tabel <code>t_penjualan</code>, kemudian kita ambil nilai <code>id</code>. Nilai tersebut kita isikan ke tiap object detail untuk selanjutnya kita insert juga menggunakan method <code>simpan(PenjualanDetail pd)</code> di class <code>PenjualanDetailDao</code>. Berikut implementasinya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="kd">final</span> <span class="n">PenjualanDetail</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">KeyHolder</span> <span class="n">keyHolder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GeneratedKeyHolder</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="k">new</span> <span class="n">PreparedStatementCreator</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="n">PreparedStatement</span> <span class="nf">createPreparedStatement</span><span class="o">(</span><span class="n">Connection</span> <span class="n">conn</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="n">SQL_INSERT</span><span class="o">,</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="s">&quot;id&quot;</span><span class="o">});</span>
+</span><span class='line'>            <span class="n">ps</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getPenjualan</span><span class="o">().</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>            <span class="n">ps</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getProduk</span><span class="o">().</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>            <span class="n">ps</span><span class="o">.</span><span class="na">setBigDecimal</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getHarga</span><span class="o">());</span>
+</span><span class='line'>            <span class="n">ps</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getJumlah</span><span class="o">());</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">ps</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">},</span> <span class="n">keyHolder</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">keyHolder</span><span class="o">.</span><span class="na">getKey</span><span class="o">().</span><span class="na">intValue</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada waktu menyimpan <code>PenjualanDetail</code>, kita menggunakan teknik yang agak berbeda, tidak menggunakan <code>SimpleJdbcInsert</code> maupun <code>NamedParameterJdbcTemplate</code>. Ini disebabkan karena banyak kolom yang namanya tidak mengikuti aturan penamaan, yaitu <code>id_penjualan</code> dan <code>id_produk</code>. Karena itu kita menggunakan cara yang lebih manual, membuat sendiri <code>PreparedStatement</code> dan kemudian mengisi parameternya.</p>
+
+<p>Walaupun demikian, kita tidak mengeksekusi <code>PreparedStatement</code> tersebut, karena urusan mengeksekusi akan ditangani Spring JDBC supaya bisa dibungkus dalam transaction. Kenapa harus dibungkus dalam transaction? Jawabannya bisa dibaca di <a href="http://software.endy.muhardin.com/java/database-transaction/">artikel ini</a>.</p>
+
+<h1>Update Data</h1>
+
+<p>Pada prinsipnya, update data tidak berbeda dengan insert data. Kita dapat melakukannya dengan cara yang sama seperti insert data di atas. Tapi karena kita ingin melihat fitur-fitur Spring JDBC, baiklah kita lakukan dengan cara yang sedikit berbeda.</p>
+
+<h2>Menggunakan parameter bertipe Map</h2>
+
+<p>Kalau di atas kita sudah menggunakan parameter menggunakan <code>?</code> dan domain object, kali ini kita akan menggunakan <code>Map</code>. Cara ini digunakan bila nama variabel di SQL berbeda dengan nama variabel di domain object, sehingga kita tidak bisa menggunakan <code>BeanPropertySqlParameterSource</code>. Kita juga tidak mau menggunakan <code>?</code> karena rawan terjadi salah ketik.</p>
+
+<p>Kita ubah sedikit method <code>simpan(Produk p )</code> agar bisa menangani penyimpanan data produk baru (insert) maupun penyimpanan data produk lama (update). Berikut kode program method <code>simpan(Produk p )</code> yang baru.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">SqlParameterSource</span> <span class="n">produkParameter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">Number</span> <span class="n">idBaru</span> <span class="o">=</span> <span class="n">insertProduk</span><span class="o">.</span><span class="na">executeAndReturnKey</span><span class="o">(</span><span class="n">produkParameter</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">idBaru</span><span class="o">.</span><span class="na">intValue</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">SqlParameterSource</span> <span class="n">produkParameter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MapSqlParameterSource</span><span class="o">()</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">addValue</span><span class="o">(</span><span class="s">&quot;id_produk&quot;</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">())</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">addValue</span><span class="o">(</span><span class="s">&quot;kode_produk&quot;</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getKode</span><span class="o">())</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">addValue</span><span class="o">(</span><span class="s">&quot;nama_produk&quot;</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getNama</span><span class="o">())</span>
+</span><span class='line'>                <span class="o">.</span><span class="na">addValue</span><span class="o">(</span><span class="s">&quot;harga_produk&quot;</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getHarga</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">namedParameterJdbcTemplate</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">SQL_UPDATE_PRODUK</span><span class="o">,</span> <span class="n">produkParameter</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Agar lebih jelas, kita tampilkan juga deklarasi <code>SQL_UPDATE_PRODUK</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_UPDATE_PRODUK</span>
+</span><span class='line'>    <span class="o">=</span> <span class="s">&quot;update m_produk set kode = :kode_produk, nama = :nama_produk, harga = :harga_produk where id = :id_produk&quot;</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Penggunaan <code>MapSqlParameterSource</code> dapat dilihat di blok <code>else</code>. Argumen kiri dari method <code>addValue</code> adalah nama variabel dalam <code>SQL_UPDATE_PRODUK</code>, sedangkan argumen kanan adalah nilai yang ingin diisikan.</p>
+
+<h1>Delete Data</h1>
+
+<p>Bila kita sudah menguasai insert dan update, maka delete seharusnya tidak menjadi masalah. Berikut kode program untuk menghapus data produk.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">hapus</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">SQL_HAPUS</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut deklarasi <code>SQL_HAPUS</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_HAPUS</span> <span class="o">=</span> <span class="s">&quot;delete from m_produk where id = ?&quot;</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Menghapus <code>penjualan</code> yang memiliki relasi header detail juga tidak sulit. Pastikan kita menghapus detailnya dulu sebelum menghapus headernya agar tidak terjadi pelanggaran <a href="http://en.wikipedia.org/wiki/Referential_integrity">referential integrity</a>.</p>
+
+<p>Berikut contoh pesan error bila kita menghapus data produk yang sudah dipakai dalam transaksi.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">DataIntegrityViolationException</span><span class="o">:</span> <span class="n">PreparedStatementCallback</span><span class="o">;</span>
+</span><span class='line'><span class="n">SQL</span> <span class="o">[</span><span class="n">delete</span> <span class="n">from</span> <span class="n">m_produk</span> <span class="n">where</span> <span class="n">id</span> <span class="o">=</span> <span class="o">?];</span>
+</span><span class='line'><span class="n">Cannot</span> <span class="n">delete</span> <span class="n">or</span> <span class="n">update</span> <span class="n">a</span> <span class="n">parent</span> <span class="nl">row:</span>
+</span><span class='line'><span class="n">a</span> <span class="n">foreign</span> <span class="n">key</span> <span class="n">constraint</span> <span class="nf">fails</span> <span class="o">(</span><span class="err">`</span><span class="n">belajar</span><span class="err">`</span><span class="o">.</span><span class="err">`</span><span class="n">t_penjualan_detail</span><span class="err">`</span><span class="o">,</span>
+</span><span class='line'><span class="n">CONSTRAINT</span> <span class="err">`</span><span class="n">t_penjualan_detail_ibfk_2</span><span class="err">`</span> <span class="n">FOREIGN</span> <span class="n">KEY</span> <span class="o">(</span><span class="err">`</span><span class="n">id_produk</span><span class="err">`</span><span class="o">)</span>
+</span><span class='line'><span class="n">REFERENCES</span> <span class="err">`</span><span class="n">m_produk</span><span class="err">`</span> <span class="o">(</span><span class="err">`</span><span class="n">id</span><span class="err">`</span><span class="o">));</span>
+</span><span class='line'><span class="n">nested</span> <span class="n">exception</span> <span class="n">is</span>
+</span><span class='line'><span class="n">com</span><span class="o">.</span><span class="na">mysql</span><span class="o">.</span><span class="na">jdbc</span><span class="o">.</span><span class="na">exceptions</span><span class="o">.</span><span class="na">jdbc4</span><span class="o">.</span><span class="na">MySQLIntegrityConstraintViolationException</span><span class="o">:</span>
+</span><span class='line'><span class="n">Cannot</span> <span class="n">delete</span> <span class="n">or</span> <span class="n">update</span> <span class="n">a</span> <span class="n">parent</span> <span class="nl">row:</span>
+</span><span class='line'><span class="n">a</span> <span class="n">foreign</span> <span class="n">key</span> <span class="n">constraint</span> <span class="nf">fails</span> <span class="o">(</span><span class="err">`</span><span class="n">belajar</span><span class="err">`</span><span class="o">.</span><span class="err">`</span><span class="n">t_penjualan_detail</span><span class="err">`</span><span class="o">,</span>
+</span><span class='line'><span class="n">CONSTRAINT</span> <span class="err">`</span><span class="n">t_penjualan_detail_ibfk_2</span><span class="err">`</span> <span class="n">FOREIGN</span> <span class="n">KEY</span> <span class="o">(</span><span class="err">`</span><span class="n">id_produk</span><span class="err">`</span><span class="o">)</span>
+</span><span class='line'><span class="n">REFERENCES</span> <span class="err">`</span><span class="n">m_produk</span><span class="err">`</span> <span class="o">(</span><span class="err">`</span><span class="n">id</span><span class="err">`</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada pesan error di atas, data <code>produk</code> tidak bisa dihapus karena sudah digunakan sebagai relasi foreign key dari <code>penjualan detail</code>.</p>
+
+<p>Demikianlah penjelasan tentang insert, update, dan delete data. Nantikan bagian selanjutnya yang membahas tentang query select.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-05-31T13:26:00+07:00" pubdate data-updated="true">May 31<span>st</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/" title="Previous Post: Struktur Aplikasi Java dengan Spring dan Maven">&laquo; Struktur Aplikasi Java dengan Spring dan Maven</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/training-cmmi/">Training CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
