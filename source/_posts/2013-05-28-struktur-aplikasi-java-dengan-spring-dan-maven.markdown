@@ -18,7 +18,7 @@ Artikel ini merupakan bagian kedua dari rangkaian artikel Spring JDBC, yaitu
 
 1. [Konfigurasi koneksi database](http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/)
 2. [Struktur Aplikasi](http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/)
-3. Insert, update, dan delete data
+3. [Insert, update, dan delete data](http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/)
 4. Mengambil data (query)
 5. Melakukan pengetesan
 
@@ -595,4 +595,4 @@ Cara kerjanya sebagai berikut:
 4. Karena `PenjualanServiceSpringJdbcTest` merupakan subclass dari `PenjualanServiceTest`, maka dia akan mewarisi semua method `@Test` yang dimiliki `PenjualanServiceTest`. Method `@Test` ini akan dijalankan oleh IDE/Maven.
 5. Pada waktu method `@Test` dijalankan, bila perlu object `PenjualanService`, maka akan didapat dengan cara memanggil method `getPenjualanService`. Karena methodnya sudah dibuatkan implementasinya (tidak abstract lagi) dan sudah ada isinya, maka method `@Test` dapat bekerja dengan baik.
 
-Demikianlah bagian kedua dari tutorial mengakses database menggunakan Spring JDBC. Pada bagian ini kita sudah melihat bagaimana cara pengaturan file/folder dan interaksi antar class/method. Di bagian selanjutnya kita akan lihat bagaimana cara menjalankan perintah SQL.
+Demikianlah bagian kedua dari tutorial mengakses database menggunakan Spring JDBC. Pada bagian ini kita sudah melihat bagaimana cara pengaturan file/folder dan interaksi antar class/method. Di bagian selanjutnya kita akan lihat [bagaimana cara menjalankan perintah SQL](http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/).
