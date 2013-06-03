@@ -19,7 +19,7 @@ Artikel ini merupakan bagian kedua dari rangkaian artikel Spring JDBC, yaitu
 1. [Konfigurasi koneksi database](http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/)
 2. [Struktur Aplikasi](http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/)
 3. [Insert, update, dan delete data](http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/)
-4. Mengambil data (query)
+4. [Query data](http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/)
 5. Melakukan pengetesan
 
 <!--more-->

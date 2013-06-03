@@ -14,7 +14,7 @@ Artikel ini merupakan bagian ketiga dari rangkaian artikel Spring JDBC, yaitu
 1. [Konfigurasi koneksi database](http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/)
 2. [Struktur Aplikasi](http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/)
 3. [Insert, update, dan delete data](http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/)
-4. Mengambil data (query)
+4. [Query data](http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/)
 5. Melakukan pengetesan
 
 <!--more-->
@@ -269,4 +269,4 @@ REFERENCES `m_produk` (`id`))
 
 Pada pesan error di atas, data `produk` tidak bisa dihapus karena sudah digunakan sebagai relasi foreign key dari `penjualan detail`.
 
-Demikianlah penjelasan tentang insert, update, dan delete data. Nantikan bagian selanjutnya yang membahas tentang query select.
+Demikianlah penjelasan tentang insert, update, dan delete data. Nantikan [bagian selanjutnya](http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/) yang membahas tentang query select.
