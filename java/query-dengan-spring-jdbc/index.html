@@ -1,0 +1,766 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Query dengan Spring JDBC - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada artikel sebelumnya kita telah bisa mengubah data dalam database, baik menambah (insert), mengubah (update), maupun menghapus (data). Kali ini &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Query Dengan Spring JDBC</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-03T20:08:00+07:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada artikel sebelumnya kita telah bisa mengubah data dalam database, baik menambah (insert), mengubah (update), maupun menghapus (data). Kali ini kita akan membahas tentang cara pengambilan data (select) dari dalam database.</p>
+
+<p>Artikel ini merupakan bagian keempat dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
+<li>Melakukan pengetesan</li>
+</ol>
+
+
+<!--more-->
+
+
+<p>Pada dasarnya, untuk mengambil data dari database hanya ada dua varian yang kita gunakan, yaitu:</p>
+
+<ul>
+<li>mengambil data tunggal, gunakan method <code>queryForObject</code></li>
+<li>mengambil data banyak, gunakan method <code>queryForList</code> atau <code>query</code> saja</li>
+</ul>
+
+
+<p>Kita lihat dulu implementasi yang paling mendasar, ambil semua data produk dari database. Berikut deklarasi SQLnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_CARI_SEMUA</span>
+</span><span class='line'>    <span class="o">=</span> <span class="s">&quot;select * from m_produk limit ?,?&quot;</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah SQL di atas akan dipakai dalam method <code>cariSemua</code> sebagai berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="nf">cariSemua</span><span class="o">(</span><span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">SQL_CARI_SEMUA</span><span class="o">,</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">ResultSetJadiProduk</span><span class="o">(),</span>
+</span><span class='line'>            <span class="n">PagingHelper</span><span class="o">.</span><span class="na">halamanJadiStart</span><span class="o">(</span><span class="n">halaman</span><span class="o">,</span> <span class="n">baris</span><span class="o">),</span>
+</span><span class='line'>            <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada contoh di atas, kita menggunakan method <code>query</code> yang menerima tiga argumen, yaitu:</p>
+
+<ul>
+<li>SQL yang akan dijalankan, berupa String</li>
+<li>Class yang bertugas mengubah ResultSet menjadi object yang kita inginkan, dalam hal ini object <code>Produk</code>. Class ini akan kita buat sendiri, yaitu class <code>ResultSetJadiProduk</code>.</li>
+<li>argumen lain-lain (varargs). Ini merupakan fitur Java sejak versi 5 yang artinya kita bisa memasukkan argumen sebanyak-banyaknya dalam method. Argumen ini akan dikonversi menjadi List untuk diproses oleh method <code>query</code></li>
+</ul>
+
+
+<p>Jadi, bukan salah ketik kalau di atas saya sebut tiga argumen padahal kita memasukkan empat variabel ke dalamnya.</p>
+
+<p>SQL select tentu tidak perlu kita bahas lagi, mari masuk ke class <code>ResultSetJadiProduk</code></p>
+
+<h2>Membuat Mapper</h2>
+
+<p>Class <code>ResultSetJadiProduk</code> bertugas mengkonversi hasil query ke database yang ada dalam class <code>ResultSet</code> menjadi object <code>Produk</code>. Implementasinya tidak rumit, ini dia.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">class</span> <span class="nc">ResultSetJadiProduk</span> <span class="kd">implements</span> <span class="n">RowMapper</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">Produk</span> <span class="nf">mapRow</span><span class="o">(</span><span class="n">ResultSet</span> <span class="n">rs</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Produk</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Produk</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">((</span><span class="n">Integer</span><span class="o">)</span> <span class="n">rs</span><span class="o">.</span><span class="na">getObject</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setKode</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;kode&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setNama</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;nama&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setHarga</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getBigDecimal</span><span class="o">(</span><span class="s">&quot;harga&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">p</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita membuatnya sebagai class di dalam class (inner class). Kalau lupa dengan strukturnya, silahkan baca lagi bab dua tentang Struktur Aplikasi.</p>
+
+<p>Class ini harus implement interface <code>RowMapper&lt;T&gt;</code> milik Spring. <code>T</code> diganti dengan class yang menjadi tujuan konversi. Interface <code>RowMapper&lt;T&gt;</code> ini mewajibkan kita membuat method <code>mapRow</code>. Isi method tersebut sudah cukup jelas sehingga tidak perlu dijelaskan.</p>
+
+<p>Class ini nantinya bisa kita gunakan juga di query yang menghasilkan satu object <code>Produk</code> seperti <code>cariById</code> dan <code>cariByKode</code>. Berikut implementasinya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Produk</span> <span class="nf">cariById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">queryForObject</span><span class="o">(</span><span class="n">SQL_CARI_BY_ID</span><span class="o">,</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">ResultSetJadiProduk</span><span class="o">(),</span> <span class="n">id</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">EmptyResultDataAccessException</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="n">Produk</span> <span class="nf">cariByKode</span><span class="o">(</span><span class="n">String</span> <span class="n">kode</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">queryForObject</span><span class="o">(</span><span class="n">SQL_CARI_BY_KODE</span><span class="o">,</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">ResultSetJadiProduk</span><span class="o">(),</span> <span class="n">kode</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">EmptyResultDataAccessException</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kedua method ini sama saja prinsipnya dengan <code>cariSemua</code> yang sudah kita bahas sebelumnya.</p>
+
+<h2>Mengambil data berelasi</h2>
+
+<p>Setelah berhasil mengambil data dari satu produk, mari kita coba untuk berurusan dengan data berelasi. Sebetulnya prinsipnya sama saja, yaitu membuatkan class konversi. Bedanya hanya terletak pada query SQL yang menggunakan join, tidak ada hubungannya dengan Spring JDBC.</p>
+
+<p>Pada service interface, kita memiliki fitur rekap transaksi untuk satu produk tertentu, yang dimuat dalam method <code>cariPenjualanDetailByProdukDanPeriode</code>. Method tersebut memanggil method <code>cariByProdukDanPeriode</code> dalam class <code>PenjualanDetailDao</code>. Berikut implementasinya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PenjualanDetailDao</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">SQL_CARI_BY_PRODUK_DAN_PERIODE</span>
+</span><span class='line'>            <span class="o">=</span> <span class="s">&quot;select pd.*, p.waktu_transaksi, &quot;</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;produk.kode as kode_produk, produk.nama as nama_produk,&quot;</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;produk.harga as harga_produk &quot;</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;from t_penjualan_detail pd &quot;</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;inner join t_penjualan p on pd.id_penjualan = p.id &quot;</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;inner join m_produk produk on pd.id_produk = produk.id &quot;</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;where pd.id_produk = ? &quot;</span> <span class="o">+</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;and (p.waktu_transaksi between ? and ?) &quot;</span> <span class="o">+</span>
+</span><span class='line'>            <span class="o">+</span> <span class="s">&quot;limit ?,?&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="nf">cariByProdukDanPeriode</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">Date</span> <span class="n">mulai</span><span class="o">,</span> <span class="n">Date</span> <span class="n">sampai</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">baris</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">SQL_CARI_BY_PRODUK_DAN_PERIODE</span><span class="o">,</span>
+</span><span class='line'>                <span class="k">new</span> <span class="nf">ResultSetJadiPenjualanDetail</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span>
+</span><span class='line'>                <span class="n">mulai</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">sampai</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">PagingHelper</span><span class="o">.</span><span class="na">halamanJadiStart</span><span class="o">(</span><span class="n">halaman</span><span class="o">,</span> <span class="n">baris</span><span class="o">),</span>
+</span><span class='line'>                <span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Konversi dari <code>ResultSet</code> menjadi <code>PenjualanDetail</code> dilakukan dalam class <code>ResultSetJadiPenjualanDetail</code> berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">class</span> <span class="nc">ResultSetJadiPenjualanDetail</span>
+</span><span class='line'>        <span class="kd">implements</span> <span class="n">RowMapper</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">PenjualanDetail</span> <span class="nf">mapRow</span><span class="o">(</span><span class="n">ResultSet</span> <span class="n">rs</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">)</span>
+</span><span class='line'>            <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PenjualanDetail</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PenjualanDetail</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">((</span><span class="n">Integer</span><span class="o">)</span> <span class="n">rs</span><span class="o">.</span><span class="na">getObject</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setHarga</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getBigDecimal</span><span class="o">(</span><span class="s">&quot;harga&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setJumlah</span><span class="o">((</span><span class="n">Integer</span><span class="o">)</span> <span class="n">rs</span><span class="o">.</span><span class="na">getObject</span><span class="o">(</span><span class="s">&quot;jumlah&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// relasi ke produk</span>
+</span><span class='line'>        <span class="n">Produk</span> <span class="n">px</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Produk</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">px</span><span class="o">.</span><span class="na">setId</span><span class="o">((</span><span class="n">Integer</span><span class="o">)</span> <span class="n">rs</span><span class="o">.</span><span class="na">getObject</span><span class="o">(</span><span class="s">&quot;id_produk&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">px</span><span class="o">.</span><span class="na">setKode</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;kode_produk&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">px</span><span class="o">.</span><span class="na">setNama</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;nama_produk&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">px</span><span class="o">.</span><span class="na">setHarga</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getBigDecimal</span><span class="o">(</span><span class="s">&quot;harga_produk&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setProduk</span><span class="o">(</span><span class="n">px</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// relasi ke penjualan</span>
+</span><span class='line'>        <span class="n">Penjualan</span> <span class="n">jual</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Penjualan</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">jual</span><span class="o">.</span><span class="na">setId</span><span class="o">((</span><span class="n">Integer</span><span class="o">)</span> <span class="n">rs</span><span class="o">.</span><span class="na">getObject</span><span class="o">(</span><span class="s">&quot;id_penjualan&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">jual</span><span class="o">.</span><span class="na">setWaktuTransaksi</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getDate</span><span class="o">(</span><span class="s">&quot;waktu_transaksi&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setPenjualan</span><span class="o">(</span><span class="n">jual</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">p</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selain class <code>PenjualanDetail</code> itu sendiri, kita juga membuatkan object <code>Produk</code> dan <code>Penjualan</code> yang kemudian akan dipasang pada object <code>PenjualanDetail</code>.</p>
+
+<h2>Pagination</h2>
+
+<p>Dalam mengambil data yang berjumlah banyak seperti data transaksi, biasanya kita akan melakukan <em>pagination</em>, yaitu membagi data menjadi beberapa halaman. Di MySQL, kita menggunakan keyword <code>LIMIT</code> untuk melakukan hal ini. Keyword <code>LIMIT</code> menerima dua argumen, yaitu nomer record pertama yang mau diambil dan jumlah record yang mau diambil. Jadi bila kita ingin mengambil record 11 - 15, kita menggunakan keyword <code>LIMIT 11, 5</code>.</p>
+
+<p>Ini agak berbeda dengan argumen yang diterima dalam method pencarian kita. Yang diminta di situ adalah nomer halaman dan jumlah record per halaman. Jadi kalau misalnya data kita berjumlah 56 record dan kita ingin setiap halaman berisi 10 record, maka data tersebut akan terbagi menjadi 6 halaman. Bila kita ingin mengambil halaman terakhir, kita memberikan argumen <code>6</code> dan <code>10</code> ke dalam method pencarian.</p>
+
+<p>Tentunya harus ada konversi dari nomer halaman menjadi nomer baris. Ini kita lakukan di class <code>PagingHelper</code> yang isinya sebagai berikut.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PagingHelper</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Integer</span> <span class="nf">halamanJadiStart</span><span class="o">(</span><span class="n">Integer</span> <span class="n">halaman</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">Integer</span> <span class="n">baris</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">halaman</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">(</span><span class="n">halaman</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)</span> <span class="o">*</span> <span class="n">baris</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Header Detail</h2>
+
+<p>Dalam aplikasi, pasti ada fitur untuk menampilkan daftar transaksi dalam periode tertentu.
+Seperti sudah kita bahas, satu transaksi terdiri dari satu header dan beberapa detail.
+Data ini tentu ingin kita ambil semua.</p>
+
+<p>Caranya sederhana :</p>
+
+<ol>
+<li>Query dulu headernya: <code>select * from t_penjualan where id = ?</code></li>
+<li>Query detailnya: <code>select * from t_penjualan_detail where id_penjualan = ?</code></li>
+<li>Gabungkan keduanya</li>
+</ol>
+
+
+<p>Berikut contohnya, pada waktu kita ingin mencari <code>Penjualan</code> berdasarkan <code>id</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Penjualan</span> <span class="nf">cariById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Penjualan</span> <span class="n">p</span> <span class="o">=</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">queryForObject</span><span class="o">(</span><span class="n">SQL_CARI_BY_ID</span><span class="o">,</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">ResultSetJadiPenjualan</span><span class="o">(),</span> <span class="n">id</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="n">daftarDetail</span> <span class="o">=</span> <span class="n">penjualanDetailDao</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">cariByPenjualan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">p</span><span class="o">.</span><span class="na">setDaftarPenjualanDetail</span><span class="o">(</span><span class="n">daftarDetail</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">p</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">EmptyResultDataAccessException</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Di sana, kita memanggil method <code>cariByPenjualan</code> yang ada di class <code>PenjualanDetailDao</code>. Berikut kode programnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="nf">cariByPenjualan</span><span class="o">(</span><span class="n">Penjualan</span> <span class="n">p</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="n">hasil</span>
+</span><span class='line'>        <span class="o">=</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">SQL_CARI_BY_ID_PENJUALAN</span><span class="o">,</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">ResultSetJadiPenjualanDetail</span><span class="o">(),</span> <span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// set relasi ke penjualan</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">PenjualanDetail</span> <span class="n">penjualanDetail</span> <span class="o">:</span> <span class="n">hasil</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">penjualanDetail</span><span class="o">.</span><span class="na">setPenjualan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">hasil</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kembali ke <code>PenjualanDao</code>, setelah kita mendapatkan <code>List&lt;PenjualanDetail&gt;</code> dari method di atas, kita pasang di object penjualan yang sudah kita dapatkan di baris ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">p</span><span class="o">.</span><span class="na">setDaftarPenjualanDetail</span><span class="o">(</span><span class="n">daftarDetail</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Demikianlah cara kita mengambil data dari database menggunakan Spring JDBC.
+Hal ini tentu tidak rumit asalkan kita sudah paham dasar-dasar SQL termasuk cara melakukan join antar tabel.
+Jadi kesimpulannya, untuk mengambil data menggunakan Spring JDBC, yang perlu kita lakukan hanyalah:</p>
+
+<ol>
+<li>Membuat SQL, lengkap dengan join bila perlu. Contohnya bisa dilihat di class <code>PenjualanDetailDao</code> yang memiliki banyak join.</li>
+<li>Membuat class untuk mengkonversi dari <code>ResultSet</code> menjadi object yang kita inginkan, misalnya <code>Produk</code> atau <code>Penjualan</code></li>
+</ol>
+
+
+<p>Pada bagian selanjutnya, kita tinggal mengetes kode program yang telah kita buat ini.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-03T20:08:00+07:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/insert-update-delete-dengan-spring-jdbc/" title="Previous Post: Insert Update Delete dengan Spring JDBC">&laquo; Insert Update Delete dengan Spring JDBC</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/training-cmmi/">Training CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

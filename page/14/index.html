@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Setelah aplikasi dicoding dengan benar, biasanya langkah berikutnya adalah tuning performance. Hal ini banyak ditanyakan di berbagai milis &hellip;">
+  <meta name="description" content="Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,338 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/mendebug-database-production/">Mendebug Database Production</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-06-30T14:44:11+07:00" pubdate data-updated="true">Jun 30<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di environment development karena berbagai hal, misalnya variasi data, jumlah data, dan sebagainya.</p>
+
+<p>Langkah pertama ketika kita mengetahui ada bug tentunya adalah melokalisir masalah. Pada kondisi mana saja bug tersebut muncul. Setelah itu, kita dapat memfokuskan pencarian masalah di lokasi tersebut. Ini lebih efisien daripada kita harus menelusuri keseluruhan sistem.</p>
+
+<p>Misalnya kita sudah berhasil melokalisir masalah, yaitu transaksi di bulan tertentu. Langkah selanjutnya adalah memindahkan data production di lokasi tersebut ke environment development. Ini kita lakukan supaya kita bebas bereksperimen dengan data tersebut tanpa khawatir membahayakan data production.</p>
+
+<p>Masalahnya, tools backup database yang tersedia biasanya tidak bisa digunakan untuk mengambil sebagian data. Walaupun bisa (mysqldump menyediakan opsi where untuk membatasi record yang diambil), biasanya terbatas hanya di satu tabel saja. Sedangkan untuk bisa merestore-nya di development, kita butuh semua relasinya.</p>
+
+<p>Sebagai contoh, coba lihat skema berikut.</p>
+
+<p><img src="/images/uploads/2010/06/diagram-er-payment.png" title="" ></p>
+
+<p>Untuk mengambil data payment, tentunya kita juga harus menarik data lain yang berelasi dengannya, yaitu di tabel grup loket, loket, payment value, payment info dan fee loket. Ini sangat sulit dilakukan, apalagi kalau data payment tersebut jumlahnya ratusan ribu record.</p>
+
+<p>Untunglah ada tools untuk mengatasi masalah ini, namanya <a href="http://jailer.sourceforge.net/">Jailer</a>. Dengan menggunakan Jailer, kita dapat menentukan tabel mana yang akan diambil datanya (payment), kriteria pengambilan (bulan tertentu saja), dan relasi mana saja yang ingin kita ambil. Hasilnya adalah satu set data lengkap dengan dependensinya yang bisa kita restore di development.</p>
+
+<h2>Persiapan Jailer</h2>
+
+<p>Pertama, tentunya kita unduh dulu Jailer di websitenya. Jangan lupa teriakkan, &#8220;Hidup Open Source !!!&#8221;, karena aplikasi ini tersedia secara gratis berkat gerakan open source.</p>
+
+<p>Setelah berhasil diunduh, extract ke folder tertentu. Jailer tidak menyertakan driver untuk koneksi ke database, sehingga kita harus sediakan sendiri. Karena saya menggunakan MySQL, saya masukkan file mysql-connector.jar ke dalam folder lib. Kita mengikutkan driver database ke folder Jailer karena nantinya folder ini akan kita pack dan upload ke server production.</p>
+
+<p>Jailer ini akan kita jalankan di mesin development yang sudah terisi skema database. Kita akan coba dulu ambil data di development, kalau sudah sukses baru kita jalankan di production.</p>
+
+<p>Ada dua script untuk menjalankan jailer, yaitu jailerGUI dan jailer. jailerGUI digunakan untuk mendesain pengambilan data, sedangkan jailer adalah antarmuka command line untuk menjalankan pengambilan data. Karena kita ingin mendesain proses pengambilannya, kita gunakan jailerGUI.</p>
+
+<pre><code>$ sh jailerGUI.sh
+</code></pre>
+
+<p>Berikut adalah tampilan awal Jailer.</p>
+
+<p><img src="/images/uploads/2010/06/01-jailer-welcome-300x206.png" title="Jailer Welcome Page" ></p>
+
+<p>Jailer memberitahu kita bahwa belum ada data model yang bisa dikerjakan, dan menyarankan kita untuk menganalisa database. Klik Analyze Database. Selanjutnya Jailer akan meminta informasi cara koneksi ke database.</p>
+
+<p><img src="/images/uploads/2010/06/02-analyze-db-300x134.png" title="Analyze Database" ></p>
+
+<p>Isikan informasi koneksi database dan driver yang digunakan. Driver yang kita gunakan adalah yang tadi sudah kita copy ke folder lib.</p>
+
+<p><img src="/images/uploads/2010/06/03-mysql-connectorj-300x128.png" title="Konfigurasi MySQL" ></p>
+
+<p>Klik OK untuk menganalisa database.</p>
+
+<p><img src="/images/uploads/2010/06/04-connect-to-db-300x212.png" title="Koneksi ke database" ></p>
+
+<p>Setelah itu, Jailer akan menghubungi database untuk mengambil informasi. Lognya akan ditampilkan di log output. Jailer akan memberi tahu kita tabel-tabel yang tidak ada primary keynya. Jailer tidak dapat memproses tabel tanpa primary key.</p>
+
+<p><img src="/images/uploads/2010/06/05-autodetect-result-300x233.png" title="Hasil Autodetect" ></p>
+
+<p>Klik tabel yang berwarna merah, dan definisikan primary keynya. Primary key yang kita definisikan di sini hanya digunakan Jailer, sehingga tidak perlu khawatir skema aslinya akan berubah.</p>
+
+<p><img src="/images/uploads/2010/06/06-edit-table-pk-300x200.png" title="Add Primary Key" ></p>
+
+<p>Setelah itu, klik OK. Jailer akan menampilkan screen Extraction Model Editor. Pilih tabel payment, di dropdown subject, karena inilah tabel yang akan kita gunakan sebagai pusat extraction.</p>
+
+<p><img src="/images/uploads/2010/06/07-payment-relasi-300x206.png" title="Pilih tabel yang ingin diimport" ></p>
+
+<p>Jailer mendeteksi relasi antar tabel berdasarkan constraint foreign key yang kita pasang di database. Kadangkala ada tabel-tabel yang berelasi, namun tidak ada constraintnya. Entah karena malas mendefinisikan, atau memang sengaja tidak dikaitkan. Kita bisa mendaftarkan relasi tanpa constraint ini dengan membuka lagi Data Model Editor, kemudian klik Add di kotak Association sebelah kanan.</p>
+
+<p><img src="/images/uploads/2010/06/08-relasi-non-fk-300x234.png" title="Relasi non Foreign Key" ></p>
+
+<p>Setelah diklik OK, maka skema relasi di Extraction Model Editor akan berubah sesuai relasi yang ditambahkan. Sama dengan definisi primary key di atas, relasi ini hanya disimpan oleh Jailer dan tidak diaplikasikan ke skema database.</p>
+
+<p><img src="/images/uploads/2010/06/09-payment-relasi-2-300x168.png" title="Relasi Payment - Loket" ></p>
+
+<p>Kita perlu mendefinisikan batasan record payment yang akan diambil, yaitu yang terjadi di bulan Juni 2010. Dalam bentuk SQL, berikut adalah query yang digunakan</p>
+
+<pre><code>select * from payment where date_format(paid_date, '%Y-%m') = '2010-06'
+</code></pre>
+
+<p>Kita ambil expression setelah where dan pasang di textfield where dalam Extraction Model Editor.</p>
+
+<p><img src="/images/uploads/2010/06/10-payment-where-300x206.png" title="Restriction" ></p>
+
+<p>Simpan dulu extraction modelnya.</p>
+
+<p><img src="/images/uploads/2010/06/11-save-extraction-300x208.png" title="Save Extraction" ></p>
+
+<p>Beri nama yang representatif, misalnya payment-201006. Jailer akan menyimpan extraction model ini dalam format csv. Kalau sudah memahami formatnya, kita bisa membuatnya dengan text editor tanpa GUI (kalau mau).</p>
+
+<p>Setelah tersimpan, kita bisa klik Export Data sehingga memunculkan dialog berikut.</p>
+
+<p><img src="/images/uploads/2010/06/12-data-export-300x283.png" title="Export Data" ></p>
+
+<p>Di screen tersebut kita bisa mengatur konfigurasi pengambilan data. Bagi saya, nilai defaultnya sudah memadai sehingga tidak ada yang diubah.</p>
+
+<p>Di box paling bawah ada command line yang bisa kita copy-paste untuk dijalankan tanpa GUI. Copy saja isinya ke text file untuk digunakan nanti.</p>
+
+<p>Yang harus kita isi di screen ini adalah textfield Into. Ini adalah nama file yang akan menampung script SQL berisi data yang diinginkan. Isi saja dengan nama payment-201006.sql.</p>
+
+<p><img src="/images/uploads/2010/06/13-export-into-300x205.png" title="Export Into File" ></p>
+
+<p>Setelah itu, klik Export Data. Jailer akan segera bekerja dan menampilkan hasilnya dalam bentuk tree.</p>
+
+<p><img src="/images/uploads/2010/06/14-export-result-300x168.png" title="Hasil Export" ></p>
+
+<p>Di situ kita bisa lihat berapa row yang akan diambil dari masing-masing tabel.
+Seperti kita lihat, cukup signifikan, yaitu 2000an record. Ini disebabkan karena jailer mengambil record secara rekursif tanpa ada batasan.</p>
+
+<p>Setelah dianalisa, kita hanya ingin mengambil tabel-tabel yang berkaitan langsung, yaitu payment, payment_info, payment_value, dan fee_loket. Sedangkan tabel sisanya dapat diabaikan karena bersifat pelengkap atau master data yang sudah ada di database development.</p>
+
+<p>Dengan melihat ke tree-nya, kita bisa memutus relasi fee_loket ke loket, karena dari situlah semua data lain akan ikut terbawa.</p>
+
+<p>Tutup screennya, dan kembali ke Extraction Model Editor.</p>
+
+<p><img src="/images/uploads/2010/06/15-restricted-dependency-300x168.png" title="Membatasi Relasi" ></p>
+
+<p>Di kotak Association, expand node yang ingin kita putuskan, yaitu fee loket. Klik relasi loket, dan centang checkbox disabled di pojok kiri bawah. Setelah itu, jalankan lagi Export Data.</p>
+
+<p><img src="/images/uploads/2010/06/16-restricted-dependency-warning-300x153.png" title="Warning Restricted Dependency" ></p>
+
+<p>Jailer akan mengingatkan bahwa dengan membatasi dependensi, referential integrity akan rusak, karena relasi foreign key dari fee_loket ke loket akan terputus. Klik saja Yes, karena di database development kita tabel loket sudah terisi lengkap.</p>
+
+<p>Inilah hasilnya</p>
+
+<p><img src="/images/uploads/2010/06/17-restricted-export-result-300x82.png" title="Hasil Export setelah dibatasi" ></p>
+
+<p>Seperti kita lihat di atas, kita cuma mendapatkan 84 record dan pengambilan data berhenti di tabel fee_loket.
+Periksa output payment-201006.sql di folder Jailer untuk memastikan hasilnya sudah benar.</p>
+
+<p>Setelah sukses dijalankan di database development, compress lagi jailer yang sudah dimodifikasi barusan dan upload ke server production. Setibanya di server production, extract, kemudian jalankan script yang tadi kita copy-paste.</p>
+
+<p>Kalau baru pertama kali dijalankan, script ini akan menimbulkan error sebagai berikut :</p>
+
+<pre><code>$ ./export-payment-201006.sh 
+2010-06-28 14:15:08,114 [main] INFO   - Jailer 3.4.5
+2010-06-28 14:15:08,117 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
+2010-06-28 14:15:08,119 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
+2010-06-28 14:15:08,700 [main] INFO   - begin guessing SQL dialect
+2010-06-28 14:15:08,711 [main] INFO   - end guessing SQL dialect
+2010-06-28 14:15:08,718 [main] ERROR  - Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
+java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
+    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:122)
+    at net.sf.jailer.Jailer.export(Jailer.java:1142)
+    at net.sf.jailer.Jailer.jailerMain(Jailer.java:1064)
+    at net.sf.jailer.Jailer.jailerMain(Jailer.java:989)
+    at net.sf.jailer.Jailer.main(Jailer.java:967)
+Caused by: java.sql.SQLException: "Table 'ppobgsp_test.JAILER_GRAPH' doesn't exist" in statement "Insert into JAILER_GRAPH(id, age) values (2104021762, 1)"
+    at net.sf.jailer.database.Session.executeUpdate(Session.java:470)
+    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:120)
+    ... 4 more
+Error: java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
+2010-06-28 14:15:08,724 [main] ERROR  - working directory is /opt/downloads/java/tools/test/integration-test/jailer
+</code></pre>
+
+<p>Ini disebabkan karena Jailer ternyata membuat beberapa tabel di database untuk kebutuhan internalnya. Ini dapat dilihat pada database development kita.</p>
+
+<p><img src="/images/uploads/2010/06/18-jailer-tables-300x226.png" title="Tabel Internal Jailer" ></p>
+
+<p>Untuk menggenerate tabel di atas, kita jalankan jailer dengan opsi create-ddl. Ini akan menghasilkan SQL di layar. SQL ini harus kita jalankan di database production supaya tabelnya terbentuk.</p>
+
+<pre><code>$ sh jailer.sh create-ddl
+DROP TABLE JAILER_ENTITY;
+DROP TABLE JAILER_DEPENDENCY;
+DROP TABLE JAILER_SET;
+DROP TABLE JAILER_GRAPH;
+DROP TABLE JAILER_CONFIG;
+DROP TABLE JAILER_TMP;
+
+CREATE TABLE JAILER_CONFIG
+(
+   jversion        VARCHAR(20),
+   jkey            VARCHAR(200),
+   jvalue          VARCHAR(200)
+) ;
+
+INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'magic', '837065098274756382534403654245288');
+
+CREATE TABLE JAILER_GRAPH
+(
+   id              INTEGER NOT NULL,
+   age             INTEGER NOT NULL
+
+--   ,CONSTRAINT jlr_pk_graph PRIMARY KEY(id)
+) ;
+
+CREATE TABLE JAILER_ENTITY
+(
+   r_entitygraph   INTEGER NOT NULL,
+
+   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT ,
+   birthday        INTEGER NOT NULL,
+   type            VARCHAR(120) NOT NULL,
+
+   PRE_PK0 BIGINT , PRE_PK1 VARCHAR(255) , PRE_PK2 VARCHAR(255) , PRE_PK3 INT , PRE_PK4 VARCHAR(255) , PRE_PK5 BIGINT ,
+   PRE_TYPE        VARCHAR(120),
+   orig_birthday   INTEGER,
+   association     INTEGER
+
+-- ,  CONSTRAINT jlr_fk_graph_e FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
+) ;
+
+CREATE INDEX jlr_enty_brthdy ON JAILER_ENTITY (r_entitygraph, birthday, type) ;
+CREATE INDEX jlr_enty_upk1 ON JAILER_ENTITY (r_entitygraph , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
+
+
+CREATE TABLE JAILER_SET
+(
+   set_id          INTEGER NOT NULL,
+   type            VARCHAR(120) NOT NULL,
+   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT 
+) ;
+
+CREATE INDEX jlr_pk_set1 ON JAILER_SET (set_id , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
+
+
+CREATE TABLE JAILER_DEPENDENCY
+(
+   r_entitygraph   INTEGER NOT NULL,
+   assoc           INTEGER NOT NULL,
+   depend_id       INTEGER NOT NULL,
+   traversed       INTEGER,
+   from_type       VARCHAR(120) NOT NULL,
+   to_type         VARCHAR(120) NOT NULL,
+   FROM_PK0 BIGINT , FROM_PK1 VARCHAR(255) , FROM_PK2 VARCHAR(255) , FROM_PK3 INT , FROM_PK4 VARCHAR(255) , FROM_PK5 BIGINT ,
+   TO_PK0 BIGINT , TO_PK1 VARCHAR(255) , TO_PK2 VARCHAR(255) , TO_PK3 INT , TO_PK4 VARCHAR(255) , TO_PK5 BIGINT    
+
+-- ,  CONSTRAINT jlr_fk_graph_d FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
+) ;
+
+CREATE INDEX jlr_dep_from1 ON JAILER_DEPENDENCY (r_entitygraph, assoc , FROM_PK0, FROM_PK1, FROM_PK2, FROM_PK3, FROM_PK4, FROM_PK5) ;
+
+CREATE INDEX jlr_dep_to1 ON JAILER_DEPENDENCY (r_entitygraph , TO_PK0, TO_PK1, TO_PK2, TO_PK3, TO_PK4, TO_PK5) ;
+
+
+CREATE TABLE JAILER_TMP 
+(
+    c1 INTEGER, 
+    c2 INTEGER
+) ;
+
+INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547784');
+</code></pre>
+
+<p>Setelah tabelnya siap, jalankan kembali script yang error di atas. Berikut outputnya.</p>
+
+<pre><code>$ ./export-payment-201006.sh 
+2010-06-28 14:12:31,175 [main] INFO   - Jailer 3.4.5
+2010-06-28 14:12:31,190 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
+2010-06-28 14:12:31,191 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
+2010-06-28 14:12:32,850 [main] INFO   - SQL dialect is MYSQL
+2010-06-28 14:12:32,925 [main] INFO   - gather statistics after 0 inserted rows...
+2010-06-28 14:12:32,966 [main] INFO   - reading file 'renew.sql'
+2010-06-28 14:12:32,966 [main] INFO   - 0 statements (100%)
+2010-06-28 14:12:32,967 [main] INFO   - successfully read file 'renew.sql'
+2010-06-28 14:12:32,977 [main] INFO   - exporting payment Where date_format(paid_date,'%Y-%m') = '2010-06'
+2010-06-28 14:12:33,028 [main] INFO   - day 1, progress: payment
+2010-06-28 14:12:33,039 [main] INFO   - starting 4 jobs
+2010-06-28 14:12:33,040 [main] INFO   - gather statistics after 3 inserted rows...
+2010-06-28 14:12:33,041 [main] INFO   - reading file 'renew.sql'
+2010-06-28 14:12:33,042 [main] INFO   - 0 statements (100%)
+2010-06-28 14:12:33,042 [main] INFO   - successfully read file 'renew.sql'
+2010-06-28 14:12:33,047 [main] INFO   - resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,105 [main] INFO   - 66 entities found resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,105 [main] INFO   - resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,126 [main] INFO   - 0 entities found resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,126 [main] INFO   - resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,129 [main] INFO   - 3 entities found resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,131 [main] INFO   - resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id...
+2010-06-28 14:12:33,142 [main] INFO   - 12 entities found resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id
+2010-06-28 14:12:33,143 [main] INFO   - executed 4 jobs
+2010-06-28 14:12:33,143 [main] INFO   - day 2, progress: payment_info, fee_loket, payment_value
+2010-06-28 14:12:33,144 [main] INFO   - skip reversal association payment_info -&gt; payment
+2010-06-28 14:12:33,144 [main] INFO   - skip reversal association fee_loket -&gt; payment
+2010-06-28 14:12:33,147 [main] INFO   - skip reversal association payment_value -&gt; payment
+2010-06-28 14:12:33,147 [main] INFO   - starting 1 jobs
+2010-06-28 14:12:33,148 [main] INFO   - executed 1 jobs
+2010-06-28 14:12:33,149 [main] INFO   - exported payment Where date_format(paid_date,'%Y-%m') = '2010-06'
+2010-06-28 14:12:33,149 [main] INFO   - total progress: payment_info, payment, fee_loket, payment_value
+2010-06-28 14:12:33,149 [main] INFO   - export statistic:
+2010-06-28 14:12:33,169 [main] INFO   - Exported Rows:     84
+2010-06-28 14:12:33,169 [main] INFO   -     fee_loket                      3
+2010-06-28 14:12:33,169 [main] INFO   -     payment                        3
+2010-06-28 14:12:33,172 [main] INFO   -     payment_info                   66
+2010-06-28 14:12:33,172 [main] INFO   -     payment_value                  12
+2010-06-28 14:12:33,173 [main] INFO   - writing file 'payment-201006.sql'...
+2010-06-28 14:12:33,178 [main] INFO   - independent tables: payment
+2010-06-28 14:12:33,179 [main] INFO   - starting 1 jobs
+2010-06-28 14:12:33,380 [main] INFO   - executed 1 jobs
+2010-06-28 14:12:33,380 [main] INFO   - independent tables: payment_info, fee_loket, payment_value
+2010-06-28 14:12:33,384 [main] INFO   - starting 3 jobs
+2010-06-28 14:12:33,447 [main] INFO   - executed 3 jobs
+2010-06-28 14:12:33,447 [main] INFO   - cyclic dependencies for: 
+2010-06-28 14:12:33,447 [main] INFO   - starting 0 jobs
+2010-06-28 14:12:33,448 [main] INFO   - executed 0 jobs
+2010-06-28 14:12:33,448 [main] INFO   - gather statistics after 84 inserted rows...
+2010-06-28 14:12:33,450 [main] INFO   - reading file 'renew.sql'
+2010-06-28 14:12:33,450 [main] INFO   - 0 statements (100%)
+2010-06-28 14:12:33,454 [main] INFO   - successfully read file 'renew.sql'
+2010-06-28 14:12:33,456 [main] INFO   - starting 0 jobs
+2010-06-28 14:12:33,467 [main] INFO   - executed 0 jobs
+2010-06-28 14:12:33,486 [main] INFO   - file 'payment-201006.sql' written.
+</code></pre>
+
+<p>Selesai sudah, data yang kita inginkan ada di file payment-201006.sql, siap diunduh dan dijalankan di database development.</p>
+
+<p>Semoga bermanfaat, kalau ada yang kurang jelas, silahkan baca <a href="http://jailer.sourceforge.net/exporting-data.htm">tutorial resminya</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -430,221 +762,6 @@ Ini adalah flow fundamental, dan boleh di-hardcode.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/tips-melaporkan-error/">Tips Melaporkan Error</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-04-15T04:38:02+07:00" pubdate data-updated="true">Apr 15<span>th</span>, 2010</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><blockquote><p>Update 2011-12-02: karena masih aja banyak yang belum paham, saya tambahkan template pertanyaan di akhir artikel.</p></blockquote>
-
-<p>Sebagai programmer, setiap hari kita menghadapi software yang error. Bentuknya macam-macam, misalnya:</p>
-
-<ul>
-<li><p>Aplikasi yang kita buat error</p></li>
-<li><p>Peserta milis menggunakan framework X dan mengalami masalah</p></li>
-<li><p>Rekan sesama programmer membutuhkan bantuan</p></li>
-<li><p>dsb</p></li>
-</ul>
-
-
-<p>Pada sebagian besar kasus, kita dengan senang hati akan membantu. Sudah menjadi sifat programmer untuk memiliki rasa keingintahuan yang tinggi dan senang terhadap teka-teki. Aplikasi yang error adalah teka-teki yang menarik.</p>
-
-<p>Sayangnya, seringkali informasi error yang kita terima tidak lengkap sehingga butuh usaha tambahan untuk mengorek kejadian yang sebenarnya. Inilah yang membuat programmer seringkali keburu malas, sehingga akhirnya kegiatan solving error menjadi tidak fun lagi.</p>
-
-<p>Berikut adalah beberapa tips untuk membuat laporan error yang baik, supaya programmer yang akan memecahkan masalah tersebut bisa segera bekerja dengan efektif.</p>
-
-<p>Prinsip utama dalam melaporkan error adalah sebagai berikut</p>
-
-<blockquote><p>Programmer bukan <del>Mama Loren</del> Baby Djenar atau Ki Joko Bodo. Dia tidak bisa membaca pikiran ataupun melakukan telepati. Jadi jangan menganggap programmer melihat apa yang dilihat user. User harus menjelaskan apa yang dia lihat.</p></blockquote>
-
-<h2>Jelaskan lokasinya</h2>
-
-<p>Seringkali si informan error berkata seperti ini,</p>
-
-<blockquote><p>Help, aplikasinya error nih</p></blockquote>
-
-<p>Nah, yang menerima informasi jelas bingung. Aplikasi yang mana?
-Kalo client yang jadi informan, bisa jadi kita punya banyak project di sana.
-Walaupun projectnya cuma satu, tapi aplikasi kan bisa terdiri dari banyak modul, screen, fitur, dsb.</p>
-
-<p>Jadi, jelaskan di mana errornya. Di aplikasi apa, modul apa, screen yang mana. Terdengar simple, tapi nyatanya ada saja yang melewatkan hal pertama ini.</p>
-
-<p>Mari kita lanjutkan.</p>
-
-<h2>Tujuan</h2>
-
-<p>Kita menggunakan aplikasi tentu ingin mencapai tujuan tertentu. Ingin menyimpan data customer, menampilkan laporan bulanan, dan lain sebagainya. Nah, tujuan ini harus disampaikan ke programmer. Soalnya sering terjadi percakapan seperti ini :</p>
-
-<p>User (U) : Pak, fitur daftar produknya error.<br/>
-Programmer (P) : Harusnya bisa kok, sudah kami test di sini tidak ada masalah.<br/>
-U : Tapi saya coba tidak bisa<br/>
-P : Coba jelaskan langkahnya<br/>
-U : Saya buka menu daftar produk, muncul tabel berisi produk.
-Kemudian saya klik dua kali nama produk dalam tabel, saya ganti isinya.
-Setelah itu, saya tutup screennya.
-Pas dibuka lagi, datanya tetap sama.<br/>
-P : Lho, memangnya Ibu mau melakukan apa?<br/>
-U : Saya mau edit harga produknya<br/>
-P : Walah, bukan dari situ Bu. Gunakan menu edit produk</p>
-
-<p>Nah, seringkali tujuan user tidak sesuai dengan fitur aplikasi. Jadi, beri tahukan tujuan user pada programmer.</p>
-
-<h2>Langkah Reproduksi</h2>
-
-<p>Begitu programmer akan mencoba memperbaiki error, dia akan mencoba mereproduksi error tersebut di komputernya sendiri. Nah di sinilah biasanya terjadi percakapan seperti ini :</p>
-
-<p>U : Ini aplikasi error, tidak bisa simpan data<br/>
-P : Oh, di sini saya coba bisa kok<br/>
-U : Di sini tidak bisa<br/>
-P : Di sini bisa<br/>
-U : Tidak bisa<br/>
-P : Bisa<br/>
-dst</p>
-
-<p>Akan lebih produktif kalau percakapannya seperti ini :</p>
-
-<p>U : Ini aplikasi error, tidak bisa simpan data<br/>
-P : Apa yang dilakukan?</p>
-
-<p>U : Seperti ini :</p>
-
-<ol>
-<li>Buka screen Edit Produk</li>
-<li>Pilih kategori Komputer dan Elektronik</li>
-<li>Isi kode produk</li>
-<li>Isi nama produk</li>
-<li>Harga dikosongkan</li>
-<li>Tekan tombol simpan</li>
-</ol>
-
-
-<p>Nah, dengan percakapan seperti ini, programmer bisa mengulangi apa yang dilakukan user.
-Apakah langkah repro saja sudah cukup? Belum, masih ada 1 hal penting lainnya.</p>
-
-<h2>Harapan dan Kenyataan</h2>
-
-<p>Mari kita lanjutkan percakapan di atas.</p>
-
-<p>U : Setelah ditekan tombol simpan, datanya tidak tersimpan.<br/>
-P : Di tempat saya masuk kok ke database.<br/>
-U : Di sini, setelah ditekan simpan tidak terjadi apa-apa<br/>
-P : Maksudnya?<br/>
-U : Ya harusnya kan ada pesan, &#8220;Data sudah tersimpan&#8221;<br/>
-Ini tidak ada.</p>
-
-<p>Nah, di sini harapan user adalah ada notifikasi dari aplikasi bahwa data sudah tersimpan. Tapi kenyataannya tidak ada notifikasi apa-apa dari aplikasi. User mengira ini error,
-padahal programmer memang tidak menyediakan notifikasi tersebut, walaupun datanya sudah masuk ke database. Dari sini, programmer bisa menambahkan notifikasi sesuai harapan user.</p>
-
-<p>Jadi, harapan dan kenyataan harus disampaikan pada programmer.</p>
-
-<h2>Environment</h2>
-
-<p>Ini maksudnya adalah kondisi di mana aplikasi dijalankan, seperti</p>
-
-<ul>
-<li><p>Sistem Operasi</p></li>
-<li><p>Versi Aplikasi</p></li>
-<li><p>Aplikasi lain yang terinstal</p></li>
-</ul>
-
-
-<p>Sering terjadi aplikasi error hanya di Linux saja, atau di Mac saja, tapi berjalan lancar di Windows. Atau sebaliknya. Dengan memberi informasi ini, programmer bisa lebih terarah dalam mencari kesalahan dalam kode program.</p>
-
-<p>Demikian juga dengan versi aplikasi dan aplikasi lain yang terinstal. Seringkali sudah diketahui bahwa aplikasi kita tidak kompatibel dengan versi library tertentu, versi OS tertentu, atau dengan aplikasi lain. Misalnya seperti ini :</p>
-
-<p>Tanya (T) : Saya instal Tomcat tapi error<br/>
-Jawab (J) : Errornya gimana?<br/>
-T : Katanya port 8080 tidak bisa digunakan. <br/>
-J : Apakah ada webserver lain yang terinstal?<br/>
-T : Web server sih tidak ada, saya cuma install database Oracle saja.<br/>
-J : Oh, Oracle itu membawa web server sendiri, jalannya juga di 8080.<br/>
-Coba matikan Oraclenya, atau ganti port Tomcat ke angka lain.</p>
-
-<p>Demikian beberapa tips melaporkan error.</p>
-
-<p>Berikut ringkasannya :</p>
-
-<ol>
-<li><p>Jelaskan Lokasinya</p></li>
-<li><p>Sebutkan Tujuan</p></li>
-<li><p>Langkah Reproduksi</p></li>
-<li><p>Harapan dan Kenyataan</p></li>
-<li><p>Environment</p></li>
-</ol>
-
-
-<p>Berikut template yang bisa digunakan untuk mengajukan pertanyaan.</p>
-
-<p>Saya ingin &#8230;&#8230; (misal : mendeploy aplikasi di glassfish),
-untuk itu saya melakukan langkah2 berikut :</p>
-
-<ol>
-<li>&#8230;.</li>
-<li>&#8230;.</li>
-<li>&#8230;.</li>
-</ol>
-
-
-<p>Setelah saya lakukan langkah di atas, saya mengharapkan hasil sbb:</p>
-
-<ol>
-<li>&#8230;..</li>
-<li>&#8230;..</li>
-<li>&#8230;..</li>
-</ol>
-
-
-<p>Tapi ternyata kok malah muncul hasil seperti ini :</p>
-
-<ol>
-<li>&#8230;.</li>
-<li>&#8230;.</li>
-<li>&#8230;.</li>
-</ol>
-
-
-<p>Sebagai tambahan informasi, saya menggunakan :</p>
-
-<ol>
-<li>Sistem Operasi &#8230; versi &#8230;</li>
-<li>Bahasa Pemrograman &#8230; versi &#8230;</li>
-<li>Database &#8230; versi &#8230;</li>
-<li>Framework/Tools &#8230; versi &#8230;</li>
-</ol>
-
-
-<p>Dengan mengikuti tips ini berarti Anda sudah membantu kami untuk membantu Anda.
-:D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/15/">&larr; Older</a>
@@ -707,6 +824,10 @@ untuk itu saya melakukan langkah2 berikut :</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
       </li>
     
@@ -740,10 +861,6 @@ untuk itu saya melakukan langkah2 berikut :</p>
     
       <li class="post">
         <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
       </li>
     
   </ul>

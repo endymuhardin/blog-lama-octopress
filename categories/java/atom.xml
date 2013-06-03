@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-05-31T13:44:43+07:00</updated>
+  <updated>2013-06-03T20:21:32+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,298 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Query dengan Spring JDBC]]></title>
+    <link href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/"/>
+    <updated>2013-06-03T20:08:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/query-dengan-spring-jdbc</id>
+    <content type="html"><![CDATA[<p>Pada artikel sebelumnya kita telah bisa mengubah data dalam database, baik menambah (insert), mengubah (update), maupun menghapus (data). Kali ini kita akan membahas tentang cara pengambilan data (select) dari dalam database.</p>
+
+<p>Artikel ini merupakan bagian keempat dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
+<li>Melakukan pengetesan</li>
+</ol>
+
+
+<!--more-->
+
+
+<p>Pada dasarnya, untuk mengambil data dari database hanya ada dua varian yang kita gunakan, yaitu:</p>
+
+<ul>
+<li>mengambil data tunggal, gunakan method <code>queryForObject</code></li>
+<li>mengambil data banyak, gunakan method <code>queryForList</code> atau <code>query</code> saja</li>
+</ul>
+
+
+<p>Kita lihat dulu implementasi yang paling mendasar, ambil semua data produk dari database. Berikut deklarasi SQLnya.</p>
+
+<p>```java
+private static final String SQL_CARI_SEMUA</p>
+
+<pre><code>= "select * from m_produk limit ?,?";
+</code></pre>
+
+<p>```</p>
+
+<p>Perintah SQL di atas akan dipakai dalam method <code>cariSemua</code> sebagai berikut</p>
+
+<p>```java
+public List<Produk> cariSemua(Integer halaman, Integer baris) {</p>
+
+<pre><code>return jdbcTemplate.query(SQL_CARI_SEMUA,
+        new ResultSetJadiProduk(),
+        PagingHelper.halamanJadiStart(halaman, baris),
+        baris);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Pada contoh di atas, kita menggunakan method <code>query</code> yang menerima tiga argumen, yaitu:</p>
+
+<ul>
+<li>SQL yang akan dijalankan, berupa String</li>
+<li>Class yang bertugas mengubah ResultSet menjadi object yang kita inginkan, dalam hal ini object <code>Produk</code>. Class ini akan kita buat sendiri, yaitu class <code>ResultSetJadiProduk</code>.</li>
+<li>argumen lain-lain (varargs). Ini merupakan fitur Java sejak versi 5 yang artinya kita bisa memasukkan argumen sebanyak-banyaknya dalam method. Argumen ini akan dikonversi menjadi List untuk diproses oleh method <code>query</code></li>
+</ul>
+
+
+<p>Jadi, bukan salah ketik kalau di atas saya sebut tiga argumen padahal kita memasukkan empat variabel ke dalamnya.</p>
+
+<p>SQL select tentu tidak perlu kita bahas lagi, mari masuk ke class <code>ResultSetJadiProduk</code></p>
+
+<h2>Membuat Mapper</h2>
+
+<p>Class <code>ResultSetJadiProduk</code> bertugas mengkonversi hasil query ke database yang ada dalam class <code>ResultSet</code> menjadi object <code>Produk</code>. Implementasinya tidak rumit, ini dia.</p>
+
+<p>```java
+private class ResultSetJadiProduk implements RowMapper<Produk> {</p>
+
+<pre><code>@Override
+public Produk mapRow(ResultSet rs, int i) throws SQLException {
+    Produk p = new Produk();
+    p.setId((Integer) rs.getObject("id"));
+    p.setKode(rs.getString("kode"));
+    p.setNama(rs.getString("nama"));
+    p.setHarga(rs.getBigDecimal("harga"));
+    return p;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Kita membuatnya sebagai class di dalam class (inner class). Kalau lupa dengan strukturnya, silahkan baca lagi bab dua tentang Struktur Aplikasi.</p>
+
+<p>Class ini harus implement interface <code>RowMapper&lt;T&gt;</code> milik Spring. <code>T</code> diganti dengan class yang menjadi tujuan konversi. Interface <code>RowMapper&lt;T&gt;</code> ini mewajibkan kita membuat method <code>mapRow</code>. Isi method tersebut sudah cukup jelas sehingga tidak perlu dijelaskan.</p>
+
+<p>Class ini nantinya bisa kita gunakan juga di query yang menghasilkan satu object <code>Produk</code> seperti <code>cariById</code> dan <code>cariByKode</code>. Berikut implementasinya</p>
+
+<p>```java
+public Produk cariById(Integer id) {</p>
+
+<pre><code>try {
+    return jdbcTemplate.queryForObject(SQL_CARI_BY_ID, 
+        new ResultSetJadiProduk(), id);
+} catch (EmptyResultDataAccessException err) {
+    return null;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>public Produk cariByKode(String kode) {</p>
+
+<pre><code>try {
+    return jdbcTemplate.queryForObject(SQL_CARI_BY_KODE, 
+        new ResultSetJadiProduk(), kode);
+} catch (EmptyResultDataAccessException err) {
+    return null;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Kedua method ini sama saja prinsipnya dengan <code>cariSemua</code> yang sudah kita bahas sebelumnya.</p>
+
+<h2>Mengambil data berelasi</h2>
+
+<p>Setelah berhasil mengambil data dari satu produk, mari kita coba untuk berurusan dengan data berelasi. Sebetulnya prinsipnya sama saja, yaitu membuatkan class konversi. Bedanya hanya terletak pada query SQL yang menggunakan join, tidak ada hubungannya dengan Spring JDBC.</p>
+
+<p>Pada service interface, kita memiliki fitur rekap transaksi untuk satu produk tertentu, yang dimuat dalam method <code>cariPenjualanDetailByProdukDanPeriode</code>. Method tersebut memanggil method <code>cariByProdukDanPeriode</code> dalam class <code>PenjualanDetailDao</code>. Berikut implementasinya.</p>
+
+<p>```java
+public class PenjualanDetailDao {</p>
+
+<pre><code>private static final String SQL_CARI_BY_PRODUK_DAN_PERIODE 
+        = "select pd.*, p.waktu_transaksi, "
+        + "produk.kode as kode_produk, produk.nama as nama_produk,"
+        + "produk.harga as harga_produk "
+        + "from t_penjualan_detail pd "
+        + "inner join t_penjualan p on pd.id_penjualan = p.id "
+        + "inner join m_produk produk on pd.id_produk = produk.id " 
+        + "where pd.id_produk = ? " +
+        + "and (p.waktu_transaksi between ? and ?) " +
+        + "limit ?,?";
+
+public List&lt;PenjualanDetail&gt; cariByProdukDanPeriode(Produk p, 
+        Date mulai, Date sampai, Integer halaman, Integer baris) {
+    return jdbcTemplate.query(SQL_CARI_BY_PRODUK_DAN_PERIODE, 
+            new ResultSetJadiPenjualanDetail(), 
+            p.getId(), 
+            mulai, 
+            sampai, 
+            PagingHelper.halamanJadiStart(halaman, baris), 
+            baris);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Konversi dari <code>ResultSet</code> menjadi <code>PenjualanDetail</code> dilakukan dalam class <code>ResultSetJadiPenjualanDetail</code> berikut</p>
+
+<p>```java
+private class ResultSetJadiPenjualanDetail</p>
+
+<pre><code>    implements RowMapper&lt;PenjualanDetail&gt; {
+
+@Override
+public PenjualanDetail mapRow(ResultSet rs, int i) 
+        throws SQLException {
+    PenjualanDetail p = new PenjualanDetail();
+    p.setId((Integer) rs.getObject("id"));
+    p.setHarga(rs.getBigDecimal("harga"));
+    p.setJumlah((Integer) rs.getObject("jumlah"));
+
+    // relasi ke produk
+    Produk px = new Produk();
+    px.setId((Integer) rs.getObject("id_produk"));
+    px.setKode(rs.getString("kode_produk"));
+    px.setNama(rs.getString("nama_produk"));
+    px.setHarga(rs.getBigDecimal("harga_produk"));
+    p.setProduk(px);
+
+    // relasi ke penjualan
+    Penjualan jual = new Penjualan();
+    jual.setId((Integer) rs.getObject("id_penjualan"));
+    jual.setWaktuTransaksi(rs.getDate("waktu_transaksi"));
+    p.setPenjualan(jual);
+
+    return p;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Selain class <code>PenjualanDetail</code> itu sendiri, kita juga membuatkan object <code>Produk</code> dan <code>Penjualan</code> yang kemudian akan dipasang pada object <code>PenjualanDetail</code>.</p>
+
+<h2>Pagination</h2>
+
+<p>Dalam mengambil data yang berjumlah banyak seperti data transaksi, biasanya kita akan melakukan <em>pagination</em>, yaitu membagi data menjadi beberapa halaman. Di MySQL, kita menggunakan keyword <code>LIMIT</code> untuk melakukan hal ini. Keyword <code>LIMIT</code> menerima dua argumen, yaitu nomer record pertama yang mau diambil dan jumlah record yang mau diambil. Jadi bila kita ingin mengambil record 11 - 15, kita menggunakan keyword <code>LIMIT 11, 5</code>.</p>
+
+<p>Ini agak berbeda dengan argumen yang diterima dalam method pencarian kita. Yang diminta di situ adalah nomer halaman dan jumlah record per halaman. Jadi kalau misalnya data kita berjumlah 56 record dan kita ingin setiap halaman berisi 10 record, maka data tersebut akan terbagi menjadi 6 halaman. Bila kita ingin mengambil halaman terakhir, kita memberikan argumen <code>6</code> dan <code>10</code> ke dalam method pencarian.</p>
+
+<p>Tentunya harus ada konversi dari nomer halaman menjadi nomer baris. Ini kita lakukan di class <code>PagingHelper</code> yang isinya sebagai berikut.</p>
+
+<p>```java
+public class PagingHelper {</p>
+
+<pre><code>public static Integer halamanJadiStart(Integer halaman, 
+        Integer baris){
+    if (halaman &lt; 1) {
+        return 0;
+    }
+    return (halaman - 1) * baris;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Header Detail</h2>
+
+<p>Dalam aplikasi, pasti ada fitur untuk menampilkan daftar transaksi dalam periode tertentu.
+Seperti sudah kita bahas, satu transaksi terdiri dari satu header dan beberapa detail.
+Data ini tentu ingin kita ambil semua.</p>
+
+<p>Caranya sederhana :</p>
+
+<ol>
+<li>Query dulu headernya: <code>select * from t_penjualan where id = ?</code></li>
+<li>Query detailnya: <code>select * from t_penjualan_detail where id_penjualan = ?</code></li>
+<li>Gabungkan keduanya</li>
+</ol>
+
+
+<p>Berikut contohnya, pada waktu kita ingin mencari <code>Penjualan</code> berdasarkan <code>id</code></p>
+
+<p>```java
+public Penjualan cariById(Integer id) {</p>
+
+<pre><code>try {
+    Penjualan p = jdbcTemplate.queryForObject(SQL_CARI_BY_ID, 
+        new ResultSetJadiPenjualan(), id);
+    List&lt;PenjualanDetail&gt; daftarDetail = penjualanDetailDao
+        .cariByPenjualan(p);
+    p.setDaftarPenjualanDetail(daftarDetail);
+    return p;
+} catch (EmptyResultDataAccessException err) {
+    return null;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Di sana, kita memanggil method <code>cariByPenjualan</code> yang ada di class <code>PenjualanDetailDao</code>. Berikut kode programnya</p>
+
+<p>```java
+public List<PenjualanDetail> cariByPenjualan(Penjualan p){</p>
+
+<pre><code>List&lt;PenjualanDetail&gt; hasil 
+    = jdbcTemplate.query(SQL_CARI_BY_ID_PENJUALAN, 
+        new ResultSetJadiPenjualanDetail(), p.getId());
+
+// set relasi ke penjualan
+for (PenjualanDetail penjualanDetail : hasil) {
+    penjualanDetail.setPenjualan(p);
+}
+
+return hasil;
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Kembali ke <code>PenjualanDao</code>, setelah kita mendapatkan <code>List&lt;PenjualanDetail&gt;</code> dari method di atas, kita pasang di object penjualan yang sudah kita dapatkan di baris ini</p>
+
+<p><code>java
+p.setDaftarPenjualanDetail(daftarDetail);
+</code></p>
+
+<p>Demikianlah cara kita mengambil data dari database menggunakan Spring JDBC.
+Hal ini tentu tidak rumit asalkan kita sudah paham dasar-dasar SQL termasuk cara melakukan join antar tabel.
+Jadi kesimpulannya, untuk mengambil data menggunakan Spring JDBC, yang perlu kita lakukan hanyalah:</p>
+
+<ol>
+<li>Membuat SQL, lengkap dengan join bila perlu. Contohnya bisa dilihat di class <code>PenjualanDetailDao</code> yang memiliki banyak join.</li>
+<li>Membuat class untuk mengkonversi dari <code>ResultSet</code> menjadi object yang kita inginkan, misalnya <code>Produk</code> atau <code>Penjualan</code></li>
+</ol>
+
+
+<p>Pada bagian selanjutnya, kita tinggal mengetes kode program yang telah kita buat ini.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Insert Update Delete dengan Spring JDBC]]></title>
@@ -26,7 +318,7 @@
 <li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
-<li>Mengambil data (query)</li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
 <li>Melakukan pengetesan</li>
 </ol>
 
@@ -310,7 +602,7 @@ REFERENCES `m_produk` (`id`))
 
 <p>Pada pesan error di atas, data <code>produk</code> tidak bisa dihapus karena sudah digunakan sebagai relasi foreign key dari <code>penjualan detail</code>.</p>
 
-<p>Demikianlah penjelasan tentang insert, update, dan delete data. Nantikan bagian selanjutnya yang membahas tentang query select.</p>
+<p>Demikianlah penjelasan tentang insert, update, dan delete data. Nantikan <a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">bagian selanjutnya</a> yang membahas tentang query select.</p>
 ]]></content>
   </entry>
   
@@ -332,7 +624,7 @@ apa saja bagian-bagian dalam aplikasi dan bagaimana mereka saling terhubung.</p>
 <li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
-<li>Mengambil data (query)</li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
 <li>Melakukan pengetesan</li>
 </ol>
 
@@ -1077,7 +1369,7 @@ Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan 
 <li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
-<li>Mengambil data (query)</li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
 <li>Melakukan pengetesan</li>
 </ol>
 
@@ -1583,128 +1875,6 @@ Pada aplikasi ini, semua form data dikumpulkan dan dikonversi menjadi format JSO
 <p><img src="/images/uploads/2013/05/debug-ajax/19-response-error-poster.png" title="Response Gagal Poster" ></p>
 
 <p>Dengan menggunakan REST Console dan Poster, kita dapat mengurus coding di sisi server tanpa perlu dipusingkan dengan coding di sisi client (HTML, CSS, dan JS).</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Integrasi Aplikasi]]></title>
-    <link href="http://software.endy.muhardin.com/java/integrasi-aplikasi/"/>
-    <updated>2013-05-20T21:20:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/integrasi-aplikasi</id>
-    <content type="html"><![CDATA[<p>Aplikasi jaman sekarang jarang sekali yang berdiri sendiri.
-Umumnya aplikasi yang kita buat harus terhubung dengan aplikasi yang dibuat orang lain.
-Beberapa contohnya:</p>
-
-<ul>
-<li>kita membuat aplikasi mobile, terhubung ke social network seperti Facebook dan Twitter</li>
-<li>kita membuat aplikasi bisnis, harus terhubung ke aplikasi akunting yang sudah lebih dulu ada</li>
-<li>kita membuat aplikasi pembayaran tagihan, harus terhubung ke penyedia tagihan seperti PLN, Telkom, dsb</li>
-</ul>
-
-
-<p>Pada artikel ini, kita akan membahas beberapa strategi untuk menghubungkan aplikasi yang kita buat dengan aplikasi lain.</p>
-
-<!--more-->
-
-
-<p>Secara umum, ada empat strategi untuk menghubungkan aplikasi satu dengan lainnya:</p>
-
-<ul>
-<li>pemanggilan prosedur/function</li>
-<li>messaging</li>
-<li>sharing database</li>
-<li>kirim/terima file</li>
-</ul>
-
-
-<p>Mari kita bahas satu persatu.</p>
-
-<h2>Pemanggilan prosedur</h2>
-
-<p>Pada metode ini, aplikasi yang akan melayani (kita sebut aplikasi server),
-harus menyediakan mekanisme agar bisa dipanggil aplikasi lain (kita sebut aplikasi client).</p>
-
-<p>Ada beberapa protokol yang populer digunakan dalam strategi ini, misalnya:</p>
-
-<ul>
-<li>SOAP</li>
-<li>REST</li>
-<li>ISO-8583</li>
-<li>XMLRPC</li>
-</ul>
-
-
-<p>Ciri utama dalam strategi ini adalah:</p>
-
-<ul>
-<li>ada kesepakatan nama method yang akan dipanggil</li>
-<li>ada kesepakatan jumlah dan tipe data yang dikirim dan diterima</li>
-<li>client dan server harus online dalam waktu yang berbarengan.</li>
-<li>setelah client memanggil server, dia akan menunggu sampai ada balasan dari server. Sebelum terima balasan, client tidak bisa melanjutkan. Fenomena ini dikenal dengan istilah synchronous invocation.</li>
-</ul>
-
-
-<p>Berikut beberapa contoh implementasi dari strategi ini:</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/remoting-dengan-spring/">Remoting dengan Spring Framework</a></li>
-<li><a href="http://martinusadyh.web.id/tulisanku/berkenalan-dengan-iso-8583-menggunakan-java/">Transaksi Finansial dengan ISO-8583</a></li>
-</ul>
-
-
-<h2>Messaging</h2>
-
-<p>Konsep messaging sebetulnya sudah tidak asing lagi bagi kita. Sering kita gunakan sehari-hari dalam bentuk email, chatting, sms, dan sejenisnya.</p>
-
-<p>Beberapa ciri dari messaging antara lain:</p>
-
-<ul>
-<li>pengirim dan penerima tidak harus online berbarengan. Bisa saja pengirim mengirim pesan pada saat penerima offline, setelah itu pengirim juga offline. Pada waktu penerima online, dia akan menerima pesan yang ditujukan kepadanya pada waktu dia sedang offline.</li>
-<li>ada satu pihak yang berfungsi sebagai penyimpan message. Dalam dunia messaging, pihak ini disebut sebagai message broker.</li>
-<li>karena sifatnya yang memungkinkan tidak online barengan, maka biasanya ada mekanisme status delivery</li>
-<li>biasanya ada juga masa kadaluarsa message di dalam database broker. Sebagai contoh, bila handphone kita mati lebih dari tiga hari, maka sms yang ditujukan ke handphone tersebut dan belum sampai di handphone kita akan dihapus oleh operator telekomunikasi.</li>
-<li>tidak ada aturan mengenai format dan tipe data. Pengirim bebas mengirim apa saja. Penerima yang harus melakukan validasi terhadap format message</li>
-<li>tidak ada mekanisme notifikasi ketika ada message baru. Penerima harus secara periodik mengecek (polling) ke broker untuk mengetahui ada-tidaknya message baru</li>
-</ul>
-
-
-<p>Dalam Java, ada beberapa pilihan untuk implementasi strategi messaging, diantaranya:</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/integrasi-pusat-cabang-2/">melalui email</a></li>
-<li><a href="http://www.playsms.org/">melalui sms</a></li>
-<li><a href="http://software.endy.muhardin.com/java/intro-jms/">menggunakan protokol JMS</a></li>
-<li>menggunakan protokol AMQP</li>
-</ul>
-
-
-<h2>Sharing Database</h2>
-
-<p>Pada strategi ini, pengirim dan penerima menggunakan database sebagai media pertukaran data. Pengirim menaruh datanya ke suatu tabel di database untuk kemudian dibaca oleh penerima.</p>
-
-<p>Karena menggunakan database, maka mekanisme ini memiliki beberapa ciri khusus interaksi dengan database, yaitu:</p>
-
-<ul>
-<li>transaction. Pengirim bisa memastikan datanya terkirim secara utuh. Bila terjadi error di tengah pengiriman data, maka data yang sudah terlanjur ditulis bisa dibatalkan</li>
-<li>tipe data bisa di-enforce. Kita bisa menggunakan tipe data angka, text, dan tanggal. Bila pengirim salah memasukkan data, maka database server akan menolaknya.</li>
-</ul>
-
-
-<p>Mirip dengan messaging, tidak ada mekanisme notifikasi ketika ada data baru yang ditaruh pengirim. Penerima harus secara periodik mengecek (polling) ke database untuk mengetahui ada-tidaknya data baru. Untuk memudahkan polling, biasanya tiap data diberikan kolom status untuk membedakan mana data yang sudah diproses dan mana yang belum.</p>
-
-<p>Bila kita menggunakan Spring Integration, kita bisa langsung menggunakan <a href="http://static.springsource.org/spring-integration/reference/htmlsingle/#jdbc">implementasi yang tersedia</a> sehingga tidak perlu lagi membuatkan mekanisme pengecekan data baru. <a href="https://github.com/SpringSource/spring-integration-samples/tree/master/basic/jdbc">Contoh pemakaian juga sudah disediakan</a>, tinggal diikuti.</p>
-
-<h2>File Transfer</h2>
-
-<p>Sama seperti messaging, dengan strategi ini pengirim dan penerima tidak harus online berbarengan. Yang membedakannya dengan messaging adalah pada mekanisme ini biasanya format file dan struktur data di dalamnya sudah ditentukan. Demikian juga dengan lokasi penyimpanan file dan aturan penamaannya.</p>
-
-<p>Berbeda dengan sharing database, mekanisme file transfer tidak memiliki mekanisme untuk memastikan data sampai dengan utuh. Kita sendiri yang harus memastikan keutuhan data, misalnya dengan mengirim file checksum bersama dengan file berisi data. File checksum ini bisa digunakan untuk memastikan file data terkirim secara utuh.</p>
-
-<p>Pada mekanisme ini kita juga tidak bisa tahu progress pengiriman data. Apakah pengirim masih dalam proses mengirim atau sudah selesai? Kita tidak tahu secara pasti. Biasanya diakali dengan cara memeriksa ukuran file dalam selang waktu tertentu. Bila ukurannya masih terus bertambah, berarti proses pengiriman masih berjalan. Bila ukurannya tidak membesar lagi, ada indikasi bahwa pengiriman sudah selesai.</p>
-
-<p>Untungnya prosedur pengecekan ini sudah dibuatkan <a href="http://static.springsource.org/spring-integration/reference/htmlsingle/#files">implementasinya</a> oleh rekan-rekan Spring Integration, sehingga kita tinggal mengikuti <a href="https://github.com/SpringSource/spring-integration-samples/tree/master/basic/file">contoh yang tersedia</a>.</p>
-
-<p>Demikianlah sedikit informasi mengenai integrasi antar aplikasi. Semoga bermanfaat :)</p>
 ]]></content>
   </entry>
   

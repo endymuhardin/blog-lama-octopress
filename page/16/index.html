@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Dulu, kita sudah mencoba untuk membuat remoting service dengan menggunakan Spring Framework. Salah satu protokol yang digunakan adalah Spring HTTP &hellip;">
+  <meta name="description" content="Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,131 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/log4j-spring-mvc/">Konfigurasi Lokasi Logfile Pada Spring MVC</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-07-15T19:38:18+07:00" pubdate data-updated="true">Jul 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya, di Windows kita mungkin mendeploy aplikasi kita di</p>
+
+<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya
+</code></pre>
+
+<p>Sedangkan di Linux, kita mendeploy aplikasi di</p>
+
+<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya
+</code></pre>
+
+<p>Dengan kemungkinan seperti di atas, bagaimana kita harus menulis konfigurasi log4j?
+Mudah, bila kita menggunakan Spring MVC.</p>
+
+<p>Kita bisa menggunakan <code>Log4jConfigListener</code> yang disediakan Spring. Class ini memungkinkan kita menggunakan variabel di konfigurasi log4j kita. Kita mendaftarkan class ini di dalam <code>web.xml</code>, sebelum <code>ContextLoaderListener</code>, seperti ini :</p>
+
+<pre><code>    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+</code></pre>
+
+<p>Dengan adanya <code>Log4jConfigListener</code> ini, kita bisa menyebutkan lokasi konfigurasi log4j seperti ini :</p>
+
+<pre><code>    &lt;context-param&gt;
+        &lt;param-name&gt;log4jConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;classpath:artivisi-log4j.properties&lt;/param-value&gt;
+    &lt;/context-param&gt;
+</code></pre>
+
+<p>Isi <code>artivisi-log4j.properties</code> terlihat seperti ini :</p>
+
+<pre><code># Konfigurasi kategori
+log4j.rootLogger=INFO,fileout
+
+# File output
+log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileout.file=${webapp.root.path}/WEB-INF/logs/application.log
+log4j.appender.fileout.datePattern='.'yyyy-MM-dd
+log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
+</code></pre>
+
+<p>Perhatikan konfigurasi <code>log4j.appender.fileout.file</code>. Kita menggunakan variabel <code>${webapp.root.path}</code> yang akan diisi dengan nilai lokasi deployment aplikasi web kita. Variabel <code>${webapp.root.path}</code> ini didefinisikan dalam web.xml sebagai berikut :</p>
+
+<pre><code>    &lt;context-param&gt;
+        &lt;param-name&gt;webAppRootKey&lt;/param-name&gt;
+        &lt;param-value&gt;webapp.root.path&lt;/param-value&gt;
+    &lt;/context-param&gt;
+</code></pre>
+
+<p>Dengan konfigurasi ini, kita dapat meletakkan log output kita di</p>
+
+<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya\WEB-INF\logs\application.log
+</code></pre>
+
+<p>bila kita mendeploy di Windows, dan di</p>
+
+<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya/WEB-INF/logs/application.log
+</code></pre>
+
+<p>bila kita deploy di Linux.</p>
+
+<p>Konfigurasi di atas bisa disederhanakan lagi bila kita mengikuti nilai default yang disediakan Spring, yaitu cukup seperti ini dalam <code>web.xml</code> :</p>
+
+<pre><code>    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+</code></pre>
+
+<p>Kemudian memberi nama file konfigurasi logger kita <code>log4j.properties</code> yang berada di top level dalam classpath, dan berisi seperti ini :</p>
+
+<pre><code># Konfigurasi kategori
+log4j.rootLogger=INFO,fileout
+
+# File output
+log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileout.file=${webapp.root}/WEB-INF/logs/application.log
+log4j.appender.fileout.datePattern='.'yyyy-MM-dd
+log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
+</code></pre>
+
+<p>Nilai variabel <code>${webapp.root}</code> secara default akan diisi dengan lokasi deployment tanpa harus mengkonfigurasi <code>webAppRootKey</code></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -419,316 +544,6 @@ Nama sequence ini bisa dilihat dengan mengetikkan \d example, yang akan menghasi
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-3/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 3]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-06-16T17:56:28+07:00" pubdate data-updated="true">Jun 16<span>th</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada artikel sebelumnya, kita telah membahas tentang <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-1/">konsep integrasi aplikasi</a>, dan <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-2/">implementasinya menggunakan Spring Integration</a>. Contoh implementasi kita kemarin, walaupun mencakup integrasi end-to-end, masih sangat sederhana.</p>
-
-<p>Kali ini kita akan mengeksplorasi use-case yang lebih kompleks, yaitu cara menangani berbagai operasi service. Misalnya untuk tipe data yang sama, contohnya Penjualan, kita memiliki service untuk simpan dan hapus. Object penjualan juga lebih kompleks daripada object produk.</p>
-
-<p>Untuk memecahkan masalah ini, kita menggunakan Router. Router bertugas memilih channel sesuai dengan message yang datang. Berikut skema penggunaan router.</p>
-
-<p><img src="/images/uploads/2009/06/router-demo-300x91.png" title="Skema Penggunaan Router" ></p>
-
-<p>Sebelum membahas tentang router, baiklah kita lihat dulu data penjualan yang akan dikirim. Berikut class penjualan</p>
-
-<h4>Penjualan</h4>
-
-<pre><code>public class Penjualan {
-    private Integer id;
-    private Date tanggal = new Date();
-    private List&lt;PenjualanDetail&gt; details = new ArrayList&lt;PenjualanDetail&gt;();
-    // getter dan setter
-}
-</code></pre>
-
-<p>Berikutnya, penjualan detail.</p>
-
-<h4>PenjualanDetail</h4>
-
-<pre><code>public class PenjualanDetail {
-    private Integer id;
-    private Penjualan penjualan;
-    private Produk produk;
-    private Integer jumlah;
-
-    // getter dan setter
-}
-</code></pre>
-
-<p>Object baru ini tentu saja harus kita buatkan transformernya untuk mengkonversi object menjadi JSON.</p>
-
-<h4>CabangService</h4>
-
-<pre><code>public class JsonTransformer{
-    public Penjualan jsonToPenjualan(String json){
-        Map&lt;String , Class&gt; binding = new HashMap&lt;String , Class&gt;();
-        binding.put("details", PenjualanDetail.class);
-        return (Penjualan) JSONObject.toBean(JSONObject.fromObject(json), Penjualan.class, binding);
-    }
-
-    public String penjualanToJson(Penjualan p){
-        // remove dulu cyclic dependency
-        for (PenjualanDetail detail : p.getDetails()) {
-            detail.setPenjualan(null);
-        }
-
-        return JSONObject.fromObject(p).toString();
-    }
-}
-</code></pre>
-
-<p>Penjualan dan PenjualanDetail akan kita proses melalui method simpan dan hapus yang ada di CabangService.</p>
-
-<h4>CabangService</h4>
-
-<pre><code>public class CabangService {
-    public void save(Penjualan p) {
-        System.out.println("Simpan penjualan dengan ID : "+p.getId());
-        System.out.println("Tanggal : "+new SimpleDateFormat("dd MMM yyyy").format(p.getTanggal()));
-        System.out.println("Details : ");
-        for (PenjualanDetail detail : p.getDetails()) {
-            System.out.println("Produk : "+detail.getProduk().getKode());
-            System.out.println("Jumlah : "+detail.getJumlah());
-        }
-    }
-
-    public void delete(Penjualan p) {
-        System.out.println("Hapus penjualan dengan ID : "+p.getId());
-    }
-}
-</code></pre>
-
-<p>Tentunya nanti method save dan delete ini akan lebih canggih dari ini, misalnya insert dan delete ke database.</p>
-
-<p>Kalau kita lihat skemanya, ada satu titik di mana message akan dilihat dan disalurkan ke channel yang sesuai.</p>
-
-<p><img src="/images/uploads/2009/06/router-only-300x104.png" title="Routing Message" ></p>
-
-<p>Penjualan yang akan disimpan dimasukkan ke channel penjualan-simpan. Sedangkan object penjualan yang akan dihapus dimasukkan ke channel penjualan-hapus. Dengan demikian, kita harus membuat router yang mampu menentukan channel yang akan dipilih dengan melihat message yang masuk ke dalam router tersebut. Operasi yang akan dilakukan (simpan atau hapus) harus dimasukkan ke message header atau message content. Agar sederhana, kita tambahkan saja satu property di class Penjualan untuk menentukan operasi yang akan dilakukan. Bila class Penjualan ini dimapping menggunakan JPA, kita bisa menandai property ini dengan anotasi @Transient agar isinya tidak disimpan di database.</p>
-
-<p>Karena nantinya property operasi ini akan digunakan tidak saja untuk Penjualan, tapi juga transaksi lainnya, baiklah kita buat saja di superclass DomainObject sebagai berikut.</p>
-
-<h4>Penjualan</h4>
-
-<pre><code>public class DomainObject {
-    private String operasi;
-}
-</code></pre>
-
-<p>Berikut class Penjualan yang sudah dimodifikasi.</p>
-
-<h4>Penjualan</h4>
-
-<pre><code>public class Penjualan extends DomainObject {
-    private Integer id;
-    private Date tanggal = new Date();
-    private List&lt;PenjualanDetail&gt; details = new ArrayList&lt; &lt;PenjualanDetail&gt;();
-
-    // getter dan setter
-}
-</code></pre>
-
-<p>Property operasi ini akan dilihat oleh router untuk menentukan nama channel. Berikut implementasi Router.</p>
-
-<h4>Router</h4>
-
-<pre><code>public class NamaKelasDanOperasiRouter {
-    public String pilihChannel(Object msg){
-        String classname = msg.getClass().getSimpleName().toLowerCase();
-
-        if(!DomainObject.class.isAssignableFrom(msg.getClass())) {
-            throw new IllegalArgumentException("Harus object bertipe : "+DomainObject.class.getName());
-        }
-
-        DomainObject obj = (DomainObject) msg;
-        String operasi = obj.getOperasi().toLowerCase();
-
-        return classname + "-" + operasi;
-    }
-}
-</code></pre>
-
-<p>Router ini akan membaca nama class dari object yang diterimanya dan menggabungkannya dengan property operasi. Jadi, object Penjualan dengan operasi simpan akan menghasilkan nama channel penjualan-simpan. Demikian juga object Pembelian dengan operasi hapus akan menghasilkan channel pembelian-hapus.</p>
-
-<p>Berikut unit test untuk router di atas.</p>
-
-<h4>Router</h4>
-
-<pre><code>public class NamaKelasDanOperasiRouterTest {
-
-    @Test
-    public void testPilihChannel() {
-        Penjualan p = new Penjualan();
-        p.setOperasi("simpan");
-        assertEquals("penjualan-simpan", new NamaKelasDanOperasiRouter().pilihChannel(p));
-    }
-
-}
-</code></pre>
-
-<p>Berikut aliran message mulai dari gateway sampai menjadi JSON.</p>
-
-<p><img src="/images/uploads/2009/06/gateway-to-json-300x31.png" title="Dari Gateway sampai menjadi JSON" ></p>
-
-<p>Dan ini adalah konfigurasi Spring Integration untuk flow di atas.</p>
-
-<h4>Gateway ke JSON</h4>
-
-<pre><code>&lt;gateway id="gateway"
-    service-interface="com.artivisi.explore.spring.integration.gateway.Gateway"
-    default-request-channel="outgoingPenjualan"
-/&gt;
-
-&lt;channel id="outgoingPenjualan"/&gt;
-
-&lt;transformer 
-    input-channel="outgoingPenjualan" 
-    output-channel="outgoingJson"
-    ref="jsonTransformer" 
-    method="penjualanToJson"
-/&gt;
-
-&lt;channel id="outgoingJson"/&gt;
-</code></pre>
-
-<p>Pada artikel sebelumnya, kita mengganti implementasi email dengan shared folder supaya proses development lebih cepat. Akses ke shared folder jauh lebih cepat daripada email yang dibatasi oleh kecepatan internet. Kali ini, kita akan menggunakan bridge, yaitu hubungan langsung antar channel. Ini kita gunakan untuk menghubungkan channel outgoingJson dengan incomingJson. Hubungan ini pada artikel sebelumnya diimplementasikan menggunakan shared folder dan email.</p>
-
-<p><img src="/images/uploads/2009/06/bridge-300x45.png" title="bridge antara incoming dan outgoing" ></p>
-
-<p>Berikut konfigurasi bridge untuk menghubungkan outgoingJson dan incomingJson.</p>
-
-<h4>Bridge</h4>
-
-<pre><code>&lt;bridge 
-    input-channel="outgoingJson" 
-    output-channel="incomingJson" 
-/&gt;
-</code></pre>
-
-<p>Dari incomingJson, kita konversi dulu menjadi object.
-Berikut konfigurasinya.</p>
-
-<h4>JSON ke Object</h4>
-
-<pre><code>&lt;channel id="incomingJson"/&gt;
-
-&lt;transformer 
-    input-channel="incomingJson" 
-    output-channel="incomingPenjualan"
-    ref="jsonTransformer" 
-    method="jsonToPenjualan"
-/&gt;
-</code></pre>
-
-<p>Setelah menjadi object, kita masukkan ke router untuk ditentukan channelnya.</p>
-
-<h4>Routing</h4>
-
-<pre><code>&lt;router 
-    input-channel="incomingPenjualan" 
-    ref="namaKelasDanOperasiRouter" 
-    method="pilihChannel"
-/&gt;
-</code></pre>
-
-<p>Kemudian, dari channel kita sambungkan ke method save dan delete.</p>
-
-<h4>Method Save</h4>
-
-<pre><code>&lt;channel id="penjualan-simpan"/&gt;
-
-&lt;service-activator 
-    input-channel="penjualan-simpan"
-    ref="cabangService"
-    method="save"/&gt;
-</code></pre>
-
-<h4>Method Delete</h4>
-
-<pre><code>&lt;channel id="penjualan-hapus"/&gt;
-
-&lt;service-activator 
-    input-channel="penjualan-hapus"
-    ref="cabangService"
-    method="delete"/&gt;
-</code></pre>
-
-<p>Terakhir, kita buat class untuk menjalankan semua rangkaian integrasi ini.</p>
-
-<h4>CabangRouterDemo</h4>
-
-<pre><code>public class CabangRouterDemo {
-    public static void main(String[] args) {
-         // 1. Menginstankan Spring Application Context
-        AbstractApplicationContext ctx 
-            = new ClassPathXmlApplicationContext("cabang-router-ctx.xml", CabangRouterDemo.class);
-        ctx.registerShutdownHook();
-        Gateway gw = (Gateway) ctx.getBean("gateway");
-        Penjualan p1 = bikinTransaksi(100, "simpan");
-        Penjualan p2 = bikinTransaksi(102, "hapus");
-
-        gw.send(p1);
-        gw.send(p2);
-
-        System.exit(0);
-    }
-
-    private static Penjualan bikinTransaksi(Integer id, String operasi) {
-        Penjualan p = new Penjualan();
-        p.setId(id);
-        p.setOperasi(operasi);
-
-        Produk pr1 = new Produk(1001, "PR-001", "Produk 001");
-        Produk pr2 = new Produk(1002, "PR-002", "Produk 002");
-        Produk pr3 = new Produk(1003, "PR-003", "Produk 003");
-
-        PenjualanDetail pd1 = new PenjualanDetail(11, pr1, 1);
-        PenjualanDetail pd2 = new PenjualanDetail(12, pr2, 2);
-        PenjualanDetail pd3 = new PenjualanDetail(13, pr3, 3);
-
-        p.addPenjualanDetail(pd1);
-        p.addPenjualanDetail(pd2);
-        p.addPenjualanDetail(pd3);
-
-        return p;
-    }
-}
-</code></pre>
-
-<p>Demikianlah penggunaan routing dengan Spring Integration. Seperti kita lihat, dengan menggunakan Spring Integration, aplikasi kita menjadi fleksibel dan mudah ditest. Semua implementasi kode program Java, baik itu transformer, router, dan service method, bisa ditest dengan mudah menggunakan JUnit. Kita juga lihat bahwa semua kode program Java kita tidak memiliki ketergantungan terhadap Spring Integration.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/17/">&larr; Older</a>
@@ -791,6 +606,10 @@ Berikut konfigurasinya.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
       </li>
     
@@ -824,10 +643,6 @@ Berikut konfigurasinya.</p>
     
       <li class="post">
         <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/mematikan-location-service-di-facebook-android/">Mematikan Location Service di Facebook Android</a>
       </li>
     
   </ul>
