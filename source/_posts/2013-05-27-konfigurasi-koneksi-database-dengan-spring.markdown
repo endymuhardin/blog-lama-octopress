@@ -26,7 +26,7 @@ Artikel ini merupakan bagian pertama dari rangkaian artikel Spring JDBC, yaitu
 2. [Struktur Aplikasi](http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/)
 3. [Insert, update, dan delete data](http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/)
 4. [Query data](http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/)
-5. Melakukan pengetesan
+5. [Mengetes Akses Database](http://software.endy.muhardin.com/java/mengetes-akses-database/)
 
 Keseluruhan kode program dapat dilihat di [repository belajar-akses-database-java di Github saya](https://github.com/endymuhardin/belajar-akses-database-java), khususnya [branch spring-jdbc](https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc).
 
