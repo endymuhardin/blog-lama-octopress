@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-06-03T20:21:32+07:00</updated>
+  <updated>2013-06-05T12:02:14+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,279 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mengetes Akses Database]]></title>
+    <link href="http://software.endy.muhardin.com/java/mengetes-akses-database/"/>
+    <updated>2013-06-05T11:49:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mengetes-akses-database</id>
+    <content type="html"><![CDATA[<p>Pada bagian ini, kita akan mempersiapkan seperangkat kode program untuk mengetes aplikasi yang telah kita buat.</p>
+
+<p>Artikel ini merupakan bagian kelima dan terakhir dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
+<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Setup Test</h2>
+
+<p>Seperti telah dijelaskan sebelumnya, test class kita akan terdiri dari dua bagian:</p>
+
+<ol>
+<li>Abstract superclass : berisi seluruh kode program pengetesan aplikasi</li>
+<li>Concrete subclass : berisi kode program untuk melakukan inisialisasi</li>
+</ol>
+
+
+<p>Berikut adalah kerangka abstract superclass test untuk <code>Produk</code></p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service;</p>
+
+<p>// import statement, generate menggunakan IDE</p>
+
+<p>public abstract class ProdukServiceTest {</p>
+
+<pre><code>public abstract PenjualanService getPenjualanService();
+public abstract DataSource getDataSource();
+
+@Before
+public void bersihkanDataTest() throws Exception {
+
+}
+
+@Test
+public void testSimpanUpdateHapusProduk() throws Exception {
+
+}
+
+// test method lain tidak ditampilkan
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Dan berikut ini adalah concrete subclass yang berfungsi melakukan inisialisasi konfigurasi Spring JDBC</p>
+
+<p>```java
+package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
+
+<p>// import statement generate menggunakan IDE</p>
+
+<p>@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath*:com/muhardin/**/spring-jdbc-ctx.xml")
+public class ProdukServiceSpringJdbcTest extends ProdukServiceTest {</p>
+
+<pre><code>@Autowired private DataSource dataSource;
+@Autowired private PenjualanService penjualanService;
+
+@Override
+public PenjualanService getPenjualanService() {
+    return penjualanService;
+}
+
+@Override
+public DataSource getDataSource() {
+    return dataSource;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<h2>Database Reset</h2>
+
+<p>Pada kode program abstract superclass di atas, kita melihat ada method untuk membersihkan data test. Method ini diberikan annotation <code>@Before</code> supaya dia dijalankan <strong>sebelum masing-masing test</strong>.</p>
+
+<p>Berikut adalah isi method tersebut</p>
+
+<p>```java
+@Before
+public void bersihkanDataTest() throws Exception {</p>
+
+<pre><code>DataSource ds = getDataSource();
+Connection conn = ds.getConnection();
+
+String sql = "delete from m_produk where kode like ?";
+PreparedStatement ps = conn.prepareStatement(sql);
+ps.setString(1,"T-001%");
+ps.executeUpdate();
+conn.close();
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Di method tersebut, kita menghapus semua produk yang kodenya diawali <code>T-001</code>. Ini adalah data yang kita insert selama proses tes. Agar tidak mengganggu tes lainnya, kita hapus data percobaan tersebut.</p>
+
+<h2>Test Insert Update Delete</h2>
+
+<p>Proses insert, update, dan delete mengubah data yang ada dalam database. Supaya kita tidak repot mengurus data sample yang sudah ada di database, ketiga proses ini kita tes dalam satu kesatuan. Dengan demikian, setelah selesai dijalankan, datanya kembali bersih seperti sebelumnya. Berikut kode programnya.</p>
+
+<p>```java
+@Test
+public void testSimpanUpdateHapusProduk() throws Exception{</p>
+
+<pre><code>Produk p = new Produk();
+p.setHarga(new BigDecimal(125000));
+p.setKode("T-001");
+p.setNama("Produk Test 001");
+
+PenjualanService service = getPenjualanService();
+service.simpan(p);
+assertNotNull(p.getId());
+
+Connection conn = getDataSource().getConnection();
+PreparedStatement psCariById 
+        = conn.prepareStatement
+            ("select * from m_produk where id = ?");
+psCariById.setInt(1, p.getId());
+ResultSet rs = psCariById.executeQuery();
+
+// test nilai awal
+assertTrue(rs.next());
+assertEquals("T-001",rs.getString("kode"));
+
+// update record
+p.setKode("T-001x");
+service.simpan(p);
+
+// test query setelah update
+rs = psCariById.executeQuery();
+
+assertTrue(rs.next());
+assertEquals("T-001x",rs.getString("kode"));
+
+// test delete
+service.hapus(p);
+
+// test query setelah hapus
+rs = psCariById.executeQuery();
+
+assertFalse(rs.next());
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Dari komentar yang ada dalam kode program, sudah jelas apa maksud dari masing-masing bagian.</p>
+
+<h2>Test Query</h2>
+
+<p>Selanjutnya kita melakukan tes terhadap query. Kita mulai dari yang sederhana dulu, yaitu tabel produk.
+Berikut kode program pengetesannya.</p>
+
+<p>```java
+@Test
+public void testCariProdukById() {</p>
+
+<pre><code>PenjualanService service = getPenjualanService();
+assertNotNull(service.cariProdukById(1));
+assertNull(service.cariProdukById(99));
+</code></pre>
+
+<p>}</p>
+
+<p>@Test
+public void testCariProdukByKode() {</p>
+
+<pre><code>PenjualanService service = getPenjualanService();
+assertNotNull(service.cariProdukByKode("K-001"));
+assertNull(service.cariProdukByKode("X-001"));
+</code></pre>
+
+<p>}</p>
+
+<p>@Test
+public void testHitungSemuaProduk() {</p>
+
+<pre><code>PenjualanService service = getPenjualanService();
+assertEquals(Long.valueOf(3), 
+    Long.valueOf(service.hitungSemuaProduk()));
+</code></pre>
+
+<p>}</p>
+
+<p>@Test
+public void testCariSemuaProduk() {</p>
+
+<pre><code>PenjualanService service = getPenjualanService();
+List&lt;Produk&gt; hasil = service.cariSemuaProduk(1, 100);
+assertNotNull(hasil);
+assertTrue(hasil.size() == 3);
+for (Produk produk : hasil) {
+    assertNotNull(produk.getId());
+    assertNotNull(produk.getKode());
+    assertNotNull(produk.getNama());
+    assertNotNull(produk.getHarga());
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Logika pengetesan tidak kompleks. Kita query datanya menggunakan method di <code>ProdukDao</code> yang telah kita buat,
+lalu kita bandingkan dengan kondisi yang seharusnya. Perbandingan dilakukan menggunakan method yang telah disediakan JUnit, yaitu method berawalan <code>assert</code>, misalnya <code>assertNotNull</code>, <code>assertEquals</code>, dan lainnya.</p>
+
+<p>Yang harus diperhatikan di sini adalah, kita harus benar-benar tahu persis isi database supaya test ini bisa berjalan dengan baik. Ada banyak teknik yang bisa digunakan untuk memastikan isi database sebelum tes dijalankan, salah satunya menggunakan tools yang bernama <a href="http://www.dbunit.org/">DBUnit</a>. Lebih lanjut tentang cara menggunakan DBUnit bisa dibaca di <a href="http://software.endy.muhardin.com/java/ruthless-testing-4/">artikel ini</a>.</p>
+
+<h2>Test Relasi</h2>
+
+<p>Pengetesan terhadap relasi pada prinsipnya tidak berbeda. Hanya ada sedikit tambahan yaitu kita juga harus memastikan apakah relasinya berhasil terisi dengan sempurna. Berikut pengetesannya.</p>
+
+<p>```java
+@Test</p>
+
+<pre><code>public void testCariPenjualanDetailByProdukDanPeriode(){
+Produk p = new Produk();
+p.setId(1);
+
+Date mulai = new DateTime(2013,1,1,0,0,0,0).toDate();
+Date sampai = new DateTime(2013,2,1,0,0,0,0).toDate();
+
+List&lt;PenjualanDetail&gt; hasil = getPenjualanService()
+        .cariPenjualanDetailByProdukDanPeriode(p, 
+            mulai, sampai, 1, 100);
+
+assertNotNull(hasil);
+assertTrue(hasil.size() == 2);
+
+for (PenjualanDetail penjualanDetail : hasil) {
+    verifikasiPenjualanDetail(penjualanDetail);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Pada kode program di atas, terlihat bahwa kita melakukan looping yang di dalamnya ada verifikasi <code>PenjualanDetail</code>. Berikut isi methodnya.</p>
+
+<p>```java
+private void verifikasiPenjualanDetail</p>
+
+<pre><code>    (PenjualanDetail penjualanDetail) {
+assertNotNull(penjualanDetail.getProduk().getHarga());
+assertNotNull(penjualanDetail.getPenjualan().getWaktuTransaksi());
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Kita cukup memastikan bahwa relasi yang dimiliki <code>PenjualanDetail</code> yaitu <code>Produk</code> dan <code>Penjualan</code> tidak null. Demikian juga variabel yang ada di dalam objectnya yaitu <code>harga</code> dan <code>waktuTransaksi</code>.</p>
+
+<p>Demikianlah rangkaian artikel tentang penggunaan Spring JDBC. Kode program selengkapnya dapat diambil <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc">di Github</a>.
+Semoga bermanfaat.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Query dengan Spring JDBC]]></title>
@@ -27,7 +300,7 @@
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
 <li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li>Melakukan pengetesan</li>
+<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
 </ol>
 
 
@@ -301,7 +574,7 @@ Jadi kesimpulannya, untuk mengambil data menggunakan Spring JDBC, yang perlu kit
 </ol>
 
 
-<p>Pada bagian selanjutnya, kita tinggal mengetes kode program yang telah kita buat ini.</p>
+<p>Pada bagian selanjutnya, kita tinggal <a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">mengetes kode program</a> yang telah kita buat ini.</p>
 ]]></content>
   </entry>
   
@@ -319,7 +592,7 @@ Jadi kesimpulannya, untuk mengambil data menggunakan Spring JDBC, yang perlu kit
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
 <li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li>Melakukan pengetesan</li>
+<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
 </ol>
 
 
@@ -625,7 +898,7 @@ apa saja bagian-bagian dalam aplikasi dan bagaimana mereka saling terhubung.</p>
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
 <li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li>Melakukan pengetesan</li>
+<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
 </ol>
 
 
@@ -1370,7 +1643,7 @@ Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan 
 <li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
 <li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
 <li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li>Melakukan pengetesan</li>
+<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
 </ol>
 
 
@@ -1702,179 +1975,6 @@ conn.createStatement().executeUpdate(sql);
 
 
 <p>Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan <a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">menyiapkan kerangka aplikasinya dulu</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Mendebug Aplikasi AJAX]]></title>
-    <link href="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/"/>
-    <updated>2013-05-22T16:46:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax</id>
-    <content type="html"><![CDATA[<p>Di jaman modern ini, penggunaan AJAX sudah sangat mendunia, sehingga jarang sekali kita temui aplikasi yang tidak menggunakan AJAX. Demikian juga dengan template aplikasi standar yang digunakan di ArtiVisi, yaitu <a href="https://github.com/endymuhardin/belajar-restful">Belajar RESTful</a>.</p>
-
-<p>Bagi yang baru mendengar atau sering dengar tapi belum paham, berikut penjelasan singkat mengenai AJAX.</p>
-
-<ul>
-<li>AJAX adalah salah satu teknik pemrograman web</li>
-<li>AJAX bukanlah nama library atau framework, dia adalah cara membuat aplikasi</li>
-<li><p>Pada aplikasi non-AJAX, siklusnya sebagai berikut :</p>
-
-<ol>
-<li>Ketik URL</li>
-<li>Tampil HTML</li>
-<li>Lakukan sesuatu (isi form + tekan submit)</li>
-<li>Browser mengirim data</li>
-<li>Server mengembalikan HTML full satu halaman</li>
-</ol>
-</li>
-<li><p>Pada aplikasi AJAX, request ke server dilakukan oleh javascript, bukan oleh form submit.</p></li>
-<li>Response dari server biasanya hanya berupa data dalam format XML atau JSON, bukan data + tampilan seperti HTML</li>
-<li>Data yang dikirim server digunakan javascript hanya untuk mengubah sebagian halaman tampilan, bukan seluruh halaman seperti aplikasi non-AJAX.</li>
-</ul>
-
-
-<p>Karena perbedaan cara kerja aplikasi AJAX, maka cara debug errornya juga berbeda. Untuk mendebug aplikasi AJAX, kita perlu melengkapi browser yang kita gunakan supaya bisa memantau request dan response yang dilakukan aplikasi.</p>
-
-<p>Pada artikel ini, kita akan membahas bagaimana cara mendebug aplikasi AJAX. Sebagai contoh kasus, kita akan gunakan aplikasi <a href="https://github.com/endymuhardin/belajar-restful">Belajar RESTful</a>.</p>
-
-<!--more-->
-
-
-<h2>Studi Kasus</h2>
-
-<p>Sebagai contoh, kita akan mendebug form entri user berikut</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/01-screen-form-user.png" title="Form Entri User" ></p>
-
-<p>dan tampilan daftar user berikut</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/02-screen-list-user.png" title="Daftar User" ></p>
-
-<h2>Persenjataan</h2>
-
-<p>Agar bisa mendebug aplikasi AJAX, browser kita harus bisa menampilkan lalu lintas request dan response. Bila menggunakan Firefox, instal plugin <a href="https://addons.mozilla.org/en-US/firefox/addon/firebug/">Firebug</a>. Bila menggunakan Chrome, kemampuan ini sudah ada di menu Tools > Developer Tools sehingga kita tidak perlu menginstal apa-apa.</p>
-
-<p>Setelah terinstal, pantau tab Network untuk melihat detail request dan response.</p>
-
-<p>Berikut contohnya di Firebug</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/03-network-tab-firebug.png" title="Network Tab Firebug" ></p>
-
-<p>Dan ini tampilannya di Chrome Developer Tools</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/04-network-tab-chrome.png" title="Network Tab Chrome Developer Tools" ></p>
-
-<p>Seiring waktu, tab ini bisa penuh, kita bisa bersihkan menggunakan tombol Clear.</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/05-clear-log.png" title="Tombol Clear" ></p>
-
-<p>Beberapa aplikasi AJAX yang mengikuti kaidah REST mengirim data ke server dalam format JSON dengan HTTP method yang sesuai fungsi seperti GET, POST, PUT, DELETE. Seringkali kita juga perlu memanipulasi HTTP request header dan melihat isi HTTP response header. Untuk itu, kita perlu menambah plugin lagi di browser.</p>
-
-<p>Silahkan install <a href="https://addons.mozilla.org/En-us/firefox/addon/poster/">Poster</a> untuk Firefox, atau <a href="https://chrome.google.com/webstore/detail/rest-console/cokgbflfommojglbmbpenpphppikmonn?hl=en">Rest Console</a> untuk Chrome.</p>
-
-<h2>Mendebug Form Submit</h2>
-
-<p>Di aplikasi Belajar RESTful, ketika kita mengisi form dan menekan tombol Simpan, prosesnya agak berbeda dengan aplikasi web tradisional.
-Pada aplikasi ini, semua form data dikumpulkan dan dikonversi menjadi format JSON, dan kemudian dikirim dalam HTTP request body. Ini dilakukan menggunakan Javascript.</p>
-
-<p>Di aplikasi web tradisional, data form ini disubmit dalam format HTTP request parameter dan tidak melibatkan Javascript sama sekali.</p>
-
-<p>Karena ada proses konversi menjadi JSON ini, selama proses development kita ingin melihat dan memeriksa apakah nama variabel dan datanya sudah benar. Untuk itu kita bisa menggunakan Chrome Developer Tools, seperti bisa dilihat di screenshot berikut.</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/06-debug-siklus-cdt.png" title="Debug Request di Chrome Developer Tools" ></p>
-
-<p>Screen debug di Firebug bentuknya seperti ini</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/09-debug-siklus-firebug.png" title="Debug Request di Firebug" ></p>
-
-<p>Hal-hal yang perlu kita amati adalah :</p>
-
-<ul>
-<li><p>Request</p>
-
-<ul>
-<li>Request Method : GET, POST, PUT, atau DELETE</li>
-<li>Request Header, terutama Accept dan Content-Type</li>
-<li>Request Parameter</li>
-<li>Data yang dikirim (bila ada)</li>
-</ul>
-</li>
-<li><p>Response</p>
-
-<ul>
-<li>Response Status : Sukses (200, 201, 204) atau Gagal (4xx atau 5xx)</li>
-<li>Response Header, terutama Content-Type dan Location</li>
-<li>Response Data (bila ada)</li>
-</ul>
-</li>
-</ul>
-
-
-<p>Berikut adalah data-data tersebut di Chrome Developer Tools</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/07-detail-request-cdt.png" title="Detail Request Chrome Developer Tools" ></p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/08-detail-response-cdt.png" title="Detail Response Chrome Developer Tools" ></p>
-
-<p>Di Firebug, header dan data dipisahkan</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/10-detail-request-firebug.png" title="Tab Header" ></p>
-
-<p>Request data ditampilkan di tab terpisah</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/11-detail-post-data-firebug.png" title="Tab Request Data" ></p>
-
-<p>Pada waktu membaca data response, kita bisa melihat data aslinya</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/12-detail-response-firebug.png" title="Detail Response Firebug" ></p>
-
-<p>dan bisa juga melihat yang sudah diformat dengan rapi</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/13-detail-json-firebug.png" title="Detail JSON Firebug" ></p>
-
-<h2>Mendebug REST Server</h2>
-
-<p>Pada waktu kita mengisi form dan menekan tombol Submit, client mengirim HTTP request dan data berbentuk JSON. Kemudian server memproses data yang diterima dan mengirim kembalian berupa JSON juga. Agar development lebih mudah, kita ingin melakukan request dan melihat response secara langsung, tanpa direpotkan dengan tampilan HTML dan coding Javascript. Kita bisa menggunakan plugin browser untuk melakukan hal ini.</p>
-
-<p>Beberapa hal yang harus kita ketahui untuk mengetes proses di sisi server adalah:</p>
-
-<ul>
-<li>URL</li>
-<li>HTTP Method</li>
-<li>Tipe data yang dikirim</li>
-<li>Data yang akan dikirim</li>
-</ul>
-
-
-<h3>Menggunakan Chrome</h3>
-
-<p>Berikut adalah tampilan plugin Chrome, yaitu REST Console yang sudah terisi data di atas.</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/14-request-form-rest-console.png" title="Request Form REST Console" ></p>
-
-<p>Selanjutnya kita tinggal menekan tombol yang sesuai dengan HTTP Method yang dibutuhkan. Bila sukses, kita akan mendapatkan tampilan seperti ini</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/15-response-sukses-rest-console.png" title="Response Sukses REST Console" ></p>
-
-<p>Bila gagal, kita akan melihat tampilan seperti ini</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/16-response-error-rest-console.png" title="Response Gagal REST Console" ></p>
-
-<h3>Menggunakan Firefox</h3>
-
-<p>Hal yang sama bisa dilakukan dengan Poster di Firefox. Berikut adalah form yang digunakan untuk entri data.</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/17-request-form-poster.png" title="Request Form Poster" ></p>
-
-<p>Bila sukses, kita mendapatkan hasil seperti ini</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/18-response-sukses-poster.png" title="Response Sukses Poster" ></p>
-
-<p>Bila gagal berikut tampilannya</p>
-
-<p><img src="/images/uploads/2013/05/debug-ajax/19-response-error-poster.png" title="Response Gagal Poster" ></p>
-
-<p>Dengan menggunakan REST Console dan Poster, kita dapat mengurus coding di sisi server tanpa perlu dipusingkan dengan coding di sisi client (HTML, CSS, dan JS).</p>
 ]]></content>
   </entry>
   

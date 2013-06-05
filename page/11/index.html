@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami &hellip;">
+  <meta name="description" content="Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini, halo rekan2 dba &amp; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,184 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/database-transaction/">Database Transaction</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-14T04:14:22+07:00" pubdate data-updated="true">Feb 14<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini,</p>
+
+<blockquote><p>halo rekan2 dba &amp; developer</p>
+
+<p>mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
+mau nanya, dalam implementasi real di aplikasi,
+contoh bussiness process/use case apa aja yang menggunakan transaction?
+kemudian contoh kasus rollbacknya gimana?</p></blockquote>
+
+<p>Tadinya saya kurang semangat menjawab, karena asumsi saya, ini pertanyaan mendasar, dan pastilah banyak yang bisa menjawab secara benar dan tidak menyesatkan. Tapi apa lacur, saya membaca pertanyaan lanjutan seperti ini.</p>
+
+<blockquote><p>Ada yang pernah punya pengalaman pake software accounting tanpa feature
+transaction?</p></blockquote>
+
+<p>Dan jawabannya ternyata sangat mengerikan.</p>
+
+<blockquote><p>yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
+dan tidak menggunakan feature transaction&#8230;
+skrng sedang garap accounting lainnya untuk perusahan dagang, dan
+sudah direncakan tanpa feature transaction.</p>
+
+<p>yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
+oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
+dipakai, beberapa tdk dipakai karena masalah internal mereka.
+dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.</p>
+
+<p>menurut singkat saya, jika peng-handle php nya sudah cukup
+menanggulangi masalah transaksi data, tidak harus menggunakan feature
+transaction pada database nya.
+karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
+pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
+oleh beberapa user, dan juga optimize database, dengan begitu menurut
+hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
+feature transaction yg sedikit memberatkan proses data.</p>
+
+<p>oya, untuk case mengharuskan memakai feature transaction itu misalnya
+pada kasus:
+jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
+dihapus/update/input yg mengharuskan ada link data yg juga ikut
+terupdate/terhapus/terinput</p>
+
+<p>untuk yg sudah menggunakan feature transaction, silahkan saya juga
+menunggu tanggapan dan pengalamannya.</p></blockquote>
+
+<p>What the @#$!
+Ini kalo meminjam istilah MUI, harus dibimbing untuk kembali ke jalan yang benar, tapi tidak boleh anarkis :D</p>
+
+<p>Salah satu poin penting dalam database transaction adalah atomic, yaitu beberapa perintah dianggap sebagai satu kesatuan.
+Kalau satu gagal, yang lain harus dibatalkan.</p>
+
+<p>Ini adalah fundamental dari pemrograman dengan menggunakan database relasional.</p>
+
+<p>Pada kasus apa perlu transaction?
+Ya pada semua kasus yang perlu atomic.
+Contohnya : header detail. Sekali insert, 1 header dan beberapa detail.
+Kalo pada waktu insert detail gagal, ya headernya harus diundo, kalo ngga ada header yang gantung tanpa detail sehingga datanya juga jadi salah.</p>
+
+<p>Sekarang balik saya tanya, aplikasi apa yang gak pake skema header detail?
+Kecuali aplikasi prakarya tugas sekolah, aplikasi bisnis <strong>pasti</strong> pake header detail.</p>
+
+<p>Itu masalah atomicity. Kemudian ada masalah isolation.
+Isolation ini artinya, transaction yang belum dicommit, tidak akan bisa dibaca oleh session lain.
+Contohnya gini, kita terima order 1000 item.
+Tentunya butuh waktu untuk menginsert 1000 record, misalnya butuh waktu 2 detik.
+Di dunia prosesor, 2 detik itu lama sekali, dan banyak hal bisa terjadi dalam rentang waktu tersebut.
+Nah, akan terjadi musibah, kalo kita ternyata ada fitur untuk menghitung jumlah order, katakan saja querynya seperti ini.</p>
+
+<pre><code>select sum(nilai) from t_order where tanggal = '2011-02-02'
+</code></pre>
+
+<p>yang berjalan di tengah-tengah proses insert tadi, misalnya pada waktu baru terinsert 53 order saja. Query hitung ini dijalankan oleh user lain. Suatu hal yang sangat umum terjadi, aplikasi diakses beberapa user berbarengan.</p>
+
+<p>Query ini akan menghasilkan nilai yang salah, karena 1000 order itu belum tentu sukses diinsert.
+Misalnya pada record ke 143 terjadi mati lampu, hardisk penuh, komputer hang, browser ketutup, laptop kesiram kopi, usernya menekan tombol cancel, validasi stok produk tidak cukup, atau whatever kejadian remeh-temeh yang umum terjadi dalam kehidupan sehari-hari, tentu akan terjadi kekacauan.
+Karena tidak atomic, maka kita tidak tau sudah berapa record yang terinsert, sehingga menyulitkan proses recovery. Order mana yang harus diinsert ulang, dan order mana yang sudah masuk?
+Karena tidak ada isolation, maka user yang menjalankan perhitungan order akan mendapat hasil yang tidak sahih kebenarannya.</p>
+
+<p>Seandainya saja kita menggunakan transaction dengan benar, maka pada waktu terjadi sesuatu pada waktu proses insert tadi, maka posisi database akan dikembalikan ke posisi sebelum insert dilakukan. Karena posisi sebelum insert kita tahu dengan pasti, maka recovery gampang.
+Insert ulang saja 1000 order tadi tanpa kecuali. Sederhana dan mudah.</p>
+
+<p>Jadi kalo ada di sini yang bilang bikin aplikasi bisnis tanpa transaction, maka itu adalah nonsense.
+Tidak peduli kalo sampe saat ini jalan lancar, maka itu hanyalah kebetulan belaka, dan kita tidak mau selamanya mengandalkan keberuntungan kan?
+Kalau sampai saat ini berjalan lancar, ya mungkin aplikasinya cuma dipakai 1 concurrent user saja dan itupun jarang-jarang pake.</p>
+
+<p>Nah, jadi transaction itu adalah fitur fundamental yang harus digunakan, sama seperti kalo kita keluar rumah ya harus pake celana.
+Di daerah lain sana orang kemana2 cuma pake koteka, dan saya tidak mau berdebat dengan mereka urusan celana.
+Jadi kalo masih ada yang bersikukuh bikin aplikasi bisnis gak pake transaction, ya silahkan, saya tidak mau berdebat urusan ini.
+Percuma berdebat sama orang yang gak pake celana ;p</p>
+
+<p>Selanjutnya, sebetulnya apa benar transaction itu memberatkan aplikasi?
+Hmm &#8230; ini sebetulnya hanyalah mitos belaka.
+Yang mau mendebat silahkan sajikan benchmark antara non-transactional dan transactional.
+Kalo selisih performance cuma 100%, artinya kalo non-transactional cuma 2 kali lebih lemot, saya mendingan upgrade hardware daripada mengorbankan data integrity untuk gain performance yang tidak seberapa ini.</p>
+
+<p>Jadi, apa kita tidak boleh pakai MyISAM ?
+Tentu ada waktu dan tempatnya.
+Data2 read only seperti misalnya tabel kategori, master produk, bolehlah pake MyISAM.
+Tapi kalo sudah data header detail, ya harus InnoDB dan harus menggunakan transaction supaya atomic.</p>
+
+<p>Setelah kita menggunakan InnoDB, sebetulnya kita tidak bisa non-transactional.
+Kalo kita tidak begin dan commit secara explisit, sebenarnya untuk tiap SQL statement, itu dianggap satu transaction.
+Sehingga SQL seperti ini :</p>
+
+<pre><code>update table harga set nilai = nilai + 1000;
+</code></pre>
+
+<p>Sebetulnya akan dijalankan seperti ini ;</p>
+
+<pre><code>begin;
+update table harga set nilai = nilai + 1000;
+commit;
+</code></pre>
+
+<p>Ini namanya fitur autocommit. Di MySQL defaultnya dienable.</p>
+
+<p>Dengan adanya autocommit ini, justru kita akan lebih lemot kalo tidak menggunakan transaction secara benar.
+Contoh, insert 100 data produk.
+Kalo tanpa begin dan commit explisit, berarti ada 100 begin dan ada 100 commit, artinya 100 kali menjalankan transaction.
+Akan lebih efisien kalo kita lakukan explisit, seperti ini :</p>
+
+<pre><code>begin; 
+insert into table produk (kode) values ('P-001');
+... ulangi 99 kali lagi ..
+commit; 
+</code></pre>
+
+<p>Cara di atas hanya akan membutuhkan satu transaction saja.
+Jauh lebih efisien.</p>
+
+<p>Baiklah, ada beberapa pesan moral di artikel ini</p>
+
+<ol>
+<li><p>Header detail harus dioperasikan secara atomic</p></li>
+<li><p>Operasi yang belum selesai, tidak boleh dilihat session lain, sehingga untuk aplikasi multiuser, pasti butuh isolation</p></li>
+<li><p>Karena aplikasi bisnis umumnya multiuser, dan pasti punya skema header-detail, maka <strong>pasti harus</strong>menggunakan transaction</p></li>
+<li><p>Masalah performance di transaction umumnya mitos belaka, dan walaupun ada, tidak sebanding dengan mengabaikan integritas data</p></li>
+<li><p>Jangan lupa pakai celana kalau keluar rumah</p></li>
+</ol>
+
+
+<p>Pembaca setia blog saya tentu paham bahwa biasanya saya memberikan anjuran dengan kata-kata sebaiknya, tergantung situasi, dan istilah-istilah yang relatif. Tapi di artikel ini, banyak kata-kata pasti, harus, dan sejenisnya. Ini karena masalah transaction ini berkaitan dengan integritas data. Aplikasi yang kita buat haruslah bisa dipercaya untuk menghasilkan perhitungan yang benar. Tanpa menjaga integritas data dengan transaction, mustahil perhitungan yang benar bisa didapatkan.</p>
+
+<p>Lebih lanjut tentang masalah-masalah yang bisa terjadi, bisa lihat <a href="http://en.wikipedia.org/wiki/Database_transaction">di Wikipedia</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -800,149 +978,6 @@ gradle jetty
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/konsep-clustering/">Konsep Clustering</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-01-30T04:15:14+07:00" pubdate data-updated="true">Jan 30<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
-
-<p>Demikian pertanyaannya.</p>
-
-<blockquote></blockquote>
-
-<p>Ini sebetulnya dua hal yang berbeda.
-Load balancing ya membagi beban.
-Failover ya mencegah single point of failure.</p>
-
-<p>Load balancer terdiri dari satu balancer dan banyak worker.
-Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
-Bisa merata (round robin) bisa juga dengan bobot (weighted), misalnya worker X mendapat 2 kali worker Y karena dia specnya lebih tinggi.
-Atau bisa juga dynamic, artinya si LB akan mengetes kondisi semua worker, mana yang kira2 sedang idle itu yang dikasi.
-Mana yang sedang idle ini nanti ada lagi settingnya, apakah melihat CPU usage pakai SNMP, melihat ping response time, whatever.</p>
-
-<p>Failover minimal harus ada 2 titik.
-Kalo kita implement LB aja, point of failure (POF) nya adalah si LB.
-Begitu LB nya mati, ya udah semua worker gak bisa diakses.
-Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
-
-<p>Contoh aplikasi load balancer :</p>
-
-<blockquote><ul>
-<li><p>HAProxy</p></li>
-<li><p>ldirectord (Ultra Monkey)</p></li>
-<li><p>Pound</p></li>
-</ul>
-</blockquote>
-
-<p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
-
-<blockquote><ul>
-<li><p>Apache (mod_proxy_balancer)</p></li>
-<li><p>Nginx</p></li>
-<li><p>lighttpd</p></li>
-<li><p>bind (DNS Server)</p></li>
-</ul>
-</blockquote>
-
-<p>Contoh aplikasi failover :</p>
-
-<blockquote><ul>
-<li><p>heartbeat (Ultra Monkey)</p></li>
-<li><p>keepalived</p></li>
-</ul>
-</blockquote>
-
-<p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
-
-<blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
-Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
-
-<p>Tidak selalu, tergantung konfigurasinya.
-Ada konfigurasi sticky session.
-Artinya, pada hit pertama, si user akan diberikan penanda, biasanya berbentuk cookie.
-Pada hit berikutnya, LB akan melihat cookienya, dan mengarahkan ke server yang sebelumnya sudah mengurus si user ini.</p>
-
-<p>Ada juga konfigurasi non-sticky.
-Artinya tiap hit dianggap hit baru, dan didistribusikan ke semua server sesuai algoritma yang dipilih, round robin, weighted, atau dynamic, sesuai penjelasan di atas.</p>
-
-<p>Mau pilih yang mana? Ya tergantung kemampuan LB nya.
-Ada yang bisa 2-2 nya sehingga bisa pilih, dan ada juga yang rada stupid sehingga terpaksa pakai non-sticky.
-Istilahnya, LBnya layer berapa? Kalo layer 7 biasanya bisa sticky, kalo layer 4 ya gak bisa.
-Lebih jauh tentang urusan layer-layeran ini bisa dibaca <a href="http://blog.loadbalancer.org/why-layer-7-sucks/">di sini</a> dan <a href="http://1wt.eu/articles/2006_lb/">di sini</a></p>
-
-<p>Nah, apa impact sticky vs non-sticky?
-Ini pengaruhnya ke session data.
-Session data adalah data sementara masing-masing user.
-Karena sifatnya sementara, maka biasanya tidak disimpan secara persistent di tabel database.
-Contoh paling klasik adalah isi shopping cart.
-Itu barang belum diorder, tapi sudah dipilih, sehingga biasanya belum disimpan di database.</p>
-
-<p>Kalo pake non-sticky, si user pertama milih barang di server X.
-Pada saat dia pilih barang kedua, dilayani server Y.
-Karena pilihan pertama ada di server X, ya pas dia pilih barang kedua, cuma tercatat 1 barang padahal harusnya 2.</p>
-
-<p>Ini tidak terjadi kalo kita pakai sticky balancer.
-Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
-
-<p>Jadi, sticky atau non-sticky itu impactnya ke temporary data user, sering disebut dengan istilah session data atau user state.</p>
-
-<p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
-
-<blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
-
-<p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
-Secara umum, settingan standar appserver biasanya simpan data session di memori.
-Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain.
-Pada saat worker utama mati, request berikutnya akan diarahkan ke worker cadangannya, sehingga user gak kehilangan data belanjaan.
-Biasanya, satu state itu disimpan ke 2 worker saja, bukan direplikasi ke semua untuk alasan efisiensi bandwidth.</p>
-
-<p>Pada penjelasan di atas banyak sekali saya gunakan kata &#8216;biasanya&#8217;. Ini karena kapabilitas dan konfigurasi masing-masing merek appserver sangat berbeda sehingga sulit untuk menggeneralisir kondisinya.</p>
-
-<p>Lalu bagaimana?
-Saya biasanya mengambil pendekatan yang universal, yang jalan di semua appserver, sehingga tidak perlu pusing menghafal appserver apa bisa apa settingnya gimana.
-Teknik universalnya sederhana: aplikasi webnya dibuat stateless.
-Jangan ada simpan data di memori. Simpan semua di database, atau di distributed cache (misalnya memcached).</p>
-
-<p>Di Java, data yang ada di memori antara lain : session variable, static variable, context variable.
-Di PHP, CMIIW cuma session dan global variable aja.</p>
-
-<p>Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terhadap appserver apa bisa apa settingnya gimana.
-Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya.
-Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah.
-Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
-
-<p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -1005,6 +1040,10 @@ Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/mengetes-akses-database/">Mengetes Akses Database</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
       </li>
     
@@ -1038,10 +1077,6 @@ Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey
     
       <li class="post">
         <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key ke Tabel MySQL</a>
       </li>
     
   </ul>

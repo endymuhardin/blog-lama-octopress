@@ -1,0 +1,776 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Mengetes Akses Database - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada bagian ini, kita akan mempersiapkan seperangkat kode program untuk mengetes aplikasi yang telah kita buat. Artikel ini merupakan bagian kelima &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/mengetes-akses-database/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Mengetes Akses Database</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-05T11:49:00+07:00" pubdate data-updated="true">Jun 5<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada bagian ini, kita akan mempersiapkan seperangkat kode program untuk mengetes aplikasi yang telah kita buat.</p>
+
+<p>Artikel ini merupakan bagian kelima dan terakhir dari rangkaian artikel Spring JDBC, yaitu</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
+<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
+<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
+<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
+<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Setup Test</h2>
+
+<p>Seperti telah dijelaskan sebelumnya, test class kita akan terdiri dari dua bagian:</p>
+
+<ol>
+<li>Abstract superclass : berisi seluruh kode program pengetesan aplikasi</li>
+<li>Concrete subclass : berisi kode program untuk melakukan inisialisasi</li>
+</ol>
+
+
+<p>Berikut adalah kerangka abstract superclass test untuk <code>Produk</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import statement, generate menggunakan IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">ProdukServiceTest</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">PenjualanService</span> <span class="nf">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">DataSource</span> <span class="nf">getDataSource</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Before</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">bersihkanDataTest</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSimpanUpdateHapusProduk</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// test method lain tidak ditampilkan</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan berikut ini adalah concrete subclass yang berfungsi melakukan inisialisasi konfigurasi Spring JDBC</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">muhardin</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">training</span><span class="o">.</span><span class="na">java</span><span class="o">.</span><span class="na">aksesdb</span><span class="o">.</span><span class="na">service</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// import statement generate menggunakan IDE</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'><span class="nd">@ContextConfiguration</span><span class="o">(</span><span class="s">&quot;classpath*:com/muhardin/**/spring-jdbc-ctx.xml&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProdukServiceSpringJdbcTest</span> <span class="kd">extends</span> <span class="n">ProdukServiceTest</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="nd">@Autowired</span> <span class="kd">private</span> <span class="n">PenjualanService</span> <span class="n">penjualanService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">PenjualanService</span> <span class="nf">getPenjualanService</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">penjualanService</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">DataSource</span> <span class="nf">getDataSource</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">dataSource</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Database Reset</h2>
+
+<p>Pada kode program abstract superclass di atas, kita melihat ada method untuk membersihkan data test. Method ini diberikan annotation <code>@Before</code> supaya dia dijalankan <strong>sebelum masing-masing test</strong>.</p>
+
+<p>Berikut adalah isi method tersebut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Before</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">bersihkanDataTest</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DataSource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">getDataSource</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;delete from m_produk where kode like ?&quot;</span><span class="o">;</span>
+</span><span class='line'>    <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">ps</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="s">&quot;T-001%&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">ps</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">conn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Di method tersebut, kita menghapus semua produk yang kodenya diawali <code>T-001</code>. Ini adalah data yang kita insert selama proses tes. Agar tidak mengganggu tes lainnya, kita hapus data percobaan tersebut.</p>
+
+<h2>Test Insert Update Delete</h2>
+
+<p>Proses insert, update, dan delete mengubah data yang ada dalam database. Supaya kita tidak repot mengurus data sample yang sudah ada di database, ketiga proses ini kita tes dalam satu kesatuan. Dengan demikian, setelah selesai dijalankan, datanya kembali bersih seperti sebelumnya. Berikut kode programnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Test</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testSimpanUpdateHapusProduk</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span><span class="o">{</span>
+</span><span class='line'>    <span class="n">Produk</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Produk</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setHarga</span><span class="o">(</span><span class="k">new</span> <span class="n">BigDecimal</span><span class="o">(</span><span class="mi">125000</span><span class="o">));</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setKode</span><span class="o">(</span><span class="s">&quot;T-001&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setNama</span><span class="o">(</span><span class="s">&quot;Produk Test 001&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">PenjualanService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">service</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">getDataSource</span><span class="o">().</span><span class="na">getConnection</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">PreparedStatement</span> <span class="n">psCariById</span>
+</span><span class='line'>            <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span>
+</span><span class='line'>                <span class="o">(</span><span class="s">&quot;select * from m_produk where id = ?&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">psCariById</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">psCariById</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// test nilai awal</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;T-001&quot;</span><span class="o">,</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;kode&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// update record</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setKode</span><span class="o">(</span><span class="s">&quot;T-001x&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">service</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// test query setelah update</span>
+</span><span class='line'>    <span class="n">rs</span> <span class="o">=</span> <span class="n">psCariById</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;T-001x&quot;</span><span class="o">,</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;kode&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// test delete</span>
+</span><span class='line'>    <span class="n">service</span><span class="o">.</span><span class="na">hapus</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// test query setelah hapus</span>
+</span><span class='line'>    <span class="n">rs</span> <span class="o">=</span> <span class="n">psCariById</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dari komentar yang ada dalam kode program, sudah jelas apa maksud dari masing-masing bagian.</p>
+
+<h2>Test Query</h2>
+
+<p>Selanjutnya kita melakukan tes terhadap query. Kita mulai dari yang sederhana dulu, yaitu tabel produk.
+Berikut kode program pengetesannya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Test</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariProdukById</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">PenjualanService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">service</span><span class="o">.</span><span class="na">cariProdukById</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+</span><span class='line'>    <span class="n">assertNull</span><span class="o">(</span><span class="n">service</span><span class="o">.</span><span class="na">cariProdukById</span><span class="o">(</span><span class="mi">99</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Test</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariProdukByKode</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">PenjualanService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">service</span><span class="o">.</span><span class="na">cariProdukByKode</span><span class="o">(</span><span class="s">&quot;K-001&quot;</span><span class="o">));</span>
+</span><span class='line'>    <span class="n">assertNull</span><span class="o">(</span><span class="n">service</span><span class="o">.</span><span class="na">cariProdukByKode</span><span class="o">(</span><span class="s">&quot;X-001&quot;</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Test</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testHitungSemuaProduk</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">PenjualanService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="n">Long</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">3</span><span class="o">),</span>
+</span><span class='line'>        <span class="n">Long</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">service</span><span class="o">.</span><span class="na">hitungSemuaProduk</span><span class="o">()));</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Test</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariSemuaProduk</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">PenjualanService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">getPenjualanService</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">Produk</span><span class="o">&gt;</span> <span class="n">hasil</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="na">cariSemuaProduk</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">100</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">hasil</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">hasil</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">3</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Produk</span> <span class="n">produk</span> <span class="o">:</span> <span class="n">hasil</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">produk</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">produk</span><span class="o">.</span><span class="na">getKode</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">produk</span><span class="o">.</span><span class="na">getNama</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">assertNotNull</span><span class="o">(</span><span class="n">produk</span><span class="o">.</span><span class="na">getHarga</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Logika pengetesan tidak kompleks. Kita query datanya menggunakan method di <code>ProdukDao</code> yang telah kita buat,
+lalu kita bandingkan dengan kondisi yang seharusnya. Perbandingan dilakukan menggunakan method yang telah disediakan JUnit, yaitu method berawalan <code>assert</code>, misalnya <code>assertNotNull</code>, <code>assertEquals</code>, dan lainnya.</p>
+
+<p>Yang harus diperhatikan di sini adalah, kita harus benar-benar tahu persis isi database supaya test ini bisa berjalan dengan baik. Ada banyak teknik yang bisa digunakan untuk memastikan isi database sebelum tes dijalankan, salah satunya menggunakan tools yang bernama <a href="http://www.dbunit.org/">DBUnit</a>. Lebih lanjut tentang cara menggunakan DBUnit bisa dibaca di <a href="http://software.endy.muhardin.com/java/ruthless-testing-4/">artikel ini</a>.</p>
+
+<h2>Test Relasi</h2>
+
+<p>Pengetesan terhadap relasi pada prinsipnya tidak berbeda. Hanya ada sedikit tambahan yaitu kita juga harus memastikan apakah relasinya berhasil terisi dengan sempurna. Berikut pengetesannya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Test</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCariPenjualanDetailByProdukDanPeriode</span><span class="o">(){</span>
+</span><span class='line'>    <span class="n">Produk</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Produk</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">p</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Date</span> <span class="n">mulai</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DateTime</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">).</span><span class="na">toDate</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">Date</span> <span class="n">sampai</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DateTime</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">).</span><span class="na">toDate</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">PenjualanDetail</span><span class="o">&gt;</span> <span class="n">hasil</span> <span class="o">=</span> <span class="n">getPenjualanService</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">cariPenjualanDetailByProdukDanPeriode</span><span class="o">(</span><span class="n">p</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">mulai</span><span class="o">,</span> <span class="n">sampai</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">100</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">hasil</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">hasil</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">2</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">PenjualanDetail</span> <span class="n">penjualanDetail</span> <span class="o">:</span> <span class="n">hasil</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">verifikasiPenjualanDetail</span><span class="o">(</span><span class="n">penjualanDetail</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada kode program di atas, terlihat bahwa kita melakukan looping yang di dalamnya ada verifikasi <code>PenjualanDetail</code>. Berikut isi methodnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">verifikasiPenjualanDetail</span>
+</span><span class='line'>        <span class="o">(</span><span class="n">PenjualanDetail</span> <span class="n">penjualanDetail</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">penjualanDetail</span><span class="o">.</span><span class="na">getProduk</span><span class="o">().</span><span class="na">getHarga</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">penjualanDetail</span><span class="o">.</span><span class="na">getPenjualan</span><span class="o">().</span><span class="na">getWaktuTransaksi</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita cukup memastikan bahwa relasi yang dimiliki <code>PenjualanDetail</code> yaitu <code>Produk</code> dan <code>Penjualan</code> tidak null. Demikian juga variabel yang ada di dalam objectnya yaitu <code>harga</code> dan <code>waktuTransaksi</code>.</p>
+
+<p>Demikianlah rangkaian artikel tentang penggunaan Spring JDBC. Kode program selengkapnya dapat diambil <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc">di Github</a>.
+Semoga bermanfaat.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-05T11:49:00+07:00" pubdate data-updated="true">Jun 5<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/mengetes-akses-database/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/mengetes-akses-database/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/query-dengan-spring-jdbc/" title="Previous Post: Query dengan Spring JDBC">&laquo; Query dengan Spring JDBC</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/mengetes-akses-database/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/mengetes-akses-database/">Mengetes Akses Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/training-cmmi/">Training CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
