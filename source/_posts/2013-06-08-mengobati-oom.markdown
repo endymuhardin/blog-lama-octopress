@@ -176,3 +176,7 @@ Dibaca satu2 source codenya, untuk tiap baris, tanyakan pertanyaan ini :
 
 Mudah-mudahan dengan adanya artikel ini tidak ada lagi orang yang mengobati OOM dengan `System.gc` atau `Xmx`.
 
+## Referensi ##
+
+
+
