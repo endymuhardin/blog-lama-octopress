@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-06-05T12:02:14+07:00</updated>
+  <updated>2013-06-08T22:33:49+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,215 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mengobati OOM]]></title>
+    <link href="http://software.endy.muhardin.com/java/mengobati-oom/"/>
+    <updated>2013-06-08T22:25:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mengobati-oom</id>
+    <content type="html"><![CDATA[<p>Beberapa waktu belakangan ini, di milis mulai banyak bermunculan pertanyaan yang berkaitan dengan Out Of Memory Error (OOM).
+Error ini biasanya terjadi bila data dalam aplikasi sudah besar (melebihi 2 GB), dan umumnya terjadi pada saat membuat report PDF/XLS/CSV, dsb.</p>
+
+<p>Biasanya juga, <em>obat yang dikonsumsi</em> oleh penderita OOM ini ada dua:</p>
+
+<ul>
+<li>Mengatur alokasi memori dengan opsi <code>Xms</code> dan <code>Xmx</code></li>
+<li>Menggunakan perintah <code>System.gc()</code></li>
+</ul>
+
+
+<p>Sayangnya, kedua <em>obat</em> ini tidak akan menyelesaikan masalah. Analoginya seperti kita kena infeksi otak, lalu minum Panadol. Sakit kepalanya mungkin akan hilang sementara waktu, tapi tidak lama kemudian justru akibatnya lebih fatal.</p>
+
+<p>Lalu bagaimana solusinya?</p>
+
+<!--more-->
+
+
+<h1>Salah Kaprah tentang OOM</h1>
+
+<p>Pertama, saya luruskan dulu mengenai <code>System.gc</code>.
+Intinya begini</p>
+
+<blockquote><p>System.gc() hanya boleh dipakai dengan satu (dan hanya satu-satunya) syarat:
+Yaitu pada waktu sudah bisa menjelaskan ke orang lain bagaimana cara kerja garbage collector dan sudah paham apa itu JVM Ergonomics.</p></blockquote>
+
+<p>Next time mau mengetik System.gc, tanyakan pada diri sendiri, apakah saya sudah paham JVM Ergonomics dan bisa menjelaskannya ke orang lain? Kalau jawabannya belum, jangan diteruskan mengetik System.gc().</p>
+
+<blockquote><p>Lalu apa itu <code>System.gc</code> dan kapan digunakan?</p></blockquote>
+
+<p>Kan sudah dijelaskan di atas, pelajari cara kerja garbage collector dan apa itu JVM ergonomics.</p>
+
+<p>Satu lagi salah kaprah yang harus dibenahi :
+opsi <code>Xms</code> dan <code>Xmx</code> itu gunanya adalah <strong>UNTUK MEMAKSIMALKAN PENGGUNAAN MEMORI</strong>.
+<code>Xms</code> dan <code>Xms</code> <strong>BUKAN SOLUSI UNTUK MASALAH OOM</strong>.</p>
+
+<p>Masalah OOM itu ada di kode program kita sendiri, jadi carilah solusinya di kode program kita sendiri.
+Penyebab OOM itu juga cuma satu : aplikasi kita menggunakan memori lebih besar daripada yang tersedia.
+Besar pasak daripada tiang.</p>
+
+<ol>
+<li>Memori tersedia 4 GB, aplikasi kita pakai 4.1 GB => OOM</li>
+<li>Memori tersedia 2 GB, aplikasi kita pakai 1.5 GB => No OOM padahal lebih kecil dari #1</li>
+<li>RAM fisik ada 16 GB, tapi aplikasi kita cuma bisa memanfaatkan 2 GB => gunakan <code>Xms</code> dan <code>Xmx</code>.</li>
+</ol>
+
+
+<h1>Penyebab OOM dan Solusinya</h1>
+
+<p>Beberapa penyebab umum terjadinya OOM :</p>
+
+<h2>Unbounded Query</h2>
+
+<p>Unbounded query adalah query yang tidak kita batasi jumlahnya.
+Contohnya <code>select * from tbl_penjualan</code>. Kalau data penjualan hanya 1000 transaksi, no problem. Kalau transaksinya ada 10 juta record dalam satu hari, ya pasti langsung kena OOM.</p>
+
+<p>Solusinya : pastikan selalu menggunakan paging. Ganti querynya menjadi <code>select * from tbl_penjualan limit 0,20</code> sehingga cuma mengeluarkan 20 record, berapapun banyaknya data dalam tabel.</p>
+
+<h2>Generate File</h2>
+
+<p>Seringkali kita ingin menghasilkan file report. Misalnya laporan penjualan bulan ini, berapapun data yang ada di tabel untuk periode bulan ini, harus ditulis ke file. File ini bisa berupa PDF, XLS, XML, CSV, dan sebagainya.</p>
+
+<p>Format file tidak masalah. Yang menjadi masalah adalah cara membuatnya. Ada beberapa kesalahan umum :</p>
+
+<ul>
+<li>mengumpulkan data di variabel sebelum menulis file</li>
+<li>tidak melepas data yang sudah diproses</li>
+<li>tidak paham cara kerja report engine</li>
+</ul>
+
+
+<h3>Mengumpulkan data di variabel</h3>
+
+<p>Contoh pseudocode seperti ini</p>
+
+<p>```java
+List<Penjualan> data = new ArrayList<Penjualan>();</p>
+
+<p>// resultset adalah cursor, dia hanya baca apa yang ditarik saja
+ResultSet rs = connection.createStatement("select * from tbl_penjualan")</p>
+
+<pre><code>.executeQuery();
+</code></pre>
+
+<p>while(rs.next()){</p>
+
+<pre><code>Penjualan p = konversiResultSetJadiPenjualan(rs);
+data.add(p);
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Coding di atas akan mengumpulkan semua record di variabel <code>data</code>.
+Bila ada 1 juta record yang dihasilkan oleh query dengan masing-masing record berukuran 1 KB,
+maka variabel data tersebut akan berukuran 1 GB. Kalau Java VM kita berikan alokasi 2 GB, cuma butuh 3 user untuk menimbulkan OOM.
+Menaikkan alokasi menjadi 8 GB melalui <code>Xms</code> dan <code>Xmx</code> tidak akan membantu banyak.</p>
+
+<h3>Tidak melepas data yang sudah diproses</h3>
+
+<p>Ini biasanya terjadi kalau kita menulis sendiri file output. Perhatikan contoh kode berikut:</p>
+
+<p>```java
+ResultSet rs = connection.createStatement("select * from tbl_penjualan")</p>
+
+<pre><code>.executeQuery();
+</code></pre>
+
+<p>File output = new File("output.csv");
+while(rs.next()){</p>
+
+<pre><code>String baris = konversiResultSetJadiString(rs);
+output.write(baris);
+output.flush();
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Menulis file ada bermacam-macam. Ada yang menggunakan buffer ada yang tidak. Pastikan kita mengosongkan buffer setiap kali iterasi supaya tidak penuh, biasanya dengan method <code>flush</code> atau sejenisnya.</p>
+
+<h3>Tidak paham cara kerja report engine</h3>
+
+<p>Dalam mendesain library yang dipakai orang banyak, biasanya si pembuat akan melakukan optimasi untuk penggunaan yang sering terjadi.
+Misalnya 80% orang membuat PDF berukuran 10 halaman atau lebih sedikit, 20% sisanya membuat 1000 halaman atau lebih.
+Pada situasi ini, pembuat library report yang baik pasti akan memudahkan pembuatan 10 halaman report karena itulah fitur yang paling sering digunakan.</p>
+
+<p>Bila kita termasuk golongan yang 20%, kita harus belajar lebih giat supaya paham bagaimana mengatasi kondisi minoritas tersebut.</p>
+
+<p>Sebagai contoh, kalau kita menggunakan Jasper Report, ada fitur yang disebut dengan <a href="http://community.jaspersoft.com/wiki/comparison-report-virtualizers">Virtualizer</a> untuk membuat report berukuran besar. Pastikan kita sudah memahami kasus-kasus khusus ini.</p>
+
+<h2>Inisialisasi object besar di dalam loop</h2>
+
+<p>Perhatikan contoh kode di bawah</p>
+
+<p>```java
+public void simpan(Produk p){</p>
+
+<pre><code>ApplicationContext ctx = new ClassPathXmlApplicationContext("konfig-spring.xml");
+ProdukDao pd = ctx.getBean(ProdukDao.class);
+pd.save(p);
+</code></pre>
+
+<p>}
+```</p>
+
+<p><code>ApplicationContext</code> merupakan object Spring Framework yang berisi seluruh konfigurasi aplikasi. Isinya :</p>
+
+<ul>
+<li>konfigurasi database</li>
+<li>mapping ORM (kalau pakai ORM)</li>
+<li>semua object yang dimanage Spring</li>
+</ul>
+
+
+<p>Intinya, ini adalah object yang besar sekali dan sangat kompleks. Object seperti ini biasanya hanya dibuat sekali saja sepanjang aplikasi dijalankan. Bila kita taruh dalam method seperti di atas, maka tiap kali ada user simpan data produk, object besar tersebut akan dibuat, sehingga menghabiskan memori.</p>
+
+<p>Pesan moralnya, pahami library yang digunakan supaya tahu karakteristik dan cara kerjanya.</p>
+
+<h2>Penggunaan collection yang kurang benar</h2>
+
+<p>Collection (Set, Map, List) adalah object yang menampung object lain. Kita harus memastikan bahwa object ini berada dalam scope yang benar. Lihat kode program berikut</p>
+
+<p>```java
+public class Coba {</p>
+
+<pre><code>private static List&lt;Integer&gt; noSurat = new ArrayList&lt;Integer&gt;();
+private static Integer noTerakhir = 0;
+
+public void bikinSuratBaru(){
+    noTerakhir++;
+    noSurat.add(noTerakhir);
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p>Pada kode di atas, <code>noSurat</code> memiliki scope static, sehingga dia akan terus ada selama aplikasi berjalan. Bila aplikasi tidak mati dalam waktu yang lama, dan dalam sehari ada 1 juta surat baru, tinggal tunggu waktu saja sampai kena OOM.</p>
+
+<h1>Panduan Solusi Umum</h1>
+
+<p>Selain yang disebutkan di atas, masih banyak penyebab lain, yang paling sering terjadi adalah yang dibahas di atas. Kalau penyebab OOM tidak kita atasi, berapapun memori yang kita sediakan (melalui <code>Xms</code> dan <code>Xmx</code>) tidak akan cukup. Inilah sebabnya saya katakan bahwa <code>Xms</code> dan <code>Xmx</code> itu bukan solusi untuk OOM. Yang harus kita lakukan adalah <strong>mengendalikan pemakaian</strong> memori, bukan <strong>menambah</strong> memori.</p>
+
+<p>Jadi kalau menemukan OOM, coba dicek lagi kode programnya.
+Tidak perlu pakai VisualVM atau tools2 lain, cukup code review aja.</p>
+
+<p>Dibaca satu2 source codenya, untuk tiap baris, tanyakan pertanyaan ini :</p>
+
+<ol>
+<li>Method/statement ini akan dipanggil seberapa sering?</li>
+<li>Looping ini akan berputar maksimal berapa kali?</li>
+<li>Berapa kira2 ukuran tiap row yang ditarik dalam query? Sekali tarik berapa row?</li>
+<li>Setelah saya tarik row, kapan dia selesai digunakan? Apakah nunggu PDF jadi dulu baru selesai (inilah kandidat OOM), atau tiap selesai satu halaman PDF sudah bisa direlease?</li>
+</ol>
+
+
+<p>Mudah-mudahan dengan adanya artikel ini tidak ada lagi orang yang mengobati OOM dengan <code>System.gc</code> atau <code>Xmx</code>.</p>
+
+<h2>Referensi</h2>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mengetes Akses Database]]></title>
@@ -1612,369 +1821,6 @@ public DataSource getDataSource() {
 
 
 <p>Demikianlah bagian kedua dari tutorial mengakses database menggunakan Spring JDBC. Pada bagian ini kita sudah melihat bagaimana cara pengaturan file/folder dan interaksi antar class/method. Di bagian selanjutnya kita akan lihat <a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">bagaimana cara menjalankan perintah SQL</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Konfigurasi Koneksi Database dengan Spring]]></title>
-    <link href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/"/>
-    <updated>2013-05-27T17:02:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring</id>
-    <content type="html"><![CDATA[<p>Di Java, ada banyak cara untuk mengakses database, diantaranya:</p>
-
-<ul>
-<li><a href="http://docs.oracle.com/javase/tutorial/jdbc/">JDBC polos tanpa framework apapun</a></li>
-<li><a href="http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/jdbc.html">JDBC dengan Spring (Spring JDBC)</a></li>
-<li>JDBC dengan <a href="http://blog.mybatis.org/">iBatis/MyBatis</a></li>
-<li><a href="http://docs.jboss.org/hibernate/orm/4.2/manual/en-US/html/">Hibernate</a></li>
-<li><a href="http://www.datanucleus.org/products/datanucleus/jdo/guides/tutorial_rdbms.html">JDO</a></li>
-<li><a href="http://docs.oracle.com/javaee/6/tutorial/doc/bnbpz.html">JPA</a></li>
-<li><a href="http://www.springsource.org/spring-data/jpa">Spring Data JPA</a></li>
-</ul>
-
-
-<p>Masing-masing memiliki kelebihan dan kekurangan masing-masing yang tidak akan kita bahas di artikel ini.
-Kali ini kita hanya akan membahas metode Spring JDBC dan perbandingannya dengan JDBC murni.</p>
-
-<p>Artikel ini merupakan bagian pertama dari rangkaian artikel Spring JDBC, yaitu</p>
-
-<ol>
-<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
-<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
-<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
-<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
-</ol>
-
-
-<p>Keseluruhan kode program dapat dilihat di <a href="https://github.com/endymuhardin/belajar-akses-database-java">repository belajar-akses-database-java di Github saya</a>, khususnya <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc">branch spring-jdbc</a>.</p>
-
-<!--more-->
-
-
-<h2>Perbandingan JDBC polos dan Spring JDBC</h2>
-
-<p>Menggunakan JDBC polos tanpa library memang mudah, karena tidak perlu pusing mempelajari library lain. Tapi ada beberapa keterbatasan dan kesulitan, diantaranya:</p>
-
-<ul>
-<li>semua method throws Exception, sehingga kode program kita menjadi kotor dengan try-catch</li>
-<li>tidak ada manajemen koneksi database, kita harus buka-tutup sendiri</li>
-<li>tidak ada declarative transaction, kita harus secara manual melakukan begin-commit/rollback</li>
-</ul>
-
-
-<p>Dengan berbagai keterbatasan tersebut, ada baiknya kita menggunakan bantuan Spring Framework, yaitu modul <code>spring-jdbc</code> untuk memudahkan berbagai kegiatan di atas. Tentunya masih banyak hal yang harus kita lakukan sendiri, tidak seperti penggunaan library Object Relational Mapping (ORM) seperti Hibernate atau JPA, di antaranya:</p>
-
-<ul>
-<li>mapping dari result set menjadi Java object</li>
-<li>mapping dari Java object menjadi isi parameter PreparedStatement</li>
-<li>cache</li>
-<li>cascading operation</li>
-<li>generate primary key secara otomatis</li>
-<li>dsb</li>
-</ul>
-
-
-<p>Ada beberapa tahapan dalam menggunakan Spring JDBC, yaitu :</p>
-
-<ol>
-<li>Konfigurasi Koneksi Database</li>
-<li>Membuat class Data Access Object (DAO)</li>
-<li>Membuat class implementasi business process/service</li>
-<li>Membuat test otomatis menggunakan JUnit</li>
-</ol>
-
-
-<h1>Studi Kasus</h1>
-
-<p>Agar lebih konkrit, kita akan menggunakan skema database yang umum digunakan di aplikasi bisnis,
-yaitu memiliki tabel :</p>
-
-<ul>
-<li>Master Data / Referensi</li>
-<li>Header Transaksi</li>
-<li>Detail Transaksi</li>
-</ul>
-
-
-<p>Berikut adalah skema database yang akan kita gunakan:</p>
-
-<p>```sql
-create table m_produk (</p>
-
-<pre><code>id int primary key auto_increment,
-kode varchar(20) not null,
-nama varchar(255) not null,
-harga decimal(19,2) not null
-</code></pre>
-
-<p>) engine=InnoDB ;</p>
-
-<p>create table t_penjualan (</p>
-
-<pre><code>id int primary key auto_increment,
-waktu_transaksi datetime not null
-</code></pre>
-
-<p>) engine=InnoDB AUTO_INCREMENT=100;</p>
-
-<p>create table t_penjualan_detail (</p>
-
-<pre><code>id int primary key auto_increment,
-id_penjualan int not null,
-id_produk int not null,
-harga decimal(19,2) not null,
-jumlah int not null, 
-foreign key(id_penjualan) references t_penjualan(id) on delete cascade,
-foreign key(id_produk) references m_produk(id) on delete restrict
-</code></pre>
-
-<p>) engine=InnoDB AUTO_INCREMENT=100;
-```</p>
-
-<p>Untuk keperluan test, jangan lupa kita sertakan beberapa baris data.</p>
-
-<p>```sql
-insert into m_produk (id,kode,nama,harga) values
-(1, 'K-001', 'Keyboard USB', 150000),
-(2, 'M-001', 'Mouse USB', 50000),
-(3, 'L-001', 'Laptop', 10000000);</p>
-
-<p>insert into t_penjualan (id,waktu_transaksi) values
-(1,'2013-01-01 20:30:30'),
-(2,'2013-01-02 15:15:15'),
-(3,'2013-02-02 09:09:09');</p>
-
-<p>insert into t_penjualan_detail (id,id_penjualan, id_produk, harga, jumlah) values
-(1,1,1,150000,2),
-(2,1,2,50000,5),
-(3,2,1,150000,3),
-(4,2,2,50000,3),
-(5,3,3,10000000,1);
-```</p>
-
-<p>Tabel dan data di atas kita masukkan ke database dengan rincian sebagai berikut:</p>
-
-<ul>
-<li>Jenis Database : MySQL</li>
-<li>Server Database : localhost</li>
-<li>Nama Database : belajar</li>
-<li>Username Database : root</li>
-<li>Password Database : admin</li>
-</ul>
-
-
-<p>Selanjutnya kita akan mengkonfigurasi Spring supaya bisa terkoneksi dengan database tersebut.</p>
-
-<h1>Konfigurasi Koneksi Database</h1>
-
-<h2>Dependensi</h2>
-
-<p>Kita membutuhkan beberapa library, dinyatakan dalam dependensi Maven sebagai berikut:</p>
-
-<h3>Driver database MySQL</h3>
-
-<p>```xml
-<dependency></p>
-
-<pre><code>&lt;groupId&gt;mysql&lt;/groupId&gt;
-&lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
-&lt;version&gt;${mysql.version}&lt;/version&gt;
-&lt;scope&gt;runtime&lt;/scope&gt;
-</code></pre>
-
-<p></dependency>
-```</p>
-
-<h3>Library manajemen koneksi database (database connection pooling)</h3>
-
-<p>```xml
-<dependency></p>
-
-<pre><code>&lt;groupId&gt;commons-dbcp&lt;/groupId&gt;
-&lt;artifactId&gt;commons-dbcp&lt;/artifactId&gt;
-&lt;version&gt;${commons-dbcp.version}&lt;/version&gt;
-</code></pre>
-
-<p></dependency>
-```</p>
-
-<h3>Spring JDBC</h3>
-
-<p>```xml
-<dependency></p>
-
-<pre><code>&lt;groupId&gt;org.springframework&lt;/groupId&gt;
-&lt;artifactId&gt;spring-context&lt;/artifactId&gt;
-&lt;version&gt;${org.springframework.version}&lt;/version&gt;
-</code></pre>
-
-<p></dependency></p>
-
-<p><dependency></p>
-
-<pre><code>&lt;groupId&gt;org.springframework&lt;/groupId&gt;
-&lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;
-&lt;version&gt;${org.springframework.version}&lt;/version&gt;
-</code></pre>
-
-<p></dependency></p>
-
-<p><dependency></p>
-
-<pre><code>&lt;groupId&gt;org.springframework&lt;/groupId&gt;
-&lt;artifactId&gt;spring-test&lt;/artifactId&gt;
-&lt;version&gt;${org.springframework.version}&lt;/version&gt;
-&lt;scope&gt;test&lt;/scope&gt;
-</code></pre>
-
-<p></dependency>
-```</p>
-
-<p>Selanjutnya, kita membuat konfigurasi database untuk Spring. Kita beri nama saja file konfigurasinya <code>spring-jdbc-ctx.xml</code>
-dan kita letakkan di folder <code>src/main/resources</code>. File ini berisi :</p>
-
-<ul>
-<li>konfigurasi data source untuk koneksi ke database. Kita menggunakan pustaka <code>commons-dbcp</code> untuk menangani connection pooling ke database.</li>
-<li>transaction manager. Ini dibutuhkan supaya kita tidak perlu lagi membuat coding untuk rangkaian <code>begin-commit/rollback</code>.</li>
-<li>component scan. Ini dibutuhkan agar object DAO dan Service kita otomatis dideteksi dan diinisialisasi oleh Spring</li>
-</ul>
-
-
-<h2>Koneksi Database</h2>
-
-<p>Berikut konfigurasi koneksi database</p>
-
-<p>```xml
-<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"></p>
-
-<pre><code>&lt;property name="driverClassName" value="com.mysql.jdbc.Driver" /&gt;
-&lt;property name="url" value="jdbc:mysql://localhost/belajar" /&gt;
-&lt;property name="username" value="root" /&gt;
-&lt;property name="password" value="admin" /&gt;
-&lt;property name="maxActive" value="80" /&gt;
-&lt;property name="maxWait" value="40000" /&gt;
-&lt;property name="maxIdle" value="20" /&gt;
-</code></pre>
-
-<p></bean>
-```</p>
-
-<p>Penjelasannya sebagai berikut:</p>
-
-<h3>Database Connection Pooling</h3>
-
-<p>Koneksi ke database sebetulnya merupakan operasi yang <em>mahal</em>. Kenapa <em>mahal</em>?
-Karena setiap kali kita membuat koneksi, ada serangkaian kegiatan yang harus dilakukan oleh database server seperti:</p>
-
-<ul>
-<li>memeriksa username dan password</li>
-<li>memeriksa apakah komputer kita (dilihat dari alamat IP atau nama host) diijinkan untuk masuk</li>
-<li>memeriksa apakah database, tabel, dan tindakan yang kita lakukan memiliki ijin akses yang mencukupi</li>
-</ul>
-
-
-<p>Oleh karena itu, idealnya koneksi database dibuat sekali saja dan digunakan terus sepanjang aplikasi berjalan.
-Tentunya kalau koneksi database hanya satu, setiap request dari user akan mengantri.
-Untuk itu kita buat banyak koneksi sekaligus yang nantinya akan <em>dipinjamkan</em> pada request yang membutuhkan.
-Teknik ini disebut dengan istilah database connection pooling.</p>
-
-<p>Library yang kita gunakan untuk itu adalah <a href="http://commons.apache.org/proper/commons-dbcp/configuration.html">Apache Commons DBCP</a>, yang ditandai dengan penggunaan class <code>org.apache.commons.dbcp.BasicDataSource</code> di atas.</p>
-
-<p>Ada banyak hal yang bisa disetting, tapi kita akan fokus ke beberapa saja yaitu:</p>
-
-<ul>
-<li><code>driverClassName</code> : nama class untuk koneksi ke database. Ini harus sesuai dengan merek dan versi database yang digunakan</li>
-<li><code>url</code> : informasi koneksi database. Biasanya berisi alamat server (IP atau Hostname) dan nama database</li>
-<li><code>username</code> : username untuk connect ke database</li>
-<li><code>password</code> : passwordnya user tersebut</li>
-</ul>
-
-
-<p>Keempat informasi di atas adalah informasi umum yang kita butuhkan apapun metode koneksi database yang kita gunakan, tidak terkait dengan penggunaan Apache Commons DBCP. Konfigurasi berikut barulah berkaitan dengan Apache Commons DBCP:</p>
-
-<ul>
-<li><p><code>maxActive</code> : jumlah koneksi yang boleh aktif secara berbarengan. Ini harus disetting dibawah angka yang kita ijinkan di database server. Misalnya di MySQL kita ijinkan 100 koneksi berbarengan, maka angkanya harus dibawah 100. Jangan juga dihabiskan 100, untuk berjaga-jaga siapa tahu kita butuh koneksi langsung ke MySQL tanpa lewat aplikasi (misalnya untuk keperluan debug). Pertimbangkan juga apabila ada aplikasi lain yang menggunakan database yang sama.</p></li>
-<li><p><code>maxIdle</code> : ada kalanya aplikasi kita sedang sepi dari request user sehingga banyak koneksi database yang menganggur (idle). Angka <code>maxIdle</code> ini menentukan berapa koneksi yang akan tetap dipegang walaupun idle. Bila ada 20 koneksi idle, padahal <code>maxIdle</code> berisi 15, maka 5 koneksi akan ditutup. Ini merupakan trade-off. Bila terlalu banyak idle, maka memori database server akan terpakai untuk koneksi yang standby ini. Tapi bila terlalu sedikit, pada waktu aplikasi mendadak diserbu user, akan butuh waktu lama untuk dia membuatkan lagi koneksi baru.</p></li>
-<li><p><code>maxWait</code> : bila semua koneksi sebanyak <code>maxActive</code> sedang terpakai semua, request berikutnya akan menunggu salah satu selesai menggunakan koneksi. Nilai <code>maxWait</code> menentukan berapa milidetik request tersebut menunggu. Bila lebih dari <code>maxWait</code> dan belum juga kebagian koneksi, maka request tersebut akan mendapatkan <code>Exception</code>. Konfigurasi ini perlu diperhatikan karena nilai defaultnya adalah <code>indefinitely</code> yaitu menunggu selamanya.</p></li>
-</ul>
-
-
-<p>Saya pernah mendapatkan masalah karena setting default ini. Aplikasi bengong seolah hang. Dicek ke log file tidak ada error. Ternyata masalahnya ada query yang kurang optimal sehingga memakan waktu lama. Pada saat banyak request yang menjalankan query tersebut, request lain menunggu lama tanpa ada pemberitahuan, sehingga terkesan hang. Setelah nilai <code>maxWait</code> saya ganti menjadi 30 detik, mulai banyak error message bermunculan dari request yang menunggu > 30 detik. Dengan adanya error message, query bermasalah tersebut menjadi terlihat sehingga bisa diperbaiki.</p>
-
-<p><blockquote><p>Pesan moral pertama : pesan error itu penting untuk mengetahui sumber masalah. Dalam bugfixing, yang paling penting adalah menemukan masalah. Kalau masalah sudah ditemukan, siapa saja bisa memperbaiki. Jadi kalau aplikasi kita bermasalah, prioritas pertama kita adalah membuat dia mengeluarkan pesan error yang jelas.</p></blockquote></p>
-
-<p>Baca <a href="http://software.endy.muhardin.com/java/tips-melaporkan-error/">artikel ini</a> untuk mengetahui apa yang dimaksud dengan pesan error yang jelas.</p>
-
-<p><blockquote><p>Pesan moral kedua : Dalam bugfixing, sering kali kita tidak langsung mendapatkan masalah utama. Pada kasus di atas, pertama kali saya menemukan bahwa perilaku defaultnya Commons DBCP adalah menunggu koneksi dengan sabar sampai selamanya. Setelah ini diubah, barulah saya menemukan masalah utama, yaitu ada query yang tidak optimal.</p></blockquote></p>
-
-<h2>Transaction Manager</h2>
-
-<p>Setelah terhubung ke database, selanjutnya kita akan mengkonfigurasi transaction manager. Ini adalah fitur dari Spring Framework yang membebaskan kita dari coding manual untuk urusan transaction. Bila tidak menggunakan ini, maka kode program kita akan tampak seperti ini:</p>
-
-<p>```java
-public void simpan(Produk p){</p>
-
-<pre><code>Connection conn; // inisialisasi koneksi di sini
-
-try {
-    conn.setAutocommit(false);
-
-    String sql = "insert into m_produk ... ";
-    conn.createStatement().executeUpdate(sql);
-
-    conn.commit();
-
-} catch (Exception err){
-    conn.rollback();
-} finally {
-    conn.setAutocommit(true);
-    conn.close();
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Untuk dua baris perintah seperti di atas, kita harus menambahkan 8 baris hanya untuk mengurus transaction <strong>pada setiap method</strong>. Bayangkan kalau aplikasi kita punya 100 method, maka kode program untuk mengelola transaksi saja sudah 800 baris. Dengan fitur transaction manager, maka method di atas bisa ditulis ulang seperti ini:</p>
-
-<p>```java
-@Transactional
-public void simpan(Produk p){</p>
-
-<pre><code>String sql = "insert into m_produk ... ";
-conn.createStatement().executeUpdate(sql);
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Jauh lebih bersih dan rapi. Kode program jadi mudah dibaca dan akibatnya tentu memudahkan kita pada waktu bugfix, perubahan, ataupun penambahan fitur.</p>
-
-<p>Nah ini dia konfigurasi transaction manager:</p>
-
-<p>```xml
-<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"></p>
-
-<pre><code>&lt;property name="dataSource" ref="dataSource"/&gt;
-</code></pre>
-
-<p></bean></p>
-
-<p>&lt;tx:annotation-driven/>
-```</p>
-
-<p>Class transaction manager yang digunakan berbeda tergantung metode akses database yang digunakan dan juga bagaimana cara kita mendeploy aplikasi. Beberapa pilihan transaction manager yang lain antara lain:</p>
-
-<ul>
-<li><code>DataSourceTransactionManager</code> : digunakan untuk koneksi database menggunakan <code>javax.sql.DataSource</code>. Ini artinya koneksi langsung dari aplikasi ke database server.</li>
-<li><code>JtaTransactionManager</code> : digunakan bila aplikasi kita dideploy di application server yang memiliki transaction manager sendiri (seperti Glassfish, JBoss, Websphere, Weblogic, dsb) <em>dan menggunakan</em> transaction manager yang disediakan tersebut. Bila kita deploy di Tomcat, hampir pasti kita tidak menggunakan JTA. Bila kita deploy ke Glassfish dan menggunakan konfigurasi <code>dataSource</code> Apache Commons DBCP, berarti kita juga tidak menggunakan JTA.</li>
-<li><code>HibernateTransactionManager</code> : seperti ditunjukkan oleh namanya, gunakan ini bila kita menggunakan Hibernate</li>
-<li><code>JpaTransactionManager</code> : ini juga sudah jelas dari namanya. Bila kita pakai JPA, gunakan transaction manager ini.</li>
-</ul>
-
-
-<p>Demikian tutorial cara konfigurasi koneksi database. Pada bagian selanjutnya, kita akan <a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">menyiapkan kerangka aplikasinya dulu</a>.</p>
 ]]></content>
   </entry>
   

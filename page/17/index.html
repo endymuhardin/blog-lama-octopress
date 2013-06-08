@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Menggunakan PostgreSQL Sequence dengan Hibernate Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang &hellip;">
+  <meta name="description" content="Dulu, kita sudah mencoba untuk membuat remoting service dengan menggunakan Spring Framework. Salah satu protokol yang digunakan adalah Spring HTTP &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,235 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/spring-httpinvoker-sun-jre6-httpserver/">Menjalankan Spring HTTP Invoker Di Sun JRE 6 HTTP Server</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-07-03T21:41:28+07:00" pubdate data-updated="true">Jul 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dulu, kita sudah mencoba untuk <a href="http://endy.artivisi.com/blog/java/remoting-dengan-spring/">membuat remoting service dengan menggunakan Spring Framework</a>. Salah satu protokol yang digunakan adalah Spring HTTP Invoker. Untuk mempublish service dengan protokol ini, kita harus menggunakan servlet engine, misalnya Tomcat.</p>
+
+<p>Akan tetapi, Sun Microsystem merilis Java versi 6 yang sudah dilengkapi dengan HTTP Server sederhana. Dengan memanfaatkan fitur ini, kita tidak perlu lagi menggunakan Tomcat hanya untuk mempublish service dengan HTTP Invoker. Ini akan sangat bermanfaat untuk aplikasi kecil yang ingin dipanggil oleh aplikasi lain.</p>
+
+<p>Pada artikel ini, kita akan mempublish service dengan protokol HTTP Invoker pada HTTP Server yang disediakan oleh Sun JRE versi 6.</p>
+
+<p>Di Netbeans, kita akan membuat tiga project, yaitu</p>
+
+<ul>
+<li><p>remoting-shared : project ini menampung interface RemotingService, yang akan digunakan di client dan server</p></li>
+<li><p>remoting-server : project ini yang akan mempublish service. Implementasi RemotingService juga ada di sini</p></li>
+<li><p>remoting-client : project ini yang akan mengakses service yang dipublish remoting-server</p></li>
+</ul>
+
+
+<p>Berikut screenshot Netbeans. Project remoting-server dan remoting-client memiliki dependensi terhadap remoting-shared.</p>
+
+<p>Pertama, mari kita lihat dulu service interfacenya. Berikut adalah kode programnya.</p>
+
+<pre><code>package com.artivisi.tutorial.remoting.spring.service.api;
+
+public interface RemotingService {
+    public String halo(String nama);
+}
+</code></pre>
+
+<p>Kode program ini berada di project remoting-shared.</p>
+
+<p>Berikutnya, kita lihat dulu di sisi client. Kita cuma butuh satu class untuk menjalankan aplikasi, yaitu ClientLauncher sebagai berikut.</p>
+
+<pre><code>package com.artivisi.tutorial.remoting.spring.client;
+
+public class ClientLauncher {
+    private static final Logger log = Logger.getLogger(ClientLauncher.class.getName());
+    public static void main(String[] args) {
+        AbstractApplicationContext ctx = 
+                new ClassPathXmlApplicationContext("client-ctx.xml", ClientLauncher.class);
+        ctx.registerShutdownHook();
+
+        RemotingService service = (RemotingService) ctx.getBean("remotingService");
+
+        String msg = service.halo("endy");
+
+        log.info("Pesan dari server : "+msg);
+    }
+}
+</code></pre>
+
+<p>ClientLauncher akan membaca client-ctx.xml yang isinya seperti ini.</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"&gt;
+
+    &lt;!--  proxy dengan protokol HTTP Invoker  --&gt;
+    &lt;bean id="remotingService"
+    class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"&gt;
+         &lt;property name="serviceUrl" 
+         value="http://localhost:9090/RemotingService"/&gt;
+
+         &lt;property name="serviceInterface"
+         value="com.artivisi.tutorial.remoting.spring.service.api.RemotingService"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Seperti kita lihat di atas, client mengakses service yang ada di komputer lokal (localhost) di port 9090, dengan nama service RemotingService.</p>
+
+<p>Selanjutnya, mari kita implement project remoting-server. Di sini ada implementasi RemotingService sebagai berikut</p>
+
+<pre><code>/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.artivisi.tutorial.remoting.spring.service.impl;
+
+@Service("remotingService")
+public class RemotingServiceImpl implements RemotingService {
+    Logger log = Logger.getLogger(RemotingServiceImpl.class.getName());
+
+    public String halo(String nama) {
+        log.info("Terima dari client : "+nama);
+        return "Halo, "+nama;
+    }
+
+}
+</code></pre>
+
+<p>Kemudian ada class untuk menjalankan aplikasi di sisi server. Berikut ServerLauncher.</p>
+
+<pre><code>package com.artivisi.tutorial.remoting.spring.server;
+
+public class ServerLauncher {
+    public static void main(String[] args) {
+        AbstractApplicationContext ctx =
+                new ClassPathXmlApplicationContext("server-ctx.xml", ServerLauncher.class);
+        ctx.registerShutdownHook();
+    }
+}
+</code></pre>
+
+<p>ServerLauncher membaca file konfigurasi server-ctx.xml. Inilah isinya.</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-2.5.xsd"&gt;
+
+    &lt;!-- menginstankan Sun HttpServer dalam JRE 6 --&gt;
+    &lt;bean class="org.springframework.remoting.support.SimpleHttpServerFactoryBean"&gt;
+        &lt;property name="contexts"&gt;
+            &lt;map&gt;
+                &lt;entry key="/RemotingService" value-ref="remotingServiceHttpInvoker"/&gt;
+            &lt;/map&gt;
+        &lt;/property&gt;
+        &lt;property name="port" value="9090" /&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Pada blok konfigurasi pertama, kita menginstankan Sun HttpServer yang ada di JRE 6. HttpServer ini akan berjalan di port 9090, sesuai dengan yang kita konfigurasi di sisi client. Di sana terlihat bahwa URL /RemotingService akan ditangani oleh remotingServiceHttpInvoker. Berikut konfigurasinya</p>
+
+<pre><code>    &lt;!--  publish service dengan protokol HttpInvoker  --&gt;
+    &lt;bean id="remotingServiceHttpInvoker" 
+          class="org.springframework.remoting.httpinvoker.SimpleHttpInvokerServiceExporter"
+          p:service-ref="remotingService"
+          p:serviceInterface="com.artivisi.tutorial.remoting.spring.service.api.RemotingService"
+     /&gt;
+</code></pre>
+
+<p>Selanjutnya, kita suruh Spring mendeteksi implementasi service kita secara otomatis, yaitu class yang ada anotasi @Service.</p>
+
+<pre><code>     &lt;context:component-scan base-package="com.artivisi"/&gt;
+</code></pre>
+
+<p>Berikut adalah dependensi pustaka di project client.</p>
+
+<p><img src="/images/uploads/2009/07/remoting-library-client-300x220.png" title="Library untuk Project Client" ></p>
+
+<p>Dan ini untuk di server.</p>
+
+<p><img src="/images/uploads/2009/07/remoting-library-server-300x234.png" title="Library untuk Project Server" ></p>
+
+<p>Keseluruhan project akan terlihat seperti ini.</p>
+
+<p><img src="/images/uploads/2009/07/remoting-folder-structure-231x300.png" title="Struktur Folder semua Project" ></p>
+
+<p>Semua library dapat diambil dari <a href="http://www.springsource.org/download">distribusi Spring Framework</a> dan <a href="http://www.springsource.com/repository/app/">Repository SpringSource</a>.</p>
+
+<p>Coba jalankan ServerLauncher, kita akan melihat log seperti ini.</p>
+
+<pre><code>Jul 3, 2009 2:57:25 PM org.springframework.context.support.AbstractApplicationContext prepareRefresh
+INFO: Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@be2358: display name [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]; startup date [Fri Jul 03 14:57:25 WIT 2009]; root of context hierarchy
+Jul 3, 2009 2:57:26 PM org.springframework.beans.factory.xml.XmlBeanDefinitionReader loadBeanDefinitions
+INFO: Loading XML bean definitions from class path resource [server-ctx.xml]
+Jul 3, 2009 2:57:26 PM org.springframework.context.support.AbstractApplicationContext obtainFreshBeanFactory
+INFO: Bean factory for application context [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]: org.springframework.beans.factory.support.DefaultListableBeanFactory@f11404
+Jul 3, 2009 2:57:26 PM org.springframework.beans.factory.support.DefaultListableBeanFactory preInstantiateSingletons
+INFO: Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@f11404: defining beans [org.springframework.remoting.support.SimpleHttpServerFactoryBean#0,remotingServiceHttpInvoker,remotingService,org.springframework.context.annotation.internalCommonAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor]; root of factory hierarchy
+Jul 3, 2009 2:57:27 PM org.springframework.remoting.support.SimpleHttpServerFactoryBean afterPropertiesSet
+INFO: Starting HttpServer at address 0.0.0.0/0.0.0.0:9090
+</code></pre>
+
+<p>Lalu jalankan ClientLauncher, inilah log yang muncul.</p>
+
+<pre><code>Jul 3, 2009 2:58:12 PM org.springframework.context.support.AbstractApplicationContext prepareRefresh
+INFO: Refreshing org.springframework.context.support.ClassPathXmlApplicationContext@be2358: display name [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]; startup date [Fri Jul 03 14:58:12 WIT 2009]; root of context hierarchy
+Jul 3, 2009 2:58:12 PM org.springframework.beans.factory.xml.XmlBeanDefinitionReader loadBeanDefinitions
+INFO: Loading XML bean definitions from class path resource [client-ctx.xml]
+Jul 3, 2009 2:58:13 PM org.springframework.context.support.AbstractApplicationContext obtainFreshBeanFactory
+INFO: Bean factory for application context [org.springframework.context.support.ClassPathXmlApplicationContext@be2358]: org.springframework.beans.factory.support.DefaultListableBeanFactory@d2906a
+Jul 3, 2009 2:58:13 PM org.springframework.beans.factory.support.DefaultListableBeanFactory preInstantiateSingletons
+INFO: Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@d2906a: defining beans [remotingService]; root of factory hierarchy
+Jul 3, 2009 2:58:13 PM com.artivisi.tutorial.remoting.spring.client.ClientLauncher main
+INFO: Pesan dari server : Halo, endy
+</code></pre>
+
+<p>Setelah ClientLauncher dijalankan, di log server akan muncul informasi sebagai berikut.</p>
+
+<pre><code>INFO: Terima dari client : endy
+</code></pre>
+
+<p>Demikianlah cara menggunakan embedded HttpServer. Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -500,64 +729,6 @@ Berikut konfigurasinya.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/simulasi-slow-network/">Simulasi Slow Network</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-06-15T15:21:33+07:00" pubdate data-updated="true">Jun 15<span>th</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di salah satu proyek ArtiVisi, kita memiliki aplikasi client-server yang terhubung melalui koneksi internet berbandwidth kecil. Client menghubungi server melalui modem GPRS.</p>
-
-<p>Permasalahannya adalah bagaimana cara mengetes koneksi lemot ini pada saat development? Umumnya pada saat development kita menjalankan server dan client di komputer yang sama. Atau kalaupun di komputer berbeda, dijalankan di satu LAN, sehingga kecepatan bisa mencapai 100Mbps.</p>
-
-<p>Ada dua alternatif yang bisa kita gunakan. Yang pertama adalah aplikasi tc (traffic control) yang biasanya sudah terinstal secara default di Ubuntu. Kalau belum terinstal, kita bisa menginstal paket iproute atau iproute2, tergantung distro yang Anda gunakan.</p>
-
-<p>Alternatif kedua, menggunakan aplikasi ip_relay. Aplikasi ini bisa diinstal dengan nama paket iprelay.</p>
-
-<p>Berikut adalah referensi pemakaian tc :</p>
-
-<ul>
-<li><p><a href="http://www.kdedevelopers.org/node/1878">pipita&#8217;s blog</a></p></li>
-<li><p><a href="http://henrydu.com/blog/how-to/simulate-a-slow-link-by-linux-bridge-123.html">Henry&#8217;s Point</a></p></li>
-</ul>
-
-
-<p>Dan ini adalah referensi pemakaian iprelay :</p>
-
-<ul>
-<li><p><a href="http://ubuntuforums.org/showthread.php?t=670628">Ubuntu Forum</a></p></li>
-<li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/18/">&larr; Older</a>
@@ -620,6 +791,10 @@ Berikut konfigurasinya.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/mengobati-oom/">Mengobati OOM</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mengetes-akses-database/">Mengetes Akses Database</a>
       </li>
     
@@ -653,10 +828,6 @@ Berikut konfigurasinya.</p>
     
       <li class="post">
         <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox dengan 1 IP Public</a>
       </li>
     
   </ul>

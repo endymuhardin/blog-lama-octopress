@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-06-05T12:02:14+07:00</updated>
+  <updated>2013-06-08T22:33:49+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,231 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mengobati OOM]]></title>
+    <link href="http://software.endy.muhardin.com/java/mengobati-oom/"/>
+    <updated>2013-06-08T22:25:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mengobati-oom</id>
+    <content type="html"><![CDATA[<p>Beberapa waktu belakangan ini, di milis mulai banyak bermunculan pertanyaan yang berkaitan dengan Out Of Memory Error (OOM).
+Error ini biasanya terjadi bila data dalam aplikasi sudah besar (melebihi 2 GB), dan umumnya terjadi pada saat membuat report PDF/XLS/CSV, dsb.</p>
+
+<p>Biasanya juga, <em>obat yang dikonsumsi</em> oleh penderita OOM ini ada dua:</p>
+
+<ul>
+<li>Mengatur alokasi memori dengan opsi <code>Xms</code> dan <code>Xmx</code></li>
+<li>Menggunakan perintah <code>System.gc()</code></li>
+</ul>
+
+
+<p>Sayangnya, kedua <em>obat</em> ini tidak akan menyelesaikan masalah. Analoginya seperti kita kena infeksi otak, lalu minum Panadol. Sakit kepalanya mungkin akan hilang sementara waktu, tapi tidak lama kemudian justru akibatnya lebih fatal.</p>
+
+<p>Lalu bagaimana solusinya?</p>
+
+<!--more-->
+
+
+<h1>Salah Kaprah tentang OOM</h1>
+
+<p>Pertama, saya luruskan dulu mengenai <code>System.gc</code>.
+Intinya begini</p>
+
+<blockquote><p>System.gc() hanya boleh dipakai dengan satu (dan hanya satu-satunya) syarat:
+Yaitu pada waktu sudah bisa menjelaskan ke orang lain bagaimana cara kerja garbage collector dan sudah paham apa itu JVM Ergonomics.</p></blockquote>
+
+<p>Next time mau mengetik System.gc, tanyakan pada diri sendiri, apakah saya sudah paham JVM Ergonomics dan bisa menjelaskannya ke orang lain? Kalau jawabannya belum, jangan diteruskan mengetik System.gc().</p>
+
+<blockquote><p>Lalu apa itu <code>System.gc</code> dan kapan digunakan?</p></blockquote>
+
+<p>Kan sudah dijelaskan di atas, pelajari cara kerja garbage collector dan apa itu JVM ergonomics.</p>
+
+<p>Satu lagi salah kaprah yang harus dibenahi :
+opsi <code>Xms</code> dan <code>Xmx</code> itu gunanya adalah <strong>UNTUK MEMAKSIMALKAN PENGGUNAAN MEMORI</strong>.
+<code>Xms</code> dan <code>Xms</code> <strong>BUKAN SOLUSI UNTUK MASALAH OOM</strong>.</p>
+
+<p>Masalah OOM itu ada di kode program kita sendiri, jadi carilah solusinya di kode program kita sendiri.
+Penyebab OOM itu juga cuma satu : aplikasi kita menggunakan memori lebih besar daripada yang tersedia.
+Besar pasak daripada tiang.</p>
+
+<ol>
+<li>Memori tersedia 4 GB, aplikasi kita pakai 4.1 GB => OOM</li>
+<li>Memori tersedia 2 GB, aplikasi kita pakai 1.5 GB => No OOM padahal lebih kecil dari #1</li>
+<li>RAM fisik ada 16 GB, tapi aplikasi kita cuma bisa memanfaatkan 2 GB => gunakan <code>Xms</code> dan <code>Xmx</code>.</li>
+</ol>
+
+
+<h1>Penyebab OOM dan Solusinya</h1>
+
+<p>Beberapa penyebab umum terjadinya OOM :</p>
+
+<h2>Unbounded Query</h2>
+
+<p>Unbounded query adalah query yang tidak kita batasi jumlahnya.
+Contohnya <code>select * from tbl_penjualan</code>. Kalau data penjualan hanya 1000 transaksi, no problem. Kalau transaksinya ada 10 juta record dalam satu hari, ya pasti langsung kena OOM.</p>
+
+<p>Solusinya : pastikan selalu menggunakan paging. Ganti querynya menjadi <code>select * from tbl_penjualan limit 0,20</code> sehingga cuma mengeluarkan 20 record, berapapun banyaknya data dalam tabel.</p>
+
+<h2>Generate File</h2>
+
+<p>Seringkali kita ingin menghasilkan file report. Misalnya laporan penjualan bulan ini, berapapun data yang ada di tabel untuk periode bulan ini, harus ditulis ke file. File ini bisa berupa PDF, XLS, XML, CSV, dan sebagainya.</p>
+
+<p>Format file tidak masalah. Yang menjadi masalah adalah cara membuatnya. Ada beberapa kesalahan umum :</p>
+
+<ul>
+<li>mengumpulkan data di variabel sebelum menulis file</li>
+<li>tidak melepas data yang sudah diproses</li>
+<li>tidak paham cara kerja report engine</li>
+</ul>
+
+
+<h3>Mengumpulkan data di variabel</h3>
+
+<p>Contoh pseudocode seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// resultset adalah cursor, dia hanya baca apa yang ditarik saja</span>
+</span><span class='line'><span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">createStatement</span><span class="o">(</span><span class="s">&quot;select * from tbl_penjualan&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">while</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">()){</span>
+</span><span class='line'>    <span class="n">Penjualan</span> <span class="n">p</span> <span class="o">=</span> <span class="n">konversiResultSetJadiPenjualan</span><span class="o">(</span><span class="n">rs</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Coding di atas akan mengumpulkan semua record di variabel <code>data</code>.
+Bila ada 1 juta record yang dihasilkan oleh query dengan masing-masing record berukuran 1 KB,
+maka variabel data tersebut akan berukuran 1 GB. Kalau Java VM kita berikan alokasi 2 GB, cuma butuh 3 user untuk menimbulkan OOM.
+Menaikkan alokasi menjadi 8 GB melalui <code>Xms</code> dan <code>Xmx</code> tidak akan membantu banyak.</p>
+
+<h3>Tidak melepas data yang sudah diproses</h3>
+
+<p>Ini biasanya terjadi kalau kita menulis sendiri file output. Perhatikan contoh kode berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">createStatement</span><span class="o">(</span><span class="s">&quot;select * from tbl_penjualan&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">File</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;output.csv&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="k">while</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">()){</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">baris</span> <span class="o">=</span> <span class="n">konversiResultSetJadiString</span><span class="o">(</span><span class="n">rs</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">output</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">output</span><span class="o">.</span><span class="na">flush</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Menulis file ada bermacam-macam. Ada yang menggunakan buffer ada yang tidak. Pastikan kita mengosongkan buffer setiap kali iterasi supaya tidak penuh, biasanya dengan method <code>flush</code> atau sejenisnya.</p>
+
+<h3>Tidak paham cara kerja report engine</h3>
+
+<p>Dalam mendesain library yang dipakai orang banyak, biasanya si pembuat akan melakukan optimasi untuk penggunaan yang sering terjadi.
+Misalnya 80% orang membuat PDF berukuran 10 halaman atau lebih sedikit, 20% sisanya membuat 1000 halaman atau lebih.
+Pada situasi ini, pembuat library report yang baik pasti akan memudahkan pembuatan 10 halaman report karena itulah fitur yang paling sering digunakan.</p>
+
+<p>Bila kita termasuk golongan yang 20%, kita harus belajar lebih giat supaya paham bagaimana mengatasi kondisi minoritas tersebut.</p>
+
+<p>Sebagai contoh, kalau kita menggunakan Jasper Report, ada fitur yang disebut dengan <a href="http://community.jaspersoft.com/wiki/comparison-report-virtualizers">Virtualizer</a> untuk membuat report berukuran besar. Pastikan kita sudah memahami kasus-kasus khusus ini.</p>
+
+<h2>Inisialisasi object besar di dalam loop</h2>
+
+<p>Perhatikan contoh kode di bawah</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">ApplicationContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;konfig-spring.xml&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">ProdukDao</span> <span class="n">pd</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">ProdukDao</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">pd</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>ApplicationContext</code> merupakan object Spring Framework yang berisi seluruh konfigurasi aplikasi. Isinya :</p>
+
+<ul>
+<li>konfigurasi database</li>
+<li>mapping ORM (kalau pakai ORM)</li>
+<li>semua object yang dimanage Spring</li>
+</ul>
+
+
+<p>Intinya, ini adalah object yang besar sekali dan sangat kompleks. Object seperti ini biasanya hanya dibuat sekali saja sepanjang aplikasi dijalankan. Bila kita taruh dalam method seperti di atas, maka tiap kali ada user simpan data produk, object besar tersebut akan dibuat, sehingga menghabiskan memori.</p>
+
+<p>Pesan moralnya, pahami library yang digunakan supaya tahu karakteristik dan cara kerjanya.</p>
+
+<h2>Penggunaan collection yang kurang benar</h2>
+
+<p>Collection (Set, Map, List) adalah object yang menampung object lain. Kita harus memastikan bahwa object ini berada dalam scope yang benar. Lihat kode program berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Coba</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">noSurat</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;();</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Integer</span> <span class="n">noTerakhir</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">bikinSuratBaru</span><span class="o">(){</span>
+</span><span class='line'>        <span class="n">noTerakhir</span><span class="o">++;</span>
+</span><span class='line'>        <span class="n">noSurat</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">noTerakhir</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada kode di atas, <code>noSurat</code> memiliki scope static, sehingga dia akan terus ada selama aplikasi berjalan. Bila aplikasi tidak mati dalam waktu yang lama, dan dalam sehari ada 1 juta surat baru, tinggal tunggu waktu saja sampai kena OOM.</p>
+
+<h1>Panduan Solusi Umum</h1>
+
+<p>Selain yang disebutkan di atas, masih banyak penyebab lain, yang paling sering terjadi adalah yang dibahas di atas. Kalau penyebab OOM tidak kita atasi, berapapun memori yang kita sediakan (melalui <code>Xms</code> dan <code>Xmx</code>) tidak akan cukup. Inilah sebabnya saya katakan bahwa <code>Xms</code> dan <code>Xmx</code> itu bukan solusi untuk OOM. Yang harus kita lakukan adalah <strong>mengendalikan pemakaian</strong> memori, bukan <strong>menambah</strong> memori.</p>
+
+<p>Jadi kalau menemukan OOM, coba dicek lagi kode programnya.
+Tidak perlu pakai VisualVM atau tools2 lain, cukup code review aja.</p>
+
+<p>Dibaca satu2 source codenya, untuk tiap baris, tanyakan pertanyaan ini :</p>
+
+<ol>
+<li>Method/statement ini akan dipanggil seberapa sering?</li>
+<li>Looping ini akan berputar maksimal berapa kali?</li>
+<li>Berapa kira2 ukuran tiap row yang ditarik dalam query? Sekali tarik berapa row?</li>
+<li>Setelah saya tarik row, kapan dia selesai digunakan? Apakah nunggu PDF jadi dulu baru selesai (inilah kandidat OOM), atau tiap selesai satu halaman PDF sudah bisa direlease?</li>
+</ol>
+
+
+<p>Mudah-mudahan dengan adanya artikel ini tidak ada lagi orang yang mengobati OOM dengan <code>System.gc</code> atau <code>Xmx</code>.</p>
+
+<h2>Referensi</h2>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mengetes Akses Database]]></title>
@@ -5729,75 +5954,6 @@ Sisi positifnya :</p>
 <h1>Penutup</h1>
 
 <p>Sebetulnya sedih juga berpisah dengan Wordpress yang telah setia menemani hampir 7 tahun lamanya, tapi life must go on. Wordpress, terima kasih atas kebersamaan selama 7 tahun ini. Mudah-mudahan engkau akan berevolusi lebih baik lagi sehingga di lain waktu kita bisa bersama lagi.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Konsep Dasar Log4j]]></title>
-    <link href="http://software.endy.muhardin.com/java/konsep-dasar-log4/"/>
-    <updated>2012-07-30T20:59:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/konsep-dasar-log4</id>
-    <content type="html"><![CDATA[<p>Walaupun sudah dibuatkan <a href="http://endy.artivisi.com/blog/java/menggunakan-log4j">minibook</a>, tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.</p>
-
-<!--more-->
-
-
-<p>Ada beberapa komponen penting dalam aplikasi logging :</p>
-
-<ul>
-<li><p>logger : ini adalah yang kita gunakan di aplikasi untuk mengeluarkan pesan.
-tadinya System.out.println(&#8220;Coba&#8221;);
-diganti menjadi logger.info(&#8220;Coba&#8221;);</p></li>
-<li><p>appender : komponen yang bertugas menampilkan log message
-misalnya : console appender : menampilkan ke System.out
-File appender : menulis log ke file
-Rolling file appender : menulis ke file, lalu dirolling berdasarkan kriteria tertentu (size atau time)
-misalnya, setelah mencapai 1 MB, tulis ke file berbeda, atau tiap 1 jam ganti file</p></li>
-<li><p>category : ini adalah sumber log message, yaitu package atau realm.
-<strong>biasanya</strong> category == package
-Ini digunakan untuk memfilter log mana yang akan ditampilkan ke appender mana</p></li>
-</ul>
-
-
-<p>Selain 3 komponen itu, ada terminologi yang namanya level.
-Contoh level : error, warn, info, debug, trace
-Level ini berlaku bertingkat, jadi kalau kita bilang info, artinya info, warn, error.
-Kalau kita bilang debug, maka hasilnya debug, info, warn, error.</p>
-
-<p>Log message ditampilkan atau tidak, tergantung category dan level.</p>
-
-<p>Contoh kasus :
-Saya membuat aplikasi, berisi package com.artivisi.belajar.logging.
-Isinya ada 2 class, Coba dan Halo.</p>
-
-<p>Aplikasi saya ini menggunakan framework Spring, yang mana berisi package org.springframework, yang berisi banyak sub package, seperti org.springframework.core, org.springframework.jdbc, dsb.</p>
-
-<p>Untuk source code yang saya tulis sendiri (Coba dan Halo), saya ingin menampilkan level debug, karena masih fase development. Nantinya kalau sudah production, cukup level warn saja yang ditampilkan.
-Sedangkan untuk library Spring Framework, cukup level error saja yang ditampilkan.</p>
-
-<p>Semua log message ditampilkan ke terminal, supaya mudah diamati.</p>
-
-<p>Contoh kasus di atas, bila kita menggunakan log4j akan dikonfigurasi sebagai berikut :</p>
-
-<div><script src='https://gist.github.com/3205393.js'></script>
-<noscript><pre><code># by default, levelnya adalah INFO, tampilkan ke System.out
-log4j.rootLogger=INFO,Konsole 
-
-# untuk package com.artivisi, tampilkan level DEBUG ke System.out
-log4j.logger.com.artivisi=DEBUG,Konsole
-
-# untuk spring, error saja yang ditampilkan
-log4j.logger.org.springframework=ERROR,Konsole
-
-# Appender Konsole adalah System.out
-log4j.appender.Konsole=org.apache.log4j.ConsoleAppender 
-log4j.appender.Konsole.layout=org.apache.log4j.PatternLayout 
-# Format tanggal menurut ISO­8601 : %d 
-log4j.appender.Konsole.layout.ConversionPattern=%d [%t] %­5p %c ­ %m%n
-</code></pre></noscript></div>
-
-
-<p>Konfigurasi di atas harus dibuat dengan nama log4j.properties, dan diletakkan di dalam classpath. Kalau namanya tidak sama atau lokasinya salah, maka tidak akan dibaca oleh Log4J.</p>
 ]]></content>
   </entry>
   

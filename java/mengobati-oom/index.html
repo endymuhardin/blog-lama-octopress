@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Mengobati OOM - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Beberapa waktu belakangan ini, di milis mulai banyak bermunculan pertanyaan yang berkaitan dengan Out Of Memory Error (OOM).
+Error ini biasanya &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/mengobati-oom/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Mengobati OOM</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-08T22:25:00+07:00" pubdate data-updated="true">Jun 8<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Beberapa waktu belakangan ini, di milis mulai banyak bermunculan pertanyaan yang berkaitan dengan Out Of Memory Error (OOM).
+Error ini biasanya terjadi bila data dalam aplikasi sudah besar (melebihi 2 GB), dan umumnya terjadi pada saat membuat report PDF/XLS/CSV, dsb.</p>
+
+<p>Biasanya juga, <em>obat yang dikonsumsi</em> oleh penderita OOM ini ada dua:</p>
+
+<ul>
+<li>Mengatur alokasi memori dengan opsi <code>Xms</code> dan <code>Xmx</code></li>
+<li>Menggunakan perintah <code>System.gc()</code></li>
+</ul>
+
+
+<p>Sayangnya, kedua <em>obat</em> ini tidak akan menyelesaikan masalah. Analoginya seperti kita kena infeksi otak, lalu minum Panadol. Sakit kepalanya mungkin akan hilang sementara waktu, tapi tidak lama kemudian justru akibatnya lebih fatal.</p>
+
+<p>Lalu bagaimana solusinya?</p>
+
+<!--more-->
+
+
+<h1>Salah Kaprah tentang OOM</h1>
+
+<p>Pertama, saya luruskan dulu mengenai <code>System.gc</code>.
+Intinya begini</p>
+
+<blockquote><p>System.gc() hanya boleh dipakai dengan satu (dan hanya satu-satunya) syarat:
+Yaitu pada waktu sudah bisa menjelaskan ke orang lain bagaimana cara kerja garbage collector dan sudah paham apa itu JVM Ergonomics.</p></blockquote>
+
+<p>Next time mau mengetik System.gc, tanyakan pada diri sendiri, apakah saya sudah paham JVM Ergonomics dan bisa menjelaskannya ke orang lain? Kalau jawabannya belum, jangan diteruskan mengetik System.gc().</p>
+
+<blockquote><p>Lalu apa itu <code>System.gc</code> dan kapan digunakan?</p></blockquote>
+
+<p>Kan sudah dijelaskan di atas, pelajari cara kerja garbage collector dan apa itu JVM ergonomics.</p>
+
+<p>Satu lagi salah kaprah yang harus dibenahi :
+opsi <code>Xms</code> dan <code>Xmx</code> itu gunanya adalah <strong>UNTUK MEMAKSIMALKAN PENGGUNAAN MEMORI</strong>.
+<code>Xms</code> dan <code>Xms</code> <strong>BUKAN SOLUSI UNTUK MASALAH OOM</strong>.</p>
+
+<p>Masalah OOM itu ada di kode program kita sendiri, jadi carilah solusinya di kode program kita sendiri.
+Penyebab OOM itu juga cuma satu : aplikasi kita menggunakan memori lebih besar daripada yang tersedia.
+Besar pasak daripada tiang.</p>
+
+<ol>
+<li>Memori tersedia 4 GB, aplikasi kita pakai 4.1 GB => OOM</li>
+<li>Memori tersedia 2 GB, aplikasi kita pakai 1.5 GB => No OOM padahal lebih kecil dari #1</li>
+<li>RAM fisik ada 16 GB, tapi aplikasi kita cuma bisa memanfaatkan 2 GB => gunakan <code>Xms</code> dan <code>Xmx</code>.</li>
+</ol>
+
+
+<h1>Penyebab OOM dan Solusinya</h1>
+
+<p>Beberapa penyebab umum terjadinya OOM :</p>
+
+<h2>Unbounded Query</h2>
+
+<p>Unbounded query adalah query yang tidak kita batasi jumlahnya.
+Contohnya <code>select * from tbl_penjualan</code>. Kalau data penjualan hanya 1000 transaksi, no problem. Kalau transaksinya ada 10 juta record dalam satu hari, ya pasti langsung kena OOM.</p>
+
+<p>Solusinya : pastikan selalu menggunakan paging. Ganti querynya menjadi <code>select * from tbl_penjualan limit 0,20</code> sehingga cuma mengeluarkan 20 record, berapapun banyaknya data dalam tabel.</p>
+
+<h2>Generate File</h2>
+
+<p>Seringkali kita ingin menghasilkan file report. Misalnya laporan penjualan bulan ini, berapapun data yang ada di tabel untuk periode bulan ini, harus ditulis ke file. File ini bisa berupa PDF, XLS, XML, CSV, dan sebagainya.</p>
+
+<p>Format file tidak masalah. Yang menjadi masalah adalah cara membuatnya. Ada beberapa kesalahan umum :</p>
+
+<ul>
+<li>mengumpulkan data di variabel sebelum menulis file</li>
+<li>tidak melepas data yang sudah diproses</li>
+<li>tidak paham cara kerja report engine</li>
+</ul>
+
+
+<h3>Mengumpulkan data di variabel</h3>
+
+<p>Contoh pseudocode seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Penjualan</span><span class="o">&gt;();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// resultset adalah cursor, dia hanya baca apa yang ditarik saja</span>
+</span><span class='line'><span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">createStatement</span><span class="o">(</span><span class="s">&quot;select * from tbl_penjualan&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">while</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">()){</span>
+</span><span class='line'>    <span class="n">Penjualan</span> <span class="n">p</span> <span class="o">=</span> <span class="n">konversiResultSetJadiPenjualan</span><span class="o">(</span><span class="n">rs</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">data</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Coding di atas akan mengumpulkan semua record di variabel <code>data</code>.
+Bila ada 1 juta record yang dihasilkan oleh query dengan masing-masing record berukuran 1 KB,
+maka variabel data tersebut akan berukuran 1 GB. Kalau Java VM kita berikan alokasi 2 GB, cuma butuh 3 user untuk menimbulkan OOM.
+Menaikkan alokasi menjadi 8 GB melalui <code>Xms</code> dan <code>Xmx</code> tidak akan membantu banyak.</p>
+
+<h3>Tidak melepas data yang sudah diproses</h3>
+
+<p>Ini biasanya terjadi kalau kita menulis sendiri file output. Perhatikan contoh kode berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">createStatement</span><span class="o">(</span><span class="s">&quot;select * from tbl_penjualan&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">File</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;output.csv&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="k">while</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">()){</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">baris</span> <span class="o">=</span> <span class="n">konversiResultSetJadiString</span><span class="o">(</span><span class="n">rs</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">output</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">baris</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">output</span><span class="o">.</span><span class="na">flush</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Menulis file ada bermacam-macam. Ada yang menggunakan buffer ada yang tidak. Pastikan kita mengosongkan buffer setiap kali iterasi supaya tidak penuh, biasanya dengan method <code>flush</code> atau sejenisnya.</p>
+
+<h3>Tidak paham cara kerja report engine</h3>
+
+<p>Dalam mendesain library yang dipakai orang banyak, biasanya si pembuat akan melakukan optimasi untuk penggunaan yang sering terjadi.
+Misalnya 80% orang membuat PDF berukuran 10 halaman atau lebih sedikit, 20% sisanya membuat 1000 halaman atau lebih.
+Pada situasi ini, pembuat library report yang baik pasti akan memudahkan pembuatan 10 halaman report karena itulah fitur yang paling sering digunakan.</p>
+
+<p>Bila kita termasuk golongan yang 20%, kita harus belajar lebih giat supaya paham bagaimana mengatasi kondisi minoritas tersebut.</p>
+
+<p>Sebagai contoh, kalau kita menggunakan Jasper Report, ada fitur yang disebut dengan <a href="http://community.jaspersoft.com/wiki/comparison-report-virtualizers">Virtualizer</a> untuk membuat report berukuran besar. Pastikan kita sudah memahami kasus-kasus khusus ini.</p>
+
+<h2>Inisialisasi object besar di dalam loop</h2>
+
+<p>Perhatikan contoh kode di bawah</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Produk</span> <span class="n">p</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">ApplicationContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;konfig-spring.xml&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">ProdukDao</span> <span class="n">pd</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">ProdukDao</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">pd</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">p</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>ApplicationContext</code> merupakan object Spring Framework yang berisi seluruh konfigurasi aplikasi. Isinya :</p>
+
+<ul>
+<li>konfigurasi database</li>
+<li>mapping ORM (kalau pakai ORM)</li>
+<li>semua object yang dimanage Spring</li>
+</ul>
+
+
+<p>Intinya, ini adalah object yang besar sekali dan sangat kompleks. Object seperti ini biasanya hanya dibuat sekali saja sepanjang aplikasi dijalankan. Bila kita taruh dalam method seperti di atas, maka tiap kali ada user simpan data produk, object besar tersebut akan dibuat, sehingga menghabiskan memori.</p>
+
+<p>Pesan moralnya, pahami library yang digunakan supaya tahu karakteristik dan cara kerjanya.</p>
+
+<h2>Penggunaan collection yang kurang benar</h2>
+
+<p>Collection (Set, Map, List) adalah object yang menampung object lain. Kita harus memastikan bahwa object ini berada dalam scope yang benar. Lihat kode program berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Coba</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">noSurat</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;();</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Integer</span> <span class="n">noTerakhir</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">bikinSuratBaru</span><span class="o">(){</span>
+</span><span class='line'>        <span class="n">noTerakhir</span><span class="o">++;</span>
+</span><span class='line'>        <span class="n">noSurat</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">noTerakhir</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada kode di atas, <code>noSurat</code> memiliki scope static, sehingga dia akan terus ada selama aplikasi berjalan. Bila aplikasi tidak mati dalam waktu yang lama, dan dalam sehari ada 1 juta surat baru, tinggal tunggu waktu saja sampai kena OOM.</p>
+
+<h1>Panduan Solusi Umum</h1>
+
+<p>Selain yang disebutkan di atas, masih banyak penyebab lain, yang paling sering terjadi adalah yang dibahas di atas. Kalau penyebab OOM tidak kita atasi, berapapun memori yang kita sediakan (melalui <code>Xms</code> dan <code>Xmx</code>) tidak akan cukup. Inilah sebabnya saya katakan bahwa <code>Xms</code> dan <code>Xmx</code> itu bukan solusi untuk OOM. Yang harus kita lakukan adalah <strong>mengendalikan pemakaian</strong> memori, bukan <strong>menambah</strong> memori.</p>
+
+<p>Jadi kalau menemukan OOM, coba dicek lagi kode programnya.
+Tidak perlu pakai VisualVM atau tools2 lain, cukup code review aja.</p>
+
+<p>Dibaca satu2 source codenya, untuk tiap baris, tanyakan pertanyaan ini :</p>
+
+<ol>
+<li>Method/statement ini akan dipanggil seberapa sering?</li>
+<li>Looping ini akan berputar maksimal berapa kali?</li>
+<li>Berapa kira2 ukuran tiap row yang ditarik dalam query? Sekali tarik berapa row?</li>
+<li>Setelah saya tarik row, kapan dia selesai digunakan? Apakah nunggu PDF jadi dulu baru selesai (inilah kandidat OOM), atau tiap selesai satu halaman PDF sudah bisa direlease?</li>
+</ol>
+
+
+<p>Mudah-mudahan dengan adanya artikel ini tidak ada lagi orang yang mengobati OOM dengan <code>System.gc</code> atau <code>Xmx</code>.</p>
+
+<h2>Referensi</h2>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-08T22:25:00+07:00" pubdate data-updated="true">Jun 8<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/mengobati-oom/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/mengobati-oom/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/mengetes-akses-database/" title="Previous Post: Mengetes Akses Database">&laquo; Mengetes Akses Database</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/mengobati-oom/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/mengobati-oom/">Mengobati OOM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mengetes-akses-database/">Mengetes Akses Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/training-cmmi/">Training CMMI</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
