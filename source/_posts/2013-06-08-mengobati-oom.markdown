@@ -178,5 +178,5 @@ Mudah-mudahan dengan adanya artikel ini tidak ada lagi orang yang mengobati OOM 
 
 ## Referensi ##
 
-
+* [How to fix memory leaks in Java](http://java.dzone.com/news/how-fix-memory-leaks-java)
 
