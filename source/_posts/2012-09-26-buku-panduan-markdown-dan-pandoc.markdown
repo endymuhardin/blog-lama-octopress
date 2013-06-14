@@ -12,6 +12,6 @@ Menyusul [postingan sebelumnya](http://software.endy.muhardin.com/aplikasi/membu
 Buku ini tentu saja ditulis menggunakan Markdown dan dikonversi ke PDF menggunakan Pandoc. Silahkan digunakan:
 
 * Source code ada di [Github](https://github.com/endymuhardin/buku-pandoc)
-* Hasil PDF yang sudah jadi bisa diunduh [di sini](http://endy.muhardin.googlepages.com/markdown-dan-pandoc.pdf).
+* Hasil PDF yang sudah jadi bisa diunduh [di sini](https://raw.github.com/endymuhardin/buku-pandoc/master/buku/markdown-dan-pandoc.pdf).
 
 Semoga bermanfaat.
