@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Enkripsi Password Database dengan Jasypt Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk &hellip;">
+  <meta name="description" content="Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -115,85 +115,189 @@
   </header>
 
 
-<div class="entry-content"><p>Enkripsi Password Database dengan Jasypt</p>
+<div class="entry-content"><p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
 
-<p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url = jdbc:mysql://localhost/belajar
+</span><span class='line'>jdbc.username = belajar
+</span><span class='line'>jdbc.password = java</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = java
-</code></pre>
 
 <p>Cepat atau lambat, kita akan menemui kebutuhan untuk menyembunyikan nilai yang diisikan ke dalam file tersebut untuk alasan keamanan. Tentunya kita tidak ingin orang yang bisa membaca file tersebut login ke database dan melihat berbagai data rahasia dalam database.</p>
 
-<p>Kita ingin mengenkripsi minimal variabel jdbc.password, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan Jasypt yang mampu menangani masalah enkripsi file tersebut.</p>
+<p>Kita ingin mengenkripsi minimal variabel <code>jdbc.password</code>, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan <a href="http://www.jasypt.org/">Jasypt</a> yang mampu menangani masalah enkripsi file tersebut.</p>
 
-<p>Biasanya, kita membaca file jdbc.properties di dalam konfigurasi Spring, seperti ini.</p>
+<!--more-->
 
-<pre><code>&lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
-</code></pre>
 
-<p>atau dalam versi yang lebih konvensional, seperti ini</p>
+<p>Bila kita menggunakan Maven, tambahkan dependensi Jasypt sebagai berikut</p>
 
-<pre><code>&lt;bean id="propertyConfigurer" 
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"&gt;
-    &lt;property name="location" value="classpath:jdbc.properties"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;groupId&gt;</span>org.jasypt<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;artifactId&gt;</span>jasypt-spring31<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;version&gt;</span>1.9.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>dan menggunakannya dalam konfigurasi dataSource seperti ini.</p>
 
-<pre><code>&lt;bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"&gt;
-    &lt;property name="driverClassName" value="${jdbc.driver}"&gt;&lt;/property&gt;
-    &lt;property name="url" value="${jdbc.url}"&gt;&lt;/property&gt;
-    &lt;property name="username" value="${jdbc.username}"&gt;&lt;/property&gt;
-    &lt;property name="password" value="${jdbc.password}"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
+<p>Sesuaikan versinya dengan yang terbaru.</p>
+
+<p>Biasanya, kita membaca file <code>jdbc.properties</code> di dalam konfigurasi Spring, seperti ini.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;context:property-placeholder</span> <span class="na">location=</span><span class="s">&quot;classpath:jdbc.properties&quot;</span><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kemudian menggunakannya dalam konfigurasi dataSource seperti ini.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DriverManagerDataSource&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;driverClassName&quot;</span> <span class="na">value=</span><span class="s">&quot;${jdbc.driver}&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;url&quot;</span> <span class="na">value=</span><span class="s">&quot;${jdbc.url}&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;${jdbc.username}&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;${jdbc.password}&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Dengan menggunakan Jasypt, kita dapat mengenkripsi jdbc.properties sehingga menjadi seperti ini.</p>
 
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = ENC(y5+6JdRA4Xv/qbYjmYdo7A==)
-</code></pre>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>jdbc.driver = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url = jdbc:mysql://localhost/belajar
+</span><span class='line'>jdbc.username = belajar
+</span><span class='line'>jdbc.password = ENC(fSz7P5zYRnhsonKoKvxNmw==)
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Agar jdbc.password bisa dibaca dengan baik, kita ganti PropertyPlaceholderConfigurer dengan miliknya Jasypt, sehingga konfigurasi Spring kita menjadi seperti ini.</p>
 
-<pre><code>&lt;bean class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"&gt;
-    &lt;constructor-arg&gt;
-        &lt;bean class="org.jasypt.util.text.BasicTextEncryptor"&gt;
-        &lt;property name="password" value="test1234"/&gt;
-        &lt;/bean&gt;
-    &lt;/constructor-arg&gt;
-    &lt;property name="locations"&gt;
-        &lt;list&gt;
-        &lt;value&gt;classpath:jdbc.properties&lt;/value&gt;
-        &lt;/list&gt;
-    &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
+<p>Agar variabel <code>jdbc.password</code> bisa dibaca dengan baik, kita ganti <code>PropertyPlaceholderConfigurer</code> dengan miliknya Jasypt, sehingga konfigurasi Spring kita menjadi seperti ini.</p>
 
-<p>Terakhir, bagaimana cara kita mengetahui bahwa hasil enkripsi dari &#8216;java&#8217; adalah &#8216;y5+6JdRA4Xv/qbYjmYdo7A==&#8217; ??
-Gampang, buat saja kode Java sederhana seperti ini.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;jasypt:encryptor-config</span>
+</span><span class='line'>    <span class="na">id=</span><span class="s">&quot;encryptorConfig&quot;</span>
+</span><span class='line'>    <span class="na">password=</span><span class="s">&quot;test123&quot;</span>
+</span><span class='line'>    <span class="na">algorithm=</span><span class="s">&quot;PBEWithMD5AndTripleDES&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;jasypt:string-encryptor</span>
+</span><span class='line'>    <span class="na">id=</span><span class="s">&quot;stringEncryptor&quot;</span>
+</span><span class='line'>    <span class="na">config-bean=</span><span class="s">&quot;encryptorConfig&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;jasypt:encryptable-property-placeholder</span>
+</span><span class='line'>    <span class="na">encryptor=</span><span class="s">&quot;stringEncryptor&quot;</span>
+</span><span class='line'>    <span class="na">location=</span><span class="s">&quot;classpath:jdbc.properties&quot;</span><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>public class Main {
 
-    public static void main(String[] args) {
-        String encryptionPassword = "test1234";
-        BasicTextEncryptor encryptor = new BasicTextEncryptor();
-        encryptor.setPassword(encryptionPassword);
+<p>Cukup itu saja perubahannya. Konfigurasi <code>dataSource</code> di atas tidak perlu diubah.</p>
 
-        String jdbcPassword = "java";
+<p>Bagaimana cara kita mengetahui bahwa hasil enkripsi dari <code>java</code> adalah <code>fSz7P5zYRnhsonKoKvxNmw==</code> ??
+Gampang, buat saja kode Java sederhana seperti ini. Bisa dibuat dalam method <code>public static void main(String[] xx)</code> ataupun dalam JUnit test.</p>
 
-        System.out.println("String "+jdbcPassword+" diencrypt menjadi : "+encryptor.encrypt(jdbcPassword));
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">StandardPBEStringEncryptor</span> <span class="n">encryptor</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StandardPBEStringEncryptor</span><span class="o">();</span>
+</span><span class='line'><span class="n">encryptor</span><span class="o">.</span><span class="na">setPassword</span><span class="o">(</span><span class="s">&quot;test123&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">encryptor</span><span class="o">.</span><span class="na">setAlgorithm</span><span class="o">(</span><span class="s">&quot;PBEWithMD5AndTripleDES&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">encryptedText</span> <span class="o">=</span> <span class="n">encryptor</span><span class="o">.</span><span class="na">encrypt</span><span class="o">(</span><span class="s">&quot;java&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Encrypted Password : [&quot;</span><span class="o">+</span><span class="n">encryptedText</span><span class="o">+</span><span class="s">&quot;]&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">String</span> <span class="n">decrypted</span> <span class="o">=</span> <span class="n">encryptor</span><span class="o">.</span><span class="na">decrypt</span><span class="o">(</span><span class="n">encryptedText</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Decrypted Password : [&quot;</span><span class="o">+</span><span class="n">decrypted</span><span class="o">+</span><span class="s">&quot;]&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
-    }
 
-}
-</code></pre>
+<p>Bila dijalankan, kode program di atas akan menghasilkan output seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Encrypted</span> <span class="n">Password</span> <span class="o">:</span> <span class="o">[</span><span class="n">fSz7P5zYRnhsonKoKvxNmw</span><span class="o">==]</span>
+</span><span class='line'><span class="n">Decrypted</span> <span class="n">Password</span> <span class="o">:</span> <span class="o">[</span><span class="n">java</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nilai itulah yang kita copy-paste ke dalam <code>jdbc.properties</code>.</p>
+
+<p>Pembaca yang teliti belum puas dengan penjelasan ini, biasanya bertanya</p>
+
+<blockquote><p>Lalu kalau passwordnya tetap kita tulis di file konfigurasi apa manfaatnya?<br/>Orang yang membaca file tersebut tinggal menjalankan Jasypt seperti contoh kode di atas, <br/>dan dia akan mendapatkan password yang sebenarnya.</p></blockquote>
+
+
+<p>Nah, benar juga.</p>
+
+<p>Untungnya, Jasypt sudah menyediakan fitur lain. Kita bisa menyediakan password melalui environment variable.
+Ubah konfigurasi di atas menjadi seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;encryption:encryptor-config</span>
+</span><span class='line'>    <span class="na">id=</span><span class="s">&quot;encryptorConfig&quot;</span>
+</span><span class='line'>    <span class="na">password-env-name=</span><span class="s">&quot;PASSWORD_APLIKASI&quot;</span>
+</span><span class='line'>    <span class="na">algorithm=</span><span class="s">&quot;PBEWithMD5AndTripleDES&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;jasypt:string-encryptor</span>
+</span><span class='line'>    <span class="na">id=</span><span class="s">&quot;stringEncryptor&quot;</span>
+</span><span class='line'>    <span class="na">config-bean=</span><span class="s">&quot;encryptorConfig&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;jasypt:encryptable-property-placeholder</span>
+</span><span class='line'>    <span class="na">encryptor=</span><span class="s">&quot;stringEncryptor&quot;</span>
+</span><span class='line'>    <span class="na">location=</span><span class="s">&quot;classpath:jdbc.properties&quot;</span><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dengan konfigurasi di atas, password encryptor (<code>test123</code> pada contoh sebelumnya) tidak lagi ditulis di file konfigurasi.
+Jasypt akan mencari environment variable bernama <code>PASSWORD_APLIKASI</code>. Jadi, langkah-langkah menjalankan aplikasinya adalah sebagai berikut:</p>
+
+<ol>
+<li>Set environment variabel. Di Linux perintahnya <code>export PASSWORD_APLIKASI=test123</code>. Di Windows <code>set PASSWORD_APLIKASI=test123</code>.</li>
+<li>Jalankan aplikasi di command prompt yang sama</li>
+<li>Supaya aman, hapus lagi environment variable. Di Linux perintahnya <code>unset PASSWORD_APLIKASI</code>. Di Windows, cukup diset dengan nilai kosong saja <code>set PASSWORD_APLIKASI=""</code>.</li>
+</ol>
+
 </div>
 
 

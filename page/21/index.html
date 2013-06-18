@@ -254,87 +254,28 @@ sudo reboot
   </header>
 
 
-  <div class="entry-content"><p>Enkripsi Password Database dengan Jasypt</p>
+  <div class="entry-content"><p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
 
-<p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url = jdbc:mysql://localhost/belajar
+</span><span class='line'>jdbc.username = belajar
+</span><span class='line'>jdbc.password = java</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = java
-</code></pre>
 
 <p>Cepat atau lambat, kita akan menemui kebutuhan untuk menyembunyikan nilai yang diisikan ke dalam file tersebut untuk alasan keamanan. Tentunya kita tidak ingin orang yang bisa membaca file tersebut login ke database dan melihat berbagai data rahasia dalam database.</p>
 
-<p>Kita ingin mengenkripsi minimal variabel jdbc.password, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan Jasypt yang mampu menangani masalah enkripsi file tersebut.</p>
+<p>Kita ingin mengenkripsi minimal variabel <code>jdbc.password</code>, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan <a href="http://www.jasypt.org/">Jasypt</a> yang mampu menangani masalah enkripsi file tersebut.</p>
 
-<p>Biasanya, kita membaca file jdbc.properties di dalam konfigurasi Spring, seperti ini.</p>
-
-<pre><code>&lt;context:property-placeholder location="classpath:jdbc.properties"/&gt;
-</code></pre>
-
-<p>atau dalam versi yang lebih konvensional, seperti ini</p>
-
-<pre><code>&lt;bean id="propertyConfigurer" 
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"&gt;
-    &lt;property name="location" value="classpath:jdbc.properties"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>dan menggunakannya dalam konfigurasi dataSource seperti ini.</p>
-
-<pre><code>&lt;bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"&gt;
-    &lt;property name="driverClassName" value="${jdbc.driver}"&gt;&lt;/property&gt;
-    &lt;property name="url" value="${jdbc.url}"&gt;&lt;/property&gt;
-    &lt;property name="username" value="${jdbc.username}"&gt;&lt;/property&gt;
-    &lt;property name="password" value="${jdbc.password}"&gt;&lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Dengan menggunakan Jasypt, kita dapat mengenkripsi jdbc.properties sehingga menjadi seperti ini.</p>
-
-<pre><code>jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/belajar
-jdbc.username = belajar
-jdbc.password = ENC(y5+6JdRA4Xv/qbYjmYdo7A==)
-</code></pre>
-
-<p>Agar jdbc.password bisa dibaca dengan baik, kita ganti PropertyPlaceholderConfigurer dengan miliknya Jasypt, sehingga konfigurasi Spring kita menjadi seperti ini.</p>
-
-<pre><code>&lt;bean class="org.jasypt.spring.properties.EncryptablePropertyPlaceholderConfigurer"&gt;
-    &lt;constructor-arg&gt;
-        &lt;bean class="org.jasypt.util.text.BasicTextEncryptor"&gt;
-        &lt;property name="password" value="test1234"/&gt;
-        &lt;/bean&gt;
-    &lt;/constructor-arg&gt;
-    &lt;property name="locations"&gt;
-        &lt;list&gt;
-        &lt;value&gt;classpath:jdbc.properties&lt;/value&gt;
-        &lt;/list&gt;
-    &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Terakhir, bagaimana cara kita mengetahui bahwa hasil enkripsi dari &#8216;java&#8217; adalah &#8216;y5+6JdRA4Xv/qbYjmYdo7A==&#8217; ??
-Gampang, buat saja kode Java sederhana seperti ini.</p>
-
-<pre><code>public class Main {
-
-    public static void main(String[] args) {
-        String encryptionPassword = "test1234";
-        BasicTextEncryptor encryptor = new BasicTextEncryptor();
-        encryptor.setPassword(encryptionPassword);
-
-        String jdbcPassword = "java";
-
-        System.out.println("String "+jdbcPassword+" diencrypt menjadi : "+encryptor.encrypt(jdbcPassword));
-
-    }
-
-}
-</code></pre>
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/java/enkripsi-jdbc-properties/">Read on &rarr;</a>
+    </footer>
   
 
 
