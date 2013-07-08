@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Mengakses EJB secara Remote Beberapa buku tentang EJB, seperti EJB 3 in Action karangan Reza Rahman maupun Enterprise Java Beans 3.0 karangan Bill &hellip;">
+  <meta name="description" content="Integrasi Aplikasi Pusat Cabang - Bagian I Beberapa waktu yang lalu, kami di ArtiVisi dihadapkan pada suatu tantangan, yaitu sinkronisasi aplikasi &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,175 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-1/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 1]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-11T21:39:48+07:00" pubdate data-updated="true">Jun 11<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Integrasi Aplikasi Pusat Cabang - Bagian I</p>
+
+<p>Beberapa waktu yang lalu, kami di ArtiVisi dihadapkan pada suatu tantangan, yaitu sinkronisasi aplikasi antara pusat dan cabang.
+Aplikasi pusat maupun cabang memiliki database masing-masing, dan tentunya data transaksi masing-masing pula.</p>
+
+<p>Pada artikel ini, saya akan mengelaborasi proses problem solving yang dilakukan, solusi yang dipilih, dan tentunya dilengkapi dengan source code.</p>
+
+<h3>Use Case</h3>
+
+<p>Ada beberapa use case yang ingin didukung oleh aplikasi, sebagai berikut :</p>
+
+<ul>
+<li><p>Pusat menambahkan jenis produk baru, data ini harus segera diimplementasikan juga di cabang</p></li>
+<li><p>Transaksi yang dilakukan di cabang harus dikirim ke pusat agar bisa dibuatkan laporan keseluruhan</p></li>
+<li><p>Data pelanggan di cabang harus juga dikirim ke pusat</p></li>
+<li><p>Perpindahan stok barang dari pusat ke cabang dan sebaliknya</p></li>
+</ul>
+
+
+<h3>Constraint</h3>
+
+<p>Bicara requirement, tentu tidak bisa dilepaskan dari constraint. Berikut constraint yang ada :</p>
+
+<ul>
+<li><p>Pusat dan cabang sama-sama terhubung ke internet menggunakan Speedy</p></li>
+<li><p>Karena pakai Speedy, kita bisa mengekspose satu mesin ke internet menggunakan IP Public</p></li>
+<li><p>IP Public tidak dedicated, dan mungkin berubah sewaktu-waktu</p></li>
+<li><p>Server aplikasi dan database di pusat/cabang belum tentu hidup. Kalaupun hidup, belum tentu hidup berbarengan.
+Bisa saja pusat sedang nyala, cabang mati lampu, dan sebaliknya.</p></li>
+</ul>
+
+
+<h3>Alternatif Solusi</h3>
+
+<p>Setelah kita memiliki requirement dan constraint, tahap berikutnya adalah membuat daftar alternatif solusi.
+Berikut adalah alternatif yang bisa kita lakukan untuk memecahkan masalah di atas.</p>
+
+<ul>
+<li><p>Remoting</p>
+
+<ul>
+<li><p>Web Services</p></li>
+<li><p>RMI</p></li>
+<li><p>HttpInvoker</p></li>
+</ul>
+</li>
+<li><p>Messaging</p>
+
+<ul>
+<li><p>JMS</p></li>
+<li><p>Email (POP3/IMAP dan SMTP)</p></li>
+</ul>
+</li>
+<li><p>File</p>
+
+<ul>
+<li><p>Shared Folder</p></li>
+<li><p>FTP</p></li>
+<li><p>SSH/SCP</p></li>
+</ul>
+</li>
+<li><p>Database</p>
+
+<ul>
+<li><p>Shared Database</p></li>
+<li><p>Replikasi Database</p></li>
+</ul>
+</li>
+</ul>
+
+
+<h3>Pemilihan Solusi</h3>
+
+<p>Jaringan publik melalui internet sangat tidak reliable dan memiliki banyak keterbatasan.
+Kita tidak bisa membuka sembarang port, karena mungkin saja diblokir di tengah jalan.
+Kita juga tidak bisa menggunakan protokol yang terlalu kompleks atau cerewet (membutuhkan transfer data yang sering).
+Oleh karena itu, kita bisa menyingkirkan alternatif berikut.</p>
+
+<ul>
+<li><p>Remoting dengan RMI : port tidak standar</p></li>
+<li><p>Messaging dengan JMS : port tidak standar</p></li>
+<li><p>Replikasi MySQL : protokol terlalu kompleks dan cerewet, port tidak standar</p></li>
+</ul>
+
+
+<p>Kita harus mempertimbangkan konsumsi bandwidth. Protokol yang rakus bandwidth bisa kita singkirkan, yaitu Remoting dengan WS.</p>
+
+<p>Melihat constraint terakhir, kita juga harus mengeliminasi beberapa alternatif yang mengharuskan pusat dan cabang online bersamaan, yaitu Remoting dengan Spring HTTPInvoker dan File Transfer, baik FTP maupun SSH/SCP.</p>
+
+<p>Dengan demikian, yang tersisa adalah Messaging dengan Email. Kita bisa mengirim data dengan attachment. Untuk menghemat bandwidth, attachment bisa dikompresi. Pusat dan cabang bisa online kapanpun mereka mau, dan akan tetap menerima message. Kalau ada message yang hilang di tengah jalan, orang pusat/cabang bisa menelepon untuk minta dikirim ulang datanya.</p>
+
+<p>Sebagai bonus, dengan memilih email sebagai media transfer data, kita tidak perlu repot-repot mengelola infrastruktur sendiri. Kita bisa gunakan layanan GMail yang gratis, berkapasitas besar, dan memiliki implementasi POP3, IMAP, dan SMTP. Ada satu fitur istimewa dari IMAP, yaitu <a href="http://en.wikipedia.org/wiki/IMAP_IDLE">IMAP-Idle</a>. Fitur ini akan sangat berguna kelak di kemudian hari. Kebetulan <a href="http://samj.net/2008/07/proof-gmail-imap-gimap-supports-imap.html">GMail sudah mendukung fitur ini</a>.</p>
+
+<h3>Desain Implementasi</h3>
+
+<p>Baiklah, mari kita implementasikan sinkronisasi melalui email. Ada beberapa pertanyaan lanjutan. Pertama, apa yang ingin dikirim? Sebagai contoh sederhana, kita ingin mengirim data produk baru dari pusat ke cabang. Inilah class Produk.</p>
+
+<pre><code>public class Produk {
+  private Integer id;
+  private String kode;
+  private String nama;
+
+  // getter dan setter
+}
+</code></pre>
+
+<p>Bila kita membuat object Produk, datanya akan tersimpan di memori. Kita harus mengkonversi format data di memori ini ke bentuk file, supaya bisa dikirim dalam bentuk attachment. Ada beberapa pilihan lagi di sini, yaitu :</p>
+
+<ul>
+<li><p>java.io.Serializable, konversi dengan ObjectInputStream dan ObjectOutputStream</p></li>
+<li><p>JSON</p></li>
+<li><p>XML</p></li>
+</ul>
+
+
+<p>Serializable lebih unggul dalam hal kemudahan coding dan kecepatan marshall/unmarshall. Di Java menulis object ke file sangat mudah dan cepat. Prosesnya sama untuk apapun object yang ingin kita konversi. Untuk memproses konversi juga tidak dibutuhkan CPU dan Memori tinggi. Walaupun demikian, file yang dihasilkan berbentuk binary, sehingga menyulitkan debugging.</p>
+
+<p>JSON dan XML berbentuk text, sehingga mudah didebug kalau ada masalah. Walaupun demikian, kita harus membuat atau memilih dari yang ada implementasi generator dan parser untuk proses konversi. Proses konversinya butuh resource CPU dan memori. Dan yang paling penting, kita mungkin harus membuat generator/parser untuk tiap tipe data yang akan kita kirim.</p>
+
+<p>Sementara saya pilih JSON, karena ada <a href="http://json-lib.sourceforge.net/usage.html">json-lib</a> yang bisa mengkonversi object menjadi JSON dan sebaliknya dengan mudah.</p>
+
+<p>Selanjutnya, bagaimana cara mengirim email?</p>
+
+<p>Cara mengirim email dengan Java sudah ditunjukkan Ifnu <a href="http://ifnu.artivisi.com/?p=80">di sini</a>. Tapi saya tidak mau coding tangan kosong seperti itu. Bukan apa-apa, setiap baris kode yang kita tulis harus ditest dan dimaintain. Belum lagi kalo nanti ada perubahan requirement, bisa coding ulang.</p>
+
+<p>Nah, pertama saya memutuskan <a href="http://static.springframework.org/spring/docs/2.5.x/reference/mail.html">menggunakan Spring untuk mengirim email</a>. Ibaratnya kalau coding sendiri itu berkelahi dengan tangan kosong, pakai Spring berkelahi pakai pistol. Jauh lebih cepat dan mudah.</p>
+
+<p>Tapi ternyata, pistol juga tidak cukup, karena kita belum bisa menerima email. Bisa kirim gak bisa terima ya percuma, karena di sisi kantor cabang kita tentu harus mengambil dan memproses data yang dikirim dari pusat. Ifnu sebetulnya sudah membuat implementasi penerima emailnya, tapi nampaknya belum diposting.</p>
+
+<p>Saatnya membuka gudang senjata dan mencari senjata yang lebih besar. Saya menemukan rocket launcher, yaitu <a href="http://www.springsource.org/spring-integration">Spring Integration</a>.</p>
+
+<p>Bukan saja bisa menerima email, Spring Integration juga bisa menggunakan semua alternatif transport yang disebutkan di atas (WS, HTTPInvoker, RMI, FTP, SSH, JMS, Email) hanya dengan mengganti beberapa baris konfigurasi. Wow &#8230;. canggih sekali. Baiklah, saya akan pakai ini saja.</p>
+
+<p>Berhubung artikel ini sudah terlalu panjang. Implementasi Spring Integrationnya diteruskan di <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-2">bagian kedua</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -306,178 +475,6 @@ echo "Completed"
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ssh-dengan-jsch/">SSH Dengan JSch</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-05-03T00:38:00+07:00" pubdate data-updated="true">May 3<span>rd</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Mengakses Remote Server dengan Java</p>
-
-<p>Kita sudah biasa mengakses komputer lain menggunakan SSH.
-Cukup ketikkan ssh username@namaserver, tekan enter, dan lakukan apa yang kita mau.
-Nah, bagaimana kalau kita ingin membuat aplikasi yang butuh mengakses komputer lain?
-Misalnya, kita ingin membuat aplikasi sederhana yang menampilkan input IP Address, Username, Password serta tombol Shutdown.
-Begitu input field kita isi dan tombol Shutdown ditekan, aplikasi kita akan melakukan ssh ke komputer tersebut dan menjalankan perintah shutdown -h now.</p>
-
-<p>Di Java, hal ini dapat dengan mudah dilakukan menggunakan pustaka <a href="http://www.jcraft.com/jsch/">JSch</a>. Berikut langkah-langkah untuk menggunakan JSch.</p>
-
-<h2>Mendapatkan Pustaka JSch</h2>
-
-<p>Tentunya yang pertama kita lakukan adalah membuka <a href="http://www.jcraft.com/jsch/">website JSch</a> dan mengunduh rilis terbaru. Pilih yang ZIP, jangan yang JAR, karena di dalamnya ada beberapa contoh penggunaan yang akan kita butuhkan untuk mencontek nantinya.</p>
-
-<p>Paket ZIP ini belum dikompilasi, dan kita membutuhkan <a href="http://ant.apache.org">Ant</a> untuk melakukan proses build. Jika Anda belum pernah menggunakan Ant, baca dulu <a href="http://endy.artivisi.com/downloads/writings/Tutorial-Ant.pdf">tutorial ini</a>. Setelah proses build selesai dilakukan, akan muncul file *jar di dalam folder dist.</p>
-
-<h2>Template Aplikasi Java</h2>
-
-<p>Buatlah project Java menggunakan editor yang Anda sukai. Pastikan jar JSch sudah terdaftar di project Java yang barusan dibuat. Setelah itu, buatlah Java Class sebagai berikut</p>
-
-<pre><code>public class JschDemo {
-    public static void main(String[] args) throws Exception {
-
-    }
-}
-</code></pre>
-
-<p>Untuk selanjutnya, kode program akan ditulis di dalam method main.</p>
-
-<h2>Parameter koneksi</h2>
-
-<p>Untuk melakukan koneksi ke komputer lain, kita memerlukan beberapa variabel, ditunjukkan dengan kode sebagai berikut.</p>
-
-<pre><code>String host = "localhost";
-String user = "endy";
-String pass = "java";
-String command = "shutdown -h now";
-</code></pre>
-
-<p>Kita akan melakukan koneksi ke komputer kita sendiri (localhost) dengan username endy dan password java. Setelah berhasil terhubung, kita akan menjalankan perintah shutdown -h now.</p>
-
-<h2>Pre Requisite</h2>
-
-<p>Agar kode program kita bisa dijalankan, ada beberapa persyaratan sebagai berikut:</p>
-
-<ul>
-<li><p>Komputer yang ingin dihubungi harus menjalankan SSH server</p></li>
-<li><p>Komputer yang ingin menghubungi harus melakukan koneksi SSH secara manual terlebih dulu,
-agar komputer tujuan terdaftar di file known_hosts</p></li>
-<li><p>User yang digunakan untuk koneksi harus memiliki akses yang cukup untuk melakukan perintah yang diinginkan</p></li>
-</ul>
-
-
-<h2>Menggunakan JSch</h2>
-
-<p>Setelah parameter koneksi kita deklarasikan, dan juga prasyarat di komputer tujuan dipenuhi, sekarang kita bisa mulai menggunakan JSch.
-Pertama, kita instankan dulu object dari class JSch.</p>
-
-<pre><code>JSch jsch = new JSch();
-</code></pre>
-
-<p>Kemudian, kita berikan database known_hosts, yaitu daftar komputer tujuan beserta public keynya. Ini berguna untuk melakukan verifikasi terhadap komputer tujuan.</p>
-
-<pre><code>jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
-</code></pre>
-
-<p>File known_hosts ini akan otomatis dibuat bila kita melakukan koneksi SSH ke komputer lain. Itulah sebabnya kita harus melakukan koneksi manual terlebih dulu, sehingga public key komputer tujuan sudah terdaftar dalam file ini. Alternatif dari menggunakan file ini adalah <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">mendaftarkan public key di komputer tujuan dan menggunakan private key untuk login</a>.</p>
-
-<p>Selanjutnya, kita membuka koneksi ke komputer tujuan</p>
-
-<pre><code>Session session = jsch.getSession(user, host);
-session.setPassword(pass);
-session.connect();
-</code></pre>
-
-<p>Lalu, kita membuka channel. Channel menggambarkan bentuk interaksi kita dengan komputer tujuan. JSch menyediakan beberapa jenis channel, misalnya exec dan shell. Kita menggunakan exec untuk mengeksekusi satu perintah saja. Sedangkan shell bisa digunakan untuk membuka terminal interaktif yang bisa kita berikan perintah sebanyak kita mau.</p>
-
-<pre><code>ChannelExec channel = (ChannelExec) session.openChannel("exec");
-channel.setCommand(command);
-channel.connect();
-</code></pre>
-
-<p>Kita bisa membaca output dari perintah yang kita jalankan menggunakan I/O Stream seperti biasa.</p>
-
-<pre><code>BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
-String output = reader.readLine();
-while (output != null) {
-    System.out.println(output);
-    output = reader.readLine();
-}
-reader.close();
-</code></pre>
-
-<p>Segera setelah perintah selesai dijalankan, kita mengakhiri channel dan session.</p>
-
-<pre><code>channel.disconnect();
-session.disconnect();
-</code></pre>
-
-<p>Berikut adalah keseluruhan kode program.</p>
-
-<pre><code>public class JschDemo {
-
-    public static void main(String[] args) throws Exception {
-    String host = "localhost";
-    String user = "endy";
-    String pass = "java";
-    String command = "shutdown -h now";
-
-        JSch jsch = new JSch();
-        jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
-
-        Session session = jsch.getSession(user, host);
-        session.setPassword(pass);
-        session.connect();
-
-        ChannelExec channel = (ChannelExec) session.openChannel("exec");
-        channel.setCommand(command);
-        channel.connect();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
-        String output = reader.readLine();
-        while (output != null) {
-            System.out.println(output);
-            output = reader.readLine();
-        }
-        reader.close();
-
-        channel.disconnect();
-        session.disconnect();
-
-    }
-}
-</code></pre>
-
-<p>Selamat mencoba. Bila percobaan Anda sukses, komputer yang sedang Anda gunakan akan shutdown setelah aplikasi selesai dijalankan.
-:D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/20/">&larr; Older</a>
@@ -540,6 +537,10 @@ session.disconnect();
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mengobati-oom/">Mengobati OOM</a>
       </li>
     
@@ -573,10 +574,6 @@ session.disconnect();
     
       <li class="post">
         <a href="/manajemen/training-cmmi/">Training CMMI</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
       </li>
     
   </ul>
@@ -650,7 +647,7 @@ session.disconnect();
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 

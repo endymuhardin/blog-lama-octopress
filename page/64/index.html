@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sebelum diinstal di tempat customer, aplikasi yang kita buat harus ditest. Itu jelas. Semua orang melakukannya. Hanya saja, teknik melakukan testing &hellip;">
+  <meta name="description" content="Setelah repository terpasang dan telah terisi struktur folder awal, hal pertama yang wajib dilakukan adalah memasang perangkat backup otomatis. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,119 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/subversion-backup-dan-restore/">Subversion Backup Dan Restore</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-22T21:59:04+07:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah repository terpasang dan telah terisi struktur folder awal, hal pertama yang wajib dilakukan adalah memasang perangkat backup otomatis. Berikut adalah checklistnya :</p>
+
+<ol>
+<li><p>Buat folder khusus backup (misalnya /home/endy/backup-svn)</p></li>
+<li><p><a href="http://pragmaticprogrammer.com/titles/svn/code.html">Download script backup</a> dari buku <a href="http://pragmaticprogrammer.com/titles/svn/index.html">Pragmatic Version Control Using Subversion</a>.
+Ada dua script yang didapat di sini, weekly-backup.pl dan daily-backup.pl
+Kedua script butuh instalasi Perl untuk dapat dijalankan.</p></li>
+<li><p>Letakkan script di folder backup</p></li>
+<li><p>Sesuaikan permission :</p></li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> $ chmod 755 *.pl </span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Test eksekusi script</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./weekly-backup.pl
+</span><span class='line'>$ ./daily-backup.pl </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seharusnya akan ada dua file : weekly-full-backup.yyyyMMdd.gz dan daily-incremental-backup.yyyyMMdd.gz</p>
+
+<ol>
+<li>Otomasi dengan cron</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Repository Weekly Backup
+</span><span class='line'>0 6 * * 1       /home/endy/backup-svn/weekly-backup.pl
+</span><span class='line'># Dijalankan setiap Senin jam 6 pagi.
+</span><span class='line'>
+</span><span class='line'># Repository Daily Backup
+</span><span class='line'>0 23 * * *      /home/endy/backup-svn/daily-backup.pl
+</span><span class='line'># Dijalankan setiap hari jam 23 malam</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Setiap Senin pagi, tulis semua file dari Senin minggu lalu sampai Minggu malam ke dalam CD. Simpan CD di lokasi yang berbeda (gedung lain, kota lain, negara lain, planet lain bila perlu).</li>
+</ol>
+
+
+<p>Bila semua ini dijalankan, cuma butuh 10 menit, sudah termasuk membaca artikel ini.
+Jangan sia-siakan hidup Anda hanya karena malas investasi 10 menit.</p>
+
+<p>Apabila terjadi bencana, dan repository rusak, kita tinggal ambil CD terbaru, dan dump dengan cara :
+1. Install ulang Subversion
+2. Buat repository
+3. Unzip dump file</p>
+
+<pre><code>$ gunzip *.gz
+</code></pre>
+
+<ol>
+<li>Load ke repository baru</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ svnadmin load newrepos &lt; weekly-full-backup.yyyyMMdd
+</span><span class='line'>$ svnadmin load newrepos &lt; daily-incremental-backup.yyyyMMdd</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dimulai dari tanggal paling lama, sampai tanggal terbaru.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -285,46 +398,6 @@ Menurut saya, inilah faktor utama yang membuat KO kendaraan berkondisi pas-pasan
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/menggunakan-version-control-untuk-dokumen/">Menggunakan Version Control Untuk Dokumen</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-10-25T02:58:03+07:00" pubdate data-updated="true">Oct 25<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Aplikasi version control yang bagus dapat mengelola binary file (misalnya jpg, doc, pdf, dsb) dengan baik, seperti halnya mengelola source code yang berformat text. Salah satu diantaranya adalah <a href="http://subversion.tigris.org">Subversion</a>.</p>
-
-<p>Dalam konteks project software, feature ini dapat dimanfaatkan untuk menyimpan dokumen lain selain source code, misalnya kontrak kerja sama, dokumen analisa, dsb.</p>
-
-<p>Bahkan untuk kasus ekstrim, Subversion juga dapat digunakan untuk mengelola dokumen pribadi kita, <a href="http://www.onlamp.com/pub/a/onlamp/2005/01/06/svn_homedir.html">seperti yang dilakukan oleh Oom Joey Hess</a>. Sebelumnya dia <a href="http://kitenet.net/~joey/cvshome.html">menggunakan CVS</a>. Tetapi akhirnya dia beralih ke Subversion.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/65/">&larr; Older</a>
@@ -387,6 +460,10 @@ Menurut saya, inilah faktor utama yang membuat KO kendaraan berkondisi pas-pasan
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mengobati-oom/">Mengobati OOM</a>
       </li>
     
@@ -420,10 +497,6 @@ Menurut saya, inilah faktor utama yang membuat KO kendaraan berkondisi pas-pasan
     
       <li class="post">
         <a href="/manajemen/training-cmmi/">Training CMMI</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
       </li>
     
   </ul>
@@ -497,7 +570,7 @@ Menurut saya, inilah faktor utama yang membuat KO kendaraan berkondisi pas-pasan
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 

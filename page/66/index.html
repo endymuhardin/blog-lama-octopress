@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada tulisan sebelumya, saya telah menceritakan cara instalasi dan konfigurasi Subversion. Juga telah diceritakan cara mengaktifkan mode akses HTTP &hellip;">
+  <meta name="description" content="Satu hal yang sangat mengganggu dalam OpenLDAP adalah, secara default dia mengijinkan anonymous login. Dan parahnya lagi, user yang login secara &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,78 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/keanehan-konfigurasi-openldap/">Keanehan Konfigurasi OpenLDAP</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-10-14T19:58:59+07:00" pubdate data-updated="true">Oct 14<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Satu hal yang sangat mengganggu dalam OpenLDAP adalah, secara default dia mengijinkan anonymous login. Dan parahnya lagi, user yang login secara anonymous dapat melihat daftar username yang terdaftar.
+Walaupun aksesnya cuma readonly, tapi tetap saja ini adalah potensi bahaya.</p>
+
+<p>Saya coba mendisable account anonymous dengan cara menambahkan baris ini :
+<code>disallow bind_anon</code>
+ke dalam <code>/etc/ldap/slapd.conf</code>.</p>
+
+<p>Berhasil, sekarang orang tidak bisa otentikasi secara anonymous. Tapi muncul masalah berikutnya. Subversion WebDAV juga ternyata tidak bisa login.
+Setelah ditrace ke lognya apache, dia bilang tidak bisa menggunakan mekanisme simple_bind untuk otentikasi. Berikut pesan errornya :</p>
+
+<p><code>[LDAP: ldap_simple_bind_s() failed][Inappropriate authentication]</code></p>
+
+<p>Sepertinya, dengan mendisable anonymous, metode otentikasi simple juga di-disable. Sampai saat tulisan ini diposting, saya belum menemukan cara untuk mematikan anonymous tapi tidak mematikan simple_bind.</p>
+
+<p>Akhirnya, workaroundnya adalah, mengaktifkan anonymous, tapi melucuti semua ijin aksesnya.
+Ini dilakukan dengan cara mengubah konfigurasi akses (/etc/ldap/slapd.conf) dari</p>
+
+<pre><code>access to *
+        by * read
+</code></pre>
+
+<p>menjadi</p>
+
+<pre><code>access to *
+        by anonymous none
+        by * read
+</code></pre>
+
+<p>Dengan demikian, sekarang anonymous bisa login, tapi tidak bisa lihat apa-apa.</p>
+
+<p><strong>Update 17 Oktober 2005 : </strong>
+Ternyata selain anonymous tidak bisa lihat apa-apa, WebDAV juga gak bisa lihat apa-apa. Sepertinya, kalau dia mau otentikasi username, dia akan login anonymous dulu untuk melihat daftar user yang terdaftar.
+Dengan mematikan anonymous, para user Subversion jadi tidak bisa login dengan pesan error : username not found. Jadi, sementara account anonymous terpaksa dibiarkan seperti defaultnya OpenLDAP.</p>
+
+<p><strong>Update 18 Oktober 2005 : </strong>
+Setelah google kesana kemari, akhirnya saya menemukan <a href="http://www.openldap.org/lists/openldap-software/200401/msg00034.html">orang yang mengalami masalah yang sama</a>. Tentu saja masalah ditemukan bersama dengan <a href="http://www.rudedog.org/auth_ldap/1.6/auth_ldap.html#dir:AuthLDAPBindDN">solusinya</a>.
+Sekarang kita bisa mendisable account anonymous, dan apache tetap bisa mengotentikasi user Subversion dengan tenang. Tidak perlu lagi workaround untuk melucuti akses anonymous.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -360,95 +432,6 @@ Di Debian, cara paling &#8216;bersih&#8217; adalah membuat file konfigurasi send
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/life/rumah-baru-ii/">Rumah Baru II</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-10-10T22:07:50+07:00" pubdate data-updated="true">Oct 10<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Hari ini saya dapat komputer baru. Spesifikasinya lumayan banget, Prosesor P-IV 3 GHz, memori 1GB, dan harddisk SATA 80GB, plus DVD-ROM. Rencananya, mesin ini selain untuk office work, juga akan jadi server sementara.</p>
-
-<p>Kegiatan pertama, bagi sebagian besar orang adalah instal sistem operasi. Buat saya, ada satu kegiatan lagi sebelum instal, yaitu pilih sistem operasi.</p>
-
-<p>Sudah jelas, yang akan saya instal adalah Linux. Sejak meninggalkan Windows tahun 2002 yang lalu, saya merasa seperti naik baswei (baca: busway) jam 5 sore. Melihat ke kiri jalan, kemacetan panjang sekali seperti ular naga, tetapi saya tetap bisa melaju kencang menuju Blok M dalam waktu 30 menit saja. Di dalam busway Linux, saya tetap bisa produktif bekerja pada saat orang lain repot mengupdate antivirus (instal saja tidak cukup, harus up to date juga dong :P), membuang spyware, melakukan defrag, bersih-bersih registry, dan kegiatan non-produktif lainnya.</p>
-
-<p>Nah, pertanyaannya, Linux yang mana?
-Saya adalah fans berat <a href="http://www.debian.org">Debian</a>. <a href="http://fedora.redhat.com">Fedora</a> terlalu sulit buat saya. <a href="http://www.mandriva.org">Mandriva</a>, mudah bagi pemula, tapi justru menyulitkan bagi pengguna veteran.
-Tapi di debian sendiri juga banyak variannya, misalnya <a href="http://www.knoppix.org">Knoppix</a>, <a href="http://www.mepis.org">Mepis</a>, <a href="http://ubuntulinux.org">Ubuntu</a>, dan lainnya.</p>
-
-<p>Knoppix, bagus untuk LiveCD, tapi jelek sekali kalau diinstal di harddisk. Struktur foldernya jelek dan sudah tidak standar lagi. Mungkin karena memang dioptimasi untuk kemudahan remastering.</p>
-
-<p>Mepis bagus, tapi repositorynya tidak kompatibel dengan debian. Untuk pengguna desktop sangat bagus, tapi karena saya mau instal buat macam2 server, di belakang hari menyulitkan.</p>
-
-<p>Ubuntu, sangat bagus &#8230; untuk end user. Buat saya, masalah sudo sangat merepotkan. Default instalasinya juga Gnome, sedangkan saya pengguna KDE. Saya sudah berusaha membiasakan diri dengan Gnome, tapi aplikasi-aplikasi Gnome masih kalah (menurut saya) dengan KDE. Saya lebih suka pakai KMail, Akregator, Konqueror daripada Evolution dan Nautilus.</p>
-
-<p>Akhirnya, saya back to basic. Pakai debian murni saja. Toh di sini koneksi IIX laksana LAN. Jadi bisa ambil ke servernya <a href="http://komo.vlsm.org">Komo</a> dengan cepat.</p>
-
-<p>Nah, sekarang instalasi. Saya tidak punya CD Writer, jadi walaupun bisa donlod ISO dengan cepat, tetap tidak bisa instal. Akhirnya pakai cara curang sbb :</p>
-
-<ol>
-<li><p><a href="http://komo.vlsm.org/debian/dists/Debian3.1r0/main/installer-i386/current/images/netboot/debian-installer/i386/2.6/">Download</a> image instalasi jaringan dari Debian (ingat, gunakan kernel 2.6)</p></li>
-<li><p>Instal Ubuntu</p></li>
-<li><p>Kopikan image instalasi ke Ubuntu</p></li>
-<li><p>Konfigurasi GRUB untuk menambahkan image instalasi</p></li>
-<li><p>Restart, dan mulai instalasi.</p></li>
-</ol>
-
-
-<p>Cara ini diinspirasi dari <a href="http://marc.herbert.free.fr/linux/win2linstall.html">teknik menginstal Linux tanpa CDROM, Floppy, USB, atau media lainnya</a>.</p>
-
-<p>Setelah itu, berikut beberapa aplikasi wajib yang akan diinstal :
-1. Midnight Commander
-2. SSH
-3. MySQL
-4. PostgreSQL
-5. Apache 2
-6. PHP 4
-7. Postfix Mail Server
-8. Subversion Version Control
-9. CVS Version Control
-10. Firestarter (Firewall Front End)
-11. KDE</p>
-
-<p>Selanjutnya, tinggal mengkonfigurasi.</p>
-
-<p>Satu lagi, dengan menggunakan Linux, tidak perlu cari satu-satu, download, klik next beberapa kali, dan restart komputer.
-Untuk menginstal semua di atas, cukup ketik saja :</p>
-
-<pre><code>apt-get install mc kde mysql-server postgresql apache2 php4 postfix firestarter subversion cvs kde -y
-</code></pre>
-
-<p>sebagai root.
-Lalu &#8230; sit back and relax &#8230;. literally.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/67/">&larr; Older</a>
@@ -511,6 +494,10 @@ Lalu &#8230; sit back and relax &#8230;. literally.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mengobati-oom/">Mengobati OOM</a>
       </li>
     
@@ -544,10 +531,6 @@ Lalu &#8230; sit back and relax &#8230;. literally.</p>
     
       <li class="post">
         <a href="/manajemen/training-cmmi/">Training CMMI</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a>
       </li>
     
   </ul>
@@ -621,7 +604,7 @@ Lalu &#8230; sit back and relax &#8230;. literally.</p>
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) {return;}
   js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
