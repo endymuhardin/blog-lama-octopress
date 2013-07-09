@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pertanyaan : Kalau kita punya komputer, upgrade hardware apa yang paling meningkatkan produktifitas ?? Jawaban 1 : Prosesor Jawaban 2 : Memori Saya &hellip;">
+  <meta name="description" content="Kalau Anda programmer Java, tentunya sudah tidak asing lagi dengan Tomcat atau Eclipse. Yang satu adalah application server, satunya lagi adalah &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,491 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/cruise-control/">Cruise Control</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-07-25T15:51:17+07:00" pubdate data-updated="true">Jul 25<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Kalau Anda programmer Java, tentunya sudah tidak asing lagi dengan Tomcat atau Eclipse. Yang satu adalah application server, satunya lagi adalah Integrated Development Environment (IDE). Ada satu kesamaan dalam kedua produk ini, keduanya adalah proyek open source yang dikelola secara profesional.</p>
+
+<p>Coba buka halaman download di website masing-masing proyek tersebut. Di sana bisa kita temukan beberapa jenis download, yaitu Nightly Builds dan Stable Builds. Stable builds adalah aplikasi yang sudah melalui berbagai fase testing dan dinyatakan lulus uji. Nightly builds, seperti namanya, adalah build yang dibuat setiap malam dan dirilis kepada publik agar bisa diuji coba beramai-ramai. Dengan besarnya jumlah penguji, diharapkan bug yang ada dalam aplikasi bisa ditemukan semuanya.</p>
+
+<p>Build, dalam dunia Java, terdiri dari serangkaian aktifitas, diantaranya sebagai berikut:</p>
+
+<ol>
+<li><p>Menjalankan review kode otomatis</p></li>
+<li><p>Kompilasi kode program</p></li>
+<li><p>Menjalankan unit test</p></li>
+<li><p>Menjalankan integration test</p></li>
+<li><p>Menjalankan coverage test (kalau ada)</p></li>
+<li><p>Menjalankan platform test, untuk aplikasi yang berbeda antar OS (seperti Eclipse)</p></li>
+<li><p>Bila lulus semua ujian di atas, buat tag di version control</p></li>
+<li><p>Siapkan executable (<em>.jar, </em>.war, *exe, dan sebagainya)</p></li>
+<li><p>Publish executable di website supaya bisa didownload orang banyak</p></li>
+</ol>
+
+
+<p>Wow, daftar aktifitasnya cukup banyak. Kalau ini dikerjakan setiap malam, betapa membosankan. Saya tidak dapat membayangkan ada satu orang yang ditugaskan khusus untuk melakukan hal ini. Pasti setelah beberapa hari saja dia akan bosan dan mengundurkan diri. Apalagi dalam project open source di mana sebagian besar kontributornya tidak dibayar.</p>
+
+<p>Untuk itulah ada tools khusus untuk melakukan hal membosankan ini. Toolsnya disebut Continuous Integration Tools, berdasarkan tulisan Martin Fowler tentang Continuous Integration. Ada beberapa tools yang tersedia di pasaran, diantaranya:</p>
+
+<ul>
+<li><p><a href="http://cruisecontrol.sf.net">Cruise Control</a></p></li>
+<li><p><a href="http://www.luntbuild.org">Luntbuild</a></p></li>
+<li><p>Anthill</p></li>
+<li><p>Bamboo</p></li>
+</ul>
+
+
+<p>Dalam tulisan kali ini, kita akan bahas tentang penggunaan CruiseControl, salah satu Continuous Integration Tool yang populer dan open source.</p>
+
+<p>CI Tool yang baik haruslah memiliki fitur sebagai berikut:</p>
+
+<ul>
+<li><p>Mendukung berbagai jenis version control, minimal Subversion dan CVS</p></li>
+<li><p>Dapat menggunakan Ant atau Maven</p></li>
+<li><p>Mendukung banyak project</p></li>
+<li><p>Dapat mengelola artifact (hasil build)</p></li>
+<li><p>Dapat memberitahu orang tentang hasil build (gagal atau sukses) melalui berbagai cara (email, instant message, sms, dan sebagainya)</p></li>
+<li><p>Memiliki aplikasi pelaporan yang mudah diakses melalui web</p></li>
+</ul>
+
+
+<p>Yang dilakukan oleh CI Tools adalah sebagai berikut:</p>
+
+<ol>
+<li><p>Periksa repository source code, apakah ada perubahan terbaru</p></li>
+<li><p>Bila ada, ambil perubahan terbaru tersebut</p></li>
+<li><p>Lakukan build (compile, testing, dsb)</p></li>
+<li><p>Laporkan hasilnya (gagal atau berhasil) melalui email atau media lainnya</p></li>
+<li><p>Buat juga laporan di website</p></li>
+<li><p>Bila sukses, publish artifact yang dihasilkan</p></li>
+</ol>
+
+
+<p>Cruise Control membutuhkan beberapa file konfigurasi:</p>
+
+<ul>
+<li><p>config.xml: Hanya satu, digunakan untuk mendaftarkan project yang akan dikelola</p></li>
+<li><p>build-namaproject.xml : Satu per project. Bila kita punya tiga project, maka akan ada tiga build-namaproject.xml, dengan nama file disesuaikan dengan masing-masing project.Buildfile ini bertugas untuk sinkronisasi dengan version control dan membuat tag di version control</p></li>
+<li><p>build.xml : Satu per project. Ini adalah buildfile yang biasa kita gunakan di project untuk melakukan kompilasi, menjalankan test, dan menghasilkan <em>jar atau </em>war.</p></li>
+</ul>
+
+
+<p>Kita butuh satu folder kerja untuk CruiseControl melakukan tugasnya. Sebaiknya folder ini dipisahkan dari folder instalasi CruiseControl agar memudahkan kita pada waktu melakukan upgrade CruiseControl. Untuk kepentingan ilustrasi, folder instalasi CruiseControl akan ditulis [CC_INSTALL] dan folder kerja akan ditulis [CC_WORK].</p>
+
+<p>Berikut adalah struktur folder [CC_INSTALL]:
+<img src="/images/uploads/2007/07/cruise-install.png" title="Struktur Folder Instalasi CruiseControl" ></p>
+
+<p>dan folder kerja [CC_WORK] akan berisi seperti ini:
+<img src="/images/uploads/2007/07/cruise-work.png" title="Folder Kerja CruiseControl" ></p>
+
+<p>Struktur folder di dalam repository Subversion kita seperti ini:
+<img src="/images/uploads/2007/07/repo-content.png" title="Struktur Folder Subversion" ></p>
+
+<p>Pada contoh ini, kita akan menjalankan build untuk satu project &#8220;TestingTraining&#8221; dengan konfigurasi sebagai berikut:</p>
+
+<ol>
+<li><p>Memiliki dua build, yang satu berjalan setiap satu menit, satu lagi berjalan setiap jam 18.00 sore</p></li>
+<li><p>Version control yang digunakan adalah Subversion</p></li>
+<li><p>Bila build sukses, buat tag di folder releases/daily-build/build-NN-yyyyMMddhhmmss</p></li>
+</ol>
+
+
+<p>Konfigurasi tersebut ditulis di config.xml sebagai berikut.</p>
+
+<pre><code>&lt;code&gt;&lt;cruisecontrol&gt;
+    &lt;project name="TestingTraining" buildafterfailed="true"&gt;
+      &lt;listeners&gt;
+        &lt;currentbuildstatuslistener file="logs/${project.name}/status.txt"/&gt;
+      &lt;/listeners&gt;
+
+      &lt;modificationset quietperiod="10"&gt;
+          &lt;svn RepositoryLocation="svn://172.16.2.252/trunk" /&gt;
+      &lt;/modificationset&gt;
+
+      &lt;schedule interval="60"&gt;
+          &lt;ant anthome="/opt/apache-ant-1.6.5"
+               antWorkingDir="/home/endy/tmp/cruise-work/projects/${project.name}"
+               buildfile="/home/endy/tmp/cruise-work/build-${project.name}.xml"
+               target="build"
+               uselogger="true"
+               usedebug="false"
+           /&gt;
+      &lt;/schedule&gt;
+
+      &lt;log&gt;
+          &lt;merge dir="/home/endy/tmp/cruise-work/projects/${project.name}/build/report/junit"/&gt;
+      &lt;/log&gt;
+
+      &lt;publishers&gt;
+            &lt;onsuccess&gt;
+                &lt;antpublisher anthome="/opt/apache-ant-1.6.5"
+                              antWorkingDir="/home/endy/tmp/cruise-work/projects/${project.name}"
+                              buildfile="/home/endy/tmp/cruise-work/build-${project.name}.xml"
+                            target="tag"
+                            uselogger="true"
+                            usedebug="false"
+                /&gt;
+        &lt;artifactspublisher
+            dir="/home/endy/tmp/cruise-work/projects/${project.name}/dist"
+            dest="artifacts/${project.name}"/&gt;
+            &lt;/onsuccess&gt;
+        &lt;/publishers&gt;
+    &lt;/project&gt;
+&lt;/cruisecontrol&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Berikut adalah penjelasannya.</p>
+
+<ul>
+<li><p>Konfigurasi CruiseControl dibuat dengan format XML. Tag paling luar adalah <code>&lt;cruisecontrol&gt;</code></p></li>
+<li><p>Satu file konfigurasi bisa memuat banyak project. Masing-masing project dikonfigurasi dalam tag <code>&lt;project&gt;</code></p></li>
+<li><p>Di halaman depan CruiseControl, akan ada status untuk masing-masing project. Status ini akan disimpan di file status.txt</p></li>
+<li><p>Modification Set: Beberapa produk version control tidak mengenal atomic commit, misalnya CVS. Karena itu, bila kita commit (misalnya) 7 file sekaligus, bisa saja CruiseControl terbangun pada saat baru 3 file yang tercommit. Bila CruiseControl melakukan build pada saat itu juga, bisa dipastikan akan terjadi error. Oleh karena itu, kita suruh CruiseControl membatalkan build bila kurang dari 10 detik yang lalu ada orang yang commit. Tentu saja bila kita menggunakan Subversion, hal ini tidak relevan.</p></li>
+<li><p>Schedule: Ini adalah daftar build schedule yang ingin kita daftarkan. Tag ini bisa memuat banyak build. Kita menggunakan interval 60 detik, yang artinya setiap menit CruiseControl akan melakukan build. Selain schedule yang berbasis interval, kita juga bisa mendaftarkan schedule yang menggunakan waktu tertentu, misalnya berjalan setiap jam 12 malam.</p></li>
+<li><p>Merge log yang dihasilkan JUnit, tersimpan di folder <code>build/report/junit</code> ke dalam tampilan report CruiseControl.</p></li>
+<li><p>Publisher : pada bagian ini kita daftarkan Ant Publisher pada kategori onsuccess. Artinya, kalau build sukses, jalankan target tag untuk membuat tag di dalam repository. Selain itu, kita juga menggunakan Artifact Publisher, yang berguna untuk mengkopi file *.jar yang dihasilkan ke dalam folder CruiseControl sehingga bisa didownload melalui website.</p></li>
+</ul>
+
+
+<p>Di file konfigurasi tersebut, kita memanggil file <code>build-TestingTraining.xml</code>. Ini adalah isi dari file tersebut.</p>
+
+<pre><code>&lt;code&gt;&lt;project name="CruiseControl Builder" 
+     default="build"
+         basedir="projects/TestingTraining"
+&gt;
+
+  &lt;property name="repository.url" value="svn://localhost"/&gt;
+  &lt;property name="branch" value="trunk"/&gt;
+  &lt;property name="release.folder" value="releases/daily-build" /&gt;
+  &lt;property name="svn.username" value="endy" /&gt;
+  &lt;property name="svn.password" value="123" /&gt;
+  &lt;property name="message" value="Created automatically by CruiseControl" /&gt;
+
+  &lt;path id="cc-classpath"&gt;
+    &lt;fileset dir="../../lib" includes="**/*jar"/&gt;
+  &lt;/path&gt;  
+
+  &lt;target name="update"&gt;
+    &lt;java classname="org.tmatesoft.svn.cli.SVN" fork="true"
+          classpathref="cc-classpath"&gt;
+      &lt;arg value="update"/&gt;      
+    &lt;/java&gt;
+  &lt;/target&gt;
+
+  &lt;target name="build" depends="update"&gt;
+    &lt;ant inheritAll="false" target="build-jar"/&gt;
+  &lt;/target&gt;
+
+  &lt;target name="tag"&gt;
+    &lt;java classname="org.tmatesoft.svn.cli.SVN" 
+              fork="true" classpathref="cc-classpath"&gt;
+            &lt;arg value="--username"/&gt;
+            &lt;arg value="${svn.username}"/&gt;
+
+            &lt;arg value="--password"/&gt;
+            &lt;arg value="${svn.password}"/&gt;
+
+            &lt;arg value="cp"/&gt;
+            &lt;arg value="${repository.url}/${branch}"/&gt;
+            &lt;arg value="${repository.url}/${release.folder}/${label}-${cctimestamp}"/&gt;
+
+            &lt;arg value="-m"/&gt;
+            &lt;arg value="${message}"/&gt;
+
+        &lt;/java&gt;
+  &lt;/target&gt;
+
+&lt;/project&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Penjelasannya sebagai berikut.</p>
+
+<ul>
+<li><p>Kita menggunakan pustaka yang disediakan <a href="http://svnkit.com/">SVNKit (dulunya JavaSVN) </a>agar bisa menggunakan Subversion melalui Ant. Sebetulnya tanpa SVNKit juga bisa, yaitu dengan target <code>exec</code> yang dimiliki Ant untuk memanggil perintah di command line. Dengan menggunakan SVNKit, kita tidak perlu menginstal Subversion command line di build server kita.</p></li>
+<li><p>Ada tiga target utama dalam buildfile ini: update, build, dan tag. Target update berguna untuk mengambil perubahan terbaru dari repository ke folder kerja CruiseControl. Target build memanggil target build-jar di dalam build.xml yang dimiliki project. Target build-jar ini hanya bisa berhasil kalau semua test sudah berjalan dengan sempurna. Target tag berguna untuk membuat tag di repository. Kita bisa mengirim variabel yang dihasilkan CruiseControl, dalam hal ini <code>${label}</code> dan <code>${cctimestamp}</code>.</p></li>
+</ul>
+
+
+<p>Agar file ini bisa dijalankan, kita harus memiliki folder projects/TestingTraining yang berisi hasil checkout dari repository. Mari kita checkout dulu.</p>
+
+<pre><code>&lt;code&gt;$ cd projects
+$ svn co svn://localhost/trunk TestingTraining
+&lt;/code&gt;
+</code></pre>
+
+<p>Untuk menguji apakah file build-TestingTraining.xml ini bisa dijalankan dengan baik, masuk ke folder projects/TestingTraining dan panggil file tersebut dari folder ini.</p>
+
+<pre><code>&lt;code&gt;$ ant -f ../../build-TestingTraining.xml build
+Buildfile: ../../build-TestingTraining.xml
+
+update:
+     [java] At revision 71.
+
+build:
+
+clean:
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/bin
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/debug
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/junit
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/pmd
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/cobertura
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/dist
+
+prepare:
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/bin
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/debug
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/junit
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/pmd
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/build/report/cobertura
+    [mkdir] Created dir: /home/endy/tmp/cruise-work/projects/TestingTraining/dist
+
+code-review:
+
+compile:
+    [javac] Compiling 11 source files to /home/endy/tmp/cruise-work/projects/TestingTraining/build/bin
+
+compile-cobertura:
+    [javac] Compiling 11 source files to /home/endy/tmp/cruise-work/projects/TestingTraining/build/debug
+   [delete] Deleting: /home/endy/tmp/cruise-work/projects/TestingTraining/cobertura.ser
+   [delete] Deleting directory /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
+[cobertura-instrument] Cobertura 1.8 - GNU GPL License (NO WARRANTY) - See COPYRIGHT file
+[cobertura-instrument] Instrumenting 7 files to /home/endy/tmp/cruise-work/projects/TestingTraining/build/cobertura
+[cobertura-instrument] Cobertura: Saved information on 7 classes.
+[cobertura-instrument] Instrument time: 110ms
+
+unit-test:
+    [junit] Running tutorial.testing.CalculatorTest
+    [junit] Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.047 sec
+    [junit] Cobertura: Loaded information on 7 classes.
+    [junit] Cobertura: Saved information on 7 classes.
+    [junit] Running tutorial.testing.DayCounterTest
+    [junit] Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.055 sec
+    [junit] Cobertura: Loaded information on 7 classes.
+    [junit] Cobertura: Saved information on 7 classes.
+    [junit] Running tutorial.testing.LoginServletTest
+    [junit] Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.159 sec
+    [junit] Cobertura: Loaded information on 7 classes.
+    [junit] Cobertura: Saved information on 7 classes.
+    [junit] Running tutorial.testing.dbunit.PersonDaoMySQLTest
+    [junit] Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 0.153 sec
+    [junit] Cobertura: Loaded information on 7 classes.
+    [junit] Cobertura: Saved information on 7 classes.
+[junitreport] Transform time: 564ms
+[cobertura-report] Cobertura 1.8 - GNU GPL License (NO WARRANTY) - See COPYRIGHT file
+[cobertura-report] Cobertura: Loaded information on 7 classes.
+[cobertura-report] Report time: 231ms
+
+coverage-test:
+[cobertura-check] Cobertura 1.8 - GNU GPL License (NO WARRANTY) - See COPYRIGHT file
+[cobertura-check] Cobertura: Loaded information on 7 classes.
+[cobertura-check] All checks passed.
+
+full-test:
+
+build-jar:
+      [jar] Building jar: /home/endy/tmp/cruise-work/projects/TestingTraining/dist/TutorialTesting.jar
+
+BUILD SUCCESSFUL
+Total time: 12 seconds
+&lt;/code&gt;
+</code></pre>
+
+<p>File build-TestingTraining.xml akan memanggil build.xml yang ada di dalam project kita. Berikut isi dari file ini.</p>
+
+<pre><code>&lt;code&gt;&lt;project name="TestingTraining" default="full-test" basedir="."&gt;
+
+    &lt;property name="source.java" value="src/java"/&gt;
+    &lt;property name="compile.normal" value="build/bin"/&gt; 
+    &lt;property name="compile.debug" value="build/debug"/&gt;
+    &lt;property name="compile.cobertura" value="build/cobertura"/&gt;
+    &lt;property name="distribution" value="dist" /&gt;
+
+    &lt;property name="report.junit" value="build/report/junit"/&gt;
+    &lt;property name="report.pmd" value="build/report/pmd"/&gt;
+    &lt;property name="report.cobertura" value="build/report/cobertura"/&gt;
+
+    &lt;path id="devel.classpath"&gt;
+        &lt;pathelement location="${source.java}"/&gt;
+        &lt;pathelement location="${compile.debug}"/&gt;
+        &lt;fileset dir="lib" includes="**/*jar" /&gt;
+        &lt;fileset dir="ext" includes="**/*jar" /&gt;
+    &lt;/path&gt;
+
+    &lt;taskdef classpathref="devel.classpath" resource="tasks.properties"/&gt;
+
+    &lt;target name="prepare"&gt;
+        &lt;mkdir dir="${compile.normal}"/&gt;
+        &lt;mkdir dir="${compile.debug}"/&gt;
+        &lt;mkdir dir="${compile.cobertura}"/&gt;
+        &lt;mkdir dir="${report.junit}"/&gt;
+        &lt;mkdir dir="${report.pmd}"/&gt;
+        &lt;mkdir dir="${report.cobertura}"/&gt;
+
+        &lt;mkdir dir="${distribution}" /&gt;
+    &lt;/target&gt;
+
+    &lt;target name="clean"&gt;
+        &lt;delete dir="${compile.normal}"&gt;&lt;/delete&gt;
+        &lt;delete dir="${compile.debug}"&gt;&lt;/delete&gt;
+        &lt;delete dir="${compile.cobertura}"&gt;&lt;/delete&gt;
+        &lt;delete dir="${report.junit}"&gt;&lt;/delete&gt;
+        &lt;delete dir="${report.pmd}"&gt;&lt;/delete&gt;
+        &lt;delete dir="${report.cobertura}"&gt;&lt;/delete&gt;
+        &lt;delete dir="${distribution}"&gt;&lt;/delete&gt;
+    &lt;/target&gt;
+
+    &lt;target name="code-review" depends="prepare"&gt;
+        &lt;taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="devel.classpath"/&gt;
+        &lt;pmd targetjdk="1.5" shortFilenames="true" failonerror="true" failonruleviolation="true" rulesetfiles="pmd-ruleset.xml"&gt;                           
+          &lt;formatter type="net.sourceforge.pmd.renderers.HTMLRenderer" 
+                     toFile="${report.pmd}/pmd.html"
+          /&gt;
+          &lt;fileset dir="${source.java}"&gt;
+              &lt;include name="**/*.java"/&gt;
+              &lt;exclude name="**/*Test.java"/&gt;
+          &lt;/fileset&gt;
+        &lt;/pmd&gt;
+    &lt;/target&gt;
+
+    &lt;target name="compile" depends="code-review"&gt;
+        &lt;javac 
+            srcdir="${source.java}" 
+            destdir="${compile.normal}" 
+            classpathref="devel.classpath"&gt;
+        &lt;/javac&gt;
+    &lt;/target&gt;
+
+    &lt;target name="unit-test" depends="compile,compile-cobertura"&gt;
+        &lt;junit haltonfailure="true" fork="true" printsummary="true"&gt;
+            &lt;classpath location="${compile.cobertura}"&gt;&lt;/classpath&gt;
+            &lt;classpath refid="devel.classpath"/&gt;
+            &lt;formatter type="xml"/&gt;
+            &lt;batchtest todir="${report.junit}"&gt;
+                &lt;fileset dir="${compile.debug}" includes="**/*Test.class" excludes="**/*Abstract*.class"/&gt;
+            &lt;/batchtest&gt;
+        &lt;/junit&gt;
+
+        &lt;junitreport todir="${report.junit}"&gt;
+            &lt;fileset dir="${report.junit}"&gt;
+            &lt;include name="TEST-*.xml"/&gt;
+            &lt;/fileset&gt;
+            &lt;report format="frames" todir="${report.junit}/html"/&gt;
+        &lt;/junitreport&gt;
+
+        &lt;cobertura-report 
+            datafile="cobertura.ser"
+            srcdir="${source.java}" 
+            destdir="${report.cobertura}"
+        /&gt;
+    &lt;/target&gt;
+
+    &lt;target name="compile-cobertura" depends="prepare"&gt;
+        &lt;javac 
+            srcdir="${source.java}" 
+            destdir="${compile.debug}" 
+            classpathref="devel.classpath" 
+            fork="true" 
+            debug="true"
+        /&gt;
+        &lt;delete file="cobertura.ser"/&gt;
+        &lt;delete dir="${compile.cobertura}" /&gt;
+
+        &lt;cobertura-instrument todir="${compile.cobertura}"&gt;
+            &lt;fileset dir="${compile.debug}"&gt;
+                    &lt;include name="**/*.class"/&gt;
+                    &lt;exclude name="**/*Test*.class"/&gt;
+            &lt;/fileset&gt;
+        &lt;/cobertura-instrument&gt;
+    &lt;/target&gt;
+
+    &lt;target name="coverage-test" depends="unit-test"&gt;
+        &lt;cobertura-check datafile="cobertura.ser"
+                         branchrate="75"
+                         linerate="75"
+                         haltonfailure="true"
+        /&gt;
+
+    &lt;/target&gt;
+
+    &lt;target name="full-test" depends="code-review,coverage-test"&gt;&lt;/target&gt;
+
+    &lt;target name="build-jar" depends="clean,full-test"&gt;
+        &lt;jar destfile="${distribution}/${ant.project.name}.jar"
+               basedir="${compile.normal}"
+               excludes="**/*Test.class"
+          /&gt; 
+    &lt;/target&gt;
+&lt;/project&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Seperti kita lihat di atas, file tersebut memiliki target build-jar yang hanya akan dilakukan apabila target code-review, compile, unit-test, coverage-test dilakukan dengan sukses.</p>
+
+<p>Baiklah, persiapan sudah selesai, sekarang jalankan CruiseControl, dan lihat hasilnya.
+CruiseControl dijalankan melalui command prompt dengan mensuplai config.xml yang kita miliki.</p>
+
+<pre><code>&lt;code&gt;$ cd [CC_INSTALL]
+$ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
+&lt;/code&gt;
+</code></pre>
+
+<p>Bila tidak ada error, maka kita bisa browse ke http://localhost:8080</p>
+
+<p>Ini adalah halaman depan. Memuat status masing-masing project.
+<img src="/images/uploads/2007/07/halaman-depan.png" title="Halaman Depan CruiseControl" ></p>
+
+<p>Ini adalah halaman untuk TestingTraining.
+<img src="/images/uploads/2007/07/build-detail.png" title="Hasil Build" ></p>
+
+<p>Seperti kita lihat, hasilnya build failed, karena database MySQL yang diperlukan untuk test belum dijalankan. Mari kita nyalakan dan buat test ini menjadi sukses. Setelah sukses, tampilannya seperti ini.
+<img src="/images/uploads/2007/07/build-success.png" title="Hasil Build yang sukses" ></p>
+
+<p>Kita bisa melihat hasil unit test di dalam tab Test Result.
+<img src="/images/uploads/2007/07/test-result.png" title="Hasil JUnit" ></p>
+
+<p>Berapa kali gagal, berapa kali sukses? Kita bisa lihat di tab Metric.
+<img src="/images/uploads/2007/07/metric.png" title="Metric tentang hasil build" ></p>
+
+<p>Bila kita sudah menjalankan daily build ini selama beberapa waktu, di repository kita akan dihasilkan tag sesuai dengan build yang sukses. Berikut contohnya.
+<img src="/images/uploads/2007/07/build-result.png" title="Daftar Tag yang dibuat CruiseControl" ></p>
+
+<p>Demikianlah penggunaan CruiseControl. Dengan menggunakan CruiseControl ini, para programmer bisa dibebaskan dari tugas membosankan, sehingga waktunya bisa digunakan untuk hal lain yang lebih bermanfaat, seperti misalnya menulis blog atau menambah teman baru di Friendster.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -816,76 +1301,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/mp3-di-linux/">MP3 Di Linux</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-25T18:57:16+07:00" pubdate data-updated="true">Jun 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Distro Linux yang gratis umumnya tidak menyertakan dukungan MP3, Flash, DVD, dan berbagai format file non-open-source yang lainnya. Ini disebabkan karena format tersebut dilarang di beberapa negara, walaupun di Indonesia diperbolehkan. Ini merupakan masalah yang sudah banyak jawabannya. Bahkan beberapa distro populer sudah memudahkan cara instalasinya.</p>
-
-<p>Mari kita lihat dua distro populer, Ubuntu dan OpenSuSE.
-Pada Ubuntu Feisty, ada paket yang khusus untuk mengatasi masalah ini, namanya ubuntu-restricted-extras. Cukup buka command prompt, dan ketikkan</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install ubuntu-restricted-extras</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Paket ini ada di repository <code>multiverse</code>, jadi pastikan komputer Anda memiliki database dari repository tersebut.</p>
-
-<p>Paket ubuntu-restricted-extras ini memungkinkan kita untuk:</p>
-
-<ul>
-<li><p>Memainkan MP3</p></li>
-<li><p>Memainkan DVD</p></li>
-<li><p>Membuka website ber-Flash</p></li>
-<li><p>Membuka website ber-Java Applet</p></li>
-<li><p>Menggunakan font Arial, Trebuchet, dan font Windows lainnya</p></li>
-</ul>
-
-
-<p>Untuk OpenSuSE 10.2, kita harus tambahkan repository packman. Buka Yast, klik Installation Source. Nanti kita akan disuguhi berbagai pilihan protokol. Pilih protokol HTTP.</p>
-
-<p>Selanjutnya, kita akan ditanyai dua hal, nama server repository, dan folder tempat database paket berada. Masukkan ftp.uni-erlangen.de pada kolom nama server, dan /pub/mirrors/packman/suse/10.2 pada nama folder.</p>
-
-<p>Tidak, saya tidak salah ketik, protokolnya memang HTTP dan alamat servernya diawali dengan FTP. Kalau tidak percaya coba saja sendiri, atau lihat <a href="http://amarok.kde.org/wiki/MP3_on_openSUSE_10.2">di sini</a>.</p>
-
-<p>Setelah repository ditambah, Yast akan mendownload database aplikasi yang disediakan, untuk kemudian mengupdate database internalnya. Bila koneksi internet Anda lambat, bersabar sedikit.</p>
-
-<p>Begitu repository selesai ditambah, kita bisa buka menu Software Management, dan Search dengan keyword <code>libxine1</code>. Ini adalah library yang dibutuhkan agar Amarok bisa memainkan MP3. Amarok adalah aplikasi pemain musik (music player) di KDE.</p>
-
-<p>Instal libxine1, dan  Amarok akan segera bisa menyanyikan MP3.</p>
-
-<p>Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/39/">&larr; Older</a>
@@ -948,6 +1363,10 @@ Pada Ubuntu Feisty, ada paket yang khusus untuk mengatasi masalah ini, namanya u
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
       </li>
     
@@ -981,10 +1400,6 @@ Pada Ubuntu Feisty, ada paket yang khusus untuk mengatasi masalah ini, namanya u
     
       <li class="post">
         <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/manajemen/training-cmmi/">Training CMMI</a>
       </li>
     
   </ul>

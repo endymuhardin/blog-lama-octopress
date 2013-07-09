@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Menggunakan izPack Setelah kita selesai membuat aplikasi, what next? Tentunya mendistribusikan pada orang yang membutuhkan. Bagaimana caranya agar &hellip;">
+  <meta name="description" content="JFreeChart adalah library untuk menghasilkan chart dengan Java. Berbagai chart bisa dihasilkan, dari Pie Chart, Bar Chart, dan sebagainya. Pada &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,144 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/gantt-jfreechart/">Membuat Gantt Chart Dengan JFreeChart</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-28T22:33:24+07:00" pubdate data-updated="true">Sep 28<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.jfree.org/jfreechart/" title="Homepage JFreeChart">JFreeChart</a> adalah library untuk menghasilkan chart dengan Java. Berbagai chart bisa dihasilkan, dari Pie Chart, Bar Chart, dan sebagainya.</p>
+
+<p>Pada artikel ini, kita akan mencoba membuat Gantt Chart. Gantt chart adalah diagram yang menunjukkan rangkaian task, tanggal mulai, selesai, dan persentase kemajuannya. Bagi mereka yang pernah menggunakan aplikasi manajemen proyek pasti tau apa itu Gantt Chart.</p>
+
+<p>Berikut output yang kita inginkan
+<img src="/images/uploads/2006/09/gantt.png" title="Gantt Chart" ></p>
+
+<p>Diagram di atas dihasilkan dari sumber data sebagai berikut</p>
+
+<table>
+<thead>
+<tr>
+<th>Aktivas     </th>
+<th> Tanggal Mulai     </th>
+<th> Tanggal Selesai   </th>
+<th> Persentase Selesai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UML Design  </td>
+<td> 01-01-2006        </td>
+<td> 03-01-2006        </td>
+<td> 100 %</td>
+</tr>
+<tr>
+<td>Coding      </td>
+<td> 02-01-2006        </td>
+<td> 03-01-2006        </td>
+<td> 75 %</td>
+</tr>
+<tr>
+<td>Testing     </td>
+<td> 03-01-2006        </td>
+<td> 14-01-2006        </td>
+<td> 50 %</td>
+</tr>
+<tr>
+<td>Integrate   </td>
+<td> 04-01-2006        </td>
+<td> 25-01-2006        </td>
+<td> 25 %</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Untuk mengubah data tersebut menjadi chart, berikut langkah-langkah dan kode yang digunakan.</p>
+
+<p>Pertama, kita harus buat data tersebut menjadi Task object.</p>
+
+<pre><code>Task design = new Task("UML Design", toDate("01-01-2006"), toDate("03-01-2006"));
+Task coding = new Task("Coding", toDate("02-01-2006"), toDate("03-01-2006"));
+Task test = new Task("Testing", toDate("03-01-2006"), toDate("14-01-2006"));
+Task commit = new Task("Integrate", toDate("04-01-2006"), toDate("25-01-2006"));
+</code></pre>
+
+<p>Untuk memudahkan konversi tanggal, saya buat method seperti ini</p>
+
+<pre><code>private static Date toDate(String date) throws ParseException {
+    return formatter.parse(date);
+}
+</code></pre>
+
+<p>kemudian, kita set persentase kemajuan task.</p>
+
+<pre><code>design.setPercentComplete(1);       
+coding.setPercentComplete(0.75);
+test.setPercentComplete(0.50);
+commit.setPercentComplete(0.25);
+</code></pre>
+
+<p>Task dapat dikelompokkan menjadi TaskSeries.</p>
+
+<pre><code>TaskSeries codingTasks = new TaskSeries("Coding Activities");
+codingTasks.add(design);
+codingTasks.add(coding);
+codingTasks.add(test);
+codingTasks.add(commit);
+</code></pre>
+
+<p>Dan kumpulan TaskSeries disebut TaskCollection</p>
+
+<pre><code>TaskSeriesCollection allTasks = new TaskSeriesCollection();
+allTasks.add(codingTasks);
+</code></pre>
+
+<p>TaskCollection ini digunakan untuk membuat chart.</p>
+
+<pre><code>JFreeChart chart = ChartFactory.createGanttChart("Coba Gantt Chart", "Task", "Tanggal", allTasks, false, false, false);
+</code></pre>
+
+<p>Terakhir, kita gambar chart menjadi file PNG</p>
+
+<pre><code>ChartUtilities.saveChartAsPNG(new File("output/gantt.png"), chart, 400, 300);
+</code></pre>
+
+<p>Selain menjadi PNG, kita juga bisa menghasilkan file JPEG</p>
+
+<pre><code>ChartUtilities.saveChartAsJPEG(new File("output/gantt.jpg"), chart, 400, 300);
+</code></pre>
+
+<p>Demikianlah cara membuat chart dengan JFreeChart. Selain Gantt chart masih banyak lagi fitur JFreeChart yang bagus. Silahkan download dan coba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -375,552 +513,6 @@ Mari kita coba jalankan file installer tersebut.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ruthless-testing-4/">Ruthless Testing 4</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-09-26T19:39:44+07:00" pubdate data-updated="true">Sep 26<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Database testing merupakan suatu kegiatan yang sulit, apalagi dalam dunia Java. Bayangkan saja, untuk melakukan testing database, kita harus melakukan :</p>
-
-<ol>
-<li><p>Membuat skema database. Skema terdiri dari dari tabel, constraint, view, dan lainnya.</p></li>
-<li><p>Mengisi sampel data.</p></li>
-<li><p>Mengeksekusi query.</p></li>
-<li><p>Periksa ke database untuk memastikan hasilnya benar.</p></li>
-<li><p>Koreksi atau lanjutkan sesuai dengan hasil di nomer 4.</p></li>
-</ol>
-
-
-<p>Semua kegiatan di atas sangat membosankan dan melelahkan untuk diulang-ulang setiap kali melakukan perubahan kode program. Akibatnya programmer menjadi bosan dan malas mengetes kode programnya. Padahal kode akses database merupakan salah satu bagian krusial dalam aplikasi.</p>
-
-<p>Pada artikel ini kita akan membahas cara membuat kode akses database yang mudah dan cepat, dilengkapi dengan testing yang menyeluruh dan menyenangkan.</p>
-
-<p>Saya biasanya menggunakan kombinasi Spring Framework dan Hibernate. Dengan kombinasi ini, kita dapat membuat aplikasi dengan sangat cepat.</p>
-
-<p>Kita mulai dengan struktur tabel sederhana. Misalnya kita memiliki class Siswa, sebagai berikut:</p>
-
-<h3>Class Siswa</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Siswa</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">nama</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">Date</span> <span class="n">tanggalLahir</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">id</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getNama</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">nama</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Date</span> <span class="nf">getTanggalLahir</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">tanggalLahir</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// setter method  </span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>class ini akan disimpan di database dengan struktur tabel (MySQL) sebagai berikut:</p>
-
-<h3>mysql-schema.sql</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">TBL_SISWA</span> <span class="p">(</span>
-</span><span class='line'>  <span class="n">id_siswa</span> <span class="nb">INT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">nama</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
-</span><span class='line'>  <span class="n">tanggal_lahir</span> <span class="nb">DATE</span>
-</span><span class='line'><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dengan menggunakan Hibernate, kita tidak perlu menulis SQL query. Sebagai gantinya, kita harus memberitahu Hibernate tentang skema database kita. Caranya adalah dengan menambahkan annotation sehingga class kita menjadi seperti ini:</p>
-
-<h3>Siswa.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
-</span><span class='line'><span class="nd">@Entity</span>
-</span><span class='line'><span class="nd">@Table</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;TBL_SISWA&quot;</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Siswa</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">nama</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">Date</span> <span class="n">tanggalLahir</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@Id</span>
-</span><span class='line'>  <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;id_siswa&quot;</span><span class="o">)</span>
-</span><span class='line'>  <span class="nd">@GeneratedValue</span><span class="o">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">GenerationType</span><span class="o">.</span><span class="na">AUTO</span><span class="o">)</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">id</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getNama</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">nama</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;tanggal_lahir&quot;</span><span class="o">)</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Date</span> <span class="nf">getTanggalLahir</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">tanggalLahir</span><span class="o">;</span> <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Pembaca yang teliti segera protes, &#8220;Ada yang ketinggalan!! Di atas public String getNama() belum ada @Column&#8221; <br/>
-Tidak, itu bukan kelupaan. Tapi memang Hibernate dapat dengan cerdas menebak nama kolom. <em>public String getNama</em> akan diterjemahkan menjadi kolom <em>nama</em>. Bahkan seandainya nama tabel kita <em>SISWA</em> (bukannya <em>TBL_SISWA</em>), kita tidak perlu menuliskan @Table.</p>
-
-<p>Oke. Sekarang mapping sudah selesai. Saatnya membuat kode untuk mengisi record (create), membaca record (read), mengubah record (update), dan menghapus record (delete). Empat serangkai operasi database ini dikenal dengan istilah CRUD.</p>
-
-<p>Pertama, kita buat interface dulu, kode yang mendefinisikan operasi CRUD ini.</p>
-
-<h3>SiswaDao.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SiswaDao</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">create</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">);</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Siswa</span> <span class="nf">getById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">);</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">);</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Pembuatan interface berguna supaya kapan-kapan kalau kita sudah bosan dengan Hibernate, kita bisa mengganti dengan implementasi yang lainnya, misalnya iBatis atau JDBC biasa.</p>
-
-<p>Berikut implementasi operasi CRUD dengan Spring dan Hibernate.</p>
-
-<h3>SiswaDaoHibernate.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SiswaDaoHibernate</span> <span class="kd">extends</span> <span class="n">HibernateDaoSupport</span> <span class="kd">implements</span> <span class="n">SiswaDao</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">create</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">){</span>
-</span><span class='line'>    <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Siswa</span> <span class="nf">getById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">){</span>
-</span><span class='line'>    <span class="k">return</span> <span class="o">(</span><span class="n">Siswa</span><span class="o">)</span> <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">load</span><span class="o">(</span><span class="n">Siswa</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">){</span>
-</span><span class='line'>    <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">update</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Lagi-lagi ada yang bertanya, &#8220;Kok tidak ada kode untuk menangani koneksi database? Mana connect dan disconnect dengan database? Mana kode untuk begin dan commit transaction?&#8221;</p>
-
-<p>Semua kode birokratis yang ditanyakan barusan akan diinisialisasi melalui Spring Framework. Sebenarnya kita bisa saja menginisialisasi sendiri melalui kode program biasa. Tapi akan lebih efisien dan konsisten apabila kita menggunakan Spring Framework, seperti akan kita lihat sebentar lagi.</p>
-
-<p>Berikut adalah deklarasi SiswaDaoHibernate, DataSource koneksi database, dan konfigurasi transaction :</p>
-
-<h3>belajar.xml</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;beans&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;siswaDaoAsli&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.hibernate.SiswaDaoHibernate&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;sessionFactory&quot;</span><span class="nt">&gt;&lt;ref</span> <span class="na">bean=</span><span class="s">&quot;sessionFactory&quot;</span><span class="nt">/&gt;&lt;/property&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sessionFactory&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;annotatedClasses&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;list&gt;</span>
-</span><span class='line'>          <span class="nt">&lt;value&gt;</span>tutorial.hibernate.Siswa<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;/list&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;/property&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;hibernateProperties&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;props&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;hibernate.hbm2ddl.auto&quot;</span><span class="nt">&gt;</span>create<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;hibernate.dialect&quot;</span><span class="nt">&gt;</span>org.hibernate.dialect.MySQLInnoDBDialect<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/props&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;/property&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DriverManagerDataSource&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;driverClassName&quot;</span> <span class="na">value=</span><span class="s">&quot;com.mysql.jdbc.Driver&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;url&quot;</span> <span class="na">value=</span><span class="s">&quot;jdbc:mysql://localhost/belajar&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;belajar&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;belajar&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;siswaDao&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.transaction.interceptor.TransactionProxyFactoryBean&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;transactionManager&quot;</span> <span class="na">ref=</span><span class="s">&quot;transactionManager&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;target&quot;</span> <span class="na">ref=</span><span class="s">&quot;siswaDaoAsli&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;transactionAttributes&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>          <span class="nt">&lt;props&gt;</span>
-</span><span class='line'>
-</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED,readOnly<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>
-</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;create*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;update*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>
-</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;delete*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>
-</span><span class='line'>          <span class="nt">&lt;/props&gt;</span>
-</span><span class='line'>
-</span><span class='line'>      <span class="nt">&lt;/property&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;transactionManager&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;sessionFactory&quot;</span> <span class="na">ref=</span><span class="s">&quot;sessionFactory&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'><span class="nt">&lt;/beans&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Object yang kita gunakan adalah siswaDao. Object ini dirangkai dari berbagai object lain, diantaranya adalah koneksi database (dataSource), transaction interceptor (gunakan transaction untuk method create<em>, update</em>, delete*), dan transaction manager untuk mengelola transaction Hibernate.</p>
-
-<p>Perhatikan kode ini:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;hibernate.hbm2ddl.auto&quot;</span><span class="nt">&gt;</span>create<span class="nt">&lt;/prop&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Baris kode di atas akan men-drop seluruh tabel dan constraint di database, dan membuat ulang semuanya. Dengan demikian, database kita akan fresh seperti baru.</p>
-
-<p><strong>PERHATIAN!!! Jangan dijalankan di database production!!</strong></p>
-
-<p>Berikut adalah unit test untuk class SiswaDaoHibernate:</p>
-
-<h3>SiswaDaoHibernateTest.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SiswaDaoHibernateTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">ApplicationContext</span> <span class="n">ctx</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">SiswaDao</span> <span class="n">dao</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">DataSource</span> <span class="n">ds</span><span class="o">;</span>
-</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Connection</span> <span class="n">conn</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">static</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;belajar.xml&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">dao</span> <span class="o">=</span> <span class="o">(</span><span class="n">SiswaDao</span><span class="o">)</span><span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;siswaDao&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">ds</span> <span class="o">=</span> <span class="o">(</span><span class="n">DataSource</span><span class="o">)</span><span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;dataSource&quot;</span><span class="o">););</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">tearDown</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCreate</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">Siswa</span> <span class="n">endy</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Siswa</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">endy</span><span class="o">.</span><span class="na">setNama</span><span class="o">(</span><span class="s">&quot;Endy Muhardin&quot;</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">endy</span><span class="o">.</span><span class="na">setTanggalLahir</span><span class="o">(</span><span class="k">new</span> <span class="n">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;dd-MM-yyyy&quot;</span><span class="o">).</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;17-08-1945&quot;</span><span class="o">));</span>
-</span><span class='line'>        <span class="n">dao</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">endy</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// mari kita test</span>
-</span><span class='line'>        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;SELECT * FROM TBL_USER WHERE nama=&#39;Endy Muhardin&#39;&quot;</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">createStatement</span><span class="o">().</span><span class="na">executeQuery</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">assertTrue</span><span class="o">(</span><span class="s">&quot;harusnya ada minimal satu record&quot;</span><span class="o">,</span> <span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">());</span>
-</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;coba cek tanggal lahir&quot;</span><span class="o">,</span> <span class="n">rs</span><span class="o">.</span><span class="na">getDate</span><span class="o">(</span><span class="s">&quot;tanggal_lahir&quot;</span><span class="o">),</span> <span class="k">new</span> <span class="n">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;dd-MM-yyyy&quot;</span><span class="o">).</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;17-08-1945&quot;</span><span class="o">));</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Nah, dengan adanya unit test di atas, kita tidak perlu lagi secara manual menjalankan kode test, kemudian memeriksa isi database.</p>
-
-<p>Sekarang, bagaimana mengetes method getById? Apakah kita harus melakukan <em>insert</em> dulu baru kemudian menjalankan <em>dao.getById(1)</em> ?</p>
-
-<p>Tidak perlu. Kita dapat menggunakan DBUnit untuk menginisialisasi sampel data.
-Kita buat sampel data (fixture) sebagai berikut:</p>
-
-<h3>siswa-fixture.xml</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;dataset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;TBL_USER</span> <span class="na">id=</span><span class="s">&quot;99&quot;</span>
-</span><span class='line'>              <span class="na">nama=</span><span class="s">&quot;Khalisa Alayya&quot;</span>
-</span><span class='line'>              <span class="na">tanggal_lahir=</span><span class="s">&quot;2005-12-31&quot;</span>
-</span><span class='line'>    <span class="nt">/&gt;</span>
-</span><span class='line'><span class="nt">&lt;/dataset&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Sekarang, pastikan fixture di atas dijalankan sebelum setiap test dieksekusi. Caranya adalah dengan menambahkan kode berikut di method setUp:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// inisialisasi koneksi DBUnit</span>
-</span><span class='line'>    <span class="n">DatabaseConnection</span> <span class="n">dbUnitConn</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseConnection</span><span class="o">(</span><span class="n">conn</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// inisialisasi fixture</span>
-</span><span class='line'>    <span class="n">FlatXmlDataSet</span> <span class="n">fixture</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlatXmlDataSet</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;siswa-fixtures.xml&quot;</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbUnitConn</span><span class="o">,</span><span class="n">fixture</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Kode ini :</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbUnitConn</span><span class="o">,</span><span class="n">fixture</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>akan menghapus semua data yang ada di database, dan mengisinya dengan satu record, yaitu <em>Khalisa Alayya</em>.</p>
-
-<p>Sehingga kita dapat membuat kode test seperti ini:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testGetById</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">Siswa</span> <span class="n">khalisa</span> <span class="o">=</span> <span class="n">dao</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="mi">99</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">khalisa</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Khalisa Alayya&quot;</span><span class="o">,</span> <span class="n">khalisa</span><span class="o">.</span><span class="na">getNama</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Berikut adalah Ant script untuk mengeksekusi test di atas:</p>
-
-<h3>build.xml</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;project</span> <span class="na">name=</span><span class="s">&quot;belajar-hibernate&quot;</span> <span class="na">default=</span><span class="s">&quot;test&quot;</span> <span class="na">basedir=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c">&lt;!-- silahkan lengkapi dengan target compile --&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;test&quot;</span> <span class="na">depends=</span><span class="s">&quot;compile&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;junit</span> <span class="na">haltonfailure=</span><span class="s">&quot;true&quot;</span> <span class="na">fork=</span><span class="s">&quot;true&quot;</span> <span class="na">printsummary=</span><span class="s">&quot;yes&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">refid=</span><span class="s">&quot;project-classpath&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;formatter</span> <span class="na">type=</span><span class="s">&quot;xml&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;batchtest</span> <span class="na">todir=</span><span class="s">&quot;report/junit&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>                <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;bin&quot;</span> <span class="na">includes=</span><span class="s">&quot;**/*Test.class&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;/batchtest&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/junit&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/target&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/project&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Silahkan jalankan berkali-kali sepuasnya. Rangkaian kode di atas akan dengan senang hati melakukan:</p>
-
-<ol>
-<li><p>Pembuatan schema</p></li>
-<li><p>Mengisi sampel data</p></li>
-<li><p>Menjalankan kode program</p></li>
-<li><p>Memeriksa hasilnya di database</p></li>
-</ol>
-
-
-<p>Tidak perlu memelototi <em>phpmyadmin</em> lagi :D</p>
-
-<p>Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/48/">&larr; Older</a>
@@ -983,6 +575,10 @@ Kita buat sampel data (fixture) sebagai berikut:</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
       </li>
     
@@ -1016,10 +612,6 @@ Kita buat sampel data (fixture) sebagai berikut:</p>
     
       <li class="post">
         <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/manajemen/training-cmmi/">Training CMMI</a>
       </li>
     
   </ul>

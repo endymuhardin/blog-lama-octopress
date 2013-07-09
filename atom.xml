@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-07-08T22:04:31+07:00</updated>
+  <updated>2013-07-09T14:08:06+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,986 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Self Signed Certificate]]></title>
+    <link href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/"/>
+    <updated>2013-07-09T13:41:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate</id>
+    <content type="html"><![CDATA[<p>Idealnya, sertifikat SSL disetujui (signed) oleh Certificate Authority (CA).
+Proses persetujuan ini biasanya dikenakan biaya, walaupun ada juga yang <a href="http://www.startssl.com/?app=1">gratisan</a>.
+Sertifikat yang disetujui CA memiliki batas waktu pemakaian. Setelah waktu tersebut habis, maka sertifikat tidak bisa digunakan dan kita harus mengurus perpanjangannya.</p>
+
+<p>Kondisi ini tentu kurang menyenangkan pada waktu kita ada di fase development. Untuk itu kita ingin membuat sertifikat sendiri, dan kemudian menyetujuinya sendiri juga. Ini disebut dengan istilah <code>self-signed certificate</code>. Bila diakses di browser, <code>self-signed certificate</code> ini akan menimbulkan peringatan. Tapi tidak masalah, karena yang pakai hanya kita sendiri, bukan end-user.</p>
+
+<p>Artikel ini adalah bagian kedua dari 4 artikel, yaitu:</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
+<li>Membeli sertifikat SSL</li>
+<li>Memasang sertifikat SSL</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Garis Besar Prosedur</h2>
+
+<p>Ada beberapa langkah yang perlu kita lakukan untuk membuat self-signed certificate. Berikut adalah hasil akhir yang kita harapkan setelah semua prosedur dilalui:</p>
+
+<ul>
+<li>File private key yang dienkripsi dengan password</li>
+<li>File certificate yang sudah disetujui CA</li>
+<li>File certificate milik CA. Untuk self-signed filenya cuma satu. Tapi ketika kita membeli sertifikat berbayar, file dari CA ini bisa banyak tergantung dari rantai approval dari CA tersebut.</li>
+<li>Khusus untuk aplikasi Java, ketiga file tersebut harus dimasukkan ke dalam database yang disebut dengan istilah <code>keystore</code></li>
+</ul>
+
+
+<p>Berikut adalah langkah-langkah untuk membuat self-signed certificate:</p>
+
+<ol>
+<li>Buat private key</li>
+<li>Buat permohonan persetujuan sertifikat, dalam bahasa Inggris disebut Certificate Signing Request (CSR)</li>
+<li>Buat dulu CA yang akan menandatangani sertifikat. Langkah ini tidak diperlukan bila kita membeli sertifikat dari CA.</li>
+<li>Setujui CSR oleh CA yang dibuat sendiri. Langkah ini juga harusnya dilakukan oleh CA yang benar.</li>
+<li>Khusus aplikasi Java, masukkan semua file yang dibutuhkan ke dalam <code>keystore</code></li>
+</ol>
+
+
+<h2>Aplikasi yang dibutuhkan</h2>
+
+<p>Ada dua aplikasi yang umum digunakan untuk melakukan prosedur di atas, yaitu <code>openssl</code> dan <code>keytool</code>. Aplikasi <code>openssl</code> biasanya sudah terinstal di distro Linux populer sehingga kita tinggal pakai saja. Aplikasi <code>keytool</code> merupakan bawaan dari Java SDK. Kita harus menginstal dulu Java SDK untuk bisa menggunakan aplikasi ini.</p>
+
+<p>Kedua aplikasi bisa melakukan semua prosedur di atas. Pertanyaan penting yang kita hadapi adalah</p>
+
+<blockquote><p>Mana yang lebih baik pakai openssl atau keytool ?</p></blockquote>
+
+<p>Setelah mencoba kedua aplikasi, saran saya adalah: gunakan OpenSSL untuk semua proses, kecuali memasukkan file ke dalam keystore. OpenSSL tidak bisa mengelola keystore, sehingga kita harus pakai keytool.</p>
+
+<blockquote><p>Kenapa begitu?</p></blockquote>
+
+<p>Untuk aplikasi web, sertifikat SSL biasanya digunakan oleh webserver. Bila aplikasi kita Java, maka webservernya adalah Tomcat atau Jetty. Apabila non Java, biasanya Apache HTTPD, Nginx, Lighttpd, atau lainnya.</p>
+
+<p>Webserver untuk aplikasi Java membutuhkan file sertifikat dalam bentuk keystore, sedangkan webserver untuk aplikasi non Java membutuhkan sertifikat dalam bentuk file text.</p>
+
+<p>Dari bentuk file text kita bisa membuat bentuk keystore dengan mudah. Cukup berbekal <code>openssl</code> dan <code>keytool</code> pekerjaan sudah bisa diselesaikan. Tapi sebaliknya, mengeluarkan private key dari keystore menjadi file text <a href="http://conshell.net/wiki/index.php/Keytool_to_OpenSSL_Conversion_tips">relatif sulit dan membutuhkan aplikasi tambahan</a>.</p>
+
+<p>Oleh karena itu, pada artikel ini, semua langkah akan dilakukan dengan OpenSSL. Keytool akan digunakan di bagian terakhir pada waktu kita ingin memasang sertifikat di Tomcat.</p>
+
+<h2>Struktur Folder</h2>
+
+<p>Sebagai studi kasus, kita akan membuat aplikasi web yang dihosting dengan nama domain <code>demo.muhardin.com</code>. Seluruh file yang terlibat dalam rangkaian artikel ini bisa diambil di <a href="https://github.com/endymuhardin/belajar-ssl">repository Github</a>. Perhatikan juga <a href="https://github.com/endymuhardin/belajar-ssl/commits/master">history commit</a> untuk mengetahui urutan langkah-langkah yang dilakukan.</p>
+
+<p>Siapkan dua folder, <code>ca</code> dan <code>demo.muhardin.com</code>. Folder <code>ca</code> akan digunakan untuk operasional CA yaitu menyetujui CSR yang masuk. Sedangkan folder <code>demo.muhardin.com</code> berisi semua file yang dibutuhkan webserver kita supaya bisa menjalankan HTTPS.</p>
+
+<p>Nantinya bila kita membeli sertifikat berbayar, kita tidak perlu membuat folder <code>ca</code> ini.</p>
+
+<h2>Membuat Private Key</h2>
+
+<p>Kita ingin membuat private key dengan konfigurasi sebagai berikut:</p>
+
+<ul>
+<li>ukuran key : 2048 bit</li>
+<li>algoritma : RSA</li>
+<li>enkripsi : AES 256 bit</li>
+</ul>
+
+
+<p>Berikut adalah perintahnya, lakukan di dalam folder <code>demo.muhardin.com</code> :</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl genrsa -aes256 2048 &gt; demo.muhardin.com.key</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut adalah outputnya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Generating RSA private key, 2048 bit long modulus
+</span><span class='line'>......+++
+</span><span class='line'>.................................+++
+</span><span class='line'>e is 65537 (0x10001)
+</span><span class='line'>Enter pass phrase:
+</span><span class='line'>Verifying - Enter pass phrase:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita diminta passphrase untuk mengenkripsi private key tersebut. Saya masukkan <code>test1234</code> sebagai password. Setelah selesai, kita akan mendapatkan satu file bernama <code>demo.muhardin.com.key</code>. Isinya adalah private key yang dienkripsi dengan algoritma AES berkekuatan 256 bit.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-----BEGIN RSA PRIVATE KEY-----
+</span><span class='line'>Proc-Type: 4,ENCRYPTED
+</span><span class='line'>DEK-Info: AES-256-CBC,425E8DDEEC7FD63F9E67608F7B25BAC5
+</span><span class='line'>
+</span><span class='line'>USIjQCyFsSfj/gbhXC0gT43qM9/4D9qGaEOAX2Ks7lxhs256LJImgeBywbnkzC67
+</span><span class='line'>l8ZJQlivxSlIaC658RUcVNNbWwN4EgsczCTSsGjxUxUQ46ay1XUaAbO82oLeZWx7
+</span><span class='line'>It0hQ/plno/kkpodtVwOvSks66ZdOIyTZ/IEA4BTMrmdsYi0PHfkbvlHfql9pdSO
+</span><span class='line'>8d4cbgQU9nSuGOzXIX1UEMXluTIYBP0aj151bvPeocjeK5WhioldTm+LemfutiMd
+</span><span class='line'>2N672BgMkhDeuYBauglChS0Q/fLmcRFM98ys+LcvEMlKtkT7L+vL4Wb7ulwhrOdG
+</span><span class='line'>g2ecMvAjcl9RBrSszOWZ6L2xMqvjFo6xS0bras1BVetYbvdC9PEQW0RXycbwzwGL
+</span><span class='line'>L9PJuQtKssI3MGTAydeKwrpT0Di27TiLqqb/QNBgJ/954JGLJJmpqVG3bt9YhCe5
+</span><span class='line'>DwGASsFysuRxNPCW1C3aQ3qhydA3xgYJZrpdaRAIk/KRwxx+CFrk4oV0dom0kVTx
+</span><span class='line'>w6jwjE0BS3q8e+nI42kXAilK84Qd4x6ZMAxM20DNQcucWGMRtJbrvvhJuLgMUNTI
+</span><span class='line'>MjOHAqojk9vAu5m4XXCUtXALhMZrepFXjaVTblfyPZ1hhFutiDhZaGzzj5SL1uoY
+</span><span class='line'>yLavTih3dQMpNBcOXY0TU/E4nKa0OhdGsNHs3gK9l77nO7IvZABviG2Qq50NuATj
+</span><span class='line'>AjvQVNeEiJKdq5FaiHgX+/g7PLNbXUtNWhLZ6jXLc6flQLOuBwiMCR0Ug/46IlTC
+</span><span class='line'>DOhsO36MDrMIxRjPgpcH00k9iXOvbuEILWGPjQ/WPNw7UoGEBepQSuIw2zzyD6ai
+</span><span class='line'>DHVx2pD60U2anRzvvXzVR7Tf42Tm1fxR4epTdrJIY3LJQtTr2PMCNbcn8+kGfTg1
+</span><span class='line'>M+1MCr+WN2pJhpYYr7ACFXFBJc1QLc/wF6/e47bkH3BLxWLZG1KQsLKzLim4teX+
+</span><span class='line'>zFvBkOz7SSgDlH0xyogiihjlgZxjRNkk/P5OvtbdKWpOrJh649mw+zwvuN3TmrA0
+</span><span class='line'>C/m70olU9QgjLCK3wlgkIr6bj1dS4sDPHghmEtpmp6OC8Ao1R9zDsIhIM1K9+ro7
+</span><span class='line'>rE/TzvADeZPg7tzwzRJeTiYq2gN/xxeqlW7YdxGZVPizcfPtqhLnBqzxKeb/uKjT
+</span><span class='line'>xuDMlQwZdlTV1QAGB1HKlb3qZdBtyEfUDEkwDL2z66r6roR750DtMnCwTsv9RIAJ
+</span><span class='line'>9J2BBIvWjBQiS61p+m5vQ+9ImfqIs6KnZmvbvX5qZvrXRlqyQKdcio87AbqlPNl8
+</span><span class='line'>IwrNP5ZePS5fBOJXcqtrecOKB3un+HmqiHqKWl8+O8TaMlgJNwdyw+4etzDWSH11
+</span><span class='line'>7AYJJ2SXqIVf0UqZPeYHS7oBsISvP2ekRLAx0XSvxnukBSGolRzyhs8oaRhB3MBr
+</span><span class='line'>uJRlKnQAfcFCk1zMNa75CC2vPP2WFMPixaR4HbBQ0pnMQp3KQHCuwmU7miS56EQm
+</span><span class='line'>hZVa0yzlKJ/Tiv7Vy+1v0FSiVqWhO5K1p/TG0jcj2tsQ76P2gwXvUZLFnm7bdom2
+</span><span class='line'>o8OfPVrr1Btje9+InVqiw2N3pgBBhRmE8ug/IYmz3tU3dxjXvjoJLpklah7ag4s2
+</span><span class='line'>-----END RSA PRIVATE KEY-----</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Membuat CSR</h2>
+
+<p>Dengan bermodalkan private key tersebut, kita akan membuat CSR. Berikut perintahnya:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl req -new -key demo.muhardin.com.key -out demo.muhardin.com.csr</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita akan ditanyai beberapa pertanyaan yang akan kita bahas dibawah. Berikut adalah outputnya.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter pass phrase for demo.muhardin.com.key:
+</span><span class='line'>You are about to be asked to enter information that will be incorporated
+</span><span class='line'>into your certificate request.
+</span><span class='line'>What you are about to enter is what is called a Distinguished Name or a DN.
+</span><span class='line'>There are quite a few fields but you can leave some blank
+</span><span class='line'>For some fields there will be a default value,
+</span><span class='line'>If you enter '.', the field will be left blank.
+</span><span class='line'>-----
+</span><span class='line'>Country Name (2 letter code) [AU]:ID
+</span><span class='line'>State or Province Name (full name) [Some-State]:DKI Jakarta
+</span><span class='line'>Locality Name (eg, city) []:Jakarta Timur
+</span><span class='line'>Organization Name (eg, company) [Internet Widgits Pty Ltd]:PT. Endy Muhardin
+</span><span class='line'>Organizational Unit Name (eg, section) []:Divisi Teknologi Informasi
+</span><span class='line'>Common Name (e.g. server FQDN or YOUR name) []:demo.muhardin.com
+</span><span class='line'>Email Address []:endy@muhardin.com
+</span><span class='line'>
+</span><span class='line'>Please enter the following 'extra' attributes
+</span><span class='line'>to be sent with your certificate request
+</span><span class='line'>A challenge password []:
+</span><span class='line'>An optional company name []:</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Kita diminta passphrase untuk membuka private key. Masukkan <code>test1234</code> seperti yang kita buat pada langkah pertama.</li>
+<li>Kita akan ditanyai informasi tentang identitas kita. Masukkan sesuai kebutuhan.</li>
+<li>Kita harus mengisi <code>Common Name</code>. Ini penting, terutama kalau kita membeli sertifikat berbayar!! Pastikan kita isi sesuai nama domain yang ingin kita pasangi https. Bila namanya tidak cocok, sertifikatnya akan menimbulkan warning. Saya isi sesuai nama domain yaitu <code>demo.muhardin.com</code>.</li>
+<li>Email address juga harus diisi dengan benar. Ini biasanya digunakan CA untuk melakukan verifikasi.</li>
+<li>Challenge password dan optional company name tidak saya isi</li>
+</ol>
+
+
+<p>Hasilnya adalah file CSR bernama <code>demo.muhardin.com.csr</code> yang isinya sebagai berikut.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-----BEGIN CERTIFICATE REQUEST-----
+</span><span class='line'>MIIDADCCAegCAQAwgboxCzAJBgNVBAYTAklEMRQwEgYDVQQIDAtES0kgSmFrYXJ0
+</span><span class='line'>YTEWMBQGA1UEBwwNSmFrYXJ0YSBUaW11cjEaMBgGA1UECgwRUFQuIEVuZHkgTXVo
+</span><span class='line'>YXJkaW4xIzAhBgNVBAsMGkRpdmlzaSBUZWtub2xvZ2kgSW5mb3JtYXNpMRowGAYD
+</span><span class='line'>VQQDDBFkZW1vLm11aGFyZGluLmNvbTEgMB4GCSqGSIb3DQEJARYRZW5keUBtdWhh
+</span><span class='line'>cmRpbi5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC/CYCB6xU9
+</span><span class='line'>j6k0JwB4TwF2hI+H41fH1fG1J/ZZPO3tXaJuibrXOnJNMAXD+GkSv/fOA45uIcX4
+</span><span class='line'>6vvULXNz/fS8z3+RkVdrQ/BH2MBMeHjlU3duPYhv6c3yUVmZr7IsViBhTswT1VG9
+</span><span class='line'>ZAq57lmjc/DTI/8PjGFvA64pzeWce3yTAmu30zwnDQ22m5gGOfPMfsf2TTW3B1eS
+</span><span class='line'>Nv5WmlAIr6DtB4KxeCMXoKnIzBTDpqkeEf+MuIsqCw4/eXnWgBHZH66VIAy/9ygk
+</span><span class='line'>hvX2dQNaMAZoExOfAEWVYtzgW84t0j+CwSgxQuk/nvjknE5TGXOrhjZg8mn0eXZK
+</span><span class='line'>mmReIsYwjc09AgMBAAGgADANBgkqhkiG9w0BAQUFAAOCAQEAlbGTK4M2/wCHjg9p
+</span><span class='line'>aveomNfU/9qvcK7YTBNNET/ryZGcDCWmG8td01BeSeJUHhqjdxFWHBFsdg+aK5L1
+</span><span class='line'>xNd/eKG6NT7obviVHZGPVU2xMAIEOjx1xBP3FNbpIkuvapXcUxGBFlKy5aEmX2oo
+</span><span class='line'>/XYyu582J69t9HeDxVBKpdHoLEfwnvTGytka4GRwDZBwiDHTWYlKeBONUUCqO1/L
+</span><span class='line'>cd6GqFek37YPoP8ZfMIwTMDGrnCpcK0Z/nhkOZKAgfLtbHgHxvDG1ZUiul1hCLiY
+</span><span class='line'>U+us6wgir1kbWXN9Jg6IFlN3ZeLQ4ahDSkIvmLO34ujtFwlq870qJArcW57Po5Pl
+</span><span class='line'>3/bddQ==
+</span><span class='line'>-----END CERTIFICATE REQUEST-----</span></code></pre></td></tr></table></div></figure>
+
+
+<p>File CSR ini akan dikirim pemilik domain ke CA, biasanya melalui email.</p>
+
+<p>Selesailah bagian pemilik domain. Selanjutnya kita akan berpura-pura menjadi CA.</p>
+
+<h2>CA menyetujui CSR dari pemilik domain</h2>
+
+<h3>Kelengkapan CA</h3>
+
+<p>Sebelum bisa menyetujui, kita sediakan dulu kelengkapan CA, yaitu:</p>
+
+<ul>
+<li>private key CA</li>
+<li>sertifikat CA</li>
+</ul>
+
+
+<h3>Private Key CA</h3>
+
+<p>Private key CA dibuat dengan perintah yang sama seperti pembuatan private key domain di atas.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl genrsa -aes256 2048 &gt; ca.key</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seperti sebelumnya, kita juga akan dimintai passphrase.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Generating RSA private key, 2048 bit long modulus
+</span><span class='line'>..+++
+</span><span class='line'>.............................................................+++
+</span><span class='line'>e is 65537 (0x10001)
+</span><span class='line'>Enter pass phrase:
+</span><span class='line'>Verifying - Enter pass phrase:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Saya gunakan <code>testca1234</code> sebagai passphrasenya. Hasilnya adalah file <code>ca.key</code> berisi text sebagai berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-----BEGIN RSA PRIVATE KEY-----
+</span><span class='line'>Proc-Type: 4,ENCRYPTED
+</span><span class='line'>DEK-Info: AES-256-CBC,B7E9F6A263310662657F6B7052CE5CA0
+</span><span class='line'>
+</span><span class='line'>7JX037X9M4Eqsr+BdM/27pj6ADtJIGAYQpHAFoZawhrmArW0PScnjbh/B1R06z3K
+</span><span class='line'>ej4HewKQB+SqCznHhmFpJmAuBpb0+snMZuoI3lm1zcRFUs8OSsLLd1B1w4USJlYN
+</span><span class='line'>K9mzLqQMlZrl56W9c4QthOegjkqE7RHleierWW3X2VqtWD29GISE8yi9mSb/hSaN
+</span><span class='line'>iATuMUaO8etM21F1MZownxKeetfBHJF2Y0XNt9AamrL8+gvb/dE2pPn8Zi2tlR3O
+</span><span class='line'>eoUX/FKaa0aV+f6e3X8IRivFp01mnT5UFm1OyDhDrQ1OL0tNzIlLMLqlk8o9njJ0
+</span><span class='line'>bBTlDAp5yZFbxtb/GZ94S8x9Nqql5ymVGFTC3BfE0TAfWMIH8YRYEVqMK8YLbGyg
+</span><span class='line'>M0vkDpV6impYgaTzJdICVdvOzb7rU9TnvkWsMrp3SRpSqoCtst6yDD59kXBgbPBq
+</span><span class='line'>Mj9QeCSXh8jf3LkKq2evSpJ6GlbCzR5EXeWCFcevsHY2xN//jA8v5UPtBOtojYu2
+</span><span class='line'>/uyAipnwctj+FEXki1BJwNrPuygzxibImJF3K4u83BkA2bBwIionufr71fNyUNai
+</span><span class='line'>2ToKPmxEgOFWGqypSsAw/GUw0LVseg4OlD+Ci2PCYPSwzcvkwulCklXOv8oIuXPb
+</span><span class='line'>hsoTVin67c5diok6ayqgyZuMLVIJKr2CAK+Gm77EO652SaIGJtdx5+DBs4BP/XF/
+</span><span class='line'>flgwG6DFpft2q93qaYqLPv2LqXAzsP6ACXBRjbPLUMkjv8Sg4iijy1siCxI9i9+N
+</span><span class='line'>harFVLRSagFy0dXDw/Wur42xsypcTCMY9kujszx0P4+1BO+vkdNCpSWWofgcIFhI
+</span><span class='line'>nZwLpHm9YZ5Sb7GxigBXh7dXc4Q+y2X8xvTg3Xdf+Cew4LpFktAByunUDjw4hjv4
+</span><span class='line'>iy56Rvx7lcxlmpwxXw3ZQTZinkSM7f7wqZjvH4E+wt5ShlPrFUGl3d2hmJ2thOTl
+</span><span class='line'>hWJ9CYZDDV02UtfYRVqpyY2BCKG3d4YfkUprfGs38/eJMA5zCUi8Uy6eJNu8t4gI
+</span><span class='line'>d55PEBltgyMOw8I4M3anbdYwphjhdlQPkbpbsA+AkV+m5dRIjSLxNSG1wXXyVuhI
+</span><span class='line'>vMLfrZ3uIKEkn9YXkb59lDx2E8NCmBU7hcV+w7hLu12q8CRCPZZNjnsbNa3Zg4X3
+</span><span class='line'>sBN78ak5OOp4thLRSeykpHdPn8sWyyk9RPGaAHv2Y3n4zv5P9JqZe4hA14sAjxj1
+</span><span class='line'>Ur+0gLfWoWQwu68F6fsOvngQnMjQneJaSHjhFdGr+HXdzOFqP9u6nxb9LpeFMTX9
+</span><span class='line'>i6Ut2IVvTL55LN5TT/U0mcvQo0C/k+31ABNTrsWhv3mkoj92RzWBGoj+1bM1NbeA
+</span><span class='line'>foSmmX674LnSUQvqlmsSOtDG5PCVBz+J5C+cmcGp98QFX5ViC2hVi3R+ItPbIirS
+</span><span class='line'>7NjJzXZ/f3yz8TOr5MU+I4aYtYNDMvzU8dArTHE8fU++dBTCj2F0KvpIGZlRpHf8
+</span><span class='line'>D6AA0a/9VNpwUyILeWD8rjdDiIvx3xPIODMZaN5SJFFAtbDKy9AhU1JCsNAjYdLz
+</span><span class='line'>crBRgAwXpcGHOTeDZr+nevcSo8sm7gsqyXcJ6c8r8urnOAKWhvptxGzy6LG8XqPQ
+</span><span class='line'>-----END RSA PRIVATE KEY-----</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Sertifikat CA</h3>
+
+<p>Selanjutnya kita buat sertifikat berisi informasi tentang CA palsu kita ini. Sertifikat ini yang akan kita gunakan untuk menyetujui CSR dari pemilik domain. Berikut perintahnya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl req -new -x509 -days 3650 -key ca.key &gt; ca.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah di atas akan membuat sertifikat dengan <a href="http://en.wikipedia.org/wiki/X.509#Structure_of_a_certificate">format X-509</a>, berlaku selama 10 tahun (3650 hari), menggunakan private key dalam file <code>ca.key</code>. Sertifikat ini akan ditulis ke file <code>ca.crt</code>. Kita juga akan ditanyai beberapa informasi tentang CA palsu yang kita buat ini. Berikut output dari perintah di atas</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter pass phrase for ca.key:
+</span><span class='line'>You are about to be asked to enter information that will be incorporated
+</span><span class='line'>into your certificate request.
+</span><span class='line'>What you are about to enter is what is called a Distinguished Name or a DN.
+</span><span class='line'>There are quite a few fields but you can leave some blank
+</span><span class='line'>For some fields there will be a default value,
+</span><span class='line'>If you enter '.', the field will be left blank.
+</span><span class='line'>-----
+</span><span class='line'>Country Name (2 letter code) [AU]:ID
+</span><span class='line'>State or Province Name (full name) [Some-State]:DKI Jakarta
+</span><span class='line'>Locality Name (eg, city) []:Jakarta Timur
+</span><span class='line'>Organization Name (eg, company) [Internet Widgits Pty Ltd]:CA Palsu
+</span><span class='line'>Organizational Unit Name (eg, section) []:Divisi Sertifikasi
+</span><span class='line'>Common Name (e.g. server FQDN or YOUR name) []:ROOT CA Palsu
+</span><span class='line'>Email Address []:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut adalah isi file <code>ca.crt</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>MIIEKzCCAxOgAwIBAgIJAKHgEOaDGy3mMA0GCSqGSIb3DQEBBQUAMIGrMQswCQYD
+</span><span class='line'>VQQGEwJJRDEUMBIGA1UECAwLREtJIEpha2FydGExFjAUBgNVBAcMDUpha2FydGEg
+</span><span class='line'>VGltdXIxETAPBgNVBAoMCENBIFBhbHN1MRswGQYDVQQLDBJEaXZpc2kgU2VydGlm
+</span><span class='line'>aWthc2kxFjAUBgNVBAMMDVJPT1QgQ0EgUGFsc3UxJjAkBgkqhkiG9w0BCQEWF2Vu
+</span><span class='line'>ZHkubXVoYXJkaW5AZ21haWwuY29tMB4XDTEzMDcwOTA0MDg1MloXDTIzMDcwNzA0
+</span><span class='line'>MDg1MlowgasxCzAJBgNVBAYTAklEMRQwEgYDVQQIDAtES0kgSmFrYXJ0YTEWMBQG
+</span><span class='line'>A1UEBwwNSmFrYXJ0YSBUaW11cjERMA8GA1UECgwIQ0EgUGFsc3UxGzAZBgNVBAsM
+</span><span class='line'>EkRpdmlzaSBTZXJ0aWZpa2FzaTEWMBQGA1UEAwwNUk9PVCBDQSBQYWxzdTEmMCQG
+</span><span class='line'>CSqGSIb3DQEJARYXZW5keS5tdWhhcmRpbkBnbWFpbC5jb20wggEiMA0GCSqGSIb3
+</span><span class='line'>DQEBAQUAA4IBDwAwggEKAoIBAQDda7cS/4qag6APajdqT7krxQOZZkYaCwzafZZN
+</span><span class='line'>P9ANwIfUvwB2DOMVLFDFf8DM/Y/hcm8lQAamTNnQ+b58X8oOqOwKX2Y6uPUau+n3
+</span><span class='line'>fCY4oTFhdYsbJHOW/hmTZXk+Exg3DHP+aFG7frUn39f8IuIGqujHIuWZfdokQFg8
+</span><span class='line'>AaheYdvigtIv3FBqxSCbNIYhmhkhZnrQvJbfbD92n1cHB91eYT9Mj2Z7tFt0ykVV
+</span><span class='line'>iQrOQ1n+CmMFUGheSD8Rnsi2ApsnBAsAj6ZruH1S+ZJJW+irZnbQE5LAsgUqjJYf
+</span><span class='line'>IFYMoVphTTEMVfoizj2JvspzinufX11V6lylPl0P7EhQvkNJAgMBAAGjUDBOMB0G
+</span><span class='line'>A1UdDgQWBBQ0c0rLkgOxJHxuBYyd3xeUVMHzxzAfBgNVHSMEGDAWgBQ0c0rLkgOx
+</span><span class='line'>JHxuBYyd3xeUVMHzxzAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBQUAA4IBAQBQ
+</span><span class='line'>W4t7WMj0FrVcxi/+W/jlAJ2BKGYev68bJiEeLVzbDHN3CQhfQwMWD0L0v6icP3c8
+</span><span class='line'>SLeGR+PEcq7FwGHb6gpIySVlnl8bxzRFK2lqfo+672djwtP0F/mrDKTDSzoIkPOq
+</span><span class='line'>G53otMXIAoplWDU7SRZE489AWfwOCCSmUJke9sEh1YYQwRVU7ceWSZLbRgfmzLeY
+</span><span class='line'>xjIfF/KBZrs8CMbYCEqHHHX5XAtIEP+3KSAbzfoxv/a07+FE+5/r5E6aXEBSbVme
+</span><span class='line'>y79zpM9VIV8FLlZr/+TITXqLKOBMmCmTVM1h1LJ8IjmWx9L6v631DX3/tc67HMoa
+</span><span class='line'>fauYxPo71IRYfIAN4RQ5
+</span><span class='line'>-----END CERTIFICATE-----</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Informasi di dalam sertifikat tersebut bisa kita lihat dengan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl x509 -noout -text -in ca.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ini adalah hasilnya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Certificate:
+</span><span class='line'>    Data:
+</span><span class='line'>        Version: 3 (0x2)
+</span><span class='line'>        Serial Number: 11664341617117703654 (0xa1e010e6831b2de6)
+</span><span class='line'>    Signature Algorithm: sha1WithRSAEncryption
+</span><span class='line'>        Issuer: C=ID, ST=DKI Jakarta, L=Jakarta Timur, O=CA Palsu, 
+</span><span class='line'>                OU=Divisi Sertifikasi, 
+</span><span class='line'>                CN=ROOT CA Palsu
+</span><span class='line'>        Validity
+</span><span class='line'>            Not Before: Jul  9 04:08:52 2013 GMT
+</span><span class='line'>            Not After : Jul  7 04:08:52 2023 GMT
+</span><span class='line'>        Subject: C=ID, ST=DKI Jakarta, L=Jakarta Timur, O=CA Palsu, 
+</span><span class='line'>                 OU=Divisi Sertifikasi, 
+</span><span class='line'>                 CN=ROOT CA Palsu
+</span><span class='line'>        Subject Public Key Info:
+</span><span class='line'>            Public Key Algorithm: rsaEncryption
+</span><span class='line'>                Public-Key: (2048 bit)
+</span><span class='line'>                Modulus:
+</span><span class='line'>                    00:dd:6b:b7:12:ff:8a:9a:83:a0:0f:6a:37:6a:4f:
+</span><span class='line'>                    b9:2b:c5:03:99:66:46:1a:0b:0c:da:7d:96:4d:3f:
+</span><span class='line'>                    d0:0d:c0:87:d4:bf:00:76:0c:e3:15:2c:50:c5:7f:
+</span><span class='line'>                    c0:cc:fd:8f:e1:72:6f:25:40:06:a6:4c:d9:d0:f9:
+</span><span class='line'>                    be:7c:5f:ca:0e:a8:ec:0a:5f:66:3a:b8:f5:1a:bb:
+</span><span class='line'>                    e9:f7:7c:26:38:a1:31:61:75:8b:1b:24:73:96:fe:
+</span><span class='line'>                    19:93:65:79:3e:13:18:37:0c:73:fe:68:51:bb:7e:
+</span><span class='line'>                    b5:27:df:d7:fc:22:e2:06:aa:e8:c7:22:e5:99:7d:
+</span><span class='line'>                    da:24:40:58:3c:01:a8:5e:61:db:e2:82:d2:2f:dc:
+</span><span class='line'>                    50:6a:c5:20:9b:34:86:21:9a:19:21:66:7a:d0:bc:
+</span><span class='line'>                    96:df:6c:3f:76:9f:57:07:07:dd:5e:61:3f:4c:8f:
+</span><span class='line'>                    66:7b:b4:5b:74:ca:45:55:89:0a:ce:43:59:fe:0a:
+</span><span class='line'>                    63:05:50:68:5e:48:3f:11:9e:c8:b6:02:9b:27:04:
+</span><span class='line'>                    0b:00:8f:a6:6b:b8:7d:52:f9:92:49:5b:e8:ab:66:
+</span><span class='line'>                    76:d0:13:92:c0:b2:05:2a:8c:96:1f:20:56:0c:a1:
+</span><span class='line'>                    5a:61:4d:31:0c:55:fa:22:ce:3d:89:be:ca:73:8a:
+</span><span class='line'>                    7b:9f:5f:5d:55:ea:5c:a5:3e:5d:0f:ec:48:50:be:
+</span><span class='line'>                    43:49
+</span><span class='line'>                Exponent: 65537 (0x10001)
+</span><span class='line'>        X509v3 extensions:
+</span><span class='line'>            X509v3 Subject Key Identifier: 
+</span><span class='line'>                34:73:4A:CB:92:03:B1:24:7C:6E:05:8C:9D:DF:17:94:54:C1:F3:C7
+</span><span class='line'>            X509v3 Authority Key Identifier: 
+</span><span class='line'>                keyid:34:73:4A:CB:92:03:B1:24:7C:6E:05:8C:9D:DF:17:94:54:C1:F3:C7
+</span><span class='line'>
+</span><span class='line'>            X509v3 Basic Constraints: 
+</span><span class='line'>                CA:TRUE
+</span><span class='line'>    Signature Algorithm: sha1WithRSAEncryption
+</span><span class='line'>         50:5b:8b:7b:58:c8:f4:16:b5:5c:c6:2f:fe:5b:f8:e5:00:9d:
+</span><span class='line'>         81:28:66:1e:bf:af:1b:26:21:1e:2d:5c:db:0c:73:77:09:08:
+</span><span class='line'>         5f:43:03:16:0f:42:f4:bf:a8:9c:3f:77:3c:48:b7:86:47:e3:
+</span><span class='line'>         c4:72:ae:c5:c0:61:db:ea:0a:48:c9:25:65:9e:5f:1b:c7:34:
+</span><span class='line'>         45:2b:69:6a:7e:8f:ba:ef:67:63:c2:d3:f4:17:f9:ab:0c:a4:
+</span><span class='line'>         c3:4b:3a:08:90:f3:aa:1b:9d:e8:b4:c5:c8:02:8a:65:58:35:
+</span><span class='line'>         3b:49:16:44:e3:cf:40:59:fc:0e:08:24:a6:50:99:1e:f6:c1:
+</span><span class='line'>         21:d5:86:10:c1:15:54:ed:c7:96:49:92:db:46:07:e6:cc:b7:
+</span><span class='line'>         98:c6:32:1f:17:f2:81:66:bb:3c:08:c6:d8:08:4a:87:1c:75:
+</span><span class='line'>         f9:5c:0b:48:10:ff:b7:29:20:1b:cd:fa:31:bf:f6:b4:ef:e1:
+</span><span class='line'>         44:fb:9f:eb:e4:4e:9a:5c:40:52:6d:59:9e:cb:bf:73:a4:cf:
+</span><span class='line'>         55:21:5f:05:2e:56:6b:ff:e4:c8:4d:7a:8b:28:e0:4c:98:29:
+</span><span class='line'>         93:54:cd:61:d4:b2:7c:22:39:96:c7:d2:fa:bf:ad:f5:0d:7d:
+</span><span class='line'>         ff:b5:ce:bb:1c:ca:1a:7d:ab:98:c4:fa:3b:d4:84:58:7c:80:
+</span><span class='line'>         0d:e1:14:39</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Konfigurasi CA</h3>
+
+<p>CA yang asli biasanya memiliki banyak private key dan certificate turunan.
+Dari private key dan certificate yang utama (Root), dia akan membuat beberapa private key dan certificate lain.
+Ini karena CA yang besar biasanya memiliki banyak reseller untuk menjualkan sertifikat SSL.
+Untuk membatasi resiko dan juga memudahkan pendataan, request dari pelanggan masing-masing reseller disetujui dengan certificate turunan yang diperuntukkan khusus untuk reseller tersebut. Dengan demikian, bila terjadi masalah dengan reseller tersebut,
+cukup certificate turunan yang khusus untuk reseller tersebut yang dibatalkan. Certificate turunan ini disebut dengan istilah <code>intermediate CA certificate</code>.</p>
+
+<p>Pada waktu pembuatan signature terhadap CSR, ada banyak informasi yang dibutuhkan. Apalagi kalau suatu CA memiliki banyak intermediate certificate, masing-masing intermediate certificate tersebut berbeda informasi <code>issuer</code> nya. Contohnya, suatu CA memiliki lini produk seperti ini:</p>
+
+<ul>
+<li>Gratis : hanya berlaku 30 hari</li>
+<li>Standar : berlaku 1 tahun, untuk satu domain</li>
+<li>Enterprise : berlaku 1 tahun, multi domain</li>
+<li>dan sebagainya</li>
+</ul>
+
+
+<p>Agar berbagai kategori di atas mudah dikelola, kita akan membuat file konfigurasi. Kita beri nama <code>openssl-config.txt</code> dan berisi seperti ini</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[ca]
+</span><span class='line'>default_ca         = ca-palsu
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>[ca-palsu]
+</span><span class='line'>dir                = ca-palsu
+</span><span class='line'>
+</span><span class='line'># sertifikat dan private key CA
+</span><span class='line'>certificate        = $dir/ca.crt
+</span><span class='line'>private_key        = $dir/ca.key
+</span><span class='line'>
+</span><span class='line'># Folder penyimpanan
+</span><span class='line'>cert               = $dir/sertifikat-customer
+</span><span class='line'>new_certs_dir      = $dir/sertifikat-customer
+</span><span class='line'>crl                = $dir/sertifikat-batal
+</span><span class='line'>
+</span><span class='line'># Database sertifikat yang sudah dikeluarkan
+</span><span class='line'>database           = $dir/database.txt
+</span><span class='line'>serial             = $dir/serial.txt
+</span><span class='line'>
+</span><span class='line'># Nilai default untuk sertifikat baru
+</span><span class='line'>default_days       = 365               # masa berlaku sertifikat customer
+</span><span class='line'>default_crl_days   = 30                # masa berlaku daftar pembatalan sertifikat
+</span><span class='line'>default_md         = sha1
+</span><span class='line'>x509_extensions    = usr_cert
+</span><span class='line'>
+</span><span class='line'># Konfigurasi tambahan
+</span><span class='line'>policy = policy-saya
+</span><span class='line'>x509_extensions = certificate_extensions
+</span><span class='line'>
+</span><span class='line'>[ policy-saya ]
+</span><span class='line'># Gunakan informasi dalam CSR
+</span><span class='line'>commonName = supplied
+</span><span class='line'>stateOrProvinceName = supplied
+</span><span class='line'>countryName = supplied
+</span><span class='line'>emailAddress = supplied
+</span><span class='line'>organizationName = supplied
+</span><span class='line'>organizationalUnitName = optional
+</span><span class='line'>
+</span><span class='line'>[ certificate_extensions ]
+</span><span class='line'># Sertifikat customer tidak boleh jadi CA
+</span><span class='line'>basicConstraints = CA:false
+</span><span class='line'>
+</span><span class='line'>[ req ]
+</span><span class='line'># private key yang digunakan untuk menyetujui CSR
+</span><span class='line'>default_keyfile = ca-palsu/ca.key</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Konfigurasi di atas berisi satu CA (tanpa intermediate certificate). Bila nantinya kita mau membuat beberapa CA, baik sebagai Root CA maupun Intermediate CA, kita tinggal copy-paste konfigurasi untuk <code>ca-palsu</code>.</p>
+
+<p>Root CA kita <code>ca-palsu</code> kita buatkan folder tersendiri untuk menyimpan file-filenya. Kita masukkan private key dan certificate dirinya sendiri. Kemudian, kita juga membutuhkan file database dan serial. File database gunanya untuk menyimpan data semua sertifikat yang pernah diterbitkan oleh CA <code>ca-palsu</code>. Karena database ini merupakan file text biasa, bukan database server seperti MySQL atau Oracle, maka kita perlu bantu <code>openssl</code> untuk membuatkan serial number dengan cara menyediakan file text lain bernama <code>serial.txt</code>. Di sini <code>openssl</code> bisa mencatat nomer terakhir yang sudah terpakai. Untuk data awal, kita isi saja nilai <code>1000</code> dengan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>echo 1000 &gt; ca-palsu/serial.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Kita buatkan juga file <code>database.txt</code>, karena <code>openssl</code> tidak bisa membuat sendiri. Cukup gunakan perintah <code>touch</code> di Linux.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>touch ca-palsu/database.txt
+</span><span class='line'>touch ca-palsu/database.txt.attr</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bila sulit dibayangkan, langsung saja lihat <a href="https://github.com/endymuhardin/belajar-ssl/tree/10c1f7302226b07ac31505dc24e8fdf6091dfee9/ca">struktur foldernya di Github</a>. Di Github kita juga bisa lihat versi awal dari <a href="https://github.com/endymuhardin/belajar-ssl/blob/10c1f7302226b07ac31505dc24e8fdf6091dfee9/ca/ca-palsu/serial.txt">serial.txt</a>, <a href="https://github.com/endymuhardin/belajar-ssl/blob/10c1f7302226b07ac31505dc24e8fdf6091dfee9/ca/ca-palsu/database.txt">database.txt</a>, dan <a href="https://github.com/endymuhardin/belajar-ssl/blob/10c1f7302226b07ac31505dc24e8fdf6091dfee9/ca/ca-palsu/database.txt.attr">database.txt.attr</a>.</p>
+
+<p>Jangan heran bila <code>database.txt</code> dan <code>database.txt.attr</code> tidak ada isinya. Memang harusnya seperti itu.</p>
+
+<p>Sekarang kita siap membuatkan signature untuk CSR dari <code>demo.muhardin.com</code></p>
+
+<h3>Membuat signature CSR dengan Sertifikat CA</h3>
+
+<p>CA menerima CSR dari pemilik domain. Untuk simulasinya, kita copy saja file CSR ke folder <code>ca-palsu/sertifikat-request</code>.
+Setelah diterima, seharusnya CA melakukan verifikasi terhadap pemilik domain <code>demo.muhardin.com</code>. Prosedur verifikasi yang asli akan kita bahas di artikel berikutnya. Kita asumsikan saja verifikasi berjalan sukses, sehingga kita bisa langsung membuatkan signaturenya.</p>
+
+<p>Berikut adalah perintah untuk membuatkan signature dengan menggunakan CA <code>ca-palsu</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl ca -config openssl-config.txt -in ca-palsu/sertifikat-request/demo.muhardin.com.csr</span></code></pre></td></tr></table></div></figure>
+
+
+<p>OpenSSL akan menanyakan password untuk private key <code>ca-palsu</code>, kemudian membuatkan sertifikat baru sesuai konfigurasi <code>new_certs_dir</code> dalam <code>openssl-config.txt</code>. Berikut output perintah di atas.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Using configuration from openssl-config.txt
+</span><span class='line'>Enter pass phrase for ca-palsu/ca.key:
+</span><span class='line'>Check that the request matches the signature
+</span><span class='line'>Signature ok
+</span><span class='line'>The Subject's Distinguished Name is as follows
+</span><span class='line'>countryName           :PRINTABLE:'ID'
+</span><span class='line'>stateOrProvinceName   :ASN.1 12:'DKI Jakarta'
+</span><span class='line'>localityName          :ASN.1 12:'Jakarta Timur'
+</span><span class='line'>organizationName      :ASN.1 12:'PT. Endy Muhardin'
+</span><span class='line'>organizationalUnitName:ASN.1 12:'Divisi Teknologi Informasi'
+</span><span class='line'>commonName            :ASN.1 12:'demo.muhardin.com'
+</span><span class='line'>emailAddress          :IA5STRING:'endy@muhardin.com'
+</span><span class='line'>Certificate is to be certified until Jul  9 05:48:04 2014 GMT (365 days)
+</span><span class='line'>Sign the certificate? [y/n]:y
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>1 out of 1 certificate requests certified, commit? [y/n]y
+</span><span class='line'>Write out database with 1 new entries
+</span><span class='line'>Certificate:
+</span><span class='line'>    Data:
+</span><span class='line'>        Version: 3 (0x2)
+</span><span class='line'>        Serial Number: 4096 (0x1000)
+</span><span class='line'>    Signature Algorithm: sha1WithRSAEncryption
+</span><span class='line'>        Issuer: C=ID, ST=DKI Jakarta, L=Jakarta Timur, 
+</span><span class='line'>                O=CA Palsu, OU=Divisi Sertifikasi, CN=ROOT CA Palsu
+</span><span class='line'>        Validity
+</span><span class='line'>            Not Before: Jul  9 05:48:04 2013 GMT
+</span><span class='line'>            Not After : Jul  9 05:48:04 2014 GMT
+</span><span class='line'>        Subject: CN=demo.muhardin.com, ST=DKI Jakarta, 
+</span><span class='line'>                 C=ID/emailAddress=endy@muhardin.com, 
+</span><span class='line'>                 O=PT. Endy Muhardin, OU=Divisi Teknologi Informasi
+</span><span class='line'>        Subject Public Key Info:
+</span><span class='line'>            Public Key Algorithm: rsaEncryption
+</span><span class='line'>                Public-Key: (2048 bit)
+</span><span class='line'>                Modulus:
+</span><span class='line'>                    00:bf:09:80:81:eb:15:3d:8f:a9:34:27:00:78:4f:
+</span><span class='line'>                    01:76:84:8f:87:e3:57:c7:d5:f1:b5:27:f6:59:3c:
+</span><span class='line'>                    ed:ed:5d:a2:6e:89:ba:d7:3a:72:4d:30:05:c3:f8:
+</span><span class='line'>                    69:12:bf:f7:ce:03:8e:6e:21:c5:f8:ea:fb:d4:2d:
+</span><span class='line'>                    73:73:fd:f4:bc:cf:7f:91:91:57:6b:43:f0:47:d8:
+</span><span class='line'>                    c0:4c:78:78:e5:53:77:6e:3d:88:6f:e9:cd:f2:51:
+</span><span class='line'>                    59:99:af:b2:2c:56:20:61:4e:cc:13:d5:51:bd:64:
+</span><span class='line'>                    0a:b9:ee:59:a3:73:f0:d3:23:ff:0f:8c:61:6f:03:
+</span><span class='line'>                    ae:29:cd:e5:9c:7b:7c:93:02:6b:b7:d3:3c:27:0d:
+</span><span class='line'>                    0d:b6:9b:98:06:39:f3:cc:7e:c7:f6:4d:35:b7:07:
+</span><span class='line'>                    57:92:36:fe:56:9a:50:08:af:a0:ed:07:82:b1:78:
+</span><span class='line'>                    23:17:a0:a9:c8:cc:14:c3:a6:a9:1e:11:ff:8c:b8:
+</span><span class='line'>                    8b:2a:0b:0e:3f:79:79:d6:80:11:d9:1f:ae:95:20:
+</span><span class='line'>                    0c:bf:f7:28:24:86:f5:f6:75:03:5a:30:06:68:13:
+</span><span class='line'>                    13:9f:00:45:95:62:dc:e0:5b:ce:2d:d2:3f:82:c1:
+</span><span class='line'>                    28:31:42:e9:3f:9e:f8:e4:9c:4e:53:19:73:ab:86:
+</span><span class='line'>                    36:60:f2:69:f4:79:76:4a:9a:64:5e:22:c6:30:8d:
+</span><span class='line'>                    cd:3d
+</span><span class='line'>                Exponent: 65537 (0x10001)
+</span><span class='line'>        X509v3 extensions:
+</span><span class='line'>            X509v3 Basic Constraints: 
+</span><span class='line'>                CA:FALSE
+</span><span class='line'>    Signature Algorithm: sha1WithRSAEncryption
+</span><span class='line'>         2e:1e:b9:4b:e4:ad:74:34:1c:7c:46:9c:d5:d8:83:db:da:b7:
+</span><span class='line'>         b9:a0:ad:c5:54:f7:f2:51:c1:8f:77:70:ae:b4:a1:f6:9d:40:
+</span><span class='line'>         ec:d5:55:76:0d:d0:d3:1b:36:ca:8b:bb:64:52:a8:ca:95:18:
+</span><span class='line'>         5d:d1:28:47:e9:46:89:72:16:8e:57:b9:97:ac:93:c3:5d:6e:
+</span><span class='line'>         17:ac:b3:91:87:61:26:a7:c6:6e:35:d9:03:92:cb:06:08:e5:
+</span><span class='line'>         93:83:89:fb:44:6b:b9:78:b5:b7:e5:d4:84:47:3e:0e:26:40:
+</span><span class='line'>         ec:4e:7a:6f:c1:76:75:b6:6c:f2:ef:c5:97:46:8e:d5:1b:1a:
+</span><span class='line'>         67:95:1e:3e:d7:56:91:43:6d:a2:7a:e7:a4:bd:29:f0:1a:67:
+</span><span class='line'>         62:d0:83:35:45:96:19:1f:c8:ee:cf:27:3e:f7:9b:11:cc:b3:
+</span><span class='line'>         a8:dd:e6:b4:8a:85:c2:69:36:4f:0c:c3:50:f4:3a:30:e0:3a:
+</span><span class='line'>         f6:6a:2b:72:4e:a3:44:0f:af:73:06:8e:fd:20:d3:4b:99:f5:
+</span><span class='line'>         8b:72:f8:f6:21:3c:f4:03:ce:4d:bc:b2:e1:11:29:0d:3d:80:
+</span><span class='line'>         23:41:72:d1:fb:28:f0:32:cf:49:56:5d:cc:e3:a7:dc:88:5c:
+</span><span class='line'>         61:8f:36:9b:bc:28:df:81:89:4a:e6:7f:06:7e:45:9f:19:f8:
+</span><span class='line'>         83:ca:1b:df
+</span><span class='line'>-----BEGIN CERTIFICATE-----
+</span><span class='line'>MIIDsDCCApigAwIBAgICEAAwDQYJKoZIhvcNAQEFBQAwgYMxCzAJBgNVBAYTAklE
+</span><span class='line'>MRQwEgYDVQQIDAtES0kgSmFrYXJ0YTEWMBQGA1UEBwwNSmFrYXJ0YSBUaW11cjER
+</span><span class='line'>MA8GA1UECgwIQ0EgUGFsc3UxGzAZBgNVBAsMEkRpdmlzaSBTZXJ0aWZpa2FzaTEW
+</span><span class='line'>MBQGA1UEAwwNUk9PVCBDQSBQYWxzdTAeFw0xMzA3MDkwNTQ4MDRaFw0xNDA3MDkw
+</span><span class='line'>NTQ4MDRaMIGiMRowGAYDVQQDDBFkZW1vLm11aGFyZGluLmNvbTEUMBIGA1UECAwL
+</span><span class='line'>REtJIEpha2FydGExCzAJBgNVBAYTAklEMSAwHgYJKoZIhvcNAQkBFhFlbmR5QG11
+</span><span class='line'>aGFyZGluLmNvbTEaMBgGA1UECgwRUFQuIEVuZHkgTXVoYXJkaW4xIzAhBgNVBAsM
+</span><span class='line'>GkRpdmlzaSBUZWtub2xvZ2kgSW5mb3JtYXNpMIIBIjANBgkqhkiG9w0BAQEFAAOC
+</span><span class='line'>AQ8AMIIBCgKCAQEAvwmAgesVPY+pNCcAeE8BdoSPh+NXx9XxtSf2WTzt7V2ibom6
+</span><span class='line'>1zpyTTAFw/hpEr/3zgOObiHF+Or71C1zc/30vM9/kZFXa0PwR9jATHh45VN3bj2I
+</span><span class='line'>b+nN8lFZma+yLFYgYU7ME9VRvWQKue5Zo3Pw0yP/D4xhbwOuKc3lnHt8kwJrt9M8
+</span><span class='line'>Jw0NtpuYBjnzzH7H9k01twdXkjb+VppQCK+g7QeCsXgjF6CpyMwUw6apHhH/jLiL
+</span><span class='line'>KgsOP3l51oAR2R+ulSAMv/coJIb19nUDWjAGaBMTnwBFlWLc4FvOLdI/gsEoMULp
+</span><span class='line'>P5745JxOUxlzq4Y2YPJp9Hl2SppkXiLGMI3NPQIDAQABow0wCzAJBgNVHRMEAjAA
+</span><span class='line'>MA0GCSqGSIb3DQEBBQUAA4IBAQAuHrlL5K10NBx8RpzV2IPb2re5oK3FVPfyUcGP
+</span><span class='line'>d3CutKH2nUDs1VV2DdDTGzbKi7tkUqjKlRhd0ShH6UaJchaOV7mXrJPDXW4XrLOR
+</span><span class='line'>h2Emp8ZuNdkDkssGCOWTg4n7RGu5eLW35dSERz4OJkDsTnpvwXZ1tmzy78WXRo7V
+</span><span class='line'>GxpnlR4+11aRQ22ieuekvSnwGmdi0IM1RZYZH8juzyc+95sRzLOo3ea0ioXCaTZP
+</span><span class='line'>DMNQ9Dow4Dr2aityTqNED69zBo79INNLmfWLcvj2ITz0A85NvLLhESkNPYAjQXLR
+</span><span class='line'>+yjwMs9JVl3M46fciFxhjzabvCjfgYlK5n8GfkWfGfiDyhvf
+</span><span class='line'>-----END CERTIFICATE-----
+</span><span class='line'>Data Base Updated</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah sukses, <code>openssl</code> akan membuatkan sertifikat yang sudah ditandatangani menggunakan private key <code>ca-palsu</code>. Berikut daftar file/folder yang terdampak selama proses ini:</p>
+
+<ul>
+<li>serial.txt : tadinya berisi 1000, sekarang berisi 1001</li>
+<li>database.txt : tadinya kosong, sekarang ada satu baris berisi informasi sertifikat yang baru saja dibuat</li>
+<li>folder sertifikat-customer : tadinya kosong, sekarang berisi satu file sertifikat untuk <code>demo.muhardin.com</code> dengan nama file <code>1000.pem</code></li>
+</ul>
+
+
+<p>Daftar perubahan ini bisa <a href="https://github.com/endymuhardin/belajar-ssl/commit/f950bdfb866be9da7a80e613b7d95bf282454b05">dilihat di Github</a>.</p>
+
+<p>Selanjutnya, CA akan mengirimkan file <code>1000.pem</code> tersebut ke pemilik domain <code>demo.muhardin.com</code>.</p>
+
+<h2>Kelengkapan File Pemilik Domain</h2>
+
+<p>Setelah menerima file <code>100.pem</code> dari CA, pemilik domain <code>demo.muhardin.com</code> akan memiliki file berikut:</p>
+
+<ul>
+<li>File private key : <code>demo.muhardin.com.key</code></li>
+<li>File CSR : <code>demo.muhardin.com.csr</code>. File ini <a href="http://security.stackexchange.com/questions/32857/could-i-delete-csr-files-when-the-key-is-signed-by-ca">boleh dihapus setelah kita menerima sertifikat yang telah disahkan oleh CA</a>.</li>
+<li>File sertifikat dari CA : <code>1000.pem</code>. Agar lebih jelas, kita rename saja menjadi <code>demo.muhardin.com.crt</code>.</li>
+</ul>
+
+
+<p>Demikianlah langkah-langkah membuat self-signed certificate. Pada artikel berikutnya, kita akan membahas bagaimana cara membeli sertifikat. Kemudian memasang sertifikat (baik yang self-signed maupun yang berbayar) ke webserver kita.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apa itu SSL]]></title>
@@ -24,7 +1004,7 @@
 
 <ol>
 <li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl">Apa itu SSL</a></li>
-<li>Membuat self-signed SSL</li>
+<li>Membuat self-signed certificate</li>
 <li>Membeli sertifikat SSL</li>
 <li>Memasang sertifikat SSL</li>
 </ol>
@@ -5622,319 +6602,6 @@ Untuk menambahkan catatan tentang username, perlu ada sedikit coding seperti bis
 
 
 <p>Aplikasi pandoc bisa digunakan untuk mengkonversi berbagai format file seperti Markdown, Docbook, LaTeX, dan sebagainya menjadi berbagai format seperti PDF, HTML, Open Office, Microsoft Word, dan sebagainya.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Release Management]]></title>
-    <link href="http://software.endy.muhardin.com/manajemen/release-management/"/>
-    <updated>2012-08-29T18:01:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/manajemen/release-management</id>
-    <content type="html"><![CDATA[<p>Release, atau di-Indonesia-kan menjadi rilis, adalah tahap yang paling penting dalam software development. Segala kegiatan hulu (upstream activity) lainnya seperti <a href="http://software.endy.muhardin.com/manajemen/fase-requirement/" title="Fase Requirement">requirement</a>, desain aplikasi, coding, testing, dan lainnya, semua dilakukan demi untuk menghasilkan software yang bisa dirilis. Sebagus apapun kita melakukan kegiatan lainnya, jika rilisnya tidak bagus, maka semua yang kita kerjakan menjadi tidak bagus. Sebaliknya, berbagai kesalahan dan kekurangan di kegiatan lain akan mudah dimaafkan dan dilupakan kalau kita menghasilkan rilis yang baik. Walaupun demikian, perlu diingat bahwa bila kita melakukan kegiatan hulu dengan baik, biasanya kita bisa menghasilkan rilis yang berkualitas baik secara konsisten.</p>
-
-<p>Pada artikel ini, kita akan membahas pernak-pernik yang berkaitan dengan rilis. Apa itu rilis, berbagai jenis rilis, syarat dan ketentuan rilis, dan juga prosedur yang kita gunakan di ArtiVisi.</p>
-
-<!--more-->
-
-
-<h1>Apa itu rilis</h1>
-
-<p>Rilis pada intinya adalah menyerahkan software yang sudah kita kerjakan ke pihak lain. Berdasarkan siapa yang dimaksud dengan pihak lain, kita membedakan rilis menjadi :</p>
-
-<ul>
-<li>rilis internal : menyerahkan software ke pihak internal tim pengembang, misalnya dari programmer ke tester.</li>
-<li>rilis eksternal : menyerahkan ke pihak luar seperti client atau customer.</li>
-</ul>
-
-
-<p>Kita tidak harus menunggu sampai software selesai dikerjakan 100% untuk melakukan rilis. Berdasarkan tingkat penyelesaian pekerjaan, kita bisa membedakan rilis menjadi :</p>
-
-<ul>
-<li><p>development release : Ini adalah rilis yang dilakukan sebelum software selesai dikerjakan. Rilis ini dibuat untuk menunjukkan kemajuan dalam proses development, misalnya menunjukkan tambahan fitur baru ataupun sekedar menunjukkan perbedaan dengan rilis sebelumnya. Development release biasa dilakukan secara rutin dan periodik. Ada yang melakukannya secara mingguan, harian, bahkan dua kali sehari. Rilis jenis ini juga biasa disebut dengan unstable release (karena softwarenya belum stabil - sering hang atau error), milestone release, daily/nightly build release, atau alpha release.</p></li>
-<li><p>testing release : Ini adalah rilis yang dilakukan setelah aplikasi siap untuk dites. Pada titik ini biasanya sudah tidak ada penambahan fitur lagi. Software yang dibuat diserahkan ke tester untuk dicari bugnya. Hasil laporan bug itu kemudian akan ditindak lanjuti sehingga menghasilkan testing release berikutnya. Kalau kita pernah mendengar istilah beta release, biasanya itu maksudnya adalah testing release. Orang sering membagi lagi testing release menjadi beta release dan release candidate. Pada prinsipnya, beta dan release candidate sama saja, bedanya ada di cakupan tester. Beta release khusus untuk dites oleh tester, sedangkan release candidate bisa juga dites oleh end-user.</p></li>
-<li><p>final release : Rilis jenis ini menyatakan bahwa software sudah selesai dikerjakan, dites, dan laporan bugnya sudah ditindak lanjuti. Biasa disebut juga stable release, karena software yang dihasilkan bisa digunakan dengan lancar dan nyaman (stabil).</p></li>
-</ul>
-
-
-<h1>Manfaat Rilis</h1>
-
-<p>Manfaat rilis tentunya adalah supaya software yang sudah susah payah kita buat, bisa bermanfaat bagi penggunanya dan sukur-sukur bisa menghasilkan uang bagi pembuatnya. Karena di atas kita sudah membahas berbagai jenis rilis, tentu juga ada macam-macam manfaat dari berbagai jenis rilis tersebut.</p>
-
-<p>Development release sebaiknya dilakukan sesering mungkin. Agar tidak merepotkan, dilakukan menggunakan perangkat otomasi seperti <a href="http://jenkins-ci.org/" title="Jenkins Continuous Integration">Jenkins</a>. Manfaat dari development release adalah untuk memastikan integrasi antara fitur berjalan dengan baik. Sering kali pada saat membuat fitur X, secara tidak sengaja mempengaruhi fitur Y sehingga tidak berjalan dengan baik. Hal inilah yang coba dicegah dengan development release.</p>
-
-<p>Testing release manfaatnya adalah supaya software yang kita buat bisa diperiksa oleh orang lain dengan perspektif yang berbeda dan lebih fresh. Programmer yang membuat aplikasi pastinya sudah hafal perilaku aplikasi yang dibuatnya, sehingga bisa menghindari error yang mungkin terjadi. Tapi tester atau user tidak memiliki pengetahuan tentang cara kerja internal aplikasi, sehingga lebih mungkin menemukan skenario yang belum diantisipasi oleh software.</p>
-
-<p>Final release tentunya berguna supaya software kita bisa digunakan oleh masyarakat umum. Para pengguna (end user) biasanya menunggu sampai suatu software dinyatakan selesai, baru dia mau menggunakannya. Demikian juga bila aplikasi yang kita buat akan dibundel oleh orang lain (contohnya distro Linux, integrasi dengan aplikasi lain, dsb), tentu mereka akan menunggu keluarnya rilis final.</p>
-
-<h1>Aturan Rilis</h1>
-
-<p>Seperti kita bahas sebelumnya, tujuan rilis adalah supaya software kita bisa digunakan oleh orang lain. Oleh karena itu, kita harus memudahkan pengguna dalam memahami rilis yang kita keluarkan.</p>
-
-<p>Hal paling penting dalam melakukan rilis adalah aturan penamaan. Dengan aturan penamaan yang baik, kita bisa:</p>
-
-<ul>
-<li>menjelaskan status rilis, apakah ini development release, testing, atau final.</li>
-<li>menjelaskan kompatibilitas dengan versi sebelumnya dan aplikasi lain. Ini akan dijelaskan secara lebih detail sebentar lagi.</li>
-<li>menjelaskan hubungan dengan rilis lainnya. Bila kita memiliki dua rilis, kita bisa membedakan mana rilis yang duluan dan mana yang belakangan.</li>
-</ul>
-
-
-<h1>Studi Kasus</h1>
-
-<p>Untuk memudahkan pemahaman tentang penamaan rilis, mari kita karang studi kasusnya, yaitu Facebook Contact Backup.</p>
-
-<blockquote><p>Aplikasi Facebook Contact Backup (FCB) adalah aplikasi yang bisa mendownload daftar contact kita di facebook, kemudian menuliskannya ke dalam text file. Contoh textfile akan dilampirkan di bawah. Untuk versi pertama, informasi kontak yang ditampilkan adalah : nama, email, no HP.</p></blockquote>
-
-<p>Berikut contoh file yang dihasilkan oleh aplikasi FCB</p>
-
-<figure class='code'><figcaption><span>facebook_contact.xml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;contacts&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Endy Muhardin<span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;email&gt;</span>endy@geemail.com<span class="nt">&lt;/email&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>081298000468<span class="nt">&lt;/mobile&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Ifnu Bima<span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;email&gt;</span>ifnu@geemail.com<span class="nt">&lt;/email&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>+6281234567890<span class="nt">&lt;/mobile&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'><span class="nt">&lt;/contacts&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<blockquote><p>Karena aplikasi FCB kemudian menjadi populer, ada orang lain yang membuat aplikasi untuk mengisi phonebook di handphone bernama Handphone Contact Importer (HCI). Aplikasi HCI ini menggunakan aplikasi FCB untuk connect ke facebook dan mengambil data contact. Setelah datanya ada dalam format textfile, aplikasi HCI akan membaca text file tersebut dan kemudian mengisinya ke phonebook handphone.</p></blockquote>
-
-<p>Aplikasi FCB dikembangkan dengan cepat sehingga menghasilkan beberapa rilis sebagai berikut:</p>
-
-<h2>Rilis Pertama</h2>
-
-<p>Memperbaiki format nomer handphone, sehingga semua diseragamkan menjadi format internasional. Nomer <code>081298000468</code> pada contoh di atas akan dikonversi menjadi <code>+6281298000468</code></p>
-
-<h2>Rilis Kedua</h2>
-
-<p>Fix protokol komunikasi ke Facebook, karena ada perubahan di Facebook API.</p>
-
-<h2>Rilis Ketiga</h2>
-
-<p>Menambahkan field ulang tahun sehingga format text file menjadi sebagai berikut :</p>
-
-<figure class='code'><figcaption><span>facebook_contact.xml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;contacts&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Endy Muhardin<span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;email&gt;</span>endy@geemail.com<span class="nt">&lt;/email&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>+6281298000468<span class="nt">&lt;/mobile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;birthdate&gt;</span>1945-08-17<span class="nt">&lt;/birthdate&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;name&gt;</span>Ifnu Bima<span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;email&gt;</span>ifnu@geemail.com<span class="nt">&lt;/email&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;mobile&gt;</span>+6281234567890<span class="nt">&lt;/mobile&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;birthdate&gt;</span>2011-11-11<span class="nt">&lt;/birthdate&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/contact&gt;</span>
-</span><span class='line'><span class="nt">&lt;/contacts&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Rilis Keempat</h2>
-
-<p>Ganti format xml menjadi json, mengikuti trend masa kini.</p>
-
-<figure class='code'><figcaption><span>facebook_contact.json</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">[</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Endy Muhardin&quot;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">email</span><span class="o">:</span> <span class="s2">&quot;endy@geemail.com&quot;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">mobile</span><span class="o">:</span> <span class="s2">&quot;+6281298000468&quot;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">birthdate</span><span class="o">:</span> <span class="s2">&quot;1945-08-17&quot;</span>
-</span><span class='line'>    <span class="p">},</span>
-</span><span class='line'>    <span class="p">{</span>
-</span><span class='line'>        <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Ifnu Bima&quot;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">email</span><span class="o">:</span> <span class="s2">&quot;ifnu@geemail.com&quot;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">mobile</span><span class="o">:</span> <span class="s2">&quot;+6281234567890&quot;</span><span class="p">,</span>
-</span><span class='line'>        <span class="nx">birthdate</span><span class="o">:</span> <span class="s2">&quot;2011-11-11&quot;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dengan studi kasus di atas, kita harus mempertimbangkan penomoran rilis untuk aplikasi FCB dengan benar, supaya aplikasi HCI bisa tahu apa yang harus dilakukan pada saat aplikasi FCB mengeluarkan rilis baru.</p>
-
-<h1>Kompatibilitas</h1>
-
-<p>Dalam mengeluarkan rilis untuk aplikasi FCB, kita harus mempertimbangkan aplikasi HCI agar tidak rusak. Pengaruh aplikasi FCB terhadap HCI dikenal dengan istilah kompatibilitas. Kompatibilitas dibedakan berdasarkan ketergantungan secara programmatic:</p>
-
-<ul>
-<li>binary compatibility : FCB terbaru disebut binary-compatible dengan HCI bila FCB yang sudah dicompile bisa langsung ditaruh di folder dan dipakai oleh HCI.</li>
-<li>source compatibility : FCB terbaru disebut source-compatible dengan HCI bila FCB yang sudah dicompile tidak bisa langsung ditaruh begitu saja. HCI harus dicompile ulang dulu dengan FCB terbaru, baru HCI bisa dijalankan.</li>
-</ul>
-
-
-<p>Lebih lanjut tentang binary vs source compatibility bisa dibaca <a href="http://blogs.msdn.com/b/jmstall/archive/2008/03/10/binary-vs-source-compatibility.aspx">di artikel ini</a>.</p>
-
-<p>Dan juga bisa dibedakan berdasarkan hubungannya dengan rilis terdahulu.</p>
-
-<ul>
-<li>backward compatibility : bila HCI versi terbaru bisa menggunakan format data FCB yang terdahulu. Misalnya, aplikasi HCI terbaru bisa membaca data versi baru (json), versi sebelumnya (xml), dan sebelumnya lagi (xml tanpa field birthdate)</li>
-<li>forward compatibility : bila HCI versi jadul bisa membaca format data FCB yang lama (xml tanpa birthdate) dan yang lebih baru yang dirilis setelah HCI jadul tersebut (xml dengan birhtdate).</li>
-</ul>
-
-
-<p>Setelah kita memahami urusan kompatibilitas, kita bisa menentukan skema penamaan rilis, atau dikenal dengan istilah version numbering.</p>
-
-<h1>Version Numbering</h1>
-
-<p>Kita akan menggunakan <a href="http://apr.apache.org/versioning.html" title="Version Numbering APR">aturan dari Apache Portable Runtime</a> yang sudah diakui sebagai best-practices dalam version numbering. Aturan APR mengharuskan ada tiga komponen version number, yaitu :</p>
-
-<ul>
-<li>major number</li>
-<li>minor number</li>
-<li>patch number</li>
-</ul>
-
-
-<p>Contohnya, waktu pertama kita merilis FCB, kita beri nama <code>FCB-1.0.0</code>. Major numbernya 1, minor numbernya 0, patch numbernya 0.</p>
-
-<p>Untuk rilis selanjutnya, kita menaikkan major/minor/patch number sesuai dengan pengaruhnya terhadap kompatibilitas. Aturannya sebagai berikut:</p>
-
-<ul>
-<li>major number dinaikkan bila FCB baru tidak kompatibel dengan FCB rilis sebelumnya. Bila HCI dipasang dengan FCB terbaru ini, HCI akan error.</li>
-<li>minor number dinaikkan bila FCB baru mengandung penambahan fitur, tapi tetap kompatibel dengan HCI yang dibuat berdasarkan FCB lama. HCI versi lama tetap bisa jalan, walaupun tidak bisa memanfaatkan fitur yang baru.</li>
-<li>patch dinaikkan bila tidak ada perubahan secara fitur, tapi cuma ada perbaikan di internal FCB yang tidak terlihat dari luar (misalnya optimasi koneksi jaringan, perubahan protokol ke arah Facebook, dsb)</li>
-</ul>
-
-
-<p>Selanjutnya, mari kita beri nomer sesuai studi kasus kita di atas.</p>
-
-<ol>
-<li>Rilis Pertama : diberi nama <code>1.1.0</code>, karena cuma terjadi perubahan di content saja. HCI yang dibuat dengan FCB versi <code>1.0.0</code> akan tetap berjalan lancar</li>
-<li>Rilis Kedua : diberi nama <code>1.1.1</code>, karena perubahan protokol komunikasi dengan Facebook tidak mempengaruhi HCI sama sekali. HCI versi lama tetap bisa jalan dengan lancar.</li>
-<li>Rilis Ketiga : diberi nama <code>1.2.0</code>, sama dengan rilis pertama. Ada penambahan fitur, tapi tidak membuat HCI jadi error. Dengan rilis ini, programmer HCI bisa menambahkan fitur baru misalnya reminder ulang tahun. Tapi HCI versi lama (tanpa reminder ulang tahun) tetap bisa digunakan dengan <code>FCB-1.2.0</code></li>
-<li>Rilis Keempat : diberi nama <code>2.0.0</code>. Ini adalah perubahan signifikan. Untuk dapat menggunakan <code>FCB-2.0.0</code> ini, HCI harus mengalami perubahan signifikan. HCI versi lama tidak bisa digunakan dengan <code>FCB-2.0.0</code>. Agar dapat digunakan, programmer HCI harus mengeluarkan rilis baru yang bisa mengakomodasi format data JSON.</li>
-</ol>
-
-
-<p>Berikutnya, mari kita lihat pengaruhnya untuk HCI.</p>
-
-<ol>
-<li><code>HCI-1.0.0</code> : versi pertama, dibuat dengan <code>FCB-1.0.0</code></li>
-<li>Rilis <code>FCB-1.1.0</code> : tidak ada tambahan fitur yang bisa dibuat di HCI, sehingga programmernya tidak coding.</li>
-<li>Rilis <code>FCB-1.1.1</code> : tidak ada perubahan yang terlihat. Programmer HCI makan gaji buta sambil update status Facebook. Nganggurnya programmer HCI ini berarti <code>HCI-1.0.0</code> forward-compatible dengan <code>FCB-1.0.0</code>, <code>FCB-1.1.0</code>, hingga <code>FCB-1.1.1</code>.</li>
-<li>Rilis <code>FCB-1.2.0</code> : ada field baru (birthdate) yang bisa dimanfaatkan, programmer HCI mulai coding.</li>
-<li><code>HCI-1.1.0</code> : tambahan fitur reminder ulang tahun. <code>HCI-1.1.0</code> ini backward-compatible dengan <code>FCB-1.1.1</code>, <code>FCB-1.1.0</code>, maupun <code>FCB-1.0.0</code>.</li>
-<li>Rilis <code>FCB-2.0.0</code> : HCI semua versi tidak dapat digunakan bila user meng-upgrade FCB-nya. Programmer HCI harus segera mengeluarkan rilis baru, tidak boleh coding sambil facebookan.</li>
-<li><code>HCI-1.1.1</code> : bagi end-user, HCI terbaru ini tidak ada tambahan fiturnya. Tapi dia fixing bug, yang tadinya error pada waktu dijalankan (karena FCB-nya tidak kompatibel), menjadi tidak error.</li>
-</ol>
-
-
-<p>Selain major.minor.patch, ada kalanya orang juga menambahkan satu informasi lagi yang menyatakan kestabilan rilis. Berikut beberapa contohnya:</p>
-
-<ul>
-<li><code>FCB-1.0.1-SNAPSHOT</code> : ini biasanya digunakan untuk mencerminkan rilis daily build terbaru</li>
-<li><code>FCB-1.0.0-20121212080808</code> : ini biasanya digunakan untuk menunjukkan hasil daily build tertentu</li>
-<li><code>FCB-1.0.1-RC-01</code> : release candidate pertama</li>
-<li><code>FCB-1.0.0-M2</code> : milestone kedua</li>
-<li><code>FCB-1.0.0-Final</code> : final release. Ada orang yang menambahkan keyword Final, ada juga yang tidak.</li>
-<li><code>FCB-1.0.0-GA</code> : generally available, sama dengan final release</li>
-<li><code>FCB-1.0.0-RELEASE</code> : sama dengan GA dan Final</li>
-</ul>
-
-
-<p>Penomoran versi ini terlihat sepele saja. Tapi kalau kita tidak punya aturan penamaan yang jelas, maka orang lain akan bingung setiap kali ada rilis baru. Mereka tidak bisa menentukan apakah harus upgrade atau tidak, karena mereka tidak bisa tahu bagaimana kompatibilitas rilis ini dengan aplikasi lainnya. Salah satu contoh populer kekacauan yang disebabkan penomoran versi yang sembarangan <a href="http://news.ycombinator.com/item?id=1734936">bisa dilihat di komunitas Ruby</a>. Akibat aturan rilis Ruby tidak jelas, sehingga dibutuhkan aplikasi lain seperti RVM atau rbenv supaya antar versi Ruby tidak saling bentrok. Effort yang dikeluarkan untuk membuat dan memantain RVM dan rbenv tentu tidak sedikit. Ini semua disebabkan <em>hanya karena</em> penomoran versi belaka. Hasil akhir dari semua ini, sampai saat artikel ini ditulis, <a href="http://ryanbigg.com/2010/12/ubuntu-ruby-rvm-rails-and-you/">Ruby belum bisa dipaket dengan benar di distro Debian</a> dan turunannya (termasuk Ubuntu).</p>
-
-<h1>Release Notes</h1>
-
-<p>Tentunya penomoran versi saja tidak bisa memuat informasi yang detail. Kita membutuhkan sarana lain untuk memberikan informasi yang detail tentang isi dari suatu rilis. Untuk keperluan ini, biasanya orang membuat dokumen yang disebut Release Notes. Beberapa hal yang biasanya dicantumkan dalam release notes antara lain:</p>
-
-<ul>
-<li>fitur baru</li>
-<li>bug yang diperbaiki</li>
-<li>enhancement/improvement, yaitu perbaikan pada fitur yang ada</li>
-<li>known issues, yaitu bug atau error yang sudah teridentifikasi tapi belum difix. Informasi ini menunjukkan bahwa programmernya sudah tahu bahwa ada bug, tapi karena satu dan lain hal belum memperbaikinya</li>
-<li>kontributor, yaitu siapa saja yang berkontribusi di rilis ini.</li>
-<li>to do, yaitu fitur apa yang direncanakan akan dibuat pada rilis berikut. Informasi ini bisa juga ditulis di dokumen terpisah bernama roadmap</li>
-</ul>
-
-
-<p>Contoh release notes bisa dilihat <a href="http://software.endy.muhardin.com/images/uploads/2012/08/RELEASE.txt" title="Contoh Release Notes">di sini</a>.</p>
-
-<h1>Tools</h1>
-
-<p>Ada beberapa hal yang perlu dilakukan pada waktu kita akan melakukan rilis, yaitu:</p>
-
-<ul>
-<li>menaikkan nomor versi di source code. Biasanya kita ada mencantumkan nomor versi di aplikasi, misalnya di halaman About.</li>
-<li>membuat rekap perubahan yang terjadi sejak rilis sebelumnya</li>
-<li>membuat tag di version control database</li>
-</ul>
-
-
-<p>Semua kegiatan di atas dapat dioptimasi dengan tools misalnya <a href="http://maven.apache.org/plugins/maven-release-plugin/" title="Maven Release Plugin">maven-release-plugin</a>. Cara pakainya bisa dilihat <a href="http://java.dzone.com/articles/automating-releases-maven-0">di sini</a>. Tapi beberapa orang melihat bahwa maven-release-plugin ini tidak memenuhi kebutuhannya, sehingga dia pakai <a href="http://www.axelfontaine.com/2011/01/maven-releases-on-steroids-adios.html">cara yang lain</a>.</p>
-
-<p>Di ArtiVisi, kita sudah mencoba maven-release-plugin, dan berpendapat bahwa dia <a href="http://www.sonatype.com/people/2011/01/using-the-maven-release-plugin-things-to-know/">terlalu kaku</a> sehingga sulit dikonfigurasi agar sesuai dengan kebutuhan kita. Akhirnya kita menggunakan cara manual dengan prosedur sebagai berikut:</p>
-
-<h2>Prosedur Rilis ArtiVisi</h2>
-
-<p>Contoh skenario :</p>
-
-<ul>
-<li>Rilis sebelumnya : <code>1.2.0</code></li>
-<li>Rilis sekarang : <code>1.2.1</code></li>
-</ul>
-
-
-<p>Langkah-langkah melakukan rilis :</p>
-
-<ol>
-<li><p>Generate Changelog dengan perintah <code>git shortlog 1.2.0..HEAD</code></p></li>
-<li><p>Copy paste output dari langkah 1 ke dalam release notes.</p></li>
-<li><p>Naikkan version number di dalam source code menggunakan Eclipse. Search file <code>pom.xml</code>, find <code>1.2.0</code> dan replace menjadi <code>1.2.1</code>.</p></li>
-<li><p>Save semua file, kemudian commit ke Git dengan perintah <code>git commit -m "release 1.2.1"</code></p></li>
-<li><p>Buat tag di Git dengan perintah <code>git tag -a -F RELEASE.txt 1.2.1</code></p></li>
-</ol>
-
-
-<h1>Penutup</h1>
-
-<p>Demikianlah penjelasan tentang serba-serbi release management dalam software development. Mudah-mudahan bisa membuat project dan produk yang kita hasilkan lebih mudah dikelola.</p>
 ]]></content>
   </entry>
   
