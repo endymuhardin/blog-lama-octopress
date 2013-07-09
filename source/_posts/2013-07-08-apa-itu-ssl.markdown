@@ -12,7 +12,7 @@ SSL adalah protokol keamanan yang kita gunakan sehari-hari. Sebagai programmer, 
 Artikel ini adalah bagian pertama dari 4 artikel, yaitu:
 
 1. [Apa itu SSL](http://software.endy.muhardin.com/aplikasi/apa-itu-ssl)
-2. Membuat self-signed SSL
+2. Membuat self-signed certificate
 3. Membeli sertifikat SSL
 4. Memasang sertifikat SSL
 
