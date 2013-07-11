@@ -17,7 +17,7 @@ Artikel ini adalah bagian kedua dari 4 artikel, yaitu:
 
 1. [Apa itu SSL](http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/)
 2. [Membuat self-signed certificate](http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/)
-3. Membeli sertifikat SSL
+3. [Membeli sertifikat SSL](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/)
 4. Memasang sertifikat SSL
 
 <!--more-->
@@ -603,5 +603,4 @@ Setelah menerima file `100.pem` dari CA, pemilik domain `demo.muhardin.com` akan
 * File CSR : `demo.muhardin.com.csr`. File ini [boleh dihapus setelah kita menerima sertifikat yang telah disahkan oleh CA](http://security.stackexchange.com/questions/32857/could-i-delete-csr-files-when-the-key-is-signed-by-ca).
 * File sertifikat dari CA : `1000.pem`. Agar lebih jelas, kita rename saja menjadi `demo.muhardin.com.crt`.
 
-Demikianlah langkah-langkah membuat self-signed certificate. Pada artikel berikutnya, kita akan membahas bagaimana cara membeli sertifikat. Kemudian memasang sertifikat (baik yang self-signed maupun yang berbayar) ke webserver kita.
-
+Demikianlah langkah-langkah membuat self-signed certificate. Pada artikel berikutnya, kita akan membahas bagaimana [cara membeli sertifikat](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/). Kemudian memasang sertifikat (baik yang self-signed maupun yang berbayar) ke webserver kita.

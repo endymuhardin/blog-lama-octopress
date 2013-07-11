@@ -11,9 +11,9 @@ SSL adalah protokol keamanan yang kita gunakan sehari-hari. Sebagai programmer, 
 
 Artikel ini adalah bagian pertama dari 4 artikel, yaitu:
 
-1. [Apa itu SSL](http://software.endy.muhardin.com/aplikasi/apa-itu-ssl)
-2. Membuat self-signed certificate
-3. Membeli sertifikat SSL
+1. [Apa itu SSL](http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/)
+2. [Membuat self-signed certificate](http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/)
+3. [Membeli sertifikat SSL](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/)
 4. Memasang sertifikat SSL
 
 <!--more-->
@@ -147,5 +147,5 @@ SSL digunakan pada protokol yang kita gunakan setiap hari, yaitu HTTP, SMTP, IMA
 
 Untuk protokol email (SMTP, IMAP, POP3) mekanismenya sama. Cukup gantikan kata `browser` dengan `mail-client` pada penjelasan di atas.
 
-Demikian artikel SSL bagian pertama. Nantikan artikel selanjutnya tentang cara membuat dan membeli sertifikat SSL.
+Demikian artikel SSL bagian pertama. Nantikan artikel selanjutnya tentang [cara membuat](http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/) dan [membeli sertifikat SSL](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/).
 
