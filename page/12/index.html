@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini, halo rekan2 dba &amp; &hellip;">
+  <meta name="description" content="Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,76 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/menghapus-file-secara-permanen-di-git/">Menghapus File Secara Permanen Di Git</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-04-03T05:06:42+07:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu keuntungan menggunakan version control adalah dia akan menyimpan semua history perubahan. Dengan demikian, walaupun kita sudah menghapus satu file tertentu, sebetulnya file tersebut masih ada di repository dan bisa dimunculkan kembali kapan saja.</p>
+
+<p>Hal ini menimbulkan beberapa konsekuensi, diantaranya</p>
+
+<ul>
+<li><p>Ukuran repository menjadi besar. Ini terutama sangat terasa di Git, karena pada waktu clone, kita akan mengambil keseluruhan perubahan dari pertama hingga terakhir. Berbeda dengan Subversion, dimana kita hanya mendapat perubahan terakhir saja.</p></li>
+<li><p>File-file yang mengandung informasi rahasia &#8211;seperti misalnya password&#8211; tidak terhapus secara sempurna, sehingga bisa disalahgunakan orang lain.</p></li>
+</ul>
+
+
+<p>Untuk itu, kita perlu cara untuk menghilangkan file ini secara permanen.</p>
+
+<p>Di Git, caranya adalah menggunakan perintah <code>git filter-branch</code> seperti <a href="http://help.github.com/removing-sensitive-data/">dijelaskan di sini</a>. Walaupun demikian, tutorial tersebut tidak menjelaskan bagaimana cara menghapus folder.</p>
+
+<p>Di ArtiVisi, <a href="https://github.com/dadang">Dadang</a> dan <a href="https://github.com/donraakan">Doni</a> mengalami kejadian tersebut, dimana folder konfigurasi Eclipse (.project, .classpath, .settings) dan file hasil kompilasi Maven (target) ikut serta dicommit. Ini menyulitkan fakir bandwidth yang ingin melakukan clone, karena ukuran reponya menjadi besar sekali. Karena itu, file dan folder tersebut harus dihapus secara permanen.</p>
+
+<p>Cara menghapusnya adalah sebagai berikut.</p>
+
+<h2>Pastikan versi repository di local dan di remote sudah sama</h2>
+
+<p>Ini bisa dilakukan dengan menggunakan perintah git pull dan git push. Selanjutnya, kita masuk ke folder kerja, dan memanggil perintah berikut.</p>
+
+<p>Perintah di atas akan memodifikasi seluruh commit untuk menghilangkan file dan folder tersebut. Konsekuensinya, seluruh downline Anda akan terpaksa melakukan clone ulang, karena ini sama saja mengganti repository tersebut dengan repository baru. Akibatnya, commit, push, pull, dan merge tidak akan berjalan dengan baik.</p>
+
+<p>Periksa kembali repository Git Anda setelah melakukan perintah di atas, pastikan semuanya baik-baik saja.
+Begitu yakin, kita push ke remote.</p>
+
+<p><code>
+git push origin master --force
+</code></p>
+
+<p>Setelah melakukan perintah di atas, file yang terhapus itu masih ada di object database Git kita di local, sehingga ukuran reponya masih belum berkurang secara signifikan.
+Karena sudah kita push ke remote, hapus saja repo local yang sekarang, dan lakukan clone ulang dari remote.</p>
+
+<p>Demikian cara membersihkan repository dari file yang tidak sengaja dicommit. Silahkan mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -607,377 +677,6 @@ membuat working dan staging sama dengan HEAD                                    
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/project-setup-dengan-gradle/">Project Setup Dengan Gradle</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-02-01T20:21:35+07:00" pubdate data-updated="true">Feb 1<span>st</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Project Setup dengan menggunakan Gradle dan Git</p>
-
-<p>Hal pertama yang kita lakukan sebelum mulai bekerja tentunya adalah menyiapkan meja kerja dan peralatannya. Sama juga dengan mulai membuat aplikasi. Kita harus menyiapkan struktur folder, library dan framework, dan mengatur semuanya agar siap dikerjakan di meja kita, dalam hal ini IDE.</p>
-
-<p>Di ArtiVisi, biasanya ini dikerjakan oleh programmer senior, yaitu <a href="http://martinusadyh.web.id/">Martinus</a> atau saya sendiri. Kegiatan project setup ini tidak terlalu tinggi frekuensinya, karena biasanya coding project yang existing jauh lebih sering daripada memulai project baru.</p>
-
-<p>Yang jarang dikerjakan biasanya cepat dilupakan. Inilah alasan utama saya menulis posting kali ini, sebagai pengingat buat diri sendiri. Selain itu, mudah-mudahan ada manfaatnya juga untuk para pembaca sekalian.</p>
-
-<p>Sebagai gambaran, tipikal aplikasi di ArtiVisi menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">stack standar 2011</a>. Jadi, project setup ini akan dibuat mengikuti stack standar tersebut.</p>
-
-<p>Pertama kali, kita buat dulu projectnya. Satu aplikasi biasanya kita pecah menjadi beberapa komponen, yaitu :</p>
-
-<ul>
-<li><p>Domain Model dan Service API : ini kita pisahkan untuk memudahkan distribusi ke aplikasi client. Perhatikan bahwa yang saya maksud client di sini bukanlah customer pembeli aplikasi, melainkan aplikasi di sisi hilir misalnya user interface yang dibuat dengan Swing. Di sisi client, tidak perlu ada detail implementasi. Cukup class-class domain seperti Produk, Kategori, dsb. Juga kita sediakan service interface, yaitu method yang bisa digunakan untuk menjalankan proses bisnis.</p></li>
-<li><p>Implementasi Service : ini adalah implementasi dari service interface di atas. Implementasi biasanya hanya ada di sisi server. Jadi, jar yang dihasilkan project ini tidak kita distribusikan ke client</p></li>
-<li><p>Konfigurasi : file konfigurasi seperti jdbc.properties, logback-test.xml, smtp.properties, dan setting-setting lain kita juga pisahkan ke project sendiri. Ini tujuannya untuk memudahkan deployment. Seperti kita tahu, biasanya ada beberapa environment seperti development di laptop programmer, testing server, dan production server. Dengan memisahkan konfigurasi, kita bisa menghindari mendeploy konfigurasi development ke server production. Yang perlu diperhatikan di sini, hibernate.cfg.xml dan applicationContext.xml bukanlah file konfigurasi. Itu adalah file aplikasi, walaupun bentuknya xml dan tidak perlu dikompilasi.</p></li>
-<li><p>User Interface : kalau aplikasi desktop, ini hanya satu project saja. Atau mungkin dua dengan konfigurasinya. Tapi untuk web, biasanya kita pecah dua juga. Yang satu berisi source code java, satu lagi berisi aplikasi web. Dengan demikian, bila ada perubahan di controller, kita cukup deploy 1 jar, tidak perlu upload 1 war.</p></li>
-</ul>
-
-
-<p>Sebagai ketentuan lain, biasanya nama package selalu kita awali dengan com.artivisi, dan struktur folder mengikuti standar Maven.</p>
-
-<p>Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project.</p>
-
-<div><script src='https://gist.github.com/794650.js?file=folder-structure.sh'></script>
-<noscript><pre><code>mkdir -p project-contoh/com.artivisi.contoh.{config,domain,service.impl,ui.springmvc,ui.web}/src/{main,test}/{java,resources}
-mkdir -p project-contoh/com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</code></pre></noscript></div>
-
-
-<p>Outputnya bisa kita lihat sebagai berikut</p>
-
-<pre><code>find . 
-.
-./com.artivisi.contoh.service.impl
-./com.artivisi.contoh.service.impl/src
-./com.artivisi.contoh.service.impl/src/test
-./com.artivisi.contoh.service.impl/src/test/java
-./com.artivisi.contoh.service.impl/src/test/resources
-./com.artivisi.contoh.service.impl/src/main
-./com.artivisi.contoh.service.impl/src/main/java
-./com.artivisi.contoh.service.impl/src/main/resources
-./com.artivisi.contoh.domain
-./com.artivisi.contoh.domain/src
-./com.artivisi.contoh.domain/src/test
-./com.artivisi.contoh.domain/src/test/java
-./com.artivisi.contoh.domain/src/test/resources
-./com.artivisi.contoh.domain/src/main
-./com.artivisi.contoh.domain/src/main/java
-./com.artivisi.contoh.domain/src/main/resources
-./com.artivisi.contoh.ui.springmvc
-./com.artivisi.contoh.ui.springmvc/src
-./com.artivisi.contoh.ui.springmvc/src/test
-./com.artivisi.contoh.ui.springmvc/src/test/java
-./com.artivisi.contoh.ui.springmvc/src/test/resources
-./com.artivisi.contoh.ui.springmvc/src/main
-./com.artivisi.contoh.ui.springmvc/src/main/java
-./com.artivisi.contoh.ui.springmvc/src/main/resources
-./com.artivisi.contoh.config
-./com.artivisi.contoh.config/src
-./com.artivisi.contoh.config/src/test
-./com.artivisi.contoh.config/src/test/java
-./com.artivisi.contoh.config/src/test/resources
-./com.artivisi.contoh.config/src/main
-./com.artivisi.contoh.config/src/main/java
-./com.artivisi.contoh.config/src/main/resources
-./com.artivisi.contoh.ui.web
-./com.artivisi.contoh.ui.web/src
-./com.artivisi.contoh.ui.web/src/test
-./com.artivisi.contoh.ui.web/src/test/java
-./com.artivisi.contoh.ui.web/src/test/resources
-./com.artivisi.contoh.ui.web/src/main
-./com.artivisi.contoh.ui.web/src/main/java
-./com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF
-./com.artivisi.contoh.ui.web/src/main/resources
-</code></pre>
-
-<p>Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle.
-Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle</p>
-
-<div><script src='https://gist.github.com/794650.js?file=settings.gradle'></script>
-<noscript><pre><code>include &quot;com.artivisi.contoh.config&quot;
-include &quot;com.artivisi.contoh.domain&quot;
-include &quot;com.artivisi.contoh.service.impl&quot;
-include &quot;com.artivisi.contoh.ui.springmvc&quot;
-include &quot;com.artivisi.contoh.ui.web&quot;</code></pre></noscript></div>
-
-
-<p>Dan ini build file Gradle.</p>
-
-<div><script src='https://gist.github.com/794650.js?file=build.gradle'></script>
-<noscript><pre><code>springVersion = &quot;3.0.5.RELEASE&quot;
-springSecurityVersion = &quot;3.0.5.RELEASE&quot;
-slf4jVersion = &quot;1.6.1&quot;
-logbackVersion = &quot;0.9.27&quot;
-jodaTimeVersion = &quot;1.6.2&quot;
-sourceCompatibility = 1.6
- 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'eclipse'
- 
-    configurations {
-        all*.exclude group: &quot;commons-logging&quot;, module: &quot;commons-logging&quot;
-    }
- 
-    repositories {
-        mavenCentral()
-    }
- 
-    dependencies {
-        compile &quot;org.slf4j:jcl-over-slf4j:$slf4jVersion&quot;,
-                &quot;org.slf4j:jul-to-slf4j:$slf4jVersion&quot;
-                
-        runtime &quot;joda-time:joda-time:$jodaTimeVersion&quot;        
-                
-        runtime &quot;ch.qos.logback:logback-classic:$logbackVersion&quot;
-  
-        testCompile 'junit:junit:4.7'
-    }
- 
-    group = 'com.artivisi.contoh'
-    version = '1.0-SNAPSHOT'
-    sourceCompatibility = 1.6
-    
-    task wrapper(type: Wrapper) {
-        gradleVersion = '0.9.1'
-        jarFile = 'wrapper/wrapper.jar'
-    }
-}
-
-project('com.artivisi.contoh.domain') {
-    dependencies { 
-        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
-     
-        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
-                &quot;org.springframework:spring-orm:$springVersion&quot;,
-                &quot;org.springframework:spring-jdbc:$springVersion&quot;
-                
-     
-    }
-}
-
-project('com.artivisi.contoh.service.impl') {
-    dependencies { 
-        compile project(':com.artivisi.contoh.domain')
-        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
-     
-        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
-                &quot;org.springframework:spring-orm:$springVersion&quot;,
-                &quot;org.springframework:spring-jdbc:$springVersion&quot;
-                
-     
-    }
-}
-
-project('com.artivisi.contoh.ui.springmvc') {
-    dependencies {
-        compile project(':com.artivisi.contoh.service.impl')
-     
-        compile &quot;org.springframework:spring-webmvc:$springVersion&quot;,
-                &quot;org.springframework:spring-aop:$springVersion&quot;
-     
-        compile &quot;org.springframework.security:spring-security-web:$springSecurityVersion&quot;,
-                &quot;org.springframework.security:spring-security-config:$springSecurityVersion&quot;
-     
-        compile &quot;javax.validation:validation-api:1.0.0.GA&quot;,
-                &quot;org.hibernate:hibernate-validator:4.0.2.GA&quot;
-     
-    }
-}
-
-project('com.artivisi.contoh.ui.web') {
-    apply plugin: 'war'
-    apply plugin: 'jetty'
-     
-    dependencies {
-        compile project(':com.artivisi.contoh.ui.springmvc')
-        runtime project(':com.artivisi.contoh.config')
-      
-        runtime &quot;javax.servlet:jstl:1.1.2&quot;,
-                &quot;taglibs:standard:1.1.2&quot;,
-                &quot;opensymphony:sitemesh:2.4.2&quot;
-     
-        providedCompile &quot;javax.servlet:servlet-api:2.5&quot;
-    }
-}</code></pre></noscript></div>
-
-
-<p>Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project.</p>
-
-<p>Karena saya menggunakan Eclipse, saya menambahkan metadata supaya projectnya bisa dibuka di Eclipse. Ini bisa kita lakukan dengan cara menjalankan perintah</p>
-
-<pre><code>gradle eclipse
-</code></pre>
-
-<p>dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini.</p>
-
-<div><script src='https://gist.github.com/794650.js?file=export-eclipse.sh'></script>
-<noscript><pre><code>for d in */; do cd &quot;$d&quot;; gradle eclipse; cd ..; done</code></pre></noscript></div>
-
-
-<p>Untung saja pakai linux, jadi bisa coding di command prompt :D</p>
-
-<p>Selanjutnya, kita bisa test dengan melakukan build di project paling hilir, yaitu ui.web</p>
-
-<pre><code>cd com.artivisi.contoh.ui.web
-gradle war
-</code></pre>
-
-<p>Hasilnya ada di folder build/libs
-Kita cek apakah semua dependensi sudah terpenuhi dengan perintah berikut.</p>
-
-<pre><code>jar tvf build/libs/com.artivisi.contoh.ui.web-1.0-SNAPSHOT.war
-</code></pre>
-
-<p>Ini juga bisa langsung dijalankan dengan plugin Jetty yang ada dalam Gradle.</p>
-
-<pre><code>cd com.artivisi.contoh.ui.web
-gradle jetty
-</code></pre>
-
-<p>Outputnya bisa kita lihat di browser, dengan port 8080.
-<img src="/images/uploads/2011/01/jetty-run-300x216.png" title="" ></p>
-
-<p>Di situ ada link menuju aplikasi kita. Silahkan diklik.
-<img src="/images/uploads/2011/01/klik-context-path-300x214.png" title="" ></p>
-
-<p>Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</p>
-
-<div><script src='https://gist.github.com/794650.js?file=web.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;web-app version=&quot;2.5&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-    xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;&gt;
-
-    &lt;!-- Reads request input using UTF-8 encoding --&gt;
-    &lt;filter&gt;
-        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
-        &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;encoding&lt;/param-name&gt;
-            &lt;param-value&gt;UTF-8&lt;/param-value&gt;
-        &lt;/init-param&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;forceEncoding&lt;/param-name&gt;
-            &lt;param-value&gt;true&lt;/param-value&gt;
-        &lt;/init-param&gt;
-    &lt;/filter&gt;
-
-    &lt;filter-mapping&gt;
-        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
-        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-    &lt;/filter-mapping&gt;
-    
-    &lt;!-- Handles all requests into the application --&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-            &lt;param-value&gt;
-                /WEB-INF/springmvc-context.xml
-            &lt;/param-value&gt;
-        &lt;/init-param&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-
-&lt;/web-app&gt;</code></pre></noscript></div>
-
-
-<p>Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml</p>
-
-<div><script src='https://gist.github.com/794650.js?file=springmvc-context.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
-    xsi:schemaLocation=&quot;http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
-
-    &lt;!-- Scans the classpath of this application for @Components to deploy as beans --&gt;
-    &lt;context:component-scan base-package=&quot;com.artivisi.contoh.ui.web&quot; /&gt;
-
-    &lt;!-- Configures the @Controller programming model --&gt;
-    &lt;mvc:annotation-driven /&gt;
-    
-    &lt;!-- mengganti default servletnya Tomcat dan Jetty --&gt;
-    &lt;!-- ini diperlukan kalau kita mapping DispatcherServlet ke / --&gt;
-    &lt;!-- sehingga tetap bisa mengakses folder selain WEB-INF, misalnya img, css, js --&gt;
-    &lt;mvc:default-servlet-handler/&gt;
-
-    &lt;!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources/ directory --&gt;
-    &lt;mvc:resources mapping=&quot;/resources/**&quot; location=&quot;/resources/&quot; /&gt;
-
-    &lt;!-- Application Message Bundle --&gt;
-    &lt;bean id=&quot;messageSource&quot; class=&quot;org.springframework.context.support.ReloadableResourceBundleMessageSource&quot;&gt;
-        &lt;property name=&quot;basename&quot; value=&quot;/WEB-INF/messages/messages&quot; /&gt;
-        &lt;property name=&quot;cacheSeconds&quot; value=&quot;0&quot; /&gt;
-    &lt;/bean&gt;
-
-    &lt;!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory --&gt;
-    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;
-        &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/templates/jsp/&quot;/&gt;
-        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;/&gt;
-    &lt;/bean&gt;
-    
-    &lt;!-- Forwards requests to the &quot;/&quot; resource to the &quot;hello&quot; view --&gt;
-    &lt;mvc:view-controller path=&quot;/&quot; view-name=&quot;hello&quot;/&gt;
-
-&lt;/beans&gt;
-</code></pre></noscript></div>
-
-
-<p>Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import.</p>
-
-<p>Pertama, arahkan workspace ke folder project-contoh.
-<img src="/images/uploads/2011/01/01-pilih-workspace-300x154.png" title="" ></p>
-
-<p>Setelah Eclipse terbuka, kita pilih menu Import Project, untuk membuka 4 project yang tadi sudah kita buat.
-<img src="/images/uploads/2011/01/02-import-existing-300x272.png" title="" ></p>
-
-<p>Pilih folder induknya.
-<img src="/images/uploads/2011/01/03-select-root-directory-272x300.png" title="" ></p>
-
-<p>Selesai, semua project kita bisa dibuka. Bahkan kita bisa menjalankan project ui.web dengan cara klik kanan Run in Server. Ini bisa dilihat dari icon project tersebut yang berbentuk bola dunia.</p>
-
-<p><img src="/images/uploads/2011/01/04-import-result-300x139.png" title="" ></p>
-
-<p>Selesai sudah, mari kita <a href="http://endy.artivisi.com/blog/aplikasi/sharing-repository-git/">share dengan rekan yang lain</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/13/">&larr; Older</a>
@@ -1054,6 +753,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/membeli-sertifikat-ssl/">Membeli Sertifikat SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
       </li>
     
@@ -1087,10 +790,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
       </li>
     
   </ul>

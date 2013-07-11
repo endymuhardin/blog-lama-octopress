@@ -9,9 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Jaman sekarang orang bikin tutorial udah gak PDF lagi. Ketinggalan jaman oom.
-Sekarang musimnya tutorial pake movie, baik AVI, MPG, atau SWF.
-Jangan &hellip;">
+  <meta name="description" content="Wordpress memang hebat, ada plugin untuk membackup isi blog (isi tabel MySQL) secara periodik ke email.
+Email yang kita gunakan bisa ditentukan di &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +90,45 @@ Jangan &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/autobackup-to-gmail/">Autobackup to Gmail</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-10-25T02:50:42+07:00" pubdate data-updated="true">Oct 25<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Wordpress memang hebat, ada <a href="http://www.lifehut.org/2005/08/17/wordpress-google-killer-combo/">plugin untuk membackup isi blog (isi tabel MySQL) secara periodik ke email</a>.
+Email yang kita gunakan bisa ditentukan di konfigurasi. Gunakan <a href="http://www.gmail.com">Gmail</a> untuk kapasitas yang besar.</p>
+
+<p>Sekarang kita bisa memikirkan tulisan dan tidak perlu mengkhawatirkan backup.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -231,102 +269,6 @@ Sekarang kita bisa mendisable account anonymous, dan apache tetap bisa mengotent
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/otentikasi-apache-menggunakan-ldap/">Otentikasi Apache Menggunakan LDAP</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-10-14T18:15:50+07:00" pubdate data-updated="true">Oct 14<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada tulisan sebelumya, saya telah menceritakan cara instalasi dan konfigurasi <a href="http://subversion.tigris.org">Subversion</a>. Juga telah diceritakan cara mengaktifkan mode akses HTTP melalui <a href="http://httpd.apache.org">Apache 2 + WebDAV</a>.</p>
-
-<p>Setelah sistem berjalan, ternyata ada kekurangnyamanan dalam mengelola repository. Seperti kita ketahui, yang menggunakan repository adalah para programmer dan tim ofisialnya, semuanya terlibat dalam suatu project. Project datang dan pergi, demikian juga username bertambah dan berkurang.</p>
-
-<p>Cara manajemen username melalui htpasswd tidak scalable. Tambah user harus lapor, ganti password harus dibantu, hapus user juga sama, semua tidak bisa diotomasi. Setidaknya saya belum tau cara mengelola file htpasswd yang lebih efisien. Keinginan saya adalah, untuk menambah dan menghapus username dilakukan administrator, tapi untuk urusan ganti password silahkan ganti sendiri melalui web.</p>
-
-<p>Setelah google ke sana kemari, metode yang umum digunakan orang adalah otentikasi melalui LDAP server. Dan ternyata, memindahkan otentikasi dari file htpasswd ke LDAP tidak sulit, cukup ganti konfigurasi <code>dav_svn.conf</code> dalam folder <code>/etc/apache2/mods-available</code> ini :</p>
-
-<pre><code>AuthUserFile /etc/apache2/htpasswd
-</code></pre>
-
-<p>menjadi ini :</p>
-
-<pre><code>AuthBasicProvider ldap
-AuthLDAPURL ldap://localhost/dc=artivisi,dc=com?uid?sub?
-AuthLDAPBindDN uid=apache,dc=artivisi,dc=com
-AuthLDAPBindPassword "passwd-user-apache-dalam-ldap"
-</code></pre>
-
-<blockquote><p>Perhatian !!! Konfigurasi ini berjalan di Ubuntu 7.04 dengan Apache 2.2. Bila Anda menggunakan distro lain atau Apache 2.0, konfigurasi ini mungkin harus dimodifikasi agar bisa berjalan dengan baik.</p></blockquote>
-
-<p>Kita membutuhkan modul <code>mod\_authnz\_ldap</code> agar Apache bisa melakukan otentikasi ke LDAP.</p>
-
-<p>Lebih lanjut tentang otentikasi LDAP ini bisa dilihat di <a href="http://httpd.apache.org/docs/2.2/mod/mod_authnz_ldap.html">manualnya Apache</a>.</p>
-
-<p>Untuk mengaktifkan modul ini, cukup gunakan perintah berikut:</p>
-
-<p><code>a2enmod authnz\_ldap</code></p>
-
-<p>Nah, di sisi Apache tidak sulit. Instalasi LDAP di Debian juga sama mudahnya, cukup :</p>
-
-<p><code># apt-get install slapd</code></p>
-
-<p>untuk menginstal OpenLDAP, dan</p>
-
-<p><code># apt-get install phpldapadmin</code></p>
-
-<p>untuk menginstal <a href="http://phpldapadmin.sourceforge.net">PHPLDAPAdmin</a>. Ya benar &#8230; LDAP Admin, bukan phpmyadmin.</p>
-
-<p>Ternyata merek phpXXadmin ini telah sangat kuat. Mungkin kalau <a href="http://www.hermawankartajaya.com">Hermawan Kartajaya</a> pernah menggunakan <a href="http://www.mysql.org">MySQL</a>, <a href="http://www.postgresql.org">PostgreSQL</a>, dan <a href="http://www.openldap.org">OpenLDAP</a>, dia juga akan membahas mengenai kekuatan merek phpXXadmin ini. Sejauh ini saya telah menggunakan <a href="http://www.phpmyadmin.net">phpmyadmin</a> dan <a href="http://phppgadmin.sourceforge.net">phppgadmin</a>. Dan sekarang ada <a href="http://phpldapadmin.sourceforge.net">phpldapadmin</a>. Luar biasa.</p>
-
-<p>Instalasi <a href="http://www.openldap.org">OpenLDAP</a> mudah sekali, kita hanya ditanya nama domain yang akan disimpan, saya jawab <strong>artivisi.com</strong>. Kemudian ditanya password untuk administrator dan metode enkripsinya. OpenLDAP menyediakan clear, crypt, dan md5.
-Setelah itu &#8230; selesai.</p>
-
-<p>Instalasi phpldapadmin sedikit bermasalah. Masalah utama adalah permission. Entah kenapa, debian menginstalnya dengan permission yang tidak sesuai.
-Ini menyebabkan beberapa halaman tidak bisa diakses karena web server tidak diijinkan untuk membacanya.
-Untuk mudahnya, saya melakukan :</p>
-
-<pre><code># chown -R www-data.www-data /etc/phpldapadmin
-# chown -R www-data.www-data /usr/share/phpldapadmin
-</code></pre>
-
-<p>Ok, selesailah sudah.
-Sekarang untuk menambah user dapat dilakukan melalui web. Konfigurasi default OpenLDAP juga sangat bagus. Hanya admin yang dapat memanipulasi data. User biasa (uid) hanya bisa mengganti atributnya sendiri (termasuk password).</p>
-
-<p>Jadi berikutnya, kalau ada user baru, tinggal tambahkan melalui web dengan password standar. Kemudian suruh user tersebut login dan ganti password. Beres &#8230;</p>
-
-<p>Referensi :<br/>
-<a href="http://www.google.com">Google</a></p>
-
-<p><a href="http://www.scratchbox.org/documentation/docbook/svn.html">Scratchbox</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/67/">&larr; Older</a>
@@ -403,6 +345,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/membeli-sertifikat-ssl/">Membeli Sertifikat SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
       </li>
     
@@ -436,10 +382,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
       </li>
     
   </ul>

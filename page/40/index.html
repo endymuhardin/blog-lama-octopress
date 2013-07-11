@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sekarang sedang marak layanan internet berbasis paket. Artinya, kita dikenakan biaya berdasarkan besar data yang kita konsumsi, baik kirim (uplink) &hellip;">
+  <meta name="description" content="Di kantor saya sekarang sedang terjadi euforia Linux. Hmm&#8230;. bukan euforia. Tampaknya histeria lebih tepat. Karena semua orang tampak histeris &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,168 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/migrasi-linux/">Migrasi Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-06-21T18:32:05+07:00" pubdate data-updated="true">Jun 21<span>st</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di kantor saya sekarang sedang terjadi euforia Linux. Hmm&#8230;. bukan euforia. Tampaknya histeria lebih tepat. Karena semua orang tampak histeris dan ingin sampai di kantor besok harinya dan menemukan semua Windows sudah tidak ada, dan semua orang bekerja normal dan gembira.</p>
+
+<p>Ini semua dipicu oleh razia software bajakan yang marak terjadi beberapa bulan ini. Beberapa perusahaan bahkan menerima surat dari Pak Sutanto yang gambar sampulnya saja sudah menakutkan. Bukannya kantor saya pakai bajakan, tapi dengan sekian ratus orang karyawan, masing-masingnya menggunakan paling tidak satu komputer, siapa yang tau kalau mereka instal ulang komputernya dengan aplikasi GPL (Glodok Public License) ??</p>
+
+<p>Jadilah akhirnya job desc saya bertambah satu, konsultan migrasi Linux, karena kebetulan di komputer dan notebook saya sudah tidak ada Windowsnya lagi. Berikut beberapa pengalaman yang bisa dibagi berkaitan dengan histeria migrasi ini. Siapa tau berikutnya kantor Anda yang dilanda demam pinguin.</p>
+
+<h3>Siapkan Install Server</h3>
+
+<p>Satu kali diminta instal, no problem. Dua kali, yah mau gimana lagi. Tiga kali?? That&#8217;s enough. Ubuntu memang mudah diinstal, tapi distro lain seperti OpenSuSE tidak senyaman Ubuntu. Untuk OpenSuSE, kita harus menunggui proses instalasi, dan mengganti CD pada waktunya.</p>
+
+<p>Bila Anda mengantisipasi akan menginstal lebih dari tiga komputer, segera deploy fitur instalasi melalui jaringan. Ini adalah investasi beberapa jam yang akan menyelamatkan beberapa puluh jam dari masa remaja Anda di kemudian hari.</p>
+
+<p>Semua distro Linux mendukung instalasi melalui jaringan, walaupun caranya berbeda-beda. Saya menyiapkan repository di jaringan lokal untuk beberapa distro utama, untuk kasus saya, Ubuntu dan OpenSuSE.</p>
+
+<p>Repository Ubuntu dapat dibuat dengan mudah menggunakan DVD Repository yang bisa didonlod di <a href="http://anak.kambing.vlsm.org/">kandang anak kambing</a>. Segera setelah DVD repository selesai didownload, aktifkan webserver Apache dan mount ISOnya ke folder yang dapat diakses orang banyak. Cara yang sama bisa dilakukan untuk distro OpenSuSE.</p>
+
+<p>Sebagai contoh, semua ISO tersebut saya mount ke folder <code>/home/endy/tmp/UbuntuRepo</code> dan <code>/home/endy/tmp/OpenSuSE</code>. Kemudian kedua folder tersebut saya publish melalui Apache. Berikut adalah konfigurasi <code>/etc/fstab</code> agar ISO tersebut dimount pada saat booting.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Ubuntu Repository DVDs
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-1_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD1 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-2_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD2 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-3_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD3 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/Ubuntu/UbuntuDVD/ubuntu-7.04-repository-i386-4_contrib.iso  /home/endy/tmp/UbuntuRepo/DVD4 iso9660 loop,auto 0 0 
+</span><span class='line'>
+</span><span class='line'># OpenSuSE CD
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD1.iso  /home/endy/tmp/OpenSuSE/CD1 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD2.iso  /home/endy/tmp/OpenSuSE/CD2 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD3.iso  /home/endy/tmp/OpenSuSE/CD3 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD4.iso  /home/endy/tmp/OpenSuSE/CD4 iso9660 loop,auto 0 0 
+</span><span class='line'>/media/sdb2/ISO/openSUSE-10.2-GM-i386-CD5.iso  /home/endy/tmp/OpenSuSE/CD5 iso9660 loop,auto 0 0 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Semakin banyak ISO yang dimount, semakin banyak juga loop device yang dibutuhkan. Instalasi Ubuntu standar cuma menyediakan 8 device loop, sehingga tidak cukup untuk memuat 4 ISO Ubuntu dan 5 ISO OpenSuSE.
+Untuk memeriksa berapa device loop yang tersedia, lihat di dalam <code>/dev/</code></p>
+
+<p>Untuk itu, device loop perlu ditambahkan. Di Ubuntu, tambahkan baris berikut di file <code>/etc/modprobe.d/options</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>options loop max_loop=32 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>agar pada saat booting kernel menyediakan 32 device loop.</p>
+
+<p>Selanjutnya, kita lakukan mapping agar folder /home/endy/tmp tersebut dipublish di http server. Cara termudah adalah dengan membuat symlink ke folder DocumentRoot (untuk keluarga Debian adalah /var/www).</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ln -s /var/www/UbuntuRepo /home/endy/tmp/UbuntuRepo
+</span><span class='line'>ln -s /var/www/OpenSuSE /home/endy/tmp/OpenSuSE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikutnya, buat boot CD atau boot USB agar pada saat instalasi kita cukup mengarahkan ke jaringan. Saya biasanya memulai instalasi pada sore hari agar bisa ditinggal pulang.</p>
+
+<h3>Migrasi Email</h3>
+
+<p>Arsip email merupakan harta yang sangat penting di kehidupan perkantoran modern. Dia bisa digunakan sebagai amunisi audit, bahan berkelit, ataupun mencari referensi. Oleh karena itu, setelah migrasi biasanya user akan menanyakan, &#8220;Email lama saya mana??&#8221;.</p>
+
+<p>Email dari Outlook Express bukanlah masalah besar. Hampir semua mail client Linux seperti KMail, Thunderbird, dan Evolution sudah menyediakan fitur import. Yang paling bermasalah adalah Outlook 2003. Native import belum ada di semua mail client Linux pada saat tulisan ini dibuat. Jadi, kita harus lebih dalam menggali isi perut Google.</p>
+
+<p>Saya menemukan tiga metode yang bisa digunakan:</p>
+
+<ol>
+<li><p>Menggunakan Thunderbird</p></li>
+<li><p>Menggunakan File Sharing</p></li>
+<li><p>Menggunakan IMAP Server</p></li>
+</ol>
+
+
+<p>Cara mana yang dipilih tergantung dari ketersediaan ahli Linux di sekitar Anda. Kalau tidak ada ahli Linux sama sekali, gunakan cara pertama. Berikut adalah langkah-langkahnya.</p>
+
+<h4>Kebutuhan Software</h4>
+
+<ul>
+<li><p>MS Windows. Ya Anda membutuhkan komputer yang masih ada Windowsnya</p></li>
+<li><p>Mozilla Thunderbird untuk Windows</p></li>
+<li><p>Linux. Kalau Anda sudah menjadi korban migrasi, harusnya komputer Anda sudah terinstal Linux pada saat ini.</p></li>
+<li><p>Mozilla Thunderbird untuk Linux</p></li>
+</ul>
+
+
+<h4>Cara migrasi</h4>
+
+<p>Cara memindahkan email sangat mudah. Pembaca yang teliti tentunya sudah bisa menebak langkah-langkahnya hanya dengan melihat kebutuhan software di atas.</p>
+
+<ol>
+<li><p>Buka Thunderbird di Windows</p></li>
+<li><p>Import file *.pst Anda</p></li>
+<li><p>Buka setting Thunderbird, cari tahu di mana dia menyimpan emailnya</p></li>
+<li><p>Copy folder tersebut ke komputer Linux Anda</p></li>
+<li><p>Jalankan Thunderbird Linux, arahkan folder penyimpanan email ke folder hasil copy</p></li>
+<li><p>Restart Thunderbird</p></li>
+<li><p>Setelah ini, Anda bisa import hasilnya ke Evolution atau KMail, sesuai dengan pilihan</p></li>
+</ol>
+
+
+<p>Cara kedua melibatkan pembuatan folder sharing di suatu tempat. Pada dasarnya cara ini adalah otomasi dari cara pertama di atas, sehingga bisa digunakan untuk memigrasi banyak user sekaligus. Saya kurang merekomendasikan cara ini karena relatif sulit dan tidak intuitif. Bagi yang ingin tahu bisa langsung <a href="http://www.neotek.hu/en/o2e_en.html">lihat di websitenya</a>.</p>
+
+<p>Buat saya, instalasi Thunderbird berkali-kali kurang menyenangkan. Lagipula, terkesan kurang hi-tech. Berikut adalah cara ketiga. Untuk melakukan ini, Anda butuh ahli Linux yang mampu mengkonfigurasi email server berprotokol IMAP. Sebenarnya IMAP server ini bisa di mana saja, termasuk di Windows. Yang penting IMAP. Cara setting IMAP server tidak dibahas pada artikel ini.</p>
+
+<p>Berikut adalah langkah-langkah migrasi.</p>
+
+<ol>
+<li><p>Sebelum komputer Windows diformat, jalankan dulu Outlook 2003 untuk terakhir kalinya</p></li>
+<li><p>Buat akun email baru di Outlook, menggunakan akun yang sudah dibuatkan di IMAP server</p></li>
+<li><p>Copy email dari Local Folder Outlook ke folder IMAP</p></li>
+<li><p>Silahkan format Windowsnya dan install Linux</p></li>
+<li><p>Setelah berada di Linux, jalankan mail client apapun yang Anda sukai</p></li>
+<li><p>Buat akun email menggunakan akun di IMAP server</p></li>
+<li><p>Email Anda akan hadir tanpa suatu cacat apapun. Silahkan pindahkan ke folder lokal</p></li>
+</ol>
+
+
+<p>Saya sangat menyukai cara ketiga ini. Bisa memigrasi email orang banyak dengan singkat, dan user bisa diajari untuk melakukannya sendiri.</p>
+
+<p>Demikianlah beberapa tips singkat tentang migrasi Linux. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -251,430 +413,6 @@ $iface_title['eth2'] = 'Wired';
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/remoting-dengan-spring/">Remoting Dengan Spring</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-17T00:49:19+07:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user atau pengguna aplikasi kita bukanlah orang, melainkan mesin. Dalam hal ini, aplikasi kita dapat disebut dengan aplikasi server yang menyediakan service bagi aplikasi client.</p>
-
-<p>Bagaimana caranya agar aplikasi kita dapat digunakan oleh aplikasi lain? Caranya tentunya dengan menyediakan antarmuka yang sesuai bagi masing-masing aplikasi client. Ada banyak bahasa yang dijadikan patokan dalam komunikasi antar aplikasi. Beberapa protokol yang umum digunakan adalah:</p>
-
-<ul>
-<li><p>CORBA</p></li>
-<li><p>RMI (khusus Java)</p></li>
-<li><p>SOAP</p></li>
-<li><p>XML-RPC</p></li>
-<li><p>Hessian</p></li>
-<li><p>Burlap</p></li>
-<li><p>dan masih banyak yang lainnya</p></li>
-</ul>
-
-
-<p>Dengan cara tradisional, menyediakan antarmuka untuk masing-masing protokol ini cukup rumit. Selain harus mengerti protokolnya, kita juga harus menulis banyak kode untuk memformat data kita mengikuti aturan yang ditetapkan protokol tersebut. Kita juga harus menulis kode program agar dapat menerima data dalam protokol yang kita ingin sediakan.</p>
-
-<p><a href="http://www.springframework.org">Spring Framework</a> menyediakan library pembantu bagi kita agar kita dapat menyediakan akses dalam protokol tersebut dengan mudah. Bagaimana caranya, mari kita bahas dalam artikel ini.</p>
-
-<p>Sebagai contoh sederhana, misalnya kita ingin menyediakan layanan untuk mengambil data Person. Untuk menyederhakan masalah, Person hanya mengandung data nama dan email saja.</p>
-
-<h3>Person.java</h3>
-
-<pre><code>package tutorial.remoting;
-
-public class Person implements java.io.Serializable {
-    private String name;
-    private String email;
-
-    public Person() {
-        this("", "");
-    }
-
-    public Person(String name, String email){
-        this.name = name;
-        this.email = email;
-    }
-
-    public String getName(){
-        return name;
-    }
-
-    public String getEmail(){
-        return email;
-    }
-
-    public String toString(){
-        return name + " : " + email;
-    }
-}
-</code></pre>
-
-<p>Perhatikan bahwa kita harus mendefinisikan Person sebagai object yang Serializable. Ini penting agar object ini bisa ditransfer melalui jaringan.</p>
-
-<p>Kemudian, kita sediakan interface yang mendefinisikan layanan yang ingin kita sediakan bagi aplikasi lain. Kita sebut saja interface ini sebagai PersonService.</p>
-
-<h3>PersonService.java</h3>
-
-<pre><code>package tutorial.remoting;
-
-import java.util.List;
-
-public interface PersonService {    
-    public Person get(int id);
-    public List getAllPerson();
-} 
-</code></pre>
-
-<p>PersonService ini nantinya bisa kita implementasi sesuai dengan kebutuhan. Kita bisa mengambil datanya dari database, dari phonebook handphone, atau bahkan dari aplikasi lain. Agar contoh kodenya lebih sederhana, kita buat saja implementasinya dengan ArrayList. Para pembaca nanti bisa mencoba dengan implementasi lain yang lebih hi-tech seperti Hibernate atau OpenJPA.</p>
-
-<p>Berikut adalah implementasi dari PersonService, kita sebut saja PersonServiceImpl.</p>
-
-<h3>PersonServiceImpl.java</h3>
-
-<pre><code>package tutorial.remoting.remote;
-
-import java.util.List;
-import java.util.ArrayList;
-
-import tutorial.remoting.Person;
-import tutorial.remoting.PersonService;
-
-public class PersonServiceImpl implements PersonService {
-
-    private List allPerson = new ArrayList();
-
-    public PersonServiceImpl(){
-        Person p = new Person("Endy Muhardin", "endy@artivisi.com");
-        Person p1 = new Person("Maya Mujawati", "moedja@yahoo.com");
-        allPerson.add(p);
-        allPerson.add(p1);
-    }
-
-    public Person get(int id){
-        if (id &gt;= allPerson.size()) return null;
-        return (Person) allPerson.get(id);
-    }
-
-    public List getAllPerson(){
-        return allPerson;
-    }
-} 
-</code></pre>
-
-<p>Seperti kita lihat di atas, tidak ada yang istimewa dengan kode program di atas. Bahkan validasi untuk field id pun tidak kita sediakan. Tentu saja kalau kita berikan masukan angka 2 atau lebih pada method public Person get(int id) akan terjadi ArrayIndexOutOfBoundException.</p>
-
-<p>Selesai sudah &#8230; sekarang kode tersebut dapat diakses oleh aplikasi lain.</p>
-
-<p>Apa?? Saya mendengar ada suara-suara kurang puas dari penonton.. Coba lebih keras??</p>
-
-<blockquote><p>Bagaimana cara mengaksesnya dari aplikasi client? Nampaknya belum ada kode program apa-apa untuk menyediakan layanan webservice. Mana bisa dibilang selesai?</p></blockquote>
-
-<p>Ok .. baiklah, memang ada satu langkah lagi. Yaitu mempublikasikan interface tersebut agar bisa diakses orang banyak. Kita akan sediakan akses melalui tiga protokol, yaitu:</p>
-
-<ol>
-<li><p>RMI</p></li>
-<li><p>Hessian</p></li>
-<li><p>Burlap</p></li>
-</ol>
-
-
-<blockquote><p>Tiga protokol?? Apa tidak terlalu ambisius? Nanti saya pusing baca kode sekian banyak.</p></blockquote>
-
-<p>Demikian terdengar komentar dari penonton. Hmm &#8230; penonton Indonesia memang terlalu banyak protes.</p>
-
-<p>Tenang saja. Kita akan gunakan Spring untuk mempublikasikan aplikasi kecil kita ini. Saya akan buktikan bahwa kodenya sedikit dan mudah dipahami. Sekarang, mari kita mulai dengan mempublikasikan protokol RMI. Di masa lalu, untuk menyediakan layanan ini, paling tidak kita harus:</p>
-
-<ol>
-<li><p>mengkompilasi stub</p></li>
-<li><p>mengkompilasi skeleton</p></li>
-<li><p>mengkonfigurasi Security setting</p></li>
-<li><p>menjalankan RMIRegistry</p></li>
-<li><p>mendaftarkan objek PersonServiceImpl ke RMIRegistry</p></li>
-<li><p>memberikan stub ke aplikasi client</p></li>
-</ol>
-
-
-<p>Sekarang tidak lagi. Kita cukup mendaftarkan interface PersonService, implementasi PersonServiceImpl di konfigurasi Spring. Berikut adalah isi file remote-ctx.xml</p>
-
-<h3>remote-ctx.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;
-    &lt;bean id="personServiceTarget" class="tutorial.remoting.remote.PersonServiceImpl"/&gt;
-
-    &lt;bean class="org.springframework.remoting.rmi.RmiServiceExporter"&gt;        
-        &lt;property name="serviceName" value="PersonRmiService"/&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;  
-        &lt;property name="registryPort" value="4321"/&gt;
-    &lt;/bean&gt;
-&lt;/beans&gt;
-</code></pre>
-
-<p>Hanya dengan membaca file XML di atas, kita sudah bisa menduga apa yang terjadi. Kita mempublikasikan layanan yang didefinisikan pada interface PersonService pada port 4321 dengan nama layanan PersonRmiService. Di sisi server, layanan ini akan disediakan oleh objek personServiceTarget yang merupakan instan dari class PersonServiceImpl. Kita memanfaatkan class RmiServiceExporter yang dimiliki Spring.</p>
-
-<p>Untuk menjalankan aplikasi kecil kita, buat sebuah class sederhana untuk mengaktifkan Spring Framework. Berikut adalah kode programnya.</p>
-
-<h3>PersonRmiService.java</h3>
-
-<pre><code>package tutorial.remoting.server;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-public class PersonRmiService {
-    public static void main(String[] xx) {
-        ApplicationContext ctx = 
-        new FileSystemXmlApplicationContext("webapp/WEB-INF/remote-ctx.xml");
-    }
-}
-</code></pre>
-
-<p>Silahkan jalankan class di atas. Asal classpath sudah disetting dengan benar, kita siap mengaksesnya dari client.
-Kita juga akan menggunakan bantuan dari Spring Framework untuk menemukan dan menginisialisasi layanan RMI yang berada di port 4321. Berikut adalah konfigurasi Spring di sisi client.</p>
-
-<h3>client-ctx.xml</h3>
-
-<pre><code>&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;    
-    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-&lt;/beans&gt;
-</code></pre>
-
-<p>Berikut adalah kode program untuk mengakses RMI service kita.</p>
-
-<h3>Main.java</h3>
-
-<pre><code>package tutorial.remoting.client;
-
-import java.util.List;
-
-import tutorial.remoting.PersonService;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-public class Main {
-    public static void main(String[] args){
-        // initialize application context
-        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
-
-        // accessing RMI service
-        System.out.println("======= Accessing RMI Service ==========");
-        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
-        List all1 = ps1.getAllPerson();
-        for(int i=0; i&lt;all1.size(); i++) {
-            System.out.println(all1.get(i));
-        }
-}
-</code></pre>
-
-<p>Perhatikan konsol, dan saksikan RMI service kita sudah dieksekusi dengan sukses.</p>
-
-<p>Sekarang, kita publikasikan melalui protokol <a href="http://www.caucho.com/resin-3.0/protocols/hessian.xtp">Hessian</a> dan <a href="http://www.caucho.com/resin-3.0/protocols/burlap.xtp">Burlap</a>. Protokol ini adalah hasil karya Caucho untuk mempublikasikan service di atas protokol HTTP. Hessian menggunakan format binary, sedangkan Burlap menggunakan format XML.</p>
-
-<p>Karena berbasis HTTP, maka kita perlu menggunakan HTTP Server yang mendukung Java (khususnya Servlet). Kita bisa gunakan Tomcat atau Jetty. Yang jelas, kita perlu mendeklarasikan servlet untuk melayani client. Deklarasi dibuat di dalam file web.xml sebagai berikut.</p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
-
-&lt;!DOCTYPE web-app PUBLIC
-    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-    "http://java.sun.com/dtd/web-app_2_3.dtd"&gt;
-
-&lt;web-app&gt;
-
-    &lt;context-param&gt;
-        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-        &lt;param-value&gt;
-            /WEB-INF/remote-ctx.xml
-        &lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;listener&gt;
-        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-    &lt;/listener&gt;
-
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;2&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/remoting/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-
-    &lt;session-config&gt;
-        &lt;session-timeout&gt;10&lt;/session-timeout&gt;
-    &lt;/session-config&gt;
-
-
-&lt;/web-app&gt;
-</code></pre>
-
-<p>Kita membutuhkan satu file konfigurasi untuk mengkonfigurasi layanan Hessian dan Burlap. Berikut adalah isi file remoting-servlet.xml.</p>
-
-<h3>remoting-servlet.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;
-    &lt;bean name="/PersonHessianService" class="org.springframework.remoting.caucho.HessianServiceExporter"&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
-    &lt;/bean&gt;
-
-
-    &lt;bean name="/PersonBurlapService" class="org.springframework.remoting.caucho.BurlapServiceExporter"&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
-    &lt;/bean&gt;
-
-    &lt;bean name="/PersonHttpInvokerService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"&gt;
-        &lt;property name="service" ref="personServiceTarget"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
-    &lt;/bean&gt;
-
-
-&lt;/beans&gt;
-</code></pre>
-
-<p>Letakkan file remoting-servlet.xml ini di sebelah web.xml. Kita juga perlu mengikutkan file remote-ctx.xml yang kita buat untuk RMI di atas, karena deklarasi objek PersonServiceImpl ada di sana. Bila kita tidak ingin mengikutkan file ini, kita bisa memindahkan deklarasi objek tersebut ke dalam file remoting-servlet.xml.</p>
-
-<p>Sekarang kita bisa mengkompilasi dan mendeploy aplikasi webnya. Untuk mengaksesnya, ubah sedikit kode program di aplikasi client menjadi sebagai berikut.</p>
-
-<h3>Main.java</h3>
-
-<pre><code>package tutorial.remoting.client;
-
-import java.util.List;
-
-import tutorial.remoting.PersonService;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-
-public class Main {
-    public static void main(String[] args){
-        // initialize application context
-        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
-
-        // accessing RMI service
-        System.out.println("======= Accessing RMI Service ==========");
-        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
-        List all1 = ps1.getAllPerson();
-        for(int i=0; i&lt;all1.size(); i++) {
-            System.out.println(all1.get(i));
-        }
-
-        // accessing Hessian Service
-        System.out.println("======= Accessing Hessian Service ==========");
-        PersonService ps2 = (PersonService) ctx.getBean("personServiceHessian");
-        List all2 = ps2.getAllPerson();
-        for(int i=0; i&lt;all2.size(); i++) {
-            System.out.println(all2.get(i));
-        }
-
-        // accessing Burlap Service
-        System.out.println("======= Accessing Burlap Service ==========");
-        PersonService ps3 = (PersonService) ctx.getBean("personServiceBurlap");
-        List all3 = ps3.getAllPerson();
-        for(int i=0; i&lt;all3.size(); i++) {
-            System.out.println(all3.get(i));
-        }
-
-        // accessing Http Invoker Service
-        System.out.println("======= Accessing Http Invoker Service ==========");
-        PersonService ps4 = (PersonService) ctx.getBean("personServiceHttpInvoker");
-        List all4 = ps4.getAllPerson();
-        for(int i=0; i&lt;all4.size(); i++) {
-            System.out.println(all4.get(i));
-        }
-    }
-} 
-</code></pre>
-
-<p>Demikian juga dengan konfigurasi Spring di sisi client. Kita perlu menambahkan beberapa objek tambahan untuk mengakses layanan di berbagai protokol tersebut. Berikut adalah isi lengkap dari client-ctx.xml.</p>
-
-<h3>client-ctx.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
-
-&lt;beans&gt;    
-    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="personServiceHessian" class="org.springframework.remoting.caucho.HessianProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHessianService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="personServiceBurlap" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonBurlapService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id="personServiceHttpInvoker" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"&gt;
-        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHttpInvokerService"/&gt;
-        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
-    &lt;/bean&gt;
-&lt;/beans&gt;
-</code></pre>
-
-<p>Aplikasi kecil kita sudah selesai. Setelah mendeploy aplikasi tersebut ke Servlet Container (Tomcat atau Jetty), kita dapat mengaksesnya melalui aplikasi client. Dengan tetap menggunakan remote-ctx.xml tanpa perubahan, selain menyediakan protokol Hessian dan Burlap, protokol RMI akan tetap tersedia.</p>
-
-<h3>Bonus</h3>
-
-<p>Pembaca yang teliti akan menemukan satu protokol tambahan pada contoh di atas, yaitu HttpInvoker. Ini adalah protokol khusus yang disediakan oleh Spring.</p>
-
-<p>Protokol Hessian dan Burlap tidak mendukung struktur objek secara sempurna. Dia akan mengalami kesulitan apabila objek yang kita kirim tidak sesederhana Person, misalnya memiliki List yang berisi objek lain. Agar bisa mengirim struktur objek yang sempurna, kita harus menggunakan RMI.</p>
-
-<p>Tetapi sayangnya, protokol RMI kurang lazim. Dia membutuhkan port tersendiri yang mungkin saja diblok oleh administrator jaringan, sehingga tidak sefleksibel HTTP.</p>
-
-<p>SpringHttpInvoker menjembatani keterbatasan ini. Kita bisa mengirim objek kompleks secara utuh di atas protokol HTTP dengan menggunakan SpringHttpInvoker.</p>
-
-<p>Demikian &#8230; semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/41/">&larr; Older</a>
@@ -751,6 +489,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/membeli-sertifikat-ssl/">Membeli Sertifikat SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
       </li>
     
@@ -784,10 +526,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/integrasi-aplikasi/">Integrasi Aplikasi</a>
       </li>
     
   </ul>

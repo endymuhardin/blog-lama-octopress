@@ -4,7 +4,7 @@
   <title><![CDATA[Category: aplikasi | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/aplikasi/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-07-11T14:35:28+07:00</updated>
+  <updated>2013-07-11T23:02:21+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,204 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Membeli Sertifikat SSL]]></title>
+    <link href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/"/>
+    <updated>2013-07-11T19:55:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl</id>
+    <content type="html"><![CDATA[<p>Pada waktu saya pertama kali ingin membeli sertifikat SSL, saya dihadapkan pada berbagai jenis sertifikat yang bisa dibeli. Butuh waktu dan usaha yang relatif besar untuk mengetahui maksud dari macam-macam jenis sertifikat tersebut. Pada artikel ini, kita akan membahas berbagai jenis sertifikat tersebut dengan bahasa yang mudah dipahami.</p>
+
+<p>Artikel ini adalah bagian ketiga dari 4 artikel, yaitu:</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
+<li>Memasang sertifikat SSL</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Vendor SSL</h2>
+
+<p>Ada banyak sekali vendor SSL yang tersedia. Beberapa yang populer antara lain:</p>
+
+<ul>
+<li><a href="http://www.comodo.com/">Comodo</a></li>
+<li><a href="http://www.verisign.com/">Verisign</a></li>
+<li><a href="http://www.verizonenterprise.com/products/security/identity/ssl/">Cybertrust/Verizon</a></li>
+<li><a href="http://www.startssl.com/">StartSSL</a></li>
+<li>dan masih banyak yang lain lagi</li>
+</ul>
+
+
+<p>Masing-masing vendor menyediakan berbagai paket dan kategori, masing-masing diberi nama yang terdengar canggih dan hi-tech. Ini semua membuat kita yang baru pertama kali membeli sertifikat menjadi bingung. Berdasarkan hasil tanya-tanya dan googling, akhirnya saya mendapatkan metode pengelompokan yang lebih mudah dipahami end-user.</p>
+
+<p>Kita bisa membedakan sertifikat SSL berdasarkan dua hal:</p>
+
+<ul>
+<li>cakupan penggunaan</li>
+<li>prosedur validasi</li>
+</ul>
+
+
+<h2>Penggunaan Sertifikat</h2>
+
+<p>Sertifikat SSL biasanya digunakan untuk webserver dan mailserver. Kedua layanan ini bekerja berdasarkan nama domain. Misalnya saya punya domain <code>artivisi.com</code>. Dari domain ini, saya bisa memiliki banyak server misalnya:</p>
+
+<ul>
+<li>www.artivisi.com : website perusahaan</li>
+<li>demo.artivisi.com : situs untuk demo produk dan layanan</li>
+<li>mail.artivisi.com : mail server, untuk mengirim dan menerima email</li>
+</ul>
+
+
+<p>Kita bisa membedakan jenis sertifikat SSL berdasarkan penggunaannya pada domain di atas menjadi:</p>
+
+<ul>
+<li>single domain</li>
+<li>wildcard domain</li>
+<li>multi domain</li>
+</ul>
+
+
+<h3>Single Domain</h3>
+
+<p>Sertifikat single domain hanya bisa digunakan di satu domain saja. Misalnya kita membeli sertifikat untuk <code>www.artivisi.com</code> sehingga website ArtiVisi bisa diakses melalui <code>https://www.artivisi.com</code>. Sertifikat yang kita beli ini hanya bisa digunakan untuk domain <code>www.artivisi.com</code>. Dia tidak bisa kita pasang di mail server yang memiliki nama <code>mail.artivisi.com</code>.</p>
+
+<p>Bila kita membutuhkan SSL untuk <code>mail.artivisi.com</code>, kita harus membeli sertifikat sekali lagi. Demikian seterusnya, masing-masing domain/subdomain harus memiliki sertifikat sendiri.</p>
+
+<blockquote><p>Wah, apa tidak merepotkan? Belum lagi harganya pasti akan jadi mahal kalau setiap subdomain harus beli lagi.</p></blockquote>
+
+<p>Nah, pada saat kita merasa kerepotan dan kemahalan, tiba saatnya kita membeli sertifikat <code>wildcard domain</code></p>
+
+<h3>Wildcard Domain</h3>
+
+<p>Sertifikat ini disebut wildcard karena satu sertifikat bisa digunakan untuk seluruh subdomain. CA akan membuatkan sertifikat dengan CN <code>*.artivisi.com</code>, sehingga bisa digunakan untuk <code>www.artivisi.com</code>, <code>mail.artivisi.com</code>, dan seluruh subdomain <code>artivisi.com</code>.</p>
+
+<p>Harganya tentu lebih mahal daripada single domain. Sebagai gambaran kita lihat <a href="http://www.symantec.com/page.jsp?id=compare-ssl-certificates">harga dari Verisign</a>. Single domain harganya $400 dan wildcard harganya $1200. Kita baru balik modal kalau punya 3 subdomain.</p>
+
+<h3>Multi Domain / SAN Extended</h3>
+
+<p>Sertifikat dengan extended validation (akan dibahas di bawah) tidak bisa menggunakan mekanisme wildcard. Untuk itu, diakali dengan menaruh banyak nama domain di field <code>subject alternative name</code> (SAN), sehingga satu sertifikat bisa digunakan di banyak nama domain.</p>
+
+<p>Dengan klasifikasi penggunaan ini, kita bisa memilih mana yang akan kita gunakan. Umumnya kita cuma memilih antara single dan wildcard. Pada kasus tertentu dimana kita menggunakan Extended Validation, barulah kita mempertimbangkan antara single domain dan multi domain.</p>
+
+<h2>Prosedur Validasi</h2>
+
+<p>Berdasarkan prosedur validasi, sertifikat SSL dibagi menjadi tiga jenis:</p>
+
+<ul>
+<li>Domain Validation (DV)</li>
+<li>Organization Validation (OV)</li>
+<li>Extended Validation (EV)</li>
+</ul>
+
+
+<h3>Domain Validation</h3>
+
+<p>Metode validasi yang paling mudah dan cepat adalah domain validation. Saking mudahnya, biasanya proses ini dilakukan dengan aplikasi dan tidak melibatkan campur tangan manusia, sehingga lebih murah.</p>
+
+<p>Domain validation memastikan bahwa pemohon benar-benar punya akses terhadap domain. Berikut cara kerjanya:</p>
+
+<ol>
+<li><p>Pemohon mengirim CSR pada CA berisi domain yang akan disertifikasi. Misalnya <code>demo.muhardin.com</code>.</p></li>
+<li><p>CA akan mencari tahu siapa pemilik domain tersebut menggunakan fasilitas whois. Disana nantinya ada informasi email pemilik domain. Contoh output whois seperti ini:</p>
+
+<p> <img src="/images/uploads/2013/07/ssl/output-whois.png" title="Output Whois" ></p></li>
+<li><p>Adakalanya orang yang membeli domain berbeda dengan orang teknis yang mengurus domain, sehingga alamat email di whois tidak bisa digunakan. Bila terjadi seperti ini, pemohon bisa minta CA menggunakan email lain, biasanya <code>postmaster@muhardin.com</code> atau <code>webmaster@muhardin.com</code>. Ini adalah alamat email standar untuk administrasi mailserver dan webserver. Jadi pastikan kedua alamat email ini dilindungi dengan baik dan hanya diberikan aksesnya pada orang yang berhak.</p></li>
+<li><p>CA mengirim email ke alamat yang ditentukan di langkah sebelumnya. Di email tersebut ada kode verifikasi untuk memastikan bahwa pemohon benar-benar punya akses ke alamat email tersebut.</p></li>
+<li><p>Pemohon membuktikan bahwa dia telah menerima email verifikasi. Cara yang umum dilakukan antara lain memasukkan kode verifikasi ke website CA, atau mengklik link verifikasi yang ada dalam email.</p></li>
+<li><p>Setelah verifikasi dilakukan, CA akan mengirim sertifikat domain yang telah ditandatangani. Atau pemohon juga bisa mengunduhnya di website CA.</p></li>
+</ol>
+
+
+<p>Pada level validasi ini, CA memastikan identitas pemohon berupa:</p>
+
+<ul>
+<li>akses/kontrol terhadap domain</li>
+</ul>
+
+
+<h3>Organization Validation</h3>
+
+<p>Selangkah lebih jauh, ada yang namanya Organization Validation. Pada validasi level ini, CA melakukan validasi tambahan terhadap organisasi yang meminta sertifikat SSL. Biasanya pemohon harus mengirim akta perusahaan atau bukti legalitas lainnya.</p>
+
+<p>Pada level validasi ini, CA memastikan identitas pemohon berupa:</p>
+
+<ul>
+<li>akses/kontrol terhadap domain</li>
+<li>legalitas organisasi pemilik domain</li>
+</ul>
+
+
+<h3>Extended Validation</h3>
+
+<p>Pada metode validasi sebelumnya, CA sama sekali tidak melakukan validasi terhadap orang/contact person.</p>
+
+<p><a href="http://en.wikipedia.org/wiki/Extended_Validation_Certificate">Metode Extended Validation</a> adalah metode validasi yang paling lengkap.</p>
+
+<p>Di sini CA juga akan menghubungi langsung contact person dari organisasi pemohon sertifikat. Detail teknisnya saya kurang paham karena belum pernah membeli sertifikat EV. Konon katanya, EV ini melibatkan pemeriksaan fisik berupa kunjungan atau pertemuan dengan perwakilan organisasi.</p>
+
+<p>Mengingat tingkat ketelitian dalam validasinya, maka sertifikat level EV tidak boleh diterbitkan dalam bentuk <em>wildcard</em>. Ini disebabkan karena sertifikat wildcard memungkinkan kita membuat domain tanpa harus divalidasi CA. Bila kita ingin satu sertifikat untuk banyak domain, maka kita harus menggunakan Subject Alternative Name (SAN), dimana masing-masing nama domain akan divalidasi satu-persatu.</p>
+
+<p>Sertifikat yang memiliki validasi EV akan terlihat berbeda di browser, ditandai dengan adanya <em>green bar</em> seperti di Internet Banking Mandiri</p>
+
+<p><img src="/images/uploads/2013/07/ssl/green-bar-mandiri.png" title="Green Bar Mandiri" ></p>
+
+<p>atau di KlikBCA</p>
+
+<p><img src="/images/uploads/2013/07/ssl/01-green-bar.png" title="Green Bar BCA" ></p>
+
+<p>Kita bisa melihat informasi detail tentang sertifikat SSL dengan cara klik green bar tersebut</p>
+
+<p><img src="/images/uploads/2013/07/ssl/02-green-bar-info.png" title="Informasi Green Bar" ></p>
+
+<p>Pada level validasi EV, CA memastikan identitas pemohon berupa:</p>
+
+<ul>
+<li>akses/kontrol terhadap domain</li>
+<li>legalitas organisasi pemilik domain</li>
+<li>keberadaan fisik organisasi dan contact person yang ditugaskan mewakilinya</li>
+</ul>
+
+
+<h3>Memilih metode validasi</h3>
+
+<blockquote><p>Dari ketiga metode ini, pilih mana?</p></blockquote>
+
+<p>Pertimbangan pertama tentu masalah harga. Makin teliti validasinya, biaya akan semakin tinggi.</p>
+
+<p>Pertimbangan kedua adalah masalah kerepotannya. Makin tinggi level validasi, makin banyak dokumen yang harus kita siapkan.</p>
+
+<p>Satu hal yang perlu diperhatikan, <a href="http://unmitigatedrisk.com/?p=203">pengunjung awam tidak akan bisa membedakan antara Domain Validation dan Organization Validation</a> . Jadi kalau ingin memilih, cukup dua yang dipertimbangkan, Extended Validation (EV) atau non-EV.</p>
+
+<p>Perlu diperhatikan juga bahwa validasi tidak menjamin keamanan 100%. Pernah ada kasus website palsu di Amerika Serikat yang memiliki sertifikat asli. Ceritanya bisa dibaca <a href="http://voices.washingtonpost.com/securityfix/2006/02/the_new_face_of_phishing_1.html">di sini</a>.</p>
+
+<h3>Memilih CA</h3>
+
+<p>CA yang menjajakan sertifikat di internet sangat banyak. Mulai dari yang gratis sampai yang mahal. Sepintas terlihat ada CA yang kredibilitasnya tinggi seperti Cybertrust atau VeriSign yang banyak dipakai bank di Indonesia, dan juga ada yang jarang terdengar seperti StartSSL atau Cacert. Kredibilitas CA ini mempengaruhi harga. Untuk produk yang setingkat, misalnya produk termurah single domain dengan domain validation, harganya bisa berbeda beberapa kali lipat. Coba bandingkan harga <a href="http://www.mangkukmerah.com/ssl">Comodo</a> dengan <a href="http://www.symantec.com/en/aa/theme.jsp?themeid=compare-ssl-certificates">Verisign</a>. Harga Comodo 240 ribu rupiah, sedangkan VeriSign 4 juta rupiah.</p>
+
+<p>Walaupun demikian, menurut pandangan saya pribadi, masalah kredibilitas ini tidak terlalu signifikan pengaruhnya terhadap pengunjung. Sebagai ilustrasi, kita yang sering menggunakan internet banking apa pernah tahu siapa CA yang digunakan oleh bank kita? Atau apakah kita tahu siapa itu Cybertrust atau VeriSign?</p>
+
+<p>Untuk menambah added value, beberapa CA mengeluarkan stempel (seal) yang bisa dipasang di website. Contohnya bisa dilihat di KlikBCA berikut</p>
+
+<p><img src="/images/uploads/2013/07/ssl/01-green-bar.png" title="Green Bar BCA" ></p>
+
+<p>atau Internet Banking Mandiri berikut</p>
+
+<p><img src="/images/uploads/2013/07/ssl/stempel-ca-mandiri.png" title="Green Bar Mandiri" ></p>
+
+<p>Tapi menurut saya, stempel inipun juga tidak menambah keyakinan pengunjung, karena siapapun bisa memasang logo tersebut dengan mudah.</p>
+
+<p>Ada faktor lain yang lebih penting dipertimbangkan menurut saya, yaitu kompatibilitasnya di berbagai browser. CA mahal biasanya kompatibel di semua browser, sedangkan CA murah kadang-kadang tidak diakui browser, sehingga menimbulkan warning seperti halnya self-signed certificate. Kalau memang tetap mengeluarkan warning, ya buat apa kita beli. Lebih baik pakai yang gratisan saja.</p>
+
+<p>Demikianlah penjelasan tentang bermacam-macam sertifikat SSL yang tersedia di pasaran. Silahkan pilih yang sesuai dengan kebutuhan. Setelah sertifikat didapatkan, baik self-signed atau dari CA resmi, kita akan membahas cara instalasinya di artikel selanjutnya.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Membuat Self Signed Certificate]]></title>
@@ -29,7 +227,7 @@ Sertifikat yang disetujui CA memiliki batas waktu pemakaian. Setelah waktu terse
 <ol>
 <li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
-<li>Membeli sertifikat SSL</li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
 <li>Memasang sertifikat SSL</li>
 </ol>
 
@@ -660,7 +858,7 @@ Data Base Updated
 </ul>
 
 
-<p>Demikianlah langkah-langkah membuat self-signed certificate. Pada artikel berikutnya, kita akan membahas bagaimana cara membeli sertifikat. Kemudian memasang sertifikat (baik yang self-signed maupun yang berbayar) ke webserver kita.</p>
+<p>Demikianlah langkah-langkah membuat self-signed certificate. Pada artikel berikutnya, kita akan membahas bagaimana <a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">cara membeli sertifikat</a>. Kemudian memasang sertifikat (baik yang self-signed maupun yang berbayar) ke webserver kita.</p>
 ]]></content>
   </entry>
   
@@ -674,9 +872,9 @@ Data Base Updated
 <p>Artikel ini adalah bagian pertama dari 4 artikel, yaitu:</p>
 
 <ol>
-<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl">Apa itu SSL</a></li>
-<li>Membuat self-signed certificate</li>
-<li>Membeli sertifikat SSL</li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
 <li>Memasang sertifikat SSL</li>
 </ol>
 
@@ -831,7 +1029,7 @@ Misalnya, Anda mendapat dokumen dari <code>Endy Muhardin</code> yang ditandatang
 
 <p>Untuk protokol email (SMTP, IMAP, POP3) mekanismenya sama. Cukup gantikan kata <code>browser</code> dengan <code>mail-client</code> pada penjelasan di atas.</p>
 
-<p>Demikian artikel SSL bagian pertama. Nantikan artikel selanjutnya tentang cara membuat dan membeli sertifikat SSL.</p>
+<p>Demikian artikel SSL bagian pertama. Nantikan artikel selanjutnya tentang <a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">cara membuat</a> dan <a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">membeli sertifikat SSL</a>.</p>
 ]]></content>
   </entry>
   
@@ -916,119 +1114,6 @@ Sehingga kita harus mematikannya tiap kali mau posting.</p>
 
 
 <p>Semoga bermanfaat.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Membuat dokumen dengan Markdown dan Pandoc]]></title>
-    <link href="http://software.endy.muhardin.com/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc/"/>
-    <updated>2012-09-05T11:53:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc</id>
-    <content type="html"><![CDATA[<p>Sudah lama saya mencari format yang tepat untuk membuat dokumentasi. Baik untuk menulis ebook, user manual, modul pelatihan, dan berbagai keperluan penulisan lainnya. Beberapa fitur yang saya inginkan antara lain:</p>
-
-<ol>
-<li>berbentuk text file biasa. Dengan menggunakan format text file biasa, ada beberapa keuntungan yang bisa diambil:
-
-<ul>
-<li>Bisa dikelola di version control seperti Git atau Subversion</li>
-<li>Bisa diedit di komputer, handphone, ataupun tablet</li>
-<li>Ukurannya kecil, sehingga memudahkan penyimpanan di cloud storage seperti Dropbox</li>
-</ul>
-</li>
-<li>Bisa dikonversi ke format lain, terutama pdf</li>
-<li>Mudah dipahami</li>
-<li>Bisa diwarnai dengan syntax highlighting</li>
-<li>Bisa autocomplete</li>
-</ol>
-
-
-<p>Dari empat fitur di atas, yang wajib cuma yang pertama dan kedua saja. Fitur lainnya bersifat <em>nice to have</em>, ada syukur, gak ada juga tidak terlalu masalah.</p>
-
-<!--more-->
-
-
-<p>Setelah google kesana-kemari, ada dua format yang kira-kira memenuhi syarat di atas, yaitu <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> dan <a href="http://en.wikipedia.org/wiki/DocBook">Docbook</a>. Dua-duanya mudah dipahami. Walaupun demikian, format Markdown lebih mudah diedit, karena menggunakan markup yang enak dilihat mata. Sedangkan Docbook menggunakan format XML, selain kurang WYSYWIG, juga bikin capek kelingking karena harus mengetik kurung siku terus menerus. Kurung siku ini juga menyulitkan kalau kita mengetik di handphone atau tablet.</p>
-
-<p>Jadi, disimpulkan kita akan menggunakan format Markdown saja. Ini juga sejalan dengan aplikasi yang saya gunakan untuk menulis blog, yaitu <a href="http://octopress.org/">Octopress</a>. Untuk melihat bagaimana tampilan file markdown, silahkan unduh <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/01-akses-database-spring-25.md">file contoh yang saya gunakan di bawah</a>, kemudian buka dengan text editor primitif seperti Notepad atau Gedit.</p>
-
-<p>Setelah dokumen ditulis, kita bisa melakukan konversi dengan menggunakan aplikasi bernama <a href="http://johnmacfarlane.net/pandoc/index.html">Pandoc</a>. Pandoc ini adalah aplikasi yang dibuat oleh <a href="http://johnmacfarlane.net/">John MacFarlane</a>, seorang profesor filosofi di University of California, Berkeley. Pandoc dibuat dengan bahasa pemrograman <a href="http://en.wikipedia.org/wiki/Haskell_(programming_language">Haskell</a>).</p>
-
-<h1>Instalasi Pandoc</h1>
-
-<p>Di Ubuntu, instalasinya tidak sulit, cukup jalankan perintah berikut:</p>
-
-<p><code>sudo apt-get install pandoc texlive-latex-base texlive-xetex latex-beamer</code></p>
-
-<p>Instalasi untuk Windows saya tidak tahu dan juga tidak berminat untuk cari tahu. Silahkan baca <a href="http://johnmacfarlane.net/pandoc/installing.html">petunjuk instalasi</a>.</p>
-
-<h1>Cara Pemakaian</h1>
-
-<p>Cara pakainya tidak sulit, cukup dengan perintah sederhana seperti ini:</p>
-
-<p><code>pandoc -o hasil.pdf input.md</code></p>
-
-<p>File <code>input.md</code> adalah tulisan kita dalam format markdown, sedangkan opsi <code>-o hasil.pdf</code> menunjukkan file output yang ingin dihasilkan. Pandoc cukup cerdas untuk mengetahui format output yang diinginkan dengan melihat ekstensi di nama file. Jadi, kalau kita berikan opsi <code>-o hasil.html</code>, dia akan mengkonversi tulisan kita menjadi file HTML.</p>
-
-<p>Lebih jauh tentang cara pemakaian Pandoc bisa dilihat di <a href="http://johnmacfarlane.net/pandoc/README.html">user manualnya</a>. Selain itu, kita juga bisa melihat <a href="http://johnmacfarlane.net/pandoc/demos.html">berbagai contoh pemakaian Pandoc</a> di websitenya. Beberapa contoh yang menarik diantaranya adalah cara menghasilkan slide presentasi dengan format HTML, yaitu di contoh nomer 16.</p>
-
-<h1>Customization</h1>
-
-<p>Untuk kebutuhan modul pelatihan ArtiVisi, tentu kita membutuhkan sedikit penyesuaian, yaitu:</p>
-
-<ul>
-<li>font serif diganti menjadi Droid Serif. Font serif ini biasa digunakan untuk paragraf.</li>
-<li>font sans diganti menjadi Droid Sans. Font sans biasa digunakan untuk judul.</li>
-<li>font monospace diganti menjadi Inconsolata. Font monospace biasa digunakan untuk contoh kode program.</li>
-<li>cover depan. Pandoc secara default tidak membuatkan cover depan. Kita perlu membuat template cover sendiri.</li>
-</ul>
-
-
-<p>Penyesuaian di atas dilakukan dengan cara membuat template dokumen. Template ini berbeda-beda tergantung jenis output yang akan dihasilkan.</p>
-
-<h2>Template Open Office</h2>
-
-<p>Untuk membuat template dokumen Open Office, berikut langkah-langkahnya:</p>
-
-<ol>
-<li>Generate dulu dokumen Open Office dengan perintah <code>pandoc -o hasil.odt input.md</code></li>
-<li>Buka <code>hasil.odt</code> dengan Open Office.</li>
-<li>Edit masing-masing style yang digunakan, misalnya TextBody, PreformattedText, dsb.</li>
-<li>Simpan dokumen tersebut, dan rename menjadi <code>template.odt</code></li>
-<li>Generate lagi dokumen Open Office menggunakan template tersebut dengan perintah <code>pandoc --reference-odt=template.odt -o hasil.odt input.md</code></li>
-</ol>
-
-
-<p>Cara ini saya dapatkan dari <a href="http://maketecheasier.com/use-pandoc-convert-text-to-ebook/2012/09/01">tutorial ini</a>.</p>
-
-<h2>Template PDF</h2>
-
-<p>Pandoc menghasilkan dokumen PDF secara dua tahap. Tahap pertama adalah konversi dari <code>Markdown</code> menjadi <code>LaTeX</code>. Kemudian dari format <code>LaTeX</code> akan dikonversi lagi menjadi <code>PDF</code>. Perlu diperhatikan, yang dimaksud <code>LaTeX</code> di sini adalah format penulisan dokumen, bukan bahan baku pembuatan alat kontrasepsi.</p>
-
-<p>Dengan demikian, untuk menyesuaikan output PDF, kita perlu membuat template <code>LaTeX</code>. Prof John sudah memberi tahu cara pakai template di contoh nomer 14. Di situ kita bisa mengunduh <a href="http://johnmacfarlane.net/pandoc/demo/mytemplate.tex">contoh template</a> yang dia gunakan. Contoh template ini akan menjadi titik awal kita untuk melakukan penyesuaian.</p>
-
-<p>Di contoh template tersebut, beliau sudah memasang font yang bisa dicustomize melalui opsi <code>--variable</code>. Yang kurang adalah halaman sampul (cover page). Saya menemukan <a href="http://www.latextemplates.com/">daftar template cover yang siap pakai</a>, dan juga <a href="http://en.wikibooks.org/wiki/LaTeX/Title_Creation">tutorial cara mendesain cover sendiri</a>. Untuk penyesuaian lebih lanjut, kita bisa berpedoman pada <a href="http://en.wikibooks.org/wiki/LaTeX/Command_Glossary">dokumentasi perintah Latex</a>.</p>
-
-<p>Setelah template selesai dibuat, kita bisa langsung gunakan dengan perintah sebagai berikut:</p>
-
-<p><code>sh
-pandoc --template artivisi-template.tex  --variable mainfont="Droid Serif" --variable sansfont="Droid Sans" --variable fontsize=12pt --variable version=1.0 --variable subtitle="Mengakses database menggunakan Spring-JDBC" --latex-engine=xelatex --toc -N -o hasil.pdf *md
-</code></p>
-
-<p>Anda bisa melihat <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/output/coba.pdf">file PDF yang dihasilkan</a>, <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/00-cover.md">file markdown untuk cover</a>, <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/01-akses-database-spring-25.md">file markdown isi artikel</a>, dan <a href="https://raw.github.com/endymuhardin/belajar-pandoc/master/artivisi-template.tex">template LaTeX yang digunakan</a>. Atau bisa juga unduh <a href="https://nodeload.github.com/endymuhardin/belajar-pandoc/zipball/master">file zip</a> yang berisi semua file yang dibutuhkan untuk menjalankan perintah di atas.</p>
-
-<h1>Kesimpulan</h1>
-
-<p>Dengan menggunakan format berbasis text, kita bisa memperoleh keuntungan sebagai berikut:</p>
-
-<ul>
-<li>bisa diedit menggunakan aplikasi apa saja, termasuk Notepad</li>
-<li>bisa dikelola menggunakan aplikasi version control</li>
-<li>bisa diedit kapan saja dan di mana saja (menggunakan Dropbox) dengan device apa saja (handphone, tablet, komputer)</li>
-<li>penulis bisa lebih fokus pada isi artikel, tidak memusingkan urusan formatting seperti besar kecil huruf, jenis font, penomoran bab, dan hal-hal lain yang bersifat tampilan</li>
-</ul>
-
-
-<p>Aplikasi pandoc bisa digunakan untuk mengkonversi berbagai format file seperti Markdown, Docbook, LaTeX, dan sebagainya menjadi berbagai format seperti PDF, HTML, Open Office, Microsoft Word, dan sebagainya.</p>
 ]]></content>
   </entry>
   
