@@ -147,5 +147,40 @@ SSL digunakan pada protokol yang kita gunakan setiap hari, yaitu HTTP, SMTP, IMA
 
 Untuk protokol email (SMTP, IMAP, POP3) mekanismenya sama. Cukup gantikan kata `browser` dengan `mail-client` pada penjelasan di atas.
 
+Berikut contoh sertifikat SSL yang dipercayai browser, perhatikan gambar gemboknya.
+
+{% img /images/uploads/2013/07/ssl/04-tomcat-https-green.png Menu SSL Firefox %}
+
+Dan ini sertifikat SSL yang tidak dipercayai karena CA tidak terdaftar di browser
+
+{% img /images/uploads/2013/07/ssl/05-tomcat-https-red.png Menu SSL Firefox %}
+
+
+### Daftar CA Terpercaya ###
+
+Berbagai aplikasi yang menggunakan SSL menyimpan daftar CA yang dipercayai oleh aplikasi tersebut. Daftar CA ini langsung ditanam di aplikasi (hardcode) sehingga hanya bisa ditambah dan dikurangi oleh pembuat aplikasi. Contohnya, kita bisa melihat daftar CA yang dipercayai Firefox melalui menu `Preferences > Advanced > Encryption` pada layar di bawah
+
+
+{% img /images/uploads/2013/07/ssl/01-firefox-certificate.png Menu SSL Firefox %}
+
+Kita bisa lihat daftar CA dengan menekan tombol View Certificates
+
+{% img /images/uploads/2013/07/ssl/02-firefox-ca-list.png Daftar CA Firefox %}
+
+
+Demikian juga dengan browser Chrome yang ada di menu Settings, kemudian tekan Advanced.
+
+{% img /images/uploads/2013/07/ssl/03-chrome-certificate.png Menu SSL Chrome %}
+
+Daftar sertifikat bisa dilihat dengan menekan tombol `Manage Certificates`
+
+{% img /images/uploads/2013/07/ssl/04-chrome-ca-list.png Daftar CA Chrome %}
+
+Sistem operasi yang kita gunakan juga menyimpan daftar CA terpercaya. Untuk Ubuntu, lihat di folder `/etc/ssl/certs`
+
+{% img /images/uploads/2013/07/ssl/05-ubuntu-ca-list.png Daftar CA Ubuntu %}
+
+Bila terjadi sesuatu pada CA sehingga tidak bisa lagi dipercaya, maka para programmer Firefox, Chrome, Ubuntu, Microsoft, dan sebagainya akan menghapus CA bermasalah tersebut dari daftar CAnya, [seperti yang dilakukan Firefox](http://blog.mozilla.org/security/2011/09/02/diginotar-removal-follow-up/) dan [Ubuntu](http://www.danielveazey.com/linux/diginotar-certificate-fix-released-for-ubuntu/). Biasanya penghapusan ini akan diikuti dengan pengumuman security update di internet sehingga semua user bisa melakukan update terhadap aplikasi yang terinstal di komputernya masing-masing.
+
 Demikian artikel SSL bagian pertama. Nantikan artikel selanjutnya tentang [cara membuat](http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/) dan [membeli sertifikat SSL](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/).
 
