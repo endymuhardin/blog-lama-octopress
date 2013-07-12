@@ -14,7 +14,8 @@ Artikel ini adalah bagian pertama dari 4 artikel, yaitu:
 1. [Apa itu SSL](http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/)
 2. [Membuat self-signed certificate](http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/)
 3. [Membeli sertifikat SSL](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/)
-4. Memasang sertifikat SSL
+4. [Memasang sertifikat SSL](http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/)
+
 
 <!--more-->
 

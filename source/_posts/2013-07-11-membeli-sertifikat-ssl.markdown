@@ -14,7 +14,8 @@ Artikel ini adalah bagian ketiga dari 4 artikel, yaitu:
 1. [Apa itu SSL](http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/)
 2. [Membuat self-signed certificate](http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/)
 3. [Membeli sertifikat SSL](http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/)
-4. Memasang sertifikat SSL
+4. [Memasang sertifikat SSL](http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/)
+
 
 <!--more-->
 
@@ -170,4 +171,4 @@ Tapi menurut saya, stempel inipun juga tidak menambah keyakinan pengunjung, kare
 
 Ada faktor lain yang lebih penting dipertimbangkan menurut saya, yaitu kompatibilitasnya di berbagai browser. CA mahal biasanya kompatibel di semua browser, sedangkan CA murah kadang-kadang tidak diakui browser, sehingga menimbulkan warning seperti halnya self-signed certificate. Kalau memang tetap mengeluarkan warning, ya buat apa kita beli. Lebih baik pakai yang gratisan saja.
 
-Demikianlah penjelasan tentang bermacam-macam sertifikat SSL yang tersedia di pasaran. Silahkan pilih yang sesuai dengan kebutuhan. Setelah sertifikat didapatkan, baik self-signed atau dari CA resmi, kita akan membahas cara instalasinya di artikel selanjutnya.
+Demikianlah penjelasan tentang bermacam-macam sertifikat SSL yang tersedia di pasaran. Silahkan pilih yang sesuai dengan kebutuhan. Setelah sertifikat didapatkan, baik self-signed atau dari CA resmi, kita akan membahas [cara instalasinya di artikel selanjutnya](http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/).
