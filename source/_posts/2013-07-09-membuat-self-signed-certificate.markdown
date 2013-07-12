@@ -11,7 +11,15 @@ Idealnya, sertifikat SSL disetujui (signed) oleh Certificate Authority (CA).
 Proses persetujuan ini biasanya dikenakan biaya, walaupun ada juga yang [gratisan](http://www.startssl.com/?app=1).
 Sertifikat yang disetujui CA memiliki batas waktu pemakaian. Setelah waktu tersebut habis, maka sertifikat tidak bisa digunakan dan kita harus mengurus perpanjangannya. 
 
-Kondisi ini tentu kurang menyenangkan pada waktu kita ada di fase development. Untuk itu kita ingin membuat sertifikat sendiri, dan kemudian menyetujuinya sendiri juga. Ini disebut dengan istilah `self-signed certificate`. Bila diakses di browser, `self-signed certificate` ini akan menimbulkan peringatan. Tapi tidak masalah, karena yang pakai hanya kita sendiri, bukan end-user.
+Kondisi ini tentu kurang menyenangkan pada waktu kita ada di fase development. Untuk itu kita ingin membuat sertifikat sendiri, dan kemudian menyetujuinya sendiri juga. Ini disebut dengan istilah `self-signed certificate`. Bila diakses di browser, `self-signed certificate` ini akan menimbulkan peringatan seperti screenshot dibawah. 
+
+{% img /images/uploads/2013/07/ssl/01-ssl-warning.png Halaman Warning %}
+
+Agar bisa mengakses halaman tersebut, kita perlu menambahkan exception. Kita akan dikonfirmasi seperti pada layar berikut
+
+{% img /images/uploads/2013/07/ssl/02-add-exception.png Add Exception %}
+
+Tapi tidak masalah, karena pada fase development yang pakai aplikasi/website ini hanya kita sendiri, bukan end-user. Nantinya sebelum dipublish untuk umum, belilah sertifikat yang benar.
 
 Artikel ini adalah bagian kedua dari 4 artikel, yaitu:
 
