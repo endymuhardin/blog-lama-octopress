@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Wordpress memang hebat, ada plugin untuk membackup isi blog (isi tabel MySQL) secara periodik ke email.
-Email yang kita gunakan bisa ditentukan di &hellip;">
+  <meta name="description" content="Aplikasi version control yang bagus dapat mengelola binary file (misalnya jpg, doc, pdf, dsb) dengan baik, seperti halnya mengelola source code yang &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,46 @@ Email yang kita gunakan bisa ditentukan di &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/menggunakan-version-control-untuk-dokumen/">Menggunakan Version Control Untuk Dokumen</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-10-25T02:58:03+07:00" pubdate data-updated="true">Oct 25<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Aplikasi version control yang bagus dapat mengelola binary file (misalnya jpg, doc, pdf, dsb) dengan baik, seperti halnya mengelola source code yang berformat text. Salah satu diantaranya adalah <a href="http://subversion.tigris.org">Subversion</a>.</p>
+
+<p>Dalam konteks project software, feature ini dapat dimanfaatkan untuk menyimpan dokumen lain selain source code, misalnya kontrak kerja sama, dokumen analisa, dsb.</p>
+
+<p>Bahkan untuk kasus ekstrim, Subversion juga dapat digunakan untuk mengelola dokumen pribadi kita, <a href="http://www.onlamp.com/pub/a/onlamp/2005/01/06/svn_homedir.html">seperti yang dilakukan oleh Oom Joey Hess</a>. Sebelumnya dia <a href="http://kitenet.net/~joey/cvshome.html">menggunakan CVS</a>. Tetapi akhirnya dia beralih ke Subversion.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -197,78 +236,6 @@ Selamat mencoba.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/keanehan-konfigurasi-openldap/">Keanehan Konfigurasi OpenLDAP</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-10-14T19:58:59+07:00" pubdate data-updated="true">Oct 14<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Satu hal yang sangat mengganggu dalam OpenLDAP adalah, secara default dia mengijinkan anonymous login. Dan parahnya lagi, user yang login secara anonymous dapat melihat daftar username yang terdaftar.
-Walaupun aksesnya cuma readonly, tapi tetap saja ini adalah potensi bahaya.</p>
-
-<p>Saya coba mendisable account anonymous dengan cara menambahkan baris ini :
-<code>disallow bind_anon</code>
-ke dalam <code>/etc/ldap/slapd.conf</code>.</p>
-
-<p>Berhasil, sekarang orang tidak bisa otentikasi secara anonymous. Tapi muncul masalah berikutnya. Subversion WebDAV juga ternyata tidak bisa login.
-Setelah ditrace ke lognya apache, dia bilang tidak bisa menggunakan mekanisme simple_bind untuk otentikasi. Berikut pesan errornya :</p>
-
-<p><code>[LDAP: ldap_simple_bind_s() failed][Inappropriate authentication]</code></p>
-
-<p>Sepertinya, dengan mendisable anonymous, metode otentikasi simple juga di-disable. Sampai saat tulisan ini diposting, saya belum menemukan cara untuk mematikan anonymous tapi tidak mematikan simple_bind.</p>
-
-<p>Akhirnya, workaroundnya adalah, mengaktifkan anonymous, tapi melucuti semua ijin aksesnya.
-Ini dilakukan dengan cara mengubah konfigurasi akses (/etc/ldap/slapd.conf) dari</p>
-
-<pre><code>access to *
-        by * read
-</code></pre>
-
-<p>menjadi</p>
-
-<pre><code>access to *
-        by anonymous none
-        by * read
-</code></pre>
-
-<p>Dengan demikian, sekarang anonymous bisa login, tapi tidak bisa lihat apa-apa.</p>
-
-<p><strong>Update 17 Oktober 2005 : </strong>
-Ternyata selain anonymous tidak bisa lihat apa-apa, WebDAV juga gak bisa lihat apa-apa. Sepertinya, kalau dia mau otentikasi username, dia akan login anonymous dulu untuk melihat daftar user yang terdaftar.
-Dengan mematikan anonymous, para user Subversion jadi tidak bisa login dengan pesan error : username not found. Jadi, sementara account anonymous terpaksa dibiarkan seperti defaultnya OpenLDAP.</p>
-
-<p><strong>Update 18 Oktober 2005 : </strong>
-Setelah google kesana kemari, akhirnya saya menemukan <a href="http://www.openldap.org/lists/openldap-software/200401/msg00034.html">orang yang mengalami masalah yang sama</a>. Tentu saja masalah ditemukan bersama dengan <a href="http://www.rudedog.org/auth_ldap/1.6/auth_ldap.html#dir:AuthLDAPBindDN">solusinya</a>.
-Sekarang kita bisa mendisable account anonymous, dan apache tetap bisa mengotentikasi user Subversion dengan tenang. Tidak perlu lagi workaround untuk melucuti akses anonymous.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/67/">&larr; Older</a>
@@ -345,6 +312,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/membeli-sertifikat-ssl/">Membeli Sertifikat SSL</a>
       </li>
     
@@ -378,10 +349,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/mendebug-aplikasi-ajax/">Mendebug Aplikasi AJAX</a>
       </li>
     
   </ul>

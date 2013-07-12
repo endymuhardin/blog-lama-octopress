@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-07-12T13:45:42+07:00</updated>
+  <updated>2013-07-12T14:31:05+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,480 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Memasang Sertifikat SSL]]></title>
+    <link href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/"/>
+    <updated>2013-07-12T14:14:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl</id>
+    <content type="html"><![CDATA[<p>Setelah kita menjalankan semua prosedur untuk mendapatkan digital certificate, tiba saatnya kita memasangnya di webserver supaya bisa melayani request https. Pada artikel ini, kita akan membahas konfigurasi https pada webserver yang sering digunakan. Karena banyaknya merek webserver yang beredar di pasaran, kita akan ambil dua sebagai perwakilan, yaitu Tomcat mewakili webserver Java, dan Nginx mewakili non-Java. Webserver Java merek lain seperti JBoss, Jetty, Glassfish, dan rekan-rekannya memiliki cara konfigurasi yang mirip dengan Tomcat. Demikian juga Apache HTTPD, Lighttpd, Mongrel, dan sejawatnya memiliki cara konfigurasi yang mirip dengan Nginx.</p>
+
+<p>Artikel ini adalah bagian terakhir dari 4 artikel, yaitu:</p>
+
+<ol>
+<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">Memasang sertifikat SSL</a></li>
+</ol>
+
+
+<!--more-->
+
+
+<p>Untuk mengaktifkan fitur https pada webserver, pada prinsipnya kita membutuhkan tiga jenis file:</p>
+
+<ol>
+<li>Private Key</li>
+<li>Certificate yang sudah diberikan signature oleh Certificate Authority (CA)</li>
+<li>Certificate CA yang memberikan signature. File jenis ini bisa terdiri dari banyak file, tergantung apakah CA tersebut memiliki intermediate certificate atau tidak</li>
+</ol>
+
+
+<p>Sebagai contoh, kita akan gunakan file-file berikut yang didapatkan dari <a href="https://www.startssl.com/?app=1">penyedia SSL gratis StartSSL</a>. File self-signed yang kita buat di artikel bagian kedua juga bisa digunakan, malah lebih mudah karena sertifikat CA hanya satu, sedangkan yang dari StartSSL ada 2 file, satu Root CA dan satu Intermediate CA. Berikut adalah file-file tersebut:</p>
+
+<ol>
+<li>Private Key : <code>demo.muhardin.com.key</code></li>
+<li>Sertifikat yang sudah ditandatangani CA : <code>demo.muhardin.com.crt</code></li>
+<li>Sertifikat Root CA : <code>ca.pem</code></li>
+<li>Sertifikat Intermediate CA : <code>sub.class1.server.ca.pem</code></li>
+</ol>
+
+
+<p>Ekstensi file <code>crt</code> dan <code>pem</code> sama saja. Sama-sama file text yang bisa dibuka dengan Gedit atau Notepad.</p>
+
+<h2>SSL dengan Nginx</h2>
+
+<h3>Pengecekan Awal</h3>
+
+<p>Sebelum mulai, pastikan dulu virtual host kita sudah berjalan. Berikut konfigurasi virtual host saya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>server{
+</span><span class='line'>    server_name demo.muhardin.com;
+</span><span class='line'>    root /var/www/demo.muhardin.com/public_html;
+</span><span class='line'>    index index.html;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bila kita jalankan di laptop sendiri (localhost), tambahkan baris berikut di <code>/etc/hosts</code> supaya pada waktu kita mengakses alamat <code>http://demo.muhardin.com</code> akan diarahkan ke Nginx di laptop sendiri.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>127.0.0.1    demo.muhardin.com</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Coba browse ke <code>http://demo.muhardin.com</code>, pastikan bisa diakses dengan baik.</p>
+
+<h3>Private Key</h3>
+
+<p>Private key kita normalnya disimpan dalam bentuk terenkripsi dengan passphrase. Kita bisa menggunakan file ini apa adanya, tapi setiap kali Nginx dijalankan, kita harus mengentri passphrasenya. Ini tentu lebih aman, karena private key kita selalu berada dalam bentuk yang terlindungi.</p>
+
+<p>Tapi untuk keperluan development, pada saat private key juga bikinan sendiri, kita bisa membuka file ini menjadi bentuk plain text dengan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl rsa -in demo.muhardin.com.key -out demo.muhardin.com.key.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tentu kita akan ditanyai passphrase. Setelah itu file private key yang tidak terenkripsi (plain text) akan dibuat di <code>demo.muhardin.key.txt</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter pass phrase for demo.muhardin.com.key:
+</span><span class='line'>writing RSA key</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>CA Certificate</h3>
+
+<p>Bila CA kita memiliki rantai sertifikat, kita harus gabungkan semua menjadi satu file. Ini bisa dilakukan dengan membuka semuanya di text editor, kemudian select all, copy, paste isinya ke file baru. Dimulai dari Root CA sampai ke Intermediate paling bawah.</p>
+
+<p>CA yang memiliki rantai sertifikat contohnya Comodo. Kita bisa lihat informasi rantainya <a href="https://support.comodo.com/index.php?_m=knowledgebase&amp;_a=viewarticle&amp;kbarticleid=1182">di sini</a>. Sebagai contoh, bila kita mendapatkan Free Certificate dari Comodo, maka rantainya adalah:</p>
+
+<ol>
+<li>Root : AddTrustExternalCARoot.crt</li>
+<li>Intermediate 1 : UTNAddTrustSGCCA.crt</li>
+<li>Intermediate 2 : ComodoUTNSGCCA.crt</li>
+<li>Intermediate 3 : EssentialSSLCA_2.crt</li>
+</ol>
+
+
+<p>Setelah itu terakhir barulah sertifikat kita sendiri yang ditandatangani oleh Intermediate 3.</p>
+
+<p>Kita bisa juga menggabungkan semuanya menggunakan perintah linux. Contohnya, seandainya <code>demo.muhardin.com.crt</code> ditandatangani oleh Comodo, maka perintahnya adalah sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat demo.muhardin.com.crt EssentialSSLCA_2.crt ComodoUTNSGCCA.crt UTNAddTrustSGCCA.crt AddTrustExternalCARoot.crt &gt; sertifikat-gabungan.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>Awas jangan salah urutannya. Mulai dari sertifikat kita sendiri, kemudian intermediate 3 yang menandatangani sertifikat kita sendiri, intermediate 2, begitu seterusnya sampai sertifikat Root di paling akhir.</p></blockquote>
+
+<h3>Konfigurasi Nginx</h3>
+
+<p>Berikut adalah konfigurasi Nginx yang harus ditambahkan.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>listen 443 default_server ssl;
+</span><span class='line'>ssl_certificate     /etc/nginx/sertifikat-gabungan.crt;
+</span><span class='line'>ssl_certificate_key /etc/nginx/demo.muhardin.com.key.txt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Isi konfigurasi virtual host <code>demo.muhardin.com</code> selengkapnya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>server{
+</span><span class='line'>    server_name demo.muhardin.com;
+</span><span class='line'>    root /var/www/demo.muhardin.com/public_html;
+</span><span class='line'>    index index.html;
+</span><span class='line'>
+</span><span class='line'>    listen 443 default_server ssl;
+</span><span class='line'>    ssl_certificate     /etc/nginx/sertifikat-gabungan.crt;
+</span><span class='line'>    ssl_certificate_key /etc/nginx/demo.muhardin.com.key.txt;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>SSL dengan Tomcat</h2>
+
+<p>Tomcat dan juga webserver Java lainnya membutuhkan file keystore yang berisi semua sertifikat dan private key yang dibutuhkan. Untuk itu, kita akan memasukkan private key, sertifikat yang sudah ditandatangani CA, dan sertifikat milik CA (beserta semua intermediate) ke dalam keystore. Prosedurnya sebagai berikut:</p>
+
+<ol>
+<li>Buat database berisi private key dan sertifikat domain yang sudah ditandatangani CA dalam format PKCS#12. Ini dilakukan menggunakan <code>openssl</code></li>
+<li>Konversi format PKCS#12 menjadi JKS menggunakan keytool</li>
+<li>Import sertifikat CA dan sertifikat intermediate satu persatu</li>
+<li>Pasang di Tomcat</li>
+</ol>
+
+
+<h3>Membuat database PKCS12</h3>
+
+<p>Gabungkan dulu semua sertifikat CA menjadi satu file. Ini penting dilakukan, kalau tidak rantai sertifikasinya tidak akan tersambung dan browser kita tetap akan menampilkan peringatan seperti SSL self-signed. Sama seperti penggabungan pada waktu konfigurasi Nginx, mulai dari intermediate CA yang menandatangani sertifikat kita, terus berurutan sampai Root CA di posisi terakhir.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat EssentialSSLCA_2.crt ComodoUTNSGCCA.crt UTNAddTrustSGCCA.crt AddTrustExternalCARoot.crt &gt; ca-chain.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Verifikasi apakah sertifikat kita sudah lengkap rantainya sampai ke Root CA</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl verify -CAfile ca-chain.crt demo.muhardin.com.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kalau tidak tersambung sampai Root CA, pesan errornya seperti ini</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>demo.muhardin.com.crt: OU = Domain Control Validated, OU = EssentialSSL, CN = demo.muhardin.com
+</span><span class='line'>error 20 at 0 depth lookup:unable to get local issuer certificate</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kalau sukses, outputnya seperti ini</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>demo.muhardin.com.crt: OK</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Jalankan perintah berikut untuk membuat database PKCS12 berisi private key, sertifikat domain, dan rantai sertifikat CA</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>openssl pkcs12 -export -chain \
+</span><span class='line'>-inkey myserver.key \
+</span><span class='line'>-in demo.muhardin.com.crt \
+</span><span class='line'>-name "demo.muhardin.com" \
+</span><span class='line'>-CAfile ca-chain.crt \
+</span><span class='line'>-caname "Intermediate 3" \
+</span><span class='line'>-caname "Intermediate 2" \
+</span><span class='line'>-caname "Intermediate 1" \
+</span><span class='line'>-caname "Root CA" \
+</span><span class='line'>-out demo.muhardin.com.p12</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Opsi <code>caname</code> gunanya untuk memberi nama untuk sertifikat CA agar lebih mudah dipahami sertifikat mana mengacu ke CA mana. Urutannya harus sesuai dengan urutan file yang kita gabungkan pada langkah sebelumnya.</p>
+
+<p>Kita akan ditanyai passphrase tiga kali. Pertama untuk membuka private key, kedua dan ketiga untuk password database PKCS12.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter pass phrase for demo.muhardin.com.key:
+</span><span class='line'>Enter Export Password:
+</span><span class='line'>Verifying - Enter Export Password:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita akan mendapatkan file <code>demo.muhardin.com.p12</code>.</p>
+
+<h3>Konversi PKCS12 menjadi JKS</h3>
+
+<p>JKS adalah format database key dalam Java, atau dikenal dengan istilah keystore. Kita bisa membuatnya dengan cara import dari database berformat PKCS12. Berikut perintahnya:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>keytool -importkeystore \
+</span><span class='line'>-srcstoretype PKCS12 \
+</span><span class='line'>-srckeystore demo.muhardin.com.p12 \
+</span><span class='line'>-destkeystore demo.muhardin.com.jks</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita akan ditanyai password sebanyak tiga kali. Pertama dan kedua adalah password keystore JKS yang baru, sedangkan password ketiga adalah password database PKCS12 yang kita buat di langkah sebelumnya.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter destination keystore password:
+</span><span class='line'>Re-enter new password: 
+</span><span class='line'>Enter source keystore password:
+</span><span class='line'>Entry for alias 1 successfully imported.
+</span><span class='line'>Import command completed:  1 entries successfully imported, 0 entries failed or cancelled</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Verifikasi hasilnya menggunakan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>keytool -keystore demo.muhardin.com.jks -list</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut outputnya, menyatakan bahwa kita sudah punya satu data dalam <code>demo.muhardin.com.jks</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter keystore password:
+</span><span class='line'>
+</span><span class='line'>Keystore type: JKS
+</span><span class='line'>Keystore provider: SUN
+</span><span class='line'>
+</span><span class='line'>Your keystore contains 1 entry
+</span><span class='line'>
+</span><span class='line'>demo.muhardin.com, Jul 9, 2013, PrivateKeyEntry, 
+</span><span class='line'>Certificate fingerprint (SHA1): 10:A6:A1:7B:A4:46:10:38:0C:5C:72:77:FA:EB:86:46:91:DA:E7:C0</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Konfigurasi Tomcat</h3>
+
+<p>Copy file <code>demo.muhardin.com.jks</code> ke dalam folder konfigurasi Tomcat. Di laptop saya lokasinya ada di <code>/opt/tomcat/conf</code>. Lalu buka file <code>server.xml</code> di folder yang sama menggunakan text editor. Edit baris berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;Connector</span> <span class="na">port=</span><span class="s">&quot;8443&quot;</span> <span class="na">protocol=</span><span class="s">&quot;HTTP/1.1&quot;</span> <span class="na">SSLEnabled=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>    <span class="na">maxThreads=</span><span class="s">&quot;150&quot;</span> <span class="na">scheme=</span><span class="s">&quot;https&quot;</span> <span class="na">secure=</span><span class="s">&quot;true&quot;</span>
+</span><span class='line'>    <span class="na">clientAuth=</span><span class="s">&quot;false&quot;</span> <span class="na">sslProtocol=</span><span class="s">&quot;TLS&quot;</span>
+</span><span class='line'>    <span class="na">keystoreFile=</span><span class="s">&quot;conf/demo.muhardin.com.jks&quot;</span>
+</span><span class='line'>    <span class="na">keystorePass=</span><span class="s">&quot;test1234&quot;</span>
+</span><span class='line'>    <span class="na">keyAlias=</span><span class="s">&quot;demo.muhardin.com&quot;</span>
+</span><span class='line'><span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sesuaikan variabel berikut:</p>
+
+<ul>
+<li>keystoreFile : lokasi keystore JKS</li>
+<li>keystorePass : password untuk membuka keystore</li>
+<li>keyAlias : nama alias untuk sertifikat domain (karena isi keystore ada 3 entri, harus dijelaskan mana yang akan digunakan)</li>
+</ul>
+
+
+<h2>Test</h2>
+
+<p>Setelah semua selesai dikonfigurasi, Nginx bisa dites dengan mengakses <code>https://demo.muhardin.com</code>, sedangkan Tomcat bisa diakses di <code>https://demo.muhardin.com:8443</code>.</p>
+
+<p>Bila kita menggunakan sertifikat dari CA resmi, walaupun gratis kita akan mendapatkan warna hijau di address bar</p>
+
+<p><img src="http://software.endy.muhardin.com/images/uploads/2013/07/ssl/04-tomcat-https-green.png" title="Tomcat HTTPS Green" ></p>
+
+<p>Namun bila kita menggunakan CA buatan sendiri (self-signed), maka pada waktu pertama diakses, kita akan diberikan peringatan.</p>
+
+<p><img src="http://software.endy.muhardin.com/images/uploads/2013/07/ssl/01-ssl-warning.png" title="Peringatan SSL Self Signed" ></p>
+
+<p>Agar bisa tetap diakses, kita bisa klik Add Exception. Kita akan diperlihatkan informasi tentang sertifikat SSL</p>
+
+<p><img src="http://software.endy.muhardin.com/images/uploads/2013/07/ssl/02-add-exception.png" title="Add Exception" ></p>
+
+<p>Kita bisa melihat detail informasi dari sertifikat tersebut, siapa pemilik server dan siapa yang menandatangani sertifikatnya</p>
+
+<p><img src="http://software.endy.muhardin.com/images/uploads/2013/07/ssl/03-certificate-info.png" title="Detail Informasi Sertifikat" ></p>
+
+<p>Bila kita klik Confirm Security Exception, barulah halaman web kita ditampilkan. Tapi masih ada warna merah di address bar.</p>
+
+<p><img src="http://software.endy.muhardin.com/images/uploads/2013/07/ssl/05-tomcat-https-red.png" title="Tomcat HTTPS Red" ></p>
+
+<h2>Error yang umum terjadi</h2>
+
+<h3>Password private key berbeda dengan password keystore</h3>
+
+<p>Kadangkala pada waktu menjalankan Tomcat, kita menjumpai pesan error berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>SEVERE: Catalina.start
+</span><span class='line'>LifecycleException:  Protocol handler initialization failed: java.io.IOException: Cannot recover key
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ini disebabkan karena password untuk membuka keystore berbeda dengan password untuk membuka private key. Biasanya terjadi bila kita mengganti password keystore setelah melakukan import. Keytool hanya akan mengganti password keystore, tapi tidak mengganti password private key.</p>
+
+<p>Kita harus samakan dulu dengan mengganti salah satunya.</p>
+
+<p>Bila ingin mengganti password private key, berikut perintahnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>keytool -keystore demo.muhardin.com.jks -alias demo.muhardin.com -keypasswd
+</span><span class='line'>Enter keystore password: Masukkan password keystore
+</span><span class='line'>Enter key password for <span class="nt">&lt;loket.asialink.co.id&gt;</span>: Masukkan password private key yang lama
+</span><span class='line'>New key password for <span class="nt">&lt;loket.asialink.co.id&gt;</span>: Masukkan password private key yang baru, samakan dengan password keystore
+</span><span class='line'>Re-enter new key password for <span class="nt">&lt;loket.asialink.co.id&gt;</span>: Konfirmasi password private key yang baru
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Atau bila ingin mengganti password keystore, berikut perintahnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>keytool -keystore demo.muhardin.com.jks -storepasswd
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Certificate Chain tidak tersambung</h3>
+
+<p>Ada kalanya sertifikat yang sudah kita beli mahal-mahal tetap menimbulkan warning di browser. Ini bisa disebabkan karena dua hal, yaitu:</p>
+
+<ol>
+<li><p>CA tidak dikenali oleh browser. Pastikan kita membeli sertifikat dari CA yang dikenali browser. Daftarnya bisa dilihat <a href="http://en.wikipedia.org/wiki/Comparison_of_SSL_certificates_for_web_servers">di Wikipedia</a></p></li>
+<li><p>Kita tidak menginstal rantai sertifikat dengan benar.</p></li>
+</ol>
+
+
+<p>Untuk masalah kedua, kita bisa periksa menggunakan perintah <code>openssl</code> di commandline sebagai berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>openssl s_client -connect demo.muhardin.com:443
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kadangkala kita mendapat pesan error berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>CONNECTED(00000003)
+</span><span class='line'>140315329672896:error:14077438:SSL routines:SSL23_GET_SERVER_HELLO:tlsv1 alert internal error:s23_clnt.c:741:
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hal tersebut disebabkan karena <a href="https://bugs.launchpad.net/ubuntu/+source/openjdk-6/+bug/1006776">bug pada OpenJDK</a>, gunakan opsi <code>-ssl3</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>openssl s_client -connect demo.muhardin.com:443 -ssl3
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bila <a href="http://blog.fnsecurity.org/2013/02/proper-ssl-chaining.html">sertifikat kita tidak tersambung sampai Root CA</a>, maka kita akan mendapat error seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>CONNECTED(00000003)
+</span><span class='line'>depth=0 description = KWbw1iy6BUBg3JQ8, C = ID, CN = demo.muhardin.com, emailAddress = endy.muhardin@gmail.com
+</span><span class='line'>verify error:num=20:unable to get local issuer certificate
+</span><span class='line'>verify return:1
+</span><span class='line'>depth=0 description = KWbw1iy6BUBg3JQ8, C = ID, CN = demo.muhardin.com, emailAddress = endy.muhardin@gmail.com
+</span><span class='line'>verify error:num=27:certificate not trusted
+</span><span class='line'>verify return:1
+</span><span class='line'>depth=0 description = KWbw1iy6BUBg3JQ8, C = ID, CN = demo.muhardin.com, emailAddress = endy.muhardin@gmail.com
+</span><span class='line'>verify error:num=21:unable to verify the first certificate
+</span><span class='line'>verify return:1
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Periksa lagi pembuatan sertifikat kita. Pastikan rantai sertifikat CA sudah diimport dengan benar. Biasanya ini terjadi pada waktu pembuatan keystore Java. Coba ikuti lagi langkah-langkah di atas dengan teliti.</p>
+
+<p>Sertifikat yang benar harusnya mengeluarkan output seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>CONNECTED(00000003)
+</span><span class='line'>depth=2 C = IL, O = StartCom Ltd., OU = Secure Digital Certificate Signing, CN = StartCom Certification Authority
+</span><span class='line'>verify error:num=19:self signed certificate in certificate chain
+</span><span class='line'>verify return:0
+</span><span class='line'>---
+</span><span class='line'>Certificate chain
+</span><span class='line'> 0 s:/description=KWbw1iy6BUBg3JQ8/C=ID/CN=demo.muhardin.com/emailAddress=endy.muhardin@gmail.com
+</span><span class='line'>   i:/C=IL/O=StartCom Ltd./OU=Secure Digital Certificate Signing/CN=StartCom Class 1 Primary Intermediate Server CA
+</span><span class='line'> 1 s:/C=IL/O=StartCom Ltd./OU=Secure Digital Certificate Signing/CN=StartCom Class 1 Primary Intermediate Server CA
+</span><span class='line'>   i:/C=IL/O=StartCom Ltd./OU=Secure Digital Certificate Signing/CN=StartCom Certification Authority
+</span><span class='line'> 2 s:/C=IL/O=StartCom Ltd./OU=Secure Digital Certificate Signing/CN=StartCom Certification Authority
+</span><span class='line'>   i:/C=IL/O=StartCom Ltd./OU=Secure Digital Certificate Signing/CN=StartCom Certification Authority
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita bisa lihat pada output di atas bahwa:</p>
+
+<ul>
+<li>issuer di sertifikat 0 sama dengan subject di sertifikat 1</li>
+<li>issuer di sertifikat 1 sama dengan subject di sertifikat 2</li>
+<li>issuer di sertifikat 2 sama dengan subject dirinya sendiri (self-signed)</li>
+</ul>
+
+
+<p>Root CA memang self-signed, karena dia paling atas. Sertifikat self-signed milik Root CA inilah yang ditanam di dalam aplikasi seperti dijelaskan di <a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">artikel bagian pertama</a>.</p>
+
+<p>Demikianlah langkah-langkah untuk mengaktifkan SSL di Tomcat dan Nginx. Selamat mencoba. Kalau ada error atau hal yang kurang jelas, silahkan ditulis di komentar.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Membeli Sertifikat SSL]]></title>
@@ -26,7 +500,7 @@
 <li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
-<li>Memasang sertifikat SSL</li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">Memasang sertifikat SSL</a></li>
 </ol>
 
 
@@ -207,7 +681,7 @@
 
 <p>Ada faktor lain yang lebih penting dipertimbangkan menurut saya, yaitu kompatibilitasnya di berbagai browser. CA mahal biasanya kompatibel di semua browser, sedangkan CA murah kadang-kadang tidak diakui browser, sehingga menimbulkan warning seperti halnya self-signed certificate. Kalau memang tetap mengeluarkan warning, ya buat apa kita beli. Lebih baik pakai yang gratisan saja.</p>
 
-<p>Demikianlah penjelasan tentang bermacam-macam sertifikat SSL yang tersedia di pasaran. Silahkan pilih yang sesuai dengan kebutuhan. Setelah sertifikat didapatkan, baik self-signed atau dari CA resmi, kita akan membahas cara instalasinya di artikel selanjutnya.</p>
+<p>Demikianlah penjelasan tentang bermacam-macam sertifikat SSL yang tersedia di pasaran. Silahkan pilih yang sesuai dengan kebutuhan. Setelah sertifikat didapatkan, baik self-signed atau dari CA resmi, kita akan membahas <a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">cara instalasinya di artikel selanjutnya</a>.</p>
 ]]></content>
   </entry>
   
@@ -236,7 +710,7 @@ Sertifikat yang disetujui CA memiliki batas waktu pemakaian. Setelah waktu terse
 <li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
-<li>Memasang sertifikat SSL</li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">Memasang sertifikat SSL</a></li>
 </ol>
 
 
@@ -1212,7 +1686,7 @@ Setelah diterima, seharusnya CA melakukan verifikasi terhadap pemilik domain <co
 <li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
 <li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
-<li>Memasang sertifikat SSL</li>
+<li><a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">Memasang sertifikat SSL</a></li>
 </ol>
 
 
@@ -6707,25 +7181,6 @@ Untuk menambahkan catatan tentang username, perlu ada sedikit coding seperti bis
 <p>Keterangan apa saja yang bisa diubah dan cara mengubahnya dapat dilihat di <a href="http://docs.jboss.org/hibernate/orm/4.1/devguide/en-US/html/ch15.html#d5e3937">dokumentasi konfigurasi Envers</a>.</p>
 
 <p>Contoh kode yang lengkap bisa diambil di <a href="https://github.com/endymuhardin/belajar-auditlog">repository saya di Github</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Buku Panduan Markdown dan Pandoc]]></title>
-    <link href="http://software.endy.muhardin.com/aplikasi/buku-panduan-markdown-dan-pandoc/"/>
-    <updated>2012-09-26T12:26:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/aplikasi/buku-panduan-markdown-dan-pandoc</id>
-    <content type="html"><![CDATA[<p>Menyusul <a href="http://software.endy.muhardin.com/aplikasi/membuat-dokumen-dengan-markdown-dan-pandoc/">postingan sebelumnya</a>, saya telah menulis buku panduan cara menggunakan Markdown dan Pandoc.</p>
-
-<p>Buku ini tentu saja ditulis menggunakan Markdown dan dikonversi ke PDF menggunakan Pandoc. Silahkan digunakan:</p>
-
-<ul>
-<li>Source code ada di <a href="https://github.com/endymuhardin/buku-pandoc">Github</a></li>
-<li>Hasil PDF yang sudah jadi bisa diunduh <a href="https://raw.github.com/endymuhardin/buku-pandoc/master/buku/markdown-dan-pandoc.pdf">di sini</a>.</li>
-</ul>
-
-
-<p>Semoga bermanfaat.</p>
 ]]></content>
   </entry>
   
