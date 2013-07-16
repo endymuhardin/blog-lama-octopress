@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/linux/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-07-12T14:31:05+07:00</updated>
+  <updated>2013-07-16T13:46:37+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,144 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Menggunakan SSD di Ubuntu]]></title>
+    <link href="http://software.endy.muhardin.com/linux/menggunakan-ssd-di-ubuntu/"/>
+    <updated>2013-07-16T13:40:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/linux/menggunakan-ssd-di-ubuntu</id>
+    <content type="html"><![CDATA[<p>Beberapa minggu yang lalu, saya mengganti harddisk menjadi SSD (Solid State Disk).
+Pengaruhnya sangat signifikan, dari tekan tombol power sampai desktop siap digunakan hanya makan waktu &lt; 10 detik.
+Sebelumnya juga tidak terlalu lama, tapi masih berkisar di atas 1 menit. Demikian juga setelah login, menyalakan Google Chrome, hanya sekejap mata browser sudah tampil. Sebelumnya butuh waktu 5-10 detik.</p>
+
+<p>Pemasangan harddisk tidak jauh berbeda dengan proses instalasi harddisk pada umumnya. Tinggal lepas harddisk lama, dan pasang yang baru. Walaupun demikian, ada beberapa tuning yang harus kita lakukan berkaitan dengan karakteristik SSD, yaitu:</p>
+
+<ul>
+<li>optimasi file/folder temporary</li>
+<li>mengganti scheduler</li>
+<li>optimasi proses hapus</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>Opsi atime</h2>
+
+<p>Pada waktu awal dikeluarkan, SSD sudah memiliki karakteristik baca-tulis yang sangat cepat, karena tidak ada bagian bergerak (moving parts) di dalamnya. Walaupun demikian, ada kekurangan SSD (dan juga flashdisk USB yang biasa kita gunakan) yaitu umur pakainya yang relatif pendek. Semakin sering ditulis dan dihapus, maka umurnya semakin pendek.</p>
+
+<p>Karena keterbatasan tersebut, maka ada beberapa <a href="http://askubuntu.com/questions/1400/how-do-i-optimize-the-os-for-ssds">tips tuning Linux</a> supaya dia tidak terlalu sering tulis-hapus, yaitu:</p>
+
+<ul>
+<li>mematikan fungsi <code>atime</code>. Fungsi <code>atime</code> gunanya untuk mengupdate keterangan di file dan folder, menunjukkan kapan dia terakhir diakses.</li>
+<li>memindahkan file temporary dan logfile ke memori sehingga tidak menulis ke harddisk.</li>
+</ul>
+
+
+<p>Seiring perkembangan teknologi, keterbatasan umur SSD ini sudah berhasil diatasi. <a href="http://www.storagesearch.com/ssdmyths-endurance.html">Sebuah percobaan di tahun 2007</a> membuktikan bahwa bila kita melakukan tulis-hapus-tulis-hapus dengan kecepatan 80Mbps 24 jam sehari, maka SSD bisa bertahan sampai 51 tahun. Itu percobaan tahun 2007, tentu di tahun 2013 ini SSD sudah semakin baik. Lagipula dalam kurun waktu tersebut kita pasti akan mengganti harddisk. Bukan karena rusak, melainkan karena sudah tidak muat lagi menampung segala macam foto, musik, video yang kita miliki. Seperti halnya di tahun 2000, kita sudah merasa cukup dengan floppy disk 1,4 MB :)</p>
+
+<p>Jadi sebetulnya kita tidak perlu khawatir lagi, khususnya dengan fungsi <code>atime</code> pada Linux.</p>
+
+<p>Bagi yang masih khawatir, bisa mematikan fungsi <code>atime</code> ini pada file <code>/etc/fstab</code> dengan menambahkan opsi <code>noatime</code>. Berikut isi file <code>/etc/fstab</code> yang asli</p>
+
+<p>```</p>
+
+<h1>/ was on /dev/sda1 during installation</h1>
+
+<p>UUID=a7c6516b-b6c7-481a-b85f-5297f6ffcbbb        /     ext4    errors=remount-ro 0  1</p>
+
+<h1>/home was on /dev/sda6 during installation</h1>
+
+<p>UUID=0dfcd40a-28bd-4d7f-8e41-4ab85ef776fa        /home ext4    defaults          0  2
+```</p>
+
+<p>Dan ini yang telah ditambahi opsi <code>noatime</code></p>
+
+<p>```</p>
+
+<h1>/ was on /dev/sda1 during installation</h1>
+
+<p>UUID=a7c6516b-b6c7-481a-b85f-5297f6ffcbbb        /     ext4    noatime,nodiratime,errors=remount-ro 0   1</p>
+
+<h1>/home was on /dev/sda6 during installation</h1>
+
+<p>UUID=0dfcd40a-28bd-4d7f-8e41-4ab85ef776fa        /home ext4    noatime,nodiratime,defaults          0   2
+```</p>
+
+<p>Tapi sekali lagi saya tekankan bahwa ini tidak perlu. Selain umur pakai SSD yang sudah dijelaskan di atas, juga optimasi di sisi Linux sendiri. Secara default, <a href="http://askubuntu.com/questions/2099/is-it-worth-to-tune-ext4-with-noatime">Linux masa kini menggunakan opsi <code>relatime</code> yang lebih cerdas daripada <code>atime</code></a>.</p>
+
+<h2>Temporary File/Folder</h2>
+
+<p>Optimasi ini bermanfaat tidak cuma untuk harddisk SSD. Intinya, file temporary yang biasanya ada di folder <code>/tmp</code> dan berbagai log aplikasi yang ada di <code>/var/log</code> akan kita pindahkan ke RAM. Akses baca-tulis dari RAM jauh lebih cepat daripada disk. Konsekuensinya, file yang dipindah ke memori ini akan hilang pada waktu komputer direstart. Untuk komputer desktop tidak masalah karena kita jarang menggunakan logfile. Tapi ini menjadi masalah buat server, karena logfile berguna untuk kebutuhan analisa dan troubleshooting bila terjadi masalah.</p>
+
+<p>Untuk memindahkan kegiatan baca-tulis folder <code>/tmp</code> dan <code>/var/log</code> dari harddisk ke memori, tambahkan baris berikut di <code>/etc/fstab</code></p>
+
+<p><code>
+tmpfs  /tmp            tmpfs   defaults,noatime,mode=1777 0 0
+tmpfs  /var/spool      tmpfs   defaults,noatime,mode=1777 0 0
+tmpfs  /var/log        tmpfs   defaults,noatime,mode=0755 0 0
+</code></p>
+
+<p>Entri yang ada labelnya <code>tmpfs</code> artinya akan disimpan di RAM.</p>
+
+<p>Semua file dan folder yang bersifat sementara bisa kita pindahkan ke <code>tmpfs</code>. Beberapa orang juga menaruh <code>/var/cache/apt/archives</code> (berisi file <code>*.deb</code> yang diunduh selama proses instalasi) dalam <code>tmpfs</code> agar tidak bikin penuh harddisk. Saya tidak melakukannya karena membutuhkan file ini untuk keperluan [upgrade dan replikasi instalasi].</p>
+
+<p>Walaupun demikian, folder <code>/var/tmp</code> jangan disimpan di <code>tmpfs</code>, karena dia <a href="http://linuxers.org/article/differences-between-tmp-and-vartmp">berbeda dengan file temporary lainnya</a></p>
+
+<h2>I/O Scheduler</h2>
+
+<p>Linux secara default menganggap kita menggunakan harddisk tradisional. Dia menggunakan sistem antrian (scheduler) <a href="http://en.wikipedia.org/wiki/CFQ">CFQ</a>, mendahulukan request yang lokasinya terdekat dengan posisi jarum harddisk (sehingga lebih cepat). Karena SSD tidak pakai jarum, akses ke semua tempat dalam disk kecepatannya sama, sehingga tidak perlu diatur seperti CFQ. Untuk itu, kita bisa gunakan scheduler <a href="http://en.wikipedia.org/wiki/Deadline_scheduler">deadline</a> yang lebih cepat.</p>
+
+<p>Posisi scheduler yang sedang aktif bisa dilihat dengan perintah berikut</p>
+
+<p><code>
+cat /sys/block/sda/queue/scheduler
+</code></p>
+
+<p>Outputnya di Ubuntu saya seperti ini</p>
+
+<p><code>
+noop [deadline] cfq
+</code></p>
+
+<p>Artinya yang sedang aktif adalah <code>deadline</code>, dan pilihan lain yang tersedia adalah <code>noop</code> dan <code>cfq</code>. Entah kenapa, Ubuntu sudah memilih <code>deadline</code> secara default, sehingga saya tidak perlu melakukan konfigurasi tambahan. Namun bila kondisinya berbeda di komputer Anda, tambahkan dua baris ini di akhir file <code>/etc/rc.local</code> di atas baris <code>exit 0</code></p>
+
+<p><code>
+echo deadline &gt; /sys/block/sda/queue/scheduler
+echo 1 &gt; /sys/block/sda/queue/iosched/fifo_batch
+</code></p>
+
+<p>Ganti <code>sda</code> dengan nama device harddisk Anda.</p>
+
+<h2>Optimasi Proses Hapus</h2>
+
+<p>Harddisk SSD memiliki <a href="http://en.wikipedia.org/wiki/TRIM">fitur TRIM</a> yang memungkinkan SSD mencatat blok mana yang sudah tidak terpakai (karena filenya dihapus), sehingga bisa digunakan lagi oleh file lain. Fitur TRIM ini bisa dilakukan secara otomatis maupun secara manual.</p>
+
+<p>Untuk mengaktifkan TRIM otomatis, tambahkan opsi <code>discard</code> di <code>/etc/fstab</code> seperti ini</p>
+
+<p>```</p>
+
+<h1>/ was on /dev/sda1 during installation</h1>
+
+<p>UUID=a7c6516b-b6c7-481a-b85f-5297f6ffcbbb       /       ext4    discard,errors=remount-ro 0  1</p>
+
+<h1>/home was on /dev/sda6 during installation</h1>
+
+<p>UUID=0dfcd40a-28bd-4d7f-8e41-4ab85ef776fa       /home   ext4    discard,defaults          0  2
+```</p>
+
+<p>Walaupun demikian, TRIM otomatis <a href="https://patrick-nagel.net/blog/archives/337">kadangkala malah membuat lambat</a>. Untuk itu, kadangkala kita perlu menjalankan trim secara manual dengan perintah berikut</p>
+
+<p><code>
+sudo fstrim -v /
+sudo fstrim -v /home
+</code></p>
+
+<p>Perintah tersebut dijalankan untuk setiap partisi dalam harddisk SSD kita. Contohnya seperti di atas bila Anda seperti saya, memisahkan antara partisi <code>/</code> dan <code>/home</code>.</p>
+
+<p>Kita juga bisa menjalankannya secara terjadwal menggunakan <code>cron</code>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Akses VM Proxmox Tanpa Applet]]></title>
@@ -581,37 +719,6 @@ ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -sk
 <p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
 
 <p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Simulasi Slow Network]]></title>
-    <link href="http://software.endy.muhardin.com/linux/simulasi-slow-network/"/>
-    <updated>2009-06-15T15:21:33+07:00</updated>
-    <id>http://software.endy.muhardin.com/linux/simulasi-slow-network</id>
-    <content type="html"><![CDATA[<p>Di salah satu proyek ArtiVisi, kita memiliki aplikasi client-server yang terhubung melalui koneksi internet berbandwidth kecil. Client menghubungi server melalui modem GPRS.</p>
-
-<p>Permasalahannya adalah bagaimana cara mengetes koneksi lemot ini pada saat development? Umumnya pada saat development kita menjalankan server dan client di komputer yang sama. Atau kalaupun di komputer berbeda, dijalankan di satu LAN, sehingga kecepatan bisa mencapai 100Mbps.</p>
-
-<p>Ada dua alternatif yang bisa kita gunakan. Yang pertama adalah aplikasi tc (traffic control) yang biasanya sudah terinstal secara default di Ubuntu. Kalau belum terinstal, kita bisa menginstal paket iproute atau iproute2, tergantung distro yang Anda gunakan.</p>
-
-<p>Alternatif kedua, menggunakan aplikasi ip_relay. Aplikasi ini bisa diinstal dengan nama paket iprelay.</p>
-
-<p>Berikut adalah referensi pemakaian tc :</p>
-
-<ul>
-<li><p><a href="http://www.kdedevelopers.org/node/1878">pipita's blog</a></p></li>
-<li><p><a href="http://henrydu.com/blog/how-to/simulate-a-slow-link-by-linux-bridge-123.html">Henry's Point</a></p></li>
-</ul>
-
-
-<p>Dan ini adalah referensi pemakaian iprelay :</p>
-
-<ul>
-<li><p><a href="http://ubuntuforums.org/showthread.php?t=670628">Ubuntu Forum</a></p></li>
-<li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
-</ul>
-
 ]]></content>
   </entry>
   

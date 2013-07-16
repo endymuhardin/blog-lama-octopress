@@ -9,8 +9,9 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Martinus dan Ifnu kalo baca ini pasti merasa familiar dengan struktur folder dan prosesnya. Saya gak nyontek lho &#8230; :p
-">
+  <meta name="description" content="Jaman sekarang, membuat tampilan menarik di aplikasi web sudah tidak sulit lagi.
+Banyak pustaka JavaScript yang siap digunakan dengan mudah.
+Tidak &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +91,197 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/lain/intro-jquery/">Intro jQuery</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-17T22:38:56+07:00" pubdate data-updated="true">Mar 17<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Jaman sekarang, membuat tampilan menarik di aplikasi web sudah tidak sulit lagi.
+Banyak pustaka JavaScript yang siap digunakan dengan mudah.
+Tidak perlu lagi kita memusingkan keragaman browser dengan keanehannya masing-masing.</p>
+
+<p>Salah satu pustaka JavaScript yang populer adalah <a href="http://www.jquery.com">jQuery</a>.
+Berbeda dengan pustaka JavaScript lainnya, jQuery tidak menawarkan komponen UI yang aneh-aneh.
+Demikian juga dengan efek visual, hanya tersedia sekenanya saja.
+Dengan demikian, jQuery berukuran relatif kecil dan mudah dipelajari.</p>
+
+<p>Akan tetapi, di balik kesederhanaan tersebut tersimpan kecanggihan arsitekturnya.
+Dengan arsitektur yang rapi ini, orang mudah membuat plugin untuk menambah kemampuan jQuery.
+Hasilnya, ada <a href="http://www.jqueryui.com/">jQuery UI</a> dengan koleksi komponen UI yang kaya.
+Ada juga <a href="http://www.trirand.com/blog/">jqGrid</a> dengan komponen tabelnya yang canggih.</p>
+
+<p>Pada tutorial ini, kita akan mempelajari dasar-dasar pemrograman JavaScript menggunakan jQuery.
+Setelah menguasai dasar-dasarnya,
+kita akan mampu menggunakan berbagai teknik tingkat tinggi seperti AJAX dan efek visual.
+Kita juga akan mudah mempelajari dan menggunakan berbagai komponen dan plugin yang tersedia.</p>
+
+<p>Pada intinya, penggunaan jQuery terdiri dari dua langkah sederhana :
+1. Mendapatkan elemen HTML yang ingin kita gunakan
+2. Menambahkan behavior pada elemen HTML yang sudah didapatkan.</p>
+
+<p>Sebagai contoh kasus, kita akan membuat kalkulator sederhana yang tampilannya seperti ini:
+(/images/uploads/2009/03/kalkulator-jquery.png)</p>
+
+<p>Berikut adalah kode HTML untuk membuat kalkulator tersebut.</p>
+
+<pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Kalkulator jQuery&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Kalkulator jQuery&lt;/h1&gt;
+
+    &lt;input name="num1"&gt; * &lt;input name="num2"&gt;
+    &lt;input type="button" id="hitung" value="="&gt;
+    &lt;input name="hasil" disabled="true"&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Dari screenshot di atas kita sudah bisa menebak cara kerja halaman web tersebut.
+Bila tombol = ditekan, maka nilai yang ada di input num1 dan num2 akan dibaca dan dikalikan.
+Kemudian hasilnya akan ditampilkan di input hasil.</p>
+
+<p>jQuery menganjurkan kita untuk mengikuti prinsip <em>unobtrusive javascript</em>,
+yang artinya tidak menambahkan event pada kode HTML.</p>
+
+<p>Bila kita tidak mengikuti prinsip ini, biasanya kita akan langsung menambahkan event di tombol = seperti ini</p>
+
+<pre><code>&lt;input type="button" id="hitung" value="=" onclick="alert('Hello World');"&gt;
+</code></pre>
+
+<p>Dengan prinsip <em>unobtrusive javascript</em>, kode HTML untuk tampilan dibiarkan apa adanya.
+Event onclick akan kita tambahkan di kode JavaScript yang bisa dipasang di blok head secara inline (ditulis langsung),
+ataupun dikeluarkan ke file tersendiri.</p>
+
+<p>Pada contoh ini, kita akan menulis inline supaya lebih mudah.</p>
+
+<h2>Instalasi jQuery</h2>
+
+<p>Sebelum kita melakukan apa-apa, terlebih dulu halaman kalkulator tersebut harus bisa mengakses jQuery.
+Tambahkan baris berikut pada blok head.</p>
+
+<pre><code>&lt;script type="text/javascript" src="js/jquery-1.2.6.min.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>Pastikan lokasi file jQuery.js sudah benar.</p>
+
+<p>Setelah itu, biasanya kita akan menambahkan kode program JavaScript yang akan dijalankan <strong>setelah</strong> seluruh halaman selesai diload oleh browser. Tentunya kita tidak ingin menambahkan event pada elemen yang belum selesai diload.</p>
+
+<p>Berikut adalah blok standar untuk meletakkan kode JavaScript kita.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h2>Event onclick</h2>
+
+<p>Langkah pertama yang kita lakukan adalah menambahkan event ke tombol =.
+Agar bisa melakukannya, kita harus mendapatkan tombol tersebut.
+Kalau kita perhatikan kode HTML di atas, tombol = memiliki ID yang berisi nilai hitung.
+Atribut ID harus unik dalam satu halaman HTML.
+Dengan demikian, kita bisa langsung mendapatkan tombol = dengan menggunakan IDnya.
+Setelah tombol didapatkan, kita bisa langsung menggunakan function click untuk menambahkan event onclick.
+Berikut adalah kode programnya.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click();
+    });
+&lt;/script&gt;
+</code></pre>
+
+<p>Dalam JavaScript, kita bisa memasukkan function sebagai parameter dalam function lain.
+Bagi mereka yang sudah pernah coding C atau C++, pasti sudah tidak asing dengan teknik ini,
+biasa disebut function pointer dalam C atau C++.</p>
+
+<p>Nah, mari kita isikan function sebagai parameter untuk function click, seperti ini :</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click(function(){
+
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<p>Selanjutnya, kita tinggal mengimplementasikan logika kode program kita, yaitu :
+1. ambil nilai num1
+2. ambil nilai num2
+3. kalikan num1 dan num2
+4. hasilnya isikan ke input text hasil</p>
+
+<h2>Selector name</h2>
+
+<p>Fitur jQuery untuk menunjuk elemen HTML tertentu disebut selector.
+Pada penambahan event onclick di atas, kita sudah menggunakan selector berdasarkan ID.
+Sekarang, kita akan menggunakan selector atribut untuk memilih input dengan atribut name berisi num1, num2, dan hasil.
+Berikut kode program implementasi dari logika di atas.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click(function(){
+            var num1 = $("input[name=num1]").val();
+            var num2 = $("input[name=num2]").val();
+            $("input[name=hasil]").val(num1 * num2);
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h2>Kesimpulan</h2>
+
+<p>Silahkan buka kalkulator.html di browser, dan coba apakah sudah bekerja dengan benar.</p>
+
+<p>Secara garis besar, pemakaian jQuery dapat dijelaskan dengan satu kalimat,</p>
+
+<blockquote><p>pilih elemen menggunakan selector, lalu manipulasi sesuai keinginan</p></blockquote>
+
+<p>Setelah memahami artikel ini, kita bisa mengembangkan kemampuan kita dalam menggunakan jQuery, diantaranya:</p>
+
+<ul>
+<li><p>mempelajari berbagai selector selain id dan atribut. jQuery memiliki banyak sekali selector yang bisa digunakan</p></li>
+<li><p>menggunakan berbagai event lain selain onclick, misalnya onfocus, onchange, dsb</p></li>
+<li><p>operasi elemen selain mengeset value, misalnya menambahkan isi elemen, mengakses server dengan AJAX, dsb</p></li>
+<li><p>menggunakan plugin-plugin jQuery misalnya Date Picker, Tab, jqGrid, dan sebagainya</p></li>
+<li><p>membuat plugin sendiri</p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -203,67 +395,6 @@ rs.close();
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/vmware-eth/">Network Device Menghilang Di VMWare</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-03T15:04:24+07:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Saya menggunakan VMWare secara intensif dalam proses development.
-Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik client. Beberapa merek database seperti Oracle relatif invasif terhadap sistem, misalnya mendikte jumlah swap ataupun mengharuskan mengedit kernel parameter. Tentunya ini membuat kotor sistem operasi saya.</p>
-
-<p>Selain itu, kadangkala client menggunakan sistem operasi yang berbeda dengan yang saya gunakan. Ini juga dapat diselesaikan dengan menggunakan VMWare.</p>
-
-<p>Saya menyimpan file-file VM di harddisk eksternal, untuk meningkatkan performance. Menurut <a href="http://www.codinghorror.com">Jeff Atwood</a>, kinerja VM akan meningkat bila dia berada di harddisk yang berbeda dengan hostnya.</p>
-
-<p>Penyimpanan di harddisk eksternal ini ternyata mengundang sedikit masalah. Kadangkala network interface VM saya menghilang. Masalah ini terjadi pada kombinasi host Ubuntu dan guest Ubuntu.</p>
-
-<p>Setelah googling kesana kemari, ternyata ini disebabkan oleh beberapa hal :</p>
-
-<ol>
-<li><p>Ubuntu me-mount partisi harddisk eksternal secara acak. Kadang partisi 1 dimount ke /media/disk-1, kadang ke /media-disk-2</p></li>
-<li><p>Bila posisi mount berubah, VMWare akan menggenerate UUID (ID unik untuk guest VM) baru</p></li>
-<li><p>Setiap kali UUID berubah, MAC Address network interface guest VM juga berubah.</p></li>
-<li><p>Ubuntu di guest VM meng-cache MAC address, sehingga kalau MAC yang dia cache tidak ada, network interface tersebut tidak akan diload</p></li>
-</ol>
-
-
-<p>Solusinya mudah, yaitu menghapus cache MAC address di guest Ubuntu, dan merestartnya. Caranya, login ke guest OS, lalu hapus file /etc/udev/rules.d/70-persistent-net.rules. Setelah itu restart.</p>
-
-<pre><code>sudo rm /etc/udev/rules.d/70-persistent-net.rules
-sudo reboot
-</code></pre>
-
-<p>Setelah restart, guest VM akan kembali memiliki ethernet card.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/23/">&larr; Older</a>
@@ -340,6 +471,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
       </li>
     
@@ -373,10 +508,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi Koneksi Database dengan Spring</a>
       </li>
     
   </ul>
