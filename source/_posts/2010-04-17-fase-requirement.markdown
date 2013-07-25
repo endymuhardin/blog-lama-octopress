@@ -209,7 +209,7 @@ Lho, bagaimana bisa dokumen requirement mencegah project molor? Ya bisa saja, be
 
 
 
-Lalu, apa saja yang harus didokumentasikan? Daripada panjang lebar, silahkan lihat [template User Story ArtiVisi](http://endy.artivisi.com/downloads/templates/user-story.pdf). Di situ sudah kita siapkan form isian apa saja yang harus dicantumkan. 
+Lalu, apa saja yang harus didokumentasikan? Daripada panjang lebar, silahkan lihat [template User Story ArtiVisi](http://software.endy.muhardin.com/downloads/user-story.odt). Di situ sudah kita siapkan form isian apa saja yang harus dicantumkan. 
 
 Coba lihat dulu, supaya nyambung dengan pembahasan di bawah. 
 
@@ -267,7 +267,7 @@ Sebelum sign off, end user bebas mengajukan perubahan apapun. Setelah sign off, 
 
 {% img /images/uploads/2010/02/change-procedure_id-724x1024.png Prosedur Change Management %}
 
-Lebih jelas tentang informasi apa saja yang dibahas di change management, bisa melihat [template change request ArtiVisi](http://endy.artivisi.com/downloads/templates/change-request.pdf). 
+Lebih jelas tentang informasi apa saja yang dibahas di change management, bisa melihat [template change request ArtiVisi](http://software.endy.muhardin.com/downloads/change-request.odt). 
 
 Seperti kita lihat, di sini faktor sign off sangat berperan. Tanpa ada sign off, tidak ada batas kapan user bisa berubah seenaknya, dan kapan tidak boleh. 
 
