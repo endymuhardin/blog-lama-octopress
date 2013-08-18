@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada waktu kita melakukan requirement gathering, harapan kita adalah agar requirement yang kita dapatkan di fase requirement tidak jauh bergeser dari &hellip;">
+  <meta name="description" content="Di tahun yang baru ini, kami di ArtiVisi juga beralih menggunakan version control baru, yaitu Git.
+Menggantikan Subversion yang sudah kita gunakan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +90,212 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/migrasi-subversion-ke-git/">Migrasi Subversion Ke Git</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-03T06:02:23+07:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di tahun yang baru ini, kami di ArtiVisi juga beralih menggunakan version control baru, yaitu Git.
+Menggantikan Subversion yang sudah kita gunakan sejak 2008.</p>
+
+<p>Ada banyak keunggulan Git dibandingkan Subversion, diantaranya:</p>
+
+<ul>
+<li><p>offline operation. Git adalah distributed/decentralized version control system (DVCS), artinya tidak membutuhkan server terpusat untuk bisa bekerja. Keunggulan ini berakibat pada keunggulan berikutnya, yaitu:</p></li>
+<li><p>commit sesuai task, bukan sesuai koneksi internet. Dulu, karena koneksi internet terbatas, programmer commit hanya pada saat ada internet. Akibatnya satu commit berisi perubahan untuk banyak task, tercampur aduk tidak jelas peruntukannya. DVCS memungkinkan programmer untuk commit walaupun tidak ada koneksi internet, dan melakukan sinkronisasi pada saat offline.</p></li>
+<li><p>fitur staging area di Git, memungkinkan kita untuk mengatur isi commit secara detail.</p></li>
+<li><p>fitur rebase untuk mengatur commit. Commit yang teratur akan memudahkan review.</p></li>
+<li><p>branch dan merge yang lebih baik daripada subversion. Karena branch dan merge mudah, maka kita bisa menerapkan berbagai teknik workflow dalam mengelola development.</p></li>
+<li><p>website social coding. Github dan Gitorious merupakan Facebook-nya para programmer. Untuk bisa terlibat di dalamnya, terlebih dulu kita harus bisa Git.</p></li>
+</ul>
+
+
+<p>Selain Git, ada juga DVCS lain seperti Mercurial (hg), Bazaar (bzr), dsb. Git dipilih karena :</p>
+
+<ul>
+<li><p>popularitas. Semakin populer, tutorial dan aplikasi pendukung semakin banyak, sehingga semakin nyaman digunakan. Saat ini yang paling populer cuma dua, yaitu git dan hg.</p></li>
+<li><p>local/named branch. Ini fitur penting, tapi entah kenapa tidak ada di core hg. Sepertinya ada di extension, tapi yang jelas merupakan workaround dan bukan didesain sejak awal. Tanpa named branch, pilihan workflow menjadi terbatas.</p></li>
+<li><p>Social coding Git (Github dan Gitorious) jauh lebih superior daripada Mercurial (Bitbucket)</p></li>
+</ul>
+
+
+<p>Beberapa faktor di atas adalah alasan kenapa Git yang dipilih.</p>
+
+<p>Baiklah, sekarang saatnya migrasi. Kita akan mengkonversi repository Subversion menjadi repository Git.
+Berikut langkah-langkah yang akan kita lakukan:</p>
+
+<ol>
+<li><p>Dump repository Subversion</p></li>
+<li><p>Restore lagi di laptop supaya cepat</p></li>
+<li><p>Buat authorsfile</p></li>
+<li><p>Buat ignore file</p></li>
+<li><p>Clone tanpa metadata</p></li>
+<li><p>Konversi branch</p></li>
+<li><p>Konversi tags</p></li>
+<li><p>Clone hasil konversi menjadi bare repository</p></li>
+</ol>
+
+
+<h2>Dump repository Subversion</h2>
+
+<p>Seperti biasa, sebelum melakukan apapun, lakukan backup dulu. Just in case.
+Perintahnya gampang.</p>
+
+<pre><code>svnadmin dump /path/ke/repository | bzip2 -c9 &gt; dump-repository-yyyyMMdd.dmp.bz2
+</code></pre>
+
+<h2>Restore lagi di laptop/PC supaya cepat</h2>
+
+<p>Langkah ini optional, kalau kita ingin melakukannya di komputer kita sendiri, bukan di server.
+Tapi sebaiknya dilakukan, karena nanti kita akan checkout beberapa kali yang pasti membutuhkan waktu lama jika dilakukan ke server.</p>
+
+<p>Perintah restore gampang.</p>
+
+<pre><code>bzcat dump-repository-yyyyMMdd.dmp.bz2 | svnadmin load /path/ke/repo/svn/di/lokal
+</code></pre>
+
+<h2>Buat authorsfile</h2>
+
+<p>Setelah kita memiliki repository Subversion, kita perlu mengambil daftar nama orang-orang yang pernah commit. Ini akan kita butuhkan pada waktu konversi. Nama committer ini diambil dari hasil checkout Subversion. Jadi mari kita checkout dulu.</p>
+
+<pre><code>svn checkout file:///path/ke/repo/svn/di/lokal checkout-project-svn
+</code></pre>
+
+<p>Karena lokal, harusnya hanya membutuhkan beberapa menit saja.</p>
+
+<p>Setelah dilakukan checkout, kita membutuhkan script untuk mengambil nama committer. Berikut isi scriptnya, simpan saja dengan nama extract-svn-authors.sh</p>
+
+<pre><code>#!/usr/bin/env bash
+authors=$(svn log -q | grep -e '^r' | awk 'BEGIN { FS = "|" } ; { print $2 }' | sort | uniq)
+for author in ${authors}; do
+  echo "${author} = NAME &lt;USER@DOMAIN&gt;";
+done
+</code></pre>
+
+<p>Jalankan script tersebut di dalam folder hasil checkout.</p>
+
+<pre><code>cd checkout-project-svn
+sh /path/ke/script/extract-svn-authors.sh &gt; nama-committers.txt 
+</code></pre>
+
+<p>Ini akan menghasilkan file nama-committers.txt yang berisi nama committer seperti ini :</p>
+
+<pre><code>endy = NAME &lt;USER@DOMAIN&gt;
+</code></pre>
+
+<p>Editlah file ini supaya mencerminkan nama dan email yang benar, seperti ini :</p>
+
+<pre><code>endy = Endy Muhardin &lt;endy.muhardin@geemail.com&gt;
+</code></pre>
+
+<h2>Buat ignore file</h2>
+
+<p>Dalam mengerjakan project, ada file-file yang ada di folder kerja, tapi tidak kita masukkan ke repository. Misalnya file hasil kompilasi, setting IDE, dan sebagainya. File dan folder hasil generate ini biasanya kita daftarkan di ignore list, supaya tidak ikut dicommit ke repository. Kita perlu mengkonversi format ignore di Subversion (svn property ignore) menjadi format ignore versi Git (yaitu file .gitignore).</p>
+
+<p>Untuk membuatnya, kita clone dulu repository Subversion menjadi repository Git. Ini dilakukan di folder yang berbeda dengan hasil checkout Subversion di langkah sebelumnya.</p>
+
+<pre><code>cd .. 
+git svn clone --stdlayout -A nama-committers.txt file:///path/ke/repo git-svn-migrasi-project-dengan-metadata
+</code></pre>
+
+<p>Setelah diclone, konversi ignore list nya.</p>
+
+<pre><code>cd git-svn-migrasi-project-dengan-metadata
+git svn show-ignore &gt; .gitignore
+</code></pre>
+
+<h2>Clone tanpa metadata</h2>
+
+<p>Selanjutnya, kita lakukan clone lagi. Kali ini tanpa menyertakan metadata, sehingga hasilnya bersih. Metadata ini digunakan bila kita ingin tetap commit ke repository Subversion, tapi ingin menggunakan Git sebagai frontend.</p>
+
+<p>Perintahnya mirip seperti sebelumnya, kali ini kita tambahkan opsi tanpa metadata.</p>
+
+<pre><code>cd .. 
+git svn clone --no-metadata --stdlayout -A nama-committers.txt file:///path/ke/repo git-svn-migrasi-project-tanpa-metadata
+</code></pre>
+
+<p>Ini akan menghasilkan folder git-svn-migrasi-project-tanpa-metadata berisi repository Subversion yang sudah dikonversi menjadi repository Git. Semua langkah selanjutnya akan dilakukan di dalam folder ini.</p>
+
+<p>Setelah selesai, kita masukkan file .gitignore ke repo Git yang baru ini.</p>
+
+<pre><code>cd git-svn-migrasi-project-tanpa-metadata
+cp ../git-svn-migrasi-project-dengan-metadata/.gitignore ./
+git add . 
+git commit -m "add ignore list"
+</code></pre>
+
+<h2>Konversi branch</h2>
+
+<p>Branch yang ada di Subversion harus kita konversi menjadi branch di Git.
+Berikut perintahnya.</p>
+
+<pre><code>git branch -r | grep -v tags | sed -rne 's, *([^@]+)$,\1,p' | while read branch; do echo "git branch $branch $branch"; done | sh
+</code></pre>
+
+<p>Verifikasi hasilnya dengan perintah ini.</p>
+
+<pre><code>git branch -a
+</code></pre>
+
+<p>Seharusnya semua branch yang ada di repository Subversion akan terlihat di dalam repository Git ini.</p>
+
+<h2>Konversi tags</h2>
+
+<p>Lakukan perintah berikut untuk mengkonversi tag Subversion menjadi tag Git.</p>
+
+<pre><code>git branch -r | sed -rne 's, *tags/([^@]+)$,\1,p' | while read tag; do echo "git tag $tag 'tags/${tag}^'; git branch -r -d tags/$tag"; done | sh
+</code></pre>
+
+<p>Verifikasi dengan perintah ini</p>
+
+<pre><code>git tag -l
+</code></pre>
+
+<p>Pastikan semua tag yang tadinya ada di repository Subversion sudah terdaftar di repository Git.</p>
+
+<h2>Clone hasil konversi menjadi bare repository</h2>
+
+<p>Setelah nama committer, ignore list, branch, dan tags berhasil kita pindahkan, inilah langkah terakhir. Kita clone sekali lagi menjadi repository bare supaya bisa dishare dengan orang lain. Biasanya repository bare ini kita publish dengan Gitosis, gitweb, atau aplikasi server lainnya.</p>
+
+<p>Perintah ini dilakukan di luar repository Git yang kita gunakan pada langkah sebelumnya.</p>
+
+<pre><code>cd .. 
+git clone --bare git-svn-migrasi-project-tanpa-metadata nama-project.git
+</code></pre>
+
+<p>Ini akan menghasilkan satu folder dengan nama nama-project.git berisi repository Git yang siap dishare.</p>
+
+<p>Demikian posting tahun baru. Semoga kita semua lebih sukses di tahun 2011 ini.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -528,110 +735,6 @@ INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/programming/tuning-performance/">Tuning Performance</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-05-05T15:24:18+07:00" pubdate data-updated="true">May 5<span>th</span>, 2010</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah aplikasi dicoding dengan benar, biasanya langkah berikutnya adalah tuning performance. Hal ini banyak ditanyakan di berbagai milis pemrograman yang saya ikuti. Agar tidak berkali-kali menulis jawaban yang sama, berikut artikel tentang metodologi saya dalam melakukan tuning performance aplikasi.</p>
-
-<h2>0. Miliki tujuan yang jelas</h2>
-
-<p>Misalnya :
-Mampu menghandle 100 request/detik dengan response time &lt; 2 detik
-dengan 1 juta record di database. Bisa jadi pada tahap ini, ternyata keputusannya adalah tidak perlu tuning, karena performance aplikasi yang sekarang sudah memenuhi keinginan.</p>
-
-<h2>1. Pastikan aplikasinya berjalan benar</h2>
-
-<p>Make it right, then make it fast.
-Gak ada gunanya mentuning aplikasi buggy.
-Kita juga harus punya perangkat pengetes yang lengkap.
-Supaya nanti setelah tuning, bisa dipastikan bahwa tuningnya tidak menimbulkan bug baru.</p>
-
-<h2>2. Pasang monitor di aplikasi</h2>
-
-<p>Misalnya :
-- CPU usage
-- Memory usage
-- Aktifitas harddisk
-- Aktifitas database</p>
-
-<p>Di linux, CPU dan Memory usage bisa <a href="http://www.linuxforums.org/articles/using-top-more-efficiently_89.html">dipantau dengan top</a>,
-sedangkan aktifitas harddisk dengan <a href="http://royontechnology.blogspot.com/2007/06/using-iostat-for-monitoring-disk.html">iostat</a>.
-Di MySQL, aktifitas database bisa dimonitor dengan perintah <a href="http://dev.mysql.com/doc/refman/5.1/en/show-processlist.html">show processlist</a>.</p>
-
-<h2>3. Setelah monitor siap, penyiksaan dimulai</h2>
-
-<p>Berikan load yang tinggi ke aplikasi dengan menggunakan tools penyiksaan seperti misalnya <a href="http://jakarta.apache.org/jmeter/">JMeter</a>.
-Tingkatkan terus loadnya sampai response time tidak lagi memenuhi syarat.
-Misalnya, pada 30 request/detik, response time menjadi 10 detik.</p>
-
-<h2>4. Cari bottlenecknya</h2>
-
-<p>Amati monitor, aspek mana yang overload.
-Apakah CPU, I/O, atau memori.
-Perhatikan juga aktifitas database untuk mencari penyebabnya.</p>
-
-<h2>5. Lakukan tuning</h2>
-
-<p>Silahkan dioprek dengan metode trial and error.
-Biasanya pada tahap ini saya mencari kolom mana yang perlu diindex,
-bagian mana di source code yang perlu diperbaiki,
-atau konfigurasi seperti apa yang optimal.</p>
-
-<h2>6. Test lagi</h2>
-
-<p>Setelah dioprek, jalankan lagi tools penyiksaan.
-Kalau langkah no #5 benar, biasanya bottlenecknya akan pindah.
-Misalnya, tadinya CPU maxed out 100%, setelah tuning jadi santai 10%,
-tapi memory usage jadi 80%.</p>
-
-<h2>7. Ulangi langkah #5 dan #6</h2>
-
-<p>Ulangi terus tuning dan test sampai aplikasi memenuhi tujuan yang diset di langkah #0.
-Inilah pentingnya langkah #0, supaya kita tahu kapan harus berhenti.</p>
-
-<p>Beberapa hal yang harus diingat dalam tuning performance:</p>
-
-<ol>
-<li><p>Tidak ada pil ajaib, masing-masing kasus berbeda. Kadang masalahnya ada di index database, kadang di prosesor, dsb.</p></li>
-<li><p>Jangan main tebak-tebakan, semua keputusan harus berdasarkan hasil monitoring. Soalnya seringkali tebakan kita salah.</p></li>
-<li><p>Jangan lupakan maintenance source code. Proses tuning mungkin saja akan membuat source code menjadi kompleks dan sulit dibaca. Jangan sampai kita mengorbankan kerapian coding demi sedikit peningkatan performance. Lebih baik upgrade hardware daripada mengotori source code.</p></li>
-<li><p>Tahu kapan harus berhenti. Tuning merupakan pekerjaan yang menarik, mirip seperti bermain game. Oleh karena itu penting bagi kita untuk punya tujuan. Begitu tujuan dicapai, segera berhenti. Lebih baik menambah fitur yang memiliki business value daripada terus menerus berkutat dengan performance.</p></li>
-</ol>
-
-
-<p>Demikian sekilas tentang tuning. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/17/">&larr; Older</a>
@@ -708,6 +811,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/otodidak/">Otodidak</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
       </li>
     
@@ -741,10 +848,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
       </li>
     
   </ul>

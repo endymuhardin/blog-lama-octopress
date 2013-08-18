@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Deadline memang bikin stress. Cangkir kopi bertebaran, dan kantung mata bergelayutan.
-Tidak lupa bos mondar-mandir di belakang, terus menerus kirim &hellip;">
+  <meta name="description" content="Three times and you refactor !! Begitu kata Martin Fowler dalam bukunya Refactoring. Sering terjadi dalam pembuatan aplikasi, kita akan menulis suatu &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,221 @@ Tidak lupa bos mondar-mandir di belakang, terus menerus kirim &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/refactoring/">Refactoring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-28T18:55:21+07:00" pubdate data-updated="true">Nov 28<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Three times and you refactor !! Begitu kata Martin Fowler dalam bukunya Refactoring.</p>
+
+<p>Sering terjadi dalam pembuatan aplikasi, kita akan menulis suatu rutin yang sudah pernah kita tulis sebelumnya, dengan sedikit perbedaan parameter dan variabel.
+Biasanya, kalau menemui hal seperti ini, kita akan copy-paste dari kode yang sudah ada, melakukan sedikit modifikasi, dan selesai. Mudah dan sederhana, tapi terlalu rajin. Untuk jadi programmer yang efektif, kita perlu memiliki sifat malas.</p>
+
+<p>Misalnya, kita punya UserDao, dengan kode seperti ini :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// connect dulu</span>
+</span><span class='line'>      <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, kita akan menambahkan method untuk delete:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;DELETE FROM  tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nah, sekarang kita mau tambah method untuk search user berdasarkan id, tentunya kita akan tulis kode seperti ini :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;DELETE FROM  tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">User</span> <span class="nf">search</span> <span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;SELECT * FROM  tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Stop !!!
+Three times and you refactor. Artinya, begitu kita paste untuk kedua kali (berarti ada tiga kopi blok yang sama), itulah waktunya kita refactor.
+Kita paste blok tersebut, masukkan ke dalam function/method sendiri, berikan parameter seperlunya. Ini untuk menghindari terjadinya duplikasi kode, sehingga untuk tiap perintah cuma ada satu versi.</p>
+
+<p>Setelah direfactor, kode di atas menjadi :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">PreparedStatement</span> <span class="nf">prepareStatement</span><span class="o">(</span><span class="n">String</span> <span class="n">sql</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">prepareStatement</span><span class="o">(</span><span class="s">&quot;DELETE FROM tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">User</span> <span class="nf">search</span> <span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">prepareStatement</span><span class="o">(</span><span class="s">&quot;SELECT * FROM tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apabila kita menggunakan IDE canggih seperti Eclipse, IDEA, atau Netbeans, refactoring ini mudah saja dilakukan. Tinggal blok kode yang akan direfactor, kemudian klik kanan, dan pilih Extract Method. Method baru akan dibuatkan dan diisi dengan kode yang kita blok. Sedangkan kode asal yang kita blok sebelumnya akan diganti dengan pemanggilan method baru.</p>
+
+<p>Extract Method hanya satu contoh kecil saja dari Refactoring. Masih ada Extract Classes, Inline Method, dan lain sebagainya. Buku wajib buat programmer Java.</p>
+
+<p>Silahkan <a href="http://www.amazon.com/gp/product/0201485672/002-3388109-5046409?v=glance&amp;n=283155&amp;n=507846&amp;s=books&amp;v=glance">beli di Amazon</a> atau <a href="http://www.flazx.com/ebook790.php">download di Flazx</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -249,107 +463,6 @@ Jangan sia-siakan hidup Anda hanya karena malas investasi 10 menit.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/testing-aplikasi/">Testing Aplikasi</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-11-16T00:15:01+07:00" pubdate data-updated="true">Nov 16<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sebelum diinstal di tempat customer, aplikasi yang kita buat harus ditest. Itu jelas. Semua orang melakukannya. Hanya saja, teknik melakukan testing akan membedakan antara yang pro dan belajaran (apalagi yang baru lulus kuliah :P)</p>
-
-<p>Mari kita ambil contoh nyata. Misalkan kita punya class Calculator, dengan satu method divide yang tugasnya membagi dua bilangan. Berikut kodenya :</p>
-
-<pre><code>public class Calculator {
-    public double divide (double a, double b) {
-          return 0;
-    }
-}
-</code></pre>
-
-<p>Programmer pemula (atau pro yang kurang wawasan), hampir pasti akan segera menulis</p>
-
-<pre><code>public static void main(String[] xxx) {
-    Calculator c = new Calculator();
-    System.out.println("10 dibagi 2 adalah : " +c.divide(10,2));  // hasilnya harus 5
-}
-</code></pre>
-
-<p>Hmm&#8230; primitif sekali. Dengan segala kecanggihan teknologi komputer, kita yang berada di tengah dunia komputer, membuat program komputer, masih menggunakan teknologi jaman DOS prompt untuk melakukan test.</p>
-
-<p>Apa yang salah dengan kode test di atas?
-Salah, karena programmer harus mengeksekusi kode di atas, melihat bahwa tampilan yang dihasilkan seperti ini :</p>
-
-<pre><code>10 / 2 adalah : 0
-</code></pre>
-
-<p>membetulkan kode, kemudian lihat lagi, memastikan kali ini tampilannya seperti ini :</p>
-
-<pre><code>10 / 2 adalah : 5
-</code></pre>
-
-<p>Mengapa salah?
-Karena ini tidak otomatis.
-Bagaimana kalau kita punya 100 method?
-Bagaimana kalau tiap method punya 2 kemungkinan yang harus ditest (misalnya: pembagian dengan 0, pembagian dengan bilangan negatif)?
-Berarti ada sekitar 200 baris yang harus diteliti. Dan ini akan menjadi membosankan dan melelahkan.</p>
-
-<p>Programmer profesional (baca: menghidupi anak istri dari coding) yang berwawasan luas akan menggunakan <a href="http://www.junit.org">Automated Unit Testing</a>. Tools ini akan memungkinkan kita untuk melakukan test secara :</p>
-
-<ul>
-<li><p>Cepat</p></li>
-<li><p>Otomatis</p></li>
-<li><p>Dapat dieksekusi dengan tekan satu tombol</p></li>
-</ul>
-
-
-<p>Programmer profesional yang berwawasan tersebut akan menulis test seperti ini :</p>
-
-<pre><code>public void testDivide() {
-    Calculator c = new Calculator();
-    assertEquals(5, c.divide(10,2));
-}
-</code></pre>
-
-<p>Dengan cara ini, komputerlah yang akan memeriksa kode kita. Pada waktu kita jalankan, komputer akan mencetak tanda titik bila sukses, huruf F bila gagal, dan huruf E bila terjadi Exception. Tidak perlu lagi periksa secara manual.
-200 test? Tidak perlu khawatir. Tinggal jalankan dan lihat. Berapa huruf yang muncul, itulah yang diperbaiki.</p>
-
-<p>Bagusnya lagi, semua test tadi dapat dikonfigurasi sehingga dapat dijalankan sekaligus. Jadi dengan sekali tekan tombol, kita dapat menjalankan semua test yang telah kita buat dari sejak project dimulai.</p>
-
-<p>Proses ini dapat diotomasi lebih jauh lagi, apabila kita menggunakan Ant, atau plugin IDE (misalnya Eclipse). Proses testing dapat diintegrasikan. Sehingga kalau biasanya setelah melakukan perubahan di source code kita lakukan save dan compile, dengan sedikit konfigurasi, kita ubah menjadi save-compile-test.
-Dengan sekali tekan tombol, kode yang baru saja kita edit telah ditest.</p>
-
-<p>Ingatlah, programmer profesional mencari nafkah dari coding. Semakin cepat menyelesaikan aplikasi, semakin cepat dapat mengirimkan tagihan ke customer, dan semakin cepat pula istri akan tersenyum.</p>
-
-<p>Tulisan ini merupakan bagian pertama dari rangkaian tulisan tentang Otomasi Pembuatan Aplikasi.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/66/">&larr; Older</a>
@@ -426,6 +539,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/otodidak/">Otodidak</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
       </li>
     
@@ -459,10 +576,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi Java dengan Spring dan Maven</a>
       </li>
     
   </ul>
