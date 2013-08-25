@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Beberapa waktu terakhir ini, framework Java Server Faces terlihat semakin matang. Orang-orang sudah mulai menggunakan, memberi feedback, dan &hellip;">
+  <meta name="description" content="Pada postingan kemarin, kita telah melihat bagaimana membuat aplikasi web dengan ICEFaces, yang notabene dijalankan di atas framework JSF. Tapi JSF &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,275 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/intro-jsf/">Intro JSF</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-03-31T00:05:58+07:00" pubdate data-updated="true">Mar 31<span>st</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/intro-icefaces/">postingan kemarin</a>, kita telah melihat bagaimana membuat aplikasi web dengan ICEFaces, yang notabene dijalankan di atas framework JSF. Tapi JSF sendiri itu apa?</p>
+
+<p>Java Server Faces (JSF) adalah salah satu teknologi terbaru dalam pengembangan aplikasi web. Teknologi ini distandarisasi oleh Sun sehingga dukungan terhadapnya akan disediakan para vendor server.</p>
+
+<p>Sebenarnya apa itu JSF? Berdasarkan <a href="http://java.sun.com/j2ee/1.4/docs/tutorial/doc/JSFIntro3.html">penjelasan dari Sun</a>, JSF terdiri dari:</p>
+
+<ul>
+<li><p>Kumpulan komponen UI (tentunya berbasis web)</p></li>
+<li><p>Pengaturan flow navigasi</p></li>
+<li><p>Mekanisme event handling (seperti layaknya aplikasi desktop)</p></li>
+<li><p>Halaman web</p></li>
+<li><p>Server side objects</p></li>
+</ul>
+
+
+<p>Karena sifatnya yang merupakan spesifikasi resmi dari Sun, di masa depan akan banyak vendor yang menyediakan dukungan terhadap framework ini, sehingga kita bisa mengharapkan adanya:</p>
+
+<ul>
+<li><p>Visual Editor untuk halaman web</p></li>
+<li><p>Visual Editor untuk mengatur aliran navigasi</p></li>
+<li><p>Komponen siap pakai yang sudah AJAX-enabled</p></li>
+</ul>
+
+
+<p>Saat tulisan ini dibuat, sepertinya editor visual yang terbaik untuk JSF masih dipegang Netbeans. Sayangnya berdasarkan pengalaman sekilas saya, editor visual ini sangat &#8216;menjajah&#8217;. Agar kita bisa mengedit halaman web dan navigasi secara visual, kita harus banyak <em>extends</em> class Netbeans.</p>
+
+<p>Mudah-mudahan di masa depan dukungan tools akan semakin banyak, terutama dari Eclipse atau IDEA.</p>
+
+<p>Baiklah, para pembaca tentunya sudah tidak sabar ingin melihat, seperti apa kodenya. Pada artikel ini, kita hanya akan membahas tentang:</p>
+
+<ol>
+<li><p>konfigurasi awal</p></li>
+<li><p>membuat dua halaman, dan</p></li>
+<li><p>menghubungkan keduanya dengan konfigurasi navigasi</p></li>
+</ol>
+
+
+<p>Kita akan menggunakan <a href="https://javaserverfaces.dev.java.net/">implementasi JSF yang disediakan Sun</a>, saat artikel ini ditulis, rilis terbaru adalah 1.2.</p>
+
+<p>Selain hasil karya Sun, kita juga bisa menggunakan <a href="http://myfaces.apache.org">JSF terbitan Apache</a>.</p>
+
+<p>Mari langsung coding.</p>
+
+<p>Kita akan hanya akan membuat dua halaman:</p>
+
+<ol>
+<li><p>Registrasi User</p></li>
+<li><p>Konfirmasi Registrasi</p></li>
+</ol>
+
+
+<p>tanpa business logic sama sekali. Halaman pertama berisi form registrasi, yang bila di-klik tombol Register-nya, user akan diarahkan ke halaman kedua. Untuk validasi dan akses database akan dibahas dalam artikel terpisah.</p>
+
+<p>Halaman pertama tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/jsf-register.png" title="Halaman Registrasi" ></p>
+
+<p>Sedangkan halaman kedua tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/jsf-confirm.png" title="Halaman Konfirmasi" ></p>
+
+<p>Kode untuk halaman pertama adalah sebagai berikut.</p>
+
+<h3>register.jsp</h3>
+
+<pre><code>&lt;code&gt;&lt;%@page contentType="text/html"%&gt;
+&lt;%@page pageEncoding="UTF-8"%&gt;
+&lt;%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %&gt;
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd"&gt;
+
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;:: Pendaftaran User ::&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+
+    &lt;h1&gt;Silahkan masukkan data Anda di sini&lt;/h1&gt;
+    &lt;h:form&gt;
+    &lt;table border="0"&gt;        
+        &lt;tbody&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Nama Lengkap&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Username&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Email&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputText value="name" /&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Password&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputSecret value="password"/&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Password (ulangi)&lt;/td&gt;
+                &lt;td&gt;&lt;h:inputSecret value="password2"/&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt; &lt;/td&gt;
+                &lt;td&gt;&lt;h:commandButton type="submit" value="Daftar" action="register"/&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;/h:form&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Perhatikan kode program untuk menampilkan tombol. Di sana ada atribut <code>action</code> yang bernilai <code>register</code>. Atribut <code>action</code> ini nantinya akan digunakan di konfigurasi navigasi di bawah.</p>
+
+<p>Sedangkan halaman kedua isinya HTML biasa, sebagai berikut.</p>
+
+<h3>confirmation.jsp</h3>
+
+<pre><code>&lt;code&gt;&lt;%@page contentType="text/html"%&gt;
+&lt;%@page pageEncoding="UTF-8"%&gt;
+
+
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd"&gt;
+
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+        &lt;title&gt;:: Konfirmasi Pendaftaran ::&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+
+    &lt;h1&gt;Registrasi Berhasil !!&lt;/h1&gt;
+
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Kedua halaman tersebut akan diakses dengan URL :</p>
+
+<ol>
+<li><p>http://localhost:8080/HelloJSF/register.jsf</p></li>
+<li><p>http://localhost:8080/HelloJSF/confirmation.jsf</p></li>
+</ol>
+
+
+<p>Perhatikan bahwa kita mengakses halaman tersebut dengan URL <em>.jsf, padahal nama file sebenarnya adalah </em>.jsp.</p>
+
+<p>Jadi, yang terjadi di sini adalah, kita menyerahkan pemrosesan semua URL berakhiran jsf kepada servlet JSF.</p>
+
+<p>Oleh karena itu, kita perlu mendefinisikan Servlet JSF dan URL Mapping tersebut pada <code>web.xml</code>.</p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
+        &lt;param-value&gt;client&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+        &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;*.jsf&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;
+            30
+        &lt;/session-timeout&gt;
+    &lt;/session-config&gt;
+&lt;/web-app&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Isi <code>web.xml</code> sudah dijelaskan pada <a href="http://endy.artivisi.com/blog/java/intro-icefaces/">artikel sebelumnya tentang ICEFaces</a>.</p>
+
+<p>Selanjutnya, mari kita lihat konfigurasi navigasinya, yang menyatakan:</p>
+
+<blockquote><p>bila tombol Daftar ditekan, bukalah halaman <code>confirmation.jsp</code></p></blockquote>
+
+<p>Konfigurasi tersebut ditulis di dalam file <code>faces-config.xml</code> sebagai berikut.</p>
+
+<h3>faces-config.xml</h3>
+
+<pre><code>&lt;code&gt;&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+
+&lt;faces-config version="1.2" 
+    xmlns="http://java.sun.com/xml/ns/javaee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd"&gt;
+        &lt;navigation-rule&gt;            
+            &lt;from-view-id&gt;/register.jsp&lt;/from-view-id&gt;
+            &lt;navigation-case&gt;
+                &lt;from-outcome&gt;register&lt;/from-outcome&gt;
+                &lt;to-view-id&gt;/confirmation.jsp&lt;/to-view-id&gt;
+            &lt;/navigation-case&gt;
+        &lt;/navigation-rule&gt;
+&lt;/faces-config&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Pada konfigurasi di atas, kita mendefinisikan view bernama <code>register.jsp</code>, yaitu halaman registrasi kita. Kemudian ada navigation case, yang merupakan aturan navigasi untuk halaman <code>register.jsp</code> tersebut. Bila dihasilkan action <code>register</code>, tampilkan halaman <code>confirmation.jsp</code>.</p>
+
+<p>Action register ini didapat dari nilai atribut action pada komponen tombol Daftar di dalam file <code>register.jsp</code>.</p>
+
+<p>Di masa yang akan datang, nantinya konfigurasi navigasi ini akan diedit dengan visual editor. Sehingga kita bisa langsung drag-and-drop halaman, kemudian menggambar panah dari halaman <code>register.jsp</code> ke <code>confirmation.jsp</code> dengan tulisan &#8216;register&#8217;.</p>
+
+<p>Aplikasi HelloJSF siap dideploy. Struktur folder lengkapnya tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/hellojsf-folder.png" title="Struktur Folder Aplikasi HelloJSF" ></p>
+
+<p>Pembaca yang teliti akan segera bertanya,</p>
+
+<blockquote><p>Apa tidak kurang? Mana <em>.jar nya? Tidak ada </em>.jar apa-apa di sana!</p></blockquote>
+
+<p>Itu karena saya mendeploy ke Sun Application Server yang terbundle bersama Netbeans Enterprise Pack. Kalau saja kita deploy ke Tomcat atau Jetty, tentu lain ceritanya. Kita harus melihat dokumentasi masing-masing merek server.</p>
+
+<p>Demikian perkenalan kita dengan JSF. Lain waktu kita akan sambung dengan kemampuan JSF yang lainnya.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -682,99 +951,6 @@ Good luck trying the same using VMWare. Hmm .. saya jadi teringat iklan DVD play
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/php/aggregator-magpierss/">Membuat Aggregator Dengan MagpieRSS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-02-08T23:54:54+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada artikel ini, kita akan belajar cara menambahkan feed aggregator di website kita. Untuk mudahnya, kita gunakan pustaka <a href="magpierss.sourceforge.net">Magpie RSS</a>. Dengan library ini, kita bisa membuat website yang berisi rangkuman dari website-website lain (web-based aggregator).</p>
-
-<p>Penjelasan tentang apa itu RSS dapat dilihat di <a href="http://endy.artivisi.com/blog/lain/apa-itu-rss/">artikel ini</a>.</p>
-
-<h2>Cara penggunaan Magpie RSS</h2>
-
-<p>Setelah donlod dan extract, copy empat file magpie:</p>
-
-<ul>
-<li><p>rss_cache.inc</p></li>
-<li><p>rss_fetch.inc</p></li>
-<li><p>rss_parse.inc</p></li>
-<li><p>rss_utils.inc</p></li>
-</ul>
-
-
-<p>Berikut file dependensinya yang ada di folder extlib.</p>
-
-<p>Selanjutnya, untuk mengolah RSS feed, hanya dibutuhkan tiga baris kode:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='php'><span class='line'><span class="x">require_once(&#39;inc/rss_fetch.inc&#39;);</span>
-</span><span class='line'><span class="x">$url = &quot;http://www.php.net/news.rss&quot;;</span>
-</span><span class='line'><span class="x">$rss = fetch_rss($url);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Variabel $rss tinggal dilooping dan ditampilkan sesuai keinginan. Sebagai contoh, saya tampilkan isi feed dalam tabel.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;table</span> <span class="na">border=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;tr&gt;&lt;th&gt;</span>No<span class="nt">&lt;/th&gt;&lt;th&gt;</span>Judul<span class="nt">&lt;/th&gt;&lt;th&gt;</span>Ringkasan<span class="nt">&lt;/th&gt;&lt;/tr&gt;</span>
-</span><span class='line'>    <span class="cp">&lt;? $i=0; foreach ($rss-&gt;items as $item) { $i++; ?&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;tr&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;td&gt;</span><span class="cp">&lt;?=$i ?&gt;</span><span class="nt">&lt;/td&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;td&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;&lt;? echo($item[link]); ?&gt;&quot;</span><span class="nt">&gt;</span><span class="cp">&lt;? echo($item[title]); ?&gt;</span><span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;td&gt;</span><span class="cp">&lt;? echo($item[description]); ?&gt;</span><span class="nt">&lt;/td&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/tr&gt;</span>
-</span><span class='line'>    <span class="cp">&lt;? } ?&gt;</span>
-</span><span class='line'><span class="nt">&lt;/table&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hasilnya dapat dilihat <a href="http://endy.artivisi.com/downloads/code/magpie-rss/magpie.php">di sini</a>. Sedangkan source codenya dapat didownload <a href="http://endy.artivisi.com/downloads/code/magpie-rss.zip">di sini</a>.</p>
-
-<p>Demikian &#8230; cukup mudah bukan?
-Selamat menampilkan rangkuman website orang di website anda sendiri. Jangan lupa memperhatikan etika dan hak cipta.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/44/">&larr; Older</a>
@@ -851,6 +1027,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/lan-na-zha/">Lan Na Zha</a>
+      </li>
+    
+      <li class="post">
         <a href="/life/otodidak/">Otodidak</a>
       </li>
     
@@ -884,10 +1064,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/query-dengan-spring-jdbc/">Query dengan Spring JDBC</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete dengan Spring JDBC</a>
       </li>
     
   </ul>
