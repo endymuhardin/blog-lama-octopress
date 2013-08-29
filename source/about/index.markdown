@@ -15,7 +15,7 @@ Software Developer, based in Jakarta, live in Bogor.
 
 ## Contact
 
-  * Office : [Jalan Pangkalan Jati 3, Jakarta Timur](http://goo.gl/maps/UaT0)
+  * Office : [Jalan Pangkalan Jati 2, Jakarta Timur](http://goo.gl/maps/np9gj)
   * Mobile : +62 812 98000 468
   * Email : endy [at] artivisi [dot] com
   * YM : [endymuhardin](ymsgr:sendIM?endymuhardin)
