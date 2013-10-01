@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-08-29T12:35:52+07:00</updated>
+  <updated>2013-10-01T21:26:42+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,279 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Migrasi Database dengan Liquibase]]></title>
+    <link href="http://software.endy.muhardin.com/java/migrasi-database-dengan-liquibase/"/>
+    <updated>2013-10-01T21:22:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/migrasi-database-dengan-liquibase</id>
+    <content type="html"><![CDATA[<p>Salah satu kepuasan kita sebagai programmer adalah pada waktu aplikasi yang kita buat digunakan banyak user dan menghasilkan banyak manfaat bagi mereka. Sebagai konsekuensinya, akan banyak permintaan tambahan dari user untuk menambah fitur ataupun mengubah fitur yang sudah ada supaya makin nyaman digunakan.</p>
+
+<p>Seringkali terjadi, perubahan yang diminta ini akan menyebabkan berubahnya skema database. Ini merupakan hal yang wajar dan umum terjadi, sehingga kita perlu menyiapkan mental untuk menerima kondisi ini sebagai sesuatu yang lumrah dan tidak mengerikan.</p>
+
+<p>Tools yang sering saya gunakan untuk mengurus perubahan (evolusi) skema database adalah <a href="http://www.liquibase.org">Liquibase</a>. Pada <a href="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/">artikel terdahulu</a>, kita sudah membahas cara menggunakan Liquibase untuk mengkonversi skema database menjadi XML supaya bisa dikelola di version control. Kali ini, kita akan menggunakan Liquibase untuk melakukan migrasi dari skema database antar versi aplikasi.</p>
+
+<!--more-->
+
+
+<p>Studi kasusnya sebagai berikut. Misalnya kita punya aplikasi versi <code>1.0</code> yang sudah berjalan di production (live) dan digunakan user. Aplikasi versi <code>1.0</code> ini kita kembangkan selama beberapa minggu --diberikan tambahan fitur, bug diperbaiki, tampilan diperindah, dan berbagai peningkatan lainnya-- menjadi versi <code>2.0</code>. Antar kedua versi ini terjadi perubahan skema database. Kita ingin membuat script SQL untuk mengkonversi (migrasi) skema database versi <code>1.0</code> menjadi skema versi <code>2.0</code>. Untuk keperluan itu, kita gunakan Liquibase.</p>
+
+<p>Liquibase memiliki kemampuan untuk membandingkan (diff) dua database, kemudian membuatkan file untuk migrasi dari skema yang satu (versi <code>1.0</code>) menjadi skema lainnya (versi <code>2.0</code>).</p>
+
+<h2>Menyiapkan kedua database</h2>
+
+<p>Langkah pertama adalah menyiapkan kedua versi database. Biasanya saya membuat dump dari database production (skema versi <code>1.0</code>), kemudian di-restore di tempat lain (misalnya di laptop). Kemudian saya juga menyiapkan database development yang menggunakan skema versi <code>2.0</code>.</p>
+
+<p>Agar lebih jelas, kita namakan saja database yang diambil dari production dengan nama <code>aplikasi_v_1_0</code> dan database baru dengan nama <code>aplikasi_v_2_0</code>. Berikut adalah informasi koneksi JDBC untuk kedua database</p>
+
+<h3>aplikasi_v_1_0</h3>
+
+<ul>
+<li>jdbc.driver = <code>com.mysql.jdbc.Driver</code></li>
+<li>jdbc.url = <code>jdbc:mysql://localhost/aplikasi_v_1_0</code></li>
+<li>jdbc.username = <code>root</code></li>
+<li>jdbc.password = <code>coba</code></li>
+</ul>
+
+
+<h3>aplikasi_v_2_0</h3>
+
+<ul>
+<li>jdbc.driver = <code>com.mysql.jdbc.Driver</code></li>
+<li>jdbc.url = <code>jdbc:mysql://localhost/aplikasi_v_2_0</code></li>
+<li>jdbc.username = <code>root</code></li>
+<li>jdbc.password = <code>coba</code></li>
+</ul>
+
+
+<h2>Konfigurasi Liquibase</h2>
+
+<p>Seperti di artikel terdahulu, kita membutuhkan tiga file yang kita letakkan di folder yang sama, yaitu:</p>
+
+<ul>
+<li><code>mysql-connector-java-5.1.25.jar</code> : driver database</li>
+<li><code>liquibase-core-2.0.5.jar</code> : aplikasi liquibase</li>
+<li><code>liquibase.properties</code> : konfigurasi liquibase</li>
+</ul>
+
+
+<p>Sesuaikan kedua file jar dengan versi yang terbaru.</p>
+
+<p>File <code>liquibase.properties</code> berisi konfigurasi yang dibutuhkan oleh liquibase. Berikut isinya</p>
+
+<p><code>
+driver: com.mysql.jdbc.Driver
+classpath: mysql-connector-java-5.1.25.jar
+url: jdbc:mysql://localhost/aplikasi_v_2_0
+username: root
+password: admin
+referenceUrl: jdbc:mysql://localhost/aplikasi_v_1_0
+referenceUsername: root
+referencePassword: admin
+changeLogFile: changelog.xml
+</code></p>
+
+<p>Berikut penjelasan dari isi file:</p>
+
+<ul>
+<li>driver: JDBC driver sesuai merek database yang kita gunakan</li>
+<li>classpath: lokasi file JDBC driver</li>
+<li>url: JDBC url untuk database tujuan (versi <code>2.0</code>)</li>
+<li>username: username untuk database tujuan (versi <code>2.0</code>)</li>
+<li>password: password untuk database tujuan (versi <code>2.0</code>)</li>
+<li>referenceUrl: JDBC url untuk database asal (versi <code>1.0</code>)</li>
+<li>referenceUsername: username untuk database asal (versi <code>1.0</code>)</li>
+<li>referencePassword: password untuk database asal (versi <code>1.0</code>)</li>
+<li>changeLogFile: nama file tujuan untuk menulis hasil perbandingan kedua database</li>
+</ul>
+
+
+<h2>Menjalankan Liquibase : Membuat file changelog</h2>
+
+<p>Pertama, kita buat dulu file changelog sesuai format Liquibase. Commandnya adalah sebagai berikut:</p>
+
+<p><code>
+java -jar liquibase-core-2.0.5.jar diffChangeLog
+</code></p>
+
+<p>Berikut output dari perintah di atas</p>
+
+<p><code>
+INFO 10/1/13 9:11 PM:liquibase: Reading tables for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading views for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading foreign keys for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading primary keys for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading columns for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading unique constraints for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading indexes for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Sequences not supported for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading tables for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading views for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading foreign keys for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading primary keys for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading columns for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading unique constraints for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Reading indexes for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: Sequences not supported for
+ root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+INFO 10/1/13 9:11 PM:liquibase: changelog.xml does not exist, creating
+Liquibase 'diffChangeLog' Successful
+</code></p>
+
+<p>Perintah ini akan menghasilkan file <code>changelog.xml</code> di folder tempat kita berada. File ini berisi perbedaan antar skema versi 1.0 dengan skema versi 2.0. Isinya seperti ini</p>
+
+<p>```xml
+&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd"></p>
+
+<pre><code>&lt;changeSet author="endy (generated)" id="1380636706862-1"&gt;
+    &lt;addColumn tableName="m_customer"&gt;
+        &lt;column name="allowed_addresses" type="VARCHAR(255)"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-2"&gt;
+    &lt;addColumn tableName="m_customer"&gt;
+        &lt;column name="deleted" type="BIT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-3"&gt;
+    &lt;addColumn tableName="m_plan"&gt;
+        &lt;column name="deleted" type="BIT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-4"&gt;
+    &lt;addColumn tableName="m_provider"&gt;
+        &lt;column name="deleted" type="BIT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-5"&gt;
+    &lt;addColumn tableName="m_rate"&gt;
+        &lt;column name="deleted" type="BIT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-6"&gt;
+    &lt;addColumn tableName="m_routing"&gt;
+        &lt;column name="deleted" type="BIT"&gt;
+            &lt;constraints nullable="false"/&gt;
+        &lt;/column&gt;
+    &lt;/addColumn&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-7"&gt;
+    &lt;dropNotNullConstraint columnDataType="VARCHAR(255)" columnName="bind_password" tableName="m_provider"/&gt;
+&lt;/changeSet&gt;
+&lt;changeSet author="endy (generated)" id="1380636706862-8"&gt;
+    &lt;dropNotNullConstraint columnDataType="VARCHAR(255)" columnName="bind_username" tableName="m_provider"/&gt;
+&lt;/changeSet&gt;
+</code></pre>
+
+<p></databaseChangeLog>
+```</p>
+
+<p>Kita lihat di atas bahwa antara skema versi <code>1.0</code> dan versi <code>2.0</code> terjadi perubahan sebagai berikut:</p>
+
+<ul>
+<li>penambahan kolom <code>allowed_address</code> di tabel <code>m_customer</code></li>
+<li>penambahan kolom <code>deleted</code> di berbagai tabel lainnya</li>
+<li>menghilangkan constraint <code>NOT NULL</code> di kolom <code>bind_username</code> dan <code>bind_password</code></li>
+</ul>
+
+
+<p>Kita bisa periksa file ini dan sesuaikan bila ada yang kurang tepat.</p>
+
+<h2>Menjalankan Liquibase : Membuat script SQL</h2>
+
+<p>File XML saja tentunya tidak bermanfaat banyak buat kita. Untuk bisa dieksekusi di database production, kita memerlukan script SQL. Untungnya Liquibase punya fitur untuk membuat script SQL. Berikut perintahnya</p>
+
+<p><code>
+java -jar liquibase-core-2.0.5.jar updateSQL
+</code></p>
+
+<p>Outputnya adalah sebagai berikut</p>
+
+<p>```sql
+--  <strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><strong><em>
+--  Update Database Script
+--  </em></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong></strong>
+--  Change Log: changelog.xml
+--  Ran at: 10/1/13 9:18 PM
+--  Against: root@localhost@jdbc:mysql://localhost/aplikasi_v_2_0
+--  Liquibase version: 2.0.5
+--  *********************************************************************</p>
+
+<p>--  Lock Database
+--  Changeset changelog.xml::1380636706862-1::endy (generated)::(Checksum: 3:87288bc453555824cb2e28ddafed9557)
+ALTER TABLE <code>m_customer</code> ADD <code>allowed_addresses</code> VARCHAR(255) NOT NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Add Column', 'EXECUTED', 'changelog.xml', '1380636706862-1', '2.0.5', '3:87288bc453555824cb2e28ddafed9557', 5);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-2::endy (generated)::(Checksum: 3:27e1f8b069e4471400f3deff5034bca9)
+ALTER TABLE <code>m_customer</code> ADD <code>deleted</code> BIT NOT NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Add Column', 'EXECUTED', 'changelog.xml', '1380636706862-2', '2.0.5', '3:27e1f8b069e4471400f3deff5034bca9', 6);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-3::endy (generated)::(Checksum: 3:14c13dec957537886d6035b32fd4c90c)
+ALTER TABLE <code>m_plan</code> ADD <code>deleted</code> BIT NOT NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Add Column', 'EXECUTED', 'changelog.xml', '1380636706862-3', '2.0.5', '3:14c13dec957537886d6035b32fd4c90c', 7);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-4::endy (generated)::(Checksum: 3:b54952b6be5eb80caf649dc75f974f65)
+ALTER TABLE <code>m_provider</code> ADD <code>deleted</code> BIT NOT NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Add Column', 'EXECUTED', 'changelog.xml', '1380636706862-4', '2.0.5', '3:b54952b6be5eb80caf649dc75f974f65', 8);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-5::endy (generated)::(Checksum: 3:6b840975b06488faa9ec0ed1d3e8d123)
+ALTER TABLE <code>m_rate</code> ADD <code>deleted</code> BIT NOT NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Add Column', 'EXECUTED', 'changelog.xml', '1380636706862-5', '2.0.5', '3:6b840975b06488faa9ec0ed1d3e8d123', 9);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-6::endy (generated)::(Checksum: 3:909c459661aacc260b40971e4215a481)
+ALTER TABLE <code>m_routing</code> ADD <code>deleted</code> BIT NOT NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Add Column', 'EXECUTED', 'changelog.xml', '1380636706862-6', '2.0.5', '3:909c459661aacc260b40971e4215a481', 10);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-7::endy (generated)::(Checksum: 3:ac26c24529898f4c1c2133225d3d5ee8)
+ALTER TABLE <code>m_provider</code> MODIFY <code>bind_password</code> VARCHAR(255) NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Drop Not-Null Constraint', 'EXECUTED', 'changelog.xml', '1380636706862-7', '2.0.5', '3:ac26c24529898f4c1c2133225d3d5ee8', 11);</p>
+
+<p>--  Changeset changelog.xml::1380636706862-8::endy (generated)::(Checksum: 3:968da08768e83eaaa863f0a3cafc204e)
+ALTER TABLE <code>m_provider</code> MODIFY <code>bind_username</code> VARCHAR(255) NULL;</p>
+
+<p>INSERT INTO <code>DATABASECHANGELOG</code> (<code>AUTHOR</code>, <code>COMMENTS</code>, <code>DATEEXECUTED</code>, <code>DESCRIPTION</code>, <code>EXECTYPE</code>, <code>FILENAME</code>, <code>ID</code>, <code>LIQUIBASE</code>, <code>MD5SUM</code>, <code>ORDEREXECUTED</code>) VALUES ('endy (generated)', '', NOW(), 'Drop Not-Null Constraint', 'EXECUTED', 'changelog.xml', '1380636706862-8', '2.0.5', '3:968da08768e83eaaa863f0a3cafc204e', 12);</p>
+
+<p>--  Release Database Lock
+```</p>
+
+<p>Output tersebut bisa kita periksa dulu kebenarannya, kemudian kita edit bila perlu, lalu tinggal dijalankan di skema database versi <code>1.0</code> ... voila ... dia akan berubah menjadi database dengan skema versi <code>2.0</code>.</p>
+
+<p>Demikianlah cara mudah untuk melakukan migrasi. Jangan lupa simpan isi file <code>changelog.xml</code> ke dalam version control supaya segala perubahan terhadap skema database tercatat riwayatnya.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mengobati OOM]]></title>
@@ -1090,742 +1363,6 @@ REFERENCES `m_produk` (`id`))
 <p>Pada pesan error di atas, data <code>produk</code> tidak bisa dihapus karena sudah digunakan sebagai relasi foreign key dari <code>penjualan detail</code>.</p>
 
 <p>Demikianlah penjelasan tentang insert, update, dan delete data. Nantikan <a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">bagian selanjutnya</a> yang membahas tentang query select.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Struktur Aplikasi Java dengan Spring dan Maven]]></title>
-    <link href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/"/>
-    <updated>2013-05-28T15:06:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven</id>
-    <content type="html"><![CDATA[<p>Pada <a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">bagian sebelumnya</a> kita telah membahas konfigurasi awal
-dan studi kasus yang akan digunakan untuk menunjukkan fitur Spring JDBC.</p>
-
-<p>Di artikel bagian kedua ini, kita akan membahas tentang kerangka aplikasi yang akan dibuat.
-Sebelum membuat implementasi detail, sangat penting kita buat dulu kerangkanya supaya jelas
-apa saja bagian-bagian dalam aplikasi dan bagaimana mereka saling terhubung.</p>
-
-<p>Artikel ini merupakan bagian kedua dari rangkaian artikel Spring JDBC, yaitu</p>
-
-<ol>
-<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
-<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
-<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
-<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Daftar class yang akan dibuat</h2>
-
-<p>Class yang akan dibuat kita bagi menjadi empat fungsi utama, yaitu:</p>
-
-<ul>
-<li>domain object : class yang mewakili struktur data dalam aplikasi kita</li>
-<li>interface business service : class yang mendefinisikan daftar fitur-fitur dalam aplikasi</li>
-<li>implementasi business service : implementasi dari interface business service. Kalau di interface hanya ada nama method, argumen, dan tipe data kembalian (return value), di sini sudah ada implementasi konkritnya, yaitu bagaimana query database, logika perhitungan, dan sebagainya.</li>
-<li>automated test : memeriksa apakah method kita berjalan benar itu melelahkan. Jadi kita buatkan kode program untuk mengetesnya, sehingga tes yang sama bisa dijalankan berulang-ulang tanpa membuat kita lelah. Lebih lanjut tentang automated test bisa dibaca di <a href="http://software.endy.muhardin.com/java/ruthless-testing-1/">artikel lain yang membahas masalah ini</a>.</li>
-</ul>
-
-
-<h3>Domain Object</h3>
-
-<p>Sesuai dengan skema database, kita akan membuat tiga class, yaitu:</p>
-
-<ul>
-<li>Produk</li>
-<li>Penjualan</li>
-<li>PenjualanDetail</li>
-</ul>
-
-
-<p>Buat yang sudah pernah coding JDBC biasanya akan bertanya,</p>
-
-<p><blockquote><p>Kenapa repot-repot membuat domain class, kemudian harus konversi bolak balik?<br/>Kan bisa saja kita kirim <code>ResultSet</code> ke tampilan, ataupun insert langsung dari array ke <code>PreparedStatement</code>.</p></blockquote></p>
-
-<p>Pertanyaan ini biasanya muncul dari programmer PHP yang terbiasa langsung menampilkan kembalian <code>mysql_fetch_array</code> dalam looping tabel.</p>
-
-<p>Ada beberapa alasan:</p>
-
-<ol>
-<li><p>Sebenarnya bisa saja kita buat aplikasi dengan menggunakan tipe data yang disediakan Java seperti Integer, String, Map, List, dan lainnya. Tapi akibatnya kode program kita menjadi sulit dimengerti. Coba bandingkan, lebih mudah dimengerti <code>public void simpan(Produk p)</code> atau <code>public void simpan(Map p)</code>? Dengan membuat tipe data sesuai istilah yang digunakan di domain kita, maka kode program akan lebih mudah dipahami.</p></li>
-<li><p>Java merupakan bahasa yang <a href="http://en.wikipedia.org/wiki/Strong_and_weak_typing">strongly-typed</a>, dia memeriksa tipe data/class dari tiap variabel. Pada ilustrasi di atas, method <code>public void simpan(Map p)</code> akan menerima apapun data yang kita masukkan ke dalam variabel <code>p</code>. Kalau ada kesalahan dalam nama variabel (misalnya nama ditulis name), baru akan terdeteksi pada waktu aplikasi dijalankan. Berbeda dengan <code>public void simpan(Produk p)</code> yang akan langsung menimbulkan pesan error apabila kita isi dengan tipe data selain <code>Produk</code>. Bug yang ditemukan pada waktu coding (compile-time) akan jauh lebih cepat diperbaiki daripada bug yang baru ditemukan pada waktu aplikasi dijalankan (runtime). Programmer PHP ada benarnya juga. Di bahasa PHP memang domain class ini tidak diperlukan, karena PHP tidak ada pemeriksaan compile-time. Tapi karena kita menggunakan Java, ada baiknya kita manfaatkan pemeriksaan compile-time ini.</p></li>
-<li><p>Memisahkan antara layer database dan layer antarmuka. Apabila ada perubahan skema database, asalkan fitur di tampilan tidak berubah, kita cukup mengubah mapping domain object dan skema database. Tidak perlu mengubah kode program di layer antarmuka.</p></li>
-<li><p>Pustaka siap pakai untuk validasi. Di Java, ada yang namanya <a href="http://jcp.org/en/jsr/detail?id=303">JSR-303</a>, yaitu suatu pustaka yang berguna untuk validasi. Dengan <a href="http://www.mkyong.com/spring-mvc/spring-3-mvc-and-jsr303-valid-example/">menggunakan JSR-303</a> ini kita tidak perlu lagi melakukan pengecekan <code>if(produk.getKode() == null)</code>. Cukup kita gunakan deklarasi <code>@NotNull private String kode;</code> dalam class <code>Produk</code></p></li>
-</ol>
-
-
-<h3>Interface Business Service</h3>
-
-<p>Interface di Java artinya class yang methodnya abstrak semua. Lebih detail tentang method abstrak bisa dibaca di <a href="http://software.endy.muhardin.com/java/interface-abstract/">artikel ini</a>. Ada beberapa alasan kenapa kita harus memisahkan interface dan implementasinya, antara lain:</p>
-
-<ul>
-<li><p>pada waktu <a href="http://software.endy.muhardin.com/java/remoting-dengan-spring/">membuat aplikasi client-server</a>, kita cukup memberikan domain object dan interface ini kepada programmer aplikasi client. Sedangkan implementasinya (yang berisi kode program akses database) tetap di server. Ini akan meringankan ukuran aplikasi client, karena tidak perlu menyertakan implementasi (beserta library pendukungnya yang biasanya besar) yang tidak dia gunakan.</p></li>
-<li><p>kita bebas mengubah strategi implementasi (misalnya ganti database dari MySQL menjadi PostgreSQL) tanpa perlu mengganggu aplikasi client</p></li>
-<li><p>fitur declarative transaction yang dimiliki Spring akan lebih optimal bekerja bila kita memisahkan interface dan implementasi.</p></li>
-</ul>
-
-
-<p>Interface ini cukup satu class saja, yaitu <code>AplikasiPenjualanService</code>.</p>
-
-<h3>Implementasi Business Service</h3>
-
-<p>Ini merupakan implementasi dari interface <code>AplikasiPenjualanService</code>. Pada prakteknya, ada dua variasi yang biasa saya gunakan dalam membuat implementasi, yaitu:</p>
-
-<ul>
-<li>cukup membuat class implementasi service saja</li>
-<li>membuat class implementasi service dan juga class data access object (DAO)</li>
-</ul>
-
-
-<p>Kapan memilih variasi yang mana?</p>
-
-<ul>
-<li>Bila menggunakan framework Spring Data JPA, kita harus pakai DAO karena frameworknya minta seperti itu</li>
-<li>Selain Spring Data JPA, bebas mau pakai yang mana. Pilih saja yang lebih rapi dan mudah maintenance. Untuk aplikasi kecil, class implementasi service saja sudah cukup. Kalau aplikasinya besar, akan lebih mudah membaca 10 class DAO yang masing-masingnya terdiri dari 100 baris kode daripada 1000 baris dalam satu class implementasi service. Walaupun demikian, tidak ada pertimbangan teknis yang signifikan (seperti isu performance dan lainnya) antara pakai DAO atau tidak.</li>
-</ul>
-
-
-<h3>Automated Test</h3>
-
-<p>Ini adalah kode program yang fungsinya mengetes kode program lainnya, dalam hal ini class implementasi dan class DAO. Konsep dasar tentang automated testing dibahas di <a href="http://software.endy.muhardin.com/java/ruthless-testing-1/">artikel ini</a>. Sedangkan untuk pengetesan database dibahas <a href="http://software.endy.muhardin.com/java/ruthless-testing-4/">di sini</a>.</p>
-
-<p>Pada contoh aplikasi ini, kita menghadapi tantangan khusus, yaitu bagaimana caranya menggunakan test case yang sama untuk konfigurasi berbeda. Nantinya aplikasi ini akan dikembangkan untuk mendemonstrasikan akses database menggunakan framework lain seperti Hibernate, Spring Data JPA, dan JDBC polos tanpa framework. Logika pengetesan akan sama persis, yaitu:</p>
-
-<ul>
-<li>test insert</li>
-<li>test update</li>
-<li>test delete</li>
-<li>test cari berdasarkan id</li>
-<li>test ambil semua data dari tabel tertentu</li>
-<li>test cari data dengan kriteria tertentu</li>
-</ul>
-
-
-<p>Tabel database yang diakses sama, sample data sama, bahkan nama method yang dijalankan juga sama. Bedanya hanyalah class implementasi mana yang digunakan dan konfigurasi mana yang dipakai.</p>
-
-<p>Untuk itu, kita akan menggunakan teknik khusus yang disebut <code>abstract junit test case</code>. Secara garis besar, langkahnya seperti ini:</p>
-
-<ol>
-<li>Buat semua method test di superclass. Superclass ini memiliki abstract method, sehingga dengan sendirinya dia juga abstract.</li>
-<li>Untuk mendapatkan class implementasi dan melakukan inisialisasi konfigurasi, gunakan abstract method</li>
-<li>Buat subclass untuk masing-masing implementasi (Spring JDBC, Hibernate, dst) yang hanya berisi implementasi dari abstract method tersebut.</li>
-</ol>
-
-
-<p>Agar lebih jelas, silahkan lihat <a href="https://github.com/endymuhardin/belajar-akses-database-java/blob/spring-jdbc/src/test/java/com/muhardin/endy/training/java/aksesdb/service/ProdukServiceTest.java">superclassnya</a> dan <a href="https://github.com/endymuhardin/belajar-akses-database-java/blob/spring-jdbc/src/test/java/com/muhardin/endy/training/java/aksesdb/service/springjdbc/ProdukServiceSpringJdbcTest.java">subclass untuk Spring JDBC</a>.</p>
-
-<h2>Struktur folder</h2>
-
-<p>Sekian banyak class, bagaimana penempatannya? Silahkan lihat struktur folder berikut:</p>
-
-<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/01-struktur-folder-top-level.png" title="Top Level Folder" ></p>
-
-<p>Tidak ada yang istimewa dari struktur di atas, cuma struktur folder standar Maven. Mari kita lihat source code aplikasi.</p>
-
-<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/02-struktur-folder-main-java.png" title="Source Folder Java" ></p>
-
-<p>Di sini kita bisa lihat class sudah diatur ke dalam package berbeda sesuai fungsinya, yaitu domain, service, dao. Untuk implementasi service dengan Spring JDBC kita buatkan package tersendiri. Selanjutnya kita lihat lokasi file konfigurasi.</p>
-
-<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/03-struktur-folder-main-resources.png" title="Source Folder Konfigurasi" ></p>
-
-<p>File konfigurasi ditaruh dalam package. Sebetulnya ditaruh di top level juga boleh, ini hanya sekedar kebiasaan saja.</p>
-
-<p><img src="/images/uploads/2013/05/struktur-aplikasi-spring-maven/04-struktur-folder-test.png" title="Source Test Folder" ></p>
-
-<p>Lokasi penempatan test class bisa dilihat di atas. Abstract class yang saya ceritakan di atas terlihat di package <code>com.muhardin.endy.training.java.aksesdb.service</code>, sedangkan implementasi konfigurasinya ada di subpackage <code>springjdbc</code> di bawahnya.</p>
-
-<p>Setelah kita melihat penempatan file dan folder, mari kita lihat kerangka kode program di masing-masing class/file. Supaya bisa mendapatkan <em>big-picture</em>, kita akan lihat kerangka class dan method saja. Implementasinya menyusul pada bagian selanjutnya.</p>
-
-<h1>Domain Object</h1>
-
-<h2>Class Produk</h2>
-
-<p>Class ini merupakan padanan tabel m_produk di database.
-Dia memiliki beberapa property sesuai dengan kolom di database.
-Berikut penjelasannya</p>
-
-<table>
-<thead>
-<tr>
-<th>Nama Property </th>
-<th> Nama Kolom Database </th>
-<th> Tipe Data Java </th>
-<th> Tipe Data MySQL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id            </td>
-<td> id                  </td>
-<td> Integer        </td>
-<td> integer</td>
-</tr>
-<tr>
-<td>kode          </td>
-<td> kode                </td>
-<td> String         </td>
-<td> varchar</td>
-</tr>
-<tr>
-<td>nama          </td>
-<td> nama                </td>
-<td> String         </td>
-<td> varchar</td>
-</tr>
-<tr>
-<td>harga         </td>
-<td> harga               </td>
-<td> BigDecimal     </td>
-<td> decimal(19,2)</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Berikut kode program untuk class Produk.</p>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.domain;</p>
-
-<p>import java.math.BigDecimal;</p>
-
-<p>public class Produk {</p>
-
-<pre><code>private Integer id;
-private String kode;
-private String nama;
-private BigDecimal harga;
-
-// getter dan setter generate dari IDE
-</code></pre>
-
-<p>}
-```</p>
-
-<h2>Class Penjualan</h2>
-
-<p>Mapping Java ke SQL</p>
-
-<table>
-<thead>
-<tr>
-<th>Nama Property  </th>
-<th> Nama Kolom Database </th>
-<th> Tipe Data Java </th>
-<th> Tipe Data MySQL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id             </td>
-<td> id                  </td>
-<td> Integer        </td>
-<td> integer</td>
-</tr>
-<tr>
-<td>waktuTransaksi </td>
-<td> waktu_transaksi     </td>
-<td> Date           </td>
-<td> datetime</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Kode program class Penjualan</p>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.domain;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>public class Penjualan {</p>
-
-<pre><code>private Integer id;
-private Date waktuTransaksi;
-private List&lt;PenjualanDetail&gt; daftarPenjualanDetail 
-    = new ArrayList&lt;PenjualanDetail&gt;();
-
-// getter dan setter generate dari IDE
-</code></pre>
-
-<p>}
-```</p>
-
-<h2>Class Penjualan Detail</h2>
-
-<p>Mapping Java ke SQL</p>
-
-<table>
-<thead>
-<tr>
-<th>Nama Property  </th>
-<th> Nama Kolom Database </th>
-<th> Tipe Data Java </th>
-<th> Tipe Data MySQL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>id             </td>
-<td> id                  </td>
-<td> Integer        </td>
-<td> integer</td>
-</tr>
-<tr>
-<td>penjualan      </td>
-<td> id_penjualan        </td>
-<td> Penjualan      </td>
-<td> integer foreign key</td>
-</tr>
-<tr>
-<td>produk         </td>
-<td> id_produk           </td>
-<td> Produk         </td>
-<td> integer foreign key</td>
-</tr>
-<tr>
-<td>jumlah         </td>
-<td> jumlah              </td>
-<td> Integer        </td>
-<td> integer</td>
-</tr>
-<tr>
-<td>harga          </td>
-<td> harga               </td>
-<td> BigDecimal     </td>
-<td> decimal(19,2)</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Kode program class PenjualanDetail</p>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.domain;</p>
-
-<p>import java.math.BigDecimal;</p>
-
-<p>public class PenjualanDetail {</p>
-
-<pre><code>private Integer id;
-private Penjualan penjualan;
-private Produk produk;
-private BigDecimal harga;
-private Integer jumlah;
-
-// getter dan setter generate dari IDE
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Yang perlu diperhatikan di sini adalah perbedaan cara perlakuan relasi antara Java dan database.
-Di Java, kita perlu mendefinisikan relasi di dua tempat, yaitu variabel <code>daftarPenjualanDetail</code> di class <code>Penjualan</code>
-dan variabel <code>penjualan</code> di class <code>PenjualanDetail</code>. Sedangkan di database, relasi ini cukup didefinisikan melalui foreign key
-<code>id_penjualan</code> di tabel <code>t_penjualan_detail</code>.</p>
-
-<p>Perbedaan lain, di database relasi ini cukup diwakili satu nilai saja, yaitu nilai foreign key.
-Sedangkan di Java diwakili satu class penuh (<code>Produk</code> atau <code>Penjualan</code>) yang di dalamnya memuat banyak nilai.</p>
-
-<p>Untuk menjembatani perbedaan ini, kita perlu membuat mapper untuk mengubah data dari database menjadi object Java dan sebaliknya. Contoh kode program untuk mapper ini akan dibahas pada bagian selanjutnya.</p>
-
-<h1>Interface Business Service</h1>
-
-<p>Ini adalah daftar fitur yang ada di aplikasi, didefinisikan berupa class/interface dan method.</p>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.service;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>public interface PenjualanService {</p>
-
-<pre><code>// service berkaitan dengan produk
-void simpan(Produk p);
-Produk cariProdukById(Integer id);
-Produk cariProdukByKode(String kode);
-Long hitungSemuaProduk();
-List&lt;Produk&gt; cariSemuaProduk(Integer halaman, Integer baris);
-Long hitungProdukByNama(String nama);
-List&lt;Produk&gt; cariProdukByNama(String nama, Integer halaman, Integer baris);
-
-// service yang berkaitan dengan transaksi
-void simpan(Penjualan p);
-Penjualan cariPenjualanById(Integer id);
-Long hitungPenjualanByPeriode(Date mulai, Date sampai);
-List&lt;Penjualan&gt; cariPenjualanByPeriode(Date mulai, Date sampai, Integer halaman, Integer baris);
-Long hitungPenjualanDetailByProdukDanPeriode(Produk p, Date mulai, Date sampai);
-List&lt;PenjualanDetail&gt; cariPenjualanDetailByProdukDanPeriode(Produk p, Date mulai, Date sampai, Integer halaman, Integer baris);
-</code></pre>
-
-<p>}
-```</p>
-
-<h1>Implementasi Business Service</h1>
-
-<p>Implementasi dari interface di atas kita bagi menjadi dua kategori, yaitu class implementasi service yang nantinya akan memanggil class DAO. Pertimbangan dan alasan mengapa begini sudah dijelaskan di atas.</p>
-
-<h2>Class ServiceSpringJdbc</h2>
-
-<p>Class ini sebetulnya hanya memanggil class DAO saja, jadi baiklah kita tampilkan seluruh isinya di sini.</p>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
-
-<p>// import statement generate dari IDE</p>
-
-<p>@Service @Transactional
-public class PenjualanServiceSpringJdbc implements PenjualanService{</p>
-
-<pre><code>@Autowired private ProdukDao produkDao;
-@Autowired private PenjualanDao penjualanDao;
-@Autowired private PenjualanDetailDao penjualanDetailDao;
-
-@Override
-public void simpan(Produk p) {
-    produkDao.simpan(p);
-}
-
-@Override
-public Produk cariProdukById(Integer id) {
-    return produkDao.cariById(id);
-}
-
-@Override
-public Produk cariProdukByKode(String kode) {
-    return produkDao.cariByKode(kode);
-}
-
-@Override
-public Long hitungSemuaProduk() {
-    return produkDao.hitungSemua();
-}
-
-@Override
-public List&lt;Produk&gt; cariSemuaProduk(Integer halaman, Integer baris) {
-    return produkDao.cariSemua(halaman, baris);
-}
-
-@Override
-public Long hitungProdukByNama(String nama) {
-    return produkDao.hitungByNama(nama);
-}
-
-@Override
-public List&lt;Produk&gt; cariProdukByNama(String nama, Integer halaman, Integer baris) {
-    return produkDao.cariByNama(nama, halaman, baris);
-}
-
-@Override
-public void simpan(Penjualan p) {
-    penjualanDao.simpan(p);
-}
-
-@Override
-public Penjualan cariPenjualanById(Integer id) {
-    return penjualanDao.cariById(id);
-}
-
-@Override
-public Long hitungPenjualanByPeriode(Date mulai, Date sampai) {
-    return penjualanDao.hitungByPeriode(mulai, sampai);
-}
-
-@Override
-public List&lt;Penjualan&gt; cariPenjualanByPeriode(Date mulai, Date sampai, 
-        Integer halaman, Integer baris) {
-    return penjualanDao.cariByPeriode(mulai, sampai, halaman, baris);
-}
-
-@Override
-public Long hitungPenjualanDetailByProdukDanPeriode(Produk p, 
-        Date mulai, Date sampai) {
-    return penjualanDetailDao.hitungByProdukDanPeriode(p, mulai, sampai);
-}
-
-@Override
-public List&lt;PenjualanDetail&gt; cariPenjualanDetailByProdukDanPeriode(Produk p, 
-        Date mulai, Date sampai, Integer halaman, Integer baris) {
-    return penjualanDetailDao.cariByProdukDanPeriode(p, mulai, sampai, halaman, baris);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h2>Class DAO</h2>
-
-<p>Class DAO akan kita bahas secara mendetail di bagian selanjutnya. Pada kesempatan ini kita hanya tampilkan deklarasi class dan method saja supaya jelas mana method yang dipanggil dari implementasi service di atas.</p>
-
-<h3>ProdukDAO</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.dao.springjdbc;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>@Repository
-public class ProdukDao {</p>
-
-<pre><code>public void simpan(Produk p) {}
-
-public Produk cariById(Integer id) {}
-
-public Produk cariByKode(String kode) {}
-
-public Long hitungSemua() {}
-
-public List&lt;Produk&gt; cariSemua(Integer halaman, Integer baris) {}
-
-public Long hitungByNama(String nama) {}
-
-public List&lt;Produk&gt; cariByNama(String nama, Integer halaman, Integer baris) {}
-
-private class ResultSetJadiProduk implements RowMapper&lt;Produk&gt; {
-    @Override
-    public Produk mapRow(ResultSet rs, int i) throws SQLException {}
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>PenjualanDao</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.dao.springjdbc;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>@Repository
-public class PenjualanDao {</p>
-
-<pre><code>public void simpan(Penjualan p) {}
-
-public Penjualan cariById(Integer id) {}
-
-public Long hitungByPeriode(Date mulai, Date sampai) {}
-
-public List&lt;Penjualan&gt; cariByPeriode(Date mulai, Date sampai, Integer halaman, Integer baris) {}
-
-
-private class ResultSetJadiPenjualan implements RowMapper&lt;Penjualan&gt; {
-    @Override
-    public Penjualan mapRow(ResultSet rs, int i) throws SQLException {}
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>PenjualanDetailDao</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.dao.springjdbc;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>@Repository
-public class PenjualanDetailDao {</p>
-
-<pre><code>public void simpan(final PenjualanDetail p) {}
-
-public List&lt;PenjualanDetail&gt; cariByPenjualan(Penjualan p) {}
-
-public Long hitungByProdukDanPeriode(Produk p, Date mulai, Date sampai) {}
-
-public List&lt;PenjualanDetail&gt; cariByProdukDanPeriode(Produk p, Date mulai, Date sampai, Integer halaman, Integer baris) {}
-
-
-private class ResultSetJadiPenjualanDetail implements RowMapper&lt;PenjualanDetail&gt; {
-    @Override
-    public PenjualanDetail mapRow(ResultSet rs, int i) throws SQLException {}
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h1>Automated Test</h1>
-
-<p>Seperti dijelaskan di atas, automated test kita bagi menjadi dua kategori, yaitu abstract class yang menampung semua logika pengetesan, dan concrete class yang menyediakan konfigurasi.</p>
-
-<h2>Abstract Base Class</h2>
-
-<h3>ProdukServiceTest</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.service;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>public abstract class ProdukServiceTest {</p>
-
-<pre><code>public abstract PenjualanService getPenjualanService();
-public abstract DataSource getDataSource();
-
-@Before
-public void bersihkanDataTest() throws Exception {}
-
-@Test
-public void testSimpanProduk() {}
-
-@Test
-public void testCariProdukById() {}
-
-@Test
-public void testCariProdukByKode() {}
-
-@Test
-public void testHitungSemuaProduk() {}
-
-@Test
-public void testCariSemuaProduk() {}
-
-@Test
-public void testHitungProdukByNama() {}
-
-@Test
-public void testCariProdukByNama() {}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>PenjualanServiceTest</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.service;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>public abstract class PenjualanServiceTest {</p>
-
-<pre><code>public abstract PenjualanService getPenjualanService();
-public abstract DataSource getDataSource();
-
-@Before
-public void bersihkanDataTest() throws Exception {}
-
-@Test
-public void testSimpanPenjualan() throws Exception {}
-
-@Test
-public void testCariPenjualanById(){}
-
-@Test
-public void testHitungPenjualanByPeriode(){}
-
-@Test
-public void testCariPenjualanByPeriode(){}
-
-@Test
-public void testHitungPenjualanDetailByProdukDanPeriode(){}
-
-@Test
-public void testCariPenjualanDetailByProdukDanPeriode(){}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Seperti kita lihat di atas, kedua class tersebut memiliki dua abstract method, yaitu:</p>
-
-<ul>
-<li><code>public abstract PenjualanService getPenjualanService()</code></li>
-<li><code>public abstract DataSource getDataSource();</code></li>
-</ul>
-
-
-<p>Kedua object <code>PenjualanService</code> dan <code>DataSource</code> didapatkan dari konfigurasi Spring.
-Konfigurasi Spring dibuat berdasarkan teknologi yang digunakan.
-Konfigurasi Spring JDBC berbeda dengan konfigurasi Hibernate ataupun Spring Data JPA.</p>
-
-<p>Dengan teknik ini, bila di kemudian hari kita membuat implementasi dengan Hibernate atau Spring Data JPA,
-kita tidak perlu lagi copy-paste test class, cukup buat subclass yang menyediakan kedua object tersebut.</p>
-
-<p>Berikut adalah subclassnya</p>
-
-<h2>Implementasi Test Business Service</h2>
-
-<p>Karena hanya beberapa baris dan tidak butuh banyak penjelasan, kita tampilkan di sini full source code, bukan hanya kerangkanya saja.</p>
-
-<h3>ProdukServiceSpringJdbcTest</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath*:com/muhardin/**/spring-jdbc-ctx.xml")
-public class ProdukServiceSpringJdbcTest extends ProdukServiceTest {</p>
-
-<pre><code>@Autowired private DataSource dataSource;
-@Autowired private PenjualanService penjualanService;
-
-@Override
-public PenjualanService getPenjualanService() {
-    return penjualanService;
-}
-
-@Override
-public DataSource getDataSource() {
-    return dataSource;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>PenjualanServiceSpringJdbcTest</h3>
-
-<p>```java
-package com.muhardin.endy.training.java.aksesdb.service.springjdbc;</p>
-
-<p>// import generate dari IDE</p>
-
-<p>@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath*:com/muhardin/**/spring-jdbc-ctx.xml")
-public class PenjualanServiceSpringJdbcTest extends PenjualanServiceTest {</p>
-
-<pre><code>@Autowired private DataSource dataSource;
-@Autowired private PenjualanService penjualanService;
-
-@Override
-public PenjualanService getPenjualanService() {
-    return penjualanService;
-}
-
-@Override
-public DataSource getDataSource() {
-    return dataSource;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Seperti kita lihat di atas, <code>dataSource</code> dan <code>penjualanService</code> disediakan melalui Dependency Injection.</p>
-
-<p>Cara kerjanya sebagai berikut:</p>
-
-<ol>
-<li>Kita jalankan JUnit melalui IDE atau Maven. IDE atau Maven akan membaca semua file dalam folder <code>src/test/java</code> dan memproses semua class yang namanya berakhiran <code>Test</code> seperti <code>PenjualanServiceSpringJdbcTest</code>. IDE/Maven juga memproses <code>PenjualanServiceTest</code>, tapi karena classnya abstract maka tidak diproses lebih lanjut.</li>
-<li>JUnit melihat annotation <code>@RunWith</code>, jadi dia tidak menjalankan sendiri melainkan menyuruh <code>SpringJUnit4ClassRunner</code> untuk menjalankan test</li>
-<li><code>SpringJUnit4ClassRunner</code> membaca annotation <code>@ContextConfiguration</code>, lalu menggunakan nilai di dalamnya untuk melakukan inisialisasi <code>ApplicationContext</code>, kemudian mengisi variabel yang ditandai dengan <code>@Autowired</code></li>
-<li>Karena <code>PenjualanServiceSpringJdbcTest</code> merupakan subclass dari <code>PenjualanServiceTest</code>, maka dia akan mewarisi semua method <code>@Test</code> yang dimiliki <code>PenjualanServiceTest</code>. Method <code>@Test</code> ini akan dijalankan oleh IDE/Maven.</li>
-<li>Pada waktu method <code>@Test</code> dijalankan, bila perlu object <code>PenjualanService</code>, maka akan didapat dengan cara memanggil method <code>getPenjualanService</code>. Karena methodnya sudah dibuatkan implementasinya (tidak abstract lagi) dan sudah ada isinya, maka method <code>@Test</code> dapat bekerja dengan baik.</li>
-</ol>
-
-
-<p>Demikianlah bagian kedua dari tutorial mengakses database menggunakan Spring JDBC. Pada bagian ini kita sudah melihat bagaimana cara pengaturan file/folder dan interaksi antar class/method. Di bagian selanjutnya kita akan lihat <a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">bagaimana cara menjalankan perintah SQL</a>.</p>
 ]]></content>
   </entry>
   

@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Migrasi Database dengan Liquibase - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Salah satu kepuasan kita sebagai programmer adalah pada waktu aplikasi yang kita buat digunakan banyak user dan menghasilkan banyak manfaat bagi &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/migrasi-database-dengan-liquibase/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Migrasi Database Dengan Liquibase</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-01T21:22:00+07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Salah satu kepuasan kita sebagai programmer adalah pada waktu aplikasi yang kita buat digunakan banyak user dan menghasilkan banyak manfaat bagi mereka. Sebagai konsekuensinya, akan banyak permintaan tambahan dari user untuk menambah fitur ataupun mengubah fitur yang sudah ada supaya makin nyaman digunakan.</p>
+
+<p>Seringkali terjadi, perubahan yang diminta ini akan menyebabkan berubahnya skema database. Ini merupakan hal yang wajar dan umum terjadi, sehingga kita perlu menyiapkan mental untuk menerima kondisi ini sebagai sesuatu yang lumrah dan tidak mengerikan.</p>
+
+<p>Tools yang sering saya gunakan untuk mengurus perubahan (evolusi) skema database adalah <a href="http://www.liquibase.org">Liquibase</a>. Pada <a href="http://software.endy.muhardin.com/java/membuat-changelog-liquibase/">artikel terdahulu</a>, kita sudah membahas cara menggunakan Liquibase untuk mengkonversi skema database menjadi XML supaya bisa dikelola di version control. Kali ini, kita akan menggunakan Liquibase untuk melakukan migrasi dari skema database antar versi aplikasi.</p>
+
+<!--more-->
+
+
+<p>Studi kasusnya sebagai berikut. Misalnya kita punya aplikasi versi <code>1.0</code> yang sudah berjalan di production (live) dan digunakan user. Aplikasi versi <code>1.0</code> ini kita kembangkan selama beberapa minggu &#8211;diberikan tambahan fitur, bug diperbaiki, tampilan diperindah, dan berbagai peningkatan lainnya&#8211; menjadi versi <code>2.0</code>. Antar kedua versi ini terjadi perubahan skema database. Kita ingin membuat script SQL untuk mengkonversi (migrasi) skema database versi <code>1.0</code> menjadi skema versi <code>2.0</code>. Untuk keperluan itu, kita gunakan Liquibase.</p>
+
+<p>Liquibase memiliki kemampuan untuk membandingkan (diff) dua database, kemudian membuatkan file untuk migrasi dari skema yang satu (versi <code>1.0</code>) menjadi skema lainnya (versi <code>2.0</code>).</p>
+
+<h2>Menyiapkan kedua database</h2>
+
+<p>Langkah pertama adalah menyiapkan kedua versi database. Biasanya saya membuat dump dari database production (skema versi <code>1.0</code>), kemudian di-restore di tempat lain (misalnya di laptop). Kemudian saya juga menyiapkan database development yang menggunakan skema versi <code>2.0</code>.</p>
+
+<p>Agar lebih jelas, kita namakan saja database yang diambil dari production dengan nama <code>aplikasi_v_1_0</code> dan database baru dengan nama <code>aplikasi_v_2_0</code>. Berikut adalah informasi koneksi JDBC untuk kedua database</p>
+
+<h3>aplikasi_v_1_0</h3>
+
+<ul>
+<li>jdbc.driver = <code>com.mysql.jdbc.Driver</code></li>
+<li>jdbc.url = <code>jdbc:mysql://localhost/aplikasi_v_1_0</code></li>
+<li>jdbc.username = <code>root</code></li>
+<li>jdbc.password = <code>coba</code></li>
+</ul>
+
+
+<h3>aplikasi_v_2_0</h3>
+
+<ul>
+<li>jdbc.driver = <code>com.mysql.jdbc.Driver</code></li>
+<li>jdbc.url = <code>jdbc:mysql://localhost/aplikasi_v_2_0</code></li>
+<li>jdbc.username = <code>root</code></li>
+<li>jdbc.password = <code>coba</code></li>
+</ul>
+
+
+<h2>Konfigurasi Liquibase</h2>
+
+<p>Seperti di artikel terdahulu, kita membutuhkan tiga file yang kita letakkan di folder yang sama, yaitu:</p>
+
+<ul>
+<li><code>mysql-connector-java-5.1.25.jar</code> : driver database</li>
+<li><code>liquibase-core-2.0.5.jar</code> : aplikasi liquibase</li>
+<li><code>liquibase.properties</code> : konfigurasi liquibase</li>
+</ul>
+
+
+<p>Sesuaikan kedua file jar dengan versi yang terbaru.</p>
+
+<p>File <code>liquibase.properties</code> berisi konfigurasi yang dibutuhkan oleh liquibase. Berikut isinya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>driver: com.mysql.jdbc.Driver
+</span><span class='line'>classpath: mysql-connector-java-5.1.25.jar
+</span><span class='line'>url: jdbc:mysql://localhost/aplikasi_v_2_0
+</span><span class='line'>username: root
+</span><span class='line'>password: admin
+</span><span class='line'>referenceUrl: jdbc:mysql://localhost/aplikasi_v_1_0
+</span><span class='line'>referenceUsername: root
+</span><span class='line'>referencePassword: admin
+</span><span class='line'>changeLogFile: changelog.xml</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut penjelasan dari isi file:</p>
+
+<ul>
+<li>driver: JDBC driver sesuai merek database yang kita gunakan</li>
+<li>classpath: lokasi file JDBC driver</li>
+<li>url: JDBC url untuk database tujuan (versi <code>2.0</code>)</li>
+<li>username: username untuk database tujuan (versi <code>2.0</code>)</li>
+<li>password: password untuk database tujuan (versi <code>2.0</code>)</li>
+<li>referenceUrl: JDBC url untuk database asal (versi <code>1.0</code>)</li>
+<li>referenceUsername: username untuk database asal (versi <code>1.0</code>)</li>
+<li>referencePassword: password untuk database asal (versi <code>1.0</code>)</li>
+<li>changeLogFile: nama file tujuan untuk menulis hasil perbandingan kedua database</li>
+</ul>
+
+
+<h2>Menjalankan Liquibase : Membuat file changelog</h2>
+
+<p>Pertama, kita buat dulu file changelog sesuai format Liquibase. Commandnya adalah sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>java -jar liquibase-core-2.0.5.jar diffChangeLog</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut output dari perintah di atas</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading tables for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading views for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading foreign keys for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading primary keys for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading columns for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading unique constraints for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading indexes for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Sequences not supported for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_1_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading tables for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading views for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading foreign keys for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading primary keys for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading columns for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading unique constraints for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Reading indexes for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: Sequences not supported for
+</span><span class='line'> root@localhost @ jdbc:mysql://localhost/aplikasi_v_2_0 ...
+</span><span class='line'>INFO 10/1/13 9:11 PM:liquibase: changelog.xml does not exist, creating
+</span><span class='line'>Liquibase 'diffChangeLog' Successful</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah ini akan menghasilkan file <code>changelog.xml</code> di folder tempat kita berada. File ini berisi perbedaan antar skema versi 1.0 dengan skema versi 2.0. Isinya seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;databaseChangeLog</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.liquibase.org/xml/ns/dbchangelog&quot;</span> <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-1&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addColumn</span> <span class="na">tableName=</span><span class="s">&quot;m_customer&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;allowed_addresses&quot;</span> <span class="na">type=</span><span class="s">&quot;VARCHAR(255)&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/addColumn&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-2&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addColumn</span> <span class="na">tableName=</span><span class="s">&quot;m_customer&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;deleted&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/addColumn&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-3&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addColumn</span> <span class="na">tableName=</span><span class="s">&quot;m_plan&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;deleted&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/addColumn&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-4&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addColumn</span> <span class="na">tableName=</span><span class="s">&quot;m_provider&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;deleted&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/addColumn&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-5&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addColumn</span> <span class="na">tableName=</span><span class="s">&quot;m_rate&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;deleted&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/addColumn&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-6&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;addColumn</span> <span class="na">tableName=</span><span class="s">&quot;m_routing&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;column</span> <span class="na">name=</span><span class="s">&quot;deleted&quot;</span> <span class="na">type=</span><span class="s">&quot;BIT&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;constraints</span> <span class="na">nullable=</span><span class="s">&quot;false&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/column&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/addColumn&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-7&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;dropNotNullConstraint</span> <span class="na">columnDataType=</span><span class="s">&quot;VARCHAR(255)&quot;</span> <span class="na">columnName=</span><span class="s">&quot;bind_password&quot;</span> <span class="na">tableName=</span><span class="s">&quot;m_provider&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;changeSet</span> <span class="na">author=</span><span class="s">&quot;endy (generated)&quot;</span> <span class="na">id=</span><span class="s">&quot;1380636706862-8&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;dropNotNullConstraint</span> <span class="na">columnDataType=</span><span class="s">&quot;VARCHAR(255)&quot;</span> <span class="na">columnName=</span><span class="s">&quot;bind_username&quot;</span> <span class="na">tableName=</span><span class="s">&quot;m_provider&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/changeSet&gt;</span>
+</span><span class='line'><span class="nt">&lt;/databaseChangeLog&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita lihat di atas bahwa antara skema versi <code>1.0</code> dan versi <code>2.0</code> terjadi perubahan sebagai berikut:</p>
+
+<ul>
+<li>penambahan kolom <code>allowed_address</code> di tabel <code>m_customer</code></li>
+<li>penambahan kolom <code>deleted</code> di berbagai tabel lainnya</li>
+<li>menghilangkan constraint <code>NOT NULL</code> di kolom <code>bind_username</code> dan <code>bind_password</code></li>
+</ul>
+
+
+<p>Kita bisa periksa file ini dan sesuaikan bila ada yang kurang tepat.</p>
+
+<h2>Menjalankan Liquibase : Membuat script SQL</h2>
+
+<p>File XML saja tentunya tidak bermanfaat banyak buat kita. Untuk bisa dieksekusi di database production, kita memerlukan script SQL. Untungnya Liquibase punya fitur untuk membuat script SQL. Berikut perintahnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>java -jar liquibase-core-2.0.5.jar updateSQL
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Outputnya adalah sebagai berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="c1">--  *********************************************************************</span>
+</span><span class='line'><span class="c1">--  Update Database Script</span>
+</span><span class='line'><span class="c1">--  *********************************************************************</span>
+</span><span class='line'><span class="c1">--  Change Log: changelog.xml</span>
+</span><span class='line'><span class="c1">--  Ran at: 10/1/13 9:18 PM</span>
+</span><span class='line'><span class="c1">--  Against: root@localhost@jdbc:mysql://localhost/aplikasi_v_2_0</span>
+</span><span class='line'><span class="c1">--  Liquibase version: 2.0.5</span>
+</span><span class='line'><span class="c1">--  *********************************************************************</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Lock Database</span>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-1::endy (generated)::(Checksum: 3:87288bc453555824cb2e28ddafed9557)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_customer</span><span class="o">`</span> <span class="k">ADD</span> <span class="o">`</span><span class="n">allowed_addresses</span><span class="o">`</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Add Column&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-1&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:87288bc453555824cb2e28ddafed9557&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-2::endy (generated)::(Checksum: 3:27e1f8b069e4471400f3deff5034bca9)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_customer</span><span class="o">`</span> <span class="k">ADD</span> <span class="o">`</span><span class="n">deleted</span><span class="o">`</span> <span class="nb">BIT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Add Column&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-2&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:27e1f8b069e4471400f3deff5034bca9&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-3::endy (generated)::(Checksum: 3:14c13dec957537886d6035b32fd4c90c)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_plan</span><span class="o">`</span> <span class="k">ADD</span> <span class="o">`</span><span class="n">deleted</span><span class="o">`</span> <span class="nb">BIT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Add Column&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-3&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:14c13dec957537886d6035b32fd4c90c&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-4::endy (generated)::(Checksum: 3:b54952b6be5eb80caf649dc75f974f65)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_provider</span><span class="o">`</span> <span class="k">ADD</span> <span class="o">`</span><span class="n">deleted</span><span class="o">`</span> <span class="nb">BIT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Add Column&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-4&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:b54952b6be5eb80caf649dc75f974f65&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-5::endy (generated)::(Checksum: 3:6b840975b06488faa9ec0ed1d3e8d123)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_rate</span><span class="o">`</span> <span class="k">ADD</span> <span class="o">`</span><span class="n">deleted</span><span class="o">`</span> <span class="nb">BIT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Add Column&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-5&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:6b840975b06488faa9ec0ed1d3e8d123&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-6::endy (generated)::(Checksum: 3:909c459661aacc260b40971e4215a481)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_routing</span><span class="o">`</span> <span class="k">ADD</span> <span class="o">`</span><span class="n">deleted</span><span class="o">`</span> <span class="nb">BIT</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Add Column&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-6&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:909c459661aacc260b40971e4215a481&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-7::endy (generated)::(Checksum: 3:ac26c24529898f4c1c2133225d3d5ee8)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_provider</span><span class="o">`</span> <span class="k">MODIFY</span> <span class="o">`</span><span class="n">bind_password</span><span class="o">`</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Drop Not-Null Constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-7&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:ac26c24529898f4c1c2133225d3d5ee8&#39;</span><span class="p">,</span> <span class="mi">11</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Changeset changelog.xml::1380636706862-8::endy (generated)::(Checksum: 3:968da08768e83eaaa863f0a3cafc204e)</span>
+</span><span class='line'><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">m_provider</span><span class="o">`</span> <span class="k">MODIFY</span> <span class="o">`</span><span class="n">bind_username</span><span class="o">`</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span> <span class="k">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">INSERT</span> <span class="k">INTO</span> <span class="o">`</span><span class="n">DATABASECHANGELOG</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">AUTHOR</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">COMMENTS</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DATEEXECUTED</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">DESCRIPTION</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">EXECTYPE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">FILENAME</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ID</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">LIQUIBASE</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">MD5SUM</span><span class="o">`</span><span class="p">,</span> <span class="o">`</span><span class="n">ORDEREXECUTED</span><span class="o">`</span><span class="p">)</span> <span class="k">VALUES</span> <span class="p">(</span><span class="s1">&#39;endy (generated)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">NOW</span><span class="p">(),</span> <span class="s1">&#39;Drop Not-Null Constraint&#39;</span><span class="p">,</span> <span class="s1">&#39;EXECUTED&#39;</span><span class="p">,</span> <span class="s1">&#39;changelog.xml&#39;</span><span class="p">,</span> <span class="s1">&#39;1380636706862-8&#39;</span><span class="p">,</span> <span class="s1">&#39;2.0.5&#39;</span><span class="p">,</span> <span class="s1">&#39;3:968da08768e83eaaa863f0a3cafc204e&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">--  Release Database Lock</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Output tersebut bisa kita periksa dulu kebenarannya, kemudian kita edit bila perlu, lalu tinggal dijalankan di skema database versi <code>1.0</code> &#8230; voila &#8230; dia akan berubah menjadi database dengan skema versi <code>2.0</code>.</p>
+
+<p>Demikianlah cara mudah untuk melakukan migrasi. Jangan lupa simpan isi file <code>changelog.xml</code> ke dalam version control supaya segala perubahan terhadap skema database tercatat riwayatnya.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-01T21:22:00+07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/migrasi-database-dengan-liquibase/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/migrasi-database-dengan-liquibase/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/life/lan-na-zha/" title="Previous Post: Lan Na Zha">&laquo; Lan Na Zha</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/migrasi-database-dengan-liquibase/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+
+<section>
+
+Bila artikel di website ini membantu meningkatkan penghasilan Anda, 
+jangan ragu untuk memberikan donasi :)
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</form>
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/migrasi-database-dengan-liquibase/">Migrasi Database dengan Liquibase</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/lan-na-zha/">Lan Na Zha</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/otodidak/">Otodidak</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/membeli-sertifikat-ssl/">Membeli Sertifikat SSL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mengobati-oom/">Mengobati OOM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mengetes-akses-database/">Mengetes Akses Database</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
