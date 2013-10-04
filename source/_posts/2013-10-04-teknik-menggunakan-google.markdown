@@ -25,7 +25,7 @@ Nah, begini caranya menggunakan Google.
 
 Seringkali terjadi, kita mengikuti diskusi di berbagai forum dan kemudian menemui istilah-istilah aneh yang baru kita dengar. Ini lazim terjadi kalau kita mengikuti komunitas yang baru, misalnya programmer ikut komunitas fotografi.
 
-{% img /images/uploads/2013/10/teknik-menggunakan-google/php-wtf.png PHP??? WTF!!! %}
+{% img /images/uploads/2013/10/teknik-menggunakan-google/php-wtf-2.png PHP??? WTF!!! %}
 
 
 Karena penasaran buru-buru pengen tau, secara refleks kita akan klik kotak komentar, lalu mengetik disana
