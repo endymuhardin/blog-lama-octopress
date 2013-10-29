@@ -146,9 +146,11 @@ Proses ini dinamakan DNAT (Destination NAT).</p>
 <p>Kalau di Linux, ini dilakukan dengan perintah iptables.
 Contohnya adalah sebagai berikut:</p>
 
-<p><code>iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT</code></p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT</span></code></pre></td></tr></table></div></figure>
 
-<p>Setelah diDNAT, paketnya menjadi seperti ini:</p>
+
+<p>Setelah di<code>DNAT</code>, paketnya menjadi seperti ini:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -159,7 +161,7 @@ Contohnya adalah sebagai berikut:</p>
 
 
 <p>Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut,
-karena dia kenal 192.168.0.1 itu mesin yang mana.</p>
+karena dia kenal <code>192.168.0.1</code> itu mesin yang mana.</p>
 
 <p>Akhirnya paket sampai di tujuan.</p>
 
@@ -187,10 +189,13 @@ Jadi dia harus membungkus lagi dengan amplop lagi, kali ini yang diganti adalah 
 IP dalam diganti dengan IP public.
 Proses ini dinamakan SNAT (Source NAT)</p>
 
-<p>Contohnya adalah sebagai berikut:
-<code>iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT</code></p>
+<p>Contohnya adalah sebagai berikut:</p>
 
-<p>Setelah diSNAT paketnya menjadi seperti ini:</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah di<code>SNAT</code> paketnya menjadi seperti ini:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -210,17 +215,35 @@ Misalnya kalau kita pakai dialup connection.</p>
 <p>Kalau kita nekat pakai SNAT, nanti akan repot, karena harus update rule setiap dial ke internet.</p>
 
 <p>Jadi, kita gunakan masquerade.
-Berikut perintahnya:
-<code>iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE</code></p>
+Berikut perintahnya:</p>
 
-<p>Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan cara :
-<code>cat 1 &gt; /proc/sys/net/ipv4/ip_forward</code></p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan perintah</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat 1 &gt; /proc/sys/net/ipv4/ip_forward</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Rangkaian perintah ini akan hilang pada saat reboot.
 Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen.
-Caranya, tergantung masing-masing distro.</p>
+Caranya, tergantung masing-masing distro. Biasanya, kita simpan dulu ke file menggunakan perintah <code>iptables-save</code></p>
 
-<p>Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat tightly-coupled dengan kernel linux.</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables-save &gt; /etc/sysconfig/iptables</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kemudian file tersebut kita load menggunakan perintah <code>iptables-restore</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables-restore /etc/sysconfig/iptables</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Agar berjalan setiap kali booting, panggil perintah <code>iptables-restore</code> dari script <code>rc.local</code>. Lokasi script ini berbeda antar distro, untuk keluarga Debian terletak di folder <code>/etc</code>.</p>
+
+<p>Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat <em>tightly-coupled</em> dengan kernel linux.</p>
 
 <p>Untuk Windows, kita dapat gunakan fitur Internet Connection Sharing apabila ada. Beberapa versi Windows (misalnya XP Home), tidak punya fitur ini. Jadi solusinya adalah dengan menggunakan aplikasi tambahan seperti misalnya <a href="http://www.wingate.com/product-wingate.php">WinGate</a> atau <a href="http://www.kerio.com/kwf_home.html">WinRoute</a>.</p>
 </div>
