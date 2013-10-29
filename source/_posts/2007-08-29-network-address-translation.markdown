@@ -28,8 +28,6 @@ Untuk : 202.159.11.11
 Pesan : halo
 ```
 
-
-
 Gateway harus punya mapping IP luar dan IP dalam. 
 Begitu gateway terima paket yang ditujukan ke IP luar, 
 dia akan membungkus paket tersebut dengan amplop baru, alamat tujuannya diganti dengan IP dalam. 
@@ -40,10 +38,11 @@ Bila alamat tujuan tidak diganti, maka routernya akan bingung, karena dia tidak 
 Kalau di Linux, ini dilakukan dengan perintah iptables. 
 Contohnya adalah sebagai berikut: 
 
-`iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT`
+```
+iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT
+```
 
-Setelah diDNAT, paketnya menjadi seperti ini: 
-
+Setelah di`DNAT`, paketnya menjadi seperti ini: 
 
 
 ```
@@ -55,7 +54,7 @@ Pesan : halo
 
 
 Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut, 
-karena dia kenal 192.168.0.1 itu mesin yang mana.
+karena dia kenal `192.168.0.1` itu mesin yang mana.
 
 Akhirnya paket sampai di tujuan. 
 
@@ -85,10 +84,13 @@ Jadi dia harus membungkus lagi dengan amplop lagi, kali ini yang diganti adalah 
 IP dalam diganti dengan IP public.
 Proses ini dinamakan SNAT (Source NAT)
 
-Contohnya adalah sebagai berikut: 
-`iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT`
+Contohnya adalah sebagai berikut:
+ 
+```
+iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT
+```
 
-Setelah diSNAT paketnya menjadi seperti ini: 
+Setelah di`SNAT` paketnya menjadi seperti ini: 
 
     
 ```
@@ -109,16 +111,34 @@ Misalnya kalau kita pakai dialup connection.
 Kalau kita nekat pakai SNAT, nanti akan repot, karena harus update rule setiap dial ke internet.
 
 Jadi, kita gunakan masquerade. 
-Berikut perintahnya: 
-`iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE`
+Berikut perintahnya:
+ 
+```
+iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE
+```
 
-Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan cara : 
-`cat 1 > /proc/sys/net/ipv4/ip_forward `
+Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan perintah
+ 
+```
+cat 1 > /proc/sys/net/ipv4/ip_forward
+```
 
 Rangkaian perintah ini akan hilang pada saat reboot. 
 Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen. 
-Caranya, tergantung masing-masing distro. 
+Caranya, tergantung masing-masing distro. Biasanya, kita simpan dulu ke file menggunakan perintah `iptables-save`
 
-Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat tightly-coupled dengan kernel linux.
+```
+iptables-save > /etc/sysconfig/iptables
+```
+
+Kemudian file tersebut kita load menggunakan perintah `iptables-restore`
+
+```
+iptables-restore /etc/sysconfig/iptables
+```
+
+Agar berjalan setiap kali booting, panggil perintah `iptables-restore` dari script `rc.local`. Lokasi script ini berbeda antar distro, untuk keluarga Debian terletak di folder `/etc`.
+
+Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat _tightly-coupled_ dengan kernel linux.
 
 Untuk Windows, kita dapat gunakan fitur Internet Connection Sharing apabila ada. Beberapa versi Windows (misalnya XP Home), tidak punya fitur ini. Jadi solusinya adalah dengan menggunakan aplikasi tambahan seperti misalnya [WinGate](http://www.wingate.com/product-wingate.php) atau [WinRoute](http://www.kerio.com/kwf_home.html).
