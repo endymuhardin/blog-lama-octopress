@@ -44,7 +44,7 @@ Kenyataannya, saya beberapa kali menemui kasus seperti ini. Contohnya:
 {% img /images/uploads/2013/10/problem-solving/floating-point-problem.png %}
 
 Kenapa hasilnya tidak sama? Karena memang itu sifat dari bilangan `floating-point`.
-Begitu kita paham karakteristik bilangan `floating-point`, fenomena di atas tidak lagi membingungkan buat kita, 
+Begitu kita paham problemnya (yaitu karakteristik bilangan `floating-point`), fenomena di atas tidak lagi membingungkan buat kita, 
 dan solusinya langsung terang benderang.
 
 Contoh lain, di milis ada yang bertanya begini
@@ -66,4 +66,8 @@ Kemudian saya memberikan rekomendasi yang lebih simple
 
 Nah, itu sudah jelas gratis, tidak perlu pusing _terms & conditions_ dari lisensi [EPL](http://en.wikipedia.org/wiki/Eclipse_Public_License). 
 
-Dengan menjabarkan problemnya dengan baik, solusi yang sederhana bisa didapatkan.
+## Kesimpulan ##
+
+Dengan menjabarkan problemnya dengan baik, solusi yang sederhana bisa didapatkan. Tim saya di [ArtiVisi](http://www.artivisi.com) sudah terbiasa dengan pendekatan seperti ini. Setiap kali mereka minta solusi untuk suatu hal teknis yang rumit, saya akan selalu mengarahkan untuk menganalisa ulang requirement. Apakah memang harus demikian solusinya? Bila iya, coba lagi negosiasikan requirement supaya bisa menggunakan solusi yang lebih sederhana. Lebih baik negosiasi requirement seharian daripada harus coding solusi rumit dua minggu (belum lagi testing, debugging, maintenance, dst).
+
+
