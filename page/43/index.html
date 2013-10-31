@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di tempat saya bekerja saat ini (BaliCamp), saya sedang membutuhkan anggota tim. Tidak butuh yang terlalu canggih, saya justru cari fresh graduate. &hellip;">
+  <meta name="description" content="Sekarang sedang marak layanan internet berbasis paket. Artinya, kita dikenakan biaya berdasarkan besar data yang kita konsumsi, baik kirim (uplink) &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,82 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/vnstat/">vnStat</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-19T17:50:52+07:00" pubdate data-updated="true">Apr 19<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sekarang sedang marak layanan internet berbasis paket. Artinya, kita dikenakan biaya berdasarkan besar data yang kita konsumsi, baik kirim (uplink) maupun terima (downlink).</p>
+
+<p>Perbedaan cara penagihan tentunya juga mempengaruhi perilaku berinternet kita. Dengan layanan berbasis waktu, kita dapat membatasi pengeluaran dengan cara membatasi durasi berinternet. Nah, kalau berbasis paket, bagaimana cara mengendalikan pemakaian?</p>
+
+<p>Berbagai aplikasi open source dapat digunakan untuk memonitor pemakaian internet, salah satunya adalah <a href="http://humdi.net/vnstat/">vnStat</a>. Aplikasi kecil ini sangat mudah digunakan. Cukup instal, inisialisasi databasenya, dan lihat laporannya.</p>
+
+<h3>Instalasi vnStat</h3>
+
+<p>Instalasi, seperti biasa, sangat mudah. Di Ubuntu, cukup dengan satu baris.
+<code>sudo apt-get install vnstat</code></p>
+
+<p>Setelah terinstal, kita harus menginisialisasi database tempat data monitoring diletakkan. Di komputer saya, ada dua antarmuka jaringan, WiFi (eth1) dan kabel (eth2). Nantinya bila menggunakan modem ADSL, biasanya saya akan menggunakan antarmuka kabel (eth2) yang terhubung ke modem ADSL.</p>
+
+<p>Untuk menginisialisasi database, lakukan perintah berikut, sesuai dengan nama antarmuka yang akan dimonitor.</p>
+
+<pre><code>&lt;code&gt;sudo vnstat -u -i eth1
+sudo vnstat -u -i eth2&lt;/code&gt;
+</code></pre>
+
+<p>vnStat akan mengeluarkan pesan error tentang file database yang tidak ditemukan. Biarkan saja, karena filenya belum ada.</p>
+
+<p>Setelah itu, vnStat sudah bekerja di belakang layar. Untuk melihat pemakaian internet, kita harus menginstal satu aplikasi lagi, yaitu <a href="http://www.sqweek.com/sqweek/index.php?p=1">vnStat Front End</a>. Aplikasi ini kerjanya membaca database yang dihasilkan vnStat dan menampilkannya di web. Karena berbasis PHP, seharusnya tidak sulit untuk diinstal.</p>
+
+<h3>Instalasi vnStat FrontEnd</h3>
+
+<p>Instalasinya tidak sulit. Cukup download dari websitenya, dan extract di folder yang dikenali oleh Apache HTTPD. Di komputer saya, saya gunakan folder <code>/opt/lampp/htdocs/vnstat</code>.</p>
+
+<p>Edit file config.php sehingga menjadi seperti ini.</p>
+
+<pre><code>&lt;code&gt;
+// list of network interfaces monitored by vnStat
+$iface_list = array('eth1', 'eth2');
+$iface_title['eth1'] = 'Wireless';
+$iface_title['eth2'] = 'Wired';
+&lt;/code&gt;
+</code></pre>
+
+<p>Selanjutnya, browse ke http://localhost/vnstat. Kita akan mendapati data penggunaan jaringan kita seperti gambar di bawah.
+<img src="/images/uploads/2007/04/vnstat.png" title="vnStat Front End Screenshot" ></p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -599,100 +675,6 @@ public class Main {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/life/nyambi-bolehkah/">Nyambi, Bolehkah??</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-03T00:52:44+07:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Posting ini saya tulis karena di milis JUG sedang rame membahas tentang boleh tidaknya karyawan nyambi. Sepanjang karir saya, urusan nyambi telah menjadi bagian hidup tak terpisahkan dari perkembangan pribadi saya. Jadi baiklah mari kita bahas sedikit tentang urusan nyambi ini.</p>
-
-<blockquote><p>Disclaimer : Pernyataan di bawah ini merupakan opini pribadi dan bukan merupakan sikap resmi perusahaan yang saat ini mempekerjakan saya.</p></blockquote>
-
-<p>Mari pertama kita bedakan antara masalah legal dan masalah etis.</p>
-
-<p>Yang menurut saya tidak legal (haram) :</p>
-
-<ul>
-<li><p>Nyambi di jam kantor (ngerjain project lain2 di kantor)</p></li>
-<li><p>Pakai resource kantor untuk project lain (telp, internet, komputer, dsb), <strong>tanpa sepengetahuan atasan</strong></p></li>
-</ul>
-
-
-<p>Yang menurut saya legal :</p>
-
-<ul>
-<li>Pagi datang ontime, sore tenggo, sampe rumah ngerjain project lain.</li>
-</ul>
-
-
-<p>Nah, kalo urusan etis, ini rada sulit juga, soalnya urusan kepantasan ini tergantung pendidikan yang diberikan orangtua masing-masing.</p>
-
-<p>Yang menurut saya kurang etis:</p>
-
-<ul>
-<li><p>Berebut pasar dengan kantor. Misal: kantornya terima project dengan kisaran nilai 100-500 juta, eh kita juga terima project dengan nilai 150jt. Lebih tidak etis lagi kalo ikut tendernya saingan.</p></li>
-<li><p>Ngerjain project sampingan sampe begadang, akibatnya pas ngantor ngantuk dan gak konsen.</p></li>
-<li><p>Yang ini dari sisi kantor. Mempekerjakan karyawan lembur sampai nginap, tanpa uang lembur. Padahal kalo si karyawan pulang, dia bisa dapat tambahan uang dari waktu miliknya.</p></li>
-</ul>
-
-
-<p>Yang menurut saya etis:</p>
-
-<ul>
-<li><p>Mengerjakan produk/project yang sama, tapi beda segmen. Misalnya kantor terima project Java 100-500 jt. Kalo dibawah itu dia gak terima karena gak nutup biaya. Nah, kita terima project 10 jt,  yang kalo dikasi ke kantor pun gak diterima. It&#8217;s fine &#8230; asal tidak ilegal.</p></li>
-<li><p>Mengkomersilkan sisi lain teknologi, misalnya di kantor coding, di luar ngasi training atau nulis buku.</p></li>
-</ul>
-
-
-<p>Sebenarnya kalo kita tanpa ada unsur paranoid, karyawan nyambi ada juga untungnya bagi perusahaan.</p>
-
-<p>Misalnya, di kampus tempat saya ngajar dulu, dosen itu dianjurkan untuk nulis buku, walaupun dikerjakan menggunakan resource kantor (waktu, komputer, internet). Saya tanya kenapa? Teman saya sesama dosen bilang,</p>
-
-<blockquote><p>kalo ada buku yang ditulis dosen, maka itu bisa meningkatkan image kampusnya.</p></blockquote>
-
-<p>Demikian juga apabila kita sering nulis blog, aktif di milis, banyak ngarang buku, sering masuk e-lifestyle, dsb. Perusahaan yang berpikiran maju akan dapat melihat manfaat dari ini, misalnya menggunakan resume karyawan tersebut untuk tender, atau diiklankan pada waktu pitching project.</p>
-
-<p>Nah, menurut saya, selain yang legal/ilegal, tidak ada hitam putih di sini.
-Yang paling penting adalah saling keterbukaan dan kesepakatan.</p>
-
-<p>Saya sendiri selama ini berterus terang pada perusahaan tentang kegiatan komersil lain yang saya lakukan. Bila ada konflik kepentingan ya kita rundingkan.
-Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisah untuk menjalani hidup masing-masing.</p>
-
-<p>Untungnya selama ini saya tidak mengalami masalah dengan keterbukaan ini. Pada perusahaan sebelumnya, bahkan saya bisa nyambi ngajar di kampus di jam kantor, dengan dispensasi khusus.</p>
-
-<p>Jadi, jangan dulu pesimis bahwa nyambi itu haram. Coba saja diskusikan dengan kantor Anda. Siapa tau boleh, dengan kompromi tertentu :D.</p>
-
-<p>Demikian pendapat saya &#8230;</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/44/">&larr; Older</a>
@@ -769,6 +751,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/problem-solving/">Problem Solving</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mendapatkan-informasi-system-dengan-java/">Mendapatkan Informasi System dengan Java</a>
       </li>
     
@@ -802,10 +788,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/apa-itu-ssl/">Apa itu SSL</a>
       </li>
     
   </ul>
