@@ -24,15 +24,15 @@ Ada [cerita _urban legend_ di internet yang menggambarkan pendekatan ini](http:/
 > Di sore hari, dia mengambil spidol dan membuat tanda X di salah satu komponen mesin.
 > Teknisi mengganti komponen tersebut, dan mesin berjalan kembali dengan normal.
 
-> Agus kemudian memberikan invoice senilai 100 juta. Budi terkejut, "Masa menulis X saja 10 juta??"
+> Agus kemudian memberikan invoice senilai 100 juta. Budi terkejut, "Masa menulis X saja 100 juta??"
 > Agus mengambil kembali invoice tersebut dan merevisinya sebagai berikut
 
 
 Pekerjaan             | Biaya
 ----------------------|--------------------
 Menulis X             |             10.000
-Menentukan lokasi X   |          9.990.000
-Total                 |         10.000.000
+Menentukan lokasi X   |         99.990.000
+Total                 |        100.000.000
 
 
 Anda mungkin berkomentar, 
