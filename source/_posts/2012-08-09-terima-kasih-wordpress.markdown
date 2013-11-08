@@ -172,5 +172,8 @@ Melihat audiens blog yang rata-rata memiliki akun Facebook, maka baiklah kita pi
 {% endif %}
 ```
 {% endraw %}
+
+Daftar komentar orang bisa kita lihat dan moderasi di [https://developers.facebook.com/tools/comments](https://developers.facebook.com/tools/comments).
+
 # Penutup #
 Sebetulnya sedih juga berpisah dengan Wordpress yang telah setia menemani hampir 7 tahun lamanya, tapi life must go on. Wordpress, terima kasih atas kebersamaan selama 7 tahun ini. Mudah-mudahan engkau akan berevolusi lebih baik lagi sehingga di lain waktu kita bisa bersama lagi. 
