@@ -211,7 +211,7 @@ Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gun
 
 
     
-    tail -f daftar_url.txt 
+    tail -f donlod-ubuntu.log 
 
 
 
