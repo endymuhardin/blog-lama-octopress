@@ -48,164 +48,68 @@ Begini, misalnya kita membuat aplikasi akunting. Aplikasi ini terdiri dari beber
 
 
     
-  1. Project Planning
-        
-            
+1. Project Planning
+    
     1. Modul Ledger
-
-            
     2. Modul Hutang/Piutang
-
-            
     3. Modul Kas
 
-        
-    
-   
-    
-  2. Requirement Development
-        
-            
+2. Requirement Development
+
     1. Modul Ledger
-
-            
     2. Modul Hutang/Piutang
-
-            
     3. Modul Kas
 
-        
-    
+3. Coding
 
-    
-  3. Coding
-        
-            
     1. Modul Ledger
-
-            
     2. Modul Hutang/Piutang
-
-            
     3. Modul Kas
 
-        
-    
+4. UAT
 
-    
-  4. UAT
-        
-            
     1. Modul Ledger
-
-            
     2. Modul Hutang/Piutang
-
-            
     3. Modul Kas
 
-        
-    
+5. Implementasi
 
-    
-  5. Implementasi
-        
-            
     1. Modul Ledger
-
-            
     2. Modul Hutang/Piutang
-
-            
     3. Modul Kas
-
-        
-    
-
-
 
 Lifecycle waterfall memang memiliki banyak kelemahan, apalagi kalau projectnya besar. Karena rentang waktu yang jauh antara fase requirement dan fase UAT, maka biasanya pada saat UAT user merasa kaget karena merasa aplikasi yang dibuat tidak sesuai ekspektasi. Entah karena user sudah lupa requirement yang dia bikin sendiri, ataupun karena proses bisnisnya memang sudah berubah. 
 
 Lifecycle yang dijalankan ArtiVisi adalah Staged Delivery, seperti yang dijelaskan di bukunya Steve McConnell berjudul Rapid Development. Berikut urutannya. 
 
+1. Global / High Level
 
-
-    
-  1. Global / High Level
-        
-            
     1. Project Planning
-
-            
     2. Requirement Development
 
+2. Modul Ledger
         
-    
-
-    
-  2. Modul Ledger
-        
-            
     1. Project Planning
-
-            
     2. Requirement Development
-
-            
     3. Coding
-
-            
     4. UAT
+    5. Implementasi
+    
+3. Modul Hutang/Piutang
 
-            
+    1. Project Planning
+    2. Requirement Development
+    3. Coding
+    4. UAT
     5. Implementasi
 
-        
-    
-
-    
-  3. Modul Hutang/Piutang
-        
+4. Modul Kas
             
     1. Project Planning
-
-            
     2. Requirement Development
-
-            
     3. Coding
-
-            
     4. UAT
-
-            
     5. Implementasi
-
-        
-    
-
-    
-  4. Modul Kas
-        
-            
-    1. Project Planning
-
-            
-    2. Requirement Development
-
-            
-    3. Coding
-
-            
-    4. UAT
-
-            
-    5. Implementasi
-
-        
-    
-   
-
 
 Pendekatan ini bukan waterfall, karena delivery-nya iteratif dan kecil-kecil. Satu modul biasanya berkisar 1 - 2 bulan saja, kira-kira sesuai dengan panjang sprint yang dianjurkan di metodologi Scrum. Tapi pendekatan ini juga bukan murni agile, karena ada global project planning dan requirement di awal. Untuk apa ada kegiatan itu? Tidak lain dan tidak bukan adalah untuk mengantisipasi interkoneksi antar modul. 
 
@@ -244,34 +148,19 @@ Setelah tidak ada lagi perubahan signifikan, semua screen dicapture, dimasukkan 
 
 
 Perubahan setelah sign off harus melalui prosedur change management. Ini gunanya agar progress project bisa terkendali. Sering sekali banyak project molor dan tidak selesai-selesai karena banyak perubahan ini itu yang tidak dikelola dengan baik sehingga tidak terlihat titik akhirnya. 
+
 {% img /images/uploads/2010/02/change-procedure_id-212x300.png Prosedur Change Management %}
+
+
 Prosedur change management tidak rumit. Hanya terdiri dari tiga langkah saja, yaitu : 
 
-
-
-
-    
-  1. Requester menjelaskan perubahan yang diminta, apa alasan yang mendasari perubahan
-
-    
-  2. Tim development menganalisa dampak perubahan, apakah ada coding yang berubah, user manual, test scenario, dsb. Output dari analisa ini adalah estimasi berapa tambahan waktu, tenaga, dan biaya untuk mengeksekusi perubahan ini
-
-    
-  3. Manajemen di sisi client memutuskan berdasarkan estimasi tersebut, apakah perubahan ini akan : 
+1. Requester menjelaskan perubahan yang diminta, apa alasan yang mendasari perubahan
+2. Tim development menganalisa dampak perubahan, apakah ada coding yang berubah, user manual, test scenario, dsb. Output dari analisa ini adalah estimasi berapa tambahan waktu, tenaga, dan biaya untuk mengeksekusi perubahan ini
+3. Manajemen di sisi client memutuskan berdasarkan estimasi tersebut, apakah perubahan ini akan : 
         
-            
     * Dijalankan segera
-
-            
     * Ditunda ke iterasi berikut
-
-            
     * Ditolak, artinya tidak jadi dijalankan pada project ini, mungkin saja dijadikan project baru.
-
-        
-    
-
-
 
 Dengan adanya proses ini, akan jelas berapa hari project akan mundur, dan berapa biaya tambahannya. 
 
