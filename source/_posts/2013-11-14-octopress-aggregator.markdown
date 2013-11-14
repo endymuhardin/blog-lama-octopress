@@ -112,3 +112,5 @@ menjadi seperti ini
 ```
 
 Setelah itu, generate ulang dan deploy masing-masing website. Hasilnya, pada waktu di-aggregasi hanya akan tampil _summary_ saja. Sehingga yang tampil di website aggregator tidak seluruh isi artikel. Paman Google pun tidak kesal dibuatnya ;)
+
+Selamat mencoba
