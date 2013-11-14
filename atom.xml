@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-11-13T17:55:16+07:00</updated>
+  <updated>2013-11-14T13:16:17+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,115 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress Aggregator]]></title>
+    <link href="http://software.endy.muhardin.com/aplikasi/octopress-aggregator/"/>
+    <updated>2013-11-14T10:40:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/aplikasi/octopress-aggregator</id>
+    <content type="html"><![CDATA[<p>Website Aggregator adalah suatu website yang isinya adalah kumpulan link ke posting di website lain. Beberapa skenario penggunaan website aggregator:</p>
+
+<ul>
+<li>website perusahaan, ingin mencantumkan posting blog dari anggota timnya</li>
+<li>website komunitas, ingin mencantumkan posting blog dari anggota komunitas tersebut</li>
+</ul>
+
+
+<p>Pada artikel ini kita akan membahas cara pemasangan website aggregator di aplikasi blogging Octopress.</p>
+
+<!--more-->
+
+
+<h2>Instalasi Dependensi</h2>
+
+<p>Kita akan menggunakan <a href="https://github.com/pote/planet.rb">aplikasi yang namanya planet.rb</a>. Sebelum mengikuti langkah-langkah di websitenya, terlebih dulu kita siapkan Ubuntu supaya <code>planet.rb</code> bisa diinstal.</p>
+
+<p>Instalasi dependensi dilakukan dengan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install libcurl3 libcurl3-gnutls libcurl4-openssl-dev</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, kita install <code>planet.rb</code> dengan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install planet</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kalau menemui error seperti ini</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ERROR:  Could not find a valid gem 'planet' (&gt;= 0), here is why:
+</span><span class='line'>Unable to download data from https://rubygems.org/ - no such name (https://rubygems.org/latest_specs.4.8.gz)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>atau ini</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ERROR:  While executing gem ... (Gem::RemoteFetcher::UnknownHostError)
+</span><span class='line'>no such name (https://rubygems.org/gems/planet-0.5.1.gem)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>artinya koneksi internet Anda bermasalah. Coba lagi dengan koneksi internet yang lain. Mungkin bisa nebeng dulu di tetangga ;)</p>
+
+<h2>Konfigurasi</h2>
+
+<p>Kita generate dulu konfigurasi <code>planet.rb</code>. Jalankan perintah ini di dalam folder Octopress kita.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>planet init</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah di atas akan membuatkan file konfigurasi <code>planet.yml</code>. Edit sesuai kebutuhan. Berikut adalah contoh konfigurasi yang saya gunakan</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">planet</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">posts_directory</span><span class="p">:</span> <span class="n">source</span><span class="o">/</span><span class="n">_posts</span><span class="o">/</span>
+</span><span class='line'>    <span class="n">templates_directory</span><span class="p">:</span> <span class="n">source</span><span class="o">/</span><span class="n">_layouts</span><span class="o">/</span>
+</span><span class='line'>    <span class="n">whitelisted_tags</span><span class="p">:</span> <span class="o">[]</span>
+</span><span class='line'>
+</span><span class='line'><span class="ss">blogs</span><span class="p">:</span>
+</span><span class='line'>  <span class="o">-</span> <span class="ss">author</span><span class="p">:</span> <span class="s2">&quot;Endy is Programmer&quot;</span>
+</span><span class='line'>    <span class="ss">feed</span><span class="p">:</span>   <span class="s2">&quot;http://software.endy.muhardin.com/atom.xml&quot;</span>
+</span><span class='line'>    <span class="ss">image</span><span class="p">:</span>  <span class="s2">&quot;http://www.gravatar.com/avatar/31694bbf42349c6b6adfe893bb1e19d8.png&quot;</span>
+</span><span class='line'>    <span class="ss">twitter</span><span class="p">:</span> <span class="s2">&quot;endymuhardin&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">-</span> <span class="ss">author</span><span class="p">:</span> <span class="s2">&quot;Endy is Photographer&quot;</span>
+</span><span class='line'>    <span class="ss">feed</span><span class="p">:</span>   <span class="s2">&quot;http://rana.endy.muhardin.com/atom.xml&quot;</span>
+</span><span class='line'>    <span class="ss">image</span><span class="p">:</span>  <span class="s2">&quot;http://www.gravatar.com/avatar/a3c8a6a973fc0c0fa3d89cb69c103ad0.png&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Eksekusi</h2>
+
+<p>Selanjutnya, kita jalankan generatornya. <code>planet.rb</code> akan menjelajahi semua blog yang kita daftarkan dan akan membuatkan posting dalam folder <code>source/_posts</code>.</p>
+
+<p>Terakhir, kita bisa publish dan deploy seperti biasa.</p>
+
+<h2>Kekurangan</h2>
+
+<p>Sayangnya <code>planet.rb</code> menaruh semua isi posting dari blog asal ke website tujuan. Nah, ini bisa <a href="https://support.google.com/webmasters/answer/66359?hl=en">bikin google cemberut</a>. Idealnya, saya ingin memasang potongan isi artikel saja, dengan disertai link ke artikel aslinya. Ini dikenal dengan <a href="http://daringfireball.net/linked/">istilah linked list</a>.</p>
+
+<p>Octopress sudah memiliki <a href="http://octopress.org/docs/blogging/linklog/">dokumentasi untuk fitur ini</a>, tapi entah kenapa ternyata belum bisa dipakai.</p>
+
+<p>Mungkin harus coba bikin sendiri seperti dijelaskan <a href="http://www.candlerblog.com/2012/01/30/octopress-linked-list/">di sini</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Problem Solving]]></title>
@@ -6438,83 +6547,6 @@ harus menyediakan mekanisme agar bisa dipanggil aplikasi lain (kita sebut aplika
 <p>Untungnya prosedur pengecekan ini sudah dibuatkan <a href="http://static.springsource.org/spring-integration/reference/htmlsingle/#files">implementasinya</a> oleh rekan-rekan Spring Integration, sehingga kita tinggal mengikuti <a href="https://github.com/SpringSource/spring-integration-samples/tree/master/basic/file">contoh yang tersedia</a>.</p>
 
 <p>Demikianlah sedikit informasi mengenai integrasi antar aplikasi. Semoga bermanfaat :)</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Training CMMI]]></title>
-    <link href="http://software.endy.muhardin.com/manajemen/training-cmmi/"/>
-    <updated>2013-05-10T14:13:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/manajemen/training-cmmi</id>
-    <content type="html"><![CDATA[<p>Saya akan mengisi <a href="http://brainmatics.com/cmmi-capability-maturity-model-integration/">training CMMI di Brainmatics</a> minggu depan, Senin - Rabu, 13 - 15 Mei 2013. Buat yang belum paham apa itu CMMI, bisa baca <a href="http://software.endy.muhardin.com/manajemen/apa-itu-cmmi/">artikel saya mengenai masalah ini</a>.</p>
-
-<p>Sebenarnya, materi tentang CMMI banyak bertebaran secara gratis di internet. Bahkan spesifikasi resminya gratis bisa diunduh di <a href="http://cmmiinstitute.com/">websitenya Carnegie Mellon University</a>. Lalu buat apa ikut training lagi kalau di internet sudah banyak materinya?</p>
-
-<!--more-->
-
-
-<p>Berikut beberapa alasannya:</p>
-
-<ul>
-<li>Materi CMMI yang ada di website sangat abstrak dan penjelasannya bersifat umum.</li>
-<li>Agar bisa diimplementasikan di perusahaan, aturan CMMI ini harus dibuatkan dulu padanan/mapping dengan proses bisnis di internal perusahaan.</li>
-<li>Proses bisnis di internal perusahaan belum tentu selengkap yang diminta CMMI, sehingga harus didesain dan dibuat dulu.</li>
-<li>Seringkali terjadi, cara mendesain proses bisnis yang baik juga belum dikuasai. Ini akan kita bahas pada sesi training.</li>
-<li>Setelah dibuat, proses bisnis harus diimplementasikan ke seluruh perusahaan. Implementasi proses bisnis ada metodologinya sendiri.</li>
-<li>Di website CMMI, dijelaskan proses appraisal, yaitu proses untuk menilai perusahaan apakah sudah sesuai dengan aturan CMMI. Penjelasan di kertas tentu jauh berbeda dengan pengalaman nyata yang saya alami pada waktu implementasi CMMI.</li>
-<li>Ada banyak <a href="http://software.endy.muhardin.com/manajemen/meluruskan-mitos-cmmi/">mitos dan urban legend tentang CMMI</a>, terutama yang berkaitan dengan metodologi agile seperti Scrum, Kanban, XP, dan lainnya. Pada sesi training, kita akan bahas mana yang mitos mana yang nyata.</li>
-</ul>
-
-
-<p>Silabus lengkap bisa dilihat di <a href="http://brainmatics.com/cmmi-capability-maturity-model-integration/">website Brainmatics</a>. Tapi banyak jargon teknis di sana yang baru bisa kita pahami kalau sudah mengerti CMMI. Untuk yang masih awam, berikut adalah hal yang akan kita pelajari/lakukan selama training:</p>
-
-<ol>
-<li><p>Apa itu CMMI</p>
-
-<ul>
-<li>sejarah</li>
-<li>use case</li>
-<li>manfaat buat kita</li>
-</ul>
-</li>
-<li><p>Isi perut CMMI</p>
-
-<ul>
-<li>apa itu process area</li>
-<li>apa itu goals</li>
-<li>apa itu practices</li>
-<li>apa yang dimaksud generic goals/practices</li>
-<li>apa yang dimaksud specific goals/practices</li>
-<li>apa itu maturity level</li>
-<li>apa yang dimaksud staged representation dan continuous representation</li>
-<li>bagaimana proses appraisal</li>
-</ul>
-</li>
-<li><p>Metodologi implementasi</p>
-
-<ul>
-<li>menentukan target maturity level yang realistis untuk dicapai perusahaan kita</li>
-<li>melakukan gap analysis, antara kondisi perusahaan kita sekarang dan kondisi yang diminta CMMI</li>
-<li>membuat mapping antara kebutuhan CMMI dan proses bisnis di perusahaan kita</li>
-<li>cara mendesain proses bisnis perusahaan yang efektif dan komprehensif</li>
-<li>cara implementasi proses bisnis yang sudah dibuat</li>
-<li>tips dan trik dalam proses appraisal</li>
-</ul>
-</li>
-</ol>
-
-
-<p>Trainingnya akan berbentuk workshop. Saya akan menjelaskan teori secara singkat, lalu kita lanjutkan dengan praktek dan diskusi. Target training ini adalah, peserta pulang dengan membawa :</p>
-
-<ul>
-<li>strategi implementasi</li>
-<li>daftar proses bisnis yang harus dibuat/direvisi</li>
-<li>contoh dokumen dan template</li>
-<li>action plan yang harus mereka lakukan di perusahaannya untuk berhasil mencapai target maturity level yang diinginkan.</li>
-</ul>
-
-
-<p>Jadi, tunggu apa lagi, ayo segera daftar. Sampai ketemu di sesi training :D</p>
 ]]></content>
   </entry>
   

@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Posting ini saya tulis karena di milis JUG sedang rame membahas tentang boleh tidaknya karyawan nyambi. Sepanjang karir saya, urusan nyambi telah &hellip;">
+  <meta name="description" content="Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,430 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/remoting-dengan-spring/">Remoting Dengan Spring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-17T00:49:19+07:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user atau pengguna aplikasi kita bukanlah orang, melainkan mesin. Dalam hal ini, aplikasi kita dapat disebut dengan aplikasi server yang menyediakan service bagi aplikasi client.</p>
+
+<p>Bagaimana caranya agar aplikasi kita dapat digunakan oleh aplikasi lain? Caranya tentunya dengan menyediakan antarmuka yang sesuai bagi masing-masing aplikasi client. Ada banyak bahasa yang dijadikan patokan dalam komunikasi antar aplikasi. Beberapa protokol yang umum digunakan adalah:</p>
+
+<ul>
+<li><p>CORBA</p></li>
+<li><p>RMI (khusus Java)</p></li>
+<li><p>SOAP</p></li>
+<li><p>XML-RPC</p></li>
+<li><p>Hessian</p></li>
+<li><p>Burlap</p></li>
+<li><p>dan masih banyak yang lainnya</p></li>
+</ul>
+
+
+<p>Dengan cara tradisional, menyediakan antarmuka untuk masing-masing protokol ini cukup rumit. Selain harus mengerti protokolnya, kita juga harus menulis banyak kode untuk memformat data kita mengikuti aturan yang ditetapkan protokol tersebut. Kita juga harus menulis kode program agar dapat menerima data dalam protokol yang kita ingin sediakan.</p>
+
+<p><a href="http://www.springframework.org">Spring Framework</a> menyediakan library pembantu bagi kita agar kita dapat menyediakan akses dalam protokol tersebut dengan mudah. Bagaimana caranya, mari kita bahas dalam artikel ini.</p>
+
+<p>Sebagai contoh sederhana, misalnya kita ingin menyediakan layanan untuk mengambil data Person. Untuk menyederhakan masalah, Person hanya mengandung data nama dan email saja.</p>
+
+<h3>Person.java</h3>
+
+<pre><code>package tutorial.remoting;
+
+public class Person implements java.io.Serializable {
+    private String name;
+    private String email;
+
+    public Person() {
+        this("", "");
+    }
+
+    public Person(String name, String email){
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public String getEmail(){
+        return email;
+    }
+
+    public String toString(){
+        return name + " : " + email;
+    }
+}
+</code></pre>
+
+<p>Perhatikan bahwa kita harus mendefinisikan Person sebagai object yang Serializable. Ini penting agar object ini bisa ditransfer melalui jaringan.</p>
+
+<p>Kemudian, kita sediakan interface yang mendefinisikan layanan yang ingin kita sediakan bagi aplikasi lain. Kita sebut saja interface ini sebagai PersonService.</p>
+
+<h3>PersonService.java</h3>
+
+<pre><code>package tutorial.remoting;
+
+import java.util.List;
+
+public interface PersonService {    
+    public Person get(int id);
+    public List getAllPerson();
+} 
+</code></pre>
+
+<p>PersonService ini nantinya bisa kita implementasi sesuai dengan kebutuhan. Kita bisa mengambil datanya dari database, dari phonebook handphone, atau bahkan dari aplikasi lain. Agar contoh kodenya lebih sederhana, kita buat saja implementasinya dengan ArrayList. Para pembaca nanti bisa mencoba dengan implementasi lain yang lebih hi-tech seperti Hibernate atau OpenJPA.</p>
+
+<p>Berikut adalah implementasi dari PersonService, kita sebut saja PersonServiceImpl.</p>
+
+<h3>PersonServiceImpl.java</h3>
+
+<pre><code>package tutorial.remoting.remote;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import tutorial.remoting.Person;
+import tutorial.remoting.PersonService;
+
+public class PersonServiceImpl implements PersonService {
+
+    private List allPerson = new ArrayList();
+
+    public PersonServiceImpl(){
+        Person p = new Person("Endy Muhardin", "endy@artivisi.com");
+        Person p1 = new Person("Maya Mujawati", "moedja@yahoo.com");
+        allPerson.add(p);
+        allPerson.add(p1);
+    }
+
+    public Person get(int id){
+        if (id &gt;= allPerson.size()) return null;
+        return (Person) allPerson.get(id);
+    }
+
+    public List getAllPerson(){
+        return allPerson;
+    }
+} 
+</code></pre>
+
+<p>Seperti kita lihat di atas, tidak ada yang istimewa dengan kode program di atas. Bahkan validasi untuk field id pun tidak kita sediakan. Tentu saja kalau kita berikan masukan angka 2 atau lebih pada method public Person get(int id) akan terjadi ArrayIndexOutOfBoundException.</p>
+
+<p>Selesai sudah &#8230; sekarang kode tersebut dapat diakses oleh aplikasi lain.</p>
+
+<p>Apa?? Saya mendengar ada suara-suara kurang puas dari penonton.. Coba lebih keras??</p>
+
+<blockquote><p>Bagaimana cara mengaksesnya dari aplikasi client? Nampaknya belum ada kode program apa-apa untuk menyediakan layanan webservice. Mana bisa dibilang selesai?</p></blockquote>
+
+<p>Ok .. baiklah, memang ada satu langkah lagi. Yaitu mempublikasikan interface tersebut agar bisa diakses orang banyak. Kita akan sediakan akses melalui tiga protokol, yaitu:</p>
+
+<ol>
+<li><p>RMI</p></li>
+<li><p>Hessian</p></li>
+<li><p>Burlap</p></li>
+</ol>
+
+
+<blockquote><p>Tiga protokol?? Apa tidak terlalu ambisius? Nanti saya pusing baca kode sekian banyak.</p></blockquote>
+
+<p>Demikian terdengar komentar dari penonton. Hmm &#8230; penonton Indonesia memang terlalu banyak protes.</p>
+
+<p>Tenang saja. Kita akan gunakan Spring untuk mempublikasikan aplikasi kecil kita ini. Saya akan buktikan bahwa kodenya sedikit dan mudah dipahami. Sekarang, mari kita mulai dengan mempublikasikan protokol RMI. Di masa lalu, untuk menyediakan layanan ini, paling tidak kita harus:</p>
+
+<ol>
+<li><p>mengkompilasi stub</p></li>
+<li><p>mengkompilasi skeleton</p></li>
+<li><p>mengkonfigurasi Security setting</p></li>
+<li><p>menjalankan RMIRegistry</p></li>
+<li><p>mendaftarkan objek PersonServiceImpl ke RMIRegistry</p></li>
+<li><p>memberikan stub ke aplikasi client</p></li>
+</ol>
+
+
+<p>Sekarang tidak lagi. Kita cukup mendaftarkan interface PersonService, implementasi PersonServiceImpl di konfigurasi Spring. Berikut adalah isi file remote-ctx.xml</p>
+
+<h3>remote-ctx.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;
+    &lt;bean id="personServiceTarget" class="tutorial.remoting.remote.PersonServiceImpl"/&gt;
+
+    &lt;bean class="org.springframework.remoting.rmi.RmiServiceExporter"&gt;        
+        &lt;property name="serviceName" value="PersonRmiService"/&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;  
+        &lt;property name="registryPort" value="4321"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Hanya dengan membaca file XML di atas, kita sudah bisa menduga apa yang terjadi. Kita mempublikasikan layanan yang didefinisikan pada interface PersonService pada port 4321 dengan nama layanan PersonRmiService. Di sisi server, layanan ini akan disediakan oleh objek personServiceTarget yang merupakan instan dari class PersonServiceImpl. Kita memanfaatkan class RmiServiceExporter yang dimiliki Spring.</p>
+
+<p>Untuk menjalankan aplikasi kecil kita, buat sebuah class sederhana untuk mengaktifkan Spring Framework. Berikut adalah kode programnya.</p>
+
+<h3>PersonRmiService.java</h3>
+
+<pre><code>package tutorial.remoting.server;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class PersonRmiService {
+    public static void main(String[] xx) {
+        ApplicationContext ctx = 
+        new FileSystemXmlApplicationContext("webapp/WEB-INF/remote-ctx.xml");
+    }
+}
+</code></pre>
+
+<p>Silahkan jalankan class di atas. Asal classpath sudah disetting dengan benar, kita siap mengaksesnya dari client.
+Kita juga akan menggunakan bantuan dari Spring Framework untuk menemukan dan menginisialisasi layanan RMI yang berada di port 4321. Berikut adalah konfigurasi Spring di sisi client.</p>
+
+<h3>client-ctx.xml</h3>
+
+<pre><code>&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;    
+    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Berikut adalah kode program untuk mengakses RMI service kita.</p>
+
+<h3>Main.java</h3>
+
+<pre><code>package tutorial.remoting.client;
+
+import java.util.List;
+
+import tutorial.remoting.PersonService;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class Main {
+    public static void main(String[] args){
+        // initialize application context
+        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
+
+        // accessing RMI service
+        System.out.println("======= Accessing RMI Service ==========");
+        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
+        List all1 = ps1.getAllPerson();
+        for(int i=0; i&lt;all1.size(); i++) {
+            System.out.println(all1.get(i));
+        }
+}
+</code></pre>
+
+<p>Perhatikan konsol, dan saksikan RMI service kita sudah dieksekusi dengan sukses.</p>
+
+<p>Sekarang, kita publikasikan melalui protokol <a href="http://www.caucho.com/resin-3.0/protocols/hessian.xtp">Hessian</a> dan <a href="http://www.caucho.com/resin-3.0/protocols/burlap.xtp">Burlap</a>. Protokol ini adalah hasil karya Caucho untuk mempublikasikan service di atas protokol HTTP. Hessian menggunakan format binary, sedangkan Burlap menggunakan format XML.</p>
+
+<p>Karena berbasis HTTP, maka kita perlu menggunakan HTTP Server yang mendukung Java (khususnya Servlet). Kita bisa gunakan Tomcat atau Jetty. Yang jelas, kita perlu mendeklarasikan servlet untuk melayani client. Deklarasi dibuat di dalam file web.xml sebagai berikut.</p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+
+&lt;!DOCTYPE web-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd"&gt;
+
+&lt;web-app&gt;
+
+    &lt;context-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;
+            /WEB-INF/remote-ctx.xml
+        &lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;2&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/remoting/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;10&lt;/session-timeout&gt;
+    &lt;/session-config&gt;
+
+
+&lt;/web-app&gt;
+</code></pre>
+
+<p>Kita membutuhkan satu file konfigurasi untuk mengkonfigurasi layanan Hessian dan Burlap. Berikut adalah isi file remoting-servlet.xml.</p>
+
+<h3>remoting-servlet.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;
+    &lt;bean name="/PersonHessianService" class="org.springframework.remoting.caucho.HessianServiceExporter"&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
+    &lt;/bean&gt;
+
+
+    &lt;bean name="/PersonBurlapService" class="org.springframework.remoting.caucho.BurlapServiceExporter"&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
+    &lt;/bean&gt;
+
+    &lt;bean name="/PersonHttpInvokerService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
+    &lt;/bean&gt;
+
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Letakkan file remoting-servlet.xml ini di sebelah web.xml. Kita juga perlu mengikutkan file remote-ctx.xml yang kita buat untuk RMI di atas, karena deklarasi objek PersonServiceImpl ada di sana. Bila kita tidak ingin mengikutkan file ini, kita bisa memindahkan deklarasi objek tersebut ke dalam file remoting-servlet.xml.</p>
+
+<p>Sekarang kita bisa mengkompilasi dan mendeploy aplikasi webnya. Untuk mengaksesnya, ubah sedikit kode program di aplikasi client menjadi sebagai berikut.</p>
+
+<h3>Main.java</h3>
+
+<pre><code>package tutorial.remoting.client;
+
+import java.util.List;
+
+import tutorial.remoting.PersonService;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class Main {
+    public static void main(String[] args){
+        // initialize application context
+        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
+
+        // accessing RMI service
+        System.out.println("======= Accessing RMI Service ==========");
+        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
+        List all1 = ps1.getAllPerson();
+        for(int i=0; i&lt;all1.size(); i++) {
+            System.out.println(all1.get(i));
+        }
+
+        // accessing Hessian Service
+        System.out.println("======= Accessing Hessian Service ==========");
+        PersonService ps2 = (PersonService) ctx.getBean("personServiceHessian");
+        List all2 = ps2.getAllPerson();
+        for(int i=0; i&lt;all2.size(); i++) {
+            System.out.println(all2.get(i));
+        }
+
+        // accessing Burlap Service
+        System.out.println("======= Accessing Burlap Service ==========");
+        PersonService ps3 = (PersonService) ctx.getBean("personServiceBurlap");
+        List all3 = ps3.getAllPerson();
+        for(int i=0; i&lt;all3.size(); i++) {
+            System.out.println(all3.get(i));
+        }
+
+        // accessing Http Invoker Service
+        System.out.println("======= Accessing Http Invoker Service ==========");
+        PersonService ps4 = (PersonService) ctx.getBean("personServiceHttpInvoker");
+        List all4 = ps4.getAllPerson();
+        for(int i=0; i&lt;all4.size(); i++) {
+            System.out.println(all4.get(i));
+        }
+    }
+} 
+</code></pre>
+
+<p>Demikian juga dengan konfigurasi Spring di sisi client. Kita perlu menambahkan beberapa objek tambahan untuk mengakses layanan di berbagai protokol tersebut. Berikut adalah isi lengkap dari client-ctx.xml.</p>
+
+<h3>client-ctx.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;    
+    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="personServiceHessian" class="org.springframework.remoting.caucho.HessianProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHessianService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="personServiceBurlap" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonBurlapService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="personServiceHttpInvoker" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHttpInvokerService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Aplikasi kecil kita sudah selesai. Setelah mendeploy aplikasi tersebut ke Servlet Container (Tomcat atau Jetty), kita dapat mengaksesnya melalui aplikasi client. Dengan tetap menggunakan remote-ctx.xml tanpa perubahan, selain menyediakan protokol Hessian dan Burlap, protokol RMI akan tetap tersedia.</p>
+
+<h3>Bonus</h3>
+
+<p>Pembaca yang teliti akan menemukan satu protokol tambahan pada contoh di atas, yaitu HttpInvoker. Ini adalah protokol khusus yang disediakan oleh Spring.</p>
+
+<p>Protokol Hessian dan Burlap tidak mendukung struktur objek secara sempurna. Dia akan mengalami kesulitan apabila objek yang kita kirim tidak sesederhana Person, misalnya memiliki List yang berisi objek lain. Agar bisa mengirim struktur objek yang sempurna, kita harus menggunakan RMI.</p>
+
+<p>Tetapi sayangnya, protokol RMI kurang lazim. Dia membutuhkan port tersendiri yang mungkin saja diblok oleh administrator jaringan, sehingga tidak sefleksibel HTTP.</p>
+
+<p>SpringHttpInvoker menjembatani keterbatasan ini. Kita bisa mengirim objek kompleks secara utuh di atas protokol HTTP dengan menggunakan SpringHttpInvoker.</p>
+
+<p>Demikian &#8230; semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -453,532 +877,6 @@ Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisa
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/intro-icefaces/">Intro ICEFaces</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-03-29T18:50:14+07:00" pubdate data-updated="true">Mar 29<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Beberapa waktu terakhir ini, framework Java Server Faces terlihat semakin matang. Orang-orang sudah mulai menggunakan, memberi feedback, dan menemukan best-practices cara penggunaannya. Oleh karena itu, saya pikir sudah tiba waktunya untuk saya mempelajari framework tersebut.</p>
-
-<p>Berdasarkan pengalaman rekan <a href="http://www.jroller.com/page/sfranklyn/">Samuel</a>, dia menganjurkan penggunaan JSF dengan menggunakan stack:</p>
-
-<ul>
-<li><p><a href="https://facelets.dev.java.net">Facelets</a></p></li>
-<li><p><a href="http://www.icefaces.org">IceFaces</a></p></li>
-<li><p><a href="http://www.springframework.org">Spring Framework</a></p></li>
-<li><p><a href="http://www.hibernate.org">Hibernate</a></p></li>
-</ul>
-
-
-<p>Spring dan Hibernate sudah sering saya gunakan. Integrasinya dengan JSF juga tidak terlalu sulit. Hanya butuh registrasi bean di dalam konfigurasi JSF.</p>
-
-<p>Facelets adalah template engine untuk JSF. Dalam dunia JSF, template engine sering disebut juga dengan istilah View Renderer. Sebenarnya View Renderer default JSF adalah JSP, tapi saya tidak suka JSP. Jadilah akhirnya kita pakai JSF dengan Facelets sebagai ViewRenderer-nya.
-Facelets ini mirip dengan Freemarker atau Velocity. Kalau di dunia PHP kira-kira padanannya adalah Smarty.</p>
-
-<p>Keuntungan menggunakan Facelets dibanding JSP adalah dengan Facelets, desain tampilan dapat dikerjakan oleh web designer. JSF dengan JSP akan banyak sekali menggunakan taglib yang tidak akan muncul di Macromedia Dreamweaver atau editor HTML lainnya. Facelets menggunakan pendekatan yang mirip dengan Tapestry, yaitu memasukkan komponen ke dalam elemen HTML biasa, sehingga dapat dilihat secara normal oleh editor HTML.</p>
-
-<p>ICEFaces adalah kumpulan komponen JSF. Dia memiliki teknologi Direct to DOM Rendering sehingga kita dapat membuat tampilan ber-AJAX dengan mudah.</p>
-
-<p>Seperti halnya teknologi lainnya di dunia Java, JSF hanyalah berupa spesifikasi. Kita dapat menggunakan implementasi yang dikeluarkan Sun (sering disebut dengan Reference Implementation - RI), atau menggunakan implementasi orang lain. Selain Sun, Apache mengeluarkan MyFaces dan Oracle mengeluarkan ADF sebagai implementasi JSF.</p>
-
-<p>Pada artikel ini, kita akan lihat Hello World dengan menggunakan JSF, Facelets, dan ICEFaces. Karena ini hanya perkenalan saja, requirementnya tidak rumit. Saya hanya ingin membuktikan kecanggihan teknologi Direct to DOM Rendering yang dimiliki ICEFaces. Konon teknologi ini memungkinkan kita mengupdate tampilan di sisi client dari server dengan mudah.</p>
-
-<p>Aplikasi yang ingin kita buat sangat sederhana, tapi sering menjadi pertanyaan di berbagai milis pemrograman web. Kita akan membuat satu halaman yang menampilkan waktu server. Waktu server ini harus berjalan secara real-time.</p>
-
-<p>Dalam bahasa pemrograman lain, menampilkan jam server secara real time di browser bukanlah suatu hal yang mudah.
-Programmer harus memilih satu di antara beberapa teknik berikut:</p>
-
-<ul>
-<li><p>Menggunakan meta refresh untuk request ke server setiap beberapa detik</p></li>
-<li><p>Mengambil jam server sekali saja di awal loading page, kemudian increment nilainya di sisi client dengan JavaScript</p></li>
-<li><p>Menggunakan streaming HTML</p></li>
-<li><p>Menggunakan AJAX Push</p></li>
-</ul>
-
-
-<p>Atau berbagai teknik lainnya. Yang jelas tidak mudah untuk melakukan hal ini.</p>
-
-<p>Dengan menggunakan JSF + ICEFaces, hal ini menjadi mudah. ICEFaces adalah salah satu implementasi JSF yang menggunakan teknologi Direct to DOM Rendering. Artinya, server bisa seenaknya mengubah HTML yang ada di sisi client (browser). Dengan teknik ini, menampilkan jam server secara real time menjadi mudah.</p>
-
-<p>Berikut adalah langkah-langkahnya:</p>
-
-<ol>
-<li><p>Buat halaman HTML yang akan menampilkan waktu server</p></li>
-<li><p>Buat kode Java yang bertugas menyediakan waktu server</p></li>
-<li><p>Gunakan JSF + ICEFaces untuk menghubungkan keduanya</p></li>
-<li><p>Aktifkan partial rendering agar tidak menimbulkan flicker</p></li>
-</ol>
-
-
-<p>Mari kita bahas satu persatu.</p>
-
-<h2>Halaman HTML</h2>
-
-<p>Halaman ini adalah halaman dinamis yang berisi nilai yang dikeluarkan oleh server. Bedakan dengan halaman dinamis yang dikendalikan oleh JavaScript, di mana pada kasus tersebut tidak dibutuhkan sisi server yang menyediakan data.</p>
-
-<p>Kode tampilan ini sederhana saja. Dibuat dalam format XHTML, karena begitulah keinginan Facelets.</p>
-
-<h3>whattimeisit.xhtml</h3>
-
-<pre><code>&lt;code&gt;&lt;!-- &lt;?xml version="1.0" encoding="UTF-8"?&gt; --&gt;
-&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-    &lt;head&gt;
-        &lt;title&gt;:: Menampilkan Jam Server ::&lt;/title&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;p&gt;
-                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
-        &lt;/p&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Perhatikan bahwa satu-satunya dynamic code di atas adalah <code>#{serverClock.currentTime}</code>. Sisanya HTML biasa. Bagi yang belum tahu, dynamic code tersebut ditulis dalam Expression Language (EL) yang didukung oleh JSF. Kalau di dalam Java, kode tersebut sama dengan
-<code>serverClock.getCurrentTime()</code>.
-Sekarang mari kita lihat kode Java yang membekingi template whattimeisit, yaitu ServerClock.java.</p>
-
-<h3>ServerClock.java</h3>
-
-<pre><code>&lt;code&gt;package tutorial.icefaces;
-
-import com.icesoft.faces.async.render.IntervalRenderer;
-import com.icesoft.faces.async.render.RenderManager;
-import com.icesoft.faces.async.render.Renderable;
-import com.icesoft.faces.webapp.xmlhttp.PersistentFacesState;
-import com.icesoft.faces.webapp.xmlhttp.RenderingException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-public class ServerClock implements Renderable {
-    private DateFormat formatter;
-    private PersistentFacesState state;
-    private IntervalRenderer renderer;
-    private static final int renderInterval = 1000; // render setiap 1 detik
-
-    public ServerClock() {
-        formatter = new SimpleDateFormat("EEE, HH:mm:ss");
-        state = PersistentFacesState.getInstance();
-    }
-
-    public String getCurrentTime() {
-        return formatter.format(Calendar.getInstance().getTime());
-    }
-
-    public PersistentFacesState getState() {
-        return state;
-    }
-
-    public void renderingException(RenderingException renderingException) {
-        if(renderer != null) {
-            renderer.remove(this);
-            renderer = null;
-        }
-    }
-
-    public void setRenderManager(RenderManager manager) {
-        renderer = manager.getIntervalRenderer("whattimeisit");
-        renderer.setInterval(renderInterval);
-        renderer.add(this);
-        renderer.requestRender();
-    }
-}            
-&lt;/code&gt;
-</code></pre>
-
-<p>Constructor dan method getCurrentTime tidak terlalu istimewa. Isinya hanya inisialisasi DateFormat dan kegiatan memformat waktu saat ini menjadi String.</p>
-
-<p>Selain constructor, setter, dan getter, kode lainnya berkaitan dengan pengelolaan internalnya ICEFaces. Dalam method setRenderManager, kita menyuruh ICEFaces untuk mengupdate browser setiap 1 detik. RenderManager adalah object yang bertugas merender tampilan. Dia beroperasi ke sekumpulan Renderable, yang salah satunya adalah class kita ServerClock.</p>
-
-<p>Bila kita mengimplementasikan Renderable, ada dua method yang harus kita sediakan,
-yaitu renderingException dan getState. Method ini dengan mudah dapat kita buat.
-Selain kedua method ini, ICEFaces tidak butuh tambahan kode lagi.</p>
-
-<p>Saatnya kita siapkan konfigurasi. JSF membutuhkan dua konfigurasi, yaitu web.xml (seperti aplikasi web biasa) dan faces-config.xml. Mari kita lihat web.xml sedikit demi sedikit.</p>
-
-<pre><code>&lt;code&gt;    &lt;context-param&gt;
-        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
-        &lt;param-value&gt;server&lt;/param-value&gt;
-    &lt;/context-param&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Kode di atas adalah konfigurasi untuk JSF. Konfigurasi ini berlaku umum, terlepas dari kita menggunakan Facelets dan ICEFaces ataupun library lainnya. Selanjutnya adalah konfigurasi Facelets.</p>
-
-<pre><code>&lt;code&gt;    &lt;context-param&gt;
-        &lt;param-name&gt;javax.faces.DEFAULT_SUFFIX&lt;/param-name&gt;
-        &lt;param-value&gt;.xhtml&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;facelets.DEVELOPMENT&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Pada konfigurasi di atas, kita mengganti default ekstensi file template, yang tadinya jsp atau jspx menjadi xhtml. Kita juga memberitahu Facelets bahwa kita sedang dalam tahap development. Dengan demikian, pesan error yang dikeluarkan akan lebih lengkap sehingga memudahkan debugging.</p>
-
-<p>Selanjutnya, mari kita lihat konfigurasi ICEFaces.</p>
-
-<pre><code>&lt;code&gt;    &lt;context-param&gt;
-        &lt;param-name&gt;com.icesoft.faces.uploadDirectory&lt;/param-name&gt;
-        &lt;param-value&gt;upload&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.icesoft.faces.uploadMaxFileSize&lt;/param-name&gt;
-        &lt;param-value&gt;4048576&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.icesoft.faces.concurrentDOMViews&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Dua konfigurasi pertama sudah cukup jelas, mengatur tentang di mana harus meletakkan file hasil upload dan berapa maksimal ukuran file yang dapat diterima. Konfigurasi ketiga menyuruh ICEFaces berhati-hati agar dapat melayani request berbarengan ke satu halaman yang sama.</p>
-
-<p>Setelah selesai dengan konfigurasi context param, mari kita masuk ke bagian servlet. JSF membutuhkan satu servlet yang harus dijalankan pada saat aplikasi diaktifkan.</p>
-
-<pre><code>&lt;code&gt;    &lt;servlet&gt;
-        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-        &lt;/servlet&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Servlet ini tidak perlu dimapping ke URL, karena nantinya kita akan menggunakan servlet ICEFaces.</p>
-
-<p>ICEFaces membutuhkan beberapa servlet, terlihat pada konfigurasi berikut.</p>
-
-<pre><code>&lt;code&gt;    &lt;servlet&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.PersistentFacesServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.BlockingServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;com.icesoft.faces.component.inputfile.FileUploadServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Selain itu, ICEFaces juga membutuhkan satu listener, dideklarasikan <strong>diatas</strong> deklarasi servlet.</p>
-
-<pre><code>&lt;code&gt;    &lt;listener&gt;
-        &lt;listener-class&gt;com.icesoft.faces.util.event.servlet.ContextEventRepeater&lt;/listener-class&gt;
-    &lt;/listener&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Servlet ICEFaces dimapping sebagai berikut.</p>
-
-<pre><code>&lt;code&gt;    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/faces/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/xmlhttp/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;*.iface&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/block/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/uploadHtml&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Terakhir untuk web.xml, kita perlu mendefinisikan session timeout.</p>
-
-<pre><code>&lt;code&gt;    &lt;session-config&gt;
-        &lt;session-timeout&gt;
-            30
-        &lt;/session-timeout&gt;
-    &lt;/session-config&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Hasil akhirnya adalah seperti ini.</p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
-        &lt;param-value&gt;server&lt;/param-value&gt;
-    &lt;/context-param&gt;
-
-    &lt;context-param&gt;
-        &lt;param-name&gt;javax.faces.DEFAULT_SUFFIX&lt;/param-name&gt;
-        &lt;param-value&gt;.xhtml&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;facelets.DEVELOPMENT&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.icesoft.faces.uploadDirectory&lt;/param-name&gt;
-        &lt;param-value&gt;upload&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.icesoft.faces.uploadMaxFileSize&lt;/param-name&gt;
-        &lt;param-value&gt;4048576&lt;/param-value&gt;
-    &lt;/context-param&gt;
-    &lt;context-param&gt;
-        &lt;param-name&gt;com.icesoft.faces.concurrentDOMViews&lt;/param-name&gt;
-        &lt;param-value&gt;true&lt;/param-value&gt;
-    &lt;/context-param&gt;
-
-
-    &lt;listener&gt;
-        &lt;listener-class&gt;com.icesoft.faces.util.event.servlet.ContextEventRepeater&lt;/listener-class&gt;
-    &lt;/listener&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-        &lt;/servlet&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.PersistentFacesServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.BlockingServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;com.icesoft.faces.component.inputfile.FileUploadServlet&lt;/servlet-class&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-
-
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/faces/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/xmlhttp/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;*.iface&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/block/*&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/uploadHtml&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-
-
-    &lt;session-config&gt;
-        &lt;session-timeout&gt;
-            30
-        &lt;/session-timeout&gt;
-    &lt;/session-config&gt;
-&lt;/web-app&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Selanjutnya, mari kita buat konfigurasi JSF. File konfigurasinya bernama faces-config.xml. Ini diletakkan di dalam folder WEB-INF, di sebelah web.xml. Berikut adalah kodenya.</p>
-
-<h3>faces-config.xml</h3>
-
-<pre><code>&lt;code&gt;&lt;?xml version='1.0' encoding='UTF-8'?&gt;
-&lt;faces-config version="1.2" 
-    xmlns="http://java.sun.com/xml/ns/javaee" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd"&gt;
-
-    &lt;application&gt;
-        &lt;view-handler&gt;com.icesoft.faces.facelets.D2DFaceletViewHandler&lt;/view-handler&gt;
-    &lt;/application&gt;
-
-
-    &lt;managed-bean&gt;
-        &lt;managed-bean-name&gt;renderManager&lt;/managed-bean-name&gt;
-        &lt;managed-bean-class&gt;com.icesoft.faces.async.render.RenderManager&lt;/managed-bean-class&gt;
-        &lt;managed-bean-scope&gt;application&lt;/managed-bean-scope&gt;
-    &lt;/managed-bean&gt;
-
-    &lt;managed-bean&gt;
-        &lt;managed-bean-name&gt;serverClock&lt;/managed-bean-name&gt;
-        &lt;managed-bean-class&gt;tutorial.icefaces.ServerClock&lt;/managed-bean-class&gt;        
-        &lt;managed-bean-scope&gt;request&lt;/managed-bean-scope&gt;
-        &lt;managed-property&gt;
-            &lt;property-name&gt;renderManager&lt;/property-name&gt;
-            &lt;value&gt;#{renderManager}&lt;/value&gt;
-        &lt;/managed-property&gt;
-    &lt;/managed-bean&gt;
-&lt;/faces-config&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Pada blok paling atas, kita mengkonfigurasi JSF agar menggunakan View Renderer Facelets yang sudah dilengkapi dengan ICEFaces. Di blok kedua, kita mendeklarasikan bean renderManager yang dibutuhkan oleh object kita serverClock pada blok ketiga.</p>
-
-<p>Bagi yang sudah biasa menggunakan Spring, konfigurasi ini tidak jauh berbeda dengan konfigurasi Dependency Injection Spring. Nantinya bila kita menggunakan Spring, kita juga bisa mendeklarasikan Spring bean kita di dalam faces-config.xml tersebut.</p>
-
-<p>Terakhir, jangan lupa lengkapi jar yang dibutuhkan agar kode kita bisa dikompilasi dan dideploy dengan mulus. Kombinasi jar yang dibutuhkan relatif bervariasi tergantung application server yang kita gunakan. Kadangkala ada jar yang sudah disediakan oleh application server tertentu, sehingga kita tidak perlu lagi menyediakan. Sebagai contoh, bila dideploy di Sun Application Server (Glassfish) yang terbundle bersama Netbeans 5.5, daftar jar yang dibutuhkan adalah:</p>
-
-<ul>
-<li><p>backport-util-concurrent.jar</p></li>
-<li><p>commons-collections.jar</p></li>
-<li><p>commons-digester.jar</p></li>
-<li><p>commons-fileupload.jar</p></li>
-<li><p>commons-logging-1.0.4.jar</p></li>
-<li><p>el-api.jar</p></li>
-<li><p>icefaces-comps.jar</p></li>
-<li><p>icefaces-facelets.jar</p></li>
-<li><p>icefaces.jar</p></li>
-<li><p>krysalis-jCharts-1.0.0-alpha-1.jar</p></li>
-<li><p>xercesImpl.jar</p></li>
-<li><p>xml-apis.jar</p></li>
-</ul>
-
-
-<p>Struktur folder akhir dari aplikasi ini adalah sebagai berikut.</p>
-
-<p><img src="/images/uploads/2007/03/folder-jsf.png" title="Struktur Folder Aplikasi JSF" ></p>
-
-<p>Untuk Eclipse, daftar pustaka yang dibutuhkan sedikit berbeda. Demikian gambarnya.
-<img src="/images/uploads/2007/07/ice-eclipse-lib.png" title="Daftar pustaka ICEFaces untuk Eclipse" ></p>
-
-<p>Setelah semua file dibuat dan dipaket sesuai dengan aturan aplikasi web Java, kita bisa mendeploynya ke application server. Lalu, silahkan mengakses http://localhost:8080/HelloICE/whattimeisit.iface atau URL lain sesuai setting deployment.</p>
-
-<p>Hasilnya akan tampak seperti ini.</p>
-
-<p><img src="/images/uploads/2007/03/result-jsf.png" title="Tampilan Akhir Server Time" ></p>
-
-<p>Namun demikian, ternyata halaman tersebut masih melakukan refresh setiap satu detik sehingga mengganggu pandangan. Oleh karena itu, mari kita aktifkan fitur partial submit yang dimiliki ICEFaces. Dengan fitur ini, halaman HTML akan diupdate secara parsial sehingga tidak perlu me-reload seluruh halaman.</p>
-
-<p>Buka file whattimeisit.xhtml dan cari baris berikut.</p>
-
-<pre><code>&lt;code&gt;&lt;body&gt;
-        &lt;p&gt;
-                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
-        &lt;/p&gt;
-    &lt;/body&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Ubah menjadi seperti ini.</p>
-
-<pre><code>&lt;code&gt;&lt;body&gt;
-        &lt;p&gt;
-        &lt;ice:form partialSubmit="true"&gt;
-                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
-        &lt;/ice:form&gt;
-        &lt;/p&gt;
-    &lt;/body&gt;
-&lt;/code&gt;
-</code></pre>
-
-<p>Jangan lupa untuk mendeklarasikan komponen &lt;ice:form> di awal halaman, dengan menggunakan tag &lt;f:view> sebagai berikut.</p>
-
-<pre><code>&lt;code&gt;&lt;f:view xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:h="http://java.sun.com/jsf/html"
-        xmlns:ice="http://www.icesoft.com/icefaces/component"&gt;&lt;/code&gt;
-</code></pre>
-
-<p>Keseluruhan file whattimeisit.xhtml akan terlihat seperti ini.</p>
-
-<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-&lt;f:view xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:h="http://java.sun.com/jsf/html"
-        xmlns:ice="http://www.icesoft.com/icefaces/component"&gt;
-
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-&lt;title&gt;What time is it&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;ice:form&gt;
-&lt;p&gt;
-                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
-        &lt;/p&gt;
-&lt;/ice:form&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-&lt;/f:view&gt;&lt;/code&gt;
-</code></pre>
-
-<p>Redeploy aplikasi, dan lihat hasilnya. Tidak ada lagi flicker (kedipan).</p>
-
-<p>Eclipse project untuk contoh di atas dapat didownload <a href="http://endy.artivisi.com/downloads/code/ICEStarter-20070726.tar.bz2">di sini</a>.</p>
-
-<p>Selamat mencoba, semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/45/">&larr; Older</a>
@@ -1055,6 +953,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/octopress-aggregator/">Octopress Aggregator</a>
+      </li>
+    
+      <li class="post">
         <a href="/life/problem-solving/">Problem Solving</a>
       </li>
     
@@ -1088,10 +990,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/aplikasi/membeli-sertifikat-ssl/">Membeli Sertifikat SSL</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/membuat-self-signed-certificate/">Membuat Self Signed Certificate</a>
       </li>
     
   </ul>
