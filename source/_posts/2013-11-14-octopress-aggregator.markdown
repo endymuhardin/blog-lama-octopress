@@ -89,3 +89,26 @@ Sayangnya `planet.rb` menaruh semua isi posting dari blog asal ke website tujuan
 Octopress sudah memiliki [dokumentasi untuk fitur ini](http://octopress.org/docs/blogging/linklog/), tapi entah kenapa ternyata belum bisa dipakai. 
 
 Mungkin harus coba bikin sendiri seperti dijelaskan [di sini](http://www.candlerblog.com/2012/01/30/octopress-linked-list/)
+
+## Solusi ##
+
+Kebetulan semua website yang ingin saya aggregasi adalah website saya sendiri, dan semuanya Octopress. Oleh karena itu, saya modifikasi saja `Atom Feed`nya supaya menghasilkan _summary_ artikel kalau ada. Kalau tidak ada _summary_, barulah tampilkan content penuhnya. 
+
+Caranya mudah, edit file `source/atom.xml`, yang tadinya seperti ini
+
+```xml
+<content type="html"><![CDATA[{{ post.content | expand_urls: site.url | cdata_escape }}]]></content>
+```
+
+menjadi seperti ini
+
+```xml
+{% capture excerpted %}{{ post.content | has_excerpt }}{% endcapture %}
+{% if excerpted == 'true' %}
+    <summary type="html"><![CDATA[{{ post.content | split: '<!--more-->' | first | expand_urls: site.url | cdata_escape }}]]></summary>
+{% else %}
+<content type="html"><![CDATA[{{ post.content | expand_urls: site.url | cdata_escape }}]]></content>
+{% endif %}
+```
+
+Setelah itu, generate ulang dan deploy masing-masing website. Hasilnya, pada waktu di-aggregasi hanya akan tampil _summary_ saja. Sehingga yang tampil di website aggregator tidak seluruh isi artikel. Paman Google pun tidak kesal dibuatnya ;)
