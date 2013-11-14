@@ -96,12 +96,15 @@ Kebetulan semua website yang ingin saya aggregasi adalah website saya sendiri, d
 
 Caranya mudah, edit file `source/atom.xml`, yang tadinya seperti ini
 
+{% raw %}
 ```xml
 <content type="html"><![CDATA[{{ post.content | expand_urls: site.url | cdata_escape }}]]></content>
 ```
+{% endraw %}
 
 menjadi seperti ini
 
+{% raw %}
 ```xml
 {% capture excerpted %}{{ post.content | has_excerpt }}{% endcapture %}
 {% if excerpted == 'true' %}
@@ -110,6 +113,7 @@ menjadi seperti ini
 <content type="html"><![CDATA[{{ post.content | expand_urls: site.url | cdata_escape }}]]></content>
 {% endif %}
 ```
+{% endraw %}
 
 Setelah itu, generate ulang dan deploy masing-masing website. Hasilnya, pada waktu di-aggregasi hanya akan tampil _summary_ saja. Sehingga yang tampil di website aggregator tidak seluruh isi artikel. Paman Google pun tidak kesal dibuatnya ;)
 
