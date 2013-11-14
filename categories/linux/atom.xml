@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/linux/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-11-14T18:49:37+07:00</updated>
+  <updated>2013-11-14T19:12:28+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -216,7 +216,7 @@ nc -l -p 10166 -c "qm vncproxy 166 abc321"
 
 <p>Setelah itu, kita bisa mengakses VM tersebut menggunakan VNC client seperti pada screenshot.</p>
 
-<p><img src="/images/uploads/2013/02/28/vnc-kvm.png" title="Konfigurasi VNC Client" ></p>
+<p>{% img /images/uploads/2013/02/28/vnc-kvm.png Konfigurasi VNC Client %}</p>
 
 <p>Kosongkan saja username dan password, nanti kita akan dimintai password oleh aplikasinya.</p>
 
@@ -532,86 +532,31 @@ Misalnya, kita memiliki file bernama <em>coba.txt</em>. Ini artinya, ada satu co
 
 <p>Setelah kita memahami opsi <em>rsync</em>, berikut adalah perintah yang kita gunakan</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=rsync-cmd.txt'></script>
-<noscript><pre><code>rsync -a --force --ignore-errors --exclude-from=rsync-exclude.txt --link-dest=folder-backup-sebelumnya SRC DEST</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 rsync-cmd.txt %}</p>
 
 <p>File <em>rsync-exclude.txt</em> berisi folder yang tidak dibackup, punya saya isinya seperti ini :</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=rsync-exclude.txt'></script>
-<noscript><pre><code>#rsync script exclude file
-**/.thumbnails/
-**/Desktop/Trash/
-**/.cache/
-**/.m2/
-**/.metadata/
-**/.netbeans/
-**/.shotwell/
-**/.config/
-**/.gconf/
-**/virtual-machines/</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 rsync-exclude.txt %}</p>
 
 <p><em>folder-backup-sebelumnya</em> perlu dihitung dulu. Caranya menggunakan perintah <em>ls -tr</em> yang akan menampilkan isi folder yang diurutkan berdasarkan modification time secara descending. Berikut contoh outputnya.</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=ls-ltr-output'></script>
-<noscript><pre><code>ls -ltr /opt/downloads/backups/
-total 12
-drwxr-xr-x 3 endy endy 4096 2011-08-26 13:21 20110826-1321
-drwxr-xr-x 3 endy endy 4096 2011-08-26 14:07 20110826-1407
-drwxr-xr-x 3 endy endy 4096 2011-08-26 14:27 20110826-1427</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 ls-ltr-output %}</p>
 
 <p>Dari sini, kita cukup ambil yang paling atas menggunakan perintah <em>tail -1</em></p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=ls-ltr-tail'></script>
-<noscript><pre><code>ls -tr /opt/downloads/backups/ | tail -1
-20110826-1427</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 ls-ltr-tail %}</p>
 
 <p>Dengan bermodalkan pengetahuan tersebut, kita bisa membuat script seperti ini.</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=rsync-backup.sh'></script>
-<noscript><pre><code>#!/usr/bin/env bash
-
-# run hourly with cron
-# 0 * * * * /path/ke/rsync-backup.sh /home/endy /opt/downloads/backups /path/ke/rsync-exclude.txt
-
-SRC=$1
-DEST=$2
-EXCLUDES=$3
-args=(&quot;$@&quot;);
-MORE_OPTS=${args[@]:3}
-
-if [ &quot;$#&quot; -lt 3 ]; then
-    echo &quot;Usage : $0 &lt;src&gt; &lt;dest&gt; &lt;exclude list&gt; [rsync options]&quot;
-    return 1
-fi
-
-
-LAST=$(ls -tr $DEST | tail -1)
-if [ &quot;$LAST&quot; != &quot;&quot; ]; then
-        LINK=&quot;--link-dest=$DEST/$LAST&quot;
-fi
-
-OPTS=&quot; -a --force --ignore-errors --exclude-from=$EXCLUDES $LINK&quot;
-
-# echo OPTS $OPTS MORE_OPTS $MORE_OPTS
-
-rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 rsync-backup.sh %}</p>
 
 <p>Untuk membackup folder <em>/home/endy</em> ke folder <em>/opt/downloads/backups</em>, kita jalankan seperti ini :</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=exec-backup.sh'></script>
-<noscript><pre><code>./rsync-backup-home.sh /home/endy /opt/downloads/backups rsync-exclude.txt</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 exec-backup.sh %}</p>
 
 <p>Selanjutnya, kita bisa pasang di crontab dengan setting seperti ini, supaya dijalankan tiap tiga jam.</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=crontab.txt'></script>
-<noscript><pre><code>0 */3 * * * /path/ke/rsync-backup-home.sh /home/endy /opt/downloads/backups /path/ke/rsync-exclude.txt</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 crontab.txt %}</p>
 
 <p>Voila ... folder home kita sudah terbackup secara otomatis tanpa kita sadari. Sepanjang menulis artikel ini, laptop saya sudah membackup dirinya sendiri sebanyak 3 kali :D</p>
 
@@ -619,9 +564,7 @@ rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></
 
 <p>Berikut adalah perintah rsync yang digunakan.</p>
 
-<p><div><script src='https://gist.github.com/1172978.js?file=copy-backup-to-external.sh'></script>
-<noscript><pre><code>rsync -avzPH /opt/downloads/backups /media/DATA2/</code></pre></noscript></div>
-</p>
+<p>{% gist 1172978 copy-backup-to-external.sh %}</p>
 
 <p>Dan ini adalah penjelasan terhadap opsi yang digunakan:</p>
 
@@ -686,33 +629,20 @@ rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></
 <p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
 
 <p>Konversi dari ogv menjadi mp4
-<div><script src='https://gist.github.com/1048657.js?file=ogv-to-mp4.sh'></script>
-<noscript><pre><code>ffmpeg -vcodec libx264 -vpre lossless_medium -i file-input.ogv file-output.mp4</code></pre></noscript></div>
-</p>
+{% gist 1048657 ogv-to-mp4.sh %}</p>
 
 <p>Konversi dari ogv menjadi webm
-<div><script src='https://gist.github.com/1048657.js?file=ogv-to-webm.sh'></script>
-<noscript><pre><code>ffmpeg -pass 1 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y tmp.webm
-
-rm tmp.webm
-
-ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y file-output.webm
-</code></pre></noscript></div>
-</p>
+{% gist 1048657 ogv-to-webm.sh %}</p>
 
 <p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
 
 <p>Membuat poster
-<div><script src='https://gist.github.com/1048657.js?file=create-poster.sh'></script>
-<noscript><pre><code>ffmpeg -r 1 -t 1 -vframes 1 -i input-file.mp4  output-file.png</code></pre></noscript></div>
-</p>
+{% gist 1048657 create-poster.sh %}</p>
 
 <h2>Upload</h2>
 
 <p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
-<div><script src='https://gist.github.com/1048657.js?file=upload-to-server.sh'></script>
-<noscript><pre><code>rsync -avz /path/to/video/folder user@example.com:/home/user/public_html/videos</code></pre></noscript></div>
-</p>
+{% gist 1048657 upload-to-server.sh %}</p>
 
 <h2>Tampilkan di blog</h2>
 
