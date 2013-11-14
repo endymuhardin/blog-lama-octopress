@@ -216,6 +216,38 @@
 <p>Octopress sudah memiliki <a href="http://octopress.org/docs/blogging/linklog/">dokumentasi untuk fitur ini</a>, tapi entah kenapa ternyata belum bisa dipakai.</p>
 
 <p>Mungkin harus coba bikin sendiri seperti dijelaskan <a href="http://www.candlerblog.com/2012/01/30/octopress-linked-list/">di sini</a></p>
+
+<h2>Solusi</h2>
+
+<p>Kebetulan semua website yang ingin saya aggregasi adalah website saya sendiri, dan semuanya Octopress. Oleh karena itu, saya modifikasi saja <code>Atom Feed</code>nya supaya menghasilkan <em>summary</em> artikel kalau ada. Kalau tidak ada <em>summary</em>, barulah tampilkan content penuhnya.</p>
+
+<p>Caranya mudah, edit file <code>source/atom.xml</code>, yang tadinya seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;content</span> <span class="na">type=</span><span class="s">&quot;html&quot;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[{{ post.content | expand_urls: site.url | cdata_escape }}]]&gt;</span><span class="nt">&lt;/content&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>menjadi seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>{% capture excerpted %}{{ post.content | has_excerpt }}{% endcapture %}
+</span><span class='line'>{% if excerpted == &#39;true&#39; %}
+</span><span class='line'>    <span class="nt">&lt;summary</span> <span class="na">type=</span><span class="s">&quot;html&quot;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[{{ post.content | split: &#39;&lt;!--more--&gt;&#39; | first | expand_urls: site.url | cdata_escape }}]]&gt;</span><span class="nt">&lt;/summary&gt;</span>
+</span><span class='line'>{% else %}
+</span><span class='line'><span class="nt">&lt;content</span> <span class="na">type=</span><span class="s">&quot;html&quot;</span><span class="nt">&gt;</span><span class="cp">&lt;![CDATA[{{ post.content | expand_urls: site.url | cdata_escape }}]]&gt;</span><span class="nt">&lt;/content&gt;</span>
+</span><span class='line'>{% endif %}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, generate ulang dan deploy masing-masing website. Hasilnya, pada waktu di-aggregasi hanya akan tampil <em>summary</em> saja. Sehingga yang tampil di website aggregator tidak seluruh isi artikel. Paman Google pun tidak kesal dibuatnya ;)</p>
+
+<p>Selamat mencoba</p>
 </div>
 
 
