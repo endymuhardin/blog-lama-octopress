@@ -64,10 +64,22 @@ Kemudian saya memberikan rekomendasi yang lebih simple
 > Coba google dengan keyword `free icon`. 
 > Nanti ketemu banyak, salah satunya [famfamfam](http://www.famfamfam.com/lab/icons/).
 
-Nah, itu sudah jelas gratis, tidak perlu pusing _terms & conditions_ dari lisensi [EPL](http://en.wikipedia.org/wiki/Eclipse_Public_License). 
+Nah, itu sudah jelas gratis, tidak perlu pusing _terms & conditions_ dari lisensi [EPL](http://en.wikipedia.org/wiki/Eclipse_Public_License).
+
+## Problem Worth Solving ##
+
+Satu hal lagi yang penting, problem solving itu butuh cost. Baik waktu, tenaga, maupun uang. Jadi sebelum kita mulai, dipastikan dulu bahwa cost tersebut ada justifikasinya.
+
+Kalo kita cari solusi di google dan gak nemu, baiknya introspeksi dulu.
+
+> Apakah problem saya sedemikian uniknya sehingga sedunia gak ada yang pernah mengalami?
+
+Tanyakan juga ke diri sendiri
+
+> Atau jangan2, problem kita sedemikian worthless sehingga gak ada yang mau repot2 bikinin solusi?
 
 ## Kesimpulan ##
 
 Dengan menjabarkan problemnya dengan baik, solusi yang sederhana bisa didapatkan. Tim saya di [ArtiVisi](http://www.artivisi.com) sudah terbiasa dengan pendekatan seperti ini. Setiap kali mereka minta solusi untuk suatu hal teknis yang rumit, saya akan selalu mengarahkan untuk menganalisa ulang requirement. Apakah memang harus demikian solusinya? Bila iya, coba lagi negosiasikan requirement supaya bisa menggunakan solusi yang lebih sederhana. Lebih baik negosiasi requirement seharian daripada harus coding solusi rumit dua minggu (belum lagi testing, debugging, maintenance, dst).
 
-
+Jangan lupa ditimbang-timbang dulu, apakah problemnya `layak` dicarikan solusinya. Supaya waktu, tenaga, uang kita bisa dialokasikan seoptimal mungkin.
