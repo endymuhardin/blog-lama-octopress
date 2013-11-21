@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, &hellip;">
+  <meta name="description" content="Pada artikel sebelumnya, kita sudah membahas penggunaan Luntbuild dan CruiseControl untuk menerapkan Continuous Integration (CI). Kali ini, kita akan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,164 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/hudson/">Continuous Integration Dengan Hudson</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-10-09T23:16:08+07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel sebelumnya, kita sudah membahas <a href="http://endy.artivisi.com/blog/java/luntbuild/">penggunaan Luntbuild</a> dan <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a> untuk menerapkan Continuous Integration (CI). Kali ini, kita akan mencoba <a href="https://hudson.dev.java.net/">Hudson</a>, aplikasi CI lain yang tersedia.</p>
+
+<p>Hudson dapat <a href="https://hudson.dev.java.net/servlets/ProjectDocumentList?folderID=2761&amp;expandFolder=2761&amp;folderID=0">diunduh dari websitenya</a>. Setelah mengunduh, kita akan mendapatkan satu file *war. File ini dapat langsung dijalankan standalone dengan perintah:</p>
+
+<p><code>java -jar hudson.war</code></p>
+
+<p>Ataupun dideploy ke servlet engine favorit Anda, seperti Tomcat atau sejenisnya.</p>
+
+<p>Setelah dideploy, kita bisa melihat tampilan awalnya melalui browser ke alamat http://localhost:8080 (untuk standalone) atau http://localhost:8080/hudson (bila dideploy ke servlet engine)</p>
+
+<p>Keunggulan pertama Hudson adalah kemudahan setupnya. Segera setelah dijalankan (baik standalone maupun dideploy), kita bisa segera mengunjungi halaman depannya.</p>
+
+<p><img src="/images/uploads/2007/10/welcome.png" title="Hudson Welcome Page" ></p>
+
+<p>Hal pertama yang saya lakukan adalah konfigurasi email. Bila ini tidak dilakukan, Hudson akan gagal mengirim email laporan hasil build.</p>
+
+<p>Klik Manage Hudson di sebelah kiri atas. Layar konfigurasi akan muncul.</p>
+
+<p><img src="/images/uploads/2007/10/manage-hudson.png" title="Manage Hudson" ></p>
+
+<p>Selanjutnya, pilih System Configuration, lalu scroll ke bagian bawah untuk mengatur email.</p>
+
+<p><img src="/images/uploads/2007/10/email-config.png" title="Email Configuration" ></p>
+
+<p>Setelah selesai, klik OK.</p>
+
+<p>Bila Ant belum ada di PATH komputer Anda, jangan lupa untuk menyebutkan folder instalasi Ant di halaman ini.</p>
+
+<p>Setelah selesai, kita bisa langsung mendaftarkan job. Klik tombol New Job di kiri atas.</p>
+
+<p><img src="/images/uploads/2007/10/create-job.png" title="Create New Job" ></p>
+
+<p>Project saya menggunakan Ant biasa, tanpa Maven. Jadi saya pilih free-style. Klik OK.</p>
+
+<p>Selanjutnya, kita konfigurasi repository project. Isikan nilai yang sesuai di bagian Source Code Management.</p>
+
+<p><img src="/images/uploads/2007/10/configure-svn.png" title="Configure Subversion" ></p>
+
+<p>Segera setelah kursor meninggalkan field Repository URL (on blur), Hudson akan memeriksa URL yang kita berikan. Bila URL tersebut membutuhkan otentikasi, Hudson akan mengeluarkan pesan error dengan link untuk mengkonfigurasi username dan password.</p>
+
+<p><img src="/images/uploads/2007/10/svn-auth.png" title="Subversion Authentication" ></p>
+
+<p>Isikan nilai yang sesuai. Seperti kita lihat, Hudson mendukung beberapa modus otentikasi.</p>
+
+<p>Bagian selanjutnya adalah jadwal build atau trigger. Hudson menggunakan format yang mirip dengan Cron.</p>
+
+<p><img src="/images/uploads/2007/10/build-schedule.png" title="Build Schedule" ></p>
+
+<p>Bila kita ingin melakukan build setiap jam, hanya pada hari kerja, entrinya adalah sebagai berikut:</p>
+
+<p><code>1 * * * 1-5</code></p>
+
+<p>Agar build berjalan setiap jam 1 dini hari, hari Senin dan Rabu, entrinya sebagai berikut:</p>
+
+<p><code>0 * 1 * 1,3</code></p>
+
+<p>Setelah jadwal, kita mengkonfigurasi proses build itu sendiri. Di project saya, build dilakukan oleh Ant. Kita bisa mendaftarkan target yang akan dieksekusi.</p>
+
+<p><img src="/images/uploads/2007/10/build-method.png" title="Build Method" ></p>
+
+<p>Terakhir, kita mengkonfigurasi post build. Ini adalah kegiatan yang dilakukan setelah build sukses dijalankan. Pada tahap ini, saya ingin Hudson mempublikasikan <em>.jar atau </em>.war yang dihasilkan agar siap didonlod.</p>
+
+<p><img src="/images/uploads/2007/10/post-build.png" title="Post Build" ></p>
+
+<p>Selain itu, saya juga bisa menyuruh Hudson untuk memproses hasil unit test JUnit. Hudson mengerti file XML yang dihasilkan JUnit dan TestNG.</p>
+
+<p>Hudson juga bisa disuruh mengirim email apabila terjadi kegagalan build. Di sini biasanya saya isi dengan alamat mailing list developer.</p>
+
+<p>Setelah selesai, klik Save.</p>
+
+<p>Selanjutnya, kita tinggal melihat-lihat hasilnya.</p>
+
+<p>Di halaman depan, kita bisa lihat rangkuman status tiap project.</p>
+
+<p><img src="/images/uploads/2007/10/build-status.png" title="Build Status" ></p>
+
+<p>Klik salah satu project, dan lihat detailnya</p>
+
+<p><img src="/images/uploads/2007/10/build-result.png" title="Build Result" ></p>
+
+<p>Di situ kita bisa lihat artifact yang sudah dipublish. Dari semua build yang sudah dilakukan, kita bisa lihat trendnya.</p>
+
+<p><img src="/images/uploads/2007/10/build-time-trend.png" title="Trend of Build Time" ></p>
+
+<p>Selain itu, kita juga bisa lihat hasil JUnit test.</p>
+
+<p><img src="/images/uploads/2007/10/junit-result.png" title="JUnit Result" ></p>
+
+<p>Kesimpulan akhir, berikut adalah perbandingan ketiga tools ini.</p>
+
+<p>Tools Setup Tampilan Aksesoris Tag Otomatis</p>
+
+<p>CruiseControl</p>
+
+<p>Sulit, semua harus pakai XML</p>
+
+<p>Kurang bagus, terlihat kuno</p>
+
+<p>Lengkap</p>
+
+<p>Bisa, menggunakan publisher</p>
+
+<p>Luntbuild</p>
+
+<p>Mudah, setup melalui web</p>
+
+<p>Rumit dan kurang intuitif</p>
+
+<p>Sangat sedikit</p>
+
+<p>Bisa, dikonfigurasi melalui web</p>
+
+<p>Hudson</p>
+
+<p>Sangat Mudah</p>
+
+<p>Bagus, intuitif, Web 2.0, AJAX</p>
+
+<p>Eclipse plugin, Netbeans Plugin, Trac Plugin</p>
+
+<p>Tidak bisa, harus manual</p>
+
+<p>Demikianlah, semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -256,165 +414,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/menggunakan-postgresql/">Menggunakan PostgreSQL</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-24T18:35:16+07:00" pubdate data-updated="true">Sep 24<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan <a href="http://www.mysql.org">ikan lumba-lumba</a> menjadi <a href="http://www.postgresql.org">gajah</a>. Sebetulnya saya pernah menggunakan database gajah ini pada tahun 2005, tapi setelah itu jarang digunakan sehingga butuh waktu agak lama untuk melakukan porting ini.</p>
-
-<p>Agar lain kali tidak lupa lagi, baiklah saya tulis di sini saja. Mudah-mudahan bermanfaat juga untuk pembaca :D</p>
-
-<h3>Instalasi</h3>
-
-<p>Saya menggunakan Ubuntu, jadi instalasi tidak sulit. Cukup lakukan:
-<code>sudo apt-get install postgresql-8.2</code>
-Beres .. :D</p>
-
-<h3>Konfigurasi Akses Jaringan</h3>
-
-<p>Selanjutnya, konfigurasi Postgre agar meminta password setiap ada koneksi masuk, termasuk dari localhost. Ini dilakukan agar konfigurasi JDBCnya tidak terlalu berbeda dengan konfigurasi sebelumnya yang menggunakan MySQL.</p>
-
-<p>Ganti otentikasi dalam <code>pg_hba.conf</code> menjadi</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>local   all         all                           password
-</span><span class='line'>host    all         all         127.0.0.1/32      password
-</span><span class='line'>host    all         all         ::1/128           password</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File <code>pg_hba.conf</code> ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder <code>/etc/postgresql/8.2/main</code>. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/postgresql restart</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Menambahkan User</h3>
-
-<p>Untuk menambahkan user, kita perlu <em>menyamar</em> sebagai user <code>postgres</code>.  Gunakan <code>su</code>.
-<code>sudo su - postgres</code></p>
-
-<p>Selanjutnya, jalankan perintah <code>createuser</code> dengan argumen P untuk meminta password.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>createuser -P
-</span><span class='line'>Enter name of role to add: belajar
-</span><span class='line'>Enter password for new role: 
-</span><span class='line'>Enter it again: 
-</span><span class='line'>Shall the new role be a superuser? (y/n) n
-</span><span class='line'>Shall the new role be allowed to create databases? (y/n) y
-</span><span class='line'>Shall the new role be allowed to create more new roles? (y/n) n
-</span><span class='line'>CREATE ROLE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Perintah di atas menambahkan user dengan username <code>belajar</code> yang memiliki ijin untuk membuat database baru.</p>
-
-<p>Selanjutnya, keluar dari user postgres dengan menggunakan perintah <code>exit</code>.</p>
-
-<h3>Membuat Database</h3>
-
-<p>Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yang namanya <code>buku_tamu</code>. Gunakan perintah <code>createdb</code> dengan argumen U untuk menyebutkan username.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>createdb -U belajar buku_tamu
-</span><span class='line'>Password: 
-</span><span class='line'>CREATE DATABASE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Setelah selesai, coba koneksi ke database tersebut.</p>
-
-<p><code>psql -U belajar -d buku_tamu</code></p>
-
-<h3>Konfigurasi JDBC</h3>
-
-<p>Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
-</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-</span><span class='line'>jdbc.username    = belajar
-</span><span class='line'>jdbc.password    = java</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Saya menggunakan Hibernate, sehingga butuh satu parameter lagi, yaitu dialek SQL yang digunakan.</p>
-
-<p><code>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</code></p>
-
-<p>Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti lima baris konfigurasi (bukan source code), dari seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = com.mysql.jdbc.Driver
-</span><span class='line'>jdbc.url         = jdbc:mysql://localhost/buku_tamu
-</span><span class='line'>jdbc.username    = belajar
-</span><span class='line'>jdbc.password    = java
-</span><span class='line'>hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Menjadi seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
-</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-</span><span class='line'>jdbc.username    = belajar
-</span><span class='line'>jdbc.password    = java
-</span><span class='line'>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Oh iya, jangan lupa <a href="http://jdbc.postgresql.org/download.html">unduh dulu driver JDBC untuk PostgreSQL</a>. Saya menggunakan versi <strong>8.2-506 JDBC 4</strong>.</p>
-
-<p>Demikian setup PostgreSQL agar bisa diakses dari Java.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/40/">&larr; Older</a>
@@ -491,6 +490,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/enkripsi-dekripsi-file-dengan-java/">Symmetric Encryption dengan Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/tips-upgrade-library/">Tips Upgrade Library</a>
       </li>
     
@@ -524,10 +527,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
       </li>
     
   </ul>

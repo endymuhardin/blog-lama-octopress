@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
-100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221; &hellip;">
+  <meta name="description" content="Tadinya cuma pengen tampilan arsip seperti punyanya mas Andry. Tapi sayangnya dia pakai aplikasi blog lain yang beda dengan saya punya. Jadi &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,51 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/plugin-untuk-archive/">Plugin Untuk Archive</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T00:49:47+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Tadinya cuma pengen tampilan arsip seperti <a href="http://andryshuzain.com/archives">punyanya mas Andry</a>. Tapi sayangnya dia pakai <a href="http://textpattern.com/">aplikasi blog lain</a> yang beda dengan <a href="http://www.wordpress.org">saya punya</a>. Jadi solusinya dia kemungkinan besar tidak bisa diimplement di sini.</p>
+
+<p>Tadinya mau coding sendiri, browsing ke <a href="http://codex.wordpress.org">situs dokumentasi Wordpress</a>, malah ketemu <a href="http://www.sonsofskadi.net/extended-live-archive/">plugin Extended Live Archives</a>, berikut <a href="http://www.24fightingchickens.com/2006/01/03/extended-live-archives/">cara instalasinya</a>.</p>
+
+<p>Setelah sedikit berkutat dengan file CSS, tadaaa&#8230;. silahkan <a href="http://endy.artivisi.com/blog/archive-live/">lihat sendiri</a>. Kalau anda melihat halaman kosong, tunggu sejenak, tandanya dia sedang loading.
+Nanti setelah loading, ada rangkuman arsip canggih berteknologi AJAX.</p>
+
+<p>Cool &#8230; :D</p>
+
+<p>Update: Sesuai saran mas Andry, saya coba instal <a href="http://www.sporadicnonsense.com/2006/05/04/clean-archives-20/">SRG Clean Archives</a>. Hasilnya bisa dilihat <a href="http://endy.artivisi.com/blog/archive-simple/">di sini</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -421,106 +465,6 @@ Sangat bermanfaat untuk mendongkrak kreativitas adik-adik kita di SD.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/otomasi-transfer-file-dengan-winscp/">Otomasi Transfer File Dengan WinSCP</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-05-24T22:50:54+07:00" pubdate data-updated="true">May 24<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah sebelumnya kita mengotomasi backup untuk Subversion, baik <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">di Windows</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">di Linux</a>, masih ada sedikit PR yang tersisa.</p>
-
-<p>File backup yang dihasilkan oleh script masih berkeliaran di komputer yang sama dengan repository. Jadi kalau sempat terjadi bencana harddisk jebol, repository beserta backupnya akan musnah tanpa sisa.</p>
-
-<p>Solusi sementaranya adalah dengan cara rajin memindahkan file-file backup secara periodik ke komputer lain, untuk selanjutnya ditulis ke dalam CD/DVD.
-Tetapi, kegiatan copy-mengcopy setiap minggu sangat membosankan. Belum lagi kalau ternyata ada assignment mendadak sehingga kegiatan transfer file menjadi terlupakan.
-Solusi yang lebih <em>hi-tech</em> adalah dengan mengotomasi proses transfer file. Jadi, file backup yang sudah dihasilkan akan kita transfer secara otomatis ke komputer lain, kalau perlu komputer di negara lain.</p>
-
-<p>Untuk melakukan otomasi ini, kita membutuhkan aplikasi <a href="http://www.winscp.net">WinSCP</a>. Ini adalah aplikasi untuk mentransfer file antara komputer Windows dengan Linux. Sejak menggunakan aplikasi ini, saya tidak pernah lagi menggunakan Windows Sharing dan Samba Server untuk kebutuhan file transfer.</p>
-
-<p>Berikut caranya. Perhatikan bahwa konfigurasi saya adalah sebagai berikut:</p>
-
-<ul>
-<li><p>Repository Server: Windows 2000 Professional dengan WinSCP terinstal</p></li>
-<li><p>Backup Server: Linux OpenSuSE 10.0 dengan SSH server aktif [IP Address: 192.168.0.2]</p></li>
-<li><p>Username di Backup Server: <code>backuponly</code></p></li>
-<li><p>Password di Backup Server: <code>backuppasswd</code></p></li>
-<li><p>Folder yang mau dibackup: <code>c:\Backup</code></p></li>
-<li><p>Folder tujuan: <code>/home/endy/backup</code></p></li>
-</ul>
-
-
-<p>Salah satu keunggulan WinSCP adalah, selain bisa mengelola transfer secara GUI, dia juga memiliki kemampuan scripting, sehingga bisa dipanggil dari command prompt.</p>
-
-<p>%{ img /images/uploads/2006/05/winscp.png Screenshot WinSCP %}</p>
-
-<p>Berikut adalah script untuk mengotomasi proses copy folder <code>C:\Backup</code> dari Windows ke <code>/home/endy/backup</code> di Linux. Save sebagai <code>c:\upload-backup.txt</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># Modus batch, supaya WinSCP tidak tanya-tanya
-</span><span class='line'>option batch on
-</span><span class='line'># Otomatis overwrite file yang sama
-</span><span class='line'>option confirm off
-</span><span class='line'># Masukkan username dan password
-</span><span class='line'>open backuponly:backuppasswd@192.168.0.2
-</span><span class='line'># Pindah ke folder backup
-</span><span class='line'>cd /home/endy/backup
-</span><span class='line'># Upload folder C:\Backup seisinya
-</span><span class='line'>put c:/Backup 
-</span><span class='line'># Disconnect
-</span><span class='line'>close
-</span><span class='line'># Exit WinSCP
-</span><span class='line'>exit</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dan berikut adalah bat script untuk mengeksekusi script di atas, save dengan nama <em>c:\backup-scp.bat</em>:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"C:\Program Files\WinSCP3\winscp3.exe" /console /script=upload-backup.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Script backup-scp.bat siap dijalankan melalui Windows Scheduler, sebaiknya 10 menit setelah jadwal backup.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/56/">&larr; Older</a>
@@ -597,6 +541,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/enkripsi-dekripsi-file-dengan-java/">Symmetric Encryption dengan Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/tips-upgrade-library/">Tips Upgrade Library</a>
       </li>
     
@@ -630,10 +578,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
       </li>
     
   </ul>

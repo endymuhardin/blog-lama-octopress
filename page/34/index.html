@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Aplikasi web &#8211;berbeda dengan aplikasi desktop&#8211; ditakdirkan untuk stateless. Artinya dia tidak menyimpan data untuk masing-masing user &hellip;">
+  <meta name="description" content="Pada artikel kali ini, kita akan mengurusi masalah sepele tapi penting, yaitu Internationalization (i18n) dan Localization (l10n). i18n adalah &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,216 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-6/">Aplikasi Web Dengan Spring 2.5 [Bagian 6]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-19T17:24:03+07:00" pubdate data-updated="true">Jan 19<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel kali ini, kita akan mengurusi masalah sepele tapi penting, yaitu Internationalization (i18n) dan Localization (l10n). i18n adalah menyiapkan aplikasi kita supaya bisa beradaptasi dengan berbagai bahasa, format penomoran, mata uang, dan hal-hal lain yang berkaitan dengan globalisasi.</p>
+
+<p>Para pembaca mungkin ada yang bertanya,</p>
+
+<blockquote><p>Ah, aplikasi saya tidak perlu multibahasa kok. Saya bikin dalam bahasa Inggris, dan tidak akan diubah-ubah lagi.</p></blockquote>
+
+<p>Baiklah, mungkin aplikasi kita tidak akan berganti bahasa. Tapi mungkin sekali akan terjadi banyak revisi tampilan. Kita sebagai programmer mungkin mahir berbahasa PHP, Java, Ruby, atau bahasa-bahasa komputer lainnya. Tetapi belum tentu kita dapat menyaingi seorang JS Badudu dalam urusan Bahasa Indonesia.</p>
+
+<p>Oleh karena itu, penting untuk menyiapkan aplikasi kita agar setidaknya tulisan yang dilihat user bisa diganti dengan mudah.</p>
+
+<p>Mari kita lihat template sederhana berikut.</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+&lt;title&gt;:: List of All Person ::&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;List of All Person&lt;/h1&gt;
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+    &lt;tr&gt;
+        &lt;th&gt;Name&lt;/th&gt;
+        &lt;th&gt;Email&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+    &lt;/tr&gt;
+    #foreach($person in $personList)
+    &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
+         href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    #end
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Seperti kita lihat, ada beberapa tulisan yang muncul di situ, yaitu:</p>
+
+<ul>
+<li>Judul halaman</li>
+<li>Nama kolom pada tabel : Nama, Email</li>
+<li>link untuk edit dan lihat</li>
+</ul>
+
+
+<p>Spring sudah memiliki dukungan built-in untuk mengeluarkan tulisan tersebut ke file text. Nantinya kita bisa edit file tersebut dengan mudah. Kita juga bisa punya beberapa file dalam berbagai bahasa, sehingga aplikasi dapat mendeteksi setting regional komputer, dan kemudian menampilkan bahasa yang sesuai.</p>
+
+<p>Tapi untuk artikel ini, cukuplah kita mengeluarkan tulisan itu ke file text. Fitur-fitur tambahan lainnya silahkan dieksplorasi sendiri oleh pembaca.</p>
+
+<p>Kita menggunakan tag <code>#springMessage</code> untuk mengeluarkan tulisan tersebut. Tag ini khusus untuk Velocity. Bila Anda menggunakan JSP atau Freemarker, silahkan lihat referensi Spring.</p>
+
+<p>Template yang sudah diubah terlihat menjadi seperti ini.</p>
+
+<h3>personlist.html</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+&lt;title&gt;:: #springMessage("personlist.title") ::&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;#springMessage("personlist.title")&lt;/h1&gt;
+
+&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
+    &lt;tr&gt;
+        &lt;th&gt;#springMessage("personlist.name")&lt;/th&gt;
+        &lt;th&gt;#springMessage("personlist.email")&lt;/th&gt;
+        &lt;th&gt; &lt;/th&gt;
+    &lt;/tr&gt;
+    #foreach($person in $personList)
+    &lt;tr&gt;
+        &lt;td&gt;$person.Name&lt;/td&gt;
+        &lt;td&gt;$person.Email&lt;/td&gt;
+        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;#springMessage("list.edit")&lt;/a&gt; | &lt;a
+         href="persondetail?person_id=$person.Id"&gt;#springMessage("list.view")&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    #end
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Tag <code>#springMessage</code> membutuhkan satu argumen, yaitu nama yang kita berikan untuk tulisan tersebut. Ini akan menjadi jelas setelah kita lihat file text yang menampung tulisan tersebut, misalnya saya beri nama <code>messages.properties</code>.</p>
+
+<h3>messages.properties</h3>
+
+<pre><code>list.edit = edit
+list.view = lihat
+
+personlist.title = Daftar Orang
+personlist.name = Nama
+personlist.email = Alamat Email
+</code></pre>
+
+<p>Setelah file tersebut siap, kita konfigurasi Spring agar membaca file tersebut. Lokasi konfigurasinya ada di <code>tutorial-servlet.xml</code>. Berikut isinya.</p>
+
+<h3>tutorial-servlet.xml</h3>
+
+<pre><code>&lt;bean id="messageSource"
+      class="org.springframework.context.support.ResourceBundleMessageSource"
+      p:basename="messages" /&gt;
+</code></pre>
+
+<p>Nah, silahkan deploy ulang aplikasinya. Sekarang semua tulisan yang tampil sudah bisa dikonfigurasi melalui text file.</p>
+
+<p>Selanjutnya, bagaimana mengakses file tulisan tersebut dari kode Java? Kita membutuhkannya untuk menampilkan pesan error dari hasil import data.</p>
+
+<p>Mudah saja, langsung saja gunakan object <code>messageSource</code> yang sudah kita deklarasikan tadi. Kita dapat mendapatkan object tersebut dengan menggunakan dependency injection. Berikut adalah kode PersonCSVParser yang akan menggunakan <code>messageSource</code>.</p>
+
+<h3>PersonCSVParser.java</h3>
+
+<pre><code>package tutorial.spring25.helper;
+
+@Component
+public class PersonCSVParser {
+    private MessageSource messageSource;
+
+    @Autowired(required=true)
+    public void setMessageSource(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void parse(List&lt;String&gt; data, List&lt;Person&gt; result, List&lt;ParseError&gt; errors) {
+
+        -- snip --
+
+        // check for malformed data
+        if(tokenizer.countTokens() != PERSON_NUM_FIELDS) {
+            errors.add(new ParseError(
+                counter, text,
+                messageSource.getMessage(
+                    "parseerror.reason.malformed",
+                    new Object[]{2,tokenizer.countTokens()},
+                    Locale.getDefault()
+                )
+            ));
+        }
+
+        -- snip --
+
+        if(bindErrors.hasErrors()) {
+            List&lt;ObjectError&gt; bindErrorContent = bindErrors.getAllErrors();
+
+            for (ObjectError objectError : bindErrorContent) {
+                errors.add(new ParseError(
+                    counter, text,
+                    messageSource.getMessage(
+                        objectError.getCode(),
+                        objectError.getArguments(),
+                        Locale.getDefault()
+                    )
+                ));
+            }
+        }
+
+        result.add(person);
+    }
+}
+</code></pre>
+
+<p>Nah, mudah bukan? Karena itu, dari hari pertama coding, langsung saja siapkan aplikasi Anda untuk i18n.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -455,195 +665,6 @@ Dir.foreach(svn_parent_path) { |repo|
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-4/">Aplikasi Web Dengan Spring 2.5 [Bagian 4]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-01-17T17:21:58+07:00" pubdate data-updated="true">Jan 17<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara menangani upload file dengan Spring MVC versi 2.5. Di artikel selanjutnya baru kita akan bahas tentang state management.</p>
-
-<p>Studi kasus kita kali ini sederhana saja. Kita sudah punya aplikasi buku alamat sederhana pada rangkaian artikel sebelumnya. Kita sudah bisa <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-1/">menampilkan daftar data orang</a>, <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-2/">mengedit data yang sudah ada atau menambah data baru</a>, serta <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-3/">menggunakan template untuk header dan footer</a>. Kali ini kita akan membuat fasilitas import data berupa text file berformat Comma Separated Value (CSV).</p>
-
-<p>File yang akan kita import kira-kira berbentuk seperti ini:</p>
-
-<pre><code>Endy Muhardin,endy.muhardin@gmail.com
-Hadikusuma Wahab,dhiku@artivisi.com
-Ifnu Bima,ifnubima@gmail.com
-</code></pre>
-
-<p>Setelah file tersebut diupload, kita akan memasukkan masing-masing data ke dalam database. Setelah itu, user akan kita arahkan ke halaman daftar data orang, sehingga data yang baru saja diupload bisa dilihat.</p>
-
-<p>Untuk melakukan upload, kita harus membuat HTML form dengan <em>encoding type</em> multipart form data. Artinya, data kita akan dikirim melalui HTTP POST dalam beberapa bagian (multipart). Kira-kira mekanismenya mirip dengan mengirim attachment melalui email.</p>
-
-<p>Berikut adalah kode program HTMLnya.</p>
-
-<h3>personuploadform.html</h3>
-
-<pre><code>&lt;html&gt;
-
-&lt;head&gt;&lt;title&gt;:: Upload Person Data ::&lt;/title&gt;&lt;/head&gt;
-
-&lt;body&gt;
-
-&lt;h1&gt;Upload Person Data&lt;/h1&gt;
-
-&lt;form method="POST" enctype="multipart/form-data"&gt;
-
-&lt;table&gt;  
-  &lt;tr&gt;
-    &lt;td&gt;&lt;label for="file"&gt;Person Data&lt;/label&gt;&lt;/td&gt;
-    &lt;td&gt;&lt;input type="file" name="persondata"&gt;&lt;/td&gt;
-  &lt;/tr&gt;&lt;tr&gt;
-    &lt;td&gt; &lt;/td&gt;
-    &lt;td&gt;&lt;input type="submit" class="inputbutton" value="Upload"/&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;/form&gt;
-
-&lt;/body&gt;
-
-&lt;/html&gt;
-</code></pre>
-
-<p>Perhatikan tag form. Di sana ada satu hal yang berbeda, yaitu <code>enctype="multipart/form-data"</code>. Semua aplikasi web yang ingin mengupload file harus membuat tag form seperti itu, apapun bahasa pemrograman yang digunakan. Ini sering menimbulkan kebingungan di kalangan pemula.</p>
-
-<blockquote><p>Saya sudah ikuti semua instruksi, tapi kenapa file yang diupload tidak terbaca?</p></blockquote>
-
-<p>Untuk menerima file, kita gunakan <code>input type="file"</code>.</p>
-
-<p>Selanjutnya masuk ke kode Java. Untuk menampilkan dan memproses form ini, kita buatkan class PersonUploadController. Bentuknya mirip dengan PersonFormController yang kemarin sudah kita buat. Ada method untuk menampilkan halaman form, dan ada method untuk memproses data yang dikirim user. Berikut class PersonUploadController.</p>
-
-<h3>PersonUploadController.java</h3>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-@RequestMapping("/personuploadform")
-public class PersonUploadController {
-  private static final Log LOG = LogFactory.getLog(PersonUploadController.class);
-  private PersonCSVParser personDataParser;
-  private PersonDao personDao;
-
-  @Autowired(required=true)
-  public void setPersonDao(PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @Autowired(required=true)
-  public void setPersonDataParser(PersonCSVParser personDataParser) {
-    this.personDataParser = personDataParser;
-  }
-
-  @RequestMapping(method=RequestMethod.GET)
-  public ModelMap displayForm(){
-    return new ModelMap();
-  }
-
-  @RequestMapping(method=RequestMethod.POST) 
-  public String processForm(@RequestParam("persondata") MultipartFile file) {
-    // parse file into list of strings
-    List contents = new ArrayList();
-    try {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-      String content = reader.readLine();
-      while(content != null) {
-
-        if("".equals(content)) {
-          content = reader.readLine();
-          continue;
-        }
-        contents.add(content);
-        content = reader.readLine();
-      }
-      reader.close();
-    } catch (IOException e) {
-      LOG.warn(e.getMessage(), e);
-    }
-
-    // parse list of strings into list of Persons
-    List persons = new ArrayList();
-    List errors = new ArrayList();
-    personDataParser.parse(contents, persons, errors);
-
-    for (Person person : persons) {
-      personDao.save(person);
-    }
-
-    return "redirect:personlist"
-  }
-}
-</code></pre>
-
-<p>Logika kode di atas tidak sulit. Untuk mendisplay form, praktis tidak ada yang perlu dilakukan. Kita cukup memberikan model kosong, karena form upload tidak membutuhkan data apa-apa.</p>
-
-<p>Pada saat memproses form, kita menerima parameter MultipartFile. Ini adalah file yang sudah diparsing oleh Spring. Parameter ini diambil dari input form dengan nama <code>persondata</code>.</p>
-
-<p>Supaya Spring bisa memisahkan file yang diupload dari keseluruhan HttpRequest, kita harus menyediakan resolver. Ada dua library yang biasa digunakan orang untuk memproses file upload, yaitu:</p>
-
-<ul>
-<li><a href="http://commons.apache.org/fileupload/">Jakarta Commons FileUpload</a></li>
-<li><a href="http://www.servlets.com/cos/">COS (com.oreilly.servlet)</a></li>
-</ul>
-
-
-<p>Spring mendukung kedua library. Saya biasanya menggunakan Jakarta Commons. Untuk mengaktifkan dukungan ini, kita perlu menambahkan resolver di konfigurasi DispatcherServlet.</p>
-
-<h3>tutorial-servlet.xml</h3>
-
-<pre><code>&lt;bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"&gt;
-  &lt;property name="maxUploadSize" value="1000000"/&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Setelah file didapat, kita lalu membaca isinya. Hanya operasi I/O standar di sini. Kita membuka <code>InputStream</code> yang dibungkus dengan <code>BufferedReader</code> yang memiliki method <code>readLine</code> yang praktis. Kemudian kita looping setiap baris. Jangan lupa untuk memeriksa baris kosong. Hasil pembacaan file kita simpan ke List<String> untuk pemrosesan selanjutnya.</p>
-
-<p>Pemrosesan String menjadi Person kita lakukan di class PersonCSVParser supaya ada pembagian tanggung jawab yang jelas. Memisahkan parser di class tersendiri akan memudahkan kita untuk mengetes kode parser tersebut.</p>
-
-<p>PersonCSVParser tidak ditampilkan di sini. Bagi yang ingin melihat kode programnya dapat langsung pergi ke <a href="http://hello-spring-25.googlecode.com/svn/trunk/src/java/tutorial/spring25/helper/PersonCSVParser.java">GoogleCode</a>. Demikian juga kelengkapannya, seperti:</p>
-
-<ul>
-<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/src/java/test/spring25/helper/PersonCSVParserTest.java">PersonCSVParserTest</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/fixtures/person.csv">person.csv</a> : sampel data test, semua data normal</li>
-<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/fixtures/person-with-malformed-emails.csv">person-with-malformed-emails.csv</a> : sampel data test, ada email yang formatnya salah</li>
-</ul>
-
-
-<p>Setelah data diproses menjadi kumpulan Person, kita looping lagi untuk menyimpan hasilnya ke database dengan menggunakan <code>personDao</code>.</p>
-
-<p>Terakhir, setelah semua selesai, kita redirect ke halaman daftar orang. Seharusnya kita menampilkan hasil upload. Mana data yang error, dan mana data yang sukses diimpor. Tapi materi ini membutuhkan pengetahuan tentang session, yang akan kita bahas pada artikel mendatang.</p>
-
-<p>Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/35/">&larr; Older</a>
@@ -720,6 +741,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/enkripsi-dekripsi-file-dengan-java/">Symmetric Encryption dengan Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/tips-upgrade-library/">Tips Upgrade Library</a>
       </li>
     
@@ -753,10 +778,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
       </li>
     
   </ul>

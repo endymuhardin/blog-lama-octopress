@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-11-19T11:43:08+07:00</updated>
+  <updated>2013-11-21T14:17:41+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,546 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Symmetric Encryption dengan Java]]></title>
+    <link href="http://software.endy.muhardin.com/java/enkripsi-dekripsi-file-dengan-java/"/>
+    <updated>2013-11-21T12:00:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/enkripsi-dekripsi-file-dengan-java</id>
+    <content type="html"><![CDATA[<p>Beberapa hari terakhir ini, media massa ribut-ribut mengenai telepon si bos yang disadap orang ostrali. Karena ini blog programming, kita tidak akan membahas tentang implikasi politik dari urusan sadap-menyadap tersebut. Kita juga tidak akan membahas kelakuan ABG script-kiddies yang sudah merasa hebat hanya bermodal donlod script dan menjalankannya (di Windows lagi ;p)</p>
+
+<p>Pada artikel ini, kita akan membahas tentang enkripsi dan dekripsi file. Bagaimana konsepnya, apa pilihan-pilihan yang tersedia, dan mana yang sebaiknya digunakan.</p>
+
+<blockquote><p>Warning! Topik tingkat advanced. Minimal harus sudah menguasai <code>java.io</code>.</p></blockquote>
+
+<!--more-->
+
+
+<p>Enkripsi adalah proses mengacak data sehingga tidak bisa dibaca orang yang tidak berhak. Sebelum lebih jauh, kita bahas dulu beberapa istilah:</p>
+
+<ul>
+<li>enkripsi : proses mengacak data sehingga sulit dibaca</li>
+<li>dekripsi : proses membalik data yang diacak sehingga bisa dibaca lagi</li>
+<li>key : serangkaian angka/huruf yang digunakan untuk proses enkripsi dan dekripsi</li>
+<li>plaintext : data yang ingin dienkripsi. Biasanya data rahasia dan penting, kalau tidak buat apa repot2 dienkripsi.</li>
+<li>ciphertext : data yang sudah dienkripsi. Cipher text ini secara teori tidak bisa dibaca oleh orang yang tidak punya key.</li>
+</ul>
+
+
+<p>Prosesnya sederhana.</p>
+
+<ul>
+<li>Untuk mengenkripsi :</li>
+</ul>
+
+
+<p><code>
+plaintext + key =&gt; ciphertext
+</code></p>
+
+<ul>
+<li>Untuk mendekripsi :</li>
+</ul>
+
+
+<p><code>
+ciphertext + key =&gt; plaintext
+</code></p>
+
+<h2>Berbagai Jenis Enkripsi</h2>
+
+<p>Sebenarnya cuma ada dua, jadi tidak perlu pusing ;)</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Symmetric-key_algorithm">Symmetric Encryption</a> : key untuk enkripsi <strong>sama</strong> dengan key untuk dekripsi</li>
+<li><a href="http://en.wikipedia.org/wiki/Public-key_cryptography">Asymmetric Encryption</a> : key untuk enkripsi <strong>berbeda</strong> dengan key untuk dekripsi</li>
+</ul>
+
+
+<p>Pada prakteknya, kedua jenis enkripsi ini dipakai secara bersamaan. Jadi bukan pilih yang mana, tapi pakai dua-duanya.</p>
+
+<blockquote><p>Kenapa begitu?</p></blockquote>
+
+<p>Dengan asymmetric encryption <a href="http://stackoverflow.com/questions/10007147/getting-a-illegalblocksizeexception-data-must-not-be-longer-than-256-bytes-when">sulit untuk mengenkripsi data yang besar</a> dan juga <a href="http://en.wikipedia.org/wiki/RSA_(algorithm)#Attacks_against_plain_RSA">tidak aman</a>. Oleh karena itu, biasanya asymmetric encryption hanya digunakan untuk mengenkripsi <code>key</code> saja untuk kemudian dikirim ke pihak lain yang berkomunikasi dengan kita. <code>Key</code> inilah yang nantinya akan digunakan untuk mengenkripsi data sebenarnya menggunakan metode symmetric.</p>
+
+<p>Asymmetric encryption akan kita bahas pada kesempatan lain.</p>
+
+<p>Ada dua metode dalam symmetric encryption, yaitu:</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Stream_cipher">stream cipher</a> : mengenkripsi tiap byte data</li>
+<li><a href="http://en.wikipedia.org/wiki/Block_cipher">block cipher</a> : membagi data menjadi beberapa blok, kemudian mengenkripsi masing-masing blok.</li>
+</ul>
+
+
+<p>Kali ini kita hanya membahas block cipher saja.</p>
+
+<h2>Cara Kerja Block Cipher</h2>
+
+<p>Pertama, kita bagi dulu data menjadi blok-blok. Satu blok ukurannya berbeda-beda tergantung algoritma yang digunakan. Misalnya, algoritma AES bloknya berisi 128 bit (atau 16 byte) data. Jadi kalau data kita ada 1 KB, maka akan dibagi menjadi 1024 * 16 = 64 blok.</p>
+
+<p>Masing-masing blok lalu dienkripsi secara terpisah, seperti ilustrasi berikut yang <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">diambil dari Wikipedia</a></p>
+
+<p><img src="https://lh3.googleusercontent.com/-4-C-V41PDlM/Uo2LxRnUjOI/AAAAAAAACSw/JzcKfGUMsAQ/w600-h245-no/Ecb_encryption.png"></p>
+
+<p>Ada berbagai metode dalam mengenkripsi blok-blok data ini. Gambar di atas menunjukkan metode Electronic Codebook yang paling sederhana. Banyak metode lain dengan berbagai plus dan minusnya. Kita tidak akan bahas di sini, silahkan lihat penjelasannya <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">di Wikipedia</a> atau <a href="http://stackoverflow.com/a/1220869">di Stack Overflow</a>.</p>
+
+<p>Setelah memahami cara kerjanya, kita buat dulu rekapitulasi komponen apa saja yang kita butuhkan dalam proses enkripsi ini:</p>
+
+<ul>
+<li>plaintext yang ingin dienkripsi</li>
+<li>key. Untuk symmetric encryption, key ini harus dirahasiakan. Sebab siapapun yang memiliki key akan bisa melakukan dekripsi</li>
+<li><a href="http://en.wikipedia.org/wiki/Initialization_vector">initialization vector</a> : random input supaya hasil enkripsi terlihat berbeda walaupun plain text dan key sama. Initialization vector tidak harus dirahasiakan. Kita bisa kirim IV bersama dengan ciphertext. Walaupun demikian, IV ini harus unik dan sulit ditebak (random). Mengapa? Silahkan baca diskusinya <a href="http://stackoverflow.com/questions/3008139/why-is-using-a-non-random-iv-with-cbc-mode-a-vulnerability">di Stack Overflow</a></li>
+<li>algoritma</li>
+<li>block cipher mode : metode untuk menggabungkan blok data yang dienkripsi. Block encryption bekerja dengan cara memotong data seukuran blok yang dia mau. Kemudian masing-masing blok dienkripsi. Hasil akhirnya digabungkan menjadi satu lagi. Metode potong-enkripsi-gabung ini <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">memiliki beberapa implementasi berbeda dengan konsekuensi berbeda pula</a>.</li>
+<li>padding : Karena ukuran data yang akan dienkripsi bervariasi, kemungkinan besar blok paling akhir tidak terisi penuh. Padahal block encryption mengharuskan semua bloknya terisi. Untuk itu kita harus <em>menambal</em> data jika tidak pas memenuhi ukuran blok. Metode manapun yang dipilih <a href="http://crypto.stackexchange.com/a/1488">tidak berpengaruh terhadap security</a>. Jadi pilih mana saja yang bisa dipakai.</li>
+</ul>
+
+
+<h2>Memilih Algoritma</h2>
+
+<p>Ada beberapa pilihan algoritma untuk melakukan enkripsi, diantaranya:</p>
+
+<ul>
+<li>DES</li>
+<li>Triple Des / 3DES</li>
+<li>AES</li>
+<li>Blowfish</li>
+<li>dsb</li>
+</ul>
+
+
+<p>Masing-masing memiliki plus-minus, untuk menyingkat pembahasan, kita akan menggunakan AES saja. Perbandingan dan alasan pemilihan AES bisa dibaca <a href="http://www.javamex.com/tutorials/cryptography/ciphers.shtml">di artikel ini</a>.</p>
+
+<p>Selain AES, 3DES juga banyak digunakan di industri perbankan untuk mengamankan transaksi ATM, EDC, dan berbagai bentuk transaksi elektronik lainnya. Algoritma manapun yang digunakan tidak masalah, langkah-langkah dan prinsipnya tetap sama. Untuk mengubah dari algoritma satu ke yang lain cuma perlu mengubah satu baris kode program saja.</p>
+
+<p>Pilihan algoritma yang didukung oleh Java bisa dibaca <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#Cipher">di daftar ini</a>.</p>
+
+<h2>Generate Key</h2>
+
+<p>Sebelum membuat key, kita harus menentukan dulu panjang keynya.</p>
+
+<blockquote><p>Berapa panjang key yang ideal?</p></blockquote>
+
+<p>Menurut NSA, 256 bit. <a href="https://twitter.com/SteveBellovin/status/311545287313330176">Katanya supaya kebal dari serangan quantum computer</a>. Nah, sudah jelas bahwa saya tidak lebih pintar daripada NSA, yang mengajari orang ostrali bagaimana cara menyadap bos kita. Jadi ya kita terima saja sarannya untuk menggunakan 256 bit. Toh ngetik 128 dan 256 sama-sama efisien dari sisi jumlah tombol yang ditekan ;)</p>
+
+<p>Dengan menggunakan 256 bit, kita akan mendapatkan <a href="http://blog.agilebits.com/2013/03/09/guess-why-were-moving-to-256-bit-aes-keys/">keuntungan tambahan</a> jika nantinya kita menggunakan <a href="http://blog.agilebits.com/2013/01/18/authenticated-encryption-and-how-not-to-get-caught-chasing-a-coyote/">message authentication</a> dan <a href="http://blog.agilebits.com/2011/05/05/defending-against-crackers-peanut-butter-keeps-dogs-friendly-too/">password derivation</a>.</p>
+
+<p>Berdasarkan cara membuatnya, kita bedakan menjadi dua macam key:</p>
+
+<ul>
+<li>key yang dibuat secara random</li>
+<li>key yang ditentukan user (password)</li>
+</ul>
+
+
+<p>Random key biasanya digunakan tanpa user input. Misalnya aplikasi A ingin mengirim data ke aplikasi B. Supaya aman, data ini ingin dienkripsi. Supaya lebih aman, key yang digunakan untuk enkripsi diganti secara periodik, supaya tidak bisa ditebak oleh penyadap. Nah tentunya akan sangat merepotkan kalau key ini harus diinput user tiap kali dia harus diganti. Untuk keperluan ini, kita gunakan random key. Karena tidak perlu dihafalkan manusia, maka key ini bentuknya bebas saja.</p>
+
+<p>Berbeda halnya dengan key yang ditentukan user. Karena key ini harus dihafalkan user, maka biasanya user mencari rangkaian huruf/angka yang mudah dia hafalkan. Untuk itu, perlu ada tindakan tambahan supaya lebih aman. Tindakan tambahan ini disebut dengan istilah <a href="http://en.wikipedia.org/wiki/Key_stretching">key stretching</a>.</p>
+
+<p>Cara kerja key stretching intinya adalah <a href="http://en.wikipedia.org/wiki/Key_derivation_function">key derivation</a>, yaitu mengkonversi key asli menjadi key turunan. Key turunan inilah yang sebenarnya digunakan untuk melakukan enkripsi, bukan key asli. Proses key derivation dirancang sedemikian rupa untuk menghindari <a href="http://en.wikipedia.org/wiki/Weak_key">kelemahan</a> yang biasa ditemukan di password biasa, misalnya:</p>
+
+<ul>
+<li>jumlah karakternya kurang</li>
+<li>variasi angka/huruf/karakter kurang banyak</li>
+<li>biasanya menggunakan kata-kata yang ada di kamus, sehingga mudah ditebak</li>
+<li>urutan karakter tidak random (misalnya abcd4321, cobacoba1234)</li>
+</ul>
+
+
+<p>Melalui proses <em>key stretching</em> password yang biasanya tidak memenuhi syarat kriptografi dikonversi sehingga memenuhi syarat. Algoritma yang biasa digunakan antara lain:</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/PBKDF2">PBKDF2</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Bcrypt">Bcrypt</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Scrypt">Scrypt</a></li>
+</ul>
+
+
+<p>Kita hanya akan bahas PBKDF2 saja karena:</p>
+
+<ul>
+<li>populer</li>
+<li>tersedia di Java tanpa perlu donlod paket tambahan</li>
+<li>kebutuhan resource tidak terlalu besar, sehingga tersedia di berbagai platform (misalnya smartphone dan tablet)</li>
+</ul>
+
+
+<h3>Generate Random Key</h3>
+
+<p>Berikut kode program untuk membuat key yang random.</p>
+
+<p>```java
+KeyGenerator keygen = KeyGenerator.getInstance("AES");
+keygen.init(256);
+SecretKey key = keygen.generateKey();</p>
+
+<p>System.out.println("Generated Key : " + Base64.encodeBase64String(key.getEncoded()));
+```</p>
+
+<p>Key yang digenerate harus sesuai dengan algoritma enkripsi yang digunakan.</p>
+
+<h3>Key Stretching</h3>
+
+<p>Berikut kode program untuk key stretching. Kita akan membuat key turunan dari password yang lemah (hanya ada huruf, tidak ada angka dan karakter aneh).</p>
+
+<p>```java
+String password = "sangat rahasia sekali";</p>
+
+<p>// generate random salt
+SecureRandom randomizer = new SecureRandom();
+BigInteger random = new BigInteger(32, randomizer);
+String salt = random.toString(64);</p>
+
+<p>int perulangan = 1000;
+String algoritma = "PBKDF2WithHmacSHA1";
+int panjangKey = 256;</p>
+
+<p>PBEKeySpec keyspec = new PBEKeySpec(password.toCharArray(), salt.getBytes("UTF-8"), perulangan, panjangKey);
+SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algoritma);
+SecretKey key = keyFactory.generateSecret(keyspec);</p>
+
+<p>System.out.println("Password asli : "+password);
+System.out.println("Salt : "+salt);
+System.out.println("Generated Key : " + Base64.encodeBase64String(key.getEncoded()));
+```</p>
+
+<p>Secara fungsi, salt mirip dengan initialization vector. Yaitu agar password yang sama hasil hash-nya berbeda. Salt juga tidak perlu dirahasiakan, tapi perlu disimpan supaya bisa dipakai untuk memeriksa password. Jika kita simpan password di database dengan mekanisme <em>key stretching</em> ini, yang harus kita simpan adalah:</p>
+
+<ul>
+<li>salt</li>
+<li>jumlah perulangan</li>
+<li>panjang key</li>
+<li>key yang dihasilkan (ciphertext)</li>
+</ul>
+
+
+<blockquote><p>Perhatian! Key stretching ini bekerja satu arah. Artinya kita tidak bisa mendapatkan password plaintext dari ciphertextnya.</p></blockquote>
+
+<h2>Contoh Kasus</h2>
+
+<p>Sebagai contoh, kita ingin mengenkripsi file text. Supaya mudah, kita buat saja file text berisi lirik lagu yang bisa kita dapatkan di internet. Sepanjang prosedur enkripsi-dekripsi, ada beberapa file yang kita akan buat:</p>
+
+<ul>
+<li><code>lyric.txt</code> : file plaintext yang ingin kita enkripsi</li>
+<li><code>key.txt</code> : file berisi key untuk enkripsi. Key ini bisa dibuat secara random ataupun dari input user yang sudah melalui proses <em>key stretching</em>.</li>
+<li><code>iv.txt</code> : initialization vector</li>
+<li><code>lyric-enc.txt</code> : file ciphertext hasil enkripsi</li>
+<li><code>lyric-dec.txt</code> : file plaintext hasil dekripsi lyric-enc.txt</li>
+</ul>
+
+
+<p>Berikut langkah-langkah enkripsi:</p>
+
+<ol>
+<li>Generate key</li>
+<li>Inisialisasi object yang akan melakukan enkripsi (<code>java.crypto.Cipher</code>) menggunakan key</li>
+<li>Generate IV</li>
+<li>Lakukan prosedur enkripsi, hasilnya tulis ke <code>lyric-enc.txt</code>.</li>
+<li>Tulis juga key ke file <code>key.txt</code> dan IV ke file <code>iv.txt</code> untuk digunakan dalam proses dekripsi. Pada kondisi riil, IV bisa kita kirimkan melalui jalur publik, sedangkan key harus kita kirim melalui jalur aman. Biasanya key dienkripsi lagi menggunakan asymmetric encryption agar bisa dikirim dengan aman.</li>
+</ol>
+
+
+<p>Langkah-langkah dekripsi kebalikannya:</p>
+
+<ol>
+<li>Baca key dari file <code>key.txt</code></li>
+<li>Baca IV dari file <code>iv.txt</code></li>
+<li>Inisialisasi object yang akan melakukan dekripsi (<code>java.crypto.Cipher</code>) menggunakan key <strong>dan</strong> IV</li>
+<li>Lakukan proses dekripsi</li>
+</ol>
+
+
+<p>Kalau sudah paham langkahnya, mari kita coding. Sebelum masuk ke kriptografi, kita bereskan dulu masalah tampilan.</p>
+
+<h2>String Conversion</h2>
+
+<p>Proses enkripsi menghasilkan binary data, dalam Java ini ditampung dalam tipe data <code>byte[]</code>. Binary data ini tidak bisa kita buka di text editor, sehingga menyulitkan kita untuk debug. Oleh karena itu, kita perlu menggunakan <a href="http://en.wikipedia.org/wiki/Base64">encoding Base 64</a> untuk mengkonversinya menjadi <code>String</code>. Kalau kita langsung memasukkannya ke dalam constructor String, hasilnya akan kacau karena <a href="http://stackoverflow.com/a/10759422">constructor String bingung ketika menghadapi karakter-karakter aneh</a> (non-printable).</p>
+
+<p>Encoding Base64 kita lakukan dengan <a href="http://commons.apache.org/proper/commons-codec/">library <code>commons-codec</code> dari Apache</a>.</p>
+
+<h2>Inisialisasi Cipher untuk Enkripsi</h2>
+
+<p>Pertama, kita generate dulu key. Untuk enkripsi, object <code>cipher</code> harus diinisialisasi dengan key.</p>
+
+<p>```java
+String algoritmaKey = "AES";</p>
+
+<p>// generate random key
+KeyGenerator keygen = KeyGenerator.getInstance(algoritmaKey);
+keygen.init(256);
+SecretKey key = keygen.generateKey();</p>
+
+<p>// tulis key ke file untuk keperluan dekripsi
+Files.write(keyFile.toPath(), Base64.encodeBase64String(key.getEncoded()).getBytes(), StandardOpenOption.CREATE);
+```</p>
+
+<p>Pada kode program di atas, kita lihat bahwa sebelum ditulis ke file, kita encode dulu dengan method <code>Base64.encodeBase64String</code> supaya filenya bisa dibuka di text editor.</p>
+
+<p>Setelah punya key, kita buat object <code>cipher</code></p>
+
+<p><code>java
+String algoritmaEnkripsi = "AES/CBC/PKCS5Padding";
+Cipher cipher = Cipher.getInstance(algoritmaEnkripsi);
+cipher.init(Cipher.ENCRYPT_MODE, key);
+</code></p>
+
+<p>Dari kode program di atas, kita bisa lihat bahwa:</p>
+
+<ul>
+<li>algoritma yang digunakan adalah <code>AES</code></li>
+<li>block cipher mode menggunakan <code>CBC</code></li>
+<li>padding menggunakan <code>PKCS5</code></li>
+</ul>
+
+
+<h2>Generate Initialization Vector</h2>
+
+<p>IV kita generate menggunakan object <code>cipher</code></p>
+
+<p><code>java
+// generate IV
+byte[] iv = cipher.getParameters().getParameterSpec(IvParameterSpec.class).getIV();
+</code></p>
+
+<p>Jangan lupa ditulis ke file karena nanti akan kita butuhkan di proses dekripsi.</p>
+
+<p><code>java
+Files.write(ivFile.toPath(), Base64.encodeBase64String(iv).getBytes(), StandardOpenOption.CREATE);
+</code></p>
+
+<h2>Proses Enkripsi</h2>
+
+<p>Kelengkapan sudah siap, mari kita lakukan proses enkripsi</p>
+
+<p>```java
+// tujuan hasil enkripsi
+CipherOutputStream writer =</p>
+
+<pre><code>        new CipherOutputStream(
+            new FileOutputStream(encryptedFile), cipher);
+</code></pre>
+
+<p>// enkripsi isi file
+FileReader reader = new FileReader(plain);
+int data;
+while((data = reader.read()) != -1){</p>
+
+<pre><code>System.out.print((char)data);
+writer.write(data);
+</code></pre>
+
+<p>}</p>
+
+<p>reader.close();
+writer.close();
+```</p>
+
+<p>Seharusnya, pada tahap ini kita sudah memiliki file berikut:</p>
+
+<ol>
+<li><code>lyric.txt</code></li>
+<li><code>key.txt</code></li>
+<li><code>iv.txt</code></li>
+<li><code>lyric-enc.txt</code></li>
+</ol>
+
+
+<p>File <code>lyric-enc.txt</code> dan <code>iv.txt</code> kita kirimkan ke penerima. Dia harusnya sudah memiliki file <code>key.txt</code>.</p>
+
+<p>Proses enkripsi selesai. Kode program lengkapnya bisa dilihat <a href="https://github.com/endymuhardin/belajar-enkripsi/blob/master/src/main/java/com/muhardin/endy/belajar/enkripsi/AESEncryptionDemo.java">di Github</a>.</p>
+
+<p>Mari kita lanjutkan dengan proses dekripsi.</p>
+
+<h2>Membaca key dan IV dari file</h2>
+
+<p>Berikut kode programnya</p>
+
+<p>```java
+// load key
+List<String> keys = Files.readAllLines(keyFile.toPath(), Charset.forName("UTF-8"));
+if(keys.isEmpty()){</p>
+
+<pre><code>throw new IllegalStateException("File key invalid");
+</code></pre>
+
+<p>}
+String key = keys.get(0);
+System.out.println("Key : "+key);
+SecretKeySpec keySpec = new SecretKeySpec(Base64.decodeBase64(key), algoritmaKey);</p>
+
+<p>// load IV
+List<String> ivs = Files.readAllLines(ivFile.toPath(), Charset.forName("UTF-8"));
+if(ivs.isEmpty()){</p>
+
+<pre><code>throw new IllegalStateException("File IV invalid");
+</code></pre>
+
+<p>}
+String iv = ivs.get(0);
+System.out.println("IV : "+iv);
+IvParameterSpec ivSpec = new IvParameterSpec(Base64.decodeBase64(iv));
+```</p>
+
+<h2>Inisialisasi Cipher</h2>
+
+<p>Untuk proses dekripsi, inisialisasi <code>cipher</code> membutuhkan key dan IV.</p>
+
+<p><code>java
+// inisialisasi AES
+Cipher cipher = Cipher.getInstance(algoritmaEnkripsi);
+cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+</code></p>
+
+<p>Jangan lupa gunakan mode <code>Cipher.DECRYPT_MODE</code>.</p>
+
+<h2>Proses Dekripsi</h2>
+
+<p>Tidak sulit, tinggal membalik saja prosedur enkripsi.</p>
+
+<p>```java
+// output hasil dekripsi
+FileWriter output = new FileWriter(decryptedFile);</p>
+
+<p>// dekripsi isi file
+CipherInputStream cis = new CipherInputStream(new FileInputStream(encryptedFile), cipher);
+int data;
+while((data = cis.read()) != -1){</p>
+
+<pre><code>output.write(data);
+</code></pre>
+
+<p>}
+cis.close();
+output.close();
+```</p>
+
+<h2>Verifikasi</h2>
+
+<p>Setelah kita punya hasil dekripsi, tentu kita harus verifikasi apakah sama persis dengan aslinya. Caranya adalah dengan membandingkan <code>hash</code> file asli dan file hasil dekripsi. Kita bisa gunakan berbagai algoritma seperti <code>MD5</code> atau <code>SHA</code>. Berikut contohnya</p>
+
+<p><code>java
+// bandingkan apakah hasil dekripsi sama dengan file asli
+String md5sumAsli = DigestUtils.md5Hex(new FileInputStream(plainFile));
+String md5sumHasilDekripsi = DigestUtils.md5Hex(new FileInputStream(decryptedFile));
+System.out.println("MD5 Sum File Asli           : "+md5sumAsli);
+System.out.println("MD5 Sum File Hasil Dekripsi : "+md5sumHasilDekripsi);
+System.out.println(md5sumAsli.equals(md5sumHasilDekripsi) ? "Cocok" : "Tidak cocok");
+</code></p>
+
+<p>Proses dekripsi selesai. Kode program lengkapnya bisa dilihat <a href="https://github.com/endymuhardin/belajar-enkripsi/blob/master/src/main/java/com/muhardin/endy/belajar/enkripsi/AESDecryptionDemo.java">di Github</a>.</p>
+
+<h3>Message Authentication</h3>
+
+<p>Message authentication cara kerjanya kira-kira sama dengan metode verifikasi di atas. Intinya adalah:</p>
+
+<ol>
+<li>Generate hash dari file A</li>
+<li>Generate hash dari file B</li>
+<li>Bandingkan, jika hash sama berarti file A dan B isinya sama</li>
+</ol>
+
+
+<p>Dalam kaitannya dengan enkripsi, kita menambahkan key pada proses hash ini supaya lebih aman. Tanpa key, orang lain bisa mencoba-coba generate hash dari file yang dia miliki. Kalau berhasil membuat hash yang sama, maka dia bisa menebak atau memalsukan data yang dikirim. Dengan menggunakan key yang hanya diketahui pihak yang berkomunikasi, maka orang lain sulit untuk membuat hash yang sama.</p>
+
+<p>Proses ini nama kerennya adalah <a href="http://en.wikipedia.org/wiki/Hash-based_message_authentication_code">HMAC (hash-based message authentication code)</a>.</p>
+
+<p>Berikut kode program untuk menghasilkan hash dari data yang sudah dienkripsi</p>
+
+<p>```java
+// HMAC untuk memastikan integritas data
+String algoritmaHmac = "HmacSHA512";
+KeyGenerator keygenHmac = KeyGenerator.getInstance(algoritmaHmac);
+keygenHmac.init(256);</p>
+
+<p>// key untuk HMAC
+SecretKey keyHmac = keygenHmac.generateKey();
+Files.write(hmacKeyFile.toPath(),</p>
+
+<pre><code>    Base64.encodeBase64String(keyHmac.getEncoded()).getBytes(), 
+    StandardOpenOption.CREATE);
+</code></pre>
+
+<p>// buat HMAC
+Mac hmacGenerator = Mac.getInstance(algoritmaHmac);
+hmacGenerator.init(keyHmac);
+byte[] hmac = hmacGenerator.doFinal(Files.readAllBytes(encryptedFile.toPath()));
+Files.write(hmacFile.toPath(), hmac, StandardOpenOption.CREATE);
+```</p>
+
+<p>Perhatikan bahwa kita terlebih dulu menghasilkan key untuk membuat hash. Key ini harus dimiliki juga oleh pihak penerima data.</p>
+
+<p>Sekarang, kita lakukan verifikasi di sisi penerima.</p>
+
+<p>```java
+// sebelum dekripsi, cek dulu HMAC apakah datanya otentik
+List<String> hmacKeys = Files.readAllLines(hmacKeyFile.toPath(), Charset.forName("UTF-8"));
+if(hmacKeys.isEmpty()) {</p>
+
+<pre><code>throw new IllegalStateException("No mac key");
+</code></pre>
+
+<p>}
+String hmacKey = hmacKeys.get(0);
+SecretKeySpec hmacKeySpec = new SecretKeySpec(Base64.decodeBase64(hmacKey), algoritmaHmac);
+Mac hmacGenerator = Mac.getInstance(algoritmaHmac);
+hmacGenerator.init(hmacKeySpec);</p>
+
+<p>// generate hmac dari data yang diterima
+byte[] hmacDiterima = hmacGenerator.doFinal(Files.readAllBytes(encryptedFile.toPath()));
+// baca hmac yang disertakan bersama data
+byte[] hmacSeharusnya = Files.readAllBytes(hmacFile.toPath());
+boolean cocok = Arrays.equals(hmacDiterima, hmacSeharusnya);
+System.out.println(cocok ? "HMAC Cocok" : "HMAC Tidak Cocok");
+if(!cocok){</p>
+
+<pre><code>throw new IllegalStateException("Data tidak otentik, mungkin sudah dioprek orang ditengah jalan");
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Verifikasi HMAC ini kita lakukan <strong>sebelum</strong> melakukan dekripsi. Tidak ada gunanya dan menambah resiko kalau kita melakukan proses dekripsi (di mana kita membuka dan menggunakan key rahasia) terhadap data yang invalid.</p>
+
+<h1>Kesimpulan</h1>
+
+<p>Pengirim dan penerima harus terlebih dulu memiliki:</p>
+
+<ul>
+<li>key enkripsi</li>
+<li>key HMAC</li>
+</ul>
+
+
+<p>Kedua file ini harus dirahasiakan dari pihak yang tidak berkepentingan. Distribusinya bisa dilakukan dengan enkripsi menggunakan asymmetric encryption.</p>
+
+<p>Pada saat berkomunikasi, pengirim akan memberikan:</p>
+
+<ul>
+<li>initialization vector</li>
+<li>data yang terenkripsi</li>
+<li>HMAC</li>
+</ul>
+
+
+<p>Ketiga data di atas boleh dikirim melalui jalur publik.</p>
+
+<p>Setelah menerima ketiga file tersebut, penerima akan melakukan:</p>
+
+<ol>
+<li>Generate HMAC dari data terenkripsi</li>
+<li>Bandingkan HMAC hasil generate dengan HMAC yang dikirim bersama data. Kalau tidak cocok, jangan diteruskan.</li>
+<li>Kalau cocok, barulah lakukan dekripsi menggunakan key dan IV.</li>
+</ol>
+
+
+<blockquote><p>Bagaimana, pusing?</p></blockquote>
+
+<p>Ya tinggal pilih, pusing belajar atau kena sadap :D</p>
+
+<p>Kode program selengkapnya (seperti biasa) ada <a href="https://github.com/endymuhardin/belajar-enkripsi">di Github</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Mendapatkan Informasi System dengan Java]]></title>
@@ -935,298 +1475,6 @@ assertNotNull(penjualanDetail.getPenjualan().getWaktuTransaksi());
 
 <p>Demikianlah rangkaian artikel tentang penggunaan Spring JDBC. Kode program selengkapnya dapat diambil <a href="https://github.com/endymuhardin/belajar-akses-database-java/tree/spring-jdbc">di Github</a>.
 Semoga bermanfaat.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Query dengan Spring JDBC]]></title>
-    <link href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/"/>
-    <updated>2013-06-03T20:08:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/query-dengan-spring-jdbc</id>
-    <content type="html"><![CDATA[<p>Pada artikel sebelumnya kita telah bisa mengubah data dalam database, baik menambah (insert), mengubah (update), maupun menghapus (data). Kali ini kita akan membahas tentang cara pengambilan data (select) dari dalam database.</p>
-
-<p>Artikel ini merupakan bagian keempat dari rangkaian artikel Spring JDBC, yaitu</p>
-
-<ol>
-<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Konfigurasi koneksi database</a></li>
-<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur Aplikasi</a></li>
-<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert, update, dan delete data</a></li>
-<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query data</a></li>
-<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Mengetes Akses Database</a></li>
-</ol>
-
-
-<!--more-->
-
-
-<p>Pada dasarnya, untuk mengambil data dari database hanya ada dua varian yang kita gunakan, yaitu:</p>
-
-<ul>
-<li>mengambil data tunggal, gunakan method <code>queryForObject</code></li>
-<li>mengambil data banyak, gunakan method <code>queryForList</code> atau <code>query</code> saja</li>
-</ul>
-
-
-<p>Kita lihat dulu implementasi yang paling mendasar, ambil semua data produk dari database. Berikut deklarasi SQLnya.</p>
-
-<p>```java
-private static final String SQL_CARI_SEMUA</p>
-
-<pre><code>= "select * from m_produk limit ?,?";
-</code></pre>
-
-<p>```</p>
-
-<p>Perintah SQL di atas akan dipakai dalam method <code>cariSemua</code> sebagai berikut</p>
-
-<p>```java
-public List<Produk> cariSemua(Integer halaman, Integer baris) {</p>
-
-<pre><code>return jdbcTemplate.query(SQL_CARI_SEMUA,
-        new ResultSetJadiProduk(),
-        PagingHelper.halamanJadiStart(halaman, baris),
-        baris);
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Pada contoh di atas, kita menggunakan method <code>query</code> yang menerima tiga argumen, yaitu:</p>
-
-<ul>
-<li>SQL yang akan dijalankan, berupa String</li>
-<li>Class yang bertugas mengubah ResultSet menjadi object yang kita inginkan, dalam hal ini object <code>Produk</code>. Class ini akan kita buat sendiri, yaitu class <code>ResultSetJadiProduk</code>.</li>
-<li>argumen lain-lain (varargs). Ini merupakan fitur Java sejak versi 5 yang artinya kita bisa memasukkan argumen sebanyak-banyaknya dalam method. Argumen ini akan dikonversi menjadi List untuk diproses oleh method <code>query</code></li>
-</ul>
-
-
-<p>Jadi, bukan salah ketik kalau di atas saya sebut tiga argumen padahal kita memasukkan empat variabel ke dalamnya.</p>
-
-<p>SQL select tentu tidak perlu kita bahas lagi, mari masuk ke class <code>ResultSetJadiProduk</code></p>
-
-<h2>Membuat Mapper</h2>
-
-<p>Class <code>ResultSetJadiProduk</code> bertugas mengkonversi hasil query ke database yang ada dalam class <code>ResultSet</code> menjadi object <code>Produk</code>. Implementasinya tidak rumit, ini dia.</p>
-
-<p>```java
-private class ResultSetJadiProduk implements RowMapper<Produk> {</p>
-
-<pre><code>@Override
-public Produk mapRow(ResultSet rs, int i) throws SQLException {
-    Produk p = new Produk();
-    p.setId((Integer) rs.getObject("id"));
-    p.setKode(rs.getString("kode"));
-    p.setNama(rs.getString("nama"));
-    p.setHarga(rs.getBigDecimal("harga"));
-    return p;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Kita membuatnya sebagai class di dalam class (inner class). Kalau lupa dengan strukturnya, silahkan baca lagi bab dua tentang Struktur Aplikasi.</p>
-
-<p>Class ini harus implement interface <code>RowMapper&lt;T&gt;</code> milik Spring. <code>T</code> diganti dengan class yang menjadi tujuan konversi. Interface <code>RowMapper&lt;T&gt;</code> ini mewajibkan kita membuat method <code>mapRow</code>. Isi method tersebut sudah cukup jelas sehingga tidak perlu dijelaskan.</p>
-
-<p>Class ini nantinya bisa kita gunakan juga di query yang menghasilkan satu object <code>Produk</code> seperti <code>cariById</code> dan <code>cariByKode</code>. Berikut implementasinya</p>
-
-<p>```java
-public Produk cariById(Integer id) {</p>
-
-<pre><code>try {
-    return jdbcTemplate.queryForObject(SQL_CARI_BY_ID, 
-        new ResultSetJadiProduk(), id);
-} catch (EmptyResultDataAccessException err) {
-    return null;
-}
-</code></pre>
-
-<p>}</p>
-
-<p>public Produk cariByKode(String kode) {</p>
-
-<pre><code>try {
-    return jdbcTemplate.queryForObject(SQL_CARI_BY_KODE, 
-        new ResultSetJadiProduk(), kode);
-} catch (EmptyResultDataAccessException err) {
-    return null;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Kedua method ini sama saja prinsipnya dengan <code>cariSemua</code> yang sudah kita bahas sebelumnya.</p>
-
-<h2>Mengambil data berelasi</h2>
-
-<p>Setelah berhasil mengambil data dari satu produk, mari kita coba untuk berurusan dengan data berelasi. Sebetulnya prinsipnya sama saja, yaitu membuatkan class konversi. Bedanya hanya terletak pada query SQL yang menggunakan join, tidak ada hubungannya dengan Spring JDBC.</p>
-
-<p>Pada service interface, kita memiliki fitur rekap transaksi untuk satu produk tertentu, yang dimuat dalam method <code>cariPenjualanDetailByProdukDanPeriode</code>. Method tersebut memanggil method <code>cariByProdukDanPeriode</code> dalam class <code>PenjualanDetailDao</code>. Berikut implementasinya.</p>
-
-<p>```java
-public class PenjualanDetailDao {</p>
-
-<pre><code>private static final String SQL_CARI_BY_PRODUK_DAN_PERIODE 
-        = "select pd.*, p.waktu_transaksi, "
-        + "produk.kode as kode_produk, produk.nama as nama_produk,"
-        + "produk.harga as harga_produk "
-        + "from t_penjualan_detail pd "
-        + "inner join t_penjualan p on pd.id_penjualan = p.id "
-        + "inner join m_produk produk on pd.id_produk = produk.id " 
-        + "where pd.id_produk = ? " +
-        + "and (p.waktu_transaksi between ? and ?) " +
-        + "limit ?,?";
-
-public List&lt;PenjualanDetail&gt; cariByProdukDanPeriode(Produk p, 
-        Date mulai, Date sampai, Integer halaman, Integer baris) {
-    return jdbcTemplate.query(SQL_CARI_BY_PRODUK_DAN_PERIODE, 
-            new ResultSetJadiPenjualanDetail(), 
-            p.getId(), 
-            mulai, 
-            sampai, 
-            PagingHelper.halamanJadiStart(halaman, baris), 
-            baris);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Konversi dari <code>ResultSet</code> menjadi <code>PenjualanDetail</code> dilakukan dalam class <code>ResultSetJadiPenjualanDetail</code> berikut</p>
-
-<p>```java
-private class ResultSetJadiPenjualanDetail</p>
-
-<pre><code>    implements RowMapper&lt;PenjualanDetail&gt; {
-
-@Override
-public PenjualanDetail mapRow(ResultSet rs, int i) 
-        throws SQLException {
-    PenjualanDetail p = new PenjualanDetail();
-    p.setId((Integer) rs.getObject("id"));
-    p.setHarga(rs.getBigDecimal("harga"));
-    p.setJumlah((Integer) rs.getObject("jumlah"));
-
-    // relasi ke produk
-    Produk px = new Produk();
-    px.setId((Integer) rs.getObject("id_produk"));
-    px.setKode(rs.getString("kode_produk"));
-    px.setNama(rs.getString("nama_produk"));
-    px.setHarga(rs.getBigDecimal("harga_produk"));
-    p.setProduk(px);
-
-    // relasi ke penjualan
-    Penjualan jual = new Penjualan();
-    jual.setId((Integer) rs.getObject("id_penjualan"));
-    jual.setWaktuTransaksi(rs.getDate("waktu_transaksi"));
-    p.setPenjualan(jual);
-
-    return p;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Selain class <code>PenjualanDetail</code> itu sendiri, kita juga membuatkan object <code>Produk</code> dan <code>Penjualan</code> yang kemudian akan dipasang pada object <code>PenjualanDetail</code>.</p>
-
-<h2>Pagination</h2>
-
-<p>Dalam mengambil data yang berjumlah banyak seperti data transaksi, biasanya kita akan melakukan <em>pagination</em>, yaitu membagi data menjadi beberapa halaman. Di MySQL, kita menggunakan keyword <code>LIMIT</code> untuk melakukan hal ini. Keyword <code>LIMIT</code> menerima dua argumen, yaitu nomer record pertama yang mau diambil dan jumlah record yang mau diambil. Jadi bila kita ingin mengambil record 11 - 15, kita menggunakan keyword <code>LIMIT 11, 5</code>.</p>
-
-<p>Ini agak berbeda dengan argumen yang diterima dalam method pencarian kita. Yang diminta di situ adalah nomer halaman dan jumlah record per halaman. Jadi kalau misalnya data kita berjumlah 56 record dan kita ingin setiap halaman berisi 10 record, maka data tersebut akan terbagi menjadi 6 halaman. Bila kita ingin mengambil halaman terakhir, kita memberikan argumen <code>6</code> dan <code>10</code> ke dalam method pencarian.</p>
-
-<p>Tentunya harus ada konversi dari nomer halaman menjadi nomer baris. Ini kita lakukan di class <code>PagingHelper</code> yang isinya sebagai berikut.</p>
-
-<p>```java
-public class PagingHelper {</p>
-
-<pre><code>public static Integer halamanJadiStart(Integer halaman, 
-        Integer baris){
-    if (halaman &lt; 1) {
-        return 0;
-    }
-    return (halaman - 1) * baris;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h2>Header Detail</h2>
-
-<p>Dalam aplikasi, pasti ada fitur untuk menampilkan daftar transaksi dalam periode tertentu.
-Seperti sudah kita bahas, satu transaksi terdiri dari satu header dan beberapa detail.
-Data ini tentu ingin kita ambil semua.</p>
-
-<p>Caranya sederhana :</p>
-
-<ol>
-<li>Query dulu headernya: <code>select * from t_penjualan where id = ?</code></li>
-<li>Query detailnya: <code>select * from t_penjualan_detail where id_penjualan = ?</code></li>
-<li>Gabungkan keduanya</li>
-</ol>
-
-
-<p>Berikut contohnya, pada waktu kita ingin mencari <code>Penjualan</code> berdasarkan <code>id</code></p>
-
-<p>```java
-public Penjualan cariById(Integer id) {</p>
-
-<pre><code>try {
-    Penjualan p = jdbcTemplate.queryForObject(SQL_CARI_BY_ID, 
-        new ResultSetJadiPenjualan(), id);
-    List&lt;PenjualanDetail&gt; daftarDetail = penjualanDetailDao
-        .cariByPenjualan(p);
-    p.setDaftarPenjualanDetail(daftarDetail);
-    return p;
-} catch (EmptyResultDataAccessException err) {
-    return null;
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Di sana, kita memanggil method <code>cariByPenjualan</code> yang ada di class <code>PenjualanDetailDao</code>. Berikut kode programnya</p>
-
-<p>```java
-public List<PenjualanDetail> cariByPenjualan(Penjualan p){</p>
-
-<pre><code>List&lt;PenjualanDetail&gt; hasil 
-    = jdbcTemplate.query(SQL_CARI_BY_ID_PENJUALAN, 
-        new ResultSetJadiPenjualanDetail(), p.getId());
-
-// set relasi ke penjualan
-for (PenjualanDetail penjualanDetail : hasil) {
-    penjualanDetail.setPenjualan(p);
-}
-
-return hasil;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Kembali ke <code>PenjualanDao</code>, setelah kita mendapatkan <code>List&lt;PenjualanDetail&gt;</code> dari method di atas, kita pasang di object penjualan yang sudah kita dapatkan di baris ini</p>
-
-<p><code>java
-p.setDaftarPenjualanDetail(daftarDetail);
-</code></p>
-
-<p>Demikianlah cara kita mengambil data dari database menggunakan Spring JDBC.
-Hal ini tentu tidak rumit asalkan kita sudah paham dasar-dasar SQL termasuk cara melakukan join antar tabel.
-Jadi kesimpulannya, untuk mengambil data menggunakan Spring JDBC, yang perlu kita lakukan hanyalah:</p>
-
-<ol>
-<li>Membuat SQL, lengkap dengan join bila perlu. Contohnya bisa dilihat di class <code>PenjualanDetailDao</code> yang memiliki banyak join.</li>
-<li>Membuat class untuk mengkonversi dari <code>ResultSet</code> menjadi object yang kita inginkan, misalnya <code>Produk</code> atau <code>Penjualan</code></li>
-</ol>
-
-
-<p>Pada bagian selanjutnya, kita tinggal <a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">mengetes kode program</a> yang telah kita buat ini.</p>
 ]]></content>
   </entry>
   

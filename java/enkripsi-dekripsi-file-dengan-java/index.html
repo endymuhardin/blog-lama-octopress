@@ -1,0 +1,1036 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Symmetric Encryption dengan Java - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Beberapa hari terakhir ini, media massa ribut-ribut mengenai telepon si bos yang disadap orang ostrali. Karena ini blog programming, kita tidak akan &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/enkripsi-dekripsi-file-dengan-java/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Symmetric Encryption Dengan Java</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-21T12:00:00+07:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Beberapa hari terakhir ini, media massa ribut-ribut mengenai telepon si bos yang disadap orang ostrali. Karena ini blog programming, kita tidak akan membahas tentang implikasi politik dari urusan sadap-menyadap tersebut. Kita juga tidak akan membahas kelakuan ABG script-kiddies yang sudah merasa hebat hanya bermodal donlod script dan menjalankannya (di Windows lagi ;p)</p>
+
+<p>Pada artikel ini, kita akan membahas tentang enkripsi dan dekripsi file. Bagaimana konsepnya, apa pilihan-pilihan yang tersedia, dan mana yang sebaiknya digunakan.</p>
+
+<blockquote><p>Warning! Topik tingkat advanced. Minimal harus sudah menguasai <code>java.io</code>.</p></blockquote>
+
+<!--more-->
+
+
+<p>Enkripsi adalah proses mengacak data sehingga tidak bisa dibaca orang yang tidak berhak. Sebelum lebih jauh, kita bahas dulu beberapa istilah:</p>
+
+<ul>
+<li>enkripsi : proses mengacak data sehingga sulit dibaca</li>
+<li>dekripsi : proses membalik data yang diacak sehingga bisa dibaca lagi</li>
+<li>key : serangkaian angka/huruf yang digunakan untuk proses enkripsi dan dekripsi</li>
+<li>plaintext : data yang ingin dienkripsi. Biasanya data rahasia dan penting, kalau tidak buat apa repot2 dienkripsi.</li>
+<li>ciphertext : data yang sudah dienkripsi. Cipher text ini secara teori tidak bisa dibaca oleh orang yang tidak punya key.</li>
+</ul>
+
+
+<p>Prosesnya sederhana.</p>
+
+<ul>
+<li>Untuk mengenkripsi :</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>plaintext + key =&gt; ciphertext</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Untuk mendekripsi :</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ciphertext + key =&gt; plaintext</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Berbagai Jenis Enkripsi</h2>
+
+<p>Sebenarnya cuma ada dua, jadi tidak perlu pusing ;)</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Symmetric-key_algorithm">Symmetric Encryption</a> : key untuk enkripsi <strong>sama</strong> dengan key untuk dekripsi</li>
+<li><a href="http://en.wikipedia.org/wiki/Public-key_cryptography">Asymmetric Encryption</a> : key untuk enkripsi <strong>berbeda</strong> dengan key untuk dekripsi</li>
+</ul>
+
+
+<p>Pada prakteknya, kedua jenis enkripsi ini dipakai secara bersamaan. Jadi bukan pilih yang mana, tapi pakai dua-duanya.</p>
+
+<blockquote><p>Kenapa begitu?</p></blockquote>
+
+<p>Dengan asymmetric encryption <a href="http://stackoverflow.com/questions/10007147/getting-a-illegalblocksizeexception-data-must-not-be-longer-than-256-bytes-when">sulit untuk mengenkripsi data yang besar</a> dan juga <a href="http://en.wikipedia.org/wiki/RSA_(algorithm)#Attacks_against_plain_RSA">tidak aman</a>. Oleh karena itu, biasanya asymmetric encryption hanya digunakan untuk mengenkripsi <code>key</code> saja untuk kemudian dikirim ke pihak lain yang berkomunikasi dengan kita. <code>Key</code> inilah yang nantinya akan digunakan untuk mengenkripsi data sebenarnya menggunakan metode symmetric.</p>
+
+<p>Asymmetric encryption akan kita bahas pada kesempatan lain.</p>
+
+<p>Ada dua metode dalam symmetric encryption, yaitu:</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Stream_cipher">stream cipher</a> : mengenkripsi tiap byte data</li>
+<li><a href="http://en.wikipedia.org/wiki/Block_cipher">block cipher</a> : membagi data menjadi beberapa blok, kemudian mengenkripsi masing-masing blok.</li>
+</ul>
+
+
+<p>Kali ini kita hanya membahas block cipher saja.</p>
+
+<h2>Cara Kerja Block Cipher</h2>
+
+<p>Pertama, kita bagi dulu data menjadi blok-blok. Satu blok ukurannya berbeda-beda tergantung algoritma yang digunakan. Misalnya, algoritma AES bloknya berisi 128 bit (atau 16 byte) data. Jadi kalau data kita ada 1 KB, maka akan dibagi menjadi 1024 * 16 = 64 blok.</p>
+
+<p>Masing-masing blok lalu dienkripsi secara terpisah, seperti ilustrasi berikut yang <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">diambil dari Wikipedia</a></p>
+
+<p><img src="https://lh3.googleusercontent.com/-4-C-V41PDlM/Uo2LxRnUjOI/AAAAAAAACSw/JzcKfGUMsAQ/w600-h245-no/Ecb_encryption.png"></p>
+
+<p>Ada berbagai metode dalam mengenkripsi blok-blok data ini. Gambar di atas menunjukkan metode Electronic Codebook yang paling sederhana. Banyak metode lain dengan berbagai plus dan minusnya. Kita tidak akan bahas di sini, silahkan lihat penjelasannya <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">di Wikipedia</a> atau <a href="http://stackoverflow.com/a/1220869">di Stack Overflow</a>.</p>
+
+<p>Setelah memahami cara kerjanya, kita buat dulu rekapitulasi komponen apa saja yang kita butuhkan dalam proses enkripsi ini:</p>
+
+<ul>
+<li>plaintext yang ingin dienkripsi</li>
+<li>key. Untuk symmetric encryption, key ini harus dirahasiakan. Sebab siapapun yang memiliki key akan bisa melakukan dekripsi</li>
+<li><a href="http://en.wikipedia.org/wiki/Initialization_vector">initialization vector</a> : random input supaya hasil enkripsi terlihat berbeda walaupun plain text dan key sama. Initialization vector tidak harus dirahasiakan. Kita bisa kirim IV bersama dengan ciphertext. Walaupun demikian, IV ini harus unik dan sulit ditebak (random). Mengapa? Silahkan baca diskusinya <a href="http://stackoverflow.com/questions/3008139/why-is-using-a-non-random-iv-with-cbc-mode-a-vulnerability">di Stack Overflow</a></li>
+<li>algoritma</li>
+<li>block cipher mode : metode untuk menggabungkan blok data yang dienkripsi. Block encryption bekerja dengan cara memotong data seukuran blok yang dia mau. Kemudian masing-masing blok dienkripsi. Hasil akhirnya digabungkan menjadi satu lagi. Metode potong-enkripsi-gabung ini <a href="http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation">memiliki beberapa implementasi berbeda dengan konsekuensi berbeda pula</a>.</li>
+<li>padding : Karena ukuran data yang akan dienkripsi bervariasi, kemungkinan besar blok paling akhir tidak terisi penuh. Padahal block encryption mengharuskan semua bloknya terisi. Untuk itu kita harus <em>menambal</em> data jika tidak pas memenuhi ukuran blok. Metode manapun yang dipilih <a href="http://crypto.stackexchange.com/a/1488">tidak berpengaruh terhadap security</a>. Jadi pilih mana saja yang bisa dipakai.</li>
+</ul>
+
+
+<h2>Memilih Algoritma</h2>
+
+<p>Ada beberapa pilihan algoritma untuk melakukan enkripsi, diantaranya:</p>
+
+<ul>
+<li>DES</li>
+<li>Triple Des / 3DES</li>
+<li>AES</li>
+<li>Blowfish</li>
+<li>dsb</li>
+</ul>
+
+
+<p>Masing-masing memiliki plus-minus, untuk menyingkat pembahasan, kita akan menggunakan AES saja. Perbandingan dan alasan pemilihan AES bisa dibaca <a href="http://www.javamex.com/tutorials/cryptography/ciphers.shtml">di artikel ini</a>.</p>
+
+<p>Selain AES, 3DES juga banyak digunakan di industri perbankan untuk mengamankan transaksi ATM, EDC, dan berbagai bentuk transaksi elektronik lainnya. Algoritma manapun yang digunakan tidak masalah, langkah-langkah dan prinsipnya tetap sama. Untuk mengubah dari algoritma satu ke yang lain cuma perlu mengubah satu baris kode program saja.</p>
+
+<p>Pilihan algoritma yang didukung oleh Java bisa dibaca <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#Cipher">di daftar ini</a>.</p>
+
+<h2>Generate Key</h2>
+
+<p>Sebelum membuat key, kita harus menentukan dulu panjang keynya.</p>
+
+<blockquote><p>Berapa panjang key yang ideal?</p></blockquote>
+
+<p>Menurut NSA, 256 bit. <a href="https://twitter.com/SteveBellovin/status/311545287313330176">Katanya supaya kebal dari serangan quantum computer</a>. Nah, sudah jelas bahwa saya tidak lebih pintar daripada NSA, yang mengajari orang ostrali bagaimana cara menyadap bos kita. Jadi ya kita terima saja sarannya untuk menggunakan 256 bit. Toh ngetik 128 dan 256 sama-sama efisien dari sisi jumlah tombol yang ditekan ;)</p>
+
+<p>Dengan menggunakan 256 bit, kita akan mendapatkan <a href="http://blog.agilebits.com/2013/03/09/guess-why-were-moving-to-256-bit-aes-keys/">keuntungan tambahan</a> jika nantinya kita menggunakan <a href="http://blog.agilebits.com/2013/01/18/authenticated-encryption-and-how-not-to-get-caught-chasing-a-coyote/">message authentication</a> dan <a href="http://blog.agilebits.com/2011/05/05/defending-against-crackers-peanut-butter-keeps-dogs-friendly-too/">password derivation</a>.</p>
+
+<p>Berdasarkan cara membuatnya, kita bedakan menjadi dua macam key:</p>
+
+<ul>
+<li>key yang dibuat secara random</li>
+<li>key yang ditentukan user (password)</li>
+</ul>
+
+
+<p>Random key biasanya digunakan tanpa user input. Misalnya aplikasi A ingin mengirim data ke aplikasi B. Supaya aman, data ini ingin dienkripsi. Supaya lebih aman, key yang digunakan untuk enkripsi diganti secara periodik, supaya tidak bisa ditebak oleh penyadap. Nah tentunya akan sangat merepotkan kalau key ini harus diinput user tiap kali dia harus diganti. Untuk keperluan ini, kita gunakan random key. Karena tidak perlu dihafalkan manusia, maka key ini bentuknya bebas saja.</p>
+
+<p>Berbeda halnya dengan key yang ditentukan user. Karena key ini harus dihafalkan user, maka biasanya user mencari rangkaian huruf/angka yang mudah dia hafalkan. Untuk itu, perlu ada tindakan tambahan supaya lebih aman. Tindakan tambahan ini disebut dengan istilah <a href="http://en.wikipedia.org/wiki/Key_stretching">key stretching</a>.</p>
+
+<p>Cara kerja key stretching intinya adalah <a href="http://en.wikipedia.org/wiki/Key_derivation_function">key derivation</a>, yaitu mengkonversi key asli menjadi key turunan. Key turunan inilah yang sebenarnya digunakan untuk melakukan enkripsi, bukan key asli. Proses key derivation dirancang sedemikian rupa untuk menghindari <a href="http://en.wikipedia.org/wiki/Weak_key">kelemahan</a> yang biasa ditemukan di password biasa, misalnya:</p>
+
+<ul>
+<li>jumlah karakternya kurang</li>
+<li>variasi angka/huruf/karakter kurang banyak</li>
+<li>biasanya menggunakan kata-kata yang ada di kamus, sehingga mudah ditebak</li>
+<li>urutan karakter tidak random (misalnya abcd4321, cobacoba1234)</li>
+</ul>
+
+
+<p>Melalui proses <em>key stretching</em> password yang biasanya tidak memenuhi syarat kriptografi dikonversi sehingga memenuhi syarat. Algoritma yang biasa digunakan antara lain:</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/PBKDF2">PBKDF2</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Bcrypt">Bcrypt</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Scrypt">Scrypt</a></li>
+</ul>
+
+
+<p>Kita hanya akan bahas PBKDF2 saja karena:</p>
+
+<ul>
+<li>populer</li>
+<li>tersedia di Java tanpa perlu donlod paket tambahan</li>
+<li>kebutuhan resource tidak terlalu besar, sehingga tersedia di berbagai platform (misalnya smartphone dan tablet)</li>
+</ul>
+
+
+<h3>Generate Random Key</h3>
+
+<p>Berikut kode program untuk membuat key yang random.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">KeyGenerator</span> <span class="n">keygen</span> <span class="o">=</span> <span class="n">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;AES&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="n">keygen</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="mi">256</span><span class="o">);</span>
+</span><span class='line'><span class="n">SecretKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">keygen</span><span class="o">.</span><span class="na">generateKey</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Generated Key : &quot;</span> <span class="o">+</span> <span class="n">Base64</span><span class="o">.</span><span class="na">encodeBase64String</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">()));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Key yang digenerate harus sesuai dengan algoritma enkripsi yang digunakan.</p>
+
+<h3>Key Stretching</h3>
+
+<p>Berikut kode program untuk key stretching. Kita akan membuat key turunan dari password yang lemah (hanya ada huruf, tidak ada angka dan karakter aneh).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="s">&quot;sangat rahasia sekali&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// generate random salt</span>
+</span><span class='line'><span class="n">SecureRandom</span> <span class="n">randomizer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecureRandom</span><span class="o">();</span>
+</span><span class='line'><span class="n">BigInteger</span> <span class="n">random</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BigInteger</span><span class="o">(</span><span class="mi">32</span><span class="o">,</span> <span class="n">randomizer</span><span class="o">);</span>
+</span><span class='line'><span class="n">String</span> <span class="n">salt</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="mi">64</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">perulangan</span> <span class="o">=</span> <span class="mi">1000</span><span class="o">;</span>
+</span><span class='line'><span class="n">String</span> <span class="n">algoritma</span> <span class="o">=</span> <span class="s">&quot;PBKDF2WithHmacSHA1&quot;</span><span class="o">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">panjangKey</span> <span class="o">=</span> <span class="mi">256</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">PBEKeySpec</span> <span class="n">keyspec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">PBEKeySpec</span><span class="o">(</span><span class="n">password</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">(),</span> <span class="n">salt</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="s">&quot;UTF-8&quot;</span><span class="o">),</span> <span class="n">perulangan</span><span class="o">,</span> <span class="n">panjangKey</span><span class="o">);</span>
+</span><span class='line'><span class="n">SecretKeyFactory</span> <span class="n">keyFactory</span> <span class="o">=</span> <span class="n">SecretKeyFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritma</span><span class="o">);</span>
+</span><span class='line'><span class="n">SecretKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">keyFactory</span><span class="o">.</span><span class="na">generateSecret</span><span class="o">(</span><span class="n">keyspec</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Password asli : &quot;</span><span class="o">+</span><span class="n">password</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Salt : &quot;</span><span class="o">+</span><span class="n">salt</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Generated Key : &quot;</span> <span class="o">+</span> <span class="n">Base64</span><span class="o">.</span><span class="na">encodeBase64String</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">()));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Secara fungsi, salt mirip dengan initialization vector. Yaitu agar password yang sama hasil hash-nya berbeda. Salt juga tidak perlu dirahasiakan, tapi perlu disimpan supaya bisa dipakai untuk memeriksa password. Jika kita simpan password di database dengan mekanisme <em>key stretching</em> ini, yang harus kita simpan adalah:</p>
+
+<ul>
+<li>salt</li>
+<li>jumlah perulangan</li>
+<li>panjang key</li>
+<li>key yang dihasilkan (ciphertext)</li>
+</ul>
+
+
+<blockquote><p>Perhatian! Key stretching ini bekerja satu arah. Artinya kita tidak bisa mendapatkan password plaintext dari ciphertextnya.</p></blockquote>
+
+<h2>Contoh Kasus</h2>
+
+<p>Sebagai contoh, kita ingin mengenkripsi file text. Supaya mudah, kita buat saja file text berisi lirik lagu yang bisa kita dapatkan di internet. Sepanjang prosedur enkripsi-dekripsi, ada beberapa file yang kita akan buat:</p>
+
+<ul>
+<li><code>lyric.txt</code> : file plaintext yang ingin kita enkripsi</li>
+<li><code>key.txt</code> : file berisi key untuk enkripsi. Key ini bisa dibuat secara random ataupun dari input user yang sudah melalui proses <em>key stretching</em>.</li>
+<li><code>iv.txt</code> : initialization vector</li>
+<li><code>lyric-enc.txt</code> : file ciphertext hasil enkripsi</li>
+<li><code>lyric-dec.txt</code> : file plaintext hasil dekripsi lyric-enc.txt</li>
+</ul>
+
+
+<p>Berikut langkah-langkah enkripsi:</p>
+
+<ol>
+<li>Generate key</li>
+<li>Inisialisasi object yang akan melakukan enkripsi (<code>java.crypto.Cipher</code>) menggunakan key</li>
+<li>Generate IV</li>
+<li>Lakukan prosedur enkripsi, hasilnya tulis ke <code>lyric-enc.txt</code>.</li>
+<li>Tulis juga key ke file <code>key.txt</code> dan IV ke file <code>iv.txt</code> untuk digunakan dalam proses dekripsi. Pada kondisi riil, IV bisa kita kirimkan melalui jalur publik, sedangkan key harus kita kirim melalui jalur aman. Biasanya key dienkripsi lagi menggunakan asymmetric encryption agar bisa dikirim dengan aman.</li>
+</ol>
+
+
+<p>Langkah-langkah dekripsi kebalikannya:</p>
+
+<ol>
+<li>Baca key dari file <code>key.txt</code></li>
+<li>Baca IV dari file <code>iv.txt</code></li>
+<li>Inisialisasi object yang akan melakukan dekripsi (<code>java.crypto.Cipher</code>) menggunakan key <strong>dan</strong> IV</li>
+<li>Lakukan proses dekripsi</li>
+</ol>
+
+
+<p>Kalau sudah paham langkahnya, mari kita coding. Sebelum masuk ke kriptografi, kita bereskan dulu masalah tampilan.</p>
+
+<h2>String Conversion</h2>
+
+<p>Proses enkripsi menghasilkan binary data, dalam Java ini ditampung dalam tipe data <code>byte[]</code>. Binary data ini tidak bisa kita buka di text editor, sehingga menyulitkan kita untuk debug. Oleh karena itu, kita perlu menggunakan <a href="http://en.wikipedia.org/wiki/Base64">encoding Base 64</a> untuk mengkonversinya menjadi <code>String</code>. Kalau kita langsung memasukkannya ke dalam constructor String, hasilnya akan kacau karena <a href="http://stackoverflow.com/a/10759422">constructor String bingung ketika menghadapi karakter-karakter aneh</a> (non-printable).</p>
+
+<p>Encoding Base64 kita lakukan dengan <a href="http://commons.apache.org/proper/commons-codec/">library <code>commons-codec</code> dari Apache</a>.</p>
+
+<h2>Inisialisasi Cipher untuk Enkripsi</h2>
+
+<p>Pertama, kita generate dulu key. Untuk enkripsi, object <code>cipher</code> harus diinisialisasi dengan key.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">algoritmaKey</span> <span class="o">=</span> <span class="s">&quot;AES&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// generate random key</span>
+</span><span class='line'><span class="n">KeyGenerator</span> <span class="n">keygen</span> <span class="o">=</span> <span class="n">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritmaKey</span><span class="o">);</span>
+</span><span class='line'><span class="n">keygen</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="mi">256</span><span class="o">);</span>
+</span><span class='line'><span class="n">SecretKey</span> <span class="n">key</span> <span class="o">=</span> <span class="n">keygen</span><span class="o">.</span><span class="na">generateKey</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// tulis key ke file untuk keperluan dekripsi</span>
+</span><span class='line'><span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">keyFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span> <span class="n">Base64</span><span class="o">.</span><span class="na">encodeBase64String</span><span class="o">(</span><span class="n">key</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">()).</span><span class="na">getBytes</span><span class="o">(),</span> <span class="n">StandardOpenOption</span><span class="o">.</span><span class="na">CREATE</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada kode program di atas, kita lihat bahwa sebelum ditulis ke file, kita encode dulu dengan method <code>Base64.encodeBase64String</code> supaya filenya bisa dibuka di text editor.</p>
+
+<p>Setelah punya key, kita buat object <code>cipher</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">algoritmaEnkripsi</span> <span class="o">=</span> <span class="s">&quot;AES/CBC/PKCS5Padding&quot;</span><span class="o">;</span>
+</span><span class='line'><span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritmaEnkripsi</span><span class="o">);</span>
+</span><span class='line'><span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">ENCRYPT_MODE</span><span class="o">,</span> <span class="n">key</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dari kode program di atas, kita bisa lihat bahwa:</p>
+
+<ul>
+<li>algoritma yang digunakan adalah <code>AES</code></li>
+<li>block cipher mode menggunakan <code>CBC</code></li>
+<li>padding menggunakan <code>PKCS5</code></li>
+</ul>
+
+
+<h2>Generate Initialization Vector</h2>
+
+<p>IV kita generate menggunakan object <code>cipher</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// generate IV</span>
+</span><span class='line'><span class="kt">byte</span><span class="o">[]</span> <span class="n">iv</span> <span class="o">=</span> <span class="n">cipher</span><span class="o">.</span><span class="na">getParameters</span><span class="o">().</span><span class="na">getParameterSpec</span><span class="o">(</span><span class="n">IvParameterSpec</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">getIV</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Jangan lupa ditulis ke file karena nanti akan kita butuhkan di proses dekripsi.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">ivFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span> <span class="n">Base64</span><span class="o">.</span><span class="na">encodeBase64String</span><span class="o">(</span><span class="n">iv</span><span class="o">).</span><span class="na">getBytes</span><span class="o">(),</span> <span class="n">StandardOpenOption</span><span class="o">.</span><span class="na">CREATE</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Proses Enkripsi</h2>
+
+<p>Kelengkapan sudah siap, mari kita lakukan proses enkripsi</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// tujuan hasil enkripsi</span>
+</span><span class='line'><span class="n">CipherOutputStream</span> <span class="n">writer</span> <span class="o">=</span>
+</span><span class='line'>            <span class="k">new</span> <span class="nf">CipherOutputStream</span><span class="o">(</span>
+</span><span class='line'>                <span class="k">new</span> <span class="nf">FileOutputStream</span><span class="o">(</span><span class="n">encryptedFile</span><span class="o">),</span> <span class="n">cipher</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// enkripsi isi file</span>
+</span><span class='line'><span class="n">FileReader</span> <span class="n">reader</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileReader</span><span class="o">(</span><span class="n">plain</span><span class="o">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">data</span><span class="o">;</span>
+</span><span class='line'><span class="k">while</span><span class="o">((</span><span class="n">data</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">read</span><span class="o">())</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">((</span><span class="kt">char</span><span class="o">)</span><span class="n">data</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">reader</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'><span class="n">writer</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seharusnya, pada tahap ini kita sudah memiliki file berikut:</p>
+
+<ol>
+<li><code>lyric.txt</code></li>
+<li><code>key.txt</code></li>
+<li><code>iv.txt</code></li>
+<li><code>lyric-enc.txt</code></li>
+</ol>
+
+
+<p>File <code>lyric-enc.txt</code> dan <code>iv.txt</code> kita kirimkan ke penerima. Dia harusnya sudah memiliki file <code>key.txt</code>.</p>
+
+<p>Proses enkripsi selesai. Kode program lengkapnya bisa dilihat <a href="https://github.com/endymuhardin/belajar-enkripsi/blob/master/src/main/java/com/muhardin/endy/belajar/enkripsi/AESEncryptionDemo.java">di Github</a>.</p>
+
+<p>Mari kita lanjutkan dengan proses dekripsi.</p>
+
+<h2>Membaca key dan IV dari file</h2>
+
+<p>Berikut kode programnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// load key</span>
+</span><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">keys</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllLines</span><span class="o">(</span><span class="n">keyFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&quot;UTF-8&quot;</span><span class="o">));</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">keys</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;File key invalid&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">String</span> <span class="n">key</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Key : &quot;</span><span class="o">+</span><span class="n">key</span><span class="o">);</span>
+</span><span class='line'><span class="n">SecretKeySpec</span> <span class="n">keySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecretKeySpec</span><span class="o">(</span><span class="n">Base64</span><span class="o">.</span><span class="na">decodeBase64</span><span class="o">(</span><span class="n">key</span><span class="o">),</span> <span class="n">algoritmaKey</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// load IV</span>
+</span><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">ivs</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllLines</span><span class="o">(</span><span class="n">ivFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&quot;UTF-8&quot;</span><span class="o">));</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">ivs</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()){</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;File IV invalid&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">String</span> <span class="n">iv</span> <span class="o">=</span> <span class="n">ivs</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;IV : &quot;</span><span class="o">+</span><span class="n">iv</span><span class="o">);</span>
+</span><span class='line'><span class="n">IvParameterSpec</span> <span class="n">ivSpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IvParameterSpec</span><span class="o">(</span><span class="n">Base64</span><span class="o">.</span><span class="na">decodeBase64</span><span class="o">(</span><span class="n">iv</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Inisialisasi Cipher</h2>
+
+<p>Untuk proses dekripsi, inisialisasi <code>cipher</code> membutuhkan key dan IV.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// inisialisasi AES</span>
+</span><span class='line'><span class="n">Cipher</span> <span class="n">cipher</span> <span class="o">=</span> <span class="n">Cipher</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritmaEnkripsi</span><span class="o">);</span>
+</span><span class='line'><span class="n">cipher</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">Cipher</span><span class="o">.</span><span class="na">DECRYPT_MODE</span><span class="o">,</span> <span class="n">keySpec</span><span class="o">,</span> <span class="n">ivSpec</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Jangan lupa gunakan mode <code>Cipher.DECRYPT_MODE</code>.</p>
+
+<h2>Proses Dekripsi</h2>
+
+<p>Tidak sulit, tinggal membalik saja prosedur enkripsi.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// output hasil dekripsi</span>
+</span><span class='line'><span class="n">FileWriter</span> <span class="n">output</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileWriter</span><span class="o">(</span><span class="n">decryptedFile</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// dekripsi isi file</span>
+</span><span class='line'><span class="n">CipherInputStream</span> <span class="n">cis</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CipherInputStream</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="n">encryptedFile</span><span class="o">),</span> <span class="n">cipher</span><span class="o">);</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">data</span><span class="o">;</span>
+</span><span class='line'><span class="k">while</span><span class="o">((</span><span class="n">data</span> <span class="o">=</span> <span class="n">cis</span><span class="o">.</span><span class="na">read</span><span class="o">())</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">output</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">data</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">cis</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'><span class="n">output</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Verifikasi</h2>
+
+<p>Setelah kita punya hasil dekripsi, tentu kita harus verifikasi apakah sama persis dengan aslinya. Caranya adalah dengan membandingkan <code>hash</code> file asli dan file hasil dekripsi. Kita bisa gunakan berbagai algoritma seperti <code>MD5</code> atau <code>SHA</code>. Berikut contohnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// bandingkan apakah hasil dekripsi sama dengan file asli</span>
+</span><span class='line'><span class="n">String</span> <span class="n">md5sumAsli</span> <span class="o">=</span> <span class="n">DigestUtils</span><span class="o">.</span><span class="na">md5Hex</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="n">plainFile</span><span class="o">));</span>
+</span><span class='line'><span class="n">String</span> <span class="n">md5sumHasilDekripsi</span> <span class="o">=</span> <span class="n">DigestUtils</span><span class="o">.</span><span class="na">md5Hex</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="n">decryptedFile</span><span class="o">));</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;MD5 Sum File Asli           : &quot;</span><span class="o">+</span><span class="n">md5sumAsli</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;MD5 Sum File Hasil Dekripsi : &quot;</span><span class="o">+</span><span class="n">md5sumHasilDekripsi</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">md5sumAsli</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">md5sumHasilDekripsi</span><span class="o">)</span> <span class="o">?</span> <span class="s">&quot;Cocok&quot;</span> <span class="o">:</span> <span class="s">&quot;Tidak cocok&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Proses dekripsi selesai. Kode program lengkapnya bisa dilihat <a href="https://github.com/endymuhardin/belajar-enkripsi/blob/master/src/main/java/com/muhardin/endy/belajar/enkripsi/AESDecryptionDemo.java">di Github</a>.</p>
+
+<h3>Message Authentication</h3>
+
+<p>Message authentication cara kerjanya kira-kira sama dengan metode verifikasi di atas. Intinya adalah:</p>
+
+<ol>
+<li>Generate hash dari file A</li>
+<li>Generate hash dari file B</li>
+<li>Bandingkan, jika hash sama berarti file A dan B isinya sama</li>
+</ol>
+
+
+<p>Dalam kaitannya dengan enkripsi, kita menambahkan key pada proses hash ini supaya lebih aman. Tanpa key, orang lain bisa mencoba-coba generate hash dari file yang dia miliki. Kalau berhasil membuat hash yang sama, maka dia bisa menebak atau memalsukan data yang dikirim. Dengan menggunakan key yang hanya diketahui pihak yang berkomunikasi, maka orang lain sulit untuk membuat hash yang sama.</p>
+
+<p>Proses ini nama kerennya adalah <a href="http://en.wikipedia.org/wiki/Hash-based_message_authentication_code">HMAC (hash-based message authentication code)</a>.</p>
+
+<p>Berikut kode program untuk menghasilkan hash dari data yang sudah dienkripsi</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// HMAC untuk memastikan integritas data</span>
+</span><span class='line'><span class="n">String</span> <span class="n">algoritmaHmac</span> <span class="o">=</span> <span class="s">&quot;HmacSHA512&quot;</span><span class="o">;</span>
+</span><span class='line'><span class="n">KeyGenerator</span> <span class="n">keygenHmac</span> <span class="o">=</span> <span class="n">KeyGenerator</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritmaHmac</span><span class="o">);</span>
+</span><span class='line'><span class="n">keygenHmac</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="mi">256</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// key untuk HMAC</span>
+</span><span class='line'><span class="n">SecretKey</span> <span class="n">keyHmac</span> <span class="o">=</span> <span class="n">keygenHmac</span><span class="o">.</span><span class="na">generateKey</span><span class="o">();</span>
+</span><span class='line'><span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">hmacKeyFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span>
+</span><span class='line'>        <span class="n">Base64</span><span class="o">.</span><span class="na">encodeBase64String</span><span class="o">(</span><span class="n">keyHmac</span><span class="o">.</span><span class="na">getEncoded</span><span class="o">()).</span><span class="na">getBytes</span><span class="o">(),</span>
+</span><span class='line'>        <span class="n">StandardOpenOption</span><span class="o">.</span><span class="na">CREATE</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// buat HMAC</span>
+</span><span class='line'><span class="n">Mac</span> <span class="n">hmacGenerator</span> <span class="o">=</span> <span class="n">Mac</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritmaHmac</span><span class="o">);</span>
+</span><span class='line'><span class="n">hmacGenerator</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">keyHmac</span><span class="o">);</span>
+</span><span class='line'><span class="kt">byte</span><span class="o">[]</span> <span class="n">hmac</span> <span class="o">=</span> <span class="n">hmacGenerator</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">encryptedFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">()));</span>
+</span><span class='line'><span class="n">Files</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">hmacFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span> <span class="n">hmac</span><span class="o">,</span> <span class="n">StandardOpenOption</span><span class="o">.</span><span class="na">CREATE</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan bahwa kita terlebih dulu menghasilkan key untuk membuat hash. Key ini harus dimiliki juga oleh pihak penerima data.</p>
+
+<p>Sekarang, kita lakukan verifikasi di sisi penerima.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// sebelum dekripsi, cek dulu HMAC apakah datanya otentik</span>
+</span><span class='line'><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hmacKeys</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllLines</span><span class="o">(</span><span class="n">hmacKeyFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">(),</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">&quot;UTF-8&quot;</span><span class="o">));</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">hmacKeys</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;No mac key&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">String</span> <span class="n">hmacKey</span> <span class="o">=</span> <span class="n">hmacKeys</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">SecretKeySpec</span> <span class="n">hmacKeySpec</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SecretKeySpec</span><span class="o">(</span><span class="n">Base64</span><span class="o">.</span><span class="na">decodeBase64</span><span class="o">(</span><span class="n">hmacKey</span><span class="o">),</span> <span class="n">algoritmaHmac</span><span class="o">);</span>
+</span><span class='line'><span class="n">Mac</span> <span class="n">hmacGenerator</span> <span class="o">=</span> <span class="n">Mac</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">algoritmaHmac</span><span class="o">);</span>
+</span><span class='line'><span class="n">hmacGenerator</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">hmacKeySpec</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// generate hmac dari data yang diterima</span>
+</span><span class='line'><span class="kt">byte</span><span class="o">[]</span> <span class="n">hmacDiterima</span> <span class="o">=</span> <span class="n">hmacGenerator</span><span class="o">.</span><span class="na">doFinal</span><span class="o">(</span><span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">encryptedFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">()));</span>
+</span><span class='line'><span class="c1">// baca hmac yang disertakan bersama data</span>
+</span><span class='line'><span class="kt">byte</span><span class="o">[]</span> <span class="n">hmacSeharusnya</span> <span class="o">=</span> <span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="n">hmacFile</span><span class="o">.</span><span class="na">toPath</span><span class="o">());</span>
+</span><span class='line'><span class="kt">boolean</span> <span class="n">cocok</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">hmacDiterima</span><span class="o">,</span> <span class="n">hmacSeharusnya</span><span class="o">);</span>
+</span><span class='line'><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">cocok</span> <span class="o">?</span> <span class="s">&quot;HMAC Cocok&quot;</span> <span class="o">:</span> <span class="s">&quot;HMAC Tidak Cocok&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="k">if</span><span class="o">(!</span><span class="n">cocok</span><span class="o">){</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Data tidak otentik, mungkin sudah dioprek orang ditengah jalan&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Verifikasi HMAC ini kita lakukan <strong>sebelum</strong> melakukan dekripsi. Tidak ada gunanya dan menambah resiko kalau kita melakukan proses dekripsi (di mana kita membuka dan menggunakan key rahasia) terhadap data yang invalid.</p>
+
+<h1>Kesimpulan</h1>
+
+<p>Pengirim dan penerima harus terlebih dulu memiliki:</p>
+
+<ul>
+<li>key enkripsi</li>
+<li>key HMAC</li>
+</ul>
+
+
+<p>Kedua file ini harus dirahasiakan dari pihak yang tidak berkepentingan. Distribusinya bisa dilakukan dengan enkripsi menggunakan asymmetric encryption.</p>
+
+<p>Pada saat berkomunikasi, pengirim akan memberikan:</p>
+
+<ul>
+<li>initialization vector</li>
+<li>data yang terenkripsi</li>
+<li>HMAC</li>
+</ul>
+
+
+<p>Ketiga data di atas boleh dikirim melalui jalur publik.</p>
+
+<p>Setelah menerima ketiga file tersebut, penerima akan melakukan:</p>
+
+<ol>
+<li>Generate HMAC dari data terenkripsi</li>
+<li>Bandingkan HMAC hasil generate dengan HMAC yang dikirim bersama data. Kalau tidak cocok, jangan diteruskan.</li>
+<li>Kalau cocok, barulah lakukan dekripsi menggunakan key dan IV.</li>
+</ol>
+
+
+<blockquote><p>Bagaimana, pusing?</p></blockquote>
+
+<p>Ya tinggal pilih, pusing belajar atau kena sadap :D</p>
+
+<p>Kode program selengkapnya (seperti biasa) ada <a href="https://github.com/endymuhardin/belajar-enkripsi">di Github</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-21T12:00:00+07:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/enkripsi-dekripsi-file-dengan-java/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/enkripsi-dekripsi-file-dengan-java/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/aplikasi/tips-upgrade-library/" title="Previous Post: Tips Upgrade Library">&laquo; Tips Upgrade Library</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/enkripsi-dekripsi-file-dengan-java/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://plus.google.com/110971146012275775230">Google +</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+
+<section>
+
+Bila artikel di website ini membantu meningkatkan penghasilan Anda, 
+jangan ragu untuk memberikan donasi :)
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----MIIHRwYJKoZIhvcNAQcEoIIHODCCBzQCAQExggEwMIIBLAIBADCBlDCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20CAQAwDQYJKoZIhvcNAQEBBQAEgYByjmBHWB1u9oWkn33FHJ7Lu41iidZkdKLciblvSz2Oa/oBArw42F4/7nq3imMAWUvpA6Cx9zwNr3R7WqjnMlDr91VTkeyl1jusRB6Knw/JAaNI2yz20lbFtVNMhUrh2LJ6qXUwvdL4jvZeNUeOcvq/muETfy8BzgdKwCF3gNGpoTELMAkGBSsOAwIaBQAwgcQGCSqGSIb3DQEHATAUBggqhkiG9w0DBwQId7q7vUD8KwOAgaAyBdpVvmsdYWgKdVROwaJazFrOpQpWEncNGoycnyfeJRNwHXXZU1mj0oTJuvj/CUGr6cZC5RnQNBHC6FLnbjCVheTNtjBSs/CjD7HZMn28kElykLad2wDrFUsBkQCdRU43ZBLoRedRKbGVWP4wk6DgLovkwPzYNLKtl3clJbgm3UDXigmJqeAyvmafF2yk8LV4ACLTJtCu6qtSBVHkuUPToIIDhzCCA4MwggLsoAMCAQICAQAwDQYJKoZIhvcNAQEFBQAwgY4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLUGF5UGFsIEluYy4xEzARBgNVBAsUCmxpdmVfY2VydHMxETAPBgNVBAMUCGxpdmVfYXBpMRwwGgYJKoZIhvcNAQkBFg1yZUBwYXlwYWwuY29tMB4XDTA0MDIxMzEwMTMxNVoXDTM1MDIxMzEwMTMxNVowgY4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLUGF5UGFsIEluYy4xEzARBgNVBAsUCmxpdmVfY2VydHMxETAPBgNVBAMUCGxpdmVfYXBpMRwwGgYJKoZIhvcNAQkBFg1yZUBwYXlwYWwuY29tMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDBR07d/ETMS1ycjtkpkvjXZe9k+6CieLuLsPumsJ7QC1odNz3sJiCbs2wC0nLE0uLGaEtXynIgRqIddYCHx88pb5HTXv4SZeuv0Rqq4+axW9PLAAATU8w04qqjaSXgbGLP3NmohqM6bV9kZZwZLR/klDaQGo1u9uDb9lr4Yn+rBQIDAQABo4HuMIHrMB0GA1UdDgQWBBSWn3y7xm8XvVk/UtcKG+wQ1mSUazCBuwYDVR0jBIGzMIGwgBSWn3y7xm8XvVk/UtcKG+wQ1mSUa6GBlKSBkTCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb22CAQAwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOBgQCBXzpWmoBa5e9fo6ujionW1hUhPkOBakTr3YCDjbYfvJEiv/2P+IobhOGJr85+XHhN0v4gUkEDI8r2/rNk1m0GA8HKddvTjyGw/XqXa+LSTlDYkqI8OwR8GEYj4efEtcRpRYBxV8KxAW93YDWzFGvruKnnLbDAF6VR5w/cCMn5hzGCAZowggGWAgEBMIGUMIGOMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxFDASBgNVBAoTC1BheVBhbCBJbmMuMRMwEQYDVQQLFApsaXZlX2NlcnRzMREwDwYDVQQDFAhsaXZlX2FwaTEcMBoGCSqGSIb3DQEJARYNcmVAcGF5cGFsLmNvbQIBADAJBgUrDgMCGgUAoF0wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMTMwNzExMDY0MjAwWjAjBgkqhkiG9w0BCQQxFgQUwzp1u86AW3VypUoSwjzfYA4KYn8wDQYJKoZIhvcNAQEBBQAEgYBExEV1zgHTrd+4zfXwIP0KO0/W7b4s2KDLbZ3Vq9FrtdtC9W3NEf6SbVZDYE+bEheP10XokfC8BslN7nZgsfPTvSNXv7ixfpWUVBb/gQB+QO70q1NZ2tuF2M/t1QzFUEZ9FeA0sgFMBS7nxmu7ynaSzez3B4FTG/jUzuRljVWhew==-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</form>
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/enkripsi-dekripsi-file-dengan-java/">Symmetric Encryption dengan Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/tips-upgrade-library/">Tips Upgrade Library</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/octopress-aggregator/">Octopress Aggregator</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/problem-solving/">Problem Solving</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/mendapatkan-informasi-system-dengan-java/">Mendapatkan Informasi System dengan Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/aplikasi/teknik-menggunakan-google/">Teknik Menggunakan Google</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/migrasi-database-dengan-liquibase/">Migrasi Database dengan Liquibase</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/lan-na-zha/">Lan Na Zha</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/otodidak/">Otodidak</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

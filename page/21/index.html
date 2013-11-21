@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya &hellip;">
+  <meta name="description" content="Di berbagai milis yang saya ikuti, ada diskusi menarik yang muncul. Apa saja yang harus dilakukan untuk dalam project management? Bagaimana SOP ( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,210 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/manajemen/manajemen-proyek-sederhana/">Manajemen Proyek Sederhana</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-02-17T04:55:40+07:00" pubdate data-updated="true">Feb 17<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di berbagai milis yang saya ikuti, ada diskusi menarik yang muncul. Apa saja yang harus dilakukan untuk dalam project management? Bagaimana SOP (standard operating procedure) nya? Tools apa yang digunakan?</p>
+
+<p>Saya sudah mencoba berbagai metodologi manajemen proyek sepanjang karir saya. Ala koboi di jaman jahiliah dulu, ala waterfall di perusahaan terdahulu, ala CMMI di BaliCamp, dan berbagai ala-ala lainnya. Sepanjang perjalanan tersebut, saya juga membaca tentang berbagai metodologi seperti XP, Scrum, Crystal, RUP, dsb.</p>
+
+<p>Dari semuanya, tentu tidak ada metodologi yang bisa digunakan di semua kondisi. Segalanya serba tergantung keadaan. Walaupun demikian, hasil pengalaman bertahun-tahun tersebut sudah memberikan saya pemahaman tentang latar belakang di aturan-aturan CMMI maupun di metodologi lainnya. Begitu kita mendapatkan alasan dibalik aturan tersebut, kita bisa mengambil esensinya dan mengimplementasikannya dengan bentuk lain yang sesuai dengan situasi kita.</p>
+
+<p>Berikut adalah manajemen proyek ala ArtiVisi.</p>
+
+<h2>Fase dan Siklus</h2>
+
+<p>Sebelum membahas lebih jauh tentang manajemen proyek, kita luruskan dulu beberapa istilah. Kita mengenal istilah fase dan siklus (lifecycle)</p>
+
+<p>Fase adalah tahapan yang dilalui dalam membuat aplikasi. Biasanya, dalam satu fase akan terdiri dari banyak task.</p>
+
+<p>Fase yang ada di internal ArtiVisi adalah sebagai berikut :
+1. Requirement Development
+2. Coding
+3. User Acceptance Test
+4. Implementasi</p>
+
+<p>Keempat fase ini berjalan secara serial, artinya, fase coding baru bisa dimulai setelah requirement development selesai, dsb.
+Mendengar ini, pembaca yang beraliran progresif revolusioner pasti langsung demo di Bundaran HI, &#8220;Waterfall is dead, long live Agile !!!&#8221;</p>
+
+<p>Tunggu dulu sebentar, waterfall dan iteratif itu adalah lifecycle, bukan fase.</p>
+
+<p>Lalu apa itu lifecycle? Lifecycle adalah urutan kita menjalankan fase tersebut <strong>di keseluruhan project</strong>. Bagaimana maksudnya ini?</p>
+
+<p>Begini, misalnya kita membuat aplikasi akunting. Aplikasi ini terdiri dari beberapa modul yaitu; ledger, hutang/piutang, dan manajemen kas. Lifecycle waterfall adalah apabila kita menjalankan project dengan urutan seperti ini :</p>
+
+<ol>
+<li><p>Project Planning</p>
+
+<ol>
+<li>Modul Ledger</li>
+<li>Modul Hutang/Piutang</li>
+<li>Modul Kas</li>
+</ol>
+</li>
+<li><p>Requirement Development</p>
+
+<ol>
+<li>Modul Ledger</li>
+<li>Modul Hutang/Piutang</li>
+<li>Modul Kas</li>
+</ol>
+</li>
+<li><p>Coding</p>
+
+<ol>
+<li>Modul Ledger</li>
+<li>Modul Hutang/Piutang</li>
+<li>Modul Kas</li>
+</ol>
+</li>
+<li><p>UAT</p>
+
+<ol>
+<li>Modul Ledger</li>
+<li>Modul Hutang/Piutang</li>
+<li>Modul Kas</li>
+</ol>
+</li>
+<li><p>Implementasi</p>
+
+<ol>
+<li>Modul Ledger</li>
+<li>Modul Hutang/Piutang</li>
+<li>Modul Kas</li>
+</ol>
+</li>
+</ol>
+
+
+<p>Lifecycle waterfall memang memiliki banyak kelemahan, apalagi kalau projectnya besar. Karena rentang waktu yang jauh antara fase requirement dan fase UAT, maka biasanya pada saat UAT user merasa kaget karena merasa aplikasi yang dibuat tidak sesuai ekspektasi. Entah karena user sudah lupa requirement yang dia bikin sendiri, ataupun karena proses bisnisnya memang sudah berubah.</p>
+
+<p>Lifecycle yang dijalankan ArtiVisi adalah Staged Delivery, seperti yang dijelaskan di bukunya Steve McConnell berjudul Rapid Development. Berikut urutannya.</p>
+
+<ol>
+<li><p>Global / High Level</p>
+
+<ol>
+<li>Project Planning</li>
+<li>Requirement Development</li>
+</ol>
+</li>
+<li><p>Modul Ledger</p>
+
+<ol>
+<li>Project Planning</li>
+<li>Requirement Development</li>
+<li>Coding</li>
+<li>UAT</li>
+<li>Implementasi</li>
+</ol>
+</li>
+<li><p>Modul Hutang/Piutang</p>
+
+<ol>
+<li>Project Planning</li>
+<li>Requirement Development</li>
+<li>Coding</li>
+<li>UAT</li>
+<li>Implementasi</li>
+</ol>
+</li>
+<li><p>Modul Kas</p>
+
+<ol>
+<li>Project Planning</li>
+<li>Requirement Development</li>
+<li>Coding</li>
+<li>UAT</li>
+<li>Implementasi</li>
+</ol>
+</li>
+</ol>
+
+
+<p>Pendekatan ini bukan waterfall, karena delivery-nya iteratif dan kecil-kecil. Satu modul biasanya berkisar 1 - 2 bulan saja, kira-kira sesuai dengan panjang sprint yang dianjurkan di metodologi Scrum. Tapi pendekatan ini juga bukan murni agile, karena ada global project planning dan requirement di awal. Untuk apa ada kegiatan itu? Tidak lain dan tidak bukan adalah untuk mengantisipasi interkoneksi antar modul.</p>
+
+<p>Bila kita langsung mengambil salah satu modul untuk diiterasi, maka ada resiko modul tersebut tidak nyambung dengan modul lainnya. Memang bisa disambungkan, tapi nanti akan berkesan tambal sulam. Istilahnya Fred Brooks dalam Mythical Man Month, tidak ada Conceptual Integrity. Oleh karena itu kita perlu melakukan global requirement development untuk melihat interaksi antar modul.</p>
+
+<p>Pembaca yang teliti mungkin juga akan bertanya, mengapa kita menggunakan istilah Requirement Development, bukannya Requirement Gathering? Ini karena untuk mendapatkan requirement, perlu usaha ekstra, tidak sekedar memungut (gathering) informasi di sana-sini. Seringkali kita harus menanyakan hal yang sama dari beberapa sudut pandang untuk mendapatkan apa maunya user. Di saat lain, kita harus bisa menebak fitur yang tersirat. Kalau user bilang, &#8220;Harus ada fitur untuk menyimpan data transaksi&#8221;, berarti tidak cuma ada screen edit dan list. Tapi juga harus ada fitur search berdasarkan tanggal, produk, nilai transaksi, dan atribut lainnya. Kadangkala ini juga berarti harus ada fitur untuk export/import ke format file lainnya. Jadi, untuk mendapatkan requirement, perlu proses development. Mulai dari sedikit, lalu diakumulasi, dan dikristalisasi sehingga benar-benar akurat dan lengkap. Jangan sampai ada yang ketinggalan.</p>
+
+<p>Kelima fase yang dijelaskan di atas merupakan fase yang sekuensial. Artinya, satu fase dijalankan setelah fase lain selesai. Kita tidak bisa mulai implementasi sebelum UAT selesai. Well, bisa sih, tapi hasilnya <em>tidak akan menyenangkan</em>. Demikian juga, kalau belum selesai coding, ya jangan UAT dulu. Bisa sih maksain UAT, tapi tentu <em>tidak akan menyenangkan</em>. Begitu juga halnya kalau kita coding sebelum jelas requirementnya.</p>
+
+<p>Selain fase yang sekuensial tersebut, ada juga serangkaian kegiatan yang harus kita lakukan secara kontinyu sepanjang project. Yaitu project tracking dan change management.</p>
+
+<h2>Project Tracking</h2>
+
+<p>Project tracking tidak sulit. Setiap minggu, harus ada orang yang melihat project plan dan membandingkan dengan kondisi sekarang. Task mana yang sudah selesai, mana yang sedang dikerjakan, mana yang sudah selesai. Kondisi sekarang ini direkap ke dalam satu laporan, 1-2 halaman, dan dilaporkan ke client dan manajemen. Di ArtiVisi, mengadopsi dari BaliCamp, selain rekap task juga disertakan rekap resiko dan masalah yang terjadi dalam proyek. Ini akan menjadi bahan diskusi dengan client, bagaimana cara memecahkan masalah tersebut, dan bagaimana mencegah resiko agar tidak berdampak merugikan.</p>
+
+<h2>Requirement Development</h2>
+
+<p>Sebelum membahas change management, kita bahas dulu requirement. Di ArtiVisi, requirement bentuknya adalah daftar screen aplikasi, biasanya dibuat dengan Netbeans. Kami tidak menggunakan format naratif seperti yang dianut beberapa organisasi dan dinamai User Requirement Specification (URS), Business Requirement Specification (BRS), atau Software Requirement Specification (SRS), User Story, atau istilah-istilah lainnya. Berdasarkan pengalaman, dokumen naratif membuat user malas berinteraksi. Untuk aplikasi shopping cart sederhana saja, bila dibuatkan <em>RS, akan menjadi lebih dari 20 halaman. Apalagi untuk aplikasi yang besar. Client akan malas membaca, dan akibatnya pada saat aplikasi dideliver hasilnya tidak sesuai ekspektasi, walaupun sesuai dengan </em>RS.</p>
+
+<p>ArtiVisi menggunakan prototype aplikasi untuk requirement. Kita buatkan screen desktop ataupun web, diisi data hardcoded, dan sudah memiliki menu dan flow. Dari screen registrasi klik submit akan masuk screen konfirmasi, dst. Dengan menggunakan prototype yang bisa diisi dan diklik, user akan lebih bersemangat untuk berinteraksi, sehingga hasil requirement akan menjadi berkualitas. Pada fase requirement ini user bebas meminta modifikasi apapun asal masih dalam scope yang disepakati.</p>
+
+<p>Setelah tidak ada lagi perubahan signifikan, semua screen dicapture, dimasukkan ke dokumen, dan diapprove client (sign off). Ini akan menjadi patokan dalam proses development, diantaranya digunakan oleh programmer untuk coding, dan technical writer untuk membuat user manual.</p>
+
+<h2>Change Management</h2>
+
+<p>Perubahan setelah sign off harus melalui prosedur change management. Ini gunanya agar progress project bisa terkendali. Sering sekali banyak project molor dan tidak selesai-selesai karena banyak perubahan ini itu yang tidak dikelola dengan baik sehingga tidak terlihat titik akhirnya.</p>
+
+<p><img src="/images/uploads/2010/02/change-procedure_id-212x300.png" title="Prosedur Change Management" ></p>
+
+<p>Prosedur change management tidak rumit. Hanya terdiri dari tiga langkah saja, yaitu :</p>
+
+<ol>
+<li>Requester menjelaskan perubahan yang diminta, apa alasan yang mendasari perubahan</li>
+<li>Tim development menganalisa dampak perubahan, apakah ada coding yang berubah, user manual, test scenario, dsb. Output dari analisa ini adalah estimasi berapa tambahan waktu, tenaga, dan biaya untuk mengeksekusi perubahan ini</li>
+<li><p>Manajemen di sisi client memutuskan berdasarkan estimasi tersebut, apakah perubahan ini akan :</p>
+
+<ul>
+<li>Dijalankan segera</li>
+<li>Ditunda ke iterasi berikut</li>
+<li>Ditolak, artinya tidak jadi dijalankan pada project ini, mungkin saja dijadikan project baru.</li>
+</ul>
+</li>
+</ol>
+
+
+<p>Dengan adanya proses ini, akan jelas berapa hari project akan mundur, dan berapa biaya tambahannya.</p>
+
+<p>Demikian sharing tentang praktek yang kita gunakan di ArtiVisi. Metodologi ini cukup sederhana, sehingga bisa dijalankan bahkan di project yang one-man-show. Project manager dia, business analyst dia, programmer dia juga, training lagi-lagi dia, terima transferan tidak lain dan tidak bukan adalah dia juga. Di project berskala besar, metodologi ini juga cukup efektif untuk membuat project berjalan secara predictable.</p>
+
+<p>Masih ada penjelasan lebih lanjut yang harus ditulis, diantaranya bagaimana cara menghitung (estimasi) project, dan bagaimana melakukan project planning dan tracking yang efektif. Ini akan dibahas di tulisan yang lain.</p>
+
+<p>Bila ingin berkomentar atau berdiskusi, silahkan bergabung di milis it-project-indonesia@googlegroups.com dengan cara mengirim email kosong ke it-project-indonesia-subscribe@googlegroups.com</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -444,106 +648,6 @@ INFO: Pesan dari server : Halo, endy
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/postgresql-sequence-hibernate/">PostgreSQL Sequence Dengan Hibernate</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-06-22T22:08:58+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Menggunakan PostgreSQL Sequence dengan Hibernate</p>
-
-<p>Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang dibuat PostgreSQL.</p>
-
-<p>Bila kita membuat Hibernate mapping untuk entity class sebagai berikut:</p>
-
-<pre><code>@Entity @Table(name="example")
-public class Example {
-    @Id @GeneratedValue
-    private Integer id;
-
-    private String name;
-
-    // getter dan setter    
-}
-</code></pre>
-
-<p>kemudian menyuruh Hibernate untuk menggenerate DDL ke PostgreSQL, maka kita akan mendapatkan hasil sebagai berikut.</p>
-
-<pre><code>create table example (id int4 not null, name varchar(255), primary key (id))
-create sequence example_id_seq
-</code></pre>
-
-<p>Artinya, Hibernate akan membuat sequence bernama example_id_seq dan menggunakannya untuk menghasilkan id.</p>
-
-<p>Skema yang dihasilkan ini berbeda dengan skema yang biasa digunakan DBA PostgreSQL dalam membuat tabel, yaitu seperti ini</p>
-
-<pre><code>CREATE TABLE example (id serial, name text)
-</code></pre>
-
-<p>Bila kita menggunakan mapping di atas ke skema tabel dengan id bertipe serial ini, kita akan mendapatkan exception sebagai berikut.</p>
-
-<pre><code>SEVERE: ERROR: relation "hibernate_sequence" does not exist
-Exception in thread "main" org.hibernate.exception.SQLGrammarException: could not get next sequence value
-Caused by: org.postgresql.util.PSQLException: ERROR: relation "hibernate_sequence" does not exist
-</code></pre>
-
-<p>Ini disebabkan karena mapping di atas akan mencari sequence bernama hibernate_sequence yang tidak ada kalau kita membuat tabel dengan id serial.</p>
-
-<p>Solusinya adalah dengan menggunakan Hibernate Annotation Extension, yaitu anotasi @GenericGenerator seperti ini.</p>
-
-<pre><code>@Entity @Table(name="example")
-public class Example {
-    @Id @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pg_seq")
-    @GenericGenerator(name="pg_seq", strategy="sequence", parameters={
-        @Parameter(name="sequence", value="example_id_seq")
-    })
-    private Integer id;
-
-    private String name;
-}
-</code></pre>
-
-<p>Nama sequence diambil dari sequence yang dibuatkan PostgreSQL pada saat kita melakukan create table.
-Nama sequence ini bisa dilihat dengan mengetikkan \d example, yang akan menghasilkan output sebagai berikut.</p>
-
-<pre><code>\d example
-                          Table "public.example"
- Column |  Type   |                       Modifiers                       
---------+---------+-------------------------------------------------------
- id     | integer | not null default nextval('example_id_seq'::regclass)
- name   | text    | 
-</code></pre>
-
-<p>Barulah setelah itu kita bisa menyimpan object ke database dengan mulus.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/22/">&larr; Older</a>
@@ -620,6 +724,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/enkripsi-dekripsi-file-dengan-java/">Symmetric Encryption dengan Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/aplikasi/tips-upgrade-library/">Tips Upgrade Library</a>
       </li>
     
@@ -653,10 +761,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD di Ubuntu</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a>
       </li>
     
   </ul>
