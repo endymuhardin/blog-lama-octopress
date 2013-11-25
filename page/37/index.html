@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Salah satu komentator bertanya seperti ini, kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring &hellip;">
+  <meta name="description" content="Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,143 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/svn-commit-email/">Mengaktifkan Commit Email Subversion</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-07T22:22:59+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu best practices dalam praktek pemrograman adalah Peer Review. Kode yang disubmit seseorang ke version control akan direview oleh anggota tim yang lain. Beberapa keuntungan dari pelaksanaan Peer Review antara lain:</p>
+
+<ul>
+<li>meningkatnya collective code ownership. Semua anggota tim akan merasa memiliki.</li>
+<li>membantu penyebaran pengetahuan dan pengalaman. Kode yang kurang optimal akan dikomentari di ruang publik (milis developer), sehingga semua anggota akan mendapat pencerahan.</li>
+<li>meningkatkan kualitas kode program secara keseluruhan. Bila setiap commit direview, anggota tim akan mendapat peer pressure untuk tidak mengulangi kesalahan yang pernah dibahas. Kalau ada kode yang kurang optimal, feedback akan datang dengan cepat, sehingga kualitas yang rendah tidak akan terakumulasi.</li>
+</ul>
+
+
+<p>Baiklah, sekarang kita sudah tahu manfaat praktek peer review. Sama seperti kita tahu kalau lari pagi itu sehat. Tapi seperti halnya lari pagi, banyak orang yang tidak melakukannya.</p>
+
+<p>Salah satu alasan peer review tidak dilakukan adalah semakin banyak kode program, semakin sulit reviewnya. Mau mulai dari mana? Apa kode yang kemarin sudah direview perlu dilihat lagi?</p>
+
+<p>Masalah yang sama dihadapi oleh seluruh pengembang aplikasi open source di seluruh dunia. Dan mereka sudah punya solusinya, yaitu commit email.</p>
+
+<p>Prinsipnya sederhana. Kita pasang trigger di version control. Setiap kali ada yang commit, trigger tersebut akan melihat apa yang baru saja dicommit. Kemudian membandingkannya dengan versi sebelumnya. Hasil perbandingan kemudian dikirim ke milis developer supaya bisa dilihat orang banyak.</p>
+
+<p>Dengan commit email ini, reviewer tidak perlu melihat keseluruhan kode program, tapi cukup yang berubah saja. Ini akan sangat meringankan kegiatan review.</p>
+
+<p>Subversion sudah mempaketkan script trigger untuk commit email. Di <a href="http://subversion.tigris.org/tools_contrib.html">halaman Tools &amp; Contrib</a> ada beberapa script untuk keperluan ini.</p>
+
+<p>Saya menggunakan <a href="http://svn.collab.net/repos/svn/trunk/tools/hook-scripts/commit-email.pl.in">commit script yang dibuat dengan Perl</a>. Sebelum dipakai, script ini harus diedit sedikit, di bagian SMTP server.</p>
+
+<p><code>$smtp_server = "127.0.0.1";</code></p>
+
+<p>dan bagian path menuju perintah svnlook.</p>
+
+<p><code>my $svnlook = "@SVN_BINDIR@/svnlook";</code></p>
+
+<p>Kalau di Windows, <code>svnlook</code> ada di <code>C:\Program Files\Subversion\bin</code>, sedangkan kalau di Linux biasanya ada di <code>/usr/bin</code>.</p>
+
+<p>Selanjutnya, kita harus menyuruh Subversion untuk menjalankan file ini pada saat ada orang commit. Caranya mudah, masuk ke folder repository Subversion, di dalam folder hooks.</p>
+
+<p>Untuk Linux mudah, cukup rename <code>post-commit.tmpl</code> menjadi <code>post-commit</code>, dan ganti modenya menjadi executable.</p>
+
+<p><code>chmod +x post-commit</code></p>
+
+<p>Kemudian edit sedikit untuk memasukkan beberapa parameter:</p>
+
+<ul>
+<li>Recipient : penerima commit email. Biasanya ini saya arahkan ke milis developer</li>
+<li>Subject : subject pada email yang dikirim</li>
+<li>Reply To : kalau penerima email menekan tombol Reply, inilah alamat yang akan muncul di field To</li>
+<li>Host : nama host otomatis yang akan ditambahkan ke nama user yang commit. Misalnya username yang commit endy, dan hostnya artivisi.com, maka nama pengirim otomatis menjadi endy@artivisi.com</li>
+</ul>
+
+
+<p>Berikut isi dari file post-commit saya</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/bin/sh
+</span><span class='line'>REPOS="$1"
+</span><span class='line'>REV="$2"
+</span><span class='line'>
+</span><span class='line'>RECIPIENT=devteam@artivisi.com
+</span><span class='line'>SUBJECT=automated-commit-email
+</span><span class='line'>REPLY_TO=devteam@artivisi.com
+</span><span class='line'>HOST=artivisi.com
+</span><span class='line'>
+</span><span class='line'>$REPOS/hooks/commit-email.pl "$REPOS" "$REV" -h $HOST -r $REPLY_TO  -s $SUBJECT $RECIPIENT</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Untuk di Windows, kita harus membuat file <code>post-commit.bat</code>, di folder hooks juga. Berikut isi dari <code>post-commit.bat</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@ECHO OFF
+</span><span class='line'>
+</span><span class='line'>SET RECIPIENT=devteam@artivisi.com
+</span><span class='line'>SET SUBJECT=automated-commit-email
+</span><span class='line'>SET REPLY_TO=devteam@artivisi.com
+</span><span class='line'>SET HOST=artivisi.com
+</span><span class='line'>
+</span><span class='line'>SET PERL=c:\usr\bin\perl
+</span><span class='line'>SET REPOS=%1
+</span><span class='line'>SET REV=%2
+</span><span class='line'>
+</span><span class='line'>%PERL% -w %REPOS%/hooks/commit-email.pl %REPOS% %REV% -h %HOST% -r %REPLY_TO%  -s %SUBJECT% %RECIPIENT%</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tentunya kita harus menginstal dulu <a href="http://www.activestate.com/store/productdetail.aspx?prdGuid=81fbce82-6bd5-49bc-a915-08d58c2648ca">Perl untuk Windows</a> agar script ini bisa berjalan.</p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -500,349 +637,6 @@ public class PersonValidator {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-1/">Aplikasi Web Dengan Spring 2.5 [Bagian 1]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-05T20:35:16+07:00" pubdate data-updated="true">Dec 5<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah pada <a href="http://endy.artivisi.com/blog/java/akses-database-spring25">artikel sebelumnya</a> kita berhasil mengakses database, kali ini kita akan membuat tampilan berbasis web yang menggunakan kode program kita kemarin.</p>
-
-<p>Fiturnya tidak terlalu sulit, dari tabel T_PERSON kemarin kita akan buatkan beberapa tampilan untuk mengelola data Person. Tampilan yang akan kita sediakan adalah:</p>
-
-<ul>
-<li>daftar semua Person</li>
-<li>informasi Person yang dipilih</li>
-<li>form untuk membuat object Person baru</li>
-<li>form untuk mengedit object Person yang sudah ada</li>
-</ul>
-
-
-<p>Sebelum kita mulai, ada baiknya kita mengetahui cara kerja Spring dalam mengelola aplikasi web. Sequence diagram berikut akan memudahkan pemahaman kita.</p>
-
-<p><img src="/images/uploads/2007/12/spring-mvc-sequence.png" title="Alur kerja Spring MVC" ></p>
-
-<p>Seperti kita lihat pada gambar, semua request akan diterima oleh DispatcherServlet. Mereka yang pernah membaca buku Core J2EE Pattern akan segera mengenali jurus ini, yang sering disebut dengan istilah FrontController. DispatcherServlet akan menyuruh handler mapping untuk memilih class yang akan menangani request. Ada beberapa implementasi handler mapping, diantaranya:</p>
-
-<ul>
-<li>BeanNameUrlHandlerMapping</li>
-<li>SimpleUrlHandlerMapping</li>
-<li>ControllerClassNameHandlerMapping</li>
-</ul>
-
-
-<p>Class yang menangani request disebut dengan istilah Controller. Class Controller ini yang akan kita tulis sendiri. Spring menyediakan beberapa superclass Controller yang bisa kita subclass untuk mengurangi kode yang harus ditulis. Beberapa superclass yang disediakan Spring antara lain:</p>
-
-<ul>
-<li>Controller</li>
-<li>MultiActionController</li>
-<li>SimpleFormController</li>
-<li>AbstractWizardController</li>
-</ul>
-
-
-<p>Selain membuat turunan dari superclass di atas, kita juga bisa membuat class biasa yang dilengkapi dengan annotation. Pada artikel  ini kita tidak akan membuat turunan apa-apa, karena semua bisa dikerjakan dengan annotation.</p>
-
-<p>Tanggung jawab controller selain memproses request adalah menentukan nama template yang akan digunakan untuk menampilkan hasil pemrosesan controller. Spring menyebut template ini dengan istilah View. Kita cuma perlu menyebutkan nama View dan Spring yang akan mencarikan file template yang sesuai dan kemudian mengisi datanya. Proses mencarikan template ini ditangani oleh ViewResolver. Ada beberapa implementasi ViewResolver, antara lain untuk memproses template berjenis:</p>
-
-<ul>
-<li>JSP dan JSTL</li>
-<li>Freemarker atau Velocity</li>
-<li>XML dengan XSLT</li>
-<li>Jasper Report</li>
-<li>Document View (PDF dan XLS)</li>
-</ul>
-
-
-<p>Sekarang setelah kita mengetahui arsitektur umum dari aplikasi web Spring, kita bisa segera coding. Class-class yang akan kita buat adalah:</p>
-
-<ul>
-<li>PersonController. Class ini akan menangani tampilan daftar Person dan detail Person.</li>
-<li>PersonFormController. Class ini akan menangani tampilan pengeditan object Person, baik yang belum terdaftar maupun yang sudah ada di dalam database.</li>
-</ul>
-
-
-<p>File konfigurasi yang akan kita buat adalah:</p>
-
-<ul>
-<li>web.xml. Ini adalah konfigurasi standar untuk semua aplikasi web dengan Java.</li>
-<li>tutorial-servlet.xml. Ini adalah konfigurasi DispatcherServlet untuk menampung deklarasi HandlerMapping, Controller, dan ViewResolver.</li>
-</ul>
-
-
-<p>Untuk menampilkan halaman web, kita akan menggunakan template engine <a href="http://velocity.apache.org">Velocity</a>. Velocity adalah template engine yang kecil dan ringan, tapi fiturnya cukup lengkap dan mudah digunakan. Saya lebih suka menggunakan Velocity daripada JSP, karena JSP membutuhkan kompilasi menjadi Servlet dan kemudian menjadi bytecode. Ini menyebabkan halaman JSP lebih sulit didebug bila terjadi error. Selain itu, kompilasi JSP membutuhkan dua kompiler, satu untuk JSP ke Servlet, dan satu lagi untuk Servlet menjadi bytecode. Dengan demikian, kita harus menginstal JDK di server. Tanpa JSP, kita dapat menggunakan Servlet container yang ringan dan kecil seperti <a href="http://jetty.mortbay.org">Jetty</a> atau <a href="http://winstone.sourceforge.net">Winstone</a> dan tidak perlu menginstal JDK, cukup JRE saja.</p>
-
-<p>Template untuk menampilkan daftar orang dibuat dalam HTML yang sudah disisipi kode Velocity, disimpan dengan nama <code>personlist.html</code>. Kodenya terlihat seperti ini.</p>
-
-<h3>personlist.html</h3>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;:: List of All Person ::&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
-  &lt;tr&gt;
-    &lt;th&gt;Name&lt;/th&gt;
-    &lt;th&gt;Email&lt;/th&gt;
-    &lt;th&gt; &lt;/th&gt;
-  &lt;/tr&gt;
-
-  #foreach($person in $personList)
-  &lt;tr&gt;
-    &lt;td&gt;$person.Name&lt;/td&gt;
-    &lt;td&gt;$person.Email&lt;/td&gt;
-    &lt;td&gt;
-      &lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | 
-      &lt;a href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;
-    &lt;/td&gt;
-  &lt;/tr&gt;
-#end
-
-&lt;/table&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Kode yang diawali dengan tanda # merupakan perintah dalam Velocity. Dengan menggunakan perintah <code>#foreach</code>, kita melakukan looping untuk setiap baris record.</p>
-
-<p>Kode yang diawali tanda $ merupakan variabel dalam Velocity. Isi variabel ini nantinya akan kita sediakan melalui controller Spring.</p>
-
-<p>Untuk menampilkan detail informasi Person, kita buat <code>persondetail.html</code>. Kodenya seperti ini.</p>
-
-<h3>persondetail.html</h3>
-
-<pre><code>&lt;html&gt;
-
-&lt;head&gt;
-&lt;title&gt;:: $person.Name's Detail Info ::&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-&lt;table&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Nama&lt;/td&gt;
-    &lt;td&gt;$person.Name&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Email&lt;/td&gt;
-    &lt;td&gt;$person.Email&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-</code></pre>
-
-<p>Sekarang mari kita isi template tersebut dengan data yang dibutuhkannya. Template <code>personlist.html</code> membutuhkan data List<Person> dengan nama variabel personList, sedangkan <code>persondetail.html</code> membutuhkan data Person dengan nama variabel person.</p>
-
-<p>Pertama, kita akan mengisi <code>personlist.html</code>. Template ini akan disuplai oleh PersonController, melalui method yang bernama list. Berikut kode programnya.</p>
-
-<h3>PersonController.java</h3>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-public class PersonController {
-
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping("/personlist")
-  public ModelMap list(){
-    return new ModelMap(personDao.getAll());
-  }
-}
-</code></pre>
-
-<p>Mudah bukan? Cukup panggil method personDao.getAll, kemudian masukkan hasilnya ke dalam ModelMap.</p>
-
-<p>Kita melihat beberapa annotation pada kode ini. Annotation <code>@Controller</code> merupakan penanda bagi Spring bahwa class ini adalah sebuah Controller. Kelas yang memiliki annotation ini akan dipindai pada saat start-up dan diregistrasi ke <code>ApplicationContext</code>. Annotation <code>@Autowired</code> menyuruh Spring untuk menginjeksikan object <code>PersonDao</code>. Dengan annotation <code>@RequestMapping</code>, kita menentukan bahwa request menuju ke <code>http://namaserver:port/namaaplikasi/namaservlet/personlist</code> akan ditangani oleh method ini.</p>
-
-<p>Pada saat dideploy, <code>DispatcherServlet</code> milik Spring akan menemukan dan memanggil method ini. Kemudian, dia akan menerima hasilnya berupa ModelMap untuk kemudian diserahkan ke ViewHandler Velocity untuk digabungkan dengan template dan menghasilkan halaman HTML.</p>
-
-<p>Object yang kita berikan pada ModelMap akan diberi nama oleh Spring secara otomatis. Karena kita mensuplai object dengan tipe <code>List&lt;Person&gt;</code>, maka Spring akan memberikan nama <code>personList</code>. Demikian juga pada controller berikutnya kita akan memberikan object bertipe <code>Person</code> ke controller, Spring akan memberikan nama person pada object tersebut. Dengan nama itulah (<code>$person</code>) kita mengaksesnya di template Velocity.</p>
-
-<p>Cukup satu dulu implementasi kita. Sekarang tiba saatnya konfigurasi. Aplikasi kita akan dideploy dengan nama context <code>tutorial-spring25</code>. Di dalamnya, kita akan memasang <code>DispatcherServlet</code> yang akan mengambil semua request dengan path /tutorial/*. Jadi, method <code>public ModelMap list</code> akan diakses melalui URL <code>http://localhost:8080/tutorial-spring25/tutorial/personlist</code>.</p>
-
-<p>Konfigurasi pertama ada di web.xml. Di sini kita akan mengkonfigurasi <code>DispatcherServlet</code> dan mendaftarkan <code>applicationContext.xml</code>. Berikut isi <code>web.xml</code></p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
-&lt;web-app version="2.4" 
-         xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
-         http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"&gt;
-
-  &lt;display-name&gt;Tutorial Spring&lt;/display-name&gt;
-
-  &lt;description&gt;Tutorial Spring 2.5&lt;/description&gt;
-
-  &lt;context-param&gt;
-    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-    &lt;param-value&gt;classpath:applicationContext.xml&lt;/param-value&gt;
-  &lt;/context-param&gt;
-
-  &lt;listener&gt;
-    &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-  &lt;/listener&gt;
-
-  &lt;servlet&gt;
-    &lt;servlet-name&gt;tutorial&lt;/servlet-name&gt;
-    &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-  &lt;/servlet&gt;
-
-  &lt;servlet-mapping&gt;
-    &lt;servlet-name&gt;tutorial&lt;/servlet-name&gt;
-    &lt;url-pattern&gt;/tutorial/*&lt;/url-pattern&gt;
-  &lt;/servlet-mapping&gt;
-
-  &lt;welcome-file-list&gt;
-    &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
-  &lt;/welcome-file-list&gt;
-
-&lt;/web-app&gt;
-</code></pre>
-
-<p><code>ApplicationContext</code> yang berisi konfigurasi database dan transaksi, yang dibahas pada artikel sebelumnya, didaftarkan melalui context-param. File konfigurasinya, <code>applicationContext.xml</code> disimpan di classpath, yaitu di folder <code>WEB-INF/classes</code>. Oleh karena itu, kita tulis pathnya <code>classpath:applicationContext.xml</code></p>
-
-<p><code>ApplicationContext</code> ini harus diaktifkan pada saat aplikasi web dideploy dan dinon-aktifkan pada saat aplikasi web di-undeploy. Untuk itu, kita harus memasang <code>ContextLoaderListener</code> untuk memonitor aktifitas aplikasi web.</p>
-
-<p>Selanjutnya, kita daftarkan <code>DispatcherServlet</code> dengan nama <code>tutorial</code>. Spring akan mencari file bernama <code>tutorial-servlet.xml</code> sebagai file konfigurasi <code>DispatcherServlet</code> ini di dalam folder <code>WEB-INF</code>. <code>DispatcherServlet</code> tutorial akan dimapping untuk menangani semua request dengan pola <code>/tutorial/*</code></p>
-
-<p>Sekarang, mari kita lihat isi <code>tutorial-servlet.xml</code>.</p>
-
-<h3>tutorial-servlet.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans 
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-       http://www.springframework.org/schema/context 
-       http://www.springframework.org/schema/context/spring-context-2.5.xsd"&gt;
-
-  &lt;context:component-scan base-package="tutorial.spring25.ui.springmvc" /&gt;
-
-  &lt;bean id="velocityConfig"
-        class="org.springframework.web.servlet.view.velocity.VelocityConfigurer"&gt;
-    &lt;property name="resourceLoaderPath" value="/WEB-INF/templates/velocity/" /&gt;
-  &lt;/bean&gt;
-
-  &lt;bean id="viewResolver"
-        class="org.springframework.web.servlet.view.velocity.VelocityViewResolver"&gt;
-    &lt;property name="cache" value="true" /&gt;
-    &lt;property name="prefix" value="" /&gt;
-    &lt;property name="suffix" value=".html" /&gt;
-  &lt;/bean&gt;
-
-&lt;/beans&gt;
-</code></pre>
-
-<p>Pertama, kita konfigurasi Spring agar memindai isi package <code>tutorial.spring25.ui.springmvc</code> dan mendaftarkan semua class yang beranotasi <code>@Controller</code>.
-Kedua, kita mengkonfigurasi <code>VelocityConfigurer</code> untuk mencari template di dalam folder <code>WEB-INF/templates/velocity</code>.
-Terakhir, kita melakukan konfigurasi <code>VelocityViewResolver</code> untuk menerjemahkan nama view menjadi nama file template. Misalnya kita memberikan nama view <code>personlist</code>, maka <code>VelocityViewResolver</code> akan memberikan file <code>WEB-INF/templates/velocity/personlist.html</code>.</p>
-
-<p>Pembaca yang teliti akan segera protes, &#8220;Kita kan tidak pernah menyebutkan nama view di dalam Controller. Lalu dari mana nama view itu didapatkan?&#8221;</p>
-
-<p>Baiklah, mari lihat lagi method tersebut.</p>
-
-<h3>Method list</h3>
-
-<pre><code>  @RequestMapping("/personlist")
-  public ModelMap list(){
-    return new ModelMap(personDao.getAll());
-  }
-</code></pre>
-
-<p>Method tersebut dimapping untuk menerima request <code>http://localhost:8080/tutorial-spring25/tutorial/personlist</code>. Kalau kita tidak melakukan konfigurasi apa-apa, Spring secara default akan menganggap nama request sama dengan nama view. Jadi method di atas akan menghasilkan nama view <code>personlist</code>.</p>
-
-<p>Setelah semua konfigurasi di atas selesai, kita bisa langsung membuat paket war untuk dideploy.</p>
-
-<p>Berikutnya, kita akan membuat tampilan informasi detail per Person. Untuk ini, kita membutuhkan parameter <code>person\_id</code> yang ingin ditampilkan. Sehingga bila kita ingin menampilkan Person dengan id 100, URLnya adalah <code>http://localhost/tutorial-spring25/tutorial/persondetail?person\_id=100</code></p>
-
-<p>Class <code>PersonController</code> yang sudah ditambahi method detail tampak seperti ini.</p>
-
-<h3>PersonController.java</h3>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-public class PersonController {
-
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping("/personlist")
-  public ModelMap list(){
-    return new ModelMap(personDao.getAll());
-  }
-
-  @RequestMapping("/persondetail")
-  public ModelMap detail(@RequestParam("person_id") Long personId){
-    return new ModelMap(personDao.getById(personId));
-  }
-}
-</code></pre>
-
-<p>Untuk mengambil parameter<code>person\_id</code>, kita tinggal membuat method parameter biasa yang dilengkapi annotation <code>@RequestParam</code>. Konversi tipe data akan dilakukan oleh Spring. Dengan kata lain, kode ini</p>
-
-<pre><code>@RequestParam("person_id") Long personId
-</code></pre>
-
-<p>sama dengan ini</p>
-
-<pre><code>Long personId = Long.valueOf(httpRequest.getParameter("person_id"));
-</code></pre>
-
-<p>bedanya, kita tidak perlu mengimport <code>javax.servlet.HttpServletRequest</code>.</p>
-
-<p>Setelah selesai, redeploy aplikasi dan coba akses <code>http://localhost/tutorial-spring25/tutorial/personlist</code>. Dari sana, klik link view. Tampilan detail dari object Person yang dipilih akan segera terlihat.</p>
-
-<p>Demikianlah bagian kedua dari seri Spring 2.5. Pada <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-2/">artikel selanjutnya</a>, kita akan melihat cara mengimplementasikan form untuk mengedit object Person yang sudah ada, maupun membuat object Person yang baru.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/38/">&larr; Older</a>
@@ -919,6 +713,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/kumpulan-tutorial-spring-framework/">Kumpulan Tutorial Spring Framework</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/tugas-kuliah-pemrograman-1/">Tugas Kuliah Pemrograman 1</a>
       </li>
     
@@ -952,10 +750,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/lan-na-zha/">Lan Na Zha</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/otodidak/">Otodidak</a>
       </li>
     
   </ul>

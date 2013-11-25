@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Trac sudah terinstal, sekarang harus diamankan melalui prosedur backup. Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau &hellip;">
+  <meta name="description" content="Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,150 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/login-ssh-dengan-private-key/">Login Ssh Dengan Private Key</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-09-05T22:45:03+07:00" pubdate data-updated="true">Sep 5<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis.</p>
+
+<p>Ada berbagai cara kita memindahkan file dari satu komputer ke komputer lain, diantaranya:</p>
+
+<ul>
+<li><p>Menggunakan USB Flashdisk</p></li>
+<li><p>Windows File Sharing</p></li>
+<li><p>NFS</p></li>
+<li><p>FTP atau SFTP</p></li>
+<li><p>SCP</p></li>
+<li><p>dan sebagainya</p></li>
+</ul>
+
+
+<p>Cara pertama jelas tidak bisa diotomasi.</p>
+
+<p>Cara kedua sampai keempat mengharuskan kita membuka write access tanpa password di komputer tujuan supaya bisa otomatis. Kalau ada passwordnya kan harus ada seseorang yang mengetik password tersebut. Jadi agak sulit mengotomasinya.</p>
+
+<p>Oleh karena itu, kita akan membahas cara kelima, yaitu SCP. SCP &#8211;atau Secure Copy&#8211; adalah mekanisme copy file melalui protokol SSH. File yang dikirim terenkripsi. Untuk dapat masuk ke komputer tujuan, kita harus melakukan otentikasi. Jadi ini adalah cara yang relatif aman untuk mengirim file.</p>
+
+<p>Tunggu dulu, katanya mau otomatis, tapi kok harus otentikasi?? Berarti harus ada yang mengetik password dong &#8230;.</p>
+
+<p>Tidak juga, makanya saya menggunakan istilah otentikasi, bukan password. SSH dapat melakukan otentikasi dengan password maupun private key. Pada artikel ini, kita akan membahas tentang otentikasi private key.</p>
+
+<p>Artikel ini dibuat menggunakan Ubuntu Hardy dengan openssh sudah terinstal.</p>
+
+<p>Ada beberapa langkah yang harus kita lakukan, yaitu:</p>
+
+<ol>
+<li><p>Membuat private key di komputer pengirim</p></li>
+<li><p>Mengirim public key ke komputer tujuan</p></li>
+<li><p>Registrasi public key di komputer tujuan</p></li>
+</ol>
+
+
+<p>Sebelum mulai, kita tentukan dulu studi kasusnya.</p>
+
+<blockquote><p>Di tengah pertarungan dengan Pain, guru genit Jiraiya tiba-tiba berhasil menemukan kelemahan musuhnya. Dia ingin mengirim file berisi informasi tersebut ke sang Hokage seksi, yaitu Tsunade. Rencananya, dia akan login ke server di markas dengan username Tsunade dan menyimpan file tersebut di folder <code>/home/tsunade/important</code>.</p></blockquote>
+
+<p>Tentunya Tsunade tidak akan memberitahukan passwordnya kepada Jiraiya, mengingat tabiatnya yang genit. Sebagai gantinya, dia mendaftarkan public key Jiraiya ke user accountnya di server, sehingga Jiraiya bisa login sebagai Tsunade, tanpa Tsunade harus memberitahukan passwordnya kepada Jiraiya.</p>
+
+<p>Pada cerita di atas, kita punya dua komputer, yaitu laptopnya Jiraiya yang dibawanya kemanapun pergi, dan server di markas. Kita juga punya dua user, yaitu Jiraiya dan Tsunade.</p>
+
+<p>Agar bisa melakukan public key authentication, tentunya hal pertama yang harus dilakukan adalah membuat public key.</p>
+
+<h3>Membuat public key</h3>
+
+<p>Jiraiya harus membuat public key di laptopnya sendiri. Public key selalu berpasangan dengan private key. Untuk membuat public key, Jiraiya mengetik perintah berikut di terminal.</p>
+
+<pre><code>ssh-keygen
+</code></pre>
+
+<p>Perintah tersebut akan menanyakan password untuk membuka private key. Jiraiya memilih tidak memberikan password. Sebetulnya ini kurang aman, karena kalau ada orang lain yang berhasil mendapatkan file private key, dia bisa login ke server di markas tanpa hambatan.</p>
+
+<p>Tapi mau bagaimana lagi, hidup sebagai ninja sangat berbahaya. Kita tidak tahu apakah setelah pertarungan kita masih punya tangan untuk mengetik password.</p>
+
+<p>Tekan enter beberapa kali sampai selesai. Berikut output yang dihasilkan.</p>
+
+<pre><code>Generating public/private rsa key pair.
+Enter file in which to save the key (/home/jiraiya/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/jiraiya/.ssh/id_rsa.
+Your public key has been saved in /home/jiraiya/.ssh/id_rsa.pub.
+The key fingerprint is:
+6f:7c:e2:52:f1:14:5d:2c:7f:3a:53:5e:fe:7f:98:9c jiraiya@laptop
+</code></pre>
+
+<p>Selanjutnya, kita harus kirimkan file public key ke Tsunade agar didaftarkan di accountnya. File public key ini bisa ditemukan di folder <code>/home/jiraiya/.ssh/</code> dengan nama <code>id_rsa.pub</code>. Public key bisa dikirim melalui media apapun, misalnya email, usb flashdisk, burung hantu, maupun burung merpati.</p>
+
+<h3>Registrasi Public Key</h3>
+
+<p>Singkat kata, Tsunade telah menerima public key dari Jiraiya. Dia harus mendaftarkannya di accountnya agar Jiraiya bisa login.</p>
+
+<p>Tsunade harus login dulu ke server dan menaruh file public key tersebut di sana. Misalnya dia letakkan di folder <code>/home/tsunade/</code> dan nama filenya diubah menjadi <code>jiraiya_id_rsa.pub</code>.</p>
+
+<p>Untuk meregistrasinya, Tsunade menggunakan perintah berikut di terminal.</p>
+
+<pre><code>cat /home/tsunade/jiraiya_id_rsa.pub &gt;&gt; /home/tsunade/.ssh/authorized_keys
+</code></pre>
+
+<p>Setelah itu, public key tidak lagi diperlukan, sehingga bisa dihapus.</p>
+
+<pre><code>rm /home/tsunade/jiraiya_id_pub
+</code></pre>
+
+<p>Selesai sudah konfigurasi di server, sekarang kita kembali ke pertarungan Jiraiya vs Pain.</p>
+
+<h3>Login dengan public key</h3>
+
+<blockquote><p>Sesaat sebelum Jiraiya menekan tombol Send di Mozilla Thunderbird, Pain mendaratkan serangan mematikan ke Jiraiya, sehingga ybs tidak dapat menggerakkan tangannya. Jiraiya membatin, &#8220;Untung saja saya sudah setup public key di server dengan account Tsunade. Baiklah, mari kita scp saja.&#8221;</p></blockquote>
+
+<p>Untuk mengirim file tersebut melalui scp dengan public key, berikut adalah perintahnya</p>
+
+<pre><code>scp -i /path/menuju/private/key username@komputer-tujuan:folder-tujuan
+</code></pre>
+
+<p>Jadi, untuk mengirim file <code>pain-secret.txt</code> ke server dengan username tsunade, Jiraiya menggunakan perintah berikut</p>
+
+<pre><code>scp -i /home/jiraiya/.ssh/id_rsa pain-secret.txt tsunade@server:/home/tsunade/important/
+</code></pre>
+
+<p>File akan segera terkirim tanpa harus mengetik password.</p>
+
+<p>Lebih lanjut tentang ssh dengan public/private key bisa dibaca <a href="http://www.debuntu.org/ssh-key-based-authentication">di sini</a>.</p>
+
+<p>Lebih lanjut tentang nasib Jiraiya bisa dibaca <a href="http://narutochaos.com/download/10/429">di sini</a>.</p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -339,145 +483,6 @@ webadmin.* = enabled
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ant-ivy-1/">Instalasi Ant Ivy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-03T18:54:15+07:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://ant.apache.org">Ant</a>, adalah tools untuk mengotomasi kegiatan build di Java. Seperti kita tahu, dari mulai source code diketik sampai bisa digunakan user, ada beberapa kegiatan yang harus dilakukan, misalnya:</p>
-
-<ol>
-<li><p>Bersihkan sisa-sisa kompilasi terdahulu</p></li>
-<li><p>Setting CLASSPATH</p></li>
-<li><p>Kompilasi</p></li>
-<li><p>Masukkan artifak lain ke CLASSPATH sesuai kebutuhan (<em>.properties, </em>.xml)</p></li>
-<li><p>Jalankan automated test</p></li>
-<li><p>Kompilasi Javadoc</p></li>
-<li><p>Paket menjadi <em>jar atau </em>war</p></li>
-<li><p>Deploy ke server (bila perlu)</p></li>
-</ol>
-
-
-<p>Rangkaian kegiatan ini disebut dengan proses build.</p>
-
-<p>Jika kegiatan ini dilakukan secara manual, tentu saja masa muda kita akan habis untuk melakukan build dan tidak akan sempat menulis kode program.</p>
-
-<p>Kita bisa memudahkan proses build dengan bantuan IDE. Tinggal klik Clean and Build, langsung beres. Tapi kita tahu bahwa masing-masing orang memiliki IDE favorit masing-masing. Jadi langkah-langkah build bisa jadi berbeda di masing-masing IDE. Selain itu, build dengan IDE tidak otomatis. Harus ada seseorang yang menekan tombol Clean and Build. Tentu saja hal ini mencegah kita untuk melakukan otomasi penuh semacam Continuous Integration.</p>
-
-<p>Ada dua tools yang biasa digunakan untuk build, yaitu Ant dan <a href="http://maven.apache.org">Maven</a>. Maven memiliki kelebihan dibanding Ant, yaitu dia:</p>
-
-<ul>
-<li><p>mampu mengelola dependensi</p></li>
-<li><p>membuatkan website</p></li>
-<li><p>melakukan kegiatan lain yang fancy, seperti menjalankan webserver (mvn:jetty), unit test, dan lain sebagainya</p></li>
-</ul>
-
-
-<p>dan fitur-fitur lain yang bisa dilihat <a href="http://maven.apache.org/what-is-maven.html">di sini</a> dan <a href="http://maven.apache.org/maven-features.html">di sini</a>.</p>
-
-<p>Maven sangat powerful, tapi seperti sudah sering saya katakan,</p>
-
-<blockquote><p>with great power, comes great complexity</p></blockquote>
-
-<p>Maven relatif sulit dipelajari dan <a href="http://bluxte.net/blog/2006-04/27-06-50.html">banyak mengandung black-magic</a> (baca: banyak mengandung undocumented behavior). Selain itu, Maven juga <a href="http://www.bearaway.org/wp/?p=518">tidak reliable</a>, dibuktikan dengan <a href="http://svn.apache.org/repos/asf/cocoon/trunk/README.txt">dokumentasi cara melakukan build untuk salah satu project open source terkenal Cocoon</a>.</p>
-
-<p>Dengan berbagai plus-minus di atas, akhirnya saya memutuskan untuk menggunakan Ant ditambah dengan <a href="http://ant.apache.org/ivy">Ivy</a> saja. Toh sebenarnya kami di ArtiVisi cuma butuh dependency management saja. Ivy lebih mudah dipelajari, dan hei &#8230; <a href="http://www.springsource.com/beta/applicationplatform">contoh aplikasi SpringSource Application Platform (SSAP)</a> di-build menggunakan Ivy.</p>
-
-<p>Sekedar informasi, contoh aplikasi Petclinic SSAP cukup kompleks. Aplikasi tersebut memiliki banyak konfigurasi yang dapat dipilih, antara lain:</p>
-
-<ul>
-<li><p>Framework akses database : JDBC, JPA, Hibernate, atau Eclipselink</p></li>
-<li><p>Database provider : HSQLDB atau MySQL</p></li>
-</ul>
-
-
-<p>Dengan banyak kombinasi tersebut, pengelolaan dependency dan proses build menjadi rumit. Domain modelnya saja digunakan oleh banyak modul lain. Belum lagi dependency terhadap pustaka external seperti Hibernate dan Eclipselink. Akan ada banyak konfigurasi untuk compile, test, dan deployment.</p>
-
-<p>Aplikasi contoh tersebut sudah mencerminkan kemampuan Ivy untuk mengelola project dengan banyak relasi ke project lainnya. Dan faktor yang paling penting, <strong>Ivy mudah dipelajari</strong>. Kita akan buktikan dalam beberapa posting berikutnya.</p>
-
-<p>Lebih jauh tentang dependency management akan dibahas pada posting selanjutnya tentang Ivy. Untuk sekarang, kita akan bahas cara instalasinya.</p>
-
-<h3>Instalasi Ant</h3>
-
-<p>Pertama, kita harus menginstal Ant dulu. Karena saya menggunakan Ubuntu, instalasi tidak terlalu sulit. Cukup ketikkan perintah berikut di command prompt.</p>
-
-<pre><code>sudo apt-get install ant ant-optional
-</code></pre>
-
-<p>Atau jika Anda alergi dengan command prompt, bisa menggunakan System > Administration > Synaptic Package Manager.</p>
-
-<p>Selain cara otomatis seperti di atas, kita juga bisa menginstal secara manual. Caranya, <a href="http://ant.apache.org/bindownload.cgi">donlod Ant</a>, kemudian extract. Masukkan path menuju folder bin di dalam hasil extract ke dalam environment variable PATH.</p>
-
-<p>Kemudian, test instalasi dengan mengetik perintah <code>ant -v</code> di command prompt. Berikut hasilnya di komputer saya:</p>
-
-<pre><code>endy@kintoun:~$ ant -v
-Apache Ant version 1.7.0 compiled on August 29 2007
-Buildfile: build.xml does not exist!
-Build failed
-</code></pre>
-
-<p>Baiklah, kita sudah mendapatkan Ant versi 1.7.0. Selanjutnya, instalasi Ivy.</p>
-
-<h3>Instalasi Ivy</h3>
-
-<p>Pertama, tentunya <a href="http://ant.apache.org/ivy/download.html">download dulu Ivy-nya</a>. Pada saat artikel ini ditulis, versi terbaru adalah 2.0.0-beta2. Jangan khawatir dengan status beta, karena menurut pengalaman saya, versi ini cukup stabil.</p>
-
-<p>Setelah donlod, kemudian extract. Kita membutuhkan file berikut :</p>
-
-<ul>
-<li><p>ivy-2.0.0-beta2.jar</p></li>
-<li><p>ivy-core-2.0.0-beta2</p></li>
-</ul>
-
-
-<p>dan satu file lagi bila kita ingin mengakses repository melalui ssh.</p>
-
-<ul>
-<li>lib/jsch-0.1.25.jar</li>
-</ul>
-
-
-<p>Masukkan file tersebut ke lokasi instalasi Ant, dalam folder lib. Bila Anda menggunakan Ubuntu seperti saya, dan menginstal Ant menggunakan Synaptic, apt-get, atau aptitude, maka lokasi instalasi Ant ada di</p>
-
-<pre><code>/usr/share/ant
-</code></pre>
-
-<p>Instalasi Ivy selesai.</p>
-
-<p>Dengan menggunakan Ivy, kita dapat mengelola proyek raksasa (terdiri dari banyak modul, dikerjakan oleh puluhan tim) dengan lebih mudah.</p>
-
-<p>Bagaimana cara menggunakannya? Tunggu posting selanjutnya :D
-  *[IDE]: Integrated Development Environment</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/31/">&larr; Older</a>
@@ -554,6 +559,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/kumpulan-tutorial-spring-framework/">Kumpulan Tutorial Spring Framework</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/tugas-kuliah-pemrograman-1/">Tugas Kuliah Pemrograman 1</a>
       </li>
     
@@ -587,10 +596,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/lan-na-zha/">Lan Na Zha</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/otodidak/">Otodidak</a>
       </li>
     
   </ul>
