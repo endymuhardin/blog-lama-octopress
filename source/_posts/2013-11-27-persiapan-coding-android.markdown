@@ -518,4 +518,4 @@ Demikianlah persiapan yang kita butuhkan untuk memulai coding aplikasi Android. 
 <a name="yak-shaving"></a>
 Pesan moral kedua:
 
-> Kadang untuk melakukan satu hal (menulis artikel ini), kita harus melakukan hal lain terlebih dulu (menulis [artikel ini](http://software.endy.muhardin.com/java/persiapan-coding-java/)). Yang mana kegiatan pendahulu tersebut sering terlihat _pointless_. Fenomena ini dikenal dengan istilah [yak shaving](http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html)
+> Kadang untuk melakukan satu hal (menulis artikel ini), kita harus melakukan hal lain terlebih dulu (menulis [artikel ini](http://software.endy.muhardin.com/java/persiapan-coding-java/)). Yang mana kegiatan pendahulu tersebut sering terlihat tidak berguna. Fenomena ini dikenal dengan istilah [yak shaving](http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html)
