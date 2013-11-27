@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Mumpung sedang hangat membahas testing, coba kita dengarkan apa pendapat manajemen. Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, &hellip;">
+  <meta name="description" content="Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,200 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-3/">Ruthless Testing 3</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-20T22:38:19+07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam sistem. Jadi, user membuka form, mengisi data diri, dan menekan tombol Submit. Tidak ada yang aneh dengan fiturnya.</p>
+
+<p>Keanehannya adalah, entah kenapa, aplikasi tersebut cuma bisa digunakan 7 kali. Jadi pada waktu user ke-8 menekan tombol Submit, datanya tidak tersimpan di database. Anehnya juga, aplikasi tidak menimbulkan pesan error. Hmm &#8230; sungguh gaib.</p>
+
+<p>Berbagai upaya dilakukan untuk mengatasi masalah ini. Tim pengusir hantu didatangkan, lengkap dengan kostum putih-putih dan botol penangkap hantu, karena dicurigai ada &#8216;sesuatu&#8217; dengan angka 7. Tetapi tidak juga mencapai solusi yang memuaskan.</p>
+
+<p>Akhirnya, seorang anggota milis JUG didatangkan. Beliau memeriksa source code fitur registrasi tersebut, sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">username</span><span class="o">,</span> <span class="n">password</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">PreparedStatement</span> <span class="n">pstm</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO user VALUES (?,?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getUsername</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getPassword</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pembaca yang teliti (ya, maksudnya Anda) akan segera menemukan asal muasal semua &#8216;kejadian gaib&#8217; di atas, yaitu:</p>
+
+<ol>
+<li><p>Connection dibuka, tapi tidak pernah ditutup. Besar kemungkinan max connection di database adalah 7 concurrent connection. Sehingga setelah 7 kali connect dan 0 kali disconnect, database akan menolak koneksi baru.</p></li>
+<li><p>Catch block dibiarkan kosong, sehingga error dari database tidak akan tampil di mana-mana.</p></li>
+</ol>
+
+
+<p>Hmm .. kesalahan yang &#8216;newbie banget&#8217;. Melalui pemeriksaan menyeluruh, ditemukan kesalahan serupa di berbagai bagian kode yang lain.</p>
+
+<p>Pada titik ini, para project manager, development team leader akan segera mengeluh dan bersiap-siap mengisi komentar di bawah, &#8220;Masa saya harus baca kode baris-per-baris? Kayak kurang kerjaan aja !!&#8221;
+Sebelum Anda lakukan itu, sabar dulu .. baca sampai habis. Kita akan segera lihat solusinya.</p>
+
+<p>Pemeriksaan baris kode seperti ini sangat melelahkan. Semakin besar projectnya, semakin banyak baris kodenya, semakin tinggi beban pemeriksaannya. Di lain pihak, kalau kita tidak melakukan pemeriksaan, kita menimbulkan resiko terjadinya masalah di kemudian hari.</p>
+
+<p>Jadi, bagaimana solusinya?</p>
+
+<p>Untungnya &#8211;seperti biasa&#8211; kita bukan yang pertama menemukan masalah seperti ini. Masalah sudah pernah dialami orang lain, dan dibuatkan solusinya, sehingga kita &#8211;seperti biasa&#8211; tinggal download dan pakai :D</p>
+
+<p>Jawaban dari masalah ini adalah <strong>automated code review</strong>. Tools ini akan melakukan review terhadap source code, sesuai dengan aturan yang kita tetapkan, dengan teliti, otomatis, dan repeatable. Dengan tool ini, berapapun baris kode yang ada, semua akan diperiksa secara menyeluruh.</p>
+
+<p>Ada beberapa solusi yang dapat digunakan:</p>
+
+<ul>
+<li><p><a href="http://csdl.ics.hawaii.edu/Tools/Jupiter/">Jupiter (Eclipse Plugin)</a></p></li>
+<li><p><a href="http://pmd.sourceforge.net">PMD</a></p></li>
+<li><p><a href="http://www.hammurapi.org">Hammurapi</a></p></li>
+<li><p>Built-in feature IntelliJ IDEA</p></li>
+</ul>
+
+
+<p>Pada contoh kali ini, kita akan coba menggunakan PMD. Caranya mudah:</p>
+
+<ol>
+<li><p>Download dari websitenya.</p></li>
+<li><p>Extract</p></li>
+<li><p>Buat target di Ant untuk memanggil PMD.</p></li>
+<li><p>Lihat reportnya</p></li>
+</ol>
+
+
+<p>Untuk langkah #1 dan #2 tidak perlu dijelaskan lebih lanjut. Target Ant untuk langkah #3 adalah sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;code-review&quot;</span> <span class="na">depends=</span><span class="s">&quot;prepare&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;pmd</span> <span class="na">targetjdk=</span><span class="s">&quot;1.5&quot;</span> <span class="na">shortFilenames=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>basic<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>codesize<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>clone<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>controversial<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>coupling<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>design<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>finalizers<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>imports<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>javabeans<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-java<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-jakarta-commons<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>naming<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>optimizations<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strictexception<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strings<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>sunsecure<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>unusedcode<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;formatter</span>
+</span><span class='line'>        <span class="na">type=</span><span class="s">&quot;net.sourceforge.pmd.renderers.HTMLRenderer&quot;</span>
+</span><span class='line'>        <span class="na">toFile=</span><span class="s">&quot;${pmd.result}/pmd.html&quot;</span>
+</span><span class='line'>    <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;src&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;include</span> <span class="na">name=</span><span class="s">&quot;**/*.java&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/fileset&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/pmd&gt;</span>
+</span><span class='line'><span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut penjelasannya:</p>
+
+<ol>
+<li><p>Target JDK : memeriksa kesesuaian dengan JDK 1.5</p></li>
+<li><p>Ruleset : Aturan yang akan diberlakulkan. Detailnya bisa dilihat di website PMD. Sebagai contoh, dengan memberlakukan ruleset basic, kita memeriksa blok catch yang kosong, sehingga mencegah masalah pesan error di atas. Sedangkan ruleset design memeriksa apakah Connection yang dibuat sudah ditutup.</p></li>
+<li><p>Formatter : Jenis formatter yang digunakan. Report yang dihasilkan PMD dapat berupa text, xml, csv.</p></li>
+<li><p>Fileset: source code yang akan direview. Kita dapat mengganti parameter ini dan mereview semua source code yang ada di harddisk kita. SIlahkan mencoba mendownload source code project open source java (misalnya Tomcat, atau JBoss), dan lihat apakah kode programnya ditulis dengan baik.</p></li>
+</ol>
+
+
+<p>Laporan yang dihasilkan bentuknya seperti ini:
+<img src="/images/uploads/2006/07/pmd-report.png" title="PMD Review Result" ></p>
+
+<p>Selamat mencoba. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -499,51 +693,6 @@ Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/plugin-untuk-archive/">Plugin Untuk Archive</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-07-12T00:49:47+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tadinya cuma pengen tampilan arsip seperti <a href="http://andryshuzain.com/archives">punyanya mas Andry</a>. Tapi sayangnya dia pakai <a href="http://textpattern.com/">aplikasi blog lain</a> yang beda dengan <a href="http://www.wordpress.org">saya punya</a>. Jadi solusinya dia kemungkinan besar tidak bisa diimplement di sini.</p>
-
-<p>Tadinya mau coding sendiri, browsing ke <a href="http://codex.wordpress.org">situs dokumentasi Wordpress</a>, malah ketemu <a href="http://www.sonsofskadi.net/extended-live-archive/">plugin Extended Live Archives</a>, berikut <a href="http://www.24fightingchickens.com/2006/01/03/extended-live-archives/">cara instalasinya</a>.</p>
-
-<p>Setelah sedikit berkutat dengan file CSS, tadaaa&#8230;. silahkan <a href="http://endy.artivisi.com/blog/archive-live/">lihat sendiri</a>. Kalau anda melihat halaman kosong, tunggu sejenak, tandanya dia sedang loading.
-Nanti setelah loading, ada rangkuman arsip canggih berteknologi AJAX.</p>
-
-<p>Cool &#8230; :D</p>
-
-<p>Update: Sesuai saran mas Andry, saya coba instal <a href="http://www.sporadicnonsense.com/2006/05/04/clean-archives-20/">SRG Clean Archives</a>. Hasilnya bisa dilihat <a href="http://endy.artivisi.com/blog/archive-simple/">di sini</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/56/">&larr; Older</a>
@@ -620,6 +769,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/persiapan-coding-java/">Persiapan Coding Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/kumpulan-tutorial-spring-framework/">Kumpulan Tutorial Spring Framework</a>
       </li>
     
@@ -653,10 +806,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/migrasi-database-dengan-liquibase/">Migrasi Database dengan Liquibase</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/lan-na-zha/">Lan Na Zha</a>
       </li>
     
   </ul>

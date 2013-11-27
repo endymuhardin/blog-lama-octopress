@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Perhatikan gambar di atas. Seringkali kita bekerja dengan lebih dari satu komputer pada saat yang bersamaan. Misalnya seperti saya. Untuk kegiatan &hellip;">
+  <meta name="description" content="Setelah sebelumnya kita mengotomasi backup untuk Subversion, baik di Windows maupun di Linux, masih ada sedikit PR yang tersisa. File backup yang &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,106 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/otomasi-transfer-file-dengan-winscp/">Otomasi Transfer File Dengan WinSCP</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-24T22:50:54+07:00" pubdate data-updated="true">May 24<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah sebelumnya kita mengotomasi backup untuk Subversion, baik <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">di Windows</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">di Linux</a>, masih ada sedikit PR yang tersisa.</p>
+
+<p>File backup yang dihasilkan oleh script masih berkeliaran di komputer yang sama dengan repository. Jadi kalau sempat terjadi bencana harddisk jebol, repository beserta backupnya akan musnah tanpa sisa.</p>
+
+<p>Solusi sementaranya adalah dengan cara rajin memindahkan file-file backup secara periodik ke komputer lain, untuk selanjutnya ditulis ke dalam CD/DVD.
+Tetapi, kegiatan copy-mengcopy setiap minggu sangat membosankan. Belum lagi kalau ternyata ada assignment mendadak sehingga kegiatan transfer file menjadi terlupakan.
+Solusi yang lebih <em>hi-tech</em> adalah dengan mengotomasi proses transfer file. Jadi, file backup yang sudah dihasilkan akan kita transfer secara otomatis ke komputer lain, kalau perlu komputer di negara lain.</p>
+
+<p>Untuk melakukan otomasi ini, kita membutuhkan aplikasi <a href="http://www.winscp.net">WinSCP</a>. Ini adalah aplikasi untuk mentransfer file antara komputer Windows dengan Linux. Sejak menggunakan aplikasi ini, saya tidak pernah lagi menggunakan Windows Sharing dan Samba Server untuk kebutuhan file transfer.</p>
+
+<p>Berikut caranya. Perhatikan bahwa konfigurasi saya adalah sebagai berikut:</p>
+
+<ul>
+<li><p>Repository Server: Windows 2000 Professional dengan WinSCP terinstal</p></li>
+<li><p>Backup Server: Linux OpenSuSE 10.0 dengan SSH server aktif [IP Address: 192.168.0.2]</p></li>
+<li><p>Username di Backup Server: <code>backuponly</code></p></li>
+<li><p>Password di Backup Server: <code>backuppasswd</code></p></li>
+<li><p>Folder yang mau dibackup: <code>c:\Backup</code></p></li>
+<li><p>Folder tujuan: <code>/home/endy/backup</code></p></li>
+</ul>
+
+
+<p>Salah satu keunggulan WinSCP adalah, selain bisa mengelola transfer secara GUI, dia juga memiliki kemampuan scripting, sehingga bisa dipanggil dari command prompt.</p>
+
+<p>%{ img /images/uploads/2006/05/winscp.png Screenshot WinSCP %}</p>
+
+<p>Berikut adalah script untuk mengotomasi proses copy folder <code>C:\Backup</code> dari Windows ke <code>/home/endy/backup</code> di Linux. Save sebagai <code>c:\upload-backup.txt</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Modus batch, supaya WinSCP tidak tanya-tanya
+</span><span class='line'>option batch on
+</span><span class='line'># Otomatis overwrite file yang sama
+</span><span class='line'>option confirm off
+</span><span class='line'># Masukkan username dan password
+</span><span class='line'>open backuponly:backuppasswd@192.168.0.2
+</span><span class='line'># Pindah ke folder backup
+</span><span class='line'>cd /home/endy/backup
+</span><span class='line'># Upload folder C:\Backup seisinya
+</span><span class='line'>put c:/Backup 
+</span><span class='line'># Disconnect
+</span><span class='line'>close
+</span><span class='line'># Exit WinSCP
+</span><span class='line'>exit</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan berikut adalah bat script untuk mengeksekusi script di atas, save dengan nama <em>c:\backup-scp.bat</em>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"C:\Program Files\WinSCP3\winscp3.exe" /console /script=upload-backup.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Script backup-scp.bat siap dijalankan melalui Windows Scheduler, sebaiknya 10 menit setelah jadwal backup.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -462,61 +562,6 @@ Perhatian: Untuk menjalankan kode ini dengan baik, Anda harus menginstal aplikas
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/aplikasi-portabel/">Aplikasi Portabel</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-05-12T02:17:27+07:00" pubdate data-updated="true">May 12<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Masih ingat jaman DOS dulu? Untuk menyalakan komputer kita harus memasukkan floppy disk yang lebar. Setelah komputer selesai booting, kalau kita ingin mengetik, ganti disket booting dengan disket berisi aplikasi <a href="http://www.wordstar.org/">Wordstar</a>. Selesai mengetik, ingin menyimpan dokumen, ganti disket Wordstar dengan disket data. Capek bekerja, ingin main game, masukkan disket berisi <a href="http://www.digger.org">Digger</a>.</p>
-
-<p>Hidup begitu mudah dan sederhana. Satu aplikasi muat di dalam satu disket. Berbeda dengan jaman sekarang. Harus instal dulu semua aplikasi. Kalau sudah tidak digunakan dan harddisk penuh, uninstal lagi. Lama-lama registry jadi berantakan dan akibatnya komputer jadi lemot.</p>
-
-<p>Selain itu, kadang ada beberapa di antara kita yang kurang beruntung. Tidak bisa instal aplikasi di komputer yang sedang digunakan. Sebabnya bisa macam-macam. <a href="http://oky.or.id">Ada yang dilarang kantor</a>, ada juga yang cuma pinjam komputer sebentar, sehingga kalo mau instal aplikasi rasanya kurang sopan. Masa cuma pinjam 5 menit saja pakai instal-instal segala.</p>
-
-<p>Nah, sekarang ada solusi jitu. Namanya aplikasi portabel. Artinya, aplikasi ini cukup dicopy ke USB disk dan bisa langsung dijalankan tanpa perlu instalasi.</p>
-
-<p>Ada banyak aplikasi yang disertakan di dalamnya, antara lain:</p>
-
-<ul>
-<li><p>Gaim: untuk chatting</p></li>
-<li><p>Firefox: untuk browsing</p></li>
-<li><p>Thunderbird: untuk email</p></li>
-<li><p>OpenOffice: untuk menggantikan MS Office</p></li>
-<li><p>dan masih banyak lagi.</p></li>
-</ul>
-
-
-<p>Silahkan langsung ke <a href="http://portableapps.com">websitenya</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/58/">&larr; Older</a>
@@ -593,6 +638,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/persiapan-coding-java/">Persiapan Coding Java</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/kumpulan-tutorial-spring-framework/">Kumpulan Tutorial Spring Framework</a>
       </li>
     
@@ -626,10 +675,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/migrasi-database-dengan-liquibase/">Migrasi Database dengan Liquibase</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/lan-na-zha/">Lan Na Zha</a>
       </li>
     
   </ul>
