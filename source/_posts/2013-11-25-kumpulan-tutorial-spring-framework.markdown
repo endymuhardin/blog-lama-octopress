@@ -48,4 +48,4 @@ Seringkali di milis dan forum banyak yang menanyakan tentang tutorial [Spring Fr
     * [Messaging dan Routing](http://software.endy.muhardin.com/java/integrasi-pusat-cabang-3/)
     * [Menjalankan HTTP Server dengan Spring](http://software.endy.muhardin.com/java/spring-httpinvoker-sun-jre6-httpserver/)
 
-Kalau pusing membaca, bisa nonton [videonya di Youtube](https://www.youtube.com/playlist?list=PL9oC_cq7OYbxOX-SxNPsi4r17GOVyHYJI).
+Kalau pusing membaca, bisa nonton [videonya di Youtube](https://www.youtube.com/playlist?list=PL9oC_cq7OYbxOX-SxNPsi4r17GOVyHYJI). Source code yang dibahas dalam video bisa diambil [di sini](https://github.com/endymuhardin/belajar-spring) dan [di sini](https://github.com/endymuhardin/training-2013-01).
