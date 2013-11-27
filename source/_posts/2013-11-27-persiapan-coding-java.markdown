@@ -62,6 +62,8 @@ Maven bisa diunduh di [websitenya](http://maven.apache.org). Setelah terunduh, e
 
 {% img http://lh4.googleusercontent.com/-88rrGGuOgjU/UpVtUVWgtII/AAAAAAAACeU/6uGPetDKkT0/s600/01.+Folder+Program+Files.png %}
 
+<a name="environment-variable-windows"></a>
+
 ### Setting Environment Variable ###
 
 Selanjutnya sama, kita harus tambahkan variabel `JAVA_HOME` dan `M2_HOME`, kemudian edit variabel `PATH`. Pertama, klik kanan My Computer di Windows Explorer. 
