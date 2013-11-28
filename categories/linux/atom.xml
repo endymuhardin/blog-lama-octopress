@@ -4,7 +4,7 @@
   <title><![CDATA[Category: linux | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/linux/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-11-27T16:47:52+07:00</updated>
+  <updated>2013-11-28T10:26:18+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,70 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cara Mengunduh Website]]></title>
+    <link href="http://software.endy.muhardin.com/linux/cara-mengunduh-website/"/>
+    <updated>2013-11-28T10:04:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/linux/cara-mengunduh-website</id>
+    <content type="html"><![CDATA[<p>Banyak pembaca blog saya yang bertanya</p>
+
+<blockquote><p>Mas/Om/Pak/Bos/whatever, bolehkah isi blognya saya download?</p></blockquote>
+
+<p>Jawabannya tentu saja boleh. Kalau tidak boleh buat apa saya publish ;)</p>
+
+<p>Pertanyaan selanjutnya</p>
+
+<blockquote><p>Bagaimana cara mengunduh seluruh isi website supaya bisa dibuka tanpa internet?</p></blockquote>
+
+<p>Gampang, begini caranya.</p>
+
+<!--more-->
+
+
+<p>Linux sudah mempunyai aplikasi pengunduh yang sangat sakti, namanya <code>wget</code>. Kita tinggal jalankan di command line dengan opsi-opsi yang sesuai, maka dia akan mengunduh seluruh website untuk kita. Aplikasi <code>wget</code> ini umumnya sudah tersedia di semua distro linux populer, sehingga tidak dibutuhkan langkah instalasi tambahan.</p>
+
+<blockquote><p>Kok command line? Apa tidak ada yang GUI?</p></blockquote>
+
+<p>Sebetulnya ada banyak. Tapi untuk keperluan download, aplikasi command line jauh lebih baik. Kita bisa login melalui <code>ssh</code> ke mesin lain yang memiliki koneksi internet bagus dan menjalankan <code>wget</code> disana. Tinggalkan beberapa hari, setelah itu dicek apakah sudah selesai. Begitu selesai, kita tinggal copy ke laptop kita. Hal ini sulit dilakukan dengan aplikasi berbasis GUI.</p>
+
+<p>Tanpa banyak basa-basi, inilah perintah <code>wget</code> beserta opsi-opsi yang dibutuhkan</p>
+
+<p><code>
+wget \
+--recursive \
+--convert-links \
+--adjust-extension \
+--page-requisites \
+--span-hosts \
+--domains=software.endy.muhardin.com \
+-e robots=off \
+--timestamping \
+http://software.endy.muhardin.com
+</code></p>
+
+<p>Penjelasan opsi:</p>
+
+<ul>
+<li><code>recursive</code> : tiap ada link di halaman web, link tersebut ikut diunduh</li>
+<li><code>convert-links</code> : ubah link (halaman lain, gambar, javascript, dsb) menjadi link lokal, supaya dia tidak mengarah ke internet</li>
+<li><code>adjust-extension</code> : bila ada link yang dinamis seperti <code>cgi</code>, <code>asp</code>, <code>php</code>, konversi menjadi extension statis seperti <code>html</code></li>
+<li><code>page-requisites</code> : unduh semua kebutuhan halaman supaya tampilannya sesuai asli (misalnya gambar, stylesheet, dsb)</li>
+<li><code>span-hosts</code> : banyak orang (termasuk saya) menghosting gambar di layanan publik seperti flickr, google plus, dan lainnya. Opsi ini menyuruh <code>wget</code> supaya link di luar website saya juga diunduh</li>
+<li><code>domains</code> : membatasi halaman yang diunduh hanya untuk domain tertentu</li>
+<li><code>robots=off</code> : ada beberapa website yang melarang halaman dibuka selain oleh browser. Opsi ini perlu supaya larangan tersebut diabaikan</li>
+<li><code>timestamping</code> : timestamp tiap file diset sesuai di server. Ini memungkinkan kita untuk menjalankan lagi wget di lain hari untuk mengupdate website yang sudah pernah kita unduh. Dengan opsi ini, file yang sudah diunduh tidak akan diunduh ulang. Menghemat bandwidth dan waktu</li>
+<li>URL website yang ingin diambil. Pada contoh di atas adalah <code>http://software.endy.muhardin.com</code></li>
+</ul>
+
+
+<p>Demikianlah cara mengunduh website ini. Semoga bermanfaat.</p>
+
+<blockquote><p>Tunggu ... tunggu ... Saya pakai Windows, bagaimana caranya mengunduh di Windows?</p></blockquote>
+
+<p>Gampang, <a href="http://software.endy.muhardin.com/linux/upgrade-ubuntu/">instal saja Ubuntu</a> :D</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Menggunakan SSD di Ubuntu]]></title>
@@ -645,80 +709,6 @@ rsync $OPTS $MORE_OPTS $SRC $DEST/$(date +%Y%m%d-%H%M)</code></pre></noscript></
 <li><p><a href="http://rsync.samba.org/examples.html">rsync examples</a></p></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Membuat Screencast]]></title>
-    <link href="http://software.endy.muhardin.com/aplikasi/linux/membuat-screencast/"/>
-    <updated>2011-06-28T01:03:23+07:00</updated>
-    <id>http://software.endy.muhardin.com/aplikasi/linux/membuat-screencast</id>
-    <content type="html"><![CDATA[<p>Jaman sekarang sudah semakin maju. Fakir bandwidth semakin sedikit. Oleh karena itu, media komunikasi juga berubah, yang tadinya berbasis teks (hemat bandwidth) menjadi multimedia (rakus bandwidth).</p>
-
-<p>Demi mengikuti perkembangan jaman, saya mengeksplorasi pembuatan tutorial dalam bentuk screencast. Ternyata hasilnya memuaskan. Dengan beberapa menit merekam screencast, informasi yang disampaikan sama dengan beberapa jam mengetik blog entry.</p>
-
-<p>Artikel ini saya tulis untuk mendokumentasikan langkah-langkah membuat screencast, mulai dari merekam screencast, sampai mempublikasikannya di blog.</p>
-
-<h2>Merekam video</h2>
-
-<p>Di Ubuntu ada dua aplikasi yang saya coba, yaitu Xvidcap dan Record My Desktop. Dua-duanya sama fungsinya dan tidak ada perbedaan yang signifikan. Setelah mencoba keduanya, pendapat saya adalah Record My Desktop lebih mudah digunakan. Jadi, inilah aplikasi yang saya pilih.</p>
-
-<p>Perlu diperhatikan kemampuan prosesor komputer Anda. Ini kaitannya dengan setting frame per second (fps). Bila fps melebihi kemampuan prosesor, video yang kita rekam akan terlihat lebih cepat dari sebenarnya. Di laptop saya, setting 15 fps akan menghasilkan video yang kira-kira 2x lebih cepat. Setelah trial and error, saya temukan bahwa 9 fps adalah setting yang tepat.</p>
-
-<p>Perbedaan yang utama di antara kedua aplikasi ini adalah format outputnya. Record My Desktop mengeluarkan format ogv sedangkan Xvidcap mengeluarkan format mpeg. Perbedaan format ini nantinya akan mempengaruhi langkah pemrosesan selanjutnya.</p>
-
-<h2>Merekam suara</h2>
-
-<p>Biasanya, saya merekam suara dalam proses yang terpisah, supaya tidak banyak ehm dan eee. Rekaman dibuat sambil menonton screencast yang sudah kita rekam. Setelah rekaman suara dibuat, bisa diedit dengan menggunakan aplikasi Audacity untuk menghilangkan noise, memotong bagian yang tidak penting, dan sebagainya.</p>
-
-<h2>Menggabungkan video dan audio</h2>
-
-<p>Selanjutnya, kita menggunakan aplikasi Avidemux untuk menggabungkan file audio dan file video menjadi satu file. Dengan aplikasi ini kita juga bisa mengedit video untuk menghilangkan bagian-bagian yang tidak perlu ataupun menyambung beberapa video menjadi satu.</p>
-
-<h2>Mempersiapkan format video untuk web</h2>
-
-<p>Ada berbagai format video yang tersedia. Masing-masing format memiliki dukungan browser yang berbeda-beda. Daftar lengkapnya bisa dilihat <a href="http://diveintohtml5.info/video.html#what-works">di sini</a></p>
-
-<p>Pada intinya, supaya bisa dilihat di berbagai browser, kita harus menyediakan file dengan format ogv, mp4, dan webm. Kita juga harus menyertakan poster dalam format jpg atau png supaya bisa ditampilkan dengan benar di browser.</p>
-
-<p>Ada beberapa script yang bisa digunakan, misalnya <a href="https://github.com/kwiliarty/vfe-sh">ini</a> atau <a href="http://brettterpstra.com/automating-html5-video-encodes/">ini</a></p>
-
-<p>Atau, kita juga bisa menjalankan commandnya satu persatu di command line. Berikut adalah command yang saya jalankan :</p>
-
-<p>Konversi dari ogv menjadi mp4
-<div><script src='https://gist.github.com/1048657.js?file=ogv-to-mp4.sh'></script>
-<noscript><pre><code>ffmpeg -vcodec libx264 -vpre lossless_medium -i file-input.ogv file-output.mp4</code></pre></noscript></div>
-</p>
-
-<p>Konversi dari ogv menjadi webm
-<div><script src='https://gist.github.com/1048657.js?file=ogv-to-webm.sh'></script>
-<noscript><pre><code>ffmpeg -pass 1 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y tmp.webm
-
-rm tmp.webm
-
-ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -skip_threshold 0 -qmin 1 -qmax 51 -i file-input.ogv -vcodec libvpx -b 614400 -s 640x480 -aspect 4:3 -an -y file-output.webm
-</code></pre></noscript></div>
-</p>
-
-<p>Command di atas mungkin berbeda bila file asli kita formatnya adalah mpeg seperti yang dihasilkan oleh XVidcap.</p>
-
-<p>Membuat poster
-<div><script src='https://gist.github.com/1048657.js?file=create-poster.sh'></script>
-<noscript><pre><code>ffmpeg -r 1 -t 1 -vframes 1 -i input-file.mp4  output-file.png</code></pre></noscript></div>
-</p>
-
-<h2>Upload</h2>
-
-<p>Setelah semua file(ogv,mp4,png) terkumpul di satu folder, kita upload menggunakan rsync
-<div><script src='https://gist.github.com/1048657.js?file=upload-to-server.sh'></script>
-<noscript><pre><code>rsync -avz /path/to/video/folder user@example.com:/home/user/public_html/videos</code></pre></noscript></div>
-</p>
-
-<h2>Tampilkan di blog</h2>
-
-<p>Terakhir, kita ingin menayangkan video tersebut di blog kita. Karena saya menggunakan wordpress, saya pasang <a href="http://open.pages.kevinwiliarty.com/external-video-for-everybody/">plugin External Video for Everybody</a>. Plugin ini menampilkan video player di browser kita, supaya orang lain bisa langsung klik tombol play. Di belakang layar, plugin ini mendeteksi apakah browser kita mendukung HTML 5 atau tidak. Kalau iya, maka video akan ditampilkan dengan tag khusus &lt;video&gt;. Bila tidak, maka flash player akan digunakan. Flash player ini tidak disediakan oleh plugin ini. Kita perlu memilih dan mendownload sendiri dari sekian banyak flash player yang tersedia, contohnya <a href="http://www.longtailvideo.com/players/jw-flv-player/">JW Player</a></p>
-
-<p>Sebagai penutup, bisa melihat <a href="http://linuxandfriends.com/2009/07/13/how-to-create-a-screencast-in-ubuntu-linux/">tutorial ini</a> yang saya gunakan sebagai titik awal eksplorasi saya.</p>
 ]]></content>
   </entry>
   

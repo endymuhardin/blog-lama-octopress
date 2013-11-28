@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di milis manajemen proyek IT sedang rame diskusi tentang CMMI dan Scrum.
-Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam &hellip;">
+  <meta name="description" content="Staged Deployment Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,281 @@ Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam &hel
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/staged-deployment/">Staged Deployment</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-16T15:57:35+07:00" pubdate data-updated="true">Aug 16<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Staged Deployment</p>
+
+<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
+
+<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
+
+<ul>
+<li><p>development (komputer si programmer)</p></li>
+<li><p>testing (test server)</p></li>
+<li><p>production (live system)</p></li>
+</ul>
+
+
+<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
+
+<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
+
+<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
+
+<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
+
+<h2>Alternatif Solusi</h2>
+
+<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
+
+<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
+<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
+
+
+<p>atau</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
+<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
+
+
+<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
+
+<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
+
+<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
+
+<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
+
+<ul>
+<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
+<li><p>jdbc.testing.properties : digunakan di server test</p></li>
+<li><p>jdbc.production.properties : digunakan di live</p></li>
+</ul>
+
+
+<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
+jdbc.username = kasbon
+jdbc.password = kasbon</code></pre></noscript></div>
+
+
+<p>Kemudian, ini file jdbc.testing.properties :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+
+
+<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
+
+<p>Terakhir, jdbc.production.properties</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
+<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+jdbc.driver = com.mysql.jdbc.Driver
+jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
+jdbc.username = root
+jdbc.password = admin</code></pre></noscript></div>
+
+
+<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
+
+    &lt;context:property-placeholder location=&quot;
+    classpath*:jdbc.properties,
+    classpath*:jdbc.${stage}.properties
+    &quot; /&gt;
+
+    &lt;tx:annotation-driven /&gt;
+
+    &lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
+        destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
+        p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
+        p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
+
+    &lt;bean id=&quot;transactionManager&quot;
+        class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
+        p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
+
+
+    &lt;bean id=&quot;sessionFactory&quot;
+        class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
+        p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
+        &lt;property name=&quot;hibernateProperties&quot;&gt;
+            &lt;props&gt;
+                &lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
+            &lt;/props&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id=&quot;messageSource&quot;
+        class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
+        &lt;property name=&quot;basenames&quot;&gt;
+            &lt;list&gt;
+                &lt;value&gt;messages&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;</code></pre></noscript></div>
+
+
+<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
+<noscript><pre><code>&lt;context:property-placeholder location=&quot;
+    classpath*:jdbc.properties, 
+    classpath*:jdbc.${stage}.properties
+&quot; /&gt;</code></pre></noscript></div>
+
+
+<p>Di sana kita melihat ada variabel ${stage}.
+Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
+
+<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
+
+<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
+
+<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
+
+<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
+
+<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
+
+<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
+
+<h2>Setting Environment Variabel</h2>
+
+<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
+<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
+
+
+<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
+<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
+
+
+<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
+<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
+
+
+<h2>Konfigurasi Logger</h2>
+
+<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
+
+<ul>
+<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
+<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
+
+<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
+
+<ul>
+<li><p>logback.xml : file konfigurasi utama</p></li>
+<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
+<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
+</ul>
+
+
+<p>Berikut isi file logback.xml.</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;configuration&gt;
+
+    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
+        &lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
+        &lt;encoder&gt;
+            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
+        &lt;/encoder&gt;
+    &lt;/appender&gt;
+
+    &lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
+
+&lt;/configuration&gt;</code></pre></noscript></div>
+
+
+<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
+
+<div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
+<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
+
+
+<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
+
+<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
+
+<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -575,138 +849,6 @@ Creating redmine-1.2.war</code></pre></noscript></div>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/instalasi-spket-ide/">Instalasi Spket IDE</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-07-07T02:16:13+07:00" pubdate data-updated="true">Jul 7<span>th</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Beberapa minggu terakhir ini, saya mencari-cari cara terbaik untuk melakukan development dengan ExtJS.
-Tentunya fitur utama yang kita inginkan adalah autocomplete,
-sehingga tidak perlu bolak-balik membaca dokumentasi di websitenya.</p>
-
-<p>Setelah berhari-hari mencari, akhirnya saya menemukan <a href="http://www.spket.com">Spket IDE</a>.
-Di websitenya dinyatakan bahwa Spket sudah mendukung ExtJS versi 4, membuat saya tertarik untuk mencobanya.
-Sayangnya, petunjuk instalasi sulit didapat, sehingga harus trial-and-error.</p>
-
-<p>Di artikel ini, kita akan membahas petunjuk instalasi Spket IDE di Eclipse Indigo.</p>
-
-<h2>Klik menu Install New Software</h2>
-
-<p><img src="/images/uploads/2011/07/01.-Install-New-Software.png" title="" ></p>
-
-<h2>Masukkan Update Site Spket IDE</h2>
-
-<p>Tambahkan Update Site yang baru
-<img src="/images/uploads/2011/07/02.-Add-Update-Site.png" title="" ></p>
-
-<p>Update sitenya adalah http://www.spket.com/update/</p>
-
-<p><img src="/images/uploads/2011/07/03.-Lokasi-Update-Site-Spket.png" title="" ></p>
-
-<h2>Opsi Instalasi Spket</h2>
-
-<p><img src="/images/uploads/2011/07/04.-Centang-Semua-Opsi.png" title="" ></p>
-
-<h2>Klik Next</h2>
-
-<p><img src="/images/uploads/2011/07/05.-Next-Terus.png" title="" ></p>
-
-<p><img src="/images/uploads/2011/07/06.-Sit-Back-and-Relax.png" title="" ></p>
-
-<p><img src="/images/uploads/2011/07/07.-Ada-Warning-Lanjut-Saja.png" title="" ></p>
-
-<p>Ada warning, klik saja Yes.</p>
-
-<h2>Download Support ExtJS 4</h2>
-
-<p>Agar bisa mengenali ExtJS 4, kita harus <a href="http://forums.spket.com/viewtopic.php?f=6&amp;t=1866">mengunduh update terbaru dari forumnya</a>.
-Entah apa alasannya, tiap ada update baru, versi jarnya tidak dinaikkan dan update sitenya tidak diperbarui.
-Ini menyebabkan kita harus mengunduh file dari forum.</p>
-
-<p>Ada dua file yang harus diunduh, yaitu jar
-<img src="/images/uploads/2011/07/08.-Download-jar-terbaru.png" title="" ></p>
-
-<p>dan jsb
-<img src="/images/uploads/2011/07/09.-Dukungan-Ext-4.png" title="" >
-Hasilnya, kita akan memiliki dua file.
-<img src="/images/uploads/2011/07/13.-Hasil-donlod-dari-forum-spket.png" title="" ></p>
-
-<h2>Patch Eclipse</h2>
-
-<p>File jar akan kita pasang di folder plugins di tempat Eclipse terinstal.<br/>
-<img src="/images/uploads/2011/07/11.-Folder-Plugin-Eclipse.png" title="" ></p>
-
-<p>Ini akan menimpa file dengan nama sama.
-<img src="/images/uploads/2011/07/14.-Replace-dengan-yang-baru.png" title="" ></p>
-
-<h2>Patch ExtJS</h2>
-
-<p>Sedangkan file jsb akan kita pasang di folder ExtJS 4.
-<img src="/images/uploads/2011/07/15.-Masukkan-jsb-ke-folder-extjs.png" title="" ></p>
-
-<h2>Edit jsb</h2>
-
-<p>Sayangnya, file jsb ini juga masih ada bugnya. Dia salah menyebutkan nama file dalam folder pkgs.
-Kita harus edit, ganti <code>all.js</code> menjadi <code>classes.js</code>.
-<img src="/images/uploads/2011/07/16.-Edit-file-jsb-sesuai-nama-file.png" title="" ></p>
-
-<h2>Konfigurasi Spket</h2>
-
-<p>Selanjutnya, kita masuk ke menu preferences untuk melakukan konfigurasi.
-<img src="/images/uploads/2011/07/17.-Konfigurasi-Spket.png" title="" >
-Masuk ke menu Spket - Javascript Profile
-<img src="/images/uploads/2011/07/18.-Javascript-Profile.png" title="" >
-Tambah Profile baru, beri nama ExtJS
-<img src="/images/uploads/2011/07/19.-Tambah-profile-baru.png" title="" >
-Di profile yang baru saja ditambahkan, Add Library dan pilih ExtJS
-<img src="/images/uploads/2011/07/20.-Tambah-library-ExtJS.png" title="" >
-Setelah itu, Add File jsb yang sudah kita edit tadi.
-<img src="/images/uploads/2011/07/21.-Add-File-JSB.png" title="" >
-Lalu, set profile ExtJS menjadi default
-<img src="/images/uploads/2011/07/22.-Set-Profile-ExtJS-sebagai-default.png" title="" >
-Kemudian, pergi ke menu General - Editors - File Associations. Pilih file js, dan jadikan Spket sebagai editornya.
-<img src="/images/uploads/2011/07/23.-Set-file-associations.png" title="" >
-Klik Ok, restart Eclipse.
-<img src="/images/uploads/2011/07/10.-Restart-Eclipse.png" title="" ></p>
-
-<h2>Code Completion</h2>
-
-<p>Sekarang kita bisa melakukan code completion pada saat memberi titik di depan object.
-<img src="/images/uploads/2011/07/24.-Autocomplete-method.png" title="" >
-Atau juga pada saat mengetik di dalam tanda kurung.
-<img src="/images/uploads/2011/07/25.-Autocomplete-property.png" title="" ></p>
-
-<p>Demikianlah cara instalasi Spket IDE di Eclipse.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/16/">&larr; Older</a>
@@ -783,6 +925,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/cara-mengunduh-website/">Cara Mengunduh Website</a>
+      </li>
+    
+      <li class="post">
         <a href="/android/persiapan-coding-android/">Persiapan Coding Android</a>
       </li>
     
@@ -816,10 +962,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/mendapatkan-informasi-system-dengan-java/">Mendapatkan Informasi System dengan Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/teknik-menggunakan-google/">Teknik Menggunakan Google</a>
       </li>
     
   </ul>
