@@ -36,9 +36,9 @@ wget \
 --adjust-extension \
 --page-requisites \
 --span-hosts \
---domains=software.endy.muhardin.com \
 -e robots=off \
 --timestamping \
+--domains=software.endy.muhardin.com \
 http://software.endy.muhardin.com
 ```
 
@@ -49,9 +49,9 @@ Penjelasan opsi:
 * `adjust-extension` : bila ada link yang dinamis seperti `cgi`, `asp`, `php`, konversi menjadi extension statis seperti `html`
 * `page-requisites` : unduh semua kebutuhan halaman supaya tampilannya sesuai asli (misalnya gambar, stylesheet, dsb)
 * `span-hosts` : banyak orang (termasuk saya) menghosting gambar di layanan publik seperti flickr, google plus, dan lainnya. Opsi ini menyuruh `wget` supaya link di luar website saya juga diunduh
-* `domains` : membatasi halaman yang diunduh hanya untuk domain tertentu
 * `robots=off` : ada beberapa website yang melarang halaman dibuka selain oleh browser. Opsi ini perlu supaya larangan tersebut diabaikan
 * `timestamping` : timestamp tiap file diset sesuai di server. Ini memungkinkan kita untuk menjalankan lagi wget di lain hari untuk mengupdate website yang sudah pernah kita unduh. Dengan opsi ini, file yang sudah diunduh tidak akan diunduh ulang. Menghemat bandwidth dan waktu
+* `domains` : membatasi halaman yang diunduh hanya untuk domain tertentu
 * URL website yang ingin diambil. Pada contoh di atas adalah `http://software.endy.muhardin.com`
 
 Demikianlah cara mengunduh website ini. Semoga bermanfaat.
