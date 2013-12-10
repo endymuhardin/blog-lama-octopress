@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2013-11-28T10:42:10+07:00</updated>
+  <updated>2013-12-10T22:20:22+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,109 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Meningkatkan performance Android Emulator]]></title>
+    <link href="http://software.endy.muhardin.com/java/meningkatkan-performance-android-emulator/"/>
+    <updated>2013-12-10T17:39:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/meningkatkan-performance-android-emulator</id>
+    <content type="html"><![CDATA[<p>Setelah kemarin kita mempersiapkan persenjataan untuk coding Android, langkah selanjutnya tentu saja membuat aplikasi <code>Hello World</code> dan kemudian mencoba menjalankannya. Ada dua pilihan cara menjalankan aplikasi Android, yaitu langsung di <em>device</em> atau menggunakan emulator.</p>
+
+<p>Sayangnya, secara default emulator Android sangat lemot. Sedangkan kecepatan kita dalam membangun aplikasi sangat ditentukan oleh kecepatan kita melakukan siklus <em>edit-test-fix</em>. Kalau langkah <em>test</em> butuh waktu lama, dengan sendirinya proses development kita juga akan butuh waktu lama.</p>
+
+<p>Untungnya ada teknik yang tersedia untuk meningkatkan kecepatan emulator Android, yaitu dengan <a href="http://software.intel.com/en-us/articles/speeding-up-the-android-emulator-on-intel-architecture">menggunakan emulator berbasis Intel platform</a>. Kita akan bahas cara-caranya di artikel ini.</p>
+
+<p><img src="http://lh5.googleusercontent.com/-ynU8SU2Efd0/Uqa45WE4K_I/AAAAAAAAC7w/umEdkuO7wqA/w467-h623-no/20131210_134625.jpg"></p>
+
+<!--more-->
+
+
+<p>Prinsip dasarnya adalah, kita memanfaatkan fitur virtualisasi yang sudah tersedia di prosesor Intel generasi saat ini. Dengan fitur ini, emulator Android bisa berjalan dengan lebih cepat karena ada dukungan di prosesor. Tentunya terlebih dulu kita harus melakukan pengecekan apakah prosesor di komputer kita sudah mendukung fitur ini atau belum.</p>
+
+<p>Di Windows dan Mac, fitur ini diaktifkan dengan driver khusus dari Intel yang disebut dengan Intel® Hardware Accelerated Execution Manager (Intel® HAXM). Sedangkan pada Linux, fitur ini tersedia dalam aplikasi virtualisasi KVM.</p>
+
+<p>Mari kita bahas cara pengecekannya satu persatu dengan Linux maupun dengan Windows.</p>
+
+<h2>Instalasi di Linux</h2>
+
+<p>Berikut adalah langkah-langkahnya:</p>
+
+<ol>
+<li>Verifikasi apakah prosesor kita sudah mendukung</li>
+<li>Instalasi KVM</li>
+<li>Membuat emulator Intel di Android Virtual Device (AVD) Manager</li>
+</ol>
+
+
+<h3>Verifikasi Dukungan Prosesor</h3>
+
+<p>Di Ubuntu, kita bisa menjalankan perintah berikut di terminal.</p>
+
+<p><code>
+egrep -c '(vmx|svm)' /proc/cpuinfo
+</code></p>
+
+<p>Kalau outputnya <code>0</code>, berarti komputer kita tidak support. Angka <code>1</code> atau lebih menunjukkan bahwa komputer kita mendukung KVM.</p>
+
+<h3>Instalasi KVM</h3>
+
+<p>Berikut perintahnya</p>
+
+<p><code>
+sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils
+</code></p>
+
+<p>Setelah selesai, kita harus logout dan login lagi, karena Ubuntu menambahkan user kita ke grup <code>libvirtd</code>. Penambahan ke grup ini baru dibaca pada saat kita login.</p>
+
+<p>Kita bisa tes kesuksesan proses instalasi, jalankan perintah berikut:</p>
+
+<p><code>
+virsh -c qemu:///system list
+</code></p>
+
+<p>Bila sukses, outputnya seperti ini</p>
+
+<p>```</p>
+
+<h2> Id Name                 State</h2>
+
+<p>```</p>
+
+<p>Bila gagal, outputnya seperti ini</p>
+
+<p><code>
+libvir: Remote error : Permission denied
+error: failed to connect to the hypervisor
+</code></p>
+
+<p>Selanjutnya, kita tinggal membuat Android Virtual Device (AVD) yang menggunakan platform Intel. Langkah ini akan kita bahas setelah penjelasan tentang cara instalasi Intel® HAXM di Windows.</p>
+
+<h2>Instalasi di Windows</h2>
+
+<p>Instalasi Intel® HAXM dilakukan melalui Android SDK Manager. Opsinya ada di folder Extra di paling bawah.
+Jangan lupa instal juga emulator Intel sekaligus.</p>
+
+<p><img src="http://lh4.googleusercontent.com/-ZitwHacTB50/UqcZWbt1alI/AAAAAAAAC8Y/T_rChtMx4m0/w746-h576-no/haxm01.png"></p>
+
+<p>Instalasi melalui Android SDK Manager ini ternyata hanya mengunduh Intel® HAXM saja. Kita tetap harus menginstalnya sendiri. Cari filenya dalam folder <code>extras</code> dalam Android SDK.</p>
+
+<p><img src="http://lh6.googleusercontent.com/-vyyFTq3bx_4/UqcZVfev3QI/AAAAAAAAC8Q/fAcHpy2KJMo/w233-h122-no/haxm02.png"></p>
+
+<p>Jalankan saja installer seperti biasa. Klik Next sampai selesai.</p>
+
+<h2>Membuat Emulator Intel</h2>
+
+<p>Selanjutnya, kita tinggal membuat AVD seperti biasa. Pastikan kita pilih opsi platform Intel.</p>
+
+<p><img src="http://lh3.googleusercontent.com/-phoDzK--s64/Uqcbh-dQWzI/AAAAAAAAC8s/2WWFtnFY1TE/w572-h623-no/Edit+Android+Virtual+Device+%2528AVD%2529+_001.png"></p>
+
+<p>Jangan lupa untuk mencentang juga opsi <code>Use Host GPU</code> untuk mengalihkan beban pemrosesan tampilan dari emulator ke komputer kita.</p>
+
+<p>Selamat mencoba, seharusnya sekarang emulator bisa dijalankan dengan lebih cepat. Oh iya, ada sedikit keterbatasan. Pada saat artikel ini ditulis, Intel belum merilis emulator untuk Android versi terbaru (KitKat / API level 19). Jadi kita terpaksa coding menggunakan API level 18.</p>
+
+<p>Semoga bermanfaat</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Persiapan Coding Java]]></title>
@@ -861,171 +964,6 @@ if(!cocok){</p>
 <p>Ya tinggal pilih, pusing belajar atau kena sadap :D</p>
 
 <p>Kode program selengkapnya (seperti biasa) ada <a href="https://github.com/endymuhardin/belajar-enkripsi">di Github</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Mendapatkan Informasi System dengan Java]]></title>
-    <link href="http://software.endy.muhardin.com/java/mendapatkan-informasi-system-dengan-java/"/>
-    <updated>2013-10-29T09:52:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/mendapatkan-informasi-system-dengan-java</id>
-    <content type="html"><![CDATA[<p>Pada salah satu project yang sedang saya kerjakan, ada kebutuhan untuk mendapatkan informasi mengenai sistem dimana aplikasi diinstal. Informasi yang dibutuhkan antara lain:</p>
-
-<ul>
-<li>Sistem Operasi</li>
-<li>Kapasitas Memori</li>
-<li>Kapasitas Disk</li>
-<li>Jumlah Network Interface</li>
-<li>MAC Address dari masing-masing Network Interface</li>
-</ul>
-
-
-<p>Dalam artikel ini, kita akan membahas cara mendapatkan berbagai informasi tersebut. Seperti biasa, kode program bisa diambil di <a href="https://github.com/endymuhardin/belajar-java-sysinfo">repository Github saya</a>.</p>
-
-<!--more-->
-
-
-<h2>Sistem Operasi</h2>
-
-<p>Informasi tentang Sistem Operasi dapat diperoleh dengan menggunakan class java.lang.System. Dari class ini kita bisa menggunakan method getProperty yang berisi berbagai informasi tentang sistem. Daftar property yang tersedia dapat dilihat di <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/System.html#getProperties()">halaman dokumentasinya</a>. Property yang berkaitan dengan sistem operasi adalah:</p>
-
-<ul>
-<li>os.name</li>
-<li>os.version</li>
-<li>os.arch</li>
-</ul>
-
-
-<p>Berikut contoh penggunaannya</p>
-
-<p>```java
-String os = System.getProperty("os.name");
-os += ":" + System.getProperty("os.version");
-os += ":" + System.getProperty("os.arch");</p>
-
-<p>System.out.println(os);
-```</p>
-
-<p>Di laptop saya, outputnya seperti ini:</p>
-
-<p><code>
-Linux:3.11.0-12-generic:amd64
-</code></p>
-
-<h2>Kapasitas Memori</h2>
-
-<p>Aplikasi Java berjalan di atas JVM, tidak langsung di atas sistem operasi. Untuk urusan memori, ada dua jenis memori yang kita kenal, yaitu memori yang disediakan untuk JVM dan memori yang tersedia di komputer (RAM). Hal ini sering menimbulkan kebingungan di programmer Java pemula, yaitu</p>
-
-<blockquote><p>Komputer saya RAM-nya 8 GB, kenapa aplikasi Java saya cuma bisa pakai 2 GB?</p></blockquote>
-
-<p>Biasanya penyebabnya adalah karena memori yang dialokasikan untuk JVM hanya 2 GB.</p>
-
-<h3>Memori Fisik (RAM)</h3>
-
-<p>Untuk mendapatkan informasi tentang memori fisik yang tersedia, kita gunakan class <code>com.sun.management.OperatingSystemMXBean</code>. Berikut cara mendapatkan object dari class tersebut.</p>
-
-<p>```java
-OperatingSystemMXBean osBean</p>
-
-<pre><code>= (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-</code></pre>
-
-<p>```</p>
-
-<p>Setelah itu, kita bisa gunakan untuk mendapatkan informasi memori sebagai berikut</p>
-
-<p><code>java
-Long memory = osBean.getTotalPhysicalMemorySize();
-</code></p>
-
-<p>Dokumentasi lengkap dari class tersebut bisa dibaca <a href="http://docs.oracle.com/javase/7/docs/jre/api/management/extension/com/sun/management/OperatingSystemMXBean.html">di sini</a>.</p>
-
-<h3>Memori JVM</h3>
-
-<p>Ada dua variabel yang menginformasikan memori JVM, yaitu memori yang dialokasikan, dan memori yang terpakai. Aplikasi kita boleh menggunakan memori maksimal sebanyak yang dialokasikan. Tapi aplikasi belum tentu menggunakan semuanya, hanya sebagian saja yang terpakai. Informasi memori JVM bisa didapatkan dari class <code>java.lang.Runtime</code>.</p>
-
-<p>Berikut cara untuk mendapatkan memori yang dialokasikan untuk JVM</p>
-
-<p><code>java
-Long totalMemory = Runtime.getRuntime().totalMemory();
-</code></p>
-
-<p>Sedangkan untuk mendapatkan memori terpakai, kita kurangi <code>totalMemory</code> dengan <code>freeMemory</code> (memori yang tidak terpakai)</p>
-
-<p><code>java
-Long freeMemory = Runtime.getRuntime().freeMemory();
-Long terpakai = totalMemory - freeMemory;
-</code></p>
-
-<p>Lebih lengkapnya bisa dilihat langsung di <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Runtime.html#totalMemory()">dokumentasi class <code>Runtime</code></a></p>
-
-<h2>Kapasitas Storage</h2>
-
-<p>Informasi tentang storage bisa didapatkan di class <code>java.io.File</code>. Pertama, kita buat dulu objek <code>File</code> yang mengarah ke partisi yang ingin kita ketahui informasinya.</p>
-
-<p>Untuk Windows, gunakan <code>C:</code>, <code>D:</code>, dan seterusnya.</p>
-
-<p><code>java
-File f = new File("C:");
-</code></p>
-
-<p>Untuk Linux, gunakan <code>/</code>, <code>/home</code>, dan sebagainya.</p>
-
-<p><code>java
-File f = new File("/home");
-</code></p>
-
-<p>Ada beberapa method yang disediakan yaitu:</p>
-
-<ul>
-<li>totalSpace() : kapasitas storage</li>
-<li>usableSpace() : kapasitas yang bisa digunakan</li>
-<li>freeSpace() : ruang kosong</li>
-</ul>
-
-
-<p>Kita tentu bertanya-tanya, apa bedanya <code>usable</code> dan <code>free</code>? Free adalah ruang yang tidak terpakai, tapi belum tentu boleh dipakai karena masalah permission, ijin akses, dan sebagainya. Usable adalah ruang yang boleh dipakai. Kadang-kadang, nilai <code>usable</code> sama dengan nilai <code>free</code>. Penjelasannya bisa dibaca <a href="http://docs.oracle.com/javase/7/docs/api/java/io/File.html#getUsableSpace(">di sini</a>).</p>
-
-<p>Cara pakainya tidak sulit.</p>
-
-<p><code>java
-Long totalSpace = f.getTotalSpace();
-Long usableSpace = f.getUsableSpace();
-Long freeSpace = f.getFreeSpace();
-</code></p>
-
-<h2>Network Interface</h2>
-
-<p>Informasi tentang network interface bisa didapatkan di <code>java.net.NetworkInterface</code>. Pertama, kita dapatkan dulu seluruh interface yang ada di komputer. Satu komputer (apalagi server) biasa memiliki lebih dari satu interface. Laptop saja biasanya punya dua, ethernet dan wifi.</p>
-
-<p><code>java
-Enumeration&lt;NetworkInterface&gt; semuaInterface = NetworkInterface.getNetworkInterfaces();
-</code></p>
-
-<p>Setelah itu, kita bisa melakukan loop untuk mendapatkan jumlah interface, nama interface, dan MAC addressnya.</p>
-
-<p>```java
-Integer jumlah = 0;
-while(semuaInterface.hasMoreElements()){</p>
-
-<pre><code>NetworkInterface ni = semuaInterface.nextElement();
-System.out.println("Nama Interface : "+ni.getDisplayName());
-byte[] mac = ni.getHardwareAddress();
-if(mac != null){
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i &lt; mac.length; i++) {
-            sb.append(String.format("%02X%s", mac[i], (i &lt; mac.length - 1) ? "-" : ""));        
-    }
-    System.out.println("MAC Address : "+sb.toString());
-}
-jumlah++;
-</code></pre>
-
-<p>}
-System.out.println("Jumlah interface : "+jumlah);
-```</p>
-
-<p>Demikianlah cara mendapatkan informasi tentang sistem tempat aplikasi Java kita dijalankan.</p>
 ]]></content>
   </entry>
   
