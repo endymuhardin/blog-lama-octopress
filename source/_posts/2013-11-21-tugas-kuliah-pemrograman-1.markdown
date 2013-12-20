@@ -31,6 +31,8 @@ Studi kasus pada tugas ini merupakan aplikasi yang benar-benar digunakan di duni
 
 Selamat mencoba.
 
+> Update : tugas ini sudah saya kerjakan. Videonya bisa [dilihat di Youtube](http://www.youtube.com/playlist?list=PL9oC_cq7OYbx58s-eCBwP-5NxKnG8SHIr) dan source codenya bisa [dilihat di Github](https://github.com/endymuhardin/pemrograman-2-2013/tree/master/sample-code/aplikasi-payroll).
+
 <!--more-->
 
 
