@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Oom Sindu beberapa hari ini berisik sekali membahas Virtual Box. Sudah beberapa artikel dia tulis, sehingga akhirnya saya tertarik untuk mencoba. &hellip;">
+  <meta name="description" content="Beberapa waktu terakhir ini, framework Java Server Faces terlihat semakin matang. Orang-orang sudah mulai menggunakan, memberi feedback, dan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,532 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/intro-icefaces/">Intro ICEFaces</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-03-29T18:50:14+07:00" pubdate data-updated="true">Mar 29<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Beberapa waktu terakhir ini, framework Java Server Faces terlihat semakin matang. Orang-orang sudah mulai menggunakan, memberi feedback, dan menemukan best-practices cara penggunaannya. Oleh karena itu, saya pikir sudah tiba waktunya untuk saya mempelajari framework tersebut.</p>
+
+<p>Berdasarkan pengalaman rekan <a href="http://www.jroller.com/page/sfranklyn/">Samuel</a>, dia menganjurkan penggunaan JSF dengan menggunakan stack:</p>
+
+<ul>
+<li><p><a href="https://facelets.dev.java.net">Facelets</a></p></li>
+<li><p><a href="http://www.icefaces.org">IceFaces</a></p></li>
+<li><p><a href="http://www.springframework.org">Spring Framework</a></p></li>
+<li><p><a href="http://www.hibernate.org">Hibernate</a></p></li>
+</ul>
+
+
+<p>Spring dan Hibernate sudah sering saya gunakan. Integrasinya dengan JSF juga tidak terlalu sulit. Hanya butuh registrasi bean di dalam konfigurasi JSF.</p>
+
+<p>Facelets adalah template engine untuk JSF. Dalam dunia JSF, template engine sering disebut juga dengan istilah View Renderer. Sebenarnya View Renderer default JSF adalah JSP, tapi saya tidak suka JSP. Jadilah akhirnya kita pakai JSF dengan Facelets sebagai ViewRenderer-nya.
+Facelets ini mirip dengan Freemarker atau Velocity. Kalau di dunia PHP kira-kira padanannya adalah Smarty.</p>
+
+<p>Keuntungan menggunakan Facelets dibanding JSP adalah dengan Facelets, desain tampilan dapat dikerjakan oleh web designer. JSF dengan JSP akan banyak sekali menggunakan taglib yang tidak akan muncul di Macromedia Dreamweaver atau editor HTML lainnya. Facelets menggunakan pendekatan yang mirip dengan Tapestry, yaitu memasukkan komponen ke dalam elemen HTML biasa, sehingga dapat dilihat secara normal oleh editor HTML.</p>
+
+<p>ICEFaces adalah kumpulan komponen JSF. Dia memiliki teknologi Direct to DOM Rendering sehingga kita dapat membuat tampilan ber-AJAX dengan mudah.</p>
+
+<p>Seperti halnya teknologi lainnya di dunia Java, JSF hanyalah berupa spesifikasi. Kita dapat menggunakan implementasi yang dikeluarkan Sun (sering disebut dengan Reference Implementation - RI), atau menggunakan implementasi orang lain. Selain Sun, Apache mengeluarkan MyFaces dan Oracle mengeluarkan ADF sebagai implementasi JSF.</p>
+
+<p>Pada artikel ini, kita akan lihat Hello World dengan menggunakan JSF, Facelets, dan ICEFaces. Karena ini hanya perkenalan saja, requirementnya tidak rumit. Saya hanya ingin membuktikan kecanggihan teknologi Direct to DOM Rendering yang dimiliki ICEFaces. Konon teknologi ini memungkinkan kita mengupdate tampilan di sisi client dari server dengan mudah.</p>
+
+<p>Aplikasi yang ingin kita buat sangat sederhana, tapi sering menjadi pertanyaan di berbagai milis pemrograman web. Kita akan membuat satu halaman yang menampilkan waktu server. Waktu server ini harus berjalan secara real-time.</p>
+
+<p>Dalam bahasa pemrograman lain, menampilkan jam server secara real time di browser bukanlah suatu hal yang mudah.
+Programmer harus memilih satu di antara beberapa teknik berikut:</p>
+
+<ul>
+<li><p>Menggunakan meta refresh untuk request ke server setiap beberapa detik</p></li>
+<li><p>Mengambil jam server sekali saja di awal loading page, kemudian increment nilainya di sisi client dengan JavaScript</p></li>
+<li><p>Menggunakan streaming HTML</p></li>
+<li><p>Menggunakan AJAX Push</p></li>
+</ul>
+
+
+<p>Atau berbagai teknik lainnya. Yang jelas tidak mudah untuk melakukan hal ini.</p>
+
+<p>Dengan menggunakan JSF + ICEFaces, hal ini menjadi mudah. ICEFaces adalah salah satu implementasi JSF yang menggunakan teknologi Direct to DOM Rendering. Artinya, server bisa seenaknya mengubah HTML yang ada di sisi client (browser). Dengan teknik ini, menampilkan jam server secara real time menjadi mudah.</p>
+
+<p>Berikut adalah langkah-langkahnya:</p>
+
+<ol>
+<li><p>Buat halaman HTML yang akan menampilkan waktu server</p></li>
+<li><p>Buat kode Java yang bertugas menyediakan waktu server</p></li>
+<li><p>Gunakan JSF + ICEFaces untuk menghubungkan keduanya</p></li>
+<li><p>Aktifkan partial rendering agar tidak menimbulkan flicker</p></li>
+</ol>
+
+
+<p>Mari kita bahas satu persatu.</p>
+
+<h2>Halaman HTML</h2>
+
+<p>Halaman ini adalah halaman dinamis yang berisi nilai yang dikeluarkan oleh server. Bedakan dengan halaman dinamis yang dikendalikan oleh JavaScript, di mana pada kasus tersebut tidak dibutuhkan sisi server yang menyediakan data.</p>
+
+<p>Kode tampilan ini sederhana saja. Dibuat dalam format XHTML, karena begitulah keinginan Facelets.</p>
+
+<h3>whattimeisit.xhtml</h3>
+
+<pre><code>&lt;code&gt;&lt;!-- &lt;?xml version="1.0" encoding="UTF-8"?&gt; --&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+    &lt;head&gt;
+        &lt;title&gt;:: Menampilkan Jam Server ::&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;p&gt;
+                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
+        &lt;/p&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Perhatikan bahwa satu-satunya dynamic code di atas adalah <code>#{serverClock.currentTime}</code>. Sisanya HTML biasa. Bagi yang belum tahu, dynamic code tersebut ditulis dalam Expression Language (EL) yang didukung oleh JSF. Kalau di dalam Java, kode tersebut sama dengan
+<code>serverClock.getCurrentTime()</code>.
+Sekarang mari kita lihat kode Java yang membekingi template whattimeisit, yaitu ServerClock.java.</p>
+
+<h3>ServerClock.java</h3>
+
+<pre><code>&lt;code&gt;package tutorial.icefaces;
+
+import com.icesoft.faces.async.render.IntervalRenderer;
+import com.icesoft.faces.async.render.RenderManager;
+import com.icesoft.faces.async.render.Renderable;
+import com.icesoft.faces.webapp.xmlhttp.PersistentFacesState;
+import com.icesoft.faces.webapp.xmlhttp.RenderingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+public class ServerClock implements Renderable {
+    private DateFormat formatter;
+    private PersistentFacesState state;
+    private IntervalRenderer renderer;
+    private static final int renderInterval = 1000; // render setiap 1 detik
+
+    public ServerClock() {
+        formatter = new SimpleDateFormat("EEE, HH:mm:ss");
+        state = PersistentFacesState.getInstance();
+    }
+
+    public String getCurrentTime() {
+        return formatter.format(Calendar.getInstance().getTime());
+    }
+
+    public PersistentFacesState getState() {
+        return state;
+    }
+
+    public void renderingException(RenderingException renderingException) {
+        if(renderer != null) {
+            renderer.remove(this);
+            renderer = null;
+        }
+    }
+
+    public void setRenderManager(RenderManager manager) {
+        renderer = manager.getIntervalRenderer("whattimeisit");
+        renderer.setInterval(renderInterval);
+        renderer.add(this);
+        renderer.requestRender();
+    }
+}            
+&lt;/code&gt;
+</code></pre>
+
+<p>Constructor dan method getCurrentTime tidak terlalu istimewa. Isinya hanya inisialisasi DateFormat dan kegiatan memformat waktu saat ini menjadi String.</p>
+
+<p>Selain constructor, setter, dan getter, kode lainnya berkaitan dengan pengelolaan internalnya ICEFaces. Dalam method setRenderManager, kita menyuruh ICEFaces untuk mengupdate browser setiap 1 detik. RenderManager adalah object yang bertugas merender tampilan. Dia beroperasi ke sekumpulan Renderable, yang salah satunya adalah class kita ServerClock.</p>
+
+<p>Bila kita mengimplementasikan Renderable, ada dua method yang harus kita sediakan,
+yaitu renderingException dan getState. Method ini dengan mudah dapat kita buat.
+Selain kedua method ini, ICEFaces tidak butuh tambahan kode lagi.</p>
+
+<p>Saatnya kita siapkan konfigurasi. JSF membutuhkan dua konfigurasi, yaitu web.xml (seperti aplikasi web biasa) dan faces-config.xml. Mari kita lihat web.xml sedikit demi sedikit.</p>
+
+<pre><code>&lt;code&gt;    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
+        &lt;param-value&gt;server&lt;/param-value&gt;
+    &lt;/context-param&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Kode di atas adalah konfigurasi untuk JSF. Konfigurasi ini berlaku umum, terlepas dari kita menggunakan Facelets dan ICEFaces ataupun library lainnya. Selanjutnya adalah konfigurasi Facelets.</p>
+
+<pre><code>&lt;code&gt;    &lt;context-param&gt;
+        &lt;param-name&gt;javax.faces.DEFAULT_SUFFIX&lt;/param-name&gt;
+        &lt;param-value&gt;.xhtml&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;facelets.DEVELOPMENT&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Pada konfigurasi di atas, kita mengganti default ekstensi file template, yang tadinya jsp atau jspx menjadi xhtml. Kita juga memberitahu Facelets bahwa kita sedang dalam tahap development. Dengan demikian, pesan error yang dikeluarkan akan lebih lengkap sehingga memudahkan debugging.</p>
+
+<p>Selanjutnya, mari kita lihat konfigurasi ICEFaces.</p>
+
+<pre><code>&lt;code&gt;    &lt;context-param&gt;
+        &lt;param-name&gt;com.icesoft.faces.uploadDirectory&lt;/param-name&gt;
+        &lt;param-value&gt;upload&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.icesoft.faces.uploadMaxFileSize&lt;/param-name&gt;
+        &lt;param-value&gt;4048576&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.icesoft.faces.concurrentDOMViews&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Dua konfigurasi pertama sudah cukup jelas, mengatur tentang di mana harus meletakkan file hasil upload dan berapa maksimal ukuran file yang dapat diterima. Konfigurasi ketiga menyuruh ICEFaces berhati-hati agar dapat melayani request berbarengan ke satu halaman yang sama.</p>
+
+<p>Setelah selesai dengan konfigurasi context param, mari kita masuk ke bagian servlet. JSF membutuhkan satu servlet yang harus dijalankan pada saat aplikasi diaktifkan.</p>
+
+<pre><code>&lt;code&gt;    &lt;servlet&gt;
+        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+        &lt;/servlet&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Servlet ini tidak perlu dimapping ke URL, karena nantinya kita akan menggunakan servlet ICEFaces.</p>
+
+<p>ICEFaces membutuhkan beberapa servlet, terlihat pada konfigurasi berikut.</p>
+
+<pre><code>&lt;code&gt;    &lt;servlet&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.PersistentFacesServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.BlockingServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.icesoft.faces.component.inputfile.FileUploadServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Selain itu, ICEFaces juga membutuhkan satu listener, dideklarasikan <strong>diatas</strong> deklarasi servlet.</p>
+
+<pre><code>&lt;code&gt;    &lt;listener&gt;
+        &lt;listener-class&gt;com.icesoft.faces.util.event.servlet.ContextEventRepeater&lt;/listener-class&gt;
+    &lt;/listener&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Servlet ICEFaces dimapping sebagai berikut.</p>
+
+<pre><code>&lt;code&gt;    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/faces/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/xmlhttp/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;*.iface&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/block/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/uploadHtml&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Terakhir untuk web.xml, kita perlu mendefinisikan session timeout.</p>
+
+<pre><code>&lt;code&gt;    &lt;session-config&gt;
+        &lt;session-timeout&gt;
+            30
+        &lt;/session-timeout&gt;
+    &lt;/session-config&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Hasil akhirnya adalah seperti ini.</p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.verifyObjects&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.sun.faces.validateXml&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;javax.faces.STATE_SAVING_METHOD&lt;/param-name&gt;
+        &lt;param-value&gt;server&lt;/param-value&gt;
+    &lt;/context-param&gt;
+
+    &lt;context-param&gt;
+        &lt;param-name&gt;javax.faces.DEFAULT_SUFFIX&lt;/param-name&gt;
+        &lt;param-value&gt;.xhtml&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;facelets.DEVELOPMENT&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.icesoft.faces.uploadDirectory&lt;/param-name&gt;
+        &lt;param-value&gt;upload&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.icesoft.faces.uploadMaxFileSize&lt;/param-name&gt;
+        &lt;param-value&gt;4048576&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;context-param&gt;
+        &lt;param-name&gt;com.icesoft.faces.concurrentDOMViews&lt;/param-name&gt;
+        &lt;param-value&gt;true&lt;/param-value&gt;
+    &lt;/context-param&gt;
+
+
+    &lt;listener&gt;
+        &lt;listener-class&gt;com.icesoft.faces.util.event.servlet.ContextEventRepeater&lt;/listener-class&gt;
+    &lt;/listener&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Faces Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;javax.faces.webapp.FacesServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+        &lt;/servlet&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.PersistentFacesServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.icesoft.faces.webapp.xmlhttp.BlockingServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.icesoft.faces.component.inputfile.FileUploadServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/faces/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/xmlhttp/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Persistent Faces Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;*.iface&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Blocking Servlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/block/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;uploadServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/uploadHtml&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;
+            30
+        &lt;/session-timeout&gt;
+    &lt;/session-config&gt;
+&lt;/web-app&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Selanjutnya, mari kita buat konfigurasi JSF. File konfigurasinya bernama faces-config.xml. Ini diletakkan di dalam folder WEB-INF, di sebelah web.xml. Berikut adalah kodenya.</p>
+
+<h3>faces-config.xml</h3>
+
+<pre><code>&lt;code&gt;&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;faces-config version="1.2" 
+    xmlns="http://java.sun.com/xml/ns/javaee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_1_2.xsd"&gt;
+
+    &lt;application&gt;
+        &lt;view-handler&gt;com.icesoft.faces.facelets.D2DFaceletViewHandler&lt;/view-handler&gt;
+    &lt;/application&gt;
+
+
+    &lt;managed-bean&gt;
+        &lt;managed-bean-name&gt;renderManager&lt;/managed-bean-name&gt;
+        &lt;managed-bean-class&gt;com.icesoft.faces.async.render.RenderManager&lt;/managed-bean-class&gt;
+        &lt;managed-bean-scope&gt;application&lt;/managed-bean-scope&gt;
+    &lt;/managed-bean&gt;
+
+    &lt;managed-bean&gt;
+        &lt;managed-bean-name&gt;serverClock&lt;/managed-bean-name&gt;
+        &lt;managed-bean-class&gt;tutorial.icefaces.ServerClock&lt;/managed-bean-class&gt;        
+        &lt;managed-bean-scope&gt;request&lt;/managed-bean-scope&gt;
+        &lt;managed-property&gt;
+            &lt;property-name&gt;renderManager&lt;/property-name&gt;
+            &lt;value&gt;#{renderManager}&lt;/value&gt;
+        &lt;/managed-property&gt;
+    &lt;/managed-bean&gt;
+&lt;/faces-config&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Pada blok paling atas, kita mengkonfigurasi JSF agar menggunakan View Renderer Facelets yang sudah dilengkapi dengan ICEFaces. Di blok kedua, kita mendeklarasikan bean renderManager yang dibutuhkan oleh object kita serverClock pada blok ketiga.</p>
+
+<p>Bagi yang sudah biasa menggunakan Spring, konfigurasi ini tidak jauh berbeda dengan konfigurasi Dependency Injection Spring. Nantinya bila kita menggunakan Spring, kita juga bisa mendeklarasikan Spring bean kita di dalam faces-config.xml tersebut.</p>
+
+<p>Terakhir, jangan lupa lengkapi jar yang dibutuhkan agar kode kita bisa dikompilasi dan dideploy dengan mulus. Kombinasi jar yang dibutuhkan relatif bervariasi tergantung application server yang kita gunakan. Kadangkala ada jar yang sudah disediakan oleh application server tertentu, sehingga kita tidak perlu lagi menyediakan. Sebagai contoh, bila dideploy di Sun Application Server (Glassfish) yang terbundle bersama Netbeans 5.5, daftar jar yang dibutuhkan adalah:</p>
+
+<ul>
+<li><p>backport-util-concurrent.jar</p></li>
+<li><p>commons-collections.jar</p></li>
+<li><p>commons-digester.jar</p></li>
+<li><p>commons-fileupload.jar</p></li>
+<li><p>commons-logging-1.0.4.jar</p></li>
+<li><p>el-api.jar</p></li>
+<li><p>icefaces-comps.jar</p></li>
+<li><p>icefaces-facelets.jar</p></li>
+<li><p>icefaces.jar</p></li>
+<li><p>krysalis-jCharts-1.0.0-alpha-1.jar</p></li>
+<li><p>xercesImpl.jar</p></li>
+<li><p>xml-apis.jar</p></li>
+</ul>
+
+
+<p>Struktur folder akhir dari aplikasi ini adalah sebagai berikut.</p>
+
+<p><img src="/images/uploads/2007/03/folder-jsf.png" title="Struktur Folder Aplikasi JSF" ></p>
+
+<p>Untuk Eclipse, daftar pustaka yang dibutuhkan sedikit berbeda. Demikian gambarnya.
+<img src="/images/uploads/2007/07/ice-eclipse-lib.png" title="Daftar pustaka ICEFaces untuk Eclipse" ></p>
+
+<p>Setelah semua file dibuat dan dipaket sesuai dengan aturan aplikasi web Java, kita bisa mendeploynya ke application server. Lalu, silahkan mengakses http://localhost:8080/HelloICE/whattimeisit.iface atau URL lain sesuai setting deployment.</p>
+
+<p>Hasilnya akan tampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/03/result-jsf.png" title="Tampilan Akhir Server Time" ></p>
+
+<p>Namun demikian, ternyata halaman tersebut masih melakukan refresh setiap satu detik sehingga mengganggu pandangan. Oleh karena itu, mari kita aktifkan fitur partial submit yang dimiliki ICEFaces. Dengan fitur ini, halaman HTML akan diupdate secara parsial sehingga tidak perlu me-reload seluruh halaman.</p>
+
+<p>Buka file whattimeisit.xhtml dan cari baris berikut.</p>
+
+<pre><code>&lt;code&gt;&lt;body&gt;
+        &lt;p&gt;
+                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
+        &lt;/p&gt;
+    &lt;/body&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Ubah menjadi seperti ini.</p>
+
+<pre><code>&lt;code&gt;&lt;body&gt;
+        &lt;p&gt;
+        &lt;ice:form partialSubmit="true"&gt;
+                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
+        &lt;/ice:form&gt;
+        &lt;/p&gt;
+    &lt;/body&gt;
+&lt;/code&gt;
+</code></pre>
+
+<p>Jangan lupa untuk mendeklarasikan komponen &lt;ice:form> di awal halaman, dengan menggunakan tag &lt;f:view> sebagai berikut.</p>
+
+<pre><code>&lt;code&gt;&lt;f:view xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ice="http://www.icesoft.com/icefaces/component"&gt;&lt;/code&gt;
+</code></pre>
+
+<p>Keseluruhan file whattimeisit.xhtml akan terlihat seperti ini.</p>
+
+<pre><code>&lt;code&gt;&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
+&lt;f:view xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ice="http://www.icesoft.com/icefaces/component"&gt;
+
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
+&lt;head&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
+&lt;title&gt;What time is it&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ice:form&gt;
+&lt;p&gt;
+                &lt;b&gt;Waktu Server Saat Ini : #{serverClock.currentTime}&lt;/b&gt;
+        &lt;/p&gt;
+&lt;/ice:form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&lt;/f:view&gt;&lt;/code&gt;
+</code></pre>
+
+<p>Redeploy aplikasi, dan lihat hasilnya. Tidak ada lagi flicker (kedipan).</p>
+
+<p>Eclipse project untuk contoh di atas dapat didownload <a href="http://endy.artivisi.com/downloads/code/ICEStarter-20070726.tar.bz2">di sini</a>.</p>
+
+<p>Selamat mencoba, semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -249,77 +775,6 @@ Selamat menampilkan rangkuman website orang di website anda sendiri. Jangan lupa
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/apa-itu-rss/">Apa Itu RSS ?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-02-08T23:43:52+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sudah tau RSS?</p>
-
-<p>Jika Anda bukan programmer, wajar jika tidak tahu. Tapi jika Anda programmer &#8230; jangan sampai tidak tahu. Apalagi bilang,</p>
-
-<blockquote><p>RSS itu kan sama dengan CSS &#8230;</p></blockquote>
-
-<p>RSS itu banyak kepanjangannya, beberapa diantaranya antara lain:</p>
-
-<ul>
-<li><p>Really Simple Syndication</p></li>
-<li><p>Rich Site Summary</p></li>
-<li><p>RDF Site Summary</p></li>
-</ul>
-
-
-<p>RSS berisi rangkuman dari isi suatu website. Misalnya kita mengunjungi website yang berisi banyak artikel. Kita bisa mengambil data RSSnya, yang berisi :</p>
-
-<ul>
-<li><p>Judul Artikel</p></li>
-<li><p>Tanggal Publish</p></li>
-<li><p>Pengarang</p></li>
-<li><p>Potongan isinya</p></li>
-</ul>
-
-
-<p>Sebagai contoh, misalnya kita ingin selalu mengikuti perkembangan terbaru di dunia PHP. Cukup masukkan URL http://www.php.net/news.rss di aplikasi aggregator. Nanti aplikasi aggregator akan menampilkan RSS feed tersebut dengan antarmuka yang mudah dibaca.</p>
-
-<p>Ada beberapa versi format data RSS, yaitu versi 0.9, 0.91, 1.0, dan 2.0. Selain itu, juga ada format lain yang namanya Atom. Data ini (baik RSS maupun Atom) tersebut dikemas dalam format XML, yang nantinya dapat dibaca oleh aplikasi yang namanya aggregator. Ulasan tentang berbagai jenis aplikasi aggregator berbasis desktop dapat dilihat <a href="http://endy.artivisi.com/blog/aplikasi/aggregator-on-windows-2/">di sini</a>.</p>
-
-<p>Aplikasi aggregator juga ada yang berbasis web. Misalnya Google Reader dan Bloglines. Kita juga bisa membuat sendiri dengan menggunakan library <a href="http://magpierss.sourceforge.net">Magpie RSS</a> atau menggunakan plugin di berbagai aplikasi Content Management System populer. Biasanya aplikasi populer seperti Wordpress, Drupal, atau Joomla sudah memiliki plugin untuk itu. Contoh nyatanya bisa dilihat di <a href="http://www.prayudi.web.id">website Pak Cipi</a>. Website ini dibuat dengan Drupal.</p>
-
-<p>Cara kerja aplikasi aggregator sama dengan aplikasi mail client (Outlook Express, Evolution, atau Thunderbird). Bedanya, kalau aplikasi mail client mengambil data email dari mail server, aplikasi aggregator mengambil data RSS dari website yang menyediakan. Kita bisa memasukkan website sebanyak-banyaknya sesuai keinginan kita. Nantinya, kalau website yang kita daftarkan merilis artikel/berita baru, rangkumannya akan muncul di aggregator kita. Di aplikasi aggregator akan muncul entri <strong>Unread Items</strong> seperti halnya <strong>Unread Mails</strong>. Aplikasi aggregator ini berguna agar kita tidak perlu mengunjungi setiap website satu persatu. Cukup lihat judul dan ringkasan artikel baru. Jika menarik, kita kunjungi websitenya. Jika tidak menarik, diabaikan saja.</p>
-
-<p>Demikianlah penjelasan singkat tentang RSS. Jangan salah lagi membedakan antara RSS dan CSS.</p>
-
-<p>They are different !!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/49/">&larr; Older</a>
@@ -396,6 +851,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/meningkatkan-performance-android-emulator/">Meningkatkan performance Android Emulator</a>
       </li>
     
@@ -429,10 +888,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/aplikasi/octopress-aggregator/">Octopress Aggregator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/problem-solving/">Problem Solving</a>
       </li>
     
   </ul>
@@ -492,7 +947,7 @@ jangan ragu untuk memberikan donasi :)
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Endy Muhardin -
+  Copyright &copy; 2014 - Endy Muhardin -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

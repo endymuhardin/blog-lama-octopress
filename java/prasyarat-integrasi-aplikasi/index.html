@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Kutu Loncat - Living life and make it better</title>
+  <title>Prasyarat Integrasi Aplikasi - Living life and make it better</title>
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di milis Java sedang ribut urusan gaji programmer. Topik ini adalah topik abadi. Sepanjang hidup saya di milis ini, paling tidak urusan gaji dibahas &hellip;">
+  <meta name="description" content="Posting kali ini jawaban dari pertanyaan yang masuk melalui email: Saya membaca tulisan anda di sini
+Cukup menarik, dan saya ingin bertanya jika &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://software.endy.muhardin.com/manajemen/kutu-loncat/">
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/prasyarat-integrasi-aplikasi/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -92,7 +93,7 @@
   
   <header>
     
-      <h1 class="entry-title">Kutu Loncat</h1>
+      <h1 class="entry-title">Prasyarat Integrasi Aplikasi</h1>
     
     
       <p class="meta">
@@ -108,100 +109,42 @@
   
 
 
-<time datetime="2008-03-17T23:53:14+07:00" pubdate data-updated="true">Mar 17<span>th</span>, 2008</time>
+<time datetime="2014-01-03T10:43:00+07:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Di milis Java sedang ribut urusan gaji programmer. Topik ini adalah topik abadi. Sepanjang hidup saya di milis ini, paling tidak urusan gaji dibahas setahun dua kali. Kadang-kadang lebih sering.</p>
+<div class="entry-content"><p>Posting kali ini jawaban dari pertanyaan yang masuk melalui email:</p>
 
-<p>Kita tidak akan membahas tentang urusan gaji &#8230; mungkin nanti di posting berikutnya. Kita akan membahas tentang fenomena pindah kerja terlalu sering, a.k.a kutu loncat. Menurut salah seorang komentator, programmer Java cenderung kutu loncat.</p>
+<blockquote><p>Saya membaca tulisan anda <a href="http://software.endy.muhardin.com/java/integrasi-aplikasi/">di sini</a>
+Cukup menarik, dan saya ingin bertanya jika berkenan, sehubungan dengan payment gateway.</p>
 
-<p>Sedikit informasi latar belakang, sejak lulus di tahun 2001 sampai 2008 ini, saya sudah kerja di 7 perusahaan berbeda. Kalau dirata-rata, berarti tiap tahun pindah kerja. Saat ini saya membangun perusahaan sendiri. Jadi saya akan bahas dari sudut pandang karyawan, dan juga pemilik perusahaan.</p>
+<p>Apakah kita bisa mengimplementasikan sendiri ISO-8583 pada aplikasi kita untuk terhubung ke bank di Indonesia ?
+Misal kita bisa cek saldo tabungan melalui aplikasi kita sendiri ?</p>
 
-<p><strong>Sudut Pandang Karyawan</strong></p>
+<p>Atas sharing pengetahuannya saya ucapkan terima kasih.</p></blockquote>
 
-<p>Sebagai karyawan, pindah kerja itu hal yang biasa. Yang penting jangan terlalu sering, dan menggunakan sopan-santun yang benar.</p>
+<p>Berikut jawaban saya</p>
 
-<p>Kalau kita terlalu sering pindah kerja, misalnya setahun 3 kali (berarti rata-rata 4 bulan), kita akan mengalami beberapa kesulitan.</p>
+<!--more-->
 
-<p>Kesulitan pertama adalah dilema dalam mengupdate CV. Apakah 3 perusahaan tersebut akan kita tulis atau tidak? Kalau ditulis, HRD akan bertanya-tanya, ada apa dengan kandidat ini? Kok dalam satu tahun sudah pindah 3 kali. Terlalu menuntut, rewel, atau apa?  Kalau tidak ditulis, HRD akan bertanya kenapa kandidat ini pengangguran beberapa bulan?</p>
 
-<p>Kesulitan kedua, waktunya akan habis untuk masa transisi. Untuk bisa efektif, seorang karyawan butuh 1-2 bulan penyesuaian. Kalau kita resign, butuh waktu 2-4 minggu untuk transfer knowledge ke penerus kita. Kerugian di kita juga, kita tidak bisa mengakumulasi pengalaman.</p>
-
-<p>Bagaimana sopan santunnya? Mudah saja:</p>
+<p>Untuk bisa connect ke aplikasi lain (misalnya aplikasi bank), ada beberapa prasyarat yang harus dipenuhi <strong>secara berurutan</strong>:</p>
 
 <ol>
-<li><p>Beritahukan sedini mungkin. Idealnya 1 bulan, kalau tidak bisa ya minimal 2 minggu sebelumnya</p></li>
-<li><p>Selesaikan semua tanggung jawab dan hutang (kalau ada)</p></li>
-<li><p>Lakukan proses handover dengan benar</p></li>
+<li>aksesnya harus dibuka (ip address, port, firewall, dsb). Biasanya ini melibatkan faktor non-teknis seperti deal bisnis, non-disclosure agreement, perjanjian berkekuatan hukum, dan sejenisnya.</li>
+<li>protokol komunikasinya harus diketahui (http, iso8583, dsb)</li>
+<li>kita harus bikin aplikasi yg bisa berkomunikasi dengan aplikasi yang dituju menggunakan protokol yang ditentukan di poin #2. Jadi harus tahu fitur apa saja yang tersedia, bagaimana memanggilnya, apa inputnya, bagaimana format outputnya, apa tipe datanya, dsb.</li>
 </ol>
 
 
-<p>Kapan kita pindah kerja?</p>
+<p>Kalau tiga faktor di atas terpenuhi, jangankan cuma aplikasi bank di Indonesia, aplikasinya Snowden juga bisa kita akses ;)</p>
 
-<p>Menurut saya, bila:</p>
+<p>Oh, sebelum artikel ini diakhiri, saya harus bikin disclaimer dulu.</p>
 
-<ul>
-<li><p>Pekerjaan kita sudah tidak lagi membuat kita tambah pintar</p></li>
-<li><p>Kompensasi yang kita terima tidak sebanding dengan kontribusi yang kita berikan</p></li>
-<li><p>Ada tawaran yang minimal 50% lebih besar (annually, bukan monthly). Kalau lebih sedikit dari itu, tidak sebanding dengan kerepotan pindah kerja.</p></li>
-</ul>
-
-
-<p><strong>Sudut Pandang Perusahaan</strong></p>
-
-<p>Kalau karyawannya bagus, perusahaan akan rugi kalau dia resign, karena:</p>
-
-<ul>
-<li><p>butuh waktu untuk rekrutasi</p></li>
-<li><p>butuh waktu untuk training</p></li>
-<li><p>butuh waktu untuk handover/transisi</p></li>
-</ul>
-
-
-<p>Oleh karena itu, perusahaan harus berusaha mempertahankan karyawannya yang bagus. Apalagi untuk software development company. Komputer rusak gampang diganti, tapi top developer resign, urusannya jauh lebih kompleks. Keseluruhan daya saing perusahaan terletak pada otak karyawannya.</p>
-
-<p>Untuk sudut pandang perusahaan, saya akan lebih fokus tentang bagaimana sudut pandang yang benar dalam memandang karyawannya.</p>
-
-<p>Selalu berikan training. Training ini adalah untuk memastikan karyawan tersebut melakukan tugasnya dengan benar. Saya pernah dengar kutipan berikut, &#8220;Train your employee and risk they leave, or not train your employee and risk they stay&#8221;. Arti kutipan di atas, resiko kita bila memberikan training adalah bila karyawan resign, kita rugi biaya training. Sebaliknya, bila kita tidak memberikan training, kita menanggung resiko bila karyawan tersebut tidak perform dan tak kunjung resign.</p>
-
-<p>Kesalahan besar yang lainnya, berkaitan dengan training, menganggap karyawan yang otodidak tidak butuh training. Ini pandangan yang sempit, menganggap bahwa training hanyalah sarana menambah knowledge belaka.</p>
-
-<p>Training, apalagi external training, memiliki benefit lain disamping menambah pengetahuan:</p>
-
-<ol>
-<li><p>Memperluas wawasan</p></li>
-<li><p>Memperluas pergaulan</p></li>
-<li><p>Menimbulkan sense-of-significance dalam karyawan. Perasaan bahwa dia tidak semata diperah, tapi juga dibesarkan. Perasaan bahwa perusahaan peduli dengan peningkatan kemampuannya. Urusan bahwa materi tersebut bisa dipelajarinya sendiri tidaklah penting.</p></li>
-</ol>
-
-
-<p>Evaluasi kompensasi vs kontribusi secara periodik. Karyawan yang baik kemampuannya akan cepat meningkat. Hari ini baru bisa Java Fundamental, enam bulan kemudian sudah mengerti Spring Framework. Peningkatan kemampuan jelas mengimplikasikan peningkatan market-value si karyawan.</p>
-
-<p>Perusahaan harus memastikan bahwa dialah yang pertama mengetahui peningkatan kemampuan tersebut, dan kemudian mengapresiasinya. Di kantor tempat saya bekerja sebelumnya, banyak orang-orang hebat, yang kehebatannya baru disadari perusahaan setelah orang tersebut resign. Sungguh suatu kesia-siaan yang besar. Saya tidak tahu apakah perusahaan tidak bisa mengenali orang hebat, tidak mau mengapresiasi orang hebat, atau tidak mampu mengapresiasi dengan layak. Yang saya tahu hanya satu, orang hebat satu persatu meninggalkan perusahaan.</p>
-
-<p>Jadi, perusahaan harus selalu mengamati perkembangan karyawannya. Sadari bahwa ulat sudah menjadi kupu-kupu. Kemudian berikan kompensasi yang sesuai.</p>
-
-<p>Kompensasi tidak selalu berimplikasi naik gaji. Banyak kompensasi non-gaji yang bisa digunakan, diantaranya:</p>
-
-<ul>
-<li><p>menambah jatah cuti</p></li>
-<li><p>mengirim karyawan ikut event</p></li>
-<li><p>mengikutkan karyawan pelatihan</p></li>
-<li><p>mendorong karyawan ikut dalam kegiatan komunitas</p></li>
-<li><p>mengupgrade komputernya</p></li>
-<li><p>dan masih banyak teknik lainnya, asal Anda kreatif saja.</p></li>
-</ul>
-
-
-<p>Kesalahan berikutnya, perusahaan, terutama startup, sering menganggap karyawan ber-etos kerja seperti founder. Karena foundernya kerja 10 jam sehari tanpa lembur, maka dianggap karyawannya juga akan rela melakukan hal serupa. Kalau foundernya Sabtu Minggu ngantor dengan gembira, dianggapnya karyawan juga harus ngantor di masa weekend sambil tersenyum. Bila client telat bayar, karyawan diharapkan akan mengerti.</p>
-
-<p>Ini pemahaman yang salah. Karyawan tidak memiliki keterkaitan emosi terhadap perusahaan sekuat foundernya. Mereka punya kehidupan sendiri dan cita-cita sendiri. Perusahaan harus adil, kalau kerja lembur, berikanlah apresiasi yang sesuai. Berikan uang lembur, atau tambahkan jatah cutinya.</p>
-
-<p>Sebagai penutup, saya menganggap perusahaan IT sama seperti klub sepakbola profesional, seperti Inter Milan atau Arsenal. Posisinya di klasemen, kekayaannya, jumlah fansnya, semua terutama ditentukan oleh siapa pelatihnya, dan siapa pemainnya. Tidak memperhatikan karyawan adalah langkah pertama menuju kegagalan.</p>
+<blockquote><p>Saya tidak bertanggung jawab kalau ada <em>smarta$$</em> yang setelah baca artikel ini lalu nekat mengakses aplikasi orang lain hanya bermodalkan #2 dan #3 tanpa punya #1.</p></blockquote>
 </div>
 
 
@@ -224,12 +167,12 @@
   
 
 
-<time datetime="2008-03-17T23:53:14+07:00" pubdate data-updated="true">Mar 17<span>th</span>, 2008</time>
+<time datetime="2014-01-03T10:43:00+07:00" pubdate data-updated="true">Jan 3<span>rd</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/categories/manajemen/'>manajemen</a>
+    <a class='category' href='/categories/java/'>java</a>
   
 </span>
 
@@ -238,7 +181,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/manajemen/kutu-loncat/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/manajemen/kutu-loncat/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/prasyarat-integrasi-aplikasi/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/prasyarat-integrasi-aplikasi/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -251,10 +194,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/life/kandidat-java-vs-php/" title="Previous Post: Kandidat Java vs PHP">&laquo; Kandidat Java vs PHP</a>
+        <a class="basic-alignment left" href="/java/meningkatkan-performance-android-emulator/" title="Previous Post: Meningkatkan performance Android Emulator">&laquo; Meningkatkan performance Android Emulator</a>
       
-      
-        <a class="basic-alignment right" href="/java/road-to-java-ee/" title="Next Post: Road to Java EE">Road to Java EE &raquo;</a>
       
     </p>
   </footer>
@@ -267,7 +208,7 @@
     <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
 <div
   class="fb-comments"
-  data-href="http://software.endy.muhardin.com/manajemen/kutu-loncat/"
+  data-href="http://software.endy.muhardin.com/java/prasyarat-integrasi-aplikasi/"
   data-num-posts="2"
   data-width="470"
   data-colorscheme="light" ></div>
