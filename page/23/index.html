@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pertanyaan yang sering muncul dalam pengelolaan proyek software adalah, &#8220;Dokumen apa saja yang harus dibuat?&#8221; Tidak ada jawaban absolut &hellip;">
+  <meta name="description" content="Update 2011-12-02: karena masih aja banyak yang belum paham, saya tambahkan template pertanyaan di akhir artikel. Sebagai programmer, setiap hari &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,221 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/tips-melaporkan-error/">Tips Melaporkan Error</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2010-04-15T04:38:02+07:00" pubdate data-updated="true">Apr 15<span>th</span>, 2010</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>Update 2011-12-02: karena masih aja banyak yang belum paham, saya tambahkan template pertanyaan di akhir artikel.</p></blockquote>
+
+<p>Sebagai programmer, setiap hari kita menghadapi software yang error. Bentuknya macam-macam, misalnya:</p>
+
+<ul>
+<li><p>Aplikasi yang kita buat error</p></li>
+<li><p>Peserta milis menggunakan framework X dan mengalami masalah</p></li>
+<li><p>Rekan sesama programmer membutuhkan bantuan</p></li>
+<li><p>dsb</p></li>
+</ul>
+
+
+<p>Pada sebagian besar kasus, kita dengan senang hati akan membantu. Sudah menjadi sifat programmer untuk memiliki rasa keingintahuan yang tinggi dan senang terhadap teka-teki. Aplikasi yang error adalah teka-teki yang menarik.</p>
+
+<p>Sayangnya, seringkali informasi error yang kita terima tidak lengkap sehingga butuh usaha tambahan untuk mengorek kejadian yang sebenarnya. Inilah yang membuat programmer seringkali keburu malas, sehingga akhirnya kegiatan solving error menjadi tidak fun lagi.</p>
+
+<p>Berikut adalah beberapa tips untuk membuat laporan error yang baik, supaya programmer yang akan memecahkan masalah tersebut bisa segera bekerja dengan efektif.</p>
+
+<p>Prinsip utama dalam melaporkan error adalah sebagai berikut</p>
+
+<blockquote><p>Programmer bukan <del>Mama Loren</del> Baby Djenar atau Ki Joko Bodo. Dia tidak bisa membaca pikiran ataupun melakukan telepati. Jadi jangan menganggap programmer melihat apa yang dilihat user. User harus menjelaskan apa yang dia lihat.</p></blockquote>
+
+<h2>Jelaskan lokasinya</h2>
+
+<p>Seringkali si informan error berkata seperti ini,</p>
+
+<blockquote><p>Help, aplikasinya error nih</p></blockquote>
+
+<p>Nah, yang menerima informasi jelas bingung. Aplikasi yang mana?
+Kalo client yang jadi informan, bisa jadi kita punya banyak project di sana.
+Walaupun projectnya cuma satu, tapi aplikasi kan bisa terdiri dari banyak modul, screen, fitur, dsb.</p>
+
+<p>Jadi, jelaskan di mana errornya. Di aplikasi apa, modul apa, screen yang mana. Terdengar simple, tapi nyatanya ada saja yang melewatkan hal pertama ini.</p>
+
+<p>Mari kita lanjutkan.</p>
+
+<h2>Tujuan</h2>
+
+<p>Kita menggunakan aplikasi tentu ingin mencapai tujuan tertentu. Ingin menyimpan data customer, menampilkan laporan bulanan, dan lain sebagainya. Nah, tujuan ini harus disampaikan ke programmer. Soalnya sering terjadi percakapan seperti ini :</p>
+
+<p>User (U) : Pak, fitur daftar produknya error.<br/>
+Programmer (P) : Harusnya bisa kok, sudah kami test di sini tidak ada masalah.<br/>
+U : Tapi saya coba tidak bisa<br/>
+P : Coba jelaskan langkahnya<br/>
+U : Saya buka menu daftar produk, muncul tabel berisi produk.
+Kemudian saya klik dua kali nama produk dalam tabel, saya ganti isinya.
+Setelah itu, saya tutup screennya.
+Pas dibuka lagi, datanya tetap sama.<br/>
+P : Lho, memangnya Ibu mau melakukan apa?<br/>
+U : Saya mau edit harga produknya<br/>
+P : Walah, bukan dari situ Bu. Gunakan menu edit produk</p>
+
+<p>Nah, seringkali tujuan user tidak sesuai dengan fitur aplikasi. Jadi, beri tahukan tujuan user pada programmer.</p>
+
+<h2>Langkah Reproduksi</h2>
+
+<p>Begitu programmer akan mencoba memperbaiki error, dia akan mencoba mereproduksi error tersebut di komputernya sendiri. Nah di sinilah biasanya terjadi percakapan seperti ini :</p>
+
+<p>U : Ini aplikasi error, tidak bisa simpan data<br/>
+P : Oh, di sini saya coba bisa kok<br/>
+U : Di sini tidak bisa<br/>
+P : Di sini bisa<br/>
+U : Tidak bisa<br/>
+P : Bisa<br/>
+dst</p>
+
+<p>Akan lebih produktif kalau percakapannya seperti ini :</p>
+
+<p>U : Ini aplikasi error, tidak bisa simpan data<br/>
+P : Apa yang dilakukan?</p>
+
+<p>U : Seperti ini :</p>
+
+<ol>
+<li>Buka screen Edit Produk</li>
+<li>Pilih kategori Komputer dan Elektronik</li>
+<li>Isi kode produk</li>
+<li>Isi nama produk</li>
+<li>Harga dikosongkan</li>
+<li>Tekan tombol simpan</li>
+</ol>
+
+
+<p>Nah, dengan percakapan seperti ini, programmer bisa mengulangi apa yang dilakukan user.
+Apakah langkah repro saja sudah cukup? Belum, masih ada 1 hal penting lainnya.</p>
+
+<h2>Harapan dan Kenyataan</h2>
+
+<p>Mari kita lanjutkan percakapan di atas.</p>
+
+<p>U : Setelah ditekan tombol simpan, datanya tidak tersimpan.<br/>
+P : Di tempat saya masuk kok ke database.<br/>
+U : Di sini, setelah ditekan simpan tidak terjadi apa-apa<br/>
+P : Maksudnya?<br/>
+U : Ya harusnya kan ada pesan, &#8220;Data sudah tersimpan&#8221;<br/>
+Ini tidak ada.</p>
+
+<p>Nah, di sini harapan user adalah ada notifikasi dari aplikasi bahwa data sudah tersimpan. Tapi kenyataannya tidak ada notifikasi apa-apa dari aplikasi. User mengira ini error,
+padahal programmer memang tidak menyediakan notifikasi tersebut, walaupun datanya sudah masuk ke database. Dari sini, programmer bisa menambahkan notifikasi sesuai harapan user.</p>
+
+<p>Jadi, harapan dan kenyataan harus disampaikan pada programmer.</p>
+
+<h2>Environment</h2>
+
+<p>Ini maksudnya adalah kondisi di mana aplikasi dijalankan, seperti</p>
+
+<ul>
+<li><p>Sistem Operasi</p></li>
+<li><p>Versi Aplikasi</p></li>
+<li><p>Aplikasi lain yang terinstal</p></li>
+</ul>
+
+
+<p>Sering terjadi aplikasi error hanya di Linux saja, atau di Mac saja, tapi berjalan lancar di Windows. Atau sebaliknya. Dengan memberi informasi ini, programmer bisa lebih terarah dalam mencari kesalahan dalam kode program.</p>
+
+<p>Demikian juga dengan versi aplikasi dan aplikasi lain yang terinstal. Seringkali sudah diketahui bahwa aplikasi kita tidak kompatibel dengan versi library tertentu, versi OS tertentu, atau dengan aplikasi lain. Misalnya seperti ini :</p>
+
+<p>Tanya (T) : Saya instal Tomcat tapi error<br/>
+Jawab (J) : Errornya gimana?<br/>
+T : Katanya port 8080 tidak bisa digunakan. <br/>
+J : Apakah ada webserver lain yang terinstal?<br/>
+T : Web server sih tidak ada, saya cuma install database Oracle saja.<br/>
+J : Oh, Oracle itu membawa web server sendiri, jalannya juga di 8080.<br/>
+Coba matikan Oraclenya, atau ganti port Tomcat ke angka lain.</p>
+
+<p>Demikian beberapa tips melaporkan error.</p>
+
+<p>Berikut ringkasannya :</p>
+
+<ol>
+<li><p>Jelaskan Lokasinya</p></li>
+<li><p>Sebutkan Tujuan</p></li>
+<li><p>Langkah Reproduksi</p></li>
+<li><p>Harapan dan Kenyataan</p></li>
+<li><p>Environment</p></li>
+</ol>
+
+
+<p>Berikut template yang bisa digunakan untuk mengajukan pertanyaan.</p>
+
+<p>Saya ingin &#8230;&#8230; (misal : mendeploy aplikasi di glassfish),
+untuk itu saya melakukan langkah2 berikut :</p>
+
+<ol>
+<li>&#8230;.</li>
+<li>&#8230;.</li>
+<li>&#8230;.</li>
+</ol>
+
+
+<p>Setelah saya lakukan langkah di atas, saya mengharapkan hasil sbb:</p>
+
+<ol>
+<li>&#8230;..</li>
+<li>&#8230;..</li>
+<li>&#8230;..</li>
+</ol>
+
+
+<p>Tapi ternyata kok malah muncul hasil seperti ini :</p>
+
+<ol>
+<li>&#8230;.</li>
+<li>&#8230;.</li>
+<li>&#8230;.</li>
+</ol>
+
+
+<p>Sebagai tambahan informasi, saya menggunakan :</p>
+
+<ol>
+<li>Sistem Operasi &#8230; versi &#8230;</li>
+<li>Bahasa Pemrograman &#8230; versi &#8230;</li>
+<li>Database &#8230; versi &#8230;</li>
+<li>Framework/Tools &#8230; versi &#8230;</li>
+</ol>
+
+
+<p>Dengan mengikuti tips ini berarti Anda sudah membantu kami untuk membantu Anda.
+:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -514,131 +729,6 @@ Mendengar ini, pembaca yang beraliran progresif revolusioner pasti langsung demo
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/log4j-spring-mvc/">Konfigurasi Lokasi Logfile Pada Spring MVC</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-07-15T19:38:18+07:00" pubdate data-updated="true">Jul 15<span>th</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya, di Windows kita mungkin mendeploy aplikasi kita di</p>
-
-<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya
-</code></pre>
-
-<p>Sedangkan di Linux, kita mendeploy aplikasi di</p>
-
-<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya
-</code></pre>
-
-<p>Dengan kemungkinan seperti di atas, bagaimana kita harus menulis konfigurasi log4j?
-Mudah, bila kita menggunakan Spring MVC.</p>
-
-<p>Kita bisa menggunakan <code>Log4jConfigListener</code> yang disediakan Spring. Class ini memungkinkan kita menggunakan variabel di konfigurasi log4j kita. Kita mendaftarkan class ini di dalam <code>web.xml</code>, sebelum <code>ContextLoaderListener</code>, seperti ini :</p>
-
-<pre><code>    &lt;listener&gt;
-        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
-    &lt;/listener&gt;
-
-    &lt;listener&gt;
-        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-    &lt;/listener&gt;
-</code></pre>
-
-<p>Dengan adanya <code>Log4jConfigListener</code> ini, kita bisa menyebutkan lokasi konfigurasi log4j seperti ini :</p>
-
-<pre><code>    &lt;context-param&gt;
-        &lt;param-name&gt;log4jConfigLocation&lt;/param-name&gt;
-        &lt;param-value&gt;classpath:artivisi-log4j.properties&lt;/param-value&gt;
-    &lt;/context-param&gt;
-</code></pre>
-
-<p>Isi <code>artivisi-log4j.properties</code> terlihat seperti ini :</p>
-
-<pre><code># Konfigurasi kategori
-log4j.rootLogger=INFO,fileout
-
-# File output
-log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
-log4j.appender.fileout.file=${webapp.root.path}/WEB-INF/logs/application.log
-log4j.appender.fileout.datePattern='.'yyyy-MM-dd
-log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
-log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
-</code></pre>
-
-<p>Perhatikan konfigurasi <code>log4j.appender.fileout.file</code>. Kita menggunakan variabel <code>${webapp.root.path}</code> yang akan diisi dengan nilai lokasi deployment aplikasi web kita. Variabel <code>${webapp.root.path}</code> ini didefinisikan dalam web.xml sebagai berikut :</p>
-
-<pre><code>    &lt;context-param&gt;
-        &lt;param-name&gt;webAppRootKey&lt;/param-name&gt;
-        &lt;param-value&gt;webapp.root.path&lt;/param-value&gt;
-    &lt;/context-param&gt;
-</code></pre>
-
-<p>Dengan konfigurasi ini, kita dapat meletakkan log output kita di</p>
-
-<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya\WEB-INF\logs\application.log
-</code></pre>
-
-<p>bila kita mendeploy di Windows, dan di</p>
-
-<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya/WEB-INF/logs/application.log
-</code></pre>
-
-<p>bila kita deploy di Linux.</p>
-
-<p>Konfigurasi di atas bisa disederhanakan lagi bila kita mengikuti nilai default yang disediakan Spring, yaitu cukup seperti ini dalam <code>web.xml</code> :</p>
-
-<pre><code>    &lt;listener&gt;
-        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
-    &lt;/listener&gt;
-
-    &lt;listener&gt;
-        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-    &lt;/listener&gt;
-</code></pre>
-
-<p>Kemudian memberi nama file konfigurasi logger kita <code>log4j.properties</code> yang berada di top level dalam classpath, dan berisi seperti ini :</p>
-
-<pre><code># Konfigurasi kategori
-log4j.rootLogger=INFO,fileout
-
-# File output
-log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
-log4j.appender.fileout.file=${webapp.root}/WEB-INF/logs/application.log
-log4j.appender.fileout.datePattern='.'yyyy-MM-dd
-log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
-log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
-</code></pre>
-
-<p>Nilai variabel <code>${webapp.root}</code> secara default akan diisi dengan lokasi deployment tanpa harus mengkonfigurasi <code>webAppRootKey</code></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/24/">&larr; Older</a>
@@ -715,6 +805,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
@@ -748,10 +842,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/aplikasi/tips-upgrade-library/">Tips Upgrade Library</a>
-      </li>
-    
-      <li class="post">
-        <a href="/aplikasi/octopress-aggregator/">Octopress Aggregator</a>
       </li>
     
   </ul>
