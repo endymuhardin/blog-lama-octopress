@@ -50,7 +50,7 @@ Ciri utama dalam strategi ini adalah:
 Berikut beberapa contoh implementasi dari strategi ini:
 
 * [Remoting dengan Spring Framework](http://software.endy.muhardin.com/java/remoting-dengan-spring/)
-* [Transaksi Finansial dengan ISO-8583](http://martinusadyh.web.id/tulisanku/berkenalan-dengan-iso-8583-menggunakan-java/)
+* [Transaksi Finansial dengan ISO-8583](http://web.archive.org/web/20110324211627/http://martinusadyh.web.id/tulisanku/berkenalan-dengan-iso-8583-menggunakan-java)
 
 ## Messaging ##
 
