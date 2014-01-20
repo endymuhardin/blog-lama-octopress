@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2014-01-17T20:41:15+07:00</updated>
+  <updated>2014-01-20T21:43:54+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,391 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Dasar-dasar Aplikasi Web Java]]></title>
+    <link href="http://software.endy.muhardin.com/java/dasar-dasar-aplikasi-web-java/"/>
+    <updated>2014-01-20T20:12:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/dasar-dasar-aplikasi-web-java</id>
+    <content type="html"><![CDATA[<p>Pada artikel terdahulu, kita telah membahas tentang <a href="http://software.endy.muhardin.com/life/lan-na-zha/">pentingnya penguasaan terhadap konsep dasar</a>. Kali ini, kita akan membahas tentang konsep dasar aplikasi web di Java. Ini juga akan menjawab pertanyaan yang sering ditanyakan di forum yaitu</p>
+
+<blockquote><p>Saya ingin belajar Java Enterprise Edition (Java EE), apa yang pertama harus saya pelajari?</p></blockquote>
+
+<!--more-->
+
+
+<p>Java EE sangat luas cakupannya, di antaranya adalah:</p>
+
+<ul>
+<li>Java Servlet</li>
+<li>JavaServer Faces</li>
+<li>JavaServer Pages</li>
+<li>Java Persistence</li>
+<li><a href="http://www.oracle.com/technetwork/java/javaee/tech/index.html">dan masih banyak lagi</a></li>
+</ul>
+
+
+<p>Untuk bisa memahami semuanya, tentu kita harus memulai dari yang paling sederhana dulu, yaitu Java Servlet. Teknologi ini adalah dasar dari semua aplikasi web di Java. Tanpa pemahaman terhadap teknologi ini, sulit bagi kita untuk mempelajari framework atau library yang lebih canggih seperti Spring MVC, Struts, JavaServer Faces, dan berbagai framework web lainnya. Kenapa sulit? Karena semua framework tersebut dibangun di atas Java Servlet. Kalau pondasinya saja tidak paham, bagaimana mau belajar yang lain?</p>
+
+<p>Ada beberapa hal penting yang harus dipahami dalam Java Servlet, yaitu:</p>
+
+<ul>
+<li>Struktur Folder Aplikasi Web Java</li>
+<li>Alur eksekusi HTTP Request sampai menghasilkan HTTP Response</li>
+<li><p>Tiga komponen Java Servlet yaitu:</p>
+
+<ul>
+<li>Servlet</li>
+<li>Filter</li>
+<li>Listener</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Mari kita bahas satu persatu.</p>
+
+<h1>Struktur Folder</h1>
+
+<p>Aplikasi web Java struktur foldernya harus mengikuti kaidah berikut</p>
+
+<p><img src="https://github.com/endymuhardin/materi-kuliah-java-web/blob/master/materi-kuliah/img/struktur-folder-web-java.png?raw=true" alt="Struktur Folder Aplikasi Web Java" /></p>
+
+<p>Gambar di atas adalah struktur folder aplikasi yang siap dijalankan. Oleh karena itu kita tidak melihat adanya source code Java di sana.</p>
+
+<p>Setelah kita memiliki struktur folder seperti di atas, aplikasi siap dipaketkan (package) supaya bisa dideploy di application server. Packaging dilakukan dengan membungkus folder di atas dengan algoritma <code>zip</code>. Kita bisa menggunakan aplikasi kompresi seperti WinZip ataupun WinRAR. Bila kita menggunakan WinRAR, harus diingat bahwa algoritma yang digunakan haruslah <code>zip</code>, bukan <code>rar</code></p>
+
+<p>Setelah di-zip, rename extension file menjadi <code>war</code> agar dikenali oleh application server. <code>war</code> merupakan singkatan dari Web Archive.</p>
+
+<p>Untuk menjalankan aplikasi di application server (misalnya Tomcat), berikut langkah-langkah deployment:</p>
+
+<ul>
+<li>masukkan file <code>war</code> ke folder deployment sesuai merek application server yang digunakan</li>
+<li>contoh: untuk Tomcat, folder deploymentnya adalah <code>webapps</code></li>
+<li>Tomcat akan meng-extract file <code>war</code> tersebut</li>
+<li>Setelah deployment selesai (ditandai dengan file telah diextract dan tidak ada error di log) aplikasi bisa dibrowse di <code>http://ip-server:port/nama-file-war/index.html</code></li>
+</ul>
+
+
+<p>Bila aplikasi tidak lagi digunakan, kita bisa melakukan undeploy. Caranya:</p>
+
+<ul>
+<li>hapus file <code>war</code> dari folder deployment</li>
+<li>setelah folder aplikasi terhapus, undeploy berarti sukses</li>
+</ul>
+
+
+<p>Ada beberapa hal yang harus diperhatikan dalam struktur folder di atas, yaitu:</p>
+
+<ul>
+<li>Folder <code>WEB-INF</code></li>
+<li>File <code>web.xml</code></li>
+</ul>
+
+
+<h2>Folder WEB-INF</h2>
+
+<p>Folder ini adalah folder khusus. Dia tidak bisa dibrowse oleh user aplikasi. Maksudnya adalah, user aplikasi tidak bisa mengetik <code>http://localhost:8080/belajar/WEB-INF</code> di browser untuk menampilkan isi folder <code>WEB-INF</code>. Jadi bila kita memiliki file yang tidak boleh dilihat user (misalnya konfigurasi, logfile, file temporary, dan sebagainya), kita bisa letakkan file-file tersebut dalam folder <code>WEB-INF</code>.</p>
+
+<p>Di dalam folder ini biasanya ada dua folder khusus lain, yaitu</p>
+
+<ul>
+<li><code>classes</code> : berisi file <code>*.class</code> hasil kompilasi dari source code <code>*.java</code> kita</li>
+<li><code>lib</code> : berisi file <code>*.jar</code>, library tambahan yang kita gunakan seperti driver JDBC, JSON processor, pengolah tanggal, dan lainnya</li>
+</ul>
+
+
+<h2>File web.xml</h2>
+
+<p>File ini berisi konfigurasi dari aplikasi web kita. Di Java EE versi terbaru, file ini tidak harus ada. Tapi di Java EE versi terdahulu, dia wajib disertakan. Untuk amannya, agar aplikasi kita kompatibel dengan application server jadul, ada baiknya kita sertakan saja. Toh file ini juga akan kita buat kalau kita menggunakan framework seperti Spring MVC, JSF, Struts, dan sebagainya. Berikut isi file <code>web.xml</code> yang paling sederhana, yaitu hanya berisi <em>root tag</em> <code>webapp</code> kosong.</p>
+
+<p>```xml
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;web-app xmlns="http://java.sun.com/xml/ns/javaee"</p>
+
+<pre><code>      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+      version="3.0"&gt;
+</code></pre>
+
+<p></web-app>
+```</p>
+
+<p>Nantinya, file ini bisa berisi konfigurasi:</p>
+
+<ul>
+<li>Servlet</li>
+<li>Filter</li>
+<li>Listener</li>
+<li>Welcome Page : halaman yang dibuka kalau user tidak menyebutkan apa-apa, misalnya <code>http://aplikasi-saya.com/</code></li>
+<li>Error Page : halaman error bila URL yang diminta tidak ada (404), user belum login (401), ijin akses tidak memadai (403), error aplikasi (500), dan sebagainya</li>
+<li>Session timeout : rentang waktu user tidak mengakses aplikasi hingga session-nya dinyatakan kadaluarsa</li>
+</ul>
+
+
+<h1>Alur Eksekusi HTTP</h1>
+
+<blockquote><p>Apa yang terjadi bila kita mengetik <code>http://localhost:8080/aplikasi-web-sederhana/halo.php?nama=endy</code> di browser?</p></blockquote>
+
+<ol>
+<li>Browser akan mengakses port 8080 di localhost, yaitu komputer kita sendiri.</li>
+<li>Kita asumsikan bahwa Tomcat berjalan di port 8080, maka request ini akan diterima Tomcat</li>
+<li>Tomcat akan mencari aplikasi bernama <code>aplikasi-web-sederhana</code>. Biasanya aplikasi ini ditandai dengan adanya folder <code>aplikasi-web-sederhana</code> dalam folder <code>&lt;lokasi instalasi tomcat&gt;/webapps</code>. Folder ini akan terbentuk bila kita mendeploy file bernama <code>aplikasi-web-sederhana.war</code> seperti telah dijelaskan di atas.</li>
+<li>Tomcat akan mencari kode program yang bertanggung jawab menerima request <code>halo.php</code>. Biasanya penanggung jawab ini adalah servlet yang dideklarasikan dalam <code>aplikasi-web-sederhana/WEB-INF/web.xml</code></li>
+<li>Bila penanggung jawab tidak ditemukan, Tomcat akan mengembalikan kode error 404, artinya tidak ditemukan. Bila penanggung jawab ada, maka Tomcat akan memberikan data-data request kepada penanggung jawab ini untuk ditangani. Data request yang tersedia diantaranya adalah request parameter, HTTP header, dan request body</li>
+<li>Servlet yang bertanggung jawab akan memproses request, kemudian menghasilkan response. Response dikirim ke browser yang mengaksesnya.</li>
+</ol>
+
+
+<p>Sebagai ilustrasi, untuk menangani request <code>http://localhost:8080/aplikasi-web-sederhana/halo.php?nama=endy</code>, kita harus membuat deklarasi servlet di <code>web.xml</code> sebagai berikut:</p>
+
+<p>```xml
+<servlet></p>
+
+<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
+&lt;servlet-class&gt;com.muhardin.endy.training.web.HaloServlet&lt;/servlet-class&gt;
+</code></pre>
+
+<p></servlet></p>
+
+<p><servlet-mapping></p>
+
+<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
+&lt;url-pattern&gt;/halo.php&lt;/url-pattern&gt;
+</code></pre>
+
+<p></servlet-mapping>
+```</p>
+
+<p>Kemudian membuat class <code>HaloServlet</code> dalam package <code>com.muhardin.endy.training.web</code> yang isinya sebagai berikut</p>
+
+<p>```java
+public class HaloServlet extends HttpServlet {</p>
+
+<pre><code>public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    try {
+        String asal = request.getRemoteAddr();
+        String nama = request.getParameter("nama");
+
+        String output = "&lt;html&gt;";
+        output += "&lt;body&gt;";
+        output += "&lt;h1&gt;Halo "+nama+"&lt;/h1&gt;";
+        output += "&lt;h2&gt;Anda datang dari "+asal+"&lt;/h2&gt;";
+        output += "&lt;/body&gt;";
+        output += "&lt;/html&gt;";
+
+        // content type = html
+        response.setContentType("text/html");
+        response.getWriter().print(output);
+    } catch (IOException ex) {
+        Logger.getLogger(HaloServlet.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Pembaca yang teliti akan merasa heran</p>
+
+<blockquote><p>Lho kok ekstensi requestnya <code>.php</code>?</p></blockquote>
+
+<p>Aplikasi web Java tidak peduli terhadap ekstensi request. Yang penting sesuai dengan mapping dalam <code>web.xml</code>. Jadi kita bisa pasang <code>halo.php</code>, <code>halo.jsp</code>, <code>halo.html</code>, <code>halo.asp</code>, bahkan <code>halo.halo</code>. Selama URL tersebut terdaftar dalam <code>web.xml</code>, maka request akan diproses dengan baik.</p>
+
+<p>Source code lengkap bisa diakses <a href="https://github.com/endymuhardin/materi-kuliah-java-web/tree/master/sample-code/sesi-01/aplikasi-web-sederhana">di sini</a></p>
+
+<h1>Komponen Aplikasi Web Java</h1>
+
+<h2>Servlet</h2>
+
+<p>Digunakan untuk menerima HTTP request dan membuat HTTP response</p>
+
+<p>Cara membuat:</p>
+
+<ol>
+<li>Buat class yang extends <code>HttpServlet</code></li>
+<li><p>Implement method sesuai HTTP method yang akan kita gunakan.</p>
+
+<ul>
+<li>GET -> doGet(HttpServletRequest req, HttpServletResponse res)</li>
+<li>POST -> doPost(HttpServletRequest req, HttpServletResponse res)</li>
+<li>dst</li>
+</ul>
+</li>
+<li><p>Buat mappingnya di <code>web.xml</code></p></li>
+<li>Compile dan deploy ke application server</li>
+<li>Test browse ke <code>http://localhost:8080/aplikasi-web-sederhana/halo.php?nama=endy</code></li>
+</ol>
+
+
+<h3>HaloServlet.java</h3>
+
+<p>```java
+public class HaloServlet extends HttpServlet {</p>
+
+<pre><code>public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    try {
+        String asal = request.getRemoteAddr();
+        String nama = request.getParameter("nama");
+
+        String output = "&lt;html&gt;";
+        output += "&lt;body&gt;";
+        output += "&lt;h1&gt;Halo "+nama+"&lt;/h1&gt;";
+        output += "&lt;h2&gt;Anda datang dari "+asal+"&lt;/h2&gt;";
+        output += "&lt;/body&gt;";
+        output += "&lt;/html&gt;";
+
+        // content type = html
+        response.setContentType("text/html");
+        response.getWriter().print(output);
+    } catch (IOException ex) {
+        Logger.getLogger(HaloServlet.class.getName()).log(Level.SEVERE, null, ex);
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>web.xml</h3>
+
+<p>```xml
+<servlet></p>
+
+<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
+&lt;servlet-class&gt;com.muhardin.endy.training.web.HaloServlet&lt;/servlet-class&gt;
+</code></pre>
+
+<p></servlet></p>
+
+<p><servlet-mapping></p>
+
+<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
+&lt;url-pattern&gt;/halo.php&lt;/url-pattern&gt;
+</code></pre>
+
+<p></servlet-mapping>
+```</p>
+
+<h2>Filter</h2>
+
+<p>Digunakan untuk :</p>
+
+<ul>
+<li>mencegat HTTP request sebelum ditangani servlet</li>
+<li>mencegat HTTP response sebelum dikirim ke requester</li>
+</ul>
+
+
+<p>Contoh penggunaan :</p>
+
+<ul>
+<li>memproteksi URL yang membutuhkan login (Spring Security)</li>
+<li>mendekorasi HTML dengan header/footer/sidebar (Sitemesh)</li>
+<li>kompresi response</li>
+</ul>
+
+
+<p>Contoh implementasi :</p>
+
+<h3>Java (kode program)</h3>
+
+<p>```java
+public class HaloFilter implements Filter{</p>
+
+<pre><code>public void init(FilterConfig fc) throws ServletException {
+    System.out.println("Filter diinisialisasi");
+}
+
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc) throws IOException, ServletException {
+    System.out.println("Mencegat request");
+    fc.doFilter(request, response);
+    System.out.println("Mencegat response");
+}
+
+public void destroy() {
+    System.out.println("Filter di-destroy");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>web.xml (konfigurasi)</h3>
+
+<p>```xml
+<filter></p>
+
+<pre><code>&lt;filter-name&gt;haloFilter&lt;/filter-name&gt;
+&lt;filter-class&gt;com.muhardin.endy.training.web.HaloFilter&lt;/filter-class&gt;
+</code></pre>
+
+<p></filter></p>
+
+<p><filter-mapping></p>
+
+<pre><code>&lt;filter-name&gt;haloFilter&lt;/filter-name&gt;
+&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+</code></pre>
+
+<p></filter-mapping>
+```</p>
+
+<h2>Listener</h2>
+
+<p>Digunakan untuk merespon event dalam aplikasi, misalnya:</p>
+
+<ul>
+<li>aplikasi distart / deploy (context created)</li>
+<li>aplikasi distop / undeploy (context destroyed)</li>
+<li>session dibuat</li>
+<li>session timeout</li>
+<li>session dihapus (invalidation)</li>
+</ul>
+
+
+<p>Contoh implementasi:</p>
+
+<h3>Java (kode program)</h3>
+
+<p>```java
+public class HaloListener implements ServletContextListener, HttpSessionListener{</p>
+
+<pre><code>public void contextInitialized(ServletContextEvent sce) {
+    System.out.println("Aplikasi start");
+}
+
+public void contextDestroyed(ServletContextEvent sce) {
+    System.out.println("Aplikasi stop");
+}
+
+public void sessionCreated(HttpSessionEvent hse) {
+    System.out.println("Ada session baru");
+}
+
+public void sessionDestroyed(HttpSessionEvent hse) {
+    System.out.println("Session di-destroy");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>web.xml (konfigurasi)</h3>
+
+<p>```xml
+<listener></p>
+
+<pre><code>&lt;listener-class&gt;com.muhardin.endy.training.web.HaloListener&lt;/listener-class&gt;
+</code></pre>
+
+<p></listener>
+```</p>
+
+<p>Demikianlah konsep dasar aplikasi web di Java. Untuk bisa memahami, tentu kita harus sering berlatih membuat kode program, tidak hanya membaca tutorial saja. Contoh kode program lainnya bisa dilihat <a href="https://github.com/endymuhardin/materi-kuliah-java-web/tree/master/sample-code">di sini</a>. Silahkan dipraktekkan dan dilihat hasilnya.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Prasyarat Integrasi Aplikasi]]></title>
@@ -337,132 +722,6 @@ whatever-isi-path-yang-lama;%JAVA_HOME%\bin;%M2_HOME%\bin
 
 
 <p>Kalau pusing membaca, bisa nonton <a href="https://www.youtube.com/playlist?list=PL9oC_cq7OYbxOX-SxNPsi4r17GOVyHYJI">videonya di Youtube</a>. Source code yang dibahas dalam video bisa diambil <a href="https://github.com/endymuhardin/belajar-spring">di sini</a> dan <a href="https://github.com/endymuhardin/training-2013-01">di sini</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Tugas Kuliah Pemrograman 1]]></title>
-    <link href="http://software.endy.muhardin.com/java/tugas-kuliah-pemrograman-1/"/>
-    <updated>2013-11-21T19:54:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/tugas-kuliah-pemrograman-1</id>
-    <content type="html"><![CDATA[<p>Pada posting sebelumnya, kita sudah membahas:</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/life/otodidak/">bagaimana cara belajar secara otodidak</a></li>
-<li><a href="http://software.endy.muhardin.com/life/lan-na-zha/">pentingnya menguasai konsep dasar / fundamental dari segala sesuatu</a></li>
-<li>pentingnya latihan <a href="http://software.endy.muhardin.com/life/rtfm/">membaca dokumentasi</a>, <a href="http://software.endy.muhardin.com/life/problem-solving/">menyelesaikan masalah</a>, dan <a href="http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/">mencari solusi</a></li>
-</ul>
-
-
-<blockquote><p>Lalu bagaimana kalau kita baru menguasai dasar-dasar Java? Bagaimana latihannya?</p></blockquote>
-
-<p>Nah, sebetulnya cuma masalah kreativitas saja. Banyak aplikasi yang bisa dibuat dengan teknik minimalis. Sebagai contoh, coba simak tugas kuliah yang saya berikan untuk mata kuliah Pemrograman 1 di Universitas Pancasila. Untuk bisa menyelesaikan tugas ini, skill yang dibutuhkan hanyalah:</p>
-
-<ul>
-<li>variabel dan tipe data</li>
-<li>looping (for,while) dan percabangan (if-else)</li>
-<li>menggunakan class <code>java.lang.String</code></li>
-<li>baca/tulis file</li>
-</ul>
-
-
-<p>Referensi yang dibutuhkan hanyalah:</p>
-
-<ul>
-<li><a href="http://docs.oracle.com/javase/tutorial/index.html">Tutorial resmi dari Oracle</a> atau <a href="http://project-template.googlecode.com/files/Java%20Desktop%20-%20Ifnu%20Bima.pdf">buku Java Desktop karangan Ifnu Bima</a></li>
-<li><a href="http://docs.oracle.com/javase/7/docs/api/index.html">Dokumentasi API Java (JavaDocs)</a></li>
-</ul>
-
-
-<p>Studi kasus pada tugas ini merupakan aplikasi yang benar-benar digunakan di dunia nyata.</p>
-
-<p>Selamat mencoba.</p>
-
-<blockquote><p>Update : tugas ini sudah saya kerjakan. Videonya bisa <a href="http://www.youtube.com/playlist?list=PL9oC_cq7OYbx58s-eCBwP-5NxKnG8SHIr">dilihat di Youtube</a> dan source codenya bisa <a href="https://github.com/endymuhardin/pemrograman-2-2013/tree/master/sample-code/aplikasi-payroll">dilihat di Github</a>.</p></blockquote>
-
-<!--more-->
-
-
-<h1>Deskripsi Aplikasi</h1>
-
-<p>Aplikasi ini akan memproses perhitungan take home pay pegawai tiap bulannya. Tidak digunakan antarmuka pengguna (user interface) karena aplikasi bersifat <code>batch</code>, yaitu berjalan otomatis pada waktu yang ditentukan tanpa membutuhkan intervensi manusia. Input aplikasi berupa file text, dan outputnya juga berupa file text.</p>
-
-<p><img src="http://lh5.googleusercontent.com/-zREpwzUHZVs/Uo4B8sUpjdI/AAAAAAAACT4/3HgNUTbbu1s/w909-h314-no/tugas-kuliah.jpg"></p>
-
-<p>Pada pemakaian sebenarnya, data tarif gaji pegawai bisa diambil dari database. Data absensi diambil dari mesin fingerprint. Hasil perhitungan take home pay akan diupload ke bank untuk proses payroll otomatis.</p>
-
-<h1>Proses Bisnis</h1>
-
-<h2>Input dan Output</h2>
-
-<p>Aplikasi menerima input berupa file text sebagai berikut :</p>
-
-<ul>
-<li><code>tarif.csv</code> : berisi nomer induk, nama, tarif gaji pokok, tarif denda, tarif lembur, tarif tunjangan transport</li>
-<li><code>absen-MM.csv</code> : berisi nomer induk, tanggal, jam datang, jam pulang</li>
-</ul>
-
-
-<p>Dari dua file input tersebut, aplikasi akan mengeluarkan file text sebagai berikut :</p>
-
-<ul>
-<li>takehome-MM.csv : berisi nomer induk, nama, gaji pokok, total denda, total lembur, total tunjangan transport, take home pay</li>
-</ul>
-
-
-<p><code>MM</code> adalah 2 digit bulan. Untuk bulan November, berarti <code>MM</code> akan terisi <code>11</code>.</p>
-
-<h2>Aturan Bisnis</h2>
-
-<ol>
-<li>Hari kerja normal Senin - Jumat. Sabtu dan Minggu libur.</li>
-<li>Jam kerja normal 09:00 - 17:00.</li>
-<li>Bila hadir kerja pada hari normal, mendapatkan tunjangan transport harian sesuai tarif.</li>
-<li>Bila datang terlambat, dikenakan denda per jam sesuai tarif denda per jam.</li>
-<li>Bila pulang lebih cepat, dikenakan denda per jam sesuai tarif denda per jam.</li>
-<li>Bila datang lebih cepat, tidak mendapatkan bonus.</li>
-<li>Bila pulang lebih lambat dari jam normal, mendapatkan lembur sesuai tarif lembur per jam.</li>
-<li>Bila masuk di hari libur, mendapatkan tunjangan transport dan bonus lembur dihitung per jam sesuai tarif.</li>
-<li>Diasumsikan tidak ada hari libur di luar Sabtu-Minggu.</li>
-<li>Rumus : <code>take home pay = gaji pokok - total denda + total lembur + total tunjangan transport</code></li>
-</ol>
-
-
-<h2>Contoh File</h2>
-
-<h3>tarif.csv</h3>
-
-<p><code>
-no,nama,gaji,denda,lembur,transport
-1001,Endy,2000,10,15,30
-1002,Adi,3000,15,20,50
-1003,Jimmy,3500,15,20,50
-1004,Doni,3250,10,10,35
-</code></p>
-
-<h3>absen-11.csv</h3>
-
-<p><code>
-no,tanggal,datang,pulang
-1001,2013-11-01,08:55,17:05
-1002,2013-11-01,08:57,17:02
-1003,2013-11-01,08:55,17:03
-1004,2013-11-01,08:55,17:05
-1001,2013-11-02,08:58,17:01
-1002,2013-11-02,09:01,18:02
-1003,2013-11-02,09:15,18:33
-1004,2013-11-02,08:54,19:05
-</code></p>
-
-<h3>takehome-11.csv</h3>
-
-<p><code>
-no,nama,gaji,denda,lembur,transport,takehome
-1001,Endy,2000,100,150,600,2650
-1002,Adi,3000,200,300,1000,4100
-1003,Jimmy,3500,150,200,950,4500
-1004,Doni,3250,250,300,550,3850
-</code></p>
 ]]></content>
   </entry>
   
