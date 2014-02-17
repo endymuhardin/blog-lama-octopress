@@ -68,6 +68,14 @@ Secara garis besar, berikut adalah gambaran workflow cara kerja sehari-hari di t
 
 Di ArtiVisi kami memiliki aplikasi kecil sebagai *proof of concept* dari teknologi yang kami gunakan. Kalau ada penambahan/pengurangan/perubahan terhadap stack, yang pertama diupdate adalah aplikasi kecil ini. Aplikasinya disediakan gratis [di github](https://github.com/endymuhardin/belajar-restful). Jadi, aplikasi ini akan selalu memuat kombinasi stack terkini yang sedang kami gunakan, walaupun belum sempat diumumkan di posting blog.
 
+Beberapa fitur dari aplikasi ini antara lain:
+
+* CRUD
+* relasi one-to-many dan many-to-many
+* Popup dialog
+* Automated Testing untuk query database dan REST url
+* dan fitur-fitur lain yang bisa dieksplorasi sendiri ;)
+
 Dari aplikasi kecil ini, kami membuat template project berupa Maven Archetype yang juga disediakan gratis [di github](https://github.com/artivisi/standard-webapp-archetype). Bagi yang belum familiar dengan Maven, archetype adalah semacam wizard untuk membuat project baru.
 
 ## Catatan penting soal performance ##
