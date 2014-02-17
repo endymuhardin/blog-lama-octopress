@@ -64,4 +64,32 @@ Secara garis besar, berikut adalah gambaran workflow cara kerja sehari-hari di t
 
 {% img https://lh3.googleusercontent.com/-Ne0pSRdBBgk/UwFrsAA5KYI/AAAAAAAAFJs/6IRdUeLGvFA/w800-h566-no/workflow.png %}
 
+## Catatan penting soal performance ##
+
+> Saya ingin membuat aplikasi Java. Framework mana yang performance-nya paling cepat?
+
+Bila Anda menyimak presentasi saya di JaMU, khususnya di slide nomer 5 dan 6, saya tidak menyebut-nyebut masalah performance sebagai salah satu kriteria pemilihan framework/teknologi. Kenapa begitu?
+
+Di jaman sekarang ini, semua teknologi yang umum digunakan orang sudah bisa dioptimasi performancenya. Mau pakai Java, PHP, Ruby, Python, Perl, semua sudah punya portofolio terkenal. Misalnya:
+
+* Java punya Amazon dan Google
+* PHP punya Facebook
+* Ruby punya Github
+* Python punya Google
+* Perl punya BBC iPlayer
+* dan sebagainya
+
+Demikian juga mengenai Linux vs Windows, MySQL vs Oracle, dan sebagainya. Bagaimana cara meningkatkan performance sudah dirangkum di [website ini](http://highscalability.com/start-here/).
+
+Intinya, performance bukan lagi faktor yang harus dipertimbangkan dalam proses pemilihan. Kalau aplikasi yang kita buat ternyata lemot, maka berikut urutan tersangkanya:
+
+* teknik coding yang salah (biasanya disebabkan karena tidak menguasai [dasar-dasar pemrograman](http://software.endy.muhardin.com/life/lan-na-zha/) seperti misalnya melakukan `select * from tabel_transaksi` dimana isi tabel berisi jutaan record transaksi sejak 10 tahun yang lalu)
+* programmernya tidak tahu cara pakai framework/teknologi tersebut
+* teknologi tidak sesuai peruntukannya
+* belum mengetahui / menerapkan tips dan trik tuning performance untuk teknologi yang dimaksud
+
+Jadi, kalau ada masalah performance, tersangka utama bukanlah teknologinya, tapi usernya. 
+
+> Logikanya sederhana saja, jutaan orang pakai teknologi tersebut. Kalau memang ada masalah besar masa iya tidak muncul di peringkat pertama pada waktu kita [search di Google](http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/)?
+
 Demikianlah stack development ArtiVisi di tahun 2014. Untuk lebih jelasnya, silahkan tonton video presentasi JaMU di atas.
