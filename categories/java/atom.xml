@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2014-02-10T17:19:13+07:00</updated>
+  <updated>2014-02-17T09:03:20+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,88 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Development Stack 2014]]></title>
+    <link href="http://software.endy.muhardin.com/java/development-stack-2014/"/>
+    <updated>2014-02-17T07:29:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/development-stack-2014</id>
+    <content type="html"><![CDATA[<p>Tiga tahun lalu, saya memposting artikel tentang <a href="http://software.endy.muhardin.com/java/development-stack-2011/">stack development yang digunakan di ArtiVisi</a>. Artikel kali ini adalah update dari stack yang digunakan tiga tahun yang lalu.</p>
+
+<p>Pilihan stack ini saya presentasikan pada pertemuan Java Meet Up (JaMU) Januari 2014 yang diadakan di kantor <a href="http://blibli.com">blibli.com</a>. Materinya bisa diunduh pada link berikut:</p>
+
+<ul>
+<li>Slide Presentasi bisa <a href="http://software.endy.muhardin.com/files/slide-presentasi/artivisi-stack-2014.html">dilihat online</a> atau <a href="http://www.4shared.com/zip/Mo47v94uba/presentasi-jamu-01-2014.html">diunduh dalam format ZIP</a></li>
+<li><a href="http://www.youtube.com/watch?v=4312GuJVvxs">Rekaman Video dan Screencast</a></li>
+</ul>
+
+
+<p>Berikut rangkuman dari isi presentasi saya tersebut</p>
+
+<p><img src="https://lh3.googleusercontent.com/-5tGzUVc2lk4/UwFrrT20hmI/AAAAAAAAFJk/zRxIxumf_O4/w800-h566-no/restful-architecture.png"></p>
+
+<!--more-->
+
+
+<h2>Presentation Layer</h2>
+
+<p>Di sisi tampilan, ArtiVisi menggunakan <a href="http://getbootstrap.com/">Twitter Bootstrap</a> untuk memperindah tampilan dan <a href="http://angularjs.org/">AngularJS</a> untuk mengisi dynamic content. Kita <strong>tidak lagi menggunakan</strong> teknologi server side seperti JSF, ZK, JSP, dan sejenisnya. Untuk menyediakan server side service, kita menggunakan <a href="http://docs.spring.io/spring/docs/4.0.1.RELEASE/spring-framework-reference/htmlsingle/#mvc-ann-responsebody">fitur REST dari Spring MVC</a> yang menerima request HTTP dan mengembalikan response berupa <a href="http://en.wikipedia.org/wiki/JSON">JSON</a>.</p>
+
+<p>Kenapa tidak menggunakan server side rendering? Ada beberapa alasan:</p>
+
+<ul>
+<li>mencari skill CSS dan JS jauh lebih mudah daripada mencari skill server side dengan Java. Kita bisa rekrut programmer PHP untuk mengerjakan Twitter Bootstrap dan AngularJS. Ketersediaan programmer PHP jauh lebih banyak daripada programmer Java.</li>
+<li>service dari server side yang menerima HTTP request dan mengembalikan JSON bisa digunakan oleh tampilan selain web. Saat ini kita sudah memiliki aplikasi client desktop dan mobile tanpa mengubah aplikasi di sisi server. Bahkan salah satu aplikasi client desktop dibangun dengan cepat menggunakan Delphi oleh customer hanya dengan bermodalkan <a href="http://software.endy.muhardin.com/java/mendebug-aplikasi-ajax/">pengetahuan tentang format request dan response</a>. Customer kami yang lain menambahkan sendiri fitur transaksi melalui SMS menggunakan <a href="http://playsms.org/">playSMS</a> juga dengan teknik yang sama. Semua ini mereka lakukan sendiri tanpa ada perubahan di sisi server. Ini sulit dilakukan kalau kita menggunakan framework server side.</li>
+</ul>
+
+
+<h2>Business Service Layer</h2>
+
+<p>Sebetulnya fitur yang penting di business layer hanya satu, yaitu <strong>declarative transaction management</strong>. Untuk keperluan itu, kita tetap percayakan pada framework yang sudah proven yaitu <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>.</p>
+
+<blockquote><p>Kenapa tidak pakai EJB? Kan sudah tersedia di application server JEE sehingga tidak perlu tambahan JAR?</p></blockquote>
+
+<p>Ada beberapa alasan:</p>
+
+<ul>
+<li>Dengan Spring Framework, aplikasi bisa dideploy di application server mana saja. Bisa Tomcat, Jetty, Heroku, Google App Engine, dan sebagainya. Requirement yang dibutuhkan hanyalah Java VM saja.</li>
+<li>Kalau kita menggunakan EJB, kita harus memahami berbagai model programming. Untuk aplikasi web menggunakan EJB, aplikasi konsol (misalnya ISO-8583 gateway) lain lagi, aplikasi desktop beda lagi, aplikasi mobile beda lagi. Kalau kita menggunakan Spring Framework, model pemrogramannya bisa digunakan di berbagai macam aplikasi tadi.</li>
+</ul>
+
+
+<h2>Data Access Layer</h2>
+
+<p>Untuk data access layer, sebetulnya kita masih menggunakan <a href="http://hibernate.org/orm/">Hibernate ORM</a>. Tapi kita tidak lagi menggunakannya secara langsung, melainkan dibungkus dengan Spring Data JPA. Tujuannya cuma satu, yaitu <a href="https://github.com/endymuhardin/belajar-restful/commit/972aae9f4363e151a654e3602ea32ef7e704c369">mengurangi jumlah kode program yang harus ditulis</a>.</p>
+
+<p>Manajemen versioning untuk skema database kita gunakan <a href="http://www.liquibase.org/">Liquibase</a>. Tools ini memungkinkan kita untuk:</p>
+
+<ul>
+<li>mencatat versi skema database</li>
+<li>membuatkan script untuk upgrade/rollback antar versi aplikasi. Misalnya aplikasi kita versi 2.0 mau diupgrade ke versi 2.1. Atau sebaliknya, kita sudah deploy versi 3.2 ternyata ada critical bug sehingga harus balik ke versi 3.1.</li>
+</ul>
+
+
+<h2>Development Tools</h2>
+
+<p>Berikut adalah tools development yang kita gunakan:</p>
+
+<ul>
+<li>Project Management : <a href="https://trello.com">Trello</a></li>
+<li>Version Control : <a href="http://git-scm.org/">Git</a>. Di sisi server dimanage dengan <a href="http://gitlab.org/gitlab-ce/">Gitlab</a></li>
+<li>Build Tools : <a href="http://maven.apache.org/">Maven 3</a></li>
+<li>Functional Test untuk REST : <a href="https://code.google.com/p/rest-assured/">Rest Assured</a></li>
+</ul>
+
+
+<h2>Workflow</h2>
+
+<p>Secara garis besar, berikut adalah gambaran workflow cara kerja sehari-hari di tim development kita.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-Ne0pSRdBBgk/UwFrsAA5KYI/AAAAAAAAFJs/6IRdUeLGvFA/w800-h566-no/workflow.png"></p>
+
+<p>Demikianlah stack development ArtiVisi di tahun 2014. Untuk lebih jelasnya, silahkan tonton video presentasi JaMU di atas.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Dasar-dasar Aplikasi Web Java]]></title>
@@ -658,70 +740,6 @@ whatever-isi-path-yang-lama;%JAVA_HOME%\bin;%M2_HOME%\bin
 <p>Kalau tidak seperti itu, periksa lagi isi <code>JAVA_HOME</code>, <code>M2_HOME</code>, dan <code>PATH</code>.</p>
 
 <p>Selamat coding.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Kumpulan Tutorial Spring Framework]]></title>
-    <link href="http://software.endy.muhardin.com/java/kumpulan-tutorial-spring-framework/"/>
-    <updated>2013-11-25T11:40:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/kumpulan-tutorial-spring-framework</id>
-    <content type="html"><![CDATA[<p>Seringkali di milis dan forum banyak yang menanyakan tentang tutorial <a href="http://projects.spring.io/spring-framework/">Spring Framework</a>. Sebetulnya di blog ini banyak, tapi repot juga kalau harus cari-cari di arsip. Jadi, saya buatkan indeks seluruh artikel tentang Spring Framework dalam blog ini. Selamat menikmati :D</p>
-
-<!--more-->
-
-
-<ol>
-<li><p>Fundamental</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/intro-framework/">Alasan menggunakan framework</a></li>
-<li><a href="http://software.endy.muhardin.com/java/memahami-dependency-injection/">Konsep Inversion of Control</a></li>
-</ul>
-</li>
-<li><p>Konfigurasi Spring Framework</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/struktur-aplikasi-java-dengan-spring-dan-maven/">Struktur folder project</a></li>
-<li><a href="http://software.endy.muhardin.com/java/log4j-spring-mvc/">Konfigurasi Logging</a></li>
-<li><a href="http://software.endy.muhardin.com/java/staged-deployment/">Konfigurasi Deployment</a></li>
-</ul>
-</li>
-<li><p>Akses Database</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/konfigurasi-koneksi-database-dengan-spring/">Koneksi database</a></li>
-<li><a href="http://software.endy.muhardin.com/java/insert-update-delete-dengan-spring-jdbc/">Insert Update Delete</a></li>
-<li><a href="http://software.endy.muhardin.com/java/query-dengan-spring-jdbc/">Query</a></li>
-<li><a href="http://software.endy.muhardin.com/java/mengetes-akses-database/">Testing Kode Akses Database</a></li>
-</ul>
-</li>
-<li><p>Aplikasi Web dengan Spring MVC</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/aplikasi-web-spring25-1/">Membuat halaman web dinamis</a></li>
-<li><a href="http://software.endy.muhardin.com/java/aplikasi-web-spring25-2/">Membuat form input</a></li>
-<li><a href="http://software.endy.muhardin.com/java/aplikasi-web-spring25-3/">Membuat template aplikasi</a></li>
-<li><a href="http://software.endy.muhardin.com/java/aplikasi-web-spring25-4/">Upload File</a></li>
-<li><a href="http://software.endy.muhardin.com/java/aplikasi-web-spring25-5/">Session Management</a></li>
-<li><a href="http://software.endy.muhardin.com/java/aplikasi-web-spring25-6/">Internationalization (i18n) dan Localization (l10n)</a></li>
-</ul>
-</li>
-<li><p>Integrasi Aplikasi</p>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/integrasi-aplikasi/">Konsep Integrasi Aplikasi</a></li>
-<li><a href="http://software.endy.muhardin.com/java/remoting-dengan-spring/">Remoting : Menyediakan akses dan mengakses aplikasi dari aplikasi lain</a></li>
-<li><a href="http://software.endy.muhardin.com/java/integrasi-pusat-cabang-1/">Studi Kasus Integrasi Aplikasi</a></li>
-<li><a href="http://software.endy.muhardin.com/java/integrasi-pusat-cabang-2/">Integrasi Aplikasi melalui Gmail</a></li>
-<li><a href="http://software.endy.muhardin.com/java/integrasi-pusat-cabang-3/">Messaging dan Routing</a></li>
-<li><a href="http://software.endy.muhardin.com/java/spring-httpinvoker-sun-jre6-httpserver/">Menjalankan HTTP Server dengan Spring</a></li>
-</ul>
-</li>
-</ol>
-
-
-<p>Kalau pusing membaca, bisa nonton <a href="https://www.youtube.com/playlist?list=PL9oC_cq7OYbxOX-SxNPsi4r17GOVyHYJI">videonya di Youtube</a>. Source code yang dibahas dalam video bisa diambil <a href="https://github.com/endymuhardin/belajar-spring">di sini</a> dan <a href="https://github.com/endymuhardin/training-2013-01">di sini</a>.</p>
 ]]></content>
   </entry>
   

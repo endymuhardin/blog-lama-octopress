@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="NAT adalah singkatan dari Network Address Translation. Gunanya supaya kita bisa mempublish komputer di internal (misal, IP dalamnya : 192.168.0.1)
-ke &hellip;">
+  <meta name="description" content="Kalau kita ingin membuat aplikasi menggunakan database, tentunya hal pertama yang kita lakukan adalah menginstal server database. Selanjutnya, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,257 @@ ke &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/menggunakan-hermesjms/">Menggunakan HermesJMS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-06T18:37:59+07:00" pubdate data-updated="true">Sep 6<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Kalau kita ingin membuat aplikasi menggunakan database, tentunya hal pertama yang kita lakukan adalah menginstal server database. Selanjutnya, langkah kedua adalah menginstal aplikasi untuk mengelola database. Paling tidak, kita harus bisa membuat tabel, melihat isi tabel, mengisi ataupun menghapus data ke dalam tabel.</p>
+
+<p>Demikian juga kalau kita membangun aplikasi menggunakan JMS (Java Messaging Service). Sebelum membuat Hello JMS, terlebih dulu kita harus menginstal JMS server dan aplikasi yang dapat melihat isi JMS Server tersebut.</p>
+
+<p>Pada artikel kali ini, kita akan menginstal JMS Server <a href="http://activemq.apache.org/">ActiveMQ</a> dan aplikasi pengelolaan JMS yang bernama <a href="http://www.hermesjms.com/confluence/display/HJMS/Home">HermesJMS</a>.</p>
+
+<p>ActiveMQ dan HermesJMS dapat diunduh di websitenya masing-masing.</p>
+
+<p>Setelah diunduh, terlebih dulu kita instal ActiveMQ. Caranya sangat gampang, cukup diekstrak saja. Saya meletakkannya di folder <code>/opt</code></p>
+
+<pre><code>&lt;code&gt;cd /opt
+sudo tar xvzf apache-activemq-4.1.1.tar.gz
+&lt;/code&gt;
+</code></pre>
+
+<p>Setelah diekstrak, kita bisa langsung jalankan dari folder instalasinya.</p>
+
+<pre><code>&lt;code&gt;cd /opt/apache-activemq-4.1.1
+bin/activemq&lt;/code&gt;
+</code></pre>
+
+<p>Kalau sukses, akan muncul log message seperti ini:</p>
+
+<pre><code>&lt;code&gt;INFO  TransportServerThreadSupport   - Listening for connections at: tcp://sweetdreams:61616
+INFO  TransportConnector             - Connector openwire Started
+INFO  TransportServerThreadSupport   - Listening for connections at: ssl://sweetdreams:61617
+INFO  TransportConnector             - Connector ssl Started
+INFO  TransportServerThreadSupport   - Listening for connections at: stomp://sweetdreams:61613
+INFO  TransportConnector             - Connector stomp Started
+INFO  NetworkConnector               - Network Connector default-nc Started
+INFO  BrokerService                  - ActiveMQ JMS Message Broker (localhost, ID:sweetdreams-32991-1188983887811-1:0) started
+&lt;/code&gt;
+</code></pre>
+
+<p>Server kita sudah siap diakses di port 61616.</p>
+
+<p>Sekarang kita akan menginstal HermesJMS. Inipun instalasinya tidak sulit, cukup jalankan saja installernya.</p>
+
+<pre><code>&lt;code&gt;java -jar hermes-installer-1.12.jar&lt;/code&gt;
+</code></pre>
+
+<p>Nantinya akan muncul layar instalasi. Klik saja Next &#8230; Next &#8230; seperti biasa sampai selesai.</p>
+
+<p>Setelah Hermes berhasil diinstal, jalankan Hermes. Berikut adalah tampilan awalnya.
+<img src="/images/uploads/2007/09/hello-hermes.png" title="Hello Hermes" ></p>
+
+<p>Selanjutnya, kita akan menambahkan koneksi ke server ActiveMQ kita.
+Buka menu Options - Preferences, kemudian pilih tab Classpath di sisi bawah panel.
+<img src="/images/uploads/2007/09/no-classpath.png" title="Belum ada classpath group" ></p>
+
+<p>Selanjutnya, klik kanan di panel kosong tersebut
+dan masukkan classpath group baru bernama ActiveMQ.
+<img src="/images/uploads/2007/09/add-classpath.png" title="Tambah Classpath Group" ></p>
+
+<p>Nanti akan muncul entri ActiveMQ dengan tab dibawahnya yang bertulisan Library.
+Klik kanan <strong>tepat pada tulisan Library</strong> dan pilih Add Jar.
+Kita harus menambahkan beberapa jar berikut:</p>
+
+<ul>
+<li><p>apache-activemq-4.1.1.jar</p></li>
+<li><p>backport-util-concurrent-2.1.jar</p></li>
+<li><p>geronimo-j2ee-management_1.0_spec-1.0.jar</p></li>
+</ul>
+
+
+<p>Semua file tersebut dapat ditemukan di lokasi instalasi ActiveMQ.</p>
+
+<p>Setelah konfigurasi dilakukan, layar tampilannya akan tampak seperti ini:
+<img src="/images/uploads/2007/09/classpath-activemq.png" title="Classpath ActiveMQ" ></p>
+
+<p>Tutup layar Preference, dan buka lagi.
+Entah kenapa kalau tidak ditutup dulu, pilihan ActiveMQ tidak akan keluar.</p>
+
+<p>Di layar Preference tab Session, ketikkan nama Session yang baru, yaitu ActiveMQ.
+Klik Apply, nantinya Hermes akan menanyakan apakah ini session baru atau bukan.
+Jawab saja, &#8220;Ya, ini adalah session baru&#8221;.</p>
+
+<p>Selanjutnya, ganti pilihan Loader menjadi ActiveMQ, dan pilih ActiveMQ Connection Factory pada pilihan Class.
+Hasilnya akan nampak seperti ini:
+<img src="/images/uploads/2007/09/session-activemq.png" title="Session Baru ActiveMQ" ></p>
+
+<p>Setelah selesai, session ActiveMQ akan muncul di panel sebelah kiri.
+<img src="/images/uploads/2007/09/session-activemq-configured.png" title="Konfigurasi Session ActiveMQ" ></p>
+
+<p>Kita bisa membuat queue baru di session tersebut. Gunakan tombol Create New Queue.
+<img src="/images/uploads/2007/09/queue-new.png" title="Membuat Queue" ></p>
+
+<p>Pembuatan queue pada layar ini bersifat sementara. Artinya, bila HermesJMS dimatikan, Queuenya akan hilang. Untuk membuat Queue yang permanen, kita dapat mendefinisikannya pada layar konfigurasi session.</p>
+
+<p>Queue yang sudah dibuat dapat dilihat di panel sebelah kiri.
+<img src="/images/uploads/2007/09/queue-browse.png" title="Queue Browser" ></p>
+
+<p>Pada queue yang sudah terbentuk, kita bisa mengirim Text Message.
+Gunakan menu Messages - Send TextMessages. Kita harus memilih satu text file untuk dikirim.</p>
+
+<p>Setelah pengiriman selesai dilakukan, refresh tampilan sehingga message baru tersebut muncul.
+<img src="/images/uploads/2007/09/queue-browse-message.png" title="Browse Message" ></p>
+
+<p>Kita dapat mengambil message tersebut dengan menggunakan kode program Java sebagai berikut.</p>
+
+<pre><code>&lt;code&gt;package tutorial.jms;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+public class HelloQueueReceiver {
+    public static void main(String[] args) throws Exception {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(
+                ActiveMQConnection.DEFAULT_USER,
+                ActiveMQConnection.DEFAULT_PASSWORD,
+                ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("Connecting to: "+ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("With username : "+ActiveMQConnection.DEFAULT_USER);
+        System.out.println("and password : "+ActiveMQConnection.DEFAULT_PASSWORD);
+
+        Connection conn = factory.createConnection();
+        System.out.println("Connected");
+
+        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        System.out.println("Session created");
+
+        Queue destination = sess.createQueue("coba");
+        System.out.println("Queue created");
+
+        MessageConsumer consumer = sess.createConsumer(destination);
+        System.out.println("Consumer created");
+
+        System.out.println("Fetching message");
+        conn.start();
+        int counter = 1;
+        while(true) {           
+            Message msg = consumer.receive(1000);
+            if (msg == null) break;
+            System.out.println("Retrieving message #"+counter++);
+            System.out.println("Message fetched");
+            if (msg instanceof TextMessage) {
+                TextMessage txtmsg = (TextMessage) msg;
+                System.out.println("Message ID: "+txtmsg.getJMSMessageID());
+                System.out.println("Message Content: "+txtmsg.getText());
+            }
+        }
+
+
+        System.out.println("Closing connections");
+        consumer.close();
+        sess.close();
+        conn.close();
+        System.out.println("All closed");
+    }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Setelah kode program di atas dijalankan, refresh queue browser di Hermes. Harusnya pengambilan message tersebut akan menghapus message di server.</p>
+
+<p>Kita juga bisa mengirim message menggunakan kode program berikut.</p>
+
+<pre><code>&lt;code&gt;package tutorial.jms;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+public class HelloQueueSender {
+    public static void main(String[] args) throws JMSException {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(
+                ActiveMQConnection.DEFAULT_USER,
+                ActiveMQConnection.DEFAULT_PASSWORD,
+                ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("Connecting to: "+ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("With username : "+ActiveMQConnection.DEFAULT_USER);
+        System.out.println("and password : "+ActiveMQConnection.DEFAULT_PASSWORD);
+
+        Connection conn = factory.createConnection();
+        System.out.println("Connected");
+
+        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        System.out.println("Session created");
+
+        Queue destination = sess.createQueue("coba");
+        System.out.println("Queue created");
+
+        MessageProducer prod = sess.createProducer(destination);
+        TextMessage msg = sess.createTextMessage();
+        msg.setText("Hello JMS");
+
+        prod.send(msg);
+        System.out.println("Message sent");
+
+        prod.close();
+        sess.close();
+        conn.close();
+    }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Setelah kode program di atas dijalankan, kita dapat merefresh queue browser di Hermes untuk memastikan bahwa kode program kita berhasil mengirim message.</p>
+
+<p>Demikianlah, dengan menggunakan HermesJMS, kita dapat memeriksa secara visual apakah kode program kita dapat mengakses JMS Server dengan benar.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -416,236 +666,6 @@ Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/luntbuild/">Continuous Integration Dengan Luntbuild</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
-kali ini kita akan menggunakan <a href="http://luntbuild.javaforge.com/proj/summary.do?proj_id=70">Luntbuild</a>,
-Continuous Integration Tools yang konfigurasinya tidak menggunakan XML sama sekali.</p>
-
-<p>Sama seperti CruiseControl, untuk menjalankan Continuous Integration, kita memerlukan:</p>
-
-<ul>
-<li><p>Repository Subversion yang berisi source code, lengkap dengan folder trunk dan release</p></li>
-<li><p>Code Review, Unit Test, Integration Test, Coverage Test yang lengkap</p></li>
-<li><p>File build.xml yang memiliki target untuk menjalankan semua test</p></li>
-</ul>
-
-
-<p>Struktur folder repository juga masih sama seperti artikel sebelumnya. Kita tidak membuat baru,
-melainkan langsung menggunakan repository pada artikel sebelumnya.</p>
-
-<p>Untuk menjalankan Luntbuild, kita memerlukan:</p>
-
-<ul>
-<li><p>Luntbuild installer</p></li>
-<li><p>Apache Ant 1.7.0</p></li>
-<li><p>Apache Tomcat 5.5</p></li>
-<li><p>Java SDK 6.0</p></li>
-</ul>
-
-
-<p>Installer Luntbuild dapat diunduh <a href="http://luntbuild.javaforge.com/proj/doc.do?doc_id=35767">di sini</a>.</p>
-
-<p>Cara instalasinya tidak sulit, begitu kita dapatkan file instalasinya, buka command prompt, dan masuk ke folder tempat installer tersebut berada.
-Kemudian jalankan installernya.</p>
-
-<pre><code>&lt;code&gt;$ cd Downloads
-$ java -jar luntbuild-1.4.2-installer.jar 
-&lt;/code&gt;
-</code></pre>
-
-<p>Tampilan instalasi Luntbuild akan segera tampil. Klik saja Next untuk melewati Release Note dan License Agreement,
-sampai pada pertanyaan lokasi instalasi.
-<img src="/images/uploads/2007/08/luntbuild-install-dir.png" title="Lokasi Instalasi Luntbuild" ></p>
-
-<p>Di komputer saya, saya pilih lokasi <code>/opt/luntbuild-1.4.2</code> sebagai lokasi instalasi.
-Klik Next, dan lanjutkan ke konfigurasi database.
-<img src="/images/uploads/2007/08/luntbuild-install-db.png" title="Instalasi Database" ></p>
-
-<p>Di sini saya tidak mengubah setting apa-apa. Langsung saja lanjutkan sampai menemui pertanyaan username dan password administrator.
-<img src="/images/uploads/2007/08/luntbuild-install-password.png" title="Setup Administrator Password" ></p>
-
-<p>Saya masukkan <code>luntbuild123</code> sebagai passwordnya.
-Kita juga akan ditanyai lokasi instalasi Tomcat agar Luntbuild bisa segera menginstal aplikasi webnya di sana.
-Entah apa yang terjadi, di komputer saya pilihan ini tidak berpengaruh apa-apa. Seharusnya installer akan membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code>.
-Setelah instalasi selesai saya tetap harus membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code> secara manual
-dan mengkopi semua isi <code>[LUNTBUILD_INSTALL]/web</code> ke dalamnya.</p>
-
-<p>Setelah semua layar berhasil dilalui, instalasi selesai. Kita bisa langsung jalankan Tomcat, dan browse ke http://localhost:8080/luntbuild.
-Jika instalasi berjalan benar, maka kita akan disambut oleh Luntbuild
-<img src="/images/uploads/2007/08/luntbuild-frontpage.png" title="Halaman Depan Luntbuild" ></p>
-
-<p>Secara default, kita login secara anonymous. Untuk bisa mengkonfigurasi project, kita harus logout dulu.
-Kita akan segera melihat halaman login.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-login.png" title="Login Page" ></p>
-
-<p>Masukkan username luntbuild dan password luntbuild123, sesuai yang kita isikan pada waktu instalasi.
-Kita akan melihat daftar builder yang masih kosong.</p>
-
-<p>Segera klik tab Project, dan klik tombol New Project di kanan atas.
-User interface Luntbuild kurang intuitif, sehingga saya harus berusaha keras mencari tombol tersebut.
-Halaman New Project segera tampil.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-new-project.png" title="Create New Project" ></p>
-
-<p>Masukkan nama project dan berikan keterangan, lalu Save.</p>
-
-<p>Selanjutnya, kita klik tab VCS.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-no-vc.png" title="No VCS Yet" ></p>
-
-<p>Di tab ini kita melakukan konfigurasi untuk version control.
-Luntbuild mendukung berbagai merek version control.
-Pilih Subversion pada drop down yang tersedia.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn.png" title="Add New Subversion Repo" ></p>
-
-<p>Untuk konfigurasi di komputer saya, isinya adalah sebagai berikut:</p>
-
-<ol>
-<li><p>Repository url base : svn://localhost</p></li>
-<li><p>Directory for trunk : trunk</p></li>
-<li><p>Directory for branches : kosongkan saja, karena project contoh ini tidak memiliki branch</p></li>
-<li><p>Directory for releases : releases/daily-build</p></li>
-<li><p>Username : endy. Ini adalah username yang digunakan Luntbuild untuk checkout dan membuat tag.
-Idealnya kita buatkan user khusus untuk Luntbuild</p></li>
-<li><p>Password : 123</p></li>
-<li><p>Quiet Period : kosongkan saja, ini tidak dibutuhkan untuk Subversion yang sudah mendukung atomic commit.</p></li>
-</ol>
-
-
-<p>Ada sedikit keanehan Luntbuild. Dia mengharuskan kita membuat modul.
-Kalau dia tidak menemukan modul, maka akan keluar pesan error.
-Oleh karena itu, kita klik New Module, lalu langsung saja save tanpa mengisi apa-apa.</p>
-
-<p>Hasil akhir dari tab VCS kita akan nampak seperti ini.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn-summary.png" title="VCS Subversion" ></p>
-
-<p>Berikutnya, kita masuk ke tab berikutnya untuk konfigurasi Builder.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-no-builders.png" title="No Builder Yet" ></p>
-
-<p>Satu project bisa memiliki banyak builder.
-Dengan builder, kita bisa mengatur sejauh mana kita ingin melakukan build.
-Contoh beberapa build yang mungkin digunakan adalah:</p>
-
-<ul>
-<li><p>Unit test: hanya menjalankan unit test saja, mungkin dijalankan setiap 1 jam sekali.</p></li>
-<li><p>Full test: menjalankan semua jenis test, dijalankan sebelum jam makan siang dan sore sebelum pulang</p></li>
-<li><p>Nightly/Daily build : dijalankan sekali sehari, selain menjalankan semua test, juga menghasilkan <em>jar atau </em>war.
-Jenis build ini biasanya dikonfigurasi untuk menghasilkan tag di version control apabila sukses.</p></li>
-</ul>
-
-
-<p>Klik tombol New Builder untuk mengkonfigurasi build. Karena kita menggunakan Ant, pilih Ant pada dropdown yang tersedia.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-ant-builder.png" title="Ant Builder" ></p>
-
-<p>Pada contoh ini, kita akan mengkonfigurasi Build Jar.
-Sekali sudah paham konsepnya, tidak sulit untuk mengkonfigurasi jenis build yang lain.
-Berikut adalah nilai yang saya isikan:</p>
-
-<ol>
-<li><p>Name : Build Jar</p></li>
-<li><p>Command for Ant : /opt/apache-ant-1.7.0/bin/ant. Ini adalah path menuju Ant kita.</p></li>
-<li><p>Build script path : build.xml. Ini adalah nama file build.xml yang ada di project kita</p></li>
-<li><p>Build target : build-jar. Target Ant yang dipanggil pada saat build berjalan.
-Saya pilih target build-jar yang mengeksekusi semua test, kemudian membuat *.jar bila test tidak ada yang gagal.</p></li>
-<li><p>Field sisanya, biarkan saja sesuai default.</p></li>
-</ol>
-
-
-<p>Terakhir, kita mengkonfigurasi Schedule, alias jadwal. Ini menentukan kapan build dieksekusi.
-Untuk Build Jar yang sudah kita konfigurasi, kita ingin dia dijalankan setiap jam 01 dini hari, setiap hari.
-Berikut isian konfigurasinya.</p>
-
-<ol>
-<li><p>Name : Nightly Build</p></li>
-<li><p>Description : build setiap jam 01 dini hari</p></li>
-<li><p>Next build version : <code>nightly-${#currentDay=system.(year+"-"+numericMonth+"-"+dayOfMonth), #lastDay=project.var["day"].setValue(#currentDay), #dayIterator=project.var["dayIterator"].intValue, project.var["dayIterator"].setIntValue(#currentDay==#lastDay?#dayIterator+1:1), #currentDay}.${project.var["dayIterator"]}</code>.
-Ini adalah label yang akan diberikan untuk setiap build.
-String di atas akan menghasilkan label nightly-2007-08-17.1 bila dijalankan pada tanggal 17 Agustus 2007.</p></li>
-<li><p>Trigger Type: cron. Luntbuild menyediakan dua jenis trigger. Pertama, simple trigger yang berbasis interval.
-Dengan simple trigger, kita dapat menjadwalkan build untuk berjalan misalnya setiap dua jam, atau setiap 30 menit.
-Kedua, cron trigger, yang berbasis waktu. Dengan cron trigger, kita dapat menjalankan build setiap waktu tertentu,
-misalnya setiap Sabtu, atau setiap hari jam 1 pagi. Untuk menjalankan build setiap jam satu pagi, gunakan cron trigger
-dengan konfigurasi <code>0 0 1 * * ?</code>. Luntbuild menggunakan pustaka <a href="http://www.opensymphony.com/quartz/">Quartz</a> untuk melakukan penjadwalan ini.
-Lebih lanjut tentang konfigurasi jadwal Quartz dapat dilihat di <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html">websitenya</a>.</p></li>
-<li><p>Build necessary condition: vcsModified or dependencyNewer. Buat apa melakukan build kalau belum ada perubahan
-sejak terakhir kali build berjalan? Inilah maksud dari field ini. Dengan menyebutkan vcsModified, kita menjelaskan
-bahwa kalau tidak ada perubahan di dalam version control, tidak perlu lakukan build. Selain nilai ini, kita juga
-bisa menggunakan nilai always, yang artinya tetap build walaupun tidak ada yang commit.</p></li>
-<li><p>Associated builders. Di sini kita memilih builder mana yang ingin dijalankan.</p></li>
-<li><p>Associated post builder. Misalnya setelah build sukses dijalankan, kita ingin membuat installer yang siap diunduh.
-Kita bisa sebutkan hal tersebut di sini.</p></li>
-<li><p>Label strategy: Label if success. Hanya buat tag di version control bila build sukses.</p></li>
-<li><p>Notify strategy: notify if status change. Artinya, kirim pemberitahuan apabila status build berbeda dari sebelumnya,
-misalnya tadinya gagal menjadi sukses, atau sebaliknya.</p></li>
-</ol>
-
-
-<p>Demikian sebagian nilai yang harus diisikan. Untuk field yang tidak saya jelaskan, silahkan baca keterangannya atau ikuti saja default.</p>
-
-<p>Setelah semua konfigurasi selesai, kembali ke halaman depan untuk menyaksikan hasil pekerjaan kita.
-Di sana akan terpampang semua build yang sudah dikonfigurasi.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-builds.png" title="Daftar build" ></p>
-
-<p>Kita bisa menjalankan build tersebut secara manual tanpa harus
-menunggu jatuh temponya. Biasanya kita lakukan build manual untuk mengetes konfigurasi.
-Build yang sedang berjalan ditandai dengan ikon roda gigi.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-building.png" title="Building …" ></p>
-
-<p>Build yang gagal akan ditandai dengan warna merah, sedangkan build yang berhasil diwarnai hijau.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-build-success.png" title="Build Successful" ></p>
-
-<p>Bila build gagal, tentunya kita ingin melihat apa yang terjadi. Klik build info untuk menampilkan informasinya.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-build-info.png" title="Build Info" ></p>
-
-<p>Kurang detail? Buka saja lognya. Di sini akan terlihat di langkah yang mana build tersebut berhenti.</p>
-
-<p><img src="/images/uploads/2007/08/luntbuild-build-log.png" title="Build Log" ></p>
-
-<p>Demikianlah cara penggunaan Luntbuild.
-Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelola dengan baik dan teratur.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/45/">&larr; Older</a>
@@ -722,6 +742,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/development-stack-2014/">Development Stack 2014</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
       </li>
     
@@ -755,10 +779,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/tugas-kuliah-pemrograman-1/">Tugas Kuliah Pemrograman 1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/symmetric-encryption-dengan-java/">Symmetric Encryption dengan Java</a>
       </li>
     
   </ul>
