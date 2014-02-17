@@ -64,6 +64,12 @@ Secara garis besar, berikut adalah gambaran workflow cara kerja sehari-hari di t
 
 {% img https://lh3.googleusercontent.com/-Ne0pSRdBBgk/UwFrsAA5KYI/AAAAAAAAFJs/6IRdUeLGvFA/w800-h566-no/workflow.png %}
 
+## Proof of Concept ##
+
+Di ArtiVisi kami memiliki aplikasi kecil sebagai *proof of concept* dari teknologi yang kami gunakan. Kalau ada penambahan/pengurangan/perubahan terhadap stack, yang pertama diupdate adalah aplikasi kecil ini. Aplikasinya disediakan gratis [di github](https://github.com/endymuhardin/belajar-restful). Jadi, aplikasi ini akan selalu memuat kombinasi stack terkini yang sedang kami gunakan, walaupun belum sempat diumumkan di posting blog.
+
+Dari aplikasi kecil ini, kami membuat template project berupa Maven Archetype yang juga disediakan gratis [di github](https://github.com/artivisi/standard-webapp-archetype). Bagi yang belum familiar dengan Maven, archetype adalah semacam wizard untuk membuat project baru.
+
 ## Catatan penting soal performance ##
 
 > Saya ingin membuat aplikasi Java. Framework mana yang performance-nya paling cepat?
