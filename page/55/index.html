@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Dalam beberapa project terakhir, saya menggunakan Spring MVC untuk membuat presentation layer. Spring sangat fleksibel dan mudah dipelajari. Ini &hellip;">
+  <meta name="description" content="Menggunakan izPack Setelah kita selesai membuat aplikasi, what next? Tentunya mendistribusikan pada orang yang membutuhkan. Bagaimana caranya agar &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,230 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/membuat-installer-dengan-izpack/">Membuat Installer Dengan IzPack</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-27T18:49:25+07:00" pubdate data-updated="true">Sep 27<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Menggunakan izPack</p>
+
+<p>Setelah kita selesai membuat aplikasi, what next? Tentunya mendistribusikan pada orang yang membutuhkan. Bagaimana caranya agar aplikasi kita mudah digunakan? Langkah pertama adalah dengan cara memudahkan proses instalasi.
+Dalam tulisan ini, kita akan mempelajari cara menggunakan izPack, framework untuk membuat installer aplikasi, sehingga menginstal aplikasi akan semudah menekan tombol Next.</p>
+
+<p>Para programmer tentunya sudah familiar dengan berbagai framework installer. Ada yang komersil seperti InstallShield, dan ada juga yang gratis seperti <a href="http://nsis.sourceforge.net">NSIS</a> dan izPack. Kelebihan izPack adalah dia berbasis Java, tidak seperti NSIS yang cuma bisa jalan di Windows.</p>
+
+<p>Langkah pertama, mari kita <a href="http://www.izforge.com/izpack/downloads">download izPack</a>. IzPack disediakan sebagai installer, sehingga kita harus menginstalnya dulu sebelum bisa digunakan.</p>
+
+<p>Selanjutnya, mari kita lihat struktur folder project kita yang ingin dibuatkan installernya. Struktur folder saya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/project-folder-before.png" title="Struktur folder project" ></p>
+
+<p>Setelah terinstal di komputer pengguna, saya ingin foldernya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/project-folder-after.png" title="Hasil yang diinginkan" ></p>
+
+<p>Perhatikan bahwa folder src tidak perlu diikutkan. Pengguna dapat memilih apakah mau menginstal source code atau tidak. Jadi, folder source code adalah optional. Folder dokumentasi dan plugin tambahan juga biasanya diinstal secara optional.</p>
+
+<p>Berikutnya, tentukan screen yang akan tampil selama proses instalasi, biasanya adalah :</p>
+
+<ol>
+<li>Salam pembukaan, menyatakan kepada pengguna bahwa proses instalasi akan dimulai.</li>
+<li>Informasi aplikasi, menjelaskan tentang aplikasi dan kegunaannya.</li>
+<li>License Agreement</li>
+<li>Pemilihan paket yang akan diinstal. Di sini pengguna dapat memilih apakah dia akan menginstal paket optional atau tidak.</li>
+<li>Tujuan instalasi. Pengguna menentukan di folder mana dia akan menginstal.</li>
+<li>Proses instalasi. Menunjukkan kemajuan proses instalasi. Biasanya menggunakan progress bar.</li>
+<li>Instalasi selesai. Menampilkan pesan sukses atau gagal.</li>
+</ol>
+
+
+<p>Kerangka dari konfigurasi installer kita adalah sebagai berikut :</p>
+
+<pre><code>    &lt;installation version="1.0"&gt;
+        &lt;info&gt; &lt;/info&gt;
+        &lt;guiprefs&gt; &lt;/guiprefs&gt;
+        &lt;locale&gt; &lt;/locale&gt;
+        &lt;resources&gt; &lt;/resources&gt;
+        &lt;panels&gt; &lt;/panels&gt;
+        &lt;packs&gt; &lt;/packs&gt;
+    &lt;/installation&gt;
+</code></pre>
+
+<p>Isi dari tag info adalah sebagai berikut</p>
+
+<pre><code>    &lt;info&gt;
+        &lt;appname&gt;PlayBilling&lt;/appname&gt;
+        &lt;appversion&gt;1.1-RC3&lt;/appversion&gt;
+        &lt;authors&gt;
+            &lt;author name="Endy Muhardin" email="endy@artivisi.com"/&gt;
+            &lt;author name="Anton Raharja" email="anton@ngoprek.org"/&gt;
+        &lt;/authors&gt;
+        &lt;url&gt;http://playbilling.sourceforge.net&lt;/url&gt;
+        &lt;javaversion&gt;1.5.0&lt;/javaversion&gt;
+    &lt;/info&gt;
+</code></pre>
+
+<p>Bagian guiprefs menjelaskan tampilan yang akan digunakan. Kita akan pakai native saja, sesuai OS, supaya tampak alami. Kalau mau, kita dapat memilih beberapa tampilan Look &amp; Feel yang tersedia.</p>
+
+<pre><code>    &lt;guiprefs width="800" height="600" resizable="yes"/&gt;
+</code></pre>
+
+<p>Berikutnya, pilihan bahasa instalasi. Untuk mudahnya, gunakan bahasa Inggris saja.</p>
+
+<pre><code>    &lt;locale&gt;
+        &lt;langpack iso3="eng" /&gt;
+    &lt;/locale&gt;
+</code></pre>
+
+<p>Untuk bagian resource, kita perlu mendefinisikan file-file yang dibutuhkan installer. File-file ini harus sudah ada.</p>
+
+<pre><code>    &lt;resources&gt;
+        &lt;res src="installer/application-description.html" id="HTMLInfoPanel.info"/&gt;
+        &lt;res src="installer/gpl.txt" id="LicencePanel.licence"/&gt;
+    &lt;/resources&gt;
+</code></pre>
+
+<p>Tentukan urutan screen seperti sudah dijelaskan di atas.</p>
+
+<pre><code>    &lt;panels&gt; 
+        &lt;panel classname="HelloPanel"/&gt;
+        &lt;panel classname="HTMLInfoPanel"/&gt;
+        &lt;panel classname="LicencePanel"/&gt;
+        &lt;panel classname="PacksPanel"/&gt;
+        &lt;panel classname="TargetPanel"/&gt;
+        &lt;panel classname="InstallPanel"/&gt;
+        &lt;panel classname="SimpleFinishPanel"/&gt;
+    &lt;/panels&gt;
+</code></pre>
+
+<p>Bagian packs menentukan folder-folder yang akan diinstal. Sintaksnya mirip dengan Ant.</p>
+
+<pre><code>    &lt;packs&gt;
+        &lt;pack name="Base" required="yes"&gt;
+            &lt;description&gt;Base System files&lt;/description&gt;
+            &lt;fileset dir="." targetdir="$INSTALL_PATH"&gt;
+                &lt;include name="ext/jetty/*"/&gt;
+                &lt;include name="webapp/**/*"/&gt;
+                &lt;include name="*.sh"/&gt;
+                &lt;include name="*.bat"/&gt;
+            &lt;/fileset&gt;
+        &lt;/pack&gt;
+
+        &lt;pack name="Source" required="no"&gt;
+            &lt;description&gt;Source code and test files&lt;/description&gt;
+            &lt;fileset dir="." targetdir="$INSTALL_PATH"&gt;
+                &lt;include name="src/**/*"/&gt;
+                &lt;include name="lib/**/*"/&gt;
+                &lt;include name="*.xml"/&gt;
+            &lt;/fileset&gt;
+        &lt;/pack&gt;
+    &lt;/packs&gt;
+</code></pre>
+
+<p>Variabel $INSTALL_PATH akan diisikan sesuai folder tujuan yang dipilih pengguna.</p>
+
+<p>Ok, file konfigurasi installer kita sudah selesai. Sekarang tinggal diotomasi sehingga bisa dipanggil lewat <a href="http://ant.apache.org">Ant</a>.
+Ada beberapa informasi yang dibutuhkan oleh izPack, yaitu:</p>
+
+<ul>
+<li>lokasi konfigurasi instalasi (file xml yang baru saja kita buat)</li>
+<li>nama file installer yang akan dihasilkan (misalnya MyProject-installer.jar)</li>
+<li>jenis instalasi (desktop atau web)</li>
+<li>base folder (folder acuan untuk menentukan lokasi relatif folder yang lain)</li>
+<li>lokasi instalasi izPack</li>
+</ul>
+
+
+<p>Berikut adalah target untuk Ant</p>
+
+<pre><code>    &lt;taskdef name="izpack" 
+             classpath="${izpack_install_dir}/lib/compiler.jar"
+             classname="com.izforge.izpack.ant.IzPackTask"
+    /&gt;
+    &lt;target name="build-installer"&gt;
+        &lt;izpack input="installer/playbilling-installer.xml"
+                output="dist/playbilling-installer.jar"
+                installerType="standard"
+                basedir="."
+                izPackDir="${izpack_install_dir}"
+        /&gt;
+    &lt;/target&gt;
+</code></pre>
+
+<p>Setelah Ant target dijalankan, kita akan mendapatkan file playbilling-installer.jar di dalam folder dist.
+Mari kita coba jalankan file installer tersebut.</p>
+
+<pre><code>java -jar dist/playbilling-installer.jar
+</code></pre>
+
+<p>Kita akan disodori tampilan selamat datang</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-1.png" title="Screen Selamat Datang" ></p>
+
+<p>Klik Next, dan kita akan melihat keterangan tentang <a href="http://playbilling.sourceforge.net">PlayBilling</a>. Keterangan ini langsung dicopy-paste dari homepage PlayBilling</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-2.png" title="Deskripsi Aplikasi" ></p>
+
+<p>Next lagi, dan muncullah license agreement, yaitu GPL, yang diambil langsung dari <a href="http://www.gnu.org/copyleft/gpl.txt">website GPL</a>.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-3.png" title="GPL License" ></p>
+
+<p>Screen selanjutnya adalah pilihan paket yang akan diinstal. Perhatikan bahwa paket wajib diburamkan dan tidak bisa diklik.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-4.png" title="Pilihan paket instalasi" ></p>
+
+<p>Setelah itu, kita akan ditanya lokasi instalasi.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-5.png" title="Pilihan lokasi instalasi" ></p>
+
+<p>Pilih lokasi yang sesuai, kemudian Next. Instalasi akan segera dimulai.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-6.png" title="Proses Instalasi" ></p>
+
+<p>Sukses &#8230; !</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-7.png" title="Sukses" ></p>
+
+<p>Sebagai bonus, izPack juga akan membuatkan Uninstaller. Coba jalankan</p>
+
+<pre><code>java -jar /home/endy/PlayBilling/Uninstaller/uninstaller.jar
+</code></pre>
+
+<p><img src="/images/uploads/2006/09/uninstall-screen-1.png" title="Uninstall" ></p>
+
+<p>Klik OK, dan aplikasi akan dihilangkan dari komputer Anda.</p>
+
+<p>Selamat mencoba. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -697,54 +921,6 @@ Kita buat sampel data (fixture) sebagai berikut:</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/wiki/">Wiki</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-09-18T23:40:24+07:00" pubdate data-updated="true">Sep 18<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Bagi mereka yang belum tahu, wiki adalah website yang bisa diedit. Contohnya ada di <a href="http://www.wikipedia.org" title="Bapak moyangnya wiki">Wikipedia</a></p>
-
-<p>Biasanya wiki digunakan untuk membuat dokumentasi. Sifatnya yang bisa diedit siapa saja menyebabkan banyak orang bisa langsung berkontribusi mengisi wiki. Tidak perlu direpotkan dengan birokrasi aplikasi CMS seperti biasanya.</p>
-
-<p>Ada banyak aplikasi wiki yang tersedia. Dibuat dalam berbagai bahasa pemrograman. Biasanya, aplikasi wiki diinstal di web server dan diakses oleh orang banyak.</p>
-
-<p>Selain yang diinstal di web server, ada juga yang digunakan di desktop. Saya sendiri menggunakan <a href="http://zoidberg.student.utwente.nl/zim/" title="Homepage Zim">Zim Desktop Wiki</a> di komputer saya untuk menulis buku.</p>
-
-<p>Buat yang malas (atau tidak bisa) menginstal, bisa menggunakan aplikasi wiki web based yang tidak perlu diinstal di server. Gunakan <a href="http://www.tiddlywiki.com/" title="Standalone Web based Wiki">Tiddly Wiki</a>. Wiki anda tinggal ditulis di komputer sendiri, kemudian diupload ketika sudah selesai.</p>
-
-<p>Saking banyaknya orang yang membuat aplikasi wiki, akhirnya ada yang menyediakan one stop solution untuk memilih wiki. Silahkan kunjungi <a href="http://www.wikimatrix.org" title="Wiki Matrix, bandingkan dan pilih wiki favorit">wikimatrix</a> untuk membandingkan berbagai aplikasi wiki. Dia juga menyediakan wizard untuk membantu pemilihan aplikasi wiki yang sesuai.</p>
-
-<p>Selamat mengeksplorasi. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/56/">&larr; Older</a>
@@ -821,6 +997,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/ongoing-learning/">Ongoing Learning</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/development-stack-2014/">Development Stack 2014</a>
       </li>
     
@@ -854,10 +1034,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/kumpulan-tutorial-spring-framework/">Kumpulan Tutorial Spring Framework</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/tugas-kuliah-pemrograman-1/">Tugas Kuliah Pemrograman 1</a>
       </li>
     
   </ul>

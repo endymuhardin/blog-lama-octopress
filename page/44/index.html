@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Kalau kita ingin membuat aplikasi menggunakan database, tentunya hal pertama yang kita lakukan adalah menginstal server database. Selanjutnya, &hellip;">
+  <meta name="description" content="Pertanyaan berikut muncul di milis netbeans-indonesia, &#8220;Di mana sebaiknya kita menulis aturan validasi? Di database, di business layer, atau di &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,68 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/membuat-validasi-dalam-aplikasi/">Membuat Validasi Dalam Aplikasi</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-12T23:44:55+07:00" pubdate data-updated="true">Sep 12<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pertanyaan berikut muncul di <a href="http://tech.groups.yahoo.com/group/netbeans-indonesia/">milis netbeans-indonesia</a>, &#8220;Di mana sebaiknya kita menulis aturan validasi? Di database, di business layer, atau di presentation layer?&#8221;</p>
+
+<p>Saya pikir, pasti banyak juga yang memiliki kebimbangan serupa. Oleh karena itu, jawaban saya tulis di artikel ini.</p>
+
+<p>Menurut saya, validasi itu idealnya di semua layer, mulai dari database, business logic, dan presentation layer (UI).</p>
+
+<p>Kenapa di database harus ada validasi (dengan menggunakan database constraint) adalah karena data umurnya akan lebih panjang dari aplikasi. Front end bisa ditulis ulang dengan apapun teknologi/framework yang sedang populer, sedangkan data sekali sudah disimpan, biasanya akan terus ada dalam waktu yang lama.</p>
+
+<p>Kalau kita tidak pakai constraint di database, begitu aplikasi kita usang dan diganti (misal tadinya desktop jadi web) maka databasenya jadi &#8216;telanjang&#8217; tanpa validasi, sehingga rawan kemasukan data kotor. Dan siapa yang bisa memastikan database kita tidak diakses aplikasi lain? Mungkin sekarang tidak &#8230; tapi tahun depan ketika ada kebutuhan baru, bisa saja ada orang lain yang mengembangkan aplikasi di atas database kita tersebut.</p>
+
+<p>Di sisi lain, validasi di presentation layer juga penting, supaya round-trip nya tidak terlalu panjang.
+Katakanlah kita punya layer seperti ini:
+presentation &#8211;> business &#8211;> data access</p>
+
+<p>Kalau cuma ada validasi database, maka kita perlu meng-catch SQLException untuk kemudian diteruskan ke depan, entah itu as-is SQLException ataupun dienkapsulasi menjadi DataAccessException dan kemudian dibungkus lagi menjadi BusinessLayerException.
+Apalagi kalau aplikasinya ada di mesin berbeda. Ongkos perjalanan Exceptionnya jadi mahal.
+Itu makanya penting validasi di presentation layer.</p>
+
+<p>So &#8230; idealnya validasi ada di semua layer.</p>
+
+<p>Tapi ini tidak berarti saya menganjurkan untuk menulis kode validasi di semua layer lho. Kode program itu idealnya tidak boleh terduplikasi. Logika validasi hanya ditulis sekali. Kalau aturan yang sama ditulis berkali-kali nanti pasti akan datang masanya kita (atau orang lain yang mewarisi kode program kita) mengganti aturan di satu tempat, dan lupa mengganti di tempat lain. Jadi, untuk setiap aturan, harus satu kali saja menulisnya.</p>
+
+<p>Banyak cara agar codingnya cukup satu kali saja, misalnya mendefinisikan constraint dengan Hibernate, dan biarkan dia yang menggenerate DDL. Biasanya constraint unique, required, dan semacamnya akan langsung dibuatkan database constraintnya.</p>
+
+<p>Kemudian di presentation layer, buat aturan validasi yang dinamis, yang bisa membaca hibernate annotation dan kemudian menggenerate rutin validasi baik itu JavaScript (kalau aplikasinya web), atau pemanggilan method Java (kalau itu Swing).</p>
+
+<p>Demikian pendapat saya tentang validasi. Bagaimana menurut Anda?</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -506,166 +568,6 @@ Caranya, tergantung masing-masing distro. Biasanya, kita simpan dulu ke file men
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/konfigurasi-mod_jk/">Konfigurasi Mod_jk</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-08-15T22:52:26+07:00" pubdate data-updated="true">Aug 15<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ada kalanya, kita ingin mempublikasikan aplikasi Java kita melalui Apache HTTPD, webserver paling populer dan paling banyak digunakan di dunia.</p>
-
-<p>Beberapa alasan untuk melakukan ini antara lain:</p>
-
-<ul>
-<li><p>Kita ingin menjalankan Tomcat dalam cluster, diakses melalui satu pintu gerbang, yaitu Apache HTTPD</p></li>
-<li><p>Kita tidak ingin membuka port 8080 ke seluruh dunia, cukup buka port 80 dan 443 saja. Sedangkan di port 80 sudah ada aplikasi lain (PHP, Rails, whatever) yang dihosting di atas Apache HTTPD</p></li>
-<li><p>Kita ingin melayani static page dengan Apache HTTPD, dan dynamic page dengan Tomcat</p></li>
-<li><p>Dan masih banyak alasan lain.</p></li>
-</ul>
-
-
-<p>Konfigurasi ini saya lakukan di Ubuntu Feisty 7.04. Langkah-langkahnya relatif mirip untuk distro lain, yang kalau disimpulkan terdiri dari:</p>
-
-<ol>
-<li><p>Install Apache</p></li>
-<li><p>Install Tomcat</p></li>
-<li><p>Deploy Aplikasi Java di Tomcat</p></li>
-<li><p>Install mod_jk</p></li>
-<li><p>Konfigurasi worker</p></li>
-<li><p>Konfigurasi virtual host</p></li>
-</ol>
-
-
-<p>Baiklah, mari kita mulai saja.</p>
-
-<h3>Instalasi Apache</h3>
-
-<p>Saya gunakan Apache 2.2 yang disediakan oleh repository Ubuntu. Instalasi sangat mudah:
-<code>sudo apt-get install apache2</code></p>
-
-<p>Setelah instalasi selesai pastikan webserver sudah berjalan dengan baik dengan cara mengakses <code>http://localhost</code></p>
-
-<h3>Instalasi Tomcat</h3>
-
-<p>Kita bisa menginstal Tomcat melalui apt-get, tetapi saya lebih suka menggunakan cara manual.
-Unduh dari <a href="http://tomcat.apache.org">situsnya</a>, kemudian ekstrak di folder /opt.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd /opt
-</span><span class='line'>sudo tar xvzf apache-tomcat-xx.tar.gz</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Setelah itu, jalankan Tomcat.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /opt/tomcat/bin/startup.sh</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Jangan lupa mengatur environment variable <code>JAVA_HOME</code> ke tempat instalasi Java SDK Anda sebelum menjalankan Tomcat.</p>
-
-<p>Periksa keberhasilan instalasi Tomcat dengan cara browse ke <code>http://localhost:8080</code></p>
-
-<h3>Deploy Aplikasi Java</h3>
-
-<p>Pada saat ini, kita sudah bisa mendeploy aplikasi Java ke Tomcat, tepatnya di folder <code>[TOMCAT_HOME]/webapps</code>.
-Untuk mudahnya, kita tidak akan instal aplikasi, tapi menggunakan tomcat-docs yang sudah disediakan Tomcat.</p>
-
-<h3>Install mod_jk</h3>
-
-<p>Instalasi mod_jk di Ubuntu sangat mudah, cukup lakukan <code>sudo apt-get install libapache2-mod-jk</code></p>
-
-<p><code>mod_jk</code> akan diinstal dan langsung diaktifkan.</p>
-
-<p>Sebelum <code>mod_jk</code> bisa bekerja dengan benar, kita harus melakukan sedikit konfigurasi. Saya membuat file konfigurasi di <code>/etc/apache2/mods-available/jk.conf</code>.
-Letak file konfigurasi tidak penting, yang penting adalah file tersebut dibaca oleh Apache. Silahkan baca-baca manual konfigurasi untuk distro Anda</p>
-
-<p>Berikut adalah isi file <code>/etc/apache2/mods-available/jk.conf</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>JkWorkersFile /etc/apache2/mods-available/workers.properties
-</span><span class='line'>JkShmFile     /var/log/apache2/mod_jk.shm
-</span><span class='line'>JkLogFile     /var/log/apache2/mod_jk.log
-</span><span class='line'>JkLogLevel    info
-</span><span class='line'>JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Seperti kita lihat di baris pertama, ada referensi ke file <code>workers.properties</code>. Kita akan bahas file ini di bagian selanjutnya.</p>
-
-<p>Sisa file ini mendefinisikan konfigurasi log file.</p>
-
-<h3>Konfigurasi Workers</h3>
-
-<p>File <code>workers.properties</code> mendefinisikan semua worker yang tersedia. Worker adalah Tomcat yang akan melayani request ke aplikasi Java. Untuk mengaktifkan clustering, kita bisa mengkonfigurasi banyak worker sekaligus.
-Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.</p>
-
-<p>Berikut adalah isi file <code>workers.properties</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>worker.list=worker1
-</span><span class='line'>worker.worker1.type=ajp13
-</span><span class='line'>worker.worker1.host=localhost
-</span><span class='line'>worker.worker1.port=8009</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Konfigurasi Virtual Host</h3>
-
-<p>Terakhir, kita akan mengkonfigurasi virtual host agar Apache HTTPD dapat melakukan forwarding dengan benar. Pada contoh ini, kita akan mengarahkan request ke <code>http://localhost/tomcat-docs</code> agar dilayani oleh Tomcat. Berikut konfigurasi Virtual Hostnya.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;VirtualHost&gt;</span>
-</span><span class='line'>    JkMount /tomcat-docs/* worker1
-</span><span class='line'><span class="nt">&lt;/VirtualHost&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Jika ingin mempublikasikan banyak aplikasi Java sekaligus, duplikasi saja baris <code>JkMount</code> di atas agar mengarah ke masing-masing aplikasi kita yang sudah dideploy di dalam folder <code>[TOMCAT_HOME]/webapps</code>.</p>
-
-<p>Konfigurasi virtual host di atas bisa digabungkan dengan konfigurasi lain seperti <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">repository Subversion</a>, Ruby on Rails, dan sebagainya. Cukup selipkan baris <code>JkMount</code> di dalam blok <code>VirtualHost</code>.</p>
-
-<p>Letak konfigurasi Virtual Host berbeda antar distro. Di keluarga Debian, konfigurasinya ada di folder <code>/etc/apache2/sites-available</code>.</p>
-
-<p>Setelah selesai, coba restart Apache HTTPD. Kalau semua berjalan lancar, dokumentasi Tomcat yang tadinya hanya bisa diakses di <code>http://localhost:8080/tomcat-docs/</code> sekarang juga bisa diakses di <code>http://localhost/tomcat-docs/</code>. Perhatikan perbedaan portnya, yang belakangan dilayani oleh Apache HTTPD.</p>
-
-<p>Selamat mencoba :D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/45/">&larr; Older</a>
@@ -742,6 +644,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/ongoing-learning/">Ongoing Learning</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/development-stack-2014/">Development Stack 2014</a>
       </li>
     
@@ -775,10 +681,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/kumpulan-tutorial-spring-framework/">Kumpulan Tutorial Spring Framework</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/tugas-kuliah-pemrograman-1/">Tugas Kuliah Pemrograman 1</a>
       </li>
     
   </ul>
