@@ -7,8 +7,6 @@ categories:
 - life
 ---
 
-Ongoing Learning
-
 Hidup sebagai programmer bisa diibaratkan seperti nyemplung di laut. Untuk bisa survive, kita harus terus bergerak dan berenang. Begitu kita diam, langsung deh tenggelam.
 
 Ini juga berlaku buat saya yang sudah 12 tahun jadi programmer. Teknologi baru bermunculan dengan cepat dan kita harus _keep up to date_. Artikel ini adalah bagian pertama dari catatan perjalanan saya belajar teknologi baru. Seperti biasa, source code yang dihasilkan akan saya share di Github.
@@ -77,6 +75,7 @@ Karena ini dunia yang baru bagi saya, kombinasi stacknya masih belum saya pahami
 * Framework MVC untuk di sisi server ada dua kandidat kuat yaitu [ExpressJS](http://expressjs.com/) dan [SailJS](http://sailsjs.org/#!documentation).
 * Workflow tools (ala Maven) bisa pakai [Yeoman](http://yeoman.io/). Di dalamnya dia include [Bower](http://bower.io/) dan [Grunt](http://gruntjs.com/). Sekilas baca, Bower adalah dependency management (bertugas untuk mencarikan library yang kita butuhkan) dan Grunt adalah tools untuk build (compile, minify, optimize, dsb)
 * [Integrasi antara NodeJS, ExpressJS, dan Redis](http://blog.modulus.io/nodejs-and-express-sessions)
+* [Simpan data ke Redis dengan NodeJS](http://blog.semmy.me/post/46247962979/storing-simple-data-with-redis-and-node-js)
 * [Deployment NodeJS dan Redis di Heroku](https://devcenter.heroku.com/articles/redistogo)
 
 Perlu diketahui, NodeJS adalah JavaScript untuk di sisi server. Di sisi client, kita akan menggunakan AngularJS dan Twitter Bootstrap. Untuk itu, kita cari tahu dulu [bagaimana menyambungkan AngularJS dan NodeJS](https://www.google.com/search?q=sample+application+nodejs+angularjs). Terutama, bagaimana mengatur struktur folder aplikasinya.
