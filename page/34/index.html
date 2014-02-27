@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Mulai beberapa minggu ini, ArtiVisi kebanjiran project. Ini tentu harus dikelola dengan baik. Semua orang harus bekerja se-efisien mungkin. Menjadi &hellip;">
+  <meta name="description" content="Trac sudah terinstal, sekarang harus diamankan melalui prosedur backup. Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,107 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/backup-trac/">Backup Trac</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-09-04T19:41:14+07:00" pubdate data-updated="true">Sep 4<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://endy.artivisi.com/blog/linux/instalasi-trac">Trac sudah terinstal</a>, sekarang harus diamankan melalui prosedur backup.</p>
+
+<p>Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau tidak begitu, pasti tidak akan dijalankan. Jadi, selain kegiatan memburn CD, kegiatan backup lainnya harus diotomasi.</p>
+
+<p>Di website Trac sudah dijelaskan tentang <a href="http://trac.edgewall.org/wiki/TracBackup">cara melakukan backup terhadap instalasi Trac</a>. Kita hanya perlu membuat script sedikit supaya bisa membackup seluruh project dalam folder parent trac, dan mengkompresnya.</p>
+
+<p>Berikut scriptnya, seperti biasa, menggunakan Ruby.</p>
+
+<p>Script ini diadaptasi dari <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">script sebelumnya untuk backup Subversion repo</a>.</p>
+
+<p>Berikut scriptnya</p>
+
+<pre><code>require 'zlib'
+require 'fileutils' 
+
+if ARGV.length &lt; 2
+  puts "Usage : ruby trac-backup.rb &lt;Trac Parent folder&gt; &lt;backupfolder&gt;"
+  exit
+end
+
+# some configuration
+trac_parent_path = ARGV[0]
+backup_folder = ARGV[1]
+
+# variable initialization
+current_date = Time.now.strftime("%Y%m%d")
+
+Dir.foreach(trac_parent_path) { |trac|
+    next if('.' == trac || '..' == trac)
+    puts "Start to process folder : "+trac
+
+    puts "Performing trac hotcopy"
+    project_name = trac_parent_path + File::SEPARATOR + trac
+    dumpfile_folder = trac + '-' +current_date
+    dumpfile = backup_folder + File::SEPARATOR + dumpfile_folder
+
+    `trac-admin #{project_name} hotcopy #{dumpfile}`
+
+    puts "Compressing dumpfile"
+    `tar czf #{backup_folder}/#{dumpfile_folder}.tar.gz -C #{backup_folder} #{dumpfile_folder}`
+
+    puts "Deleting uncompressed backup"
+    FileUtils.rm_r dumpfile
+}
+</code></pre>
+
+<p>Save dengan nama <code>trac-backup.rb</code>.</p>
+
+<p>Warning, kode di atas tidak bisa dijalankan di Windows, karena menggunakan command line tar untuk mengkompres file. Jika Anda ingin menggunakan di Windows, silahkan gunakan TugZIP seperti <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">contoh ini</a>.</p>
+
+<p>Untuk menjalankannya, cukup panggil dari command prompt.</p>
+
+<pre><code>ruby trac-backup.rb /var/lib/trac /folder/tempat/backup
+</code></pre>
+
+<p>Supaya fully-automated, daftarkan di cron. Buka editor crontab.</p>
+
+<pre><code>crontab -e
+</code></pre>
+
+<p>Kemudian ketikkan entri sebagai berikut</p>
+
+<pre><code>0 23 * * 5 /usr/bin/ruby /full/path/ke/trac-backup.rb /var/lib/trac /full/path/ke/folder/backup
+</code></pre>
+
+<p>Backup akan dijalankan setiap jam 23.00 pada hari Jumat. Lebih lanjut tentang cron bisa <a href="http://bandung.linux.or.id/node/24">dibaca di sini</a>. Jika bingung dengan formatnya, bisa gunakan <a href="http://www.htmlbasix.com/crontab.shtml">generator crontab online</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -377,133 +478,6 @@ Build failed
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/lain/klikbca-bisnis-di-ubuntu/">KlikBCA Bisnis Di Ubuntu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-08-27T20:12:48+07:00" pubdate data-updated="true">Aug 27<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Setelah menjadi pengusaha, KlikBCA saya berganti, dari Individual menjadi Bisnis. Hmm &#8230; tentunya KlikBCA ini juga harus bisa diakses via Linux.</p>
-
-<p>Untuk mengakses KlikBCA Bisnis, kita harus dial up VPN dulu. BCA menyediakan installer untuk VPN dialer versi Windows.</p>
-
-<p>Google punya google, dapat link <a href="http://blogindra.sanjaya.org/2007/01/menggunakan-klikbca-bisnis-di-ubuntu.html">ini</a> dan <a href="http://linux.or.id/node/1418">ini</a>. Tapi keduanya ternyata tidak menyelesaikan masalah. Ada beberapa hal yang kurang jelas. Mudah-mudahan posting ini bisa menjelaskan semuanya sehingga kita semua bisa berbisnis dengan BCA menggunakan Ubuntu Linux.</p>
-
-<p>Pertama, kita tetap butuh komputer Windows. Di komputer Windows ini, kita instal aplikasi KlikBCA Dialer. Tujuan utamanya adalah mendapatkan informasi koneksi VPN yang sebagian ada dalam file <code>KlikBCA Bisnis.pcf</code>. File ini bisa kita dapatkan di CD Installer, tapi ternyata formatnya berbeda dengan yang sudah terinstal. So, instal dulu dialernya, kemudian buka file <code>KlikBCA Bisnis.pcf</code> dengan text editor.</p>
-
-<p>Kita butuh beberapa informasi dari file ini, yaitu:</p>
-
-<ol>
-<li><p>Host : Ini adalah nama komputer VPN Server</p></li>
-<li><p>GroupName</p></li>
-</ol>
-
-
-<p>Kedua, kita butuh aplikasi kecil untuk mendekripsi field <code>enc_GroupPwd</code> dalam file <code>KlikBCA Bisnis.pcf</code>. Aplikasi tersebut bisa <a href="http://newgre.net/passwordrevealer">diunduh di sini</a>. Kopikan ke komputer Windows yang sudah terinstal dialer, dan jalankan. Nanti kita akan ditanya Profile mana yang mau didekripsi. Pilih saja <code>KlikBCA Bisnis.pcf</code>. Nanti dia akan menampilkan Group Password yang sudah terdekripsi.</p>
-
-<p>Selesai dengan Windows, silahkan diformat menjadi Ubuntu.</p>
-
-<p>Ketiga, instal dulu VPN Client dan interface Network Managernya.</p>
-
-<pre><code>sudo apt-get install vpnc network-manager-vpnc
-</code></pre>
-
-<p>Keempat, kita konfigurasi Network Manager Applet. Network Manager Applet adalah icon kecil di taskbar atas, sebelah kanan. Berikut contohnya.</p>
-
-<p><img src="/images/uploads/2008/08/netman-applet.png" title="" >
-<em>Gambar diambil dari <a href="http://www.gnome.org/projects/NetworkManager/">sini</a></em>.</p>
-
-<p>Pilih VPN Connections - Configure VPN. Nanti akan tampil daftar jaringan VPN yang sudah ada. Karena kita belum mengkonfigurasi, tentunya ini masih kosong.</p>
-
-<p><img src="/images/uploads/2008/08/add-vpn.png" title="" ></p>
-
-<p>Selanjutnya, klik Add untuk menambah jaringan VPN baru. Wizardnya akan muncul.</p>
-
-<p><img src="/images/uploads/2008/08/01-create-vpn.png" title="" ></p>
-
-<p>Kita akan disajikan pilihan VPN client yang tersedia. Pilih Cisco compatible.</p>
-
-<p><img src="/images/uploads/2008/08/02-choose-protocol.png" title="" ></p>
-
-<p>Masukkan data-data sesuai dengan isi file <code>KlikBCA Bisnis.pcf</code>.</p>
-
-<p><img src="/images/uploads/2008/08/02a-gateway.png" title="" ></p>
-
-<p>Dalam tab pertama, isikan:</p>
-
-<ul>
-<li><p>Gateway : Sesuai isi field Host</p></li>
-<li><p>Group Name : Sesuai isi field GroupName</p></li>
-</ul>
-
-
-<p>Klik tab Optional, lalu centang Override user name.
-<img src="/images/uploads/2008/08/02b-username.png" title="" ></p>
-
-<p>Isikan Corporate Id + User Id yang diberikan BCA pada Anda. Kedua ID digabungkan tanpa spasi dan diisikan di textfield Override user name.</p>
-
-<p>Selesai konfigurasi, sekarang jika ingin connect, klik pada network manager applet : VPN Connections - KlikBCA Bisnis. Nanti akan muncul pertanyaan password dan group password.</p>
-
-<p><img src="/images/uploads/2008/08/04-authenticate-vpn.png" title="" ></p>
-
-<p>Password diisi dengan respon dari KeyBCA APPLI 1. Group password diisi dengan hasil dekripsi Group Password. Group password boleh disimpan di keyring, karena nilainya tidak berubah-ubah. Tapi password tidak perlu disimpan, karena nilainya berubah sesuai KeyBCA APPLI 1.</p>
-
-<p>Kalau semua nilai yang diisikan benar, maka setelah menunggu sepeminuman teh, Anda akan segera terhubung ke VPN BCA. Ini ditandai dengan adanya tanda gembok pada network manager applet.</p>
-
-<p>Untuk menyudahi koneksi VPN, bila Anda sudah selesai menggunakan KlikBCA Bisnis, klik lagi network manager applet : VPN Connections - Disconnect VPN.</p>
-
-<p>Beberapa linux user belum merasa macho kalau tidak mengedit text file. No problem, jika ingin connect via command line, begini caranya.</p>
-
-<p>Buat file <code>/etc/vpnc/default.conf</code>. Isinya sebagai berikut:</p>
-
-<pre><code>IPSec gateway &lt;masukkan isi field Host&gt;
-IPSec ID &lt;masukkan isi field GroupName&gt;
-IPSec secret &lt;masukkan hasil dekripsi Group Password&gt;
-Xauth username &lt;masukkan CorporateID digabung dengan UserID&gt;
-</code></pre>
-
-<p>Selesai konfigurasi. Sekarang dial dengan cara menjalankan:</p>
-
-<pre><code>sudo vpnc-connect
-</code></pre>
-
-<p>Nanti dia akan minta password. Masukkan respon APPLI 1 KeyBCA.</p>
-
-<p>Untuk mengakhiri koneksi VPN, jalankan:</p>
-
-<pre><code>sudo vpnc-disconnect
-</code></pre>
-
-<p>Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/35/">&larr; Older</a>
@@ -580,6 +554,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
+      </li>
+    
+      <li class="post">
         <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
       </li>
     
@@ -613,10 +591,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/android/persiapan-coding-android/">Persiapan Coding Android</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/persiapan-coding-java/">Persiapan Coding Java</a>
       </li>
     
   </ul>

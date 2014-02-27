@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/javascript/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2014-02-21T15:55:24+07:00</updated>
+  <updated>2014-02-27T21:38:18+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,645 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[JavaScript Development Stack]]></title>
+    <link href="http://software.endy.muhardin.com/javascript/javascript-development-stack/"/>
+    <updated>2014-02-27T21:11:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/javascript/javascript-development-stack</id>
+    <content type="html"><![CDATA[<p>Pada <a href="http://software.endy.muhardin.com/javascript/persiapan-coding-nodejs/">artikel sebelumnya</a>, kita telah sukses menyiapkan kombinasi framework di sisi server. Nah sekarang kita akan siapkan persenjataan untuk aplikasi clientnya.</p>
+
+<p>Artikel bagian kedua ini berselang waktu agak lama dari artikel sebelumnya karena saya bingung :D
+Nah saya yakin kebingungan ini juga akan dialami oleh rekan-rekan yang baru belajar server-side-javascript. Ada beberapa hal yang membuat saya bingung, yaitu:</p>
+
+<ul>
+<li>arsitektur aplikasi dan bahasa pemrograman</li>
+<li>development tools</li>
+<li>integrasi aplikasi pada saat development</li>
+<li>integrasi aplikasi pada saat production</li>
+</ul>
+
+
+<p>Sebagai gambaran, bentuk akhir dari aplikasi yang akan dibuat seperti ini</p>
+
+<p><img src="https://lh4.googleusercontent.com/-a6DbvzDCjUA/Uw7xgeieBQI/AAAAAAAAFR0/fIac8wOIBGg/w844-h597-no/mean-stack.png"></p>
+
+<!--more-->
+
+
+<h2>Arsitektur Aplikasi</h2>
+
+<p>Biasanya kalau kita membuat aplikasi web modern dengan menggunakan AJAX, begini arsitekturnya:</p>
+
+<p>Aplikasi akan terbagi menjadi dua bagian (client side dan server side) yang jelas batasannya, yaitu:</p>
+
+<ul>
+<li>server side dibuat menggunakan PHP/Java/Ruby/Python/dsb</li>
+<li>client side dibuat menggunakan framework JavaScript (AngularJS, EmberJS, jQuery, Dojo, ExtJS, dsb)</li>
+</ul>
+
+
+<p>Kalau kita membuat aplikasi menggunakan NodeJS, maka semuanya dibuat menggunakan bahasa pemrograman JavaScript. Ini bisa membuat kita bingung, mana client side mana server side, karena semuanya JS. Supaya tidak bingung, kita anggap saja NodeJS ini adalah PHP. Dia hanya bisa jalan di server saja, tidak bisa jalan di browser. Dengan cara berpikir seperti ini, skema berikut ini</p>
+
+<p><img src="https://lh3.googleusercontent.com/-rdH4DqYrios/Uw7xQi5JTUI/AAAAAAAAFRk/U1AOrcjH4yM/w522-h216-no/lamp-stack.png"></p>
+
+<p>sama saja dengan ini</p>
+
+<p><img src="https://lh3.googleusercontent.com/-AQfudbu3qXo/Uw7xRPvnQYI/AAAAAAAAFRs/G1pkS6S3uvM/w522-h216-no/mean-stack.png"></p>
+
+<p>Kita juga harus membedakan framework JavaScript client-side seperti:</p>
+
+<ul>
+<li><a href="http://angularjs.org/">AngularJS</a></li>
+<li><a href="http://emberjs.com">EmberJS</a></li>
+<li><a href="http://www.sencha.com/products/extjs">ExtJS</a></li>
+<li><a href="http://dojotoolkit.org">Dojo</a></li>
+<li>dsb</li>
+</ul>
+
+
+<p>dan framework JavaScript server-side seperti:</p>
+
+<ul>
+<li><a href="http://expressjs.com">ExpressJS</a></li>
+<li><a href="http://sailsjs.org">SailsJS</a></li>
+<li><a href="http://towerjs.org">TowerJS</a></li>
+<li><a href="http://locomotivejs.org">Locomotive</a></li>
+<li>dsb</li>
+</ul>
+
+
+<p>Setelah jelas mengenai arsitektur, kebingungan selanjutnya adalah masalah tools</p>
+
+<h2>Development Tools</h2>
+
+<p>Urusan tools ini cukup membuat saya pusing beberapa hari, padahal saya sudah ada pengalaman sebelumnya dengan Maven, Jenkins, Subversion, Git, JUnit, dan kawan-kawannya. Di dunia JavaScript ada banyak tools yang digunakan, yaitu:</p>
+
+<ul>
+<li><a href="https://www.npmjs.org/">npm</a></li>
+<li><a href="http://yeoman.io/">yeoman</a></li>
+<li><a href="http://bower.io/">bower</a></li>
+<li><a href="http://gruntjs.com/">grunt</a></li>
+</ul>
+
+
+<p>Mari kita bahas satu persatu.</p>
+
+<h3>NPM</h3>
+
+<p>NPM adalah singkatan dari NodeJS Package Manager. Agar lebih mudah dipahami, kita lihat padanannya di platform lain:</p>
+
+<ul>
+<li>Ruby : gem</li>
+<li>Java : Maven Repository</li>
+<li>Ubuntu : apt-get</li>
+<li>Python : pip</li>
+<li>Android : Play Store</li>
+</ul>
+
+
+<p>Kita menginstal library JavaScript dengan perintah <code>npm install</code>. Instalasi ini ada yang bersifat global di seluruh komputer, ataupun local di masing-masing project. Untuk menginstal secara global, kita membutuhkan hak akses penuh, sehingga harus menggunakan <code>sudo</code> di Ubuntu.</p>
+
+<p>Contohnya, untuk menginstal framework SailsJS, kita jalankan <code>sudo npm install -g sails</code>. Untuk menginstal Yeoman, perintahnya adalah <code>sudo npm install -g yo</code>.</p>
+
+<blockquote><p>Warning: siapkan koneksi internet yang mumpuni pada saat menjalankan <code>npm install</code>.
+Dia akan mengunduh paket yang kita minta dari internet berikut semua paket lain yang dibutuhkan.</p></blockquote>
+
+<h3>Yeoman</h3>
+
+<p>Yeoman adalah generator aplikasi. Dia menyediakan template project dengan berbagai kombinasi library. Di Java, padanannya adalah Maven Archetype, Appfuse, atau Spring Roo. Ruby on Rails dan Groovy juga memiliki fitur generator ini.</p>
+
+<p>Contohnya, bila kita ingin membuat aplikasi web dengan AngularJS dan Twitter Bootstrap, kita jalankan perintah berikut:</p>
+
+<p><code>
+mkdir aplikasi-saya
+cd aplikasi-saya
+yo angular
+</code></p>
+
+<p>Yeoman akan membuatkan struktur folder dan beberapa contoh file sesuai dengan <em>best practices</em> masing-masing teknologi yang dipilih.</p>
+
+<p>Yeoman bekerja sama dengan dua tools lain, yaitu Bower dan Grunt.</p>
+
+<h3>Bower</h3>
+
+<p>Bower mirip dengan NPM, yaitu bertugas menginstal sesuatu.</p>
+
+<blockquote><p>Waduh, kenapa ada dua tools yang fungsinya sama?</p></blockquote>
+
+<p>Jangan khawatir, banyak orang menanyakan hal yang sama. Diskusinya bisa dibaca di thread SO <a href="http://stackoverflow.com/questions/15092345/javascript-dependency-management-npm-vs-bower-vs-volo">ini</a> dan <a href="http://stackoverflow.com/questions/18641899/difference-between-bower-and-npm">ini</a>. Ada juga <a href="http://tech.pro/tutorial/1190/package-managers-an-introductory-guide-for-the-uninitiated-front-end-developer">penjelasan panjang lebar tentang penggunaan keduanya</a>.</p>
+
+<p>Untuk menyederhanakan masalah, berikut kesimpulan saya</p>
+
+<blockquote><p>NPM digunakan untuk mengelola library javascript sedangkan Bower digunakan untuk mengelola kelengkapan aplikasi web (js, css, png).</p></blockquote>
+
+<h3>Grunt</h3>
+
+<p>Grunt adalah library scripting untuk melakukan build process. Di Java padanannya kira-kira adalah <code>ant</code>. Di Ruby padanannya <code>rake</code>.</p>
+
+<p>Grunt memiliki fitur antara lain:</p>
+
+<ul>
+<li>compile/minify/compress kode program JavaScript, baik yang kita tulis sendiri maupun yang dibuat orang lain dan kita gunakan dalam aplikasi kita (seperti jQuery, underscore.js, dsb)</li>
+<li>menjalankan test otomatis</li>
+<li>menjalankan server process, proxy, dan sejenisnya</li>
+</ul>
+
+
+<h2>Kombinasi Stack</h2>
+
+<p>Nah sekarang setelah peta situasi sudah jelas, tiba saatnya kita memilih framework.</p>
+
+<p>Di sisi client, saya akan tetap menggunakan kombinasi andalan, yaitu AngularJS dan Bootstrap. Bagaimana dengan di sisi server?</p>
+
+<p>Hasil blusukan di Google mengarahkan saya ke framework paling populer di dunia NodeJS, yaitu ExpressJS. Bagi yang suka minimalis, ExpressJS ini sudah cukup. Walaupun demikian, saya ketemu pengembangan dari ExpressJS yang sudah ditambahi segala macam fitur validasi, REST API, scaffolding, dan fitur-fitur lain untuk mempercepat development, yaitu SailsJS. Dia juga sudah dilengkapi dengan ORM untuk berinteraksi dengan database.</p>
+
+<p>Agar tidak berlama-lama, mari kita pilih saja SailsJS untuk keperluan belajar ini. Nanti kalau sudah jadi satu aplikasi, sudah tahu manis-pahitnya SailsJS, baru kita punya patokan untuk mengevaluasi framework kompetitornya.</p>
+
+<h3>Integrasi Client - Server</h3>
+
+<p>Di sisi client ada Yeoman dan di sisi server ada Sails yang juga memiliki fitur generator. Kedua tools ini memiliki persamaan fitur dalam kaitannya dengan proses/workflow development, yaitu:</p>
+
+<ul>
+<li>generate template file</li>
+<li>kompresi aset (js, css)</li>
+<li>menjalankan tes otomatis</li>
+<li>embedded web server untuk keperluan testing di local</li>
+<li>dependency management untuk add/remove/upgrade library</li>
+</ul>
+
+
+<blockquote><p>Mau pakai yang mana?</p></blockquote>
+
+<p>Untuk menjawab pertanyaan ini, kita harus sedikit <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">yak-shaving</a> dulu melihat bagaimana nantinya aplikasi kita akan dideploy ke lingkungan production. Dari sini, kita akan membuat lingkungan development semirip mungkin. Tentunya walaupun diusahakan mirip, kita ingin proses coding seefisien mungkin supaya siklus feedbacknya cepat.</p>
+
+<p>Ada beberapa tujuan yang ingin saya capai:</p>
+
+<ul>
+<li>aplikasi server (SailJS) dan aplikasi client (Yeoman) ingin disimpan dalam satu repository</li>
+<li>kedua aplikasi akan dideploy sebagai satu kesatuan pada waktu production. Kedua aplikasi harus berada di satu folder</li>
+<li>masing-masing aplikasi harus bisa dikerjakan dan dites secara independen</li>
+<li>kita menggunakan tools terbaik untuk masing-masing aplikasi. Artinya, untuk aplikasi client tetap menggunakan Yeoman dan untuk aplikasi server tetap menggunakan SailJS.</li>
+</ul>
+
+
+<p>Blusukan lagi di google, ketemu dua artikel bagus. Yang satu membahas <a href="http://www.slideshare.net/BenLin2/webconf-nodejsproductionarchitecture">deployment production dan tahapan skalabilitas</a> mulai dari aplikasinya dipakai sedikit orang hingga jutaan orang.</p>
+
+<p>Satu lagi membahas tentang <a href="http://www.emmanueloga.com/2013/07/23/Using-AngularJS-with-a-Rails-backend.html">skema workflow selama development</a>. Skema development ini sebetulnya tidak terlalu mirip dengan kombinasi stack yang kita pakai, karena dia menggunakan AngularJS dan Rails sedangkan kita AngularJS dan NodeJS. Walaupun demikian, struktur aplikasinya sama dan skema deploymentnya konsisten dengan yang dijelaskan di artikel pertama.</p>
+
+<p>Berikut adalah arsitektur deployment di lingkungan production yang kita tuju</p>
+
+<p><img src="https://lh5.googleusercontent.com/-45qcTjWcens/Uw8ehKdmLOI/AAAAAAAAFSo/ZQiJqKzeZrk/w734-h550-no/deployment-production.png"></p>
+
+<p>Dan ini adalah skema deployment di laptop masing-masing programmer</p>
+
+<p><img src="https://lh4.googleusercontent.com/-LvEC29ahKfs/Uw8ehH3uMbI/AAAAAAAAFSs/QzxyjTUSWQ8/w386-h550-no/deployment-development.png"></p>
+
+<blockquote><p>Cukup mirip kan?</p></blockquote>
+
+<p>Segala riset dan artikel di atas menghasilkan kesimpulan berikut:</p>
+
+<ul>
+<li>struktur folder project</li>
+<li>strategi integrasi</li>
+<li>deployment baik di development maupun production.</li>
+</ul>
+
+
+<p>Berikut adalah kesimpulan saya untuk struktur folder project:</p>
+
+<ul>
+<li>aplikasi akan terdiri dari dua folder : xxx-server (berisi SailsJS) dan xxx-client (berisi AngularJS dkk dimanage dengan Yeoman)</li>
+<li>untuk keperluan test di laptop, aplikasi client akan dijalankan terpisah dengan server. Aplikasi client dijalankan dengan perintah <code>grunt serve</code> dan akan standby di port <code>9000</code>. Aplikasi server dijalankan menggunakan perintah <code>sails lift</code> dan standby di port <code>1337</code>. Dengan ini, aplikasi client dan server bisa dikerjakan dan dites secara terpisah</li>
+<li>pada saat dibutuhkan integration test (client dan server sudah terhubung), kita konfigurasi Grunt agar request ke url <code>/api/*</code> diteruskan ke SailsJS di port <code>1337</code></li>
+<li>pada proses build aplikasi client, arahkan hasil build ke folder xxx-server/static</li>
+</ul>
+
+
+<h2>Menyiapkan Aplikasi</h2>
+
+<p>Ada satu prinsip yang saya pegang dalam dunia pemrograman,</p>
+
+<blockquote><p>Jangan mulai coding sebelum jelas apa yang mau dibuat.</p></blockquote>
+
+<p>Itulah sebabnya saya menghabiskan waktu puluhan jam mencari artikel di Google, membacanya satu persatu, menonton video tutorial dari Youtube, dan mencoba coding sedikit-sedikit agar mendapatkan gambaran. Semua usaha tersebut dilakukan untuk mencari tahu bagaimana best-practices dalam membuat aplikasi. Setelah jelas apa yang kita ingin capai dan strategi untuk tiba di tujuan, barulah kita mulai coding.</p>
+
+<p>Apa yang kita bahas pada bagian ini adalah hal yang mudah. Bagian sulitnya ada di penjelasan arsitektur aplikasi di atas. Tidak percaya? Mari kita mulai.</p>
+
+<h3>Aplikasi Server</h3>
+
+<p>Kita mulai dari aplikasi server dulu. Langkah-langkahnya sebagai berikut:</p>
+
+<ul>
+<li>instalasi framework SailsJS</li>
+<li>buat folder aplikasi-membership-server</li>
+<li>generate struktur aplikasi menggunakan fitur SailsJS</li>
+</ul>
+
+
+<p>Kita mulai dengan instalasi SailsJS. Ini dilakukan sekali saja dalam satu komputer. Untuk aplikasi kedua dan seterusnya, kita tidak perlu lagi menginstal SailsJS</p>
+
+<p><code>
+sudo npm install -g sails
+</code></p>
+
+<p>NPM akan mengunduh segala macam paket yang dibutuhkan dari internet. Siapkan koneksi internet yang mumpuni. Setelah selesai, kita bisa membuat project baru.</p>
+
+<p><code>
+sails new aplikasi-membership
+cd aplikasi-membership
+sails lift
+</code></p>
+
+<p>Berikut outputnya</p>
+
+<p><code>``
+sails lift
+info:
+info:
+info:    Sails.js           &lt;|
+info:    v0.9.9              |\
+info:                       /|.\
+info:                      / || \
+info:                    ,'  |'  \
+info:                 .-'.-==|/_--'
+info:                </code>--'-------'
+info:    <strong>---</strong><em>--</em><strong>---</strong><em>--</em><strong>---</strong><em>--</em><strong>
+info:  </strong><strong>---</strong><em>--</em><strong>---</strong><em>--</em><strong>---</strong><em>--</em><strong>-</strong>
+info:
+info: Server lifted in <code>aplikasi-membership-server</code>
+info: To see your app, visit http://localhost:1337
+info: To shut down Sails, press <CTRL> + C at any time.</p>
+
+<p>debug: --------------------------------------------------------
+debug: :: Thu Feb 27 2014 19:06:32 GMT+0700 (WIB)
+debug:
+debug: Environment  : development
+debug: Port     : 1337
+debug: --------------------------------------------------------
+```</p>
+
+<p>Kita bisa browse ke <code>http://localhost:1337</code></p>
+
+<p><img src="https://lh6.googleusercontent.com/-lQ4xghosjJY/Uw9HAoW29FI/AAAAAAAAFTY/bitPnyw7nBk/w909-h573-no/01-test-sails-ok.png"></p>
+
+<p>Selesai sudah pembuatan aplikasi server. Mudah bukan?</p>
+
+<p>Kita bisa lihat isi folder <code>aplikasi-membership-server</code>, di sana sudah banyak file dan folder yang dibuatkan oleh SailsJS. Apa fungsi dan kegunaan masing-masingnya akan kita bahas di artikel terpisah.</p>
+
+<p>Sekarang kita lanjutkan dengan aplikasi client.</p>
+
+<h3>Aplikasi Client</h3>
+
+<p>Kita akan gunakan Yeoman untuk membuatkan aplikasi client. Karena kita ingin menggunakan AngularJS dan Bootstrap, kita instal dulu generator yang sesuai. Sama seperti SailsJS, instalasi ini cukup sekali saja dalam satu komputer.</p>
+
+<p><code>
+sudo npm install -g generator-angular
+</code></p>
+
+<p>Berikutnya, kita buat foldernya dan generate struktur project AngularJS dan Bootstrap</p>
+
+<p>```
+mkdir aplikasi-membership-ui
+cd aplikasi-membership-ui
+yo angular</p>
+
+<pre><code> _-----_
+|       |
+|--(o)--|   .--------------------------.
+</code></pre>
+
+<p>   `---------´  |    Welcome to Yeoman,    |</p>
+
+<pre><code>( _´U`_ )   |   ladies and gentlemen!  |
+/___A___\   '__________________________'
+ |  ~  |
+</code></pre>
+
+<p>   <strong>'.</strong>_.'__
+ ´   <code> |° ´ Y</code></p>
+
+<p>Out of the box I include Bootstrap and some AngularJS recommended modules.</p>
+
+<p>[?] Would you like to use Sass (with Compass)? No
+[?] Would you like to include Twitter Bootstrap? Yes
+[?] Which modules would you like to include? (Press <space> to select)
+‣⬢ angular-resource.js
+ ⬢ angular-cookies.js
+ ⬢ angular-sanitize.js
+ ⬢ angular-route.js
+```</p>
+
+<p>Yeoman akan menanyakan apakah kita ingin menggunakan Sass dan Bootstrap. Saya tidak ingin menggunakan Sass, karena dia mengharuskan kita untuk menginstal Ruby on Rails. Nah, Ruby on Rails ini <em>yak shaving</em> lagi, jadi tidak usah saja.</p>
+
+<p>Kita juga akan disodori pilihan modul angular mana yang ingin dipakai. Saya pilih saja semuanya. Tekan Enter, dan Yeoman akan mengunduh segala macam hal dari internet. Pastikan koneksi internet Anda memadai.</p>
+
+<p>Setelah selesai, kita bisa coba menjalankan Grunt server</p>
+
+<p>```
+grunt serve
+Running "serve" task</p>
+
+<p>Running "clean:server" (clean) task
+Cleaning .tmp...OK</p>
+
+<p>Running "bower-install:app" (bower-install) task</p>
+
+<p>Running "concurrent:server" (concurrent) task</p>
+
+<pre><code>Running "copy:styles" (copy) task
+Copied 1 files
+
+Done, without errors.
+
+
+Execution Time (2014-02-27 12:14:54 UTC)
+loading tasks  4ms  ▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 29%
+copy:styles    9ms  ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 64%
+Total 14ms
+</code></pre>
+
+<p>Running "autoprefixer:dist" (autoprefixer) task
+Prefixed file ".tmp/styles/main.css" created.</p>
+
+<p>Running "connect:livereload" (connect) task
+Started connect web server on 127.0.0.1:9000.</p>
+
+<p>Running "watch" task
+Waiting...
+```</p>
+
+<p>Browser akan terbuka dan mengarah ke <code>http://127.0.0.1:9000</code>. Ini merupakan fitur LiveReload dari Grunt. Semua perubahan yang kita buat di source code akan langsung tampil di browser tanpa perlu refresh ataupun restart.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-BIe-5q4gFYA/Uw9HAoUTHAI/AAAAAAAAFTc/wRPt39Kk9Bs/w909-h573-no/02-test-grunt-ok.png"></p>
+
+<p>Untuk mematikannya, gunakan Ctrl-C</p>
+
+<p>```
+^C</p>
+
+<p>Execution Time (2014-02-27 12:14:52 UTC)
+concurrent:server   1.7s  ▇▇▇ 5%
+watch              33.2s  ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇ 95%
+Total 35s
+```</p>
+
+<p>Selesai sudah template aplikasi client. Selanjutnya tinggal rapi-rapi sedikit.</p>
+
+<h3>Integrasi Client - Server</h3>
+
+<p>Sekarang kita sudah punya dua folder dalam project:</p>
+
+<ul>
+<li>aplikasi-membership-server</li>
+<li>aplikasi-membership-client</li>
+</ul>
+
+
+<p>Masing-masing aplikasi memiliki <code>.gitignore</code> sendiri. Sebaiknya kita gabungkan menjadi satu. Buat file <code>.gitignore</code> sejajar dengan kedua folder tersebut. Copy-paste isi dari file <code>.gitignore</code> di folder client dan server. Hapus yang duplikat, dan perbaiki referensi lokasi absolut.</p>
+
+<p>Berikutnya, kita arahkan hasil kompilasi project client ke dalam folder <code>static</code> dalam project server, supaya seisi project server bisa langsung dideploy ke production. Ini kita lakukan dengan cara mengedit <code>yeomanConfig</code>, yang awalnya seperti ini</p>
+
+<p>```
+yeoman: {</p>
+
+<pre><code>// configurable paths
+app: require('./bower.json').appPath || 'app',
+dist: 'dist'
+</code></pre>
+
+<p>},
+```</p>
+
+<p>menjadi seperti ini</p>
+
+<p>```
+yeoman: {</p>
+
+<pre><code>// configurable paths
+app: require('./bower.json').appPath || 'app',
+dist: '../aplikasi-membership-server/static'
+</code></pre>
+
+<p>},
+```</p>
+
+<p>Jangan lupa menambahkan</p>
+
+<p><code>
+aplikasi-membership-server/static
+</code></p>
+
+<p>dalam <code>.gitignore</code>, agar hasil kompilasi tidak ikut dicommit ke repository Git.</p>
+
+<p>Kita bisa mengetes hasil kompilasi Grunt. Harusnya dia akan membuat folder static dalam aplikasi server. Jalankan perintah berikut dalam folder aplikasi client</p>
+
+<p><code>
+CHROME_BIN=chromium-browser grunt
+</code></p>
+
+<p>Dia akan melakukan kompilasi, menjalankan test, kompresi js dan css, kemudian menaruh hasilnya di folder tujuan. Pastikan hasilnya ada dalam aplikasi server</p>
+
+<p><img src="https://lh3.googleusercontent.com/-kZ4ijjT4TAk/Uw9HB0thj3I/AAAAAAAAFTk/aKJJLsMglMk/w609-h597-no/04-test-compile-ok.png"></p>
+
+<p>Terakhir, kita aktifkan proxy agar url <code>api/*</code> yang mengarah ke server Grunt diteruskan ke SailsJS di port <code>1337</code>.  Proxy ini membutuhkan tambahan package <code>grunt-connect-proxy</code>. Install menggunakan <code>npm</code> dalam aplikasi client</p>
+
+<p><code>
+cd aplikasi-membership-client
+npm install grunt-connect-proxy --save-dev
+</code></p>
+
+<p>Perintah di atas akan mengunduh package <code>grunt-connect-proxy</code> dari internet dan menambahkan dependensinya ke <code>package.json</code>.</p>
+
+<p>Selanjutnya kita edit file <code>Gruntfile.js</code>. Ada beberapa bagian yang harus kita ubah:</p>
+
+<ul>
+<li><p>aktifasi modul <code>grunt-connect-proxy</code>. Tambahkan baris berikut di bawah <code>use strict</code></p>
+
+<p><code>
+var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+</code></p></li>
+<li><p>konfigurasi URL yang akan diproxy. Lokasinya di dalam blok <code>connect</code> sejajar dengan blok <code>options</code>.</p></li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Konfigurasi URL  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">options</span><span class="o">:</span> <span class="p">{</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">port</span><span class="o">:</span> <span class="mi">9000</span><span class="p">,</span>
+</span><span class='line'><span class="c1">// Change this to &#39;0.0.0.0&#39; to access the server from outside.</span>
+</span><span class='line'><span class="nx">hostname</span><span class="o">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+</span><span class='line'><span class="nx">livereload</span><span class="o">:</span> <span class="mi">35729</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">},</span>
+</span><span class='line'><span class="nx">proxies</span><span class="o">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="p">{</span>
+</span><span class='line'>    <span class="nx">context</span><span class="o">:</span> <span class="s1">&#39;/api&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">port</span><span class="o">:</span> <span class="mi">1337</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span><span class="p">],</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li>Aktivasi proxy dalam <code>middleware</code></li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Konfigurasi Middleware  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">livereload</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">options</span><span class="o">:</span> <span class="p">{</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">open</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'><span class="nx">base</span><span class="o">:</span> <span class="p">[</span>
+</span><span class='line'>  <span class="s1">&#39;.tmp&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;&amp;lt;%= yeoman.app %&amp;gt;&#39;</span>
+</span><span class='line'><span class="p">],</span>
+</span><span class='line'><span class="nx">middleware</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">connect</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">[</span>
+</span><span class='line'>    <span class="nx">proxySnippet</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">connect</span><span class="p">.</span><span class="kr">static</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">).</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;app&#39;</span><span class="p">))</span>
+</span><span class='line'>  <span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">}</span>
+</span><span class='line'><span class="p">},</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li>Panggil konfigurasi proxy pada saat server Grunt dijalankan</li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Aktivasi pada saat run </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">grunt</span><span class="p">.</span><span class="nx">task</span><span class="p">.</span><span class="nx">run</span><span class="p">([</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span>  <span class="s1">&#39;clean:server&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;bower-install&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;configureProxies&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;concurrent:server&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;autoprefixer&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;connect:livereload&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="s1">&#39;watch&#39;</span>
+</span><span class='line'><span class="p">]);</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>Sekarang kita tes konfigurasi proxy dengan cara browse ke <code>http://localhost:9000/api</code>. Request ini akan diterima server Grunt dan akan diteruskan ke server Sails. Jadi harusnya request ini akan dilayani oleh Sails.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-h-d7K0XO2x8/Uw9HAo4Ey4I/AAAAAAAAFTU/VRgJIDvUqxM/w909-h573-no/03-test-proxy-ok.png"></p>
+
+<p>Tampak pesan error disana. Tidak apa-apa, kita akan perbaiki nanti. Yang penting sudah jelas bahwa request tersebut dilayani oleh Sails, bukan oleh Grunt.</p>
+
+<h2>Kesimpulan</h2>
+
+<p>Wow, cukup panjang dan melelahkan juga ya. Beberapa poin kesimpulan:</p>
+
+<ul>
+<li><p>teknologi yang kita gunakan dibagi dua: sisi client dan sisi server</p></li>
+<li><p>library di sisi client:</p>
+
+<ul>
+<li>AngularJS</li>
+<li>Twitter Bootstrap</li>
+</ul>
+</li>
+<li><p>tools untuk membuat aplikasi client:</p>
+
+<ul>
+<li>yeoman</li>
+<li>bower</li>
+<li>grunt</li>
+</ul>
+</li>
+<li><p>library di sisi server:</p>
+
+<ul>
+<li>sails</li>
+<li>redis dan hiredis</li>
+</ul>
+</li>
+<li><p>tools untuk membuat aplikasi server:</p>
+
+<ul>
+<li>sails</li>
+<li>foreman (untuk mengetes deployment ke heroku)</li>
+<li>heroku</li>
+</ul>
+</li>
+<li><p>untuk menghubungkan aplikasi client dan server di development : <a href="http://fettblog.eu/blog/2013/09/20/using-grunt-connect-proxy/">pasang proxy di Grunt server</a></p></li>
+<li>untuk menghubungkan aplikasi client dan server di production : gunakan konfigurasi <code>proxy_pass</code> yang ada di Nginx</li>
+<li>untuk menggabungkan deployment client dan server : arahkan hasil kompilasi Grunt ke folder <code>static</code> dalam aplikasi server</li>
+</ul>
+
+
+<p>Beberapa link tutorial untuk deployment berskala production</p>
+
+<ul>
+<li><a href="http://blog.argteam.com/coding/hardening-node-js-for-production-part-2-using-nginx-to-avoid-node-js-load/">Konfigurasi Nginx: proxy, SSL, cache, gzip</a></li>
+<li><a href="http://blog.dealspotapp.com/post/40184153657/node-js-production-deployment-with-nginx-varnish">Deployment Nginx, Varnish, Upstart, dan Monit</a></li>
+<li><a href="http://www.devopsdiary.com/blog/2013/05/16/deploying-node-dot-js-plus-nginx-plus-upstart-plus-monit-on-ec2-with-puppet-and-vagrant/">Deployment Nginx, Upstart, Monit, Redis di Amazon EC2 dengan Puppet dan Vagrant</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Persiapan Coding NodeJS]]></title>
