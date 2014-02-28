@@ -27,6 +27,7 @@ Sebagai gambaran, bentuk akhir dari aplikasi yang akan dibuat seperti ini
 
 Biasanya kalau kita membuat aplikasi web modern dengan menggunakan AJAX, begini arsitekturnya:
 
+{% img https://lh3.googleusercontent.com/-5tGzUVc2lk4/UwFrrT20hmI/AAAAAAAAFJk/zRxIxumf_O4/w800-h566-no/restful-architecture.png %}
 
 Aplikasi akan terbagi menjadi dua bagian (client side dan server side) yang jelas batasannya, yaitu:
 
