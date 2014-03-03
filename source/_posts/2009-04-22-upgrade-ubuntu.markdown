@@ -138,7 +138,7 @@ Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunak
   * Backup isi home folder
 
 
-  * Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird
+  * Backup mailbox Thunderbird, biasanya ada di folder `.mozilla-thunderbird`
 
 
   * Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.
@@ -147,7 +147,7 @@ Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunak
   * Reinstall Ubuntu dengan memformat partisi sistem
 
 
-  * Edit `/etc/apt/sources.list` agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu
+  * Edit `/etc/apt/sources.list` agar menggunakan mirror lokal. Saya biasa menggunakan `kambing.ui.ac.id`
 
 
   * Jalankan `apt-get update` untuk mengupdate database aplikasi
@@ -158,9 +158,9 @@ Berikut isi file `/etc/apt/sources.list` saya.
 
     
     
-    deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
-    deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
-    deb http://kambing.ui.edu/ubuntu/ intrepid-security main restricted universe multiverse
+    deb http://kambing.ui.ac.id/ubuntu/ intrepid main restricted universe multiverse
+    deb http://kambing.ui.ac.id/ubuntu/ intrepid-updates main restricted universe multiverse
+    deb http://kambing.ui.ac.id/ubuntu/ intrepid-security main restricted universe multiverse
     
 
 
@@ -168,9 +168,9 @@ Setelah install ulang, file ini akan menjadi seperti ini
 
     
     
-    deb http://kambing.ui.edu/ubuntu/ jaunty main restricted universe multiverse
-    deb http://kambing.ui.edu/ubuntu/ jaunty-updates main restricted universe multiverse
-    deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multiverse
+    deb http://kambing.ui.ac.id/ubuntu/ jaunty main restricted universe multiverse
+    deb http://kambing.ui.ac.id/ubuntu/ jaunty-updates main restricted universe multiverse
+    deb http://kambing.ui.ac.id/ubuntu/ jaunty-security main restricted universe multiverse
     
 
 
