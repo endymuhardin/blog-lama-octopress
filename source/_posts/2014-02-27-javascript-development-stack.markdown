@@ -213,8 +213,8 @@ sudo npm install -g sails
 NPM akan mengunduh segala macam paket yang dibutuhkan dari internet. Siapkan koneksi internet yang mumpuni. Setelah selesai, kita bisa membuat project baru.
 
 ```
-sails new aplikasi-membership
-cd aplikasi-membership
+sails new aplikasi-membership-server
+cd aplikasi-membership-server
 sails lift
 ```
 

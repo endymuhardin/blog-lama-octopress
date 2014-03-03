@@ -85,7 +85,7 @@ Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapa
 
 
 
-Buka file daftar_aplikasi.txt dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut. 
+Buka file `daftar_aplikasi.txt` dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut. 
 
     
     
