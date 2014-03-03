@@ -201,12 +201,12 @@ ant
 <li><p>Backup mailbox Thunderbird, biasanya ada di folder .mozilla-thunderbird</p></li>
 <li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
 <li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-<li><p>Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
-<li><p>Jalankan apt-get update untuk mengupdate database aplikasi</p></li>
+<li><p>Edit <code>/etc/apt/sources.list</code> agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu</p></li>
+<li><p>Jalankan <code>apt-get update</code> untuk mengupdate database aplikasi</p></li>
 </ul>
 
 
-<p>Berikut isi file /etc/apt/sources.list saya.</p>
+<p>Berikut isi file <code>/etc/apt/sources.list</code> saya.</p>
 
 <pre><code>deb http://kambing.ui.edu/ubuntu/ intrepid main restricted universe multiverse
 deb http://kambing.ui.edu/ubuntu/ intrepid-updates main restricted universe multiverse
@@ -229,18 +229,18 @@ deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multi
 <pre><code>cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 &gt; daftar_url.txt
 </code></pre>
 
-<p>Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
+<p>Perintah ini akan menghasilkan file <code>daftar_url.txt</code>, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
 
 <h2>Mengunduh *.deb</h2>
 
-<p>Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
+<p>Berbekal <code>daftar_url.txt</code>, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
 
 <p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
 
 <pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
 </code></pre>
 
-<p>Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini.</p>
+<p>Proses pengunduhan dapat dipantau dengan melihat isi file <code>donlod-ubuntu.log</code>. Gunakan perintah tail seperti ini.</p>
 
 <pre><code>tail -f donlod-ubuntu.log 
 </code></pre>
@@ -251,7 +251,7 @@ deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multi
 
 <h2>Instalasi *.deb</h2>
 
-<p>Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
+<p>Copy semua file *.deb ke folder <code>/var/cache/apt/archives</code> di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
 
 <pre><code>cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
 </code></pre>
@@ -267,7 +267,7 @@ deb http://kambing.ui.edu/ubuntu/ jaunty-security main restricted universe multi
 <pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
 </code></pre>
 
-<p>Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
+<p>Copy file <code>daftar_instalasi.txt</code> ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
 
 <p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
 
