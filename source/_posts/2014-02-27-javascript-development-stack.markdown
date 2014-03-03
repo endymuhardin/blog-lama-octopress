@@ -356,7 +356,7 @@ Sekarang kita sudah punya dua folder dalam project:
 
 Masing-masing aplikasi memiliki `.gitignore` sendiri. Sebaiknya kita gabungkan menjadi satu. Buat file `.gitignore` sejajar dengan kedua folder tersebut. Copy-paste isi dari file `.gitignore` di folder client dan server. Hapus yang duplikat, dan perbaiki referensi lokasi absolut.
 
-Berikutnya, kita arahkan hasil kompilasi project client ke dalam folder `static` dalam project server, supaya seisi project server bisa langsung dideploy ke production. Ini kita lakukan dengan cara mengedit `yeomanConfig`, yang awalnya seperti ini
+Berikutnya, kita arahkan hasil kompilasi project client ke dalam folder `static` dalam project server, supaya seisi project server bisa langsung dideploy ke production. Ini kita lakukan dengan cara mengedit konfigurasi Yeoman dalam `Gruntfile.js`, yang awalnya seperti ini
 
 ```
 yeoman: {
