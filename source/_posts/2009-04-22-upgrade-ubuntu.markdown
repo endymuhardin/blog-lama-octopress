@@ -147,14 +147,14 @@ Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunak
   * Reinstall Ubuntu dengan memformat partisi sistem
 
 
-  * Edit /etc/apt/sources.list agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu
+  * Edit `/etc/apt/sources.list` agar menggunakan mirror lokal. Saya biasa menggunakan kambing.ui.edu
 
 
-  * Jalankan apt-get update untuk mengupdate database aplikasi
+  * Jalankan `apt-get update` untuk mengupdate database aplikasi
 
 
 
-Berikut isi file /etc/apt/sources.list saya.
+Berikut isi file `/etc/apt/sources.list` saya.
 
     
     
@@ -190,14 +190,14 @@ Jalankan perintah berikut di command prompt.
 
 
 
-Perintah ini akan menghasilkan file daftar_url.txt, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.
+Perintah ini akan menghasilkan file `daftar_url.txt`, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.
 
 
 
 ## Mengunduh *.deb
 
 
-Berbekal daftar_url.txt, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.
+Berbekal `daftar_url.txt`, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.
 
 Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut. 
 
@@ -207,7 +207,7 @@ Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget d
 
 
 
-Proses pengunduhan dapat dipantau dengan melihat isi file donlod-ubuntu.log. Gunakan perintah tail seperti ini. 
+Proses pengunduhan dapat dipantau dengan melihat isi file `donlod-ubuntu.log`. Gunakan perintah tail seperti ini. 
 
 
     
@@ -225,7 +225,7 @@ Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan
 
 
 
-Copy semua file *.deb ke folder /var/cache/apt/archives di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt. 
+Copy semua file *.deb ke folder `/var/cache/apt/archives` di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt. 
 
 
     
@@ -251,7 +251,7 @@ Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhk
 
 
 
-Copy file daftar_instalasi.txt ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.
+Copy file `daftar_instalasi.txt` ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.
 
 Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi. 
 
