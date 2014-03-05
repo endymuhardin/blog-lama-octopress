@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Berangkat dari membaca blog teman yang mengulas tentang Transport Tycoon Deluxe yang sekarang ada versi open sourcenya, saya jadi teringat koleksi &hellip;">
+  <meta name="description" content="Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +90,283 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-1/">Ruthless Testing 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-06-13T22:59:30+07:00" pubdate data-updated="true">Jun 13<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221;</p>
+
+<p>Nah, kalau begitu, pertanyaannya, apa saja yang sudah ditest?</p>
+
+<p>Jawaban orang biasanya bervariasi, tergantung nilai project, jumlah orang yang tersedia, dan juga tergantung tingkat kegaptekan si programmer terhadap teknologi testing yang tersedia.</p>
+
+<p>Testing minimal yang dilakukan biasanya adalah user testing. Jadi, ada user (atau programmer yang pura-pura jadi user) mencoba menggunakan aplikasi yang (katanya sih) sudah selesai. Biasanya fenomena ini akan berakhir dengan periode bugfix yang lebih lama daripada periode coding itu sendiri.</p>
+
+<p>Jadi, bagaimana tipsnya supaya user testing berjalan dengan lancar, minim bug, kalaupun ada, bisa diselesaikan dalam bilangan hari?</p>
+
+<p>Jawabannya adalah melaksanakan &#8220;ruthless testing&#8221;. Artinya testing secara kejam. Testing yang berlapis-lapis sehingga kalau ada programmer bandel yang membuat percabangan if terlalu dalam, akan langsung ketahuan.</p>
+
+<p>Bagaimana itu? Kita akan lihat sebentar lagi.</p>
+
+<p>Ada berapa jenis testing? Hmm .. menurut saya ada:</p>
+
+<ol>
+<li>Unit testing</li>
+<li>Integration testing</li>
+<li>Coverage testing</li>
+<li>Code compliance testing</li>
+<li>User/functional testing</li>
+<li>Performance testing</li>
+</ol>
+
+
+<p>Semua test ini harus dijalankan tanpa kecuali.</p>
+
+<p>What the !@#$? Banyak sekali? Apakah semua harus dijalankan? Wah, bisa-bisa kerjaan kita cuma ngurusin test doang? Bagaimana ini?</p>
+
+<p>Hmm.. jangan khawatir, semua bisa dijalankan dengan investasi minimal di awal project.
+Tips saya adalah:</p>
+
+<ol>
+<li><p>Alokasikan pembuatan test bersama-sama dengan construction. Jangan setelah construction. Jadi, wahai Project Managers, kalau merencanakan construction, tambahkan alokasi waktu untuk membuat test.</p></li>
+<li><p>Semua test harus otomatis dan bisa dijalankan dengan sekali perintah. Di project saya, semua test dijalankan cukup dengan:</p></li>
+</ol>
+
+
+<p><code>ant full-test</code></p>
+
+<p>Baiklah, mari kita lihat satu persatu secara lebih detail.</p>
+
+<h3>Unit Testing</h3>
+
+<p>Ini adalah testing di level paling detail dari aplikasi. Artinya, testing di level method/function. Misalnya saya punya kode seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span><span class="o">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">  * menghitung jumlah hari dalam bulan dan tahun yang diminta. </span>
+</span><span class='line'><span class="cm">  * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.</span>
+</span><span class='line'><span class="cm">  * @param month bulan yang akan dihitung</span>
+</span><span class='line'><span class="cm">  * @param year tahun yang akan dihitung</span>
+</span><span class='line'><span class="cm">  * @return jumlah hari dalam bulan dan tahun bersangkutan</span>
+</span><span class='line'><span class="cm">  */</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numDays</span><span class="o">(</span><span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">year</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">29</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Coba lihat contoh kode di atas? Salah bukan?
+Apapun yang kita masukkan, hasilnya pasti 29.
+Mari kita buktikan dengan unit test bahwa kode di atas salah.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada waktu dijalankan, unit test tersebut akan menghasilkan tulisan FAILED</p>
+
+<p>Di Java, unit test dapat dilakukan secara otomatis dengan menggunakan <a href="http://ww.junit.org">JUnit</a>.</p>
+
+<h3>Integration Test</h3>
+
+<p>Sebagian besar aplikasi yang kita buat akan menggunakan database. Untuk itu, kita perlu mengetes apakah kode program kita dapat berinteraksi dengan database sesuai harapan.
+Mirip dengan JUnit, kita membuat unit test yang mengakses database. Misalnya, berikut kode programnya:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span><span class="o">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">  * memeriksa username dan password dalam database. </span>
+</span><span class='line'><span class="cm">  * Method ini akan mencocokkan username dan password yang diberikan </span>
+</span><span class='line'><span class="cm">  * dan yang terdaftar di database.</span>
+</span><span class='line'><span class="cm">  * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.</span>
+</span><span class='line'><span class="cm">  * @param username </span>
+</span><span class='line'><span class="cm">  * @param password</span>
+</span><span class='line'><span class="cm">  * @return true kalau cocok, false kalau tidak cocok</span>
+</span><span class='line'><span class="cm">  */</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">checkLogin</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;SELECT * FROM user WHERE username=? AND password=?&quot;</span>
+</span><span class='line'>    <span class="c1">// dst kode akses database</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan ini adalah kode untuk mengetesnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCheckLogin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DatabaseAccess</span> <span class="n">db</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseAccess</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// asumsikan ada username endy dan password secret di database</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;endy&quot;</span><span class="o">,</span> <span class="s">&quot;secret&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// coba dengan user sembarang, harusnya akan menghasilkan false</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;nobody&quot;</span><span class="o">,</span> <span class="s">&quot;gakada&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan bahwa kedua test di atas mengasumsikan bahwa kita punya database, terisi data endy:secret, dan tidak ada record nobody:gakada di dalam tabel user.
+Berarti, setiap dijalankan, kita harus memastikan asumsi di atas terpenuhi.
+Lalu, bagaimana cara menjalankannya secara otomatis? Gampang, gunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>.</p>
+
+<p>Dengan DBUnit, kita dapat me-reset kondisi database sesuai keinginan setiap kali test akan dijalankan.
+Caranya, kita harus buat test data, yaitu satu record berisi data endy:test dalam tabel user. Test data ini disimpan dalam file checkLogin.xml</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dataset&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;user</span> <span class="na">id=</span><span class="s">&#39;1&#39;</span>
+</span><span class='line'>        <span class="na">username=</span><span class="s">&#39;endy&#39;</span>
+</span><span class='line'>        <span class="na">password=</span><span class="s">&#39;secret&#39;</span>
+</span><span class='line'>  <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dataset&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sebelum test dimulai, pastikan database direset. Tambahkan method berikut di kode test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCheckLogin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// reset database</span>
+</span><span class='line'>    <span class="n">prepareDatabase</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">DatabaseAccess</span> <span class="n">db</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseAccess</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// asumsikan ada username endy dan password secret di database</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;endy&quot;</span><span class="o">,</span> <span class="s">&quot;secret&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// coba dengan user sembarang, harusnya akan menghasilkan false</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;nobody&quot;</span><span class="o">,</span> <span class="s">&quot;gakada&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">prepareDatabase</span><span class="o">(){</span>
+</span><span class='line'>    <span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbConn</span><span class="o">,</span> <span class="n">getTestData</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">IDataSet</span> <span class="nf">getTestData</span><span class="o">(){</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">FlatXmlDataSet</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;checkLogin.xml&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nah, DBUnit akan dengan senang hati me-reset isi <strong>database development</strong> Anda. Pastikan test tersebut dijalankan di DATABASE DEVELOPMENT, dan bukan DATABASE PRODUCTION.</p>
+
+<p>Sementara cukup sekian. Pada artikel selanjutnya, kita akan bahas tentang:
+3. Coverage Testing
+4. Code compliance testing
+5. User/functional testing
+6. Performance testing
+Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -243,155 +521,6 @@ Solusi yang lebih <em>hi-tech</em> adalah dengan mengotomasi proses transfer fil
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/synergy/">Synergy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-05-24T17:13:37+07:00" pubdate data-updated="true">May 24<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img src="/images/uploads/2006/05/synergy.gif" title="Synergy Screenshot" ></p>
-
-<p>Perhatikan gambar di atas.</p>
-
-<p>Seringkali kita bekerja dengan lebih dari satu komputer pada saat yang bersamaan. Misalnya seperti saya. Untuk kegiatan rutin sehari-hari saya menggunakan Debian GNU/Linux, yaitu untuk browsing (Firefox), membaca email (KMail), berlangganan RSS (aKregator), chatting (Gaim), dan sebagainya.</p>
-
-<p>Tetapi ada kalanya saya &#8216;terpaksa&#8217; menggunakan Windows. Misalnya untuk mengedit template dokumen dengan MS Word. Template dokumen sangat mementingkan ketepatan setting font, border, margin pada suatu dokumen. Jadi walaupun bisa dibuka dengan OpenOffice, tetap saja ada beberapa komponen layout yang rusak. Kegiatan lainnya adalah membuat perencanaan project dengan menggunakan MS Project. Aplikasi ini belum ada padanannya di Linux. Jadi mau tidak mau saya harus menggunakan MS Project agar rencana project saya bisa digunakan orang</p>
-
-<p>Banyak juga orang yang bekerja menggunakan laptop, sedangkan di kantor tetap disediakan PC. Biasanya polanya sama. Kegiatan internet rutin tetap di laptop, sedangkan pekerjaan kantor di PC.</p>
-
-<p>Apapun alasannya, banyak orang yang menggunakan dua komputer sekaligus.</p>
-
-<p>Pada jaman dahulu kala, kita terpaksa menggunakan dua perangkat keyboard dan mouse untuk mengendalikan kedua komputer tersebut. Yang lebih canggih biasanya menggunakan remote desktop agar bisa mengendalikan komputer satu dari lainnya, sehingga tidak perlu pindah-pindah keyboard. Tapi solusi ini, walaupun hi-tech, tetap masih kurang produktif. Karena dengan menggunakan dua monitor, kita bisa lebih cepat bekerja. Monitor satu menampilkan referensi/tutorial, monitor satu lagi digunakan untuk coding.</p>
-
-<p>Gambar di atas adalah solusinya. Ada aplikasi ajaib bernama <a href="http://synergy2.sourceforge.net">Synergy</a>. Selain ajaib, aplikasi ini juga gratis dan mudah diinstal.</p>
-
-<p>Cara kerjanya demikian. Kita instal Synergy di kedua komputer. Kemudian kita jalankan Synergy sebagai server <strong>di komputer yang keyboard dan mousenya ingin kita gunakan</strong>. Untuk berjalan sebagai server, kita perlu membuat file konfigurasi <em>synergy.conf</em> sebagai berikut:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>section: screens
-</span><span class='line'>    laptop:
-</span><span class='line'>    pc:    
-</span><span class='line'>end
-</span><span class='line'>section: links
-</span><span class='line'>    laptop
-</span><span class='line'>        right = pc
-</span><span class='line'>    pc:
-</span><span class='line'>        left = laptop
-</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Berikut penjelasannya:</p>
-
-<ul>
-<li><p>laptop: hostname komputer yang pertama</p></li>
-<li><p>pc: hostname komputer yang kedua</p></li>
-<li><p>pada konfigurasi di atas, laptop diletakkan di sebelah kiri pc.</p></li>
-</ul>
-
-
-<p>Dengan konfigurasi di atas, apabila kita sedang mengendalikan laptop, kemudian kita menggerakkan kursor mouse ke pinggir layar sebelah kanan, kursor akan menyeberang dari monitor laptop ke monitor PC. Begitu juga sebaliknya.</p>
-
-<p>Untuk administrator, Synergy ini bisa digunakan untuk menggantikan KVM terminal. KVM terminal adalah hardware yang memungkinkan beberapa komputer dikendalikan dengan satu perangkat monitor, keyboard, dan mouse.</p>
-
-<p>Lebih canggih lagi, clipboardnya berhubungan. Artinya kita bisa copy text dari laptop, dan paste di PC.</p>
-
-<p>Setelah selesai, silahkan lakukan koneksi dari client ke server.
-Petunjuk lengkap bisa dibaca <a href="http://synergy2.sourceforge.net/running.html">di sini</a>.</p>
-
-<p>Oh iya, walaupun sudah jelas dari screenshot di atas (KDE di kiri -sudah pasti Linux- dan Windows di kanan), pasti ada aja yang tanya, &#8220;Bisa jalan di Windows atau Linux gak ya?&#8221;
-Jawabannya, &#8220;Sangat bisa !!!&#8221;</p>
-
-<p>Saya sudah menggunakan Synergy untuk menghubungkan Debian Sarge dan Windows 2000 Professional. Untuk Sarge harus pakai Synergy 1.2.2 (bawaan apt-get) sedangkan versi terbaru (per 24 Mei 2006) adalah 1.3.1.</p>
-
-<p>Tentu saja versi client dan server harus sama, untuk menghindari kepusingan tanpa manfaat.</p>
-
-<p>Update:
-Beberapa teman mencoba menjalankan Synergy server di Windows dan mengaku mengalami kesulitan. Kebetulan di tempat saya ada beberapa anak magang yang tertarik untuk mencoba.
-Ternyata, kesalahan utama dalam setting server di Windows adalah <strong>lupa memberitahu Synergy komputer mana yang di kiri dan yang mana yang di kanan.</strong></p>
-
-<p>Baiklah, mari kita lihat saja screenshotnya:</p>
-
-<h3>Tampilan Awal</h3>
-
-<p>Begitu Synergy dijalankan, kita akan melihat tampilan berikut:
-<img src="/images/uploads/2006/08/sinergi1.JPG" title="Synergy Start Up" ></p>
-
-<p>Dari sini, kita kemudian memilih setting Synergy sebagai server. Lalu klik configure, sehingga kita masuk ke halaman selanjutnya.</p>
-
-<h3>Konfigurasi Screen</h3>
-
-<p>Screen, atau layar, memberitahukan Synergy berapa komputer yang terlibat dalam jaringan, dan nama masing-masing komputer. Sebagai ilustrasi, kita akan menggunakan dua komputer, kita beri nama <strong>komputerkiri</strong> dan <strong>komputerkanan</strong>. Dengan layout (seperti dari namanya) komputerkiri berada di sebelah kiri komputerkanan.</p>
-
-<p>Berikut adalah tampilan untuk menambah screen:
-<img src="/images/uploads/2006/08/sinergi2.JPG" title="Konfigurasi Screen" ></p>
-
-<p>Setelah dikonfigurasi, komputerkiri muncul di layar sebagai berikut:
-<img src="/images/uploads/2006/08/sinergi3.JPG" title="KomputerKiri sudah dikonfigurasi" ></p>
-
-<p>Lanjutkan dengan konfigurasi komputerkanan.
-<img src="/images/uploads/2006/08/sinergi4.JPG" title="Konfigurasi KomputerKanan" ></p>
-
-<p>Layar setelah konfigurasi terlihat seperti ini:
-<img src="/images/uploads/2006/08/sinergi5.JPG" title="Setelah konfigurasi dua screen" ></p>
-
-<h3>Konfigurasi Link</h3>
-
-<p>Beberapa orang yang menceritakan kesulitan pada saya, biasanya berhenti pada tahap ini. Oh, kedua komputer sudah saya entri ke dalam Synergy, berarti sekarang sudah bisa connect. Ya memang bisa connect, kalo kita jalankan dengan log debug, akan terlihat bahwa kedua komputer sudah connected. Tapi kenapa mousenya belum bisa <em>menyeberang layar</em>?</p>
-
-<p>Jawabannya adalah, karena Synergy belum tau seperti apa layoutnya. Bagaimana susunan komputernya? Apakah komputerkiri di sebelah kiri, kanan, atas, bawah atau di mana?</p>
-
-<p>Baiklah, sekarang kita akan memberi tahu layoutnya kepada Synergy. Lihat panel Link di bawah? Nah di situlah letak konfigurasinya.
-Isikan nilai yang diinginkan, yaitu di 0-100% sisi layar kiri dari <strong>komputerkanan</strong> adalah <strong>komputerkiri</strong>. Setelah diisi, klik tombol +.
-Berikut adalah layar konfigurasinya adalah sebagai berikut:
-<img src="/images/uploads/2006/08/sinergi7.JPG" title="Link komputer kiri ke kanan" ></p>
-
-<p>Lakukan hal yang sama dengan komputer kanan. Ini supaya mouse yang sudah <strong>menyeberang</strong> ke komputer kiri bisa kembali lagi ke komputerkanan. Kalau cuma satu link, dia bisa pindah ke kiri, tapi tidak bisa kembali lagi. Jangan lupa membalik nilainya, isinya adalah:
-0-100% sisi layar kanan dari <strong>komputerkiri</strong> adalah <strong>komputerkanan</strong>.</p>
-
-<p>Berikut layar konfigurasi setelah diisi:
-<img src="/images/uploads/2006/08/sinergi8.JPG" title="Layar konfigurasi akhir" ></p>
-
-<p>Selanjutnya, jalankan servernya, dan coba connect dari client.</p>
-
-<p>Selamat mencoba :D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/61/">&larr; Older</a>
@@ -468,6 +597,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
+      </li>
+    
+      <li class="post">
         <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
       </li>
     
@@ -501,10 +634,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/cara-mengunduh-website/">Cara Mengunduh Website</a>
-      </li>
-    
-      <li class="post">
-        <a href="/android/persiapan-coding-android/">Persiapan Coding Android</a>
       </li>
     
   </ul>
