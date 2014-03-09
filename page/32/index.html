@@ -9,7 +9,10 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Rangkaian artikel sebelumnya telah memberikan kita pemahaman yang memadai untuk menggunakan Ivy. Pada artikel ini, kita akan membahas satu fitur Ivy &hellip;">
+  <meta name="description" content="Pada rangkaian artikel sebelumnya, kita telah membahas tentang: Instalasi Ivy
+Build Management dengan Ivy
+Otomasi Build Process dengan Ant
+Publish &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +92,171 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ant-ivy-8/">Membuat Mirror Repository Ivy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-05T14:30:53+07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada rangkaian artikel sebelumnya, kita telah membahas tentang:</p>
+
+<ol>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-1">Instalasi Ivy</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-2">Build Management dengan Ivy</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-3">Otomasi Build Process dengan Ant</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-4">Publish Modul ke Repository</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-5">Deklarasi internal dependency</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-6">Deklarasi external dependency</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-7">Ivy Configuration</a></p></li>
+</ol>
+
+
+<p>Semua konsep dan pengetahuan di atas memungkinkan kita untuk menggunakan Ivy secara efektif untuk mengelola pembuatan aplikasi. Tetapi ada sedikit hal yang masih mengganjal, yaitu borosnya bandwidth yang digunakan selama build process dilakukan.</p>
+
+<p>Pada artikel kali ini, kita akan membahas cara membuat mirror repository, sehingga pengambilan artifak dapat dilakukan dari server internal maupun harddisk lokal, sehingga tidak memboroskan bandwidth.</p>
+
+<p>Di artikel sebelumnya, kita telah membahas tentang deklarasi resolver. Resolver adalah konfigurasi yang menyatakan lokasi repository. Ada beberapa jenis resolver yang disediakan Ivy:</p>
+
+<ul>
+<li><p>Filesystem : repository Ivy di harddisk lokal</p></li>
+<li><p>URL : repository Ivy yang diakses melalui protokol http</p></li>
+<li><p>SSH : repository Ivy yang diakses melalui protokol scp/ssh</p></li>
+<li><p>SFTP : repository Ivy, diakses melalui protokol sftp</p></li>
+<li><p>VFS : repository Ivy, kompatibel dengan file system yang didukung oleh <a href="http://jakarta.apache.org/commons/vfs/">Apache Commons VFS</a>, diantaranya WebDAV, FTP, ZIP, <a href="http://jakarta.apache.org/commons/vfs/filesystems.html">dan sebagainya</a></p></li>
+<li><p>Ibiblio : repository Maven 2, diakses melalui protokol http</p></li>
+</ul>
+
+
+<p>Sebagai contoh kasus, kita akan membuat mirror dari repository ivy milik SpringSource dan repository Maven2 di Ibiblio.</p>
+
+<p>Pertama, kita deklarasikan dulu resolver untuk kedua repository sumber.
+Konfigurasi ini dibuat dalam ivysettings.xml.</p>
+
+<p>SpringSource memiliki dua repo berbeda, untuk artifak yang dihasilkannya sendiri (Spring Portfolio) disebut dengan release, dan untuk pustaka external (Hibernate, JSF, dsb; disebut dengan external. Berikut konfigurasi untuk kedua repo SpringSource, sesuai dengan <a href="http://www.springsource.com/repository/app/faq#q7">dokumentasinya</a>:</p>
+
+<pre><code>&lt;url name="springsource.release.repo.resolver"&gt;
+    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/url&gt;
+
+&lt;url name="springsource.external.repo.resolver"&gt;
+    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/url&gt;
+</code></pre>
+
+<p>Dan ini adalah resolver untuk Ibiblio.</p>
+
+<pre><code>&lt;ibiblio name="maven2" m2compatible="true" /&gt;
+</code></pre>
+
+<p>Repository SpringSource akan kita mirror di <code>http://repo.artivisi.com/ivy/springsource/</code> dengan struktur folder <code>nama-organisasi/nama-modul/nomer-revisi/[artifak]-[revisi].[extension]</code>. Folder tersebut berada di mesin <code>repo.artivisi.com</code> dalam folder <code>/var/www/repo.artivisi.com/ivy/springsource</code>. Berikut konfigurasi repo mirror-springsource.</p>
+
+<pre><code>&lt;ssh name="springsource.mirror.resolver" keyFile="${user.home}/.ssh/id_rsa" host="repo.artivisi.com" user="${mirror.host.user}"&gt;
+    &lt;ivy pattern="/var/www/repo.artivisi.com/ivy/springsource/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="/var/www/repo.artivisi.com/ivy/springsource/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/ssh&gt;
+</code></pre>
+
+<p>Repository Ibiblio akan kita mirror di <code>http://repo.artivisi.com/ibiblio</code> dengan struktur folder berbeda, untuk metadata sebagai berikut: <code>[nama-organisasi]/[nama-modul]/ivys/ivy-[nomer-revisi].xml</code>, dan untuk artifak sebagai berikut: <code>[nama-organisasi]/[nama-modul]/[jenis]s/[artifak]-[nomer-revisi].[extension]</code>. Folder tersebut berada di mesin <code>repo.artivisi.com</code> dalam folder <code>/var/www/repo.artivisi.com/ibiblio</code>. Berikut konfigurasinya:</p>
+
+<pre><code>&lt;ssh name="ibiblio.mirror.resolver" keyFile="${user.home}/.ssh/id_rsa" host="repo.artivisi.com" user="${mirror.host.user}"&gt;
+    &lt;ivy pattern="/var/www/repo.artivisi.com/ibiblio/[organisation]/[module]/ivys/ivy-[revision].xml"/&gt;
+    &lt;artifact pattern="/var/www/repo.artivisi.com/ibiblio/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/&gt;
+&lt;/ssh&gt;
+</code></pre>
+
+<p>Setelah kita memiliki dua repository sumber dan dua repository tujuan, kita buat target untuk melakukan mirroring. Di Ivy, kegiatan mirroring ini disebut dengan istilah install. Kita memiliki tiga target install, untuk ibiblio, SpringSource release, dan SpringSource external. Berikut deklarasi targetnya, kita masukkan di <code>ivybuilder.xml</code> bersama dengan target untuk resolve dan publish.</p>
+
+<pre><code>&lt;target name="install-springsource-release" description="--&gt; install dependency from springsource repo"&gt;
+    &lt;ivy:install 
+        organisation="${organisation}" 
+        module="${module}" 
+        revision="${revision}"
+        from="${springsource.release.repo.resolver}" 
+        to="${springsource.mirror.resolver}" 
+        transitive="true"
+        overwrite="true"
+    /&gt;  
+&lt;/target&gt;
+
+&lt;target name="install-springsource-external" description="--&gt; install dependency from springsource repo"&gt;
+    &lt;ivy:install
+        organisation="${organisation}" 
+        module="${module}" 
+        revision="${revision}"
+        from="${springsource.external.repo.resolver}" 
+        to="${springsource.mirror.resolver}" 
+        transitive="true"
+        overwrite="true"
+    /&gt;
+
+&lt;/target&gt;
+
+&lt;target name="install-ibiblio" description="--&gt; install dependency from ibiblio maven2 repo"&gt;
+    &lt;ivy:install 
+        organisation="${organisation}" 
+        module="${module}" 
+        revision="${revision}"
+        from="${ibiblio.repo.resolver}" 
+        to="${ibiblio.mirror.resolver}" 
+        transitive="true"
+        overwrite="true"
+    /&gt;
+&lt;/target&gt;
+</code></pre>
+
+<p>Seperti kita lihat di atas, deklarasi target install cukup generik, dengan menggunakan variabel yang bisa di-override pada saat runtime. Untuk target <code>install-springsource-external</code>, kita gunakan repo external SpringSource sebagai sumber, dan mirror-springsource sebagai tujuan. Target <code>install-springsource-release</code> dan <code>install-ibiblio</code> juga mirip.</p>
+
+<p>Sekarang saatnya kita coba. Mari kita install Hibernate Annotations versi 3.3.1.GA. Modul ini ada di repository SpringSource external.</p>
+
+<p>Langkah pertama, cari dulu modul yang kita inginkan. Kita bisa gunakan <a href="http://www.springsource.com/repository">halaman search yang telah disediakan</a>. Dari <a href="http://www.springsource.com/repository/app/bundle/version/detail?name=com.springsource.org.hibernate.annotations&amp;version=3.3.1.ga">hasil pencarian</a>, kita menemukan modul yang diinginkan, berikut dengan deklarasi dependensinya. Sekarang kita telah mengetahui nama organisasi, nama modul, dan nomer revisinya.</p>
+
+<pre><code>ant install-springsource-external -Dorganisation="org.hibernate" -Dmodule="com.springsource.org.hibernate.annotations" -Drevision="3.3.1.ga"
+</code></pre>
+
+<p>Ivy akan melakukan resolve dan melihat semua dependensi dari Hibernate Annotations versi 3.3.1.GA. Setelah itu, Ivy akan mendonlodnya ke cache lokal, untuk kemudian diupload melalui scp ke lokasi mirror.</p>
+
+<p>Terakhir, tentunya mirror repository ini akan diakses orang menggunakan http, bukan ssh. Jadi kita harus buatkan resolver untuk mengakses <code>http://repo.artivisi.com/ivy/springsource</code> dan <code>http://repo.artivisi.com/ibiblio</code>. Berikut konfigurasinya, kita satukan menggunakan chain-resolver.</p>
+
+<p>Demikianlah rangkaian tutorial tentang penggunaan Ivy. Mungkin banyak pembaca yang membatin,</p>
+
+<blockquote><p>Buat apa repot-repot, pakai Netbeans atau Eclipse kan juga bisa bikin jar/war.</p></blockquote>
+
+<p>Biar saya kasih bocoran sedikit tentang dapur ArtiVisi. Kami akan mengadopsi SOA (Service Oriented Architecture) dalam semua produk dan project kami. Adopsi ini dilakukan di level mikro dengan menggunakan platform OSGi. Karakteristik utama aplikasi SOA dengan OSGi adalah aplikasi akan terdiri dari banyak modul-modul kecil yang saling berinteraksi. Contohnya bisa dilihat di diagram modul yang disajikan di awal artikel.</p>
+
+<p>Memecah aplikasi besar menjadi modul-modul kecil tidak terlalu sulit. Siapapun yang mengenal keyword <code>import</code> dan konsep CLASSPATH di Java bisa melakukannya. Yang sulit adalah mengelola kegiatan development dan integrasi antar modul. Oleh karena itu, penggunaan dependency management seperti Ivy atau Maven2 adalah hal yang wajib.</p>
+
+<p>Pembaca bisa memilih apakah akan menggunakan Maven2 ataupun Ivy. Konsep dasarnya mirip, tapi implementasinya berbeda. Jadi, kalau sudah menguasai Ivy, Maven2 tidak sulit. Demikian juga sebaliknya. Silahkan mencari yang sesuai dengan kebutuhan tim Anda.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -568,159 +736,6 @@ public class PersonDaoHibernate implements PersonDao {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ant-ivy-5/">Internal Dependency Dengan Ivy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-28T16:51:32+07:00" pubdate data-updated="true">Sep 28<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel sebelumny</a>a, kita telah menyimpan artifact modul person-model di shared repository melalui mekanisme scp dengan private key. Pada artikel ini, kita akan menggunakan artifact person-model tersebut dalam modul person-dao-api. Pengambilan artifact dilakukan melalui mekanisme yang sama, yaitu scp dengan private key.</p>
-
-<p>Berikut struktur folder modul person-dao-api.</p>
-
-<p><img src="/images/uploads/2008/09/folder-person-dao-api-before-resolve.png" title="" ></p>
-
-<p>Kita memiliki folder src yang berisi source code class <code>PersonDao.java</code>, yang isinya sebagai berikut.</p>
-
-<pre><code>package com.artivisi.tutorial.ivy.dao;
-
-import java.util.List;
-
-import com.artivisi.tutorial.ivy.model.Person;
-
-public interface PersonDao {
-
-    /**
-     * saves Person object into database. 
-     * If object is already exists (denoted by not-null ID field), 
-     * the existing record with the corresponding ID is updated. 
-     * If the object is new (denoted by null ID field), 
-     * new record is inserted.
-     * 
-     *  This method also set the ID field for new record.
-     * */
-    public void save(Person person);
-
-    /**
-     * fetch all person object in database.
-     * @return List of all person
-     * */
-    public List getAll();
-
-    /**
-     * fetch Person object with the speficied ID. 
-     * @param id identifier for person object
-     * @return Person object if there is record found for the speficied id, null otherwise
-     * */
-    public Person getById(Long id);
-}
-</code></pre>
-
-<p>Seperti terlihat dalam deklarasi import, class ini menggunakan class <code>Person</code>, yang sudah tersedia di shared repository. Kita akan melakukan build dengan menggunakan script <code>build.xml</code>. Isinya sama dengan yang ada di modul person-model, dengan perkecualian nama projectnya. Berikut isi <code>build.xml</code>.</p>
-
-<pre><code>&lt;project name="person-dao-api" default="build"&gt;
-
-    &lt;property file="build.properties"/&gt;
-
-    &lt;import file="${basedir}/../person-build/default.xml"/&gt;
-    &lt;import file="${basedir}/../person-build/ivy-builder.xml"/&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>Dependensi modul <code>person-dao-api</code> terhadap <code>person-model</code> kita deklarasikan dalam <code>ivy.xml</code> sebagai berikut.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-api"/&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency name="person-model" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Setelah <code>build.xml</code> dan <code>ivy.xml</code> selesai dibuat, kita bisa langsung melakukan build. Panggil target dari command line sebagai berikut:</p>
-
-<pre><code>ant build
-</code></pre>
-
-<p>Dari output perintah di atas terlihat bahwa Ivy akan menguraikan dependensi project dengan melakukan query ke semua resolver yang terdaftar. Setelah modul yang dibutuhkan (person-model) ditemukan, Ivy akan langsung mendonlodnya ke dalam folder lib. Karena isi folder lib sudah kita daftarkan ke dalam classpath, maka proses kompilasi akan berjalan dengan mulus. Berikut struktur folder <code>person-dao-api</code> setelah melakukan proses resolve.</p>
-
-<p><img src="/images/uploads/2008/09/folder-person-dao-api-after-resolve.png" title="" ></p>
-
-<p>Pada deklarasi dependensi di atas, terlihat bahwa modul <code>person-dao-api</code> memiliki dependensi terhadap modul <code>person-model</code> dengan revision <code>latest.integration</code>. Ini artinya Ivy akan menggunakan versi terbaru yang ada dalam repository. Untuk melihat kemampuan fitur ini, mari kita publish <code>person-model</code> dengan revision yang lebih baru.</p>
-
-<p>Edit file build.properties dalam modul person-model, sehingga menjadi seperti ini.</p>
-
-<pre><code>build.version = 0.0.2
-release.type = integration
-</code></pre>
-
-<p>Setelah itu, bersihkan hasil kompilasi terdahulu, dan publish modul <code>person-model</code>.</p>
-
-<pre><code>ant clean publish-local
-</code></pre>
-
-<p>Lalu, pindah ke modul person-dao-api, dan lakukan build lagi.</p>
-
-<pre><code>ant clean build
-</code></pre>
-
-<p>Terlihat pada output, bahwa modul <code>person-model</code> yang terbaru akan didonlod, dan yang versi lama akan dihapus. Sehingga isi folder lib akan terlihat sebagai berikut.</p>
-
-<p>Ivy memiliki beberapa cara untuk menentukan mana artifak yang terbaru (latest), yaitu: latest-time, latest-revision, dan latest-lexico.</p>
-
-<p>Dengan menggunakan latest-time, Ivy akan melihat tanggal dibuatnya suatu artifak. Kalau artifak berada di repository filesystem, maka tanggal sistem operasi akan digunakan. Bila repository diakses melalui http, Ivy akan melakukan query terhadap http server. Metode ini, walaupun efektif, relatif lambat bila akses jaringan ke repository tidak mumpuni.</p>
-
-<p>Latest-revision membandingkan nama versi artifak, dan mengenali beberapa keyword. Dia dapat menentukan bahwa versi 1.0-alpha lebih baru daripada 1.0-dev1, dan 1.0 lebih baru daripada 1.0-rc1.</p>
-
-<p>Sedangkan strategi latest-lexico hanya membandingkan berdasarkan urutan abjad. Jadi, 1.0-m1 akan lebih baru daripada 1.0-build135.</p>
-
-<p>Ketiga strategi tersebut sudah built-in dalam Ivy dan tidak memerlukan konfigurasi lebih lanjut.</p>
-
-<p>Selain revision, Ivy juga mengenal terminologi status. Secara default, Ivy menyediakan tiga status diurutkan dari yang paling stabil/mature, yaitu release, milestone, dan integration. Bila kita menggunakan latest.integration, Ivy akan mengambil artifak terbaru berstatus apapun dari repository. Bila kita gunakan latest.milestone, Ivy akan mengabaikan rilis integration, dan hanya akan membandingkan milestone dan release. Demikian juga bila kita gunakan latest.release, maka versi terbaru hanya akan dicari dari artifak berstatus release.</p>
-
-<p>Cara deklarasi latest.integration di atas disebut dengan dynamic revision, karena nomer revision tidak secara eksplisit disebutkan. Selain menggunakan latest.integration, ada beberapa mekanisme lain, yaitu menggunakan +, dan menggunakan range.</p>
-
-<p>Kita bisa menggunakan + untuk memilih revisi terbaru untuk rilis tertentu. Misalnya bila kita memiliki modul dengan revisi 1.0.1, 1.0.4, 1.0.7, dan 1.1.4 dalam repository, kita dapat menggunakan 1.0.+ untuk memilih versi terbaru dalam lini 1.0, yaitu 1.0.7.</p>
-
-<p>Kita juga bisa menggunakan range, untuk menentukan revisi yang dapat digunakan, misalnya [1.0,2.2] akan memilih semua revisi yang sama atau lebih besar dari 1.0, tapi lebih kecil atau sama dengan 2.2. Lebih lengkap tentang ini bisa dilihat di dokumentasi Ivy tentang dependensi.</p>
-
-<p>Demikianlah deklarasi dependensi dengan Ivy. Pada artikel ini, kita baru mencoba dependensi terhadap modul yang kita buat sendiri. Di <a href="http://endy.artivisi.com/blog/java/ant-ivy-6/">artikel selanjutnya</a>, kita akan lihat bagaimana mendeklarasikan dependensi terhadap modul eksternal seperti Spring Framework atau Hibernate.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/33/">&larr; Older</a>
@@ -797,6 +812,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
       </li>
     
@@ -830,10 +849,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/meningkatkan-performance-android-emulator/">Meningkatkan performance Android Emulator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/cara-mengunduh-website/">Cara Mengunduh Website</a>
       </li>
     
   </ul>

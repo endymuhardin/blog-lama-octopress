@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Tools untuk Continuous Integration sudah sering dibahas di sini. Ada CruiseControl, Luntbuild, dan Hudson. Apa yang begitu pentingnya dari proses ini &hellip;">
+  <meta name="description" content="Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,195 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-4/">Aplikasi Web Dengan Spring 2.5 [Bagian 4]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-17T17:21:58+07:00" pubdate data-updated="true">Jan 17<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara menangani upload file dengan Spring MVC versi 2.5. Di artikel selanjutnya baru kita akan bahas tentang state management.</p>
+
+<p>Studi kasus kita kali ini sederhana saja. Kita sudah punya aplikasi buku alamat sederhana pada rangkaian artikel sebelumnya. Kita sudah bisa <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-1/">menampilkan daftar data orang</a>, <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-2/">mengedit data yang sudah ada atau menambah data baru</a>, serta <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-3/">menggunakan template untuk header dan footer</a>. Kali ini kita akan membuat fasilitas import data berupa text file berformat Comma Separated Value (CSV).</p>
+
+<p>File yang akan kita import kira-kira berbentuk seperti ini:</p>
+
+<pre><code>Endy Muhardin,endy.muhardin@gmail.com
+Hadikusuma Wahab,dhiku@artivisi.com
+Ifnu Bima,ifnubima@gmail.com
+</code></pre>
+
+<p>Setelah file tersebut diupload, kita akan memasukkan masing-masing data ke dalam database. Setelah itu, user akan kita arahkan ke halaman daftar data orang, sehingga data yang baru saja diupload bisa dilihat.</p>
+
+<p>Untuk melakukan upload, kita harus membuat HTML form dengan <em>encoding type</em> multipart form data. Artinya, data kita akan dikirim melalui HTTP POST dalam beberapa bagian (multipart). Kira-kira mekanismenya mirip dengan mengirim attachment melalui email.</p>
+
+<p>Berikut adalah kode program HTMLnya.</p>
+
+<h3>personuploadform.html</h3>
+
+<pre><code>&lt;html&gt;
+
+&lt;head&gt;&lt;title&gt;:: Upload Person Data ::&lt;/title&gt;&lt;/head&gt;
+
+&lt;body&gt;
+
+&lt;h1&gt;Upload Person Data&lt;/h1&gt;
+
+&lt;form method="POST" enctype="multipart/form-data"&gt;
+
+&lt;table&gt;  
+  &lt;tr&gt;
+    &lt;td&gt;&lt;label for="file"&gt;Person Data&lt;/label&gt;&lt;/td&gt;
+    &lt;td&gt;&lt;input type="file" name="persondata"&gt;&lt;/td&gt;
+  &lt;/tr&gt;&lt;tr&gt;
+    &lt;td&gt; &lt;/td&gt;
+    &lt;td&gt;&lt;input type="submit" class="inputbutton" value="Upload"/&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/form&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+
+<p>Perhatikan tag form. Di sana ada satu hal yang berbeda, yaitu <code>enctype="multipart/form-data"</code>. Semua aplikasi web yang ingin mengupload file harus membuat tag form seperti itu, apapun bahasa pemrograman yang digunakan. Ini sering menimbulkan kebingungan di kalangan pemula.</p>
+
+<blockquote><p>Saya sudah ikuti semua instruksi, tapi kenapa file yang diupload tidak terbaca?</p></blockquote>
+
+<p>Untuk menerima file, kita gunakan <code>input type="file"</code>.</p>
+
+<p>Selanjutnya masuk ke kode Java. Untuk menampilkan dan memproses form ini, kita buatkan class PersonUploadController. Bentuknya mirip dengan PersonFormController yang kemarin sudah kita buat. Ada method untuk menampilkan halaman form, dan ada method untuk memproses data yang dikirim user. Berikut class PersonUploadController.</p>
+
+<h3>PersonUploadController.java</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+@RequestMapping("/personuploadform")
+public class PersonUploadController {
+  private static final Log LOG = LogFactory.getLog(PersonUploadController.class);
+  private PersonCSVParser personDataParser;
+  private PersonDao personDao;
+
+  @Autowired(required=true)
+  public void setPersonDao(PersonDao personDao) {
+    this.personDao = personDao;
+  }
+
+  @Autowired(required=true)
+  public void setPersonDataParser(PersonCSVParser personDataParser) {
+    this.personDataParser = personDataParser;
+  }
+
+  @RequestMapping(method=RequestMethod.GET)
+  public ModelMap displayForm(){
+    return new ModelMap();
+  }
+
+  @RequestMapping(method=RequestMethod.POST) 
+  public String processForm(@RequestParam("persondata") MultipartFile file) {
+    // parse file into list of strings
+    List contents = new ArrayList();
+    try {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+      String content = reader.readLine();
+      while(content != null) {
+
+        if("".equals(content)) {
+          content = reader.readLine();
+          continue;
+        }
+        contents.add(content);
+        content = reader.readLine();
+      }
+      reader.close();
+    } catch (IOException e) {
+      LOG.warn(e.getMessage(), e);
+    }
+
+    // parse list of strings into list of Persons
+    List persons = new ArrayList();
+    List errors = new ArrayList();
+    personDataParser.parse(contents, persons, errors);
+
+    for (Person person : persons) {
+      personDao.save(person);
+    }
+
+    return "redirect:personlist"
+  }
+}
+</code></pre>
+
+<p>Logika kode di atas tidak sulit. Untuk mendisplay form, praktis tidak ada yang perlu dilakukan. Kita cukup memberikan model kosong, karena form upload tidak membutuhkan data apa-apa.</p>
+
+<p>Pada saat memproses form, kita menerima parameter MultipartFile. Ini adalah file yang sudah diparsing oleh Spring. Parameter ini diambil dari input form dengan nama <code>persondata</code>.</p>
+
+<p>Supaya Spring bisa memisahkan file yang diupload dari keseluruhan HttpRequest, kita harus menyediakan resolver. Ada dua library yang biasa digunakan orang untuk memproses file upload, yaitu:</p>
+
+<ul>
+<li><a href="http://commons.apache.org/fileupload/">Jakarta Commons FileUpload</a></li>
+<li><a href="http://www.servlets.com/cos/">COS (com.oreilly.servlet)</a></li>
+</ul>
+
+
+<p>Spring mendukung kedua library. Saya biasanya menggunakan Jakarta Commons. Untuk mengaktifkan dukungan ini, kita perlu menambahkan resolver di konfigurasi DispatcherServlet.</p>
+
+<h3>tutorial-servlet.xml</h3>
+
+<pre><code>&lt;bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"&gt;
+  &lt;property name="maxUploadSize" value="1000000"/&gt;
+&lt;/bean&gt;
+</code></pre>
+
+<p>Setelah file didapat, kita lalu membaca isinya. Hanya operasi I/O standar di sini. Kita membuka <code>InputStream</code> yang dibungkus dengan <code>BufferedReader</code> yang memiliki method <code>readLine</code> yang praktis. Kemudian kita looping setiap baris. Jangan lupa untuk memeriksa baris kosong. Hasil pembacaan file kita simpan ke List<String> untuk pemrosesan selanjutnya.</p>
+
+<p>Pemrosesan String menjadi Person kita lakukan di class PersonCSVParser supaya ada pembagian tanggung jawab yang jelas. Memisahkan parser di class tersendiri akan memudahkan kita untuk mengetes kode parser tersebut.</p>
+
+<p>PersonCSVParser tidak ditampilkan di sini. Bagi yang ingin melihat kode programnya dapat langsung pergi ke <a href="http://hello-spring-25.googlecode.com/svn/trunk/src/java/tutorial/spring25/helper/PersonCSVParser.java">GoogleCode</a>. Demikian juga kelengkapannya, seperti:</p>
+
+<ul>
+<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/src/java/test/spring25/helper/PersonCSVParserTest.java">PersonCSVParserTest</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/fixtures/person.csv">person.csv</a> : sampel data test, semua data normal</li>
+<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/fixtures/person-with-malformed-emails.csv">person-with-malformed-emails.csv</a> : sampel data test, ada email yang formatnya salah</li>
+</ul>
+
+
+<p>Setelah data diproses menjadi kumpulan Person, kita looping lagi untuk menyimpan hasilnya ke database dengan menggunakan <code>personDao</code>.</p>
+
+<p>Terakhir, setelah semua selesai, kita redirect ke halaman daftar orang. Seharusnya kita menampilkan hasil upload. Mana data yang error, dan mana data yang sukses diimpor. Tapi materi ini membutuhkan pengetahuan tentang session, yang akan kita bahas pada artikel mendatang.</p>
+
+<p>Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -436,325 +625,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-3/">Aplikasi Web Dengan Spring 2.5 [Bagian 3]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-21T21:07:10+07:00" pubdate data-updated="true">Dec 21<span>st</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Kemarin kita sudah membuat aplikasi sederhana yang memiliki tampilan list dan form. Tapi ada satu hal penting yang belum ada, yaitu header, footer, dan menu navigasi.</p>
-
-<p>Ada beberapa cara untuk memasang header dan footer tanpa duplikasi kode. Cara paling sederhana tentunya dengan menggunakan include di setiap halaman. Contohnya kira-kira seperti ini.</p>
-
-<h3>personlist.html</h3>
-
-<pre><code>#parse("header.html")
-
-
-&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
-    &lt;tr&gt;
-        &lt;th&gt;Name&lt;/th&gt;
-        &lt;th&gt;Email&lt;/th&gt;
-        &lt;th&gt; &lt;/th&gt;
-    &lt;/tr&gt;
-    #foreach($person in $personList)
-    &lt;tr&gt;
-        &lt;td&gt;$person.Name&lt;/td&gt;
-        &lt;td&gt;$person.Email&lt;/td&gt;
-        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
-            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-    #end
-&lt;/table&gt;
-
-
-#parse("footer.html")
-</code></pre>
-
-<h3>header.html</h3>
-
-<p>berisi kira-kira seperti ini</p>
-
-<pre><code>&lt;html&gt;
-  &lt;head&gt;
-    &lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-    &lt;title&gt;:: List of All Person ::&lt;/title&gt;
-  &lt;/head&gt;
-
-  &lt;body&gt;
-</code></pre>
-
-<p>dan</p>
-
-<h3>footer.html</h3>
-
-<pre><code>&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Saya sendiri kurang suka dengan pendekatan seperti ini, karena:</p>
-
-<ul>
-<li>kita terpaksa membuat halaman html yang tidak lengkap. Di header.html tidak ada tutup body dan di footer.html tidak ada tag pembuka body.</li>
-<li>perintah include untuk header dan footer akan diulangi di setiap halaman.</li>
-</ul>
-
-
-<p>Ada cara yang lebih baik, yaitu menggunakan decorator.</p>
-
-<p>Pustaka decorator di Java cukup banyak, antara lain:</p>
-
-<ul>
-<li>SiteMesh</li>
-<li>Tiles</li>
-<li>Facelets</li>
-</ul>
-
-
-<p>Tiles tadinya adalah decorator khusus untuk framework Struts. Tapi seiring dengan populernya penggunaan decorator, maka Tiles direfactor sehingga dapat berdiri sendiri tanpa Struts. Saat artikel ini ditulis, baik Tiles maupun penerusnya Tiles 2 cuma bisa digunakan untuk JSP. Jadi tidak bisa kita terapkan untuk aplikasi kita yang menggunakan Velocity.</p>
-
-<p>Facelets bukan hanya sekedar decorator. Dia adalah teknologi templating untuk JSF. Jadi posisinya kurang lebih mirip dengan Velocity, yaitu template engine. Decorator hanyalah salah satu fitur tambahan Facelets. Sayangnya Facelets hanya bisa digunakan untuk JSF.</p>
-
-<p>Sitemesh adalah decorator independen. Tidak terikat dengan framework apa-apa. Dia juga mendukung JSP, Freemarker, dan Velocity. Kita akan menggunakan SiteMesh pada artikel ini.</p>
-
-<p>SiteMesh bekerja secara transparan. Pada saat membuat halaman aplikasi, kita bisa langsung coding seperti biasa. Tidak ada perubahan kode HTML di dalam template Velocity. Ketika dideploy, SiteMesh akan mencegat semua respon yang dikirim appserver ke browser dan menambahkan header dan footer.</p>
-
-<p>Sebagai contoh,</p>
-
-<h3>personlist.html</h3>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-&lt;title&gt;:: List of All Person ::&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table border="0" cellpadding="2" cellspacing="2"&gt;
-    &lt;tr&gt;
-        &lt;th&gt;Name&lt;/th&gt;
-        &lt;th&gt;Email&lt;/th&gt;
-        &lt;th&gt; &lt;/th&gt;
-    &lt;/tr&gt;
-    #foreach($person in $personList)
-    &lt;tr&gt;
-        &lt;td&gt;$person.Name&lt;/td&gt;
-        &lt;td&gt;$person.Email&lt;/td&gt;
-        &lt;td&gt;&lt;a href="personform?person_id=$person.Id"&gt;edit&lt;/a&gt; | &lt;a
-            href="persondetail?person_id=$person.Id"&gt;view&lt;/a&gt;&lt;/td&gt;
-    &lt;/tr&gt;
-    #end
-&lt;/table&gt;
-
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Seperti kita lihat, tidak ada kode khusus. Kodenya sama persis dengan artikel sebelumnya.</p>
-
-<p>Ini adalah decoratornya, kita beri nama main.html.</p>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
-&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"&gt;
-&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;
-&lt;head&gt;
-&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /&gt;
-
-&lt;link href="${base}/css/main.css" rel="stylesheet" type="text/css" /&gt;
-&lt;link href="${base}/css/layout.css" rel="stylesheet" type="text/css" /&gt;
-
-&lt;title&gt;${title}&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;div id="header"&gt;
-&lt;h1&gt;Hello Spring 2.5&lt;/h1&gt;
-&lt;h2&gt;Tutorial Spring 2.5 Annotation Configuration&lt;/h2&gt;
-&lt;/div&gt;
-
-&lt;div id="top-bar"&gt;
-&lt;ul&gt;
-    &lt;li&gt;hola, endymuhardin&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;help&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;logout&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;div id="menu-bar"&gt;
-&lt;ul&gt;
-    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;manage person&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;generate report&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="#"&gt;prevent global warming&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/div&gt;
-
-&lt;div id="main"&gt;
-
-&lt;div id="sidebar"&gt;
-
-&lt;h1&gt;Manage Person&lt;/h1&gt;
-&lt;ul&gt;
-    &lt;li&gt;&lt;a href="${base}/tutorial/personform"&gt;add person&lt;/a&gt;&lt;/li&gt;
-    &lt;li&gt;&lt;a href="${base}/tutorial/personlist"&gt;list of person&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;/div&gt;
-
-&lt;div id="content"&gt;
-
-${body}
-
-&lt;/div&gt;
-
-
-&lt;/div&gt;
-
-
-&lt;div id="footer"&gt;
-
-&lt;div id="copyright"&gt;Copyright &amp;copy; 2008 :: ArtiVisi Intermedia
-::&lt;/div&gt;
-
-&lt;div id="company-logo"&gt;Company Logo&lt;/div&gt;
-
-&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Ada beberapa tag khusus yang digunakan dalam decorator kita, yaitu</p>
-
-<ul>
-<li>${base}</li>
-<li>${title}</li>
-<li>${body}</li>
-</ul>
-
-
-<p>Ini adalah variabel yang disediakan SiteMesh untuk kita. ${base} adalah path menuju aplikasi web kita. Kita menggunakan ${base} untuk membuat URL yang lengkap. Variabel ini sangat berguna agar aplikasi kita bisa dideploy ke berbagai context.</p>
-
-<p>Pada saat mendekorasi, SiteMesh akan membaca respon HTML yang dikeluarkan appserver dan mengambil isi tag title dan body, kemudian memasangnya di tempat kita menaruh tag ${title} dan ${body}. Setelah itu, barulah keseluruhan respon yang sudah didekorasi akan dikirim ke client.</p>
-
-<p>Kita sudah punya halaman yang akan ditampilkan (personlist.html) dan decoratornya (main.html). Untuk menggabungkan keduanya, kita harus memasang SiteMesh sebagai Servlet Filter. Servlet Filter memiliki kemampuan untuk mencegat baik request maupun response. Kita mendaftarkan filter di web.xml. Berikut deklarasi filter SiteMesh berikut mappingnya.</p>
-
-<pre><code>&lt;filter&gt;
-  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
-  &lt;filter-class&gt;com.opensymphony.module.sitemesh.filter.PageFilter&lt;/filter-class&gt;
-&lt;/filter&gt;   
-
-
-&lt;filter-mapping&gt;
-  &lt;filter-name&gt;sitemesh&lt;/filter-name&gt;
-  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-&lt;/filter-mapping&gt;
-</code></pre>
-
-<p>Selain itu, kita juga perlu memasang servlet SiteMesh. Servlet ini yang akan mencegat semua pemanggilan template velocity, yaitu semua file yang berakhiran *.html. Berikut adalah deklarasi servlet berikut mappingnya.</p>
-
-<pre><code>&lt;servlet&gt;
-  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
-  &lt;servlet-class&gt;com.opensymphony.module.sitemesh.velocity.VelocityDecoratorServlet&lt;/servlet-class&gt;
-&lt;/servlet&gt;
-
-&lt;servlet-mapping&gt;
-  &lt;servlet-name&gt;sitemesh-velocity&lt;/servlet-name&gt;
-  &lt;url-pattern&gt;*.html&lt;/url-pattern&gt;
-&lt;/servlet-mapping&gt;
-</code></pre>
-
-<p>Selanjutnya, kita harus memberi tahu SiteMesh di mana kita meletakkan decorator dan URL apa saja yang ingin didekorasi. Biasanya kita punya beberapa decorator yang berbeda untuk (misalnya):</p>
-
-<ul>
-<li>halaman utama. Lengkap dengan menubar, header, dan footer</li>
-<li>halaman login. Tanpa menubar, header, dan footer</li>
-<li>tampilan siap print. Tanpa warna-warni.</li>
-</ul>
-
-
-<p>Sebagai contoh, kita cuma akan menggunakan satu decorator, yaitu main.html. Decorator ini berlaku untuk semua request. Berikut konfigurasinya.</p>
-
-<pre><code>&lt;decorators defaultdir="/WEB-INF/decorators"&gt;
-  &lt;decorator name="default" page="main.html"&gt;
-    &lt;pattern&gt;/*&lt;/pattern&gt;
-  &lt;/decorator&gt;
-&lt;/decorators&gt;
-</code></pre>
-
-<p>File ini diletakkan di dalam folder WEB-INF, bersama-sama dengan web.xml.</p>
-
-<p>Pada konfigurasi decorator tersebut, kita jelaskan bahwa semua request (/*) akan dicegat dan didekorasi dengan main.html yang ada di folder /WEB-INF/decorators.</p>
-
-<p>Terakhir, kita lengkapi pustaka yang dibutuhkan. Jar yang dibutuhkan adalah:</p>
-
-<ul>
-<li>sitemesh.jar</li>
-<li>commons-digester.jar</li>
-<li>velocity-tools-view.jar</li>
-</ul>
-
-
-<p>Perhatikan bahwa velocity-tools-view.jar ini sudah mengandung velocity-tools-generic.jar yang kita gunakan pada artikel sebelumnya. Jadi pastikan bahwa kita tidak lupa membuang velocity-tools-generic.jar.</p>
-
-<p>Selesai sudah. Mudah bukan?</p>
-
-<p>Contoh ini sudah dipublish di GoogleCode, Anda bisa mengunduh:</p>
-
-<ul>
-<li><a href="http://hello-spring-25.googlecode.com/files/hello-spring-25-sitemesh.tar.bz2">keseluruhan project folder</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh.war">File *.war yang siap deploy</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-sitemesh-winstone.jar">File *.jar yang siap dijalankan secara standalone</a></li>
-</ul>
-
-
-<p>Atau Anda juga bisa menggunakan Subversion untuk menarik keseluruhan project folder, dengan perintah:</p>
-
-<pre><code>svn export http://hello-spring-25.googlecode.com/svn/trunk/ hello-spring-25-read-only 
-</code></pre>
-
-<p>Setelah project folder diperoleh, dibutuhkan database MySQL dengan konfigurasi sebagai berikut:</p>
-
-<ul>
-<li>nama database : belajar</li>
-<li>username : belajar</li>
-<li>password : java</li>
-</ul>
-
-
-<p>Tabel T_PERSON yang digunakan pada contoh ini dapat dibuat dengan menggunakan script sql yang ada di folder src/sql/mysql-schema.sql.</p>
-
-<p>Untuk menjalankan aplikasi ini, dibutuhkan Ant 1.7.0 dan Java 6. Cukup ketik ant run di konsol. Kemudian browse ke http://localhost:8080/</p>
-
-<p>Selamat mencoba</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/41/">&larr; Older</a>
@@ -831,6 +701,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
       </li>
     
@@ -864,10 +738,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/meningkatkan-performance-android-emulator/">Meningkatkan performance Android Emulator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/cara-mengunduh-website/">Cara Mengunduh Website</a>
       </li>
     
   </ul>

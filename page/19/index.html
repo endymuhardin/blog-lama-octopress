@@ -9,8 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Beberapa minggu terakhir ini, saya mencari-cari cara terbaik untuk melakukan development dengan ExtJS.
-Tentunya fitur utama yang kita inginkan adalah &hellip;">
+  <meta name="description" content="Ada berbagai cara instalasi Redmine, diantaranya: Dijalankan langsung dari command prompt dengan Webrick
+Dijalankan menggunakan Mongrel dan FastCGI &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +90,254 @@ Tentunya fitur utama yang kita inginkan adalah &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/redmine-jruby-tomca/">Instalasi Redmine Di Tomcat</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-08-07T04:06:01+07:00" pubdate data-updated="true">Aug 7<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
+
+<ul>
+<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
+<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
+<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
+<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
+</ul>
+
+
+<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
+Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
+Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
+
+<ul>
+<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
+<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
+</ul>
+
+
+<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
+
+<p>Mari kita mulai.</p>
+
+<h2>Instalasi JRuby</h2>
+
+<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=install-jruby.sh'></script>
+<noscript><pre><code>cd /opt
+tar xzf ~/Downloads/jruby-bin-1.6.3.tar.gz
+chown -R endy.endy /opt/jruby-1.6.3
+ln -s jruby-1.6.3 jruby</code></pre></noscript></div>
+
+
+<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
+Tulis baris berikut ini di dalam file ~/.bashrc</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=bashrc'></script>
+<noscript><pre><code>export JRUBY_HOME=/opt/jruby
+export PATH=$PATH:$JRUBY_HOME/bin</code></pre></noscript></div>
+
+
+<p>Terakhir, test instalasi JRuby</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=test-jruby.sh'></script>
+<noscript><pre><code>jruby -v
+jruby 1.6.3 (ruby-1.8.7-p330) (2011-07-07 965162f) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]</code></pre></noscript></div>
+
+
+<h2>Instalasi Paket Gem</h2>
+
+<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
+
+<ul>
+<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
+<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
+<li><p>jruby-openssl : supaya bisa melayani https</p></li>
+<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
+<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
+</ul>
+
+
+<p>Mari kita install</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=install-gem.sh'></script>
+<noscript><pre><code>gem install rack -v=1.1.1
+gem install rails -v=2.3.11
+gem install jruby-openssl activerecord-jdbcmysql-adapter warbler</code></pre></noscript></div>
+
+
+<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
+
+<h2>Mengambil Redmine dari Subversion Repository</h2>
+
+<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
+Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=checkout-redmine.sh'></script>
+<noscript><pre><code>cd ~/Downloads
+svn co http://redmine.rubyforge.org/svn/branches/1.2-stable redmine-1.2</code></pre></noscript></div>
+
+
+<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
+
+<h2>Konfigurasi Database</h2>
+
+<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
+Saya menggunakan konfigurasi development sebagai berikut :</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=database.yml'></script>
+<noscript><pre><code>development:
+  adapter: jdbcmysql
+  database: redmine
+  host: localhost
+  username: redmine
+  password: redmine
+  encoding: utf8</code></pre></noscript></div>
+
+
+<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=create-database.sh'></script>
+<noscript><pre><code>mysql -u root -p
+
+create database redmine character set utf8;
+create user 'redmine'@'localhost' identified by 'redmine';
+grant all privileges on redmine.* to 'redmine'@'localhost';</code></pre></noscript></div>
+
+
+<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
+
+<h2>Inisialisasi Redmine</h2>
+
+<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-session.sh'></script>
+<noscript><pre><code>cd ~/Downloads/redmine-1.2
+rake generate_session_store</code></pre></noscript></div>
+
+
+<p>Setelah itu, inisialisasi skema database.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-skema-db.sh'></script>
+<noscript><pre><code>RAILS_ENV=development rake db:migrate</code></pre></noscript></div>
+
+
+<p>Isi data awal.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-data-awal.sh'></script>
+<noscript><pre><code>RAILS_ENV=development rake redmine:load_default_data</code></pre></noscript></div>
+
+
+<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=start-webrick.sh'></script>
+<noscript><pre><code>jruby script/server webrick -e development</code></pre></noscript></div>
+
+
+<p>Hasilnya bisa kita browse di http://localhost:3000
+Kemudian kita bisa login dengan username admin dan password admin.</p>
+
+<h2>Konfigurasi Email</h2>
+
+<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
+Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=configuration.yml'></script>
+<noscript><pre><code># = Outgoing email settings
+development:
+    email_delivery:
+        delivery_method: :smtp
+        smtp_settings:
+            tls: true
+            address: &quot;smtp.gmail.com&quot;
+            port: 587
+            authentication: :plain
+            user_name: &quot;nama.kita@gmail.com&quot;
+            password: &quot;passwordgmailkita&quot;</code></pre></noscript></div>
+
+
+<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=install-action-mailer-tls.sh'></script>
+<noscript><pre><code>jruby script/plugin install git://github.com/collectiveidea/action_mailer_optional_tls.git
+</code></pre></noscript></div>
+
+
+<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
+Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
+Kemudian pergi ke menu Administration > Settings > Email Notifications,
+kemudian klik link Send a test email di pojok kanan bawah.
+Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
+
+<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
+Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
+
+<h2>Generate WAR</h2>
+
+<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=warble-config.sh'></script>
+<noscript><pre><code>warble config
+</code></pre></noscript></div>
+
+
+<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=warble.rb'></script>
+<noscript><pre><code>Warbler::Config.new do |config|
+  config.dirs = %w(app config lib log vendor tmp extra files lang)
+  config.gems += [&quot;activerecord-jdbcmysql-adapter&quot;, &quot;jruby-openssl&quot;, &quot;i18n&quot;, &quot;rack&quot;]
+  config.webxml.rails.env = ENV['RAILS_ENV'] || 'development'
+end</code></pre></noscript></div>
+
+
+<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=warble-generate.sh'></script>
+<noscript><pre><code>warble
+warning: application directory `lang' does not exist or is not a directory; skipping
+rm -f redmine-1.2.war
+Creating redmine-1.2.war</code></pre></noscript></div>
+
+
+<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
+
+<div><script src='https://gist.github.com/1129237.js?file=redmine-war-deploy.sh'></script>
+<noscript><pre><code>cp redmine-1.2.war /opt/apache-tomcat-7.0.12/webapps/redmine.war
+</code></pre></noscript></div>
+
+
+<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -328,73 +576,6 @@ ffmpeg -pass 2 -passlogfile file-input.ogv -threads 16  -keyint_min 0 -g 250 -sk
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/javascript/tutorial-extjs/">Tutorial ExtJS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2011-06-21T20:15:31+07:00" pubdate data-updated="true">Jun 21<span>st</span>, 2011</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang diikuti oleh programmer ArtiVisi dan sister company. Berikut adalah materi trainingnya.</p>
-
-<h2>Cara setup project ExtJS</h2>
-
-<p><video width='640' height='320' preload='none' controls poster='http://artivisi.com/~endy/videos/training-extjs/01.%20Setup%20ExtJS.png'><source src='http://artivisi.com/~endy/videos/training-extjs/01.%20Setup%20ExtJS.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
-
-<h2>Memahami Layout</h2>
-
-<p><video width='640' height='320' preload='none' controls poster='http://artivisi.com/~endy/videos/training-extjs/02.%20ExtJS%20Layout.png'><source src='http://artivisi.com/~endy/videos/training-extjs/02.%20ExtJS%20Layout.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
-
-<h2>Membuat Menubar</h2>
-
-<p><video width='640' height='320' preload='none' controls poster='http://artivisi.com/~endy/videos/training-extjs/03.%20Klik%20Menu%20muncul%20Tab.png'><source src='http://artivisi.com/~endy/videos/training-extjs/03.%20Klik%20Menu%20muncul%20Tab.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
-
-<h2>Membuat User Management Screen</h2>
-
-<p><video width='640' height='320' preload='none' controls poster='http://artivisi.com/~endy/videos/training-extjs/04.%20Membuat%20User%20Management%20Screen.png'><source src='http://artivisi.com/~endy/videos/training-extjs/04.%20Membuat%20User%20Management%20Screen.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
-
-<h2>Membuat Toolbar CRUD</h2>
-
-<p><video width='640' height='320' preload='none' controls poster='http://artivisi.com/~endy/videos/training-extjs/05.%20Membuat%20Toolbar%20CRUD.png'><source src='http://artivisi.com/~endy/videos/training-extjs/05.%20Membuat%20Toolbar%20CRUD.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'></video></p>
-
-<p>Masih ada beberapa materi lanjutan yang belum sempat disampaikan, yaitu:</p>
-
-<ul>
-<li><p>Enable/Disable Form</p></li>
-<li><p>Save isi form ke server</p></li>
-<li><p>Query data dari server, tampilkan ke grid</p></li>
-</ul>
-
-
-<p>Kode program yang digunakan pada training ini dapat diikuti di <a href="https://github.com/endymuhardin/belajar-extjs">Github page saya</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/20/">&larr; Older</a>
@@ -471,6 +652,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
       </li>
     
@@ -504,10 +689,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/meningkatkan-performance-android-emulator/">Meningkatkan performance Android Emulator</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/cara-mengunduh-website/">Cara Mengunduh Website</a>
       </li>
     
   </ul>
