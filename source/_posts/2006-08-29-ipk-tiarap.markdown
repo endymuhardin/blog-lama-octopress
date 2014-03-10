@@ -45,7 +45,7 @@ Eh, tidak perlu ... akan saya jawab sendiri.
 Begini caranya. 
 Segera setelah si office-boy datang dengan troli dan 4 kardus lamaran, bilang ke dia, "Mas, tolong bantu saya ya. Coba ini lamaran dibuka, trus diperiksa satu-satu. Yang IPKnya lebih besar dari 2.75 kumpulkan di meja ini. Sisanya masukkan ke kardus kosong. Nanti kalo ada tukang loak lewat, dikiloin aja. Uangnya boleh buat Mas beli rokok."
 
-Beberapa jam kemudian, coba periksa hasil pekerjaan si Mas. Kalau tumpukan yang lolos masih tinggi, bilang ke dia, "Mas, revisi sedikit. Yang IPKnya lebih besar dari 3.00 kumpulkan di meja ini. Sisanya ... bla .. bla ... [silahkan diteruskan]"
+Beberapa jam kemudian, coba periksa hasil pekerjaan si Mas. Kalau tumpukan yang lolos masih tinggi, bilang ke dia, "Mas, revisi sedikit. Yang IPKnya lebih besar dari 3.00 kumpulkan di meja ini. Sisanya ... bla .. bla ... (silahkan diteruskan)"
 
 Ulangi langkah di atas sampai jumlah lamaran < 20.
 
@@ -77,11 +77,9 @@ Orang yang biasa 'take extra mile' biasanya lebih bagus pekerjaannya dan tidak b
 Ini adalah indikator penting apakah kandidat tersebut 'bisa berkembang' atau tidak. 
 Orang yang berkembang akan memanfaatkan freetime nya untuk belajar hal baru, walaupun tidak disuruh. 
 
-Lebih lanjut bisa baca panduan Joel dalam interview : 
-http://joelonsoftware.com/articles/fog0000000073.html
+Lebih lanjut bisa baca [panduan Joel dalam interview](http://joelonsoftware.com/articles/fog0000000073.html)
 
-Atau panduan mas Mbot di sini: 
-http://mbot.multiply.com/journal/item/274
+Atau panduan mas Mbot [di sini](http://mbot.wordpress.com/2005/05/30/sharing-hrd-6-jangan-menghadapi-interview/) dan [di sini](http://mbot.wordpress.com/2006/08/18/sharing-hrd-waspada-5-gelagat-buruk-waktu-melamar-kerja/).
 
 Jadi, kalo IP anda tidak besar, jangan berkecil harapan, tips dari saya : 
 
