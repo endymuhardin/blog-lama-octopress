@@ -390,7 +390,39 @@ Kita bisa mengetes hasil kompilasi Grunt. Harusnya dia akan membuat folder stati
 CHROME_BIN=chromium-browser grunt
 ```
 
-Dia akan melakukan kompilasi, menjalankan test, kompresi js dan css, kemudian menaruh hasilnya di folder tujuan. Pastikan hasilnya ada dalam aplikasi server
+Dia akan melakukan kompilasi, menjalankan test, kompresi js dan css, kemudian menaruh hasilnya di folder tujuan. Selama test dijalankan, kita akan melihat ada window Chrome yang terbuka dan kemudian tertutup lagi. Bila kita tidak ingin tesnya menggunakan browser betulan, kita bisa pakai `PhantomJS` untuk menjalankan semua kode HTML dan JavaScript tanpa browser.
+
+PhantomJS bisa diaktifkan dalam file konfigurasi `karma.conf.js`. Edit baris berikut
+
+```js
+// Start these browsers, currently available:
+// - Chrome
+// - ChromeCanary
+// - Firefox
+// - Opera
+// - Safari (only Mac)
+// - PhantomJS
+// - IE (only Windows)
+browsers: ['Chrome'],
+```
+
+Menjadi seperti ini
+
+```
+// Start these browsers, currently available:
+// - Chrome
+// - ChromeCanary
+// - Firefox
+// - Opera
+// - Safari (only Mac)
+// - PhantomJS
+// - IE (only Windows)
+browsers: ['PhantomJS'],
+```
+
+Bila PhantomJS belum ada, instal dulu menggunakan perintah `sudo npm install -g phantomjs`.
+
+Setelah rangkaian kegiatan yang dilakukan Grunt selesai, pastikan hasilnya ada dalam aplikasi server
 
 {% img https://lh3.googleusercontent.com/-kZ4ijjT4TAk/Uw9HB0thj3I/AAAAAAAAFTk/aKJJLsMglMk/w609-h597-no/04-test-compile-ok.png %}
 
