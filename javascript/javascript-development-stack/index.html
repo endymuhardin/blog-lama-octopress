@@ -625,16 +625,67 @@ Dia akan mengunduh paket yang kita minta dari internet berikut semua paket lain 
 </pre></td><td class='code'><pre><code class=''><span class='line'>CHROME_BIN=chromium-browser grunt</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Dia akan melakukan kompilasi, menjalankan test, kompresi js dan css, kemudian menaruh hasilnya di folder tujuan. Pastikan hasilnya ada dalam aplikasi server</p>
+<p>Dia akan melakukan kompilasi, menjalankan test, kompresi js dan css, kemudian menaruh hasilnya di folder tujuan. Selama test dijalankan, kita akan melihat ada window Chrome yang terbuka dan kemudian tertutup lagi. Bila kita tidak ingin tesnya menggunakan browser betulan, kita bisa pakai <code>PhantomJS</code> untuk menjalankan semua kode HTML dan JavaScript tanpa browser.</p>
+
+<p>PhantomJS bisa diaktifkan dalam file konfigurasi <code>karma.conf.js</code>. Edit baris berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// Start these browsers, currently available:</span>
+</span><span class='line'><span class="c1">// - Chrome</span>
+</span><span class='line'><span class="c1">// - ChromeCanary</span>
+</span><span class='line'><span class="c1">// - Firefox</span>
+</span><span class='line'><span class="c1">// - Opera</span>
+</span><span class='line'><span class="c1">// - Safari (only Mac)</span>
+</span><span class='line'><span class="c1">// - PhantomJS</span>
+</span><span class='line'><span class="c1">// - IE (only Windows)</span>
+</span><span class='line'><span class="nx">browsers</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;Chrome&#39;</span><span class="p">],</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Menjadi seperti ini</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// Start these browsers, currently available:</span>
+</span><span class='line'><span class="c1">// - Chrome</span>
+</span><span class='line'><span class="c1">// - ChromeCanary</span>
+</span><span class='line'><span class="c1">// - Firefox</span>
+</span><span class='line'><span class="c1">// - Opera</span>
+</span><span class='line'><span class="c1">// - Safari (only Mac)</span>
+</span><span class='line'><span class="c1">// - PhantomJS</span>
+</span><span class='line'><span class="c1">// - IE (only Windows)</span>
+</span><span class='line'><span class="nx">browsers</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;PhantomJS&#39;</span><span class="p">],</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Bila PhantomJS belum ada, instal dulu menggunakan perintah <code>sudo npm install -g phantomjs</code>.</p>
+
+<p>Setelah rangkaian kegiatan yang dilakukan Grunt selesai, pastikan hasilnya ada dalam aplikasi server</p>
 
 <p><img src="https://lh3.googleusercontent.com/-kZ4ijjT4TAk/Uw9HB0thj3I/AAAAAAAAFTk/aKJJLsMglMk/w609-h597-no/04-test-compile-ok.png"></p>
 
 <p>Terakhir, kita aktifkan proxy agar url <code>api/*</code> yang mengarah ke server Grunt diteruskan ke SailsJS di port <code>1337</code>.  Proxy ini membutuhkan tambahan package <code>grunt-connect-proxy</code>. Install menggunakan <code>npm</code> dalam aplikasi client</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd aplikasi-membership-client
-</span><span class='line'>npm install grunt-connect-proxy --save-dev</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">cd</span> <span class="nx">aplikasi</span><span class="o">-</span><span class="nx">membership</span><span class="o">-</span><span class="nx">client</span>
+</span><span class='line'><span class="nx">npm</span> <span class="nx">install</span> <span class="nx">grunt</span><span class="o">-</span><span class="nx">connect</span><span class="o">-</span><span class="nx">proxy</span> <span class="o">--</span><span class="nx">save</span><span class="o">-</span><span class="nx">dev</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Perintah di atas akan mengunduh package <code>grunt-connect-proxy</code> dari internet dan menambahkan dependensinya ke <code>package.json</code>.</p>
