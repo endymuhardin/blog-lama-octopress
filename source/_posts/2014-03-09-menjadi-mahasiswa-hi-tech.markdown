@@ -64,7 +64,7 @@ Walaupun demikian, menulis itu tetap penting karena banyak manfaatnya:
 
 > Lalu bagaimana? Katanya jangan mencatat.
 
-Begini _best_-_practices_nya:
+Begini _best practices_nya:
 
 * Kalau dosen menulis di papan tulis, jangan dicatat. Potret saja.
 * Selama sesi perkuliahan, nyalakan perekam suara untuk merekam omongan dosen.
