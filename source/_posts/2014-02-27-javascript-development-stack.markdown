@@ -471,6 +471,8 @@ Sekarang kita tes konfigurasi proxy dengan cara browse ke `http://localhost:9000
 
 Tampak pesan error disana. Tidak apa-apa, kita akan perbaiki nanti. Yang penting sudah jelas bahwa request tersebut dilayani oleh Sails, bukan oleh Grunt.
 
+Untuk lebih jelas mengenai skema proxy ini, silahkan baca [penjelasan om Rocky Jaiswal](http://rockyj.in/2013/10/24/angular_rails.html)
+
 
 ## Kesimpulan ##
 
