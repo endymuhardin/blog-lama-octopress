@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring &hellip;">
+  <meta name="description" content="Salah satu komentator bertanya seperti ini, kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,183 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/konfigurasi-anotasi-vs-xml/">Annotation Dan XML</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-07T21:30:47+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu <a href="http://endy.artivisi.com/blog/java/akses-database-spring25/#comment-9582">komentator bertanya seperti ini</a>,</p>
+
+<blockquote><p>kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring membuat kontrol kita lebih sentralisasi, sehingga lebih mudah dimaintain ?</p></blockquote>
+
+<p>Hmm&#8230; saya tidak ingin terlibat flame war annotation vs xml. Masing-masing memiliki plus minusnya. Ada saatnya kita memakai annotation dan ada saatnya XML lebih tepat. Mari kita bahas.</p>
+
+<p>Beberapa waktu yang lalu, saya pernah ditugaskan untuk memeriksa aplikasi finansial yang error. Pada salah satu halaman, bila tombol Submit ditekan, aplikasi akan hang. Aplikasi ini dibuat menggunakan teknologi VB 6 (RIP) untuk komponen akses database, ASP untuk tampilan, dan Stored Procedure MS-SQL Server 2005 untuk sebagian logika bisnis.</p>
+
+<p>Setelah memasukkan trace statement ke dalam Stored Procedure (ternyata bukan hal yang mudah, tidak semudah menyisipkan System.out.println(), terlihat penyebabnya karena ada cyclic dependency antar transaksi database. Transaksi A mencoba mengurangi saldo, tapi sebelumnya memeriksa posisi saldo, kalau-kalau tidak mencukupi. Pemeriksaan saldo dilakukan melalui transaksi B. Transaksi B mencoba melihat tabel saldo, yang ternyata sudah dikunci oleh transaksi A. Ya sampai kapanpun transaksi A dan B akan saling menunggu.</p>
+
+<p>Baiklah, masalah sudah ditemukan, saatnya untuk memperbaiki. Memperbaiki jauh lebih mudah daripada menemukan bug, kan?</p>
+
+<p>Sayangnya tidak demikian. Ada berbagai faktor, salah satunya yang paling signifikan adalah saya awam dengan teknologi Microsoft. Saya sama sekali tidak mengerti bagaimana cara mengatur transaksi di VB dan Stored Procedure.</p>
+
+<p>Akhirnya setelah google kesana kemari, saya menemukan empat cara untuk melakukan setting transaksi:</p>
+
+<ul>
+<li>coding di VB</li>
+<li>coding di Stored Procedure</li>
+<li>konfigurasi class properties di VB</li>
+<li>konfigurasi di COM service pada Control Panel Windows</li>
+</ul>
+
+
+<p>Waduh &#8230; ini mimpi buruk. Berarti ada banyak kombinasi yang harus dicoba. Saya yakin para MVP pasti dengan cepat bisa memilih, tapi saya hanyalah seorang programmer Java. Mana saya tahu hal beginian.</p>
+
+<p>Dari kejadian ini, saya mendapat pelajaran penting. Pengaturan transaksi haruslah dekat dengan kode yang melakukan transaksi. Alasannya, kode program yang mengakses database sangat erat hubungannya dengan pengaturan transaksi. Tidak mungkin kita menulis kode untuk transfer antar rekening tapi menon-aktifkan transaksi database.</p>
+
+<p>Kode seperti ini mudah dipahami dan mudah didebug.</p>
+
+<pre><code>@Transactional(readOnly=false)
+public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Kode seperti ini perlu banyak Alt-Tab untuk mendebugnya.</p>
+
+<p>Di Java:</p>
+
+<pre><code>public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Di XML</p>
+
+<pre><code>&lt;property name="transactionAttributes"&gt;
+  &lt;props&gt;
+    &lt;prop key="transfer*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+  &lt;/props&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Bedakan antara cara melakukan transaksi, dan cara melakukan konfigurasi. Di Java, kita bisa memilih beberapa cara transaksi:</p>
+
+<ul>
+<li>Local Transaction: mengelola transaksi melalui java.sql.Connection dalam source code</li>
+<li>Programmatic Transaction: mengambil object Transaction dari JTS provider, kemudian menggunakannya untuk commit/rollback. Ini juga dilakukan dalam source code.</li>
+<li>Declarative Transaction: mengatur transaksi melalui konfigurasi.</li>
+</ul>
+
+
+<p>Kalau kita pilih declarative transaction, ada beberapa cara konfigurasinya:</p>
+
+<ul>
+<li>Melalui XML</li>
+<li>Melalui Annotation</li>
+</ul>
+
+
+<p>Yang mana yang paling dekat dengan source code yang bertransaksi? Tentu saja annotation.</p>
+
+<p>Ok, sudah jelas mengenai transaction, sebaiknya di annotation saja.</p>
+
+<p>Berikutnya, deklarasi DAO. Sebelumnya kita melakukan deklarasi DAO di XML. Yang biasa saya lakukan kalau ada DAO baru biasanya sama:</p>
+
+<ul>
+<li>copy paste deklarasi DAO di atasnya</li>
+<li>ganti bean id</li>
+<li>ganti nama class</li>
+</ul>
+
+
+<p>Beres. Tidak ada added value di sini. Deklarasi manual di XML tidak membuat konfigurasi Spring jadi lebih mudah dipahami. Juga tidak membuat kita makin pintar. Ini adalah overhead pemrograman dengan Spring. Boilerplate code. Kode yang ditulis hanya untuk memuaskan framework.</p>
+
+<p>Jadi, lebih baik kalau kita suruh Spring autodetect saja dari annotation @Repository.</p>
+
+<p>Bagaimana dengan relasi dengan datasource? Bukankah kalau di XML jadi terlihat DAO mana menggunakan DataSource mana?</p>
+
+<p>Hmm &#8230; untuk kasus datasource, ada dua kemungkinan:</p>
+
+<ul>
+<li>menggunakan satu datasource</li>
+<li>menggunakan lebih dari satu datasource</li>
+</ul>
+
+
+<p>Untuk kasus pertama, biasanya sebagian aplikasi seperti ini, tidak perlu ada deklarasi eksplisit untuk injeksi dataSource. Lha wong cuma satu, apanya yang ambigu? @Autowired saja semuanya.</p>
+
+<p>Untuk kasus kedua, mau tidak mau memang harus XML. Soalnya @Autowired by type tidak akan bisa, karena ada lebih dari satu bean bertipe DataSource.</p>
+
+<p>Sekarang kita lihat, apa yang tertinggal di konfigurasi XML, setelah banyak hal kita pindahkan ke annotation:</p>
+
+<ul>
+<li>deklarasi datasource</li>
+<li>deklarasi transaction manager</li>
+</ul>
+
+
+<p>Kedua hal ini tidak logis bila kita pindahkan ke annotation. Dua-duanya adalah konfigurasi, sangat mungkin berubah tergantung strategi deployment. Bila kita mengelola koneksi database melalui application server, maka kita akan menggunakan JNDI. Bila kita deploy di <a href="http://winstone.sourceforge.net">Winstone</a>, maka kita tidak menggunakan JTA, jadi transaction manager menggunakan LocalTransactionManager.</p>
+
+<p>Setelah selesai dengan isu backend, mari sekarang kita bahas presentation layer. Ada beberapa anotasi di sini:</p>
+
+<ul>
+<li>@Controller : untuk menandai class Controller</li>
+<li>@RequestMapping : untuk mapping URL atau Request Method ke handlernya</li>
+<li>@RequestParam : untuk mem-bind request parameter ke variabel</li>
+<li>@ModelAttribute : untuk mem-bind object ke request attribute</li>
+<li>@SessionAttribute : untuk mem-bind object ke session attribute</li>
+</ul>
+
+
+<p>@Controller sama dengan @Repository. Keberadaannya menghilangkan boilerplate deklarasi di XML. Menurut saya, ini sangat mengurangi clutter dan duplikasi di XML.</p>
+
+<p>@RequestMapping, saya 50:50 di sini.</p>
+
+<p>Di satu sisi, seharusnya kita tidak mengikat handler method dengan URL pattern, supaya kita bisa mengganti skema URL sesuai trend terbaru (RESTful, etc) atau sebaliknya, supaya bisa mengganti handler method tanpa mengubah URL.</p>
+
+<p>Tapi di sisi lain, saya ingin menggunakan Convention over Configuration ala <a href="http://rubyonrails.org">Rails</a>. Yaitu nama view otomatis diambil dari request URL. Ini benar-benar mengurangi jumlah konfigurasi yang harus ditulis. Lagipula, seberapa sering sih kita mengganti pasangan URL-Handler?</p>
+
+<p>Jadi untuk @RequestMapping, posisi saya adalah, tergantung situasi. Ada saatnya mapping di XML, dan ada saatnya mapping dengan annotation.</p>
+
+<p>@RequestParam, @ModelAttribute, dan @SessionAttribute setahu saya tidak punya padanan XML. Ini adalah anotasi untuk memudahkan coding saja. Jadi tidak perlu diperdebatkan apakah sebaiknya di XML saja.</p>
+
+<p>Yah, begitulah sekilas perbandingan antara konfigurasi melalui anotasi dan XML. Sepertinya menambah bingung. Tapi jangan khawatir, untuk bisa mengerti harus bingung dulu.</p>
+
+<p>Semoga bermanfaat.</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -666,614 +843,6 @@ public class PersonController {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/akses-database-spring25/">Akses Database Dengan Spring 2.5</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-03T21:12:07+07:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h1>Akses database dengan Spring 2.5</h1>
-
-<p>Spring 2.5 baru saja keluar. Rilis kali ini membawa penambahan fitur yang cukup signifikan di sisi konfigurasi. Dalam Spring yang baru ini, kita bisa mengkonfigurasi aplikasi melalui annotation. Suatu hal yang sangat bermanfaat untuk mengurangi jumlah baris kode XML kita.</p>
-
-<p>Sebetulnya tidak ada yang salah dengan XML. Walaupun demikian, ada beberapa hal yang menurut saya kurang tepat kalau dikonfigurasi melalui XML, diantaranya:</p>
-
-<ul>
-<li>konfigurasi transaction</li>
-<li>deklarasi bean standar</li>
-</ul>
-
-
-<p>Konfigurasi transaction biasanya tergantung dari kode program yang ingin ber-transaction. Bila kita konfigurasi di XML, maka untuk memikirkan satu logika akses database, kita harus melihat di dua tempat yang berbeda; file java dan file XML. Menurut pendapat saya, fitur declarative transaction walaupun kelihatannya mirip konfigurasi, tapi pada dasarnya adalah logika aplikasi. Tempatnya bukan di konfigurasi XML, tapi di kode Java.</p>
-
-<p>Di Spring, kita harus mendaftarkan object aplikasi kita ke dalam object ApplicationContext agar bisa dikelola oleh Spring. Pada rilis sebelumnya, pendaftaran ini dilakukan dalam file XML. Cara ini memiliki incremental cost yang tinggi. Bila kita punya 100 object yang ingin dikelola, maka kita harus punya 100 deklarasi di konfigurasi XML Spring. Sekarang kita bisa menandai object yang akan dikelola Spring melalui annotation. Jadi walaupun ada 100 object, konfigurasi XML kita tidak bertambah.</p>
-
-<p>Ok, cukup berteori. Saatnya melihat contoh kode.</p>
-
-<h2>Domain Model</h2>
-
-<p>Pada artikel kali ini, kita akan membuat kode akses database untuk class <code>Person</code>. Class ini tidak istimewa, cuma POJO biasa dengan tiga property: id, name, dan email. Berikut kode program <code>Person.java</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring25</span><span class="o">.</span><span class="na">model</span><span class="o">;</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">Long</span> <span class="n">id</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>Jangan lupa membuat getter dan setter.</p>
-
-<h2>Skema Database</h2>
-
-<p>Class ini akan kita simpan di database dalam tabel bernama <code>T_PERSON</code>. Berikut definisinya untuk database MySQL.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">create</span> <span class="k">table</span> <span class="n">T_PERSON</span> <span class="p">(</span>
-</span><span class='line'>  <span class="n">id</span> <span class="nb">BIGINT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
-</span><span class='line'>  <span class="n">email</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
-</span><span class='line'><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Interface Akses Database</h2>
-
-<p>Operasi database yang akan kita buat dijelaskan oleh interface <code>PersonDao</code>, sebagai berikut.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring25</span><span class="o">.</span><span class="na">dao</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">PersonDao</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">person</span><span class="o">&gt;</span> <span class="n">getAll</span><span class="o">();</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Person</span> <span class="nf">getById</span><span class="o">(</span><span class="n">Long</span> <span class="n">id</span><span class="o">);</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">Person</span> <span class="n">p</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Untuk tahap pertama, kita akan lihat cara mengakses database dengan JDBC helper yang disediakan Spring. Akses database dengan Hibernate akan dijelaskan pada artikel terpisah.</p>
-
-<h2>Implementasi Akses Database</h2>
-
-<p>Berikut adalah kerangka implementasi <code>PersonDao</code> dengan JDBC helper dari Spring. Kita simpan di file bernama <code>PersonDaoSpringJdbc.java</code></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring25</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">springjdbc</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nd">@Repository</span><span class="o">(</span><span class="s">&quot;personDao&quot;</span><span class="o">)</span>
-</span><span class='line'><span class="nd">@Transactional</span><span class="o">(</span><span class="n">readOnly</span><span class="o">=</span><span class="kc">true</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonDaoSpringJdbc</span> <span class="kd">implements</span> <span class="n">PersonDao</span> <span class="o">{</span> 
-</span><span class='line'>  <span class="nd">@Autowired</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDataSource</span><span class="o">(</span><span class="kd">final</span> <span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">person</span><span class="o">&gt;</span> <span class="n">getAll</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">Person</span> <span class="nf">getById</span><span class="o">(</span><span class="kd">final</span> <span class="n">Long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="nd">@Transactional</span><span class="o">(</span><span class="n">readOnly</span><span class="o">=</span><span class="kc">false</span><span class="o">)</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="kd">final</span> <span class="n">Person</span> <span class="n">person</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ada beberapa hal yang baru pada kode di atas. Kita melihat ada annotation <code>@Repository</code>, <code>@Transactional</code>, dan <code>@Autowired</code>.</p>
-
-<p>Annotation <code>@Repository</code> memberi tahu pada Spring bahwa class ini adalah salah satu <code>@Component</code> dalam aplikasi kita. Semua @Component akan dipindai pada waktu inisialisasi dan kemudian diregistrasi ke dalam object <code>ApplicationContext</code> milik Spring. Selain <code>@Repository</code>, <code>@Component</code> juga memiliki turunan <code>@Service</code> dan <code>@Controller</code>. <code>@Service</code> biasanya digunakan untuk menandai class-class facade atau business delegate. Sedangkan <code>@Controller</code> digunakan untuk aplikasi web. <code>@Service</code> dan <code>@Controller</code> akan kita bahas di artikel terpisah.</p>
-
-<p>Annotation <code>@Transactional</code> menandakan bahwa semua method dalam class ini akan dijalankan dalam transaksi database. Kita memberikan nilai <code>readOnly=true</code> pada deklarasi class, menandakan bahwa secara default transaksi hanya digunakan untuk mengambil data dari database. Perhatikan method save. Pada method ini, kita akan memasukkan atau mengubah data dalam database. Untuk satu method ini, kita membutuhkan transaksi yang tidak readOnly. Karena itu, kita override konfigurasi default dengan cara memberikan annotation <code>@Transactional(readOnly=false)</code>.</p>
-
-<h2>Konfigurasi Spring Framework</h2>
-
-<p>Sekarang mari kita lihat konfigurasi Application Context. File ini disave dengan nama <code>applicationContext.xml</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-</span><span class='line'><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
-</span><span class='line'>  <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
-</span><span class='line'>  <span class="na">xmlns:p=</span><span class="s">&quot;http://www.springframework.org/schema/p&quot;</span>
-</span><span class='line'>  <span class="na">xmlns:aop=</span><span class="s">&quot;http://www.springframework.org/schema/aop&quot;</span>
-</span><span class='line'>  <span class="na">xmlns:context=</span><span class="s">&quot;http://www.springframework.org/schema/context&quot;</span>
-</span><span class='line'>  <span class="na">xmlns:jee=</span><span class="s">&quot;http://www.springframework.org/schema/jee&quot;</span>
-</span><span class='line'>  <span class="na">xmlns:tx=</span><span class="s">&quot;http://www.springframework.org/schema/tx&quot;</span>
-</span><span class='line'>  <span class="na">xsi:schemaLocation=</span><span class="s">&quot;</span>
-</span><span class='line'><span class="s">        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd</span>
-</span><span class='line'><span class="s">  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd</span>
-</span><span class='line'><span class="s">  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd</span>
-</span><span class='line'><span class="s">  http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd</span>
-</span><span class='line'><span class="s">  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;context:property-placeholder</span> <span class="na">location=</span><span class="s">&quot;classpath:jdbc.properties&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;context:annotation-config/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&quot;tutorial.spring25&quot;</span><span class="nt">/&gt;</span> <span class="c">&lt;!-- tidak perlu deklarasi masing2 DAO --&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;tx:annotation-driven</span> <span class="nt">/&gt;</span> <span class="c">&lt;!-- tidak perlu deklarasi transaction setting per method --&gt;</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span>
-</span><span class='line'>      <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DriverManagerDataSource&quot;</span>
-</span><span class='line'>      <span class="na">destroy-method=</span><span class="s">&quot;close&quot;</span>
-</span><span class='line'>      <span class="na">p:driverClassName=</span><span class="s">&quot;${jdbc.driver}&quot;</span>
-</span><span class='line'>      <span class="na">p:url=</span><span class="s">&quot;${jdbc.url}&quot;</span>
-</span><span class='line'>      <span class="na">p:username=</span><span class="s">&quot;${jdbc.username}&quot;</span>
-</span><span class='line'>      <span class="na">p:password=</span><span class="s">&quot;${jdbc.password}&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;transactionManager&quot;</span>
-</span><span class='line'>      <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;</span>
-</span><span class='line'>      <span class="na">p:dataSource-ref=</span><span class="s">&quot;dataSource&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/beans&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Seperti kita lihat di atas, kita tidak lagi membutuhkan deklarasi untuk object <code>personDao</code> seperti pada Spring sebelumnya. Kita juga tidak perlu membuat konfigurasi transaksi untuk masing-masing method dalam <code>PersonDao</code>. Sebagai gambaran, kita menghilangkan beberapa baris yang seperti ini.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;personDaoImpl&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.spring25.dao.springjdbc.PersonDaoSpringJdbc&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
-</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;personDao&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.transaction.interceptor.TransactionProxyFactoryBean&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;target&quot;</span> <span class="na">ref=</span><span class="s">&quot;personDao&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;transactionManager&quot;</span> <span class="na">ref=</span><span class="s">&quot;transactionManager&quot;</span><span class="nt">&gt;&lt;/property&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;transactionAttributes&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;props&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED,readOnly<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>            <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;save*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
-</span><span class='line'>        <span class="nt">&lt;/props&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/property&gt;</span>
-</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Semakin banyak class DAO kita, deklarasinya juga akan semakin banyak. Pada aplikasi skala menengah, jumlah DAO bisa mencapai ratusan. Bisa dibayangkan dampaknya terhadap file xml tersebut. Dengan mencantumkan satu baris seperti ini,</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&quot;tutorial.spring25&quot;</span><span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Spring dapat secara otomatis memeriksa seluruh package tutorial.spring dan mendaftarkan semua class yang memiliki annotation <code>@Component</code>, <code>@Repository</code>, <code>@Service</code>, dan <code>@Controller</code>.</p>
-
-<p>Kita sudah lihat bagaimana keseluruhan kode program ditulis. Kecuali implementasi sebenarnya tentu saja. Sebelum melihat secara detail bagaimana kode program untuk <code>INSERT</code> dan <code>SELECT</code>, terlebih dulu kita lihat bagaimana class <code>PersonDaoSpringJdbc</code> ini digunakan.</p>
-
-<h2>Automated Testing</h2>
-
-<p>Daripada menggunakan cara yang kurang berwawasan (menggunakan method main), saya akan mengambil pendekatan yang lebih berpendidikan, yaitu menggunakan Unit Test. Lihat <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel saya tentang Unit Test dan Integration Test</a> untuk memahami kode berikut.</p>
-
-<p>Ini adalah kerangka class test untuk <code>PersonDaoSpringJdbc</code>. Class ini dibuat dengan menggunakan JUnit 4. Isinya masih belum lengkap. Kita akan lengkapi sambil jalan.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">test</span><span class="o">.</span><span class="na">spring25</span><span class="o">.</span><span class="na">dao</span><span class="o">.</span><span class="na">springjdbc</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonDaoSpringJdbcTest</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ApplicationContext</span> <span class="n">applicationContext</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">PersonDao</span> <span class="n">personDao</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@BeforeClass</span> <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">init</span><span class="o">(){}</span>
-</span><span class='line'>  <span class="nd">@Before</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">resetDatabase</span><span class="o">(){}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">testGetById</span><span class="o">(){}</span>
-</span><span class='line'>  <span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">testGetAll</span><span class="o">(){}</span>
-</span><span class='line'>  <span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">testSave</span><span class="o">(){}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Seperti kita lihat, kita sudah menggunakan annotation untuk menandai method test dan inisialisasi. Penjelasan tentang JUnit 4 akan dibahas pada artikel terpisah.</p>
-
-<p>Sekarang kita lihat isi masing-masing method. Method <code>init</code> isinya seperti ini.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@BeforeClass</span> <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">init</span><span class="o">(){</span>
-</span><span class='line'>  <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;applicationContext.xml&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">dataSource</span> <span class="o">=</span> <span class="o">(</span><span class="n">DataSource</span><span class="o">)</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;dataSource&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">personDao</span> <span class="o">=</span> <span class="o">(</span><span class="n">PersonDao</span><span class="o">)</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;personDao&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Method <code>resetDatabase</code> dijalankan sebelum masing-masing test method. Fungsinya untuk menghapus isi tabel <code>T_PERSON</code> dan mengisi sampel data sesuai yang kita inginkan. Ini dilakukan menggunakan DBUnit. Isinya sebagai berikut</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Before</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">resetDatabase</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">final</span> <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="n">DatabaseConnection</span><span class="o">(</span><span class="n">conn</span><span class="o">),</span> <span class="k">new</span> <span class="n">FlatXmlDataSet</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;fixtures/person.xml&quot;</span><span class="o">)));</span>
-</span><span class='line'>  <span class="n">conn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Sample Data</h2>
-
-<p>Method di atas akan menggunakan sampel data yang ada di file <code>person.xml</code>. Isinya seperti ini,</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dataset&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;T_PERSON</span>
-</span><span class='line'>    <span class="na">id=</span><span class="s">&quot;100&quot;</span>
-</span><span class='line'>    <span class="na">name=</span><span class="s">&quot;Endy Muhardin&quot;</span>
-</span><span class='line'>    <span class="na">email=</span><span class="s">&quot;endy.muhardin@gmail.com&quot;</span>
-</span><span class='line'>  <span class="nt">/&gt;</span>
-</span><span class='line'><span class="nt">&lt;/dataset&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Cukup satu record saja.</p>
-
-<h2>Implementasi Query Database</h2>
-
-<p>Pertama kali, kita akan implementasi method <code>getById</code>. Isi testnya tidak rumit. Cukup jalankan method <code>getById</code> dan periksa hasilnya.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">testGetById</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">Person</span> <span class="n">endy</span> <span class="o">=</span> <span class="n">personDao</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="mi">100L</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Endy Muhardin&quot;</span><span class="o">,</span> <span class="n">endy</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;endy.muhardin@gmail.com&quot;</span><span class="o">,</span> <span class="n">endy</span><span class="o">.</span><span class="na">getEmail</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Implementasi <code>getById</code> dalam <code>PersonDaoSpringJdbc</code> seperti ini.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Person</span> <span class="nf">getById</span><span class="o">(</span><span class="n">Long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">simpleJdbcTemplate</span><span class="o">.</span><span class="na">queryForObject</span><span class="o">(</span><span class="s">&quot;select * from T_PERSON where id=?&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">PersonMapper</span><span class="o">(),</span> <span class="n">id</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Cukup satu baris saja.</p>
-
-<h2>Mapping dari <code>ResultSet</code> menjadi <code>Person</code></h2>
-
-<p>Method ini membutuhkan class <code>PersonMapper</code> untuk mengkonversi object <code>ResultSet</code> menjadi object <code>Person</code>. Class ini dibuat menjadi static final inner class dalam <code>PersonDaoSpringJdbc</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonDaoSpringJdbc</span> <span class="kd">implements</span> <span class="n">PersonDao</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">PersonMapper</span> <span class="kd">implements</span> <span class="n">ParameterizedRowMapper</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;{</span>
-</span><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="n">Person</span> <span class="nf">mapRow</span><span class="o">(</span><span class="kd">final</span> <span class="n">ResultSet</span> <span class="n">rs</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">rowNum</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SQLException</span> <span class="o">{</span>
-</span><span class='line'>      <span class="kd">final</span> <span class="n">Person</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
-</span><span class='line'>      <span class="n">result</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getLong</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">));</span>
-</span><span class='line'>      <span class="n">result</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">));</span>
-</span><span class='line'>      <span class="n">result</span><span class="o">.</span><span class="na">setEmail</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">));</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Implementasi Query lainnya</h2>
-
-<p>Selanjutnya, kita akan implementasikan method <code>getAll</code>. Berikut test methodnya.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">testGetAll</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">personDao</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">result</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
-</span><span class='line'>  <span class="n">Person</span> <span class="n">endy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Endy Muhardin&quot;</span><span class="o">,</span> <span class="n">endy</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;endy.muhardin@gmail.com&quot;</span><span class="o">,</span> <span class="n">endy</span><span class="o">.</span><span class="na">getEmail</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dan ini implementasi dari method <code>getAll</code>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">getAll</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">simpleJdbcTemplate</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="s">&quot;select * from T_PERSON&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">PersonMapper</span><span class="o">(),</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Implementasi Insert Data</h2>
-
-<p>Terakhir, mari kita implementasi method save. Method testnya sedikit lebih panjang, karena untuk yakin akan hasilnya, kita harus melakukan query ke database dengan JDBC murni.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Test</span> <span class="kd">public</span> <span class="kt">void</span> <span class="n">testSave</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">Person</span> <span class="n">dhiku</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Person</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">dhiku</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;Hadikusuma Wahab&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">dhiku</span><span class="o">.</span><span class="na">setEmail</span><span class="o">(</span><span class="s">&quot;dhiku@gmail.com&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">assertNull</span><span class="o">(</span><span class="n">dhiku</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
-</span><span class='line'>  <span class="n">personDao</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">dhiku</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">assertNotNull</span><span class="o">(</span><span class="n">dhiku</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">final</span> <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
-</span><span class='line'>  <span class="kd">final</span> <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;select * from T_PERSON where id=?&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">ps</span><span class="o">.</span><span class="na">setLong</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">dhiku</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
-</span><span class='line'>  <span class="kd">final</span> <span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">assertTrue</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="n">dhiku</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">));</span>
-</span><span class='line'>  <span class="n">assertEquals</span><span class="o">(</span><span class="n">dhiku</span><span class="o">.</span><span class="na">getEmail</span><span class="o">(),</span> <span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">ps</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">rs</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">conn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Untungnya implementasi method <code>save</code> juga hanya satu baris.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Transactional</span><span class="o">(</span><span class="n">readOnly</span><span class="o">=</span><span class="kc">false</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="kd">final</span> <span class="n">Person</span> <span class="n">person</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">person</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">simpleJdbcInsert</span><span class="o">.</span><span class="na">executeAndReturnKey</span><span class="o">(</span><span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">person</span><span class="o">)).</span><span class="na">longValue</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ada beberapa hal yang perlu dijelaskan dari kode di atas.
-Pertama, kita perlu mengaktifkan transaksi database untuk mengubah isi database. Kita lakukan dengan <code>@Transactional(readOnly=false)</code>.</p>
-
-<p>Kedua, kita bisa menggunakan fitur terbaru Spring JDBC, yaitu <code>SimpleJdbcInsert</code>. Fitur ini mampu melihat ke dalam database dan mengambil daftar nama fieldnya. Object ini diinisialisasi pada saat kita menginjeksi <code>DataSource</code>. Berikut kodenya.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Autowired</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDataSource</span><span class="o">(</span><span class="kd">final</span> <span class="n">DataSource</span> <span class="n">dataSource</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">simpleJdbcTemplate</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleJdbcTemplate</span><span class="o">(</span><span class="n">dataSource</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">this</span><span class="o">.</span><span class="na">simpleJdbcInsert</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleJdbcInsert</span><span class="o">(</span><span class="n">dataSource</span><span class="o">).</span><span class="na">withTableName</span><span class="o">(</span><span class="s">&quot;T_PERSON&quot;</span><span class="o">).</span><span class="na">usingGeneratedKeyColumns</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Pada saat menginisialisasi object <code>SimpleJdbcInsert</code> kita memberi tahu Spring tentang nama tabel dan field yang isinya autogenerated, misalnya <code>id</code>.</p>
-
-<p>Selama nama field dalam <code>T_PERSON</code> sama dengan nama properti di class <code>Person</code>, kita bisa menghilangkan kode untuk mapping properti ke <code>PreparedStatement</code>. Kode yang biasanya tiga baris seperti ini</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;insert into T_PERSON (name, email) values(?,?)&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">ps</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">person</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
-</span><span class='line'><span class="n">ps</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">person</span><span class="o">.</span><span class="na">getEmail</span><span class="o">());</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dapat direduksi menjadi satu baris seperti ini:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">SqlParameterSource</span> <span class="n">parameterSource</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">person</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Object <code>parameterSource</code> ini bisa langsung diumpankan ke <code>simpleJdbcInsert</code> seperti ini untuk melakukan insert sekaligus mengambil nilai id yang digenerate database.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Long</span> <span class="n">newId</span> <span class="o">=</span> <span class="n">simpleJdbcInsert</span><span class="o">.</span><span class="na">executeAndReturnKey</span><span class="o">(</span><span class="n">parameterSource</span><span class="o">).</span><span class="na">longValue</span><span class="o">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Fitur <code>SimpleJdbcInsert</code> ini sangat bermanfaat kalau entity class kita terdiri dari puluhan field. Adanya method <code>executeAndReturnKey</code> untuk mengambil auto-generated primary key dari database juga akan sangat membantu kita untuk menghilangkan perbedaan antar database. Biasanya masing-masing merek database memiliki cara yang berbeda-beda untuk mengambil nilai ini.</p>
-
-<p>Sebagai contoh, bila kita lakukan secara manual untuk database MySQL, kodenya akan tampak seperti ini.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Transactional</span><span class="o">(</span><span class="n">readOnly</span><span class="o">=</span><span class="kc">false</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="kd">final</span> <span class="n">Person</span> <span class="n">person</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">simpleJdbcInsert</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="n">BeanPropertySqlParameterSource</span><span class="o">(</span><span class="n">person</span><span class="o">));</span>
-</span><span class='line'>  <span class="n">Long</span> <span class="n">newId</span> <span class="o">=</span> <span class="n">simpleJdbcInsert</span><span class="o">.</span><span class="na">getJdbcOperations</span><span class="o">().</span><span class="na">queryForLong</span><span class="o">(</span><span class="s">&quot;select last_insert_id()&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">person</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">newId</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Demikianlah sekilas tentang penggunaan fitur Spring terbaru untuk mengakses database. Pada artikel selanjutnya, kita akan lihat fitur-fitur baru di sisi MVC framework.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/43/">&larr; Older</a>
@@ -1350,6 +919,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
+      </li>
+    
+      <li class="post">
         <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
       </li>
     
@@ -1383,10 +956,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/meningkatkan-performance-android-emulator/">Meningkatkan performance Android Emulator</a>
       </li>
     
   </ul>
