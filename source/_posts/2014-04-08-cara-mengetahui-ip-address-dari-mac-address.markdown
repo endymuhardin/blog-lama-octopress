@@ -31,7 +31,7 @@ nmap -nsP 192.168.1.0/24
 Berikut penjelasan opsi yang kita gunakan:
 
 * n  : jangan cari nama host melalui DNS. Cukup IP Address saja
-* sP : ping scan. Cari IP mana yang aktif dengan ping
+* sP : ping scan. Cari IP mana yang aktif dengan ping. Di versi terbaru opsi 'sP' ini diganti namanya menjadi 'sn'
 * `192.168.1.0/24` : network address dan subnet tempat kita berada
 
 Outputnya seperti ini
