@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sebagai programmer, ada banyak tokoh yang bisa kita teladani, seperti Linus Torvalds, Bill Gates, Richard Stallman, Eric Raymond, Brian Kernighan, &hellip;">
+  <meta name="description" content="Menggunakan PostgreSQL Sequence dengan Hibernate Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -95,7 +95,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/life/otodidak/">Otodidak</a></h1>
+      <h1 class="entry-title"><a href="/java/postgresql-sequence-hibernate/">PostgreSQL Sequence Dengan Hibernate</a></h1>
     
     
       <p class="meta">
@@ -111,29 +111,80 @@
   
 
 
-<time datetime="2013-08-18T20:04:00+07:00" pubdate data-updated="true">Aug 18<span>th</span>, 2013</time>
+<time datetime="2009-06-22T22:08:58+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Sebagai programmer, ada banyak tokoh yang bisa kita teladani, seperti Linus Torvalds, Bill Gates, Richard Stallman, Eric Raymond, Brian Kernighan, Dennis Ritchie, Erich Gamma, dan banyak lainnya. Tetapi di dunia modern seperti sekarang ini, dimana teknologi baru bermunculan lebih cepat dari kemampuan kita untuk bisa menggunakannya (apalagi bisa mempelajarinya), ada satu tokoh yang wajib kita teladani, bukan berasal dari dunia IT. Siapa dia?</p>
+  <div class="entry-content"><p>Menggunakan PostgreSQL Sequence dengan Hibernate</p>
 
-<p><img src="/images/uploads/2013/08/otodidak/hatake-kakashi.jpg" title="Hatake Kakashi" ></p>
+<p>Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang dibuat PostgreSQL.</p>
 
-<p>Gambar diambil dari <a href="http://www.fanpop.com/clubs/kakashi/images/18899114/title/kakashi-hatake-screencap">Fanpop</a></p>
+<p>Bila kita membuat Hibernate mapping untuk entity class sebagai berikut:</p>
 
-<p>Dia adalah Hatake Kakashi dari komik Naruto.</p>
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue
+    private Integer id;
 
-<p>Kenapa begitu? Karena skill dan special ability yang dia miliki adalah juga skill dan special ability yang wajib dimiliki semua programmer tanpa kecuali, agar bisa selamat dari bencana pengangguran. Buat yang tidak mengikuti komik Naruto, berikut profil singkat Hatake Kakashi yang berkaitan dengan urusan programming. Sisanya bisa dibaca sendiri <a href="http://naruto.wikia.com/wiki/Kakashi_Hatake">di sini</a>.</p>
+    private String name;
 
+    // getter dan setter    
+}
+</code></pre>
+
+<p>kemudian menyuruh Hibernate untuk menggenerate DDL ke PostgreSQL, maka kita akan mendapatkan hasil sebagai berikut.</p>
+
+<pre><code>create table example (id int4 not null, name varchar(255), primary key (id))
+create sequence example_id_seq
+</code></pre>
+
+<p>Artinya, Hibernate akan membuat sequence bernama example_id_seq dan menggunakannya untuk menghasilkan id.</p>
+
+<p>Skema yang dihasilkan ini berbeda dengan skema yang biasa digunakan DBA PostgreSQL dalam membuat tabel, yaitu seperti ini</p>
+
+<pre><code>CREATE TABLE example (id serial, name text)
+</code></pre>
+
+<p>Bila kita menggunakan mapping di atas ke skema tabel dengan id bertipe serial ini, kita akan mendapatkan exception sebagai berikut.</p>
+
+<pre><code>SEVERE: ERROR: relation "hibernate_sequence" does not exist
+Exception in thread "main" org.hibernate.exception.SQLGrammarException: could not get next sequence value
+Caused by: org.postgresql.util.PSQLException: ERROR: relation "hibernate_sequence" does not exist
+</code></pre>
+
+<p>Ini disebabkan karena mapping di atas akan mencari sequence bernama hibernate_sequence yang tidak ada kalau kita membuat tabel dengan id serial.</p>
+
+<p>Solusinya adalah dengan menggunakan Hibernate Annotation Extension, yaitu anotasi @GenericGenerator seperti ini.</p>
+
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pg_seq")
+    @GenericGenerator(name="pg_seq", strategy="sequence", parameters={
+        @Parameter(name="sequence", value="example_id_seq")
+    })
+    private Integer id;
+
+    private String name;
+}
+</code></pre>
+
+<p>Nama sequence diambil dari sequence yang dibuatkan PostgreSQL pada saat kita melakukan create table.
+Nama sequence ini bisa dilihat dengan mengetikkan \d example, yang akan menghasilkan output sebagai berikut.</p>
+
+<pre><code>\d example
+                          Table "public.example"
+ Column |  Type   |                       Modifiers                       
+--------+---------+-------------------------------------------------------
+ id     | integer | not null default nextval('example_id_seq'::regclass)
+ name   | text    | 
+</code></pre>
+
+<p>Barulah setelah itu kita bisa menyimpan object ke database dengan mulus.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/life/otodidak/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -144,7 +195,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/linux/menggunakan-ssd-di-ubuntu/">Menggunakan SSD Di Ubuntu</a></h1>
+      <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-3/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 3]</a></h1>
     
     
       <p class="meta">
@@ -160,32 +211,348 @@
   
 
 
-<time datetime="2013-07-16T13:40:00+07:00" pubdate data-updated="true">Jul 16<span>th</span>, 2013</time>
+<time datetime="2009-06-16T17:56:28+07:00" pubdate data-updated="true">Jun 16<span>th</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Beberapa minggu yang lalu, saya mengganti harddisk menjadi SSD (Solid State Disk).
-Pengaruhnya sangat signifikan, dari tekan tombol power sampai desktop siap digunakan hanya makan waktu &lt; 10 detik.
-Sebelumnya juga tidak terlalu lama, tapi masih berkisar di atas 1 menit. Demikian juga setelah login, menyalakan Google Chrome, hanya sekejap mata browser sudah tampil. Sebelumnya butuh waktu 5-10 detik.</p>
+  <div class="entry-content"><p>Pada artikel sebelumnya, kita telah membahas tentang <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-1/">konsep integrasi aplikasi</a>, dan <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-2/">implementasinya menggunakan Spring Integration</a>. Contoh implementasi kita kemarin, walaupun mencakup integrasi end-to-end, masih sangat sederhana.</p>
 
-<p>Pemasangan harddisk tidak jauh berbeda dengan proses instalasi harddisk pada umumnya. Tinggal lepas harddisk lama, dan pasang yang baru. Walaupun demikian, ada beberapa tuning yang harus kita lakukan berkaitan dengan karakteristik SSD, yaitu:</p>
+<p>Kali ini kita akan mengeksplorasi use-case yang lebih kompleks, yaitu cara menangani berbagai operasi service. Misalnya untuk tipe data yang sama, contohnya Penjualan, kita memiliki service untuk simpan dan hapus. Object penjualan juga lebih kompleks daripada object produk.</p>
+
+<p>Untuk memecahkan masalah ini, kita menggunakan Router. Router bertugas memilih channel sesuai dengan message yang datang. Berikut skema penggunaan router.</p>
+
+<p><img src="/images/uploads/2009/06/router-demo-300x91.png" title="Skema Penggunaan Router" ></p>
+
+<p>Sebelum membahas tentang router, baiklah kita lihat dulu data penjualan yang akan dikirim. Berikut class penjualan</p>
+
+<h4>Penjualan</h4>
+
+<pre><code>public class Penjualan {
+    private Integer id;
+    private Date tanggal = new Date();
+    private List&lt;PenjualanDetail&gt; details = new ArrayList&lt;PenjualanDetail&gt;();
+    // getter dan setter
+}
+</code></pre>
+
+<p>Berikutnya, penjualan detail.</p>
+
+<h4>PenjualanDetail</h4>
+
+<pre><code>public class PenjualanDetail {
+    private Integer id;
+    private Penjualan penjualan;
+    private Produk produk;
+    private Integer jumlah;
+
+    // getter dan setter
+}
+</code></pre>
+
+<p>Object baru ini tentu saja harus kita buatkan transformernya untuk mengkonversi object menjadi JSON.</p>
+
+<h4>CabangService</h4>
+
+<pre><code>public class JsonTransformer{
+    public Penjualan jsonToPenjualan(String json){
+        Map&lt;String , Class&gt; binding = new HashMap&lt;String , Class&gt;();
+        binding.put("details", PenjualanDetail.class);
+        return (Penjualan) JSONObject.toBean(JSONObject.fromObject(json), Penjualan.class, binding);
+    }
+
+    public String penjualanToJson(Penjualan p){
+        // remove dulu cyclic dependency
+        for (PenjualanDetail detail : p.getDetails()) {
+            detail.setPenjualan(null);
+        }
+
+        return JSONObject.fromObject(p).toString();
+    }
+}
+</code></pre>
+
+<p>Penjualan dan PenjualanDetail akan kita proses melalui method simpan dan hapus yang ada di CabangService.</p>
+
+<h4>CabangService</h4>
+
+<pre><code>public class CabangService {
+    public void save(Penjualan p) {
+        System.out.println("Simpan penjualan dengan ID : "+p.getId());
+        System.out.println("Tanggal : "+new SimpleDateFormat("dd MMM yyyy").format(p.getTanggal()));
+        System.out.println("Details : ");
+        for (PenjualanDetail detail : p.getDetails()) {
+            System.out.println("Produk : "+detail.getProduk().getKode());
+            System.out.println("Jumlah : "+detail.getJumlah());
+        }
+    }
+
+    public void delete(Penjualan p) {
+        System.out.println("Hapus penjualan dengan ID : "+p.getId());
+    }
+}
+</code></pre>
+
+<p>Tentunya nanti method save dan delete ini akan lebih canggih dari ini, misalnya insert dan delete ke database.</p>
+
+<p>Kalau kita lihat skemanya, ada satu titik di mana message akan dilihat dan disalurkan ke channel yang sesuai.</p>
+
+<p><img src="/images/uploads/2009/06/router-only-300x104.png" title="Routing Message" ></p>
+
+<p>Penjualan yang akan disimpan dimasukkan ke channel penjualan-simpan. Sedangkan object penjualan yang akan dihapus dimasukkan ke channel penjualan-hapus. Dengan demikian, kita harus membuat router yang mampu menentukan channel yang akan dipilih dengan melihat message yang masuk ke dalam router tersebut. Operasi yang akan dilakukan (simpan atau hapus) harus dimasukkan ke message header atau message content. Agar sederhana, kita tambahkan saja satu property di class Penjualan untuk menentukan operasi yang akan dilakukan. Bila class Penjualan ini dimapping menggunakan JPA, kita bisa menandai property ini dengan anotasi @Transient agar isinya tidak disimpan di database.</p>
+
+<p>Karena nantinya property operasi ini akan digunakan tidak saja untuk Penjualan, tapi juga transaksi lainnya, baiklah kita buat saja di superclass DomainObject sebagai berikut.</p>
+
+<h4>Penjualan</h4>
+
+<pre><code>public class DomainObject {
+    private String operasi;
+}
+</code></pre>
+
+<p>Berikut class Penjualan yang sudah dimodifikasi.</p>
+
+<h4>Penjualan</h4>
+
+<pre><code>public class Penjualan extends DomainObject {
+    private Integer id;
+    private Date tanggal = new Date();
+    private List&lt;PenjualanDetail&gt; details = new ArrayList&lt; &lt;PenjualanDetail&gt;();
+
+    // getter dan setter
+}
+</code></pre>
+
+<p>Property operasi ini akan dilihat oleh router untuk menentukan nama channel. Berikut implementasi Router.</p>
+
+<h4>Router</h4>
+
+<pre><code>public class NamaKelasDanOperasiRouter {
+    public String pilihChannel(Object msg){
+        String classname = msg.getClass().getSimpleName().toLowerCase();
+
+        if(!DomainObject.class.isAssignableFrom(msg.getClass())) {
+            throw new IllegalArgumentException("Harus object bertipe : "+DomainObject.class.getName());
+        }
+
+        DomainObject obj = (DomainObject) msg;
+        String operasi = obj.getOperasi().toLowerCase();
+
+        return classname + "-" + operasi;
+    }
+}
+</code></pre>
+
+<p>Router ini akan membaca nama class dari object yang diterimanya dan menggabungkannya dengan property operasi. Jadi, object Penjualan dengan operasi simpan akan menghasilkan nama channel penjualan-simpan. Demikian juga object Pembelian dengan operasi hapus akan menghasilkan channel pembelian-hapus.</p>
+
+<p>Berikut unit test untuk router di atas.</p>
+
+<h4>Router</h4>
+
+<pre><code>public class NamaKelasDanOperasiRouterTest {
+
+    @Test
+    public void testPilihChannel() {
+        Penjualan p = new Penjualan();
+        p.setOperasi("simpan");
+        assertEquals("penjualan-simpan", new NamaKelasDanOperasiRouter().pilihChannel(p));
+    }
+
+}
+</code></pre>
+
+<p>Berikut aliran message mulai dari gateway sampai menjadi JSON.</p>
+
+<p><img src="/images/uploads/2009/06/gateway-to-json-300x31.png" title="Dari Gateway sampai menjadi JSON" ></p>
+
+<p>Dan ini adalah konfigurasi Spring Integration untuk flow di atas.</p>
+
+<h4>Gateway ke JSON</h4>
+
+<pre><code>&lt;gateway id="gateway"
+    service-interface="com.artivisi.explore.spring.integration.gateway.Gateway"
+    default-request-channel="outgoingPenjualan"
+/&gt;
+
+&lt;channel id="outgoingPenjualan"/&gt;
+
+&lt;transformer 
+    input-channel="outgoingPenjualan" 
+    output-channel="outgoingJson"
+    ref="jsonTransformer" 
+    method="penjualanToJson"
+/&gt;
+
+&lt;channel id="outgoingJson"/&gt;
+</code></pre>
+
+<p>Pada artikel sebelumnya, kita mengganti implementasi email dengan shared folder supaya proses development lebih cepat. Akses ke shared folder jauh lebih cepat daripada email yang dibatasi oleh kecepatan internet. Kali ini, kita akan menggunakan bridge, yaitu hubungan langsung antar channel. Ini kita gunakan untuk menghubungkan channel outgoingJson dengan incomingJson. Hubungan ini pada artikel sebelumnya diimplementasikan menggunakan shared folder dan email.</p>
+
+<p><img src="/images/uploads/2009/06/bridge-300x45.png" title="bridge antara incoming dan outgoing" ></p>
+
+<p>Berikut konfigurasi bridge untuk menghubungkan outgoingJson dan incomingJson.</p>
+
+<h4>Bridge</h4>
+
+<pre><code>&lt;bridge 
+    input-channel="outgoingJson" 
+    output-channel="incomingJson" 
+/&gt;
+</code></pre>
+
+<p>Dari incomingJson, kita konversi dulu menjadi object.
+Berikut konfigurasinya.</p>
+
+<h4>JSON ke Object</h4>
+
+<pre><code>&lt;channel id="incomingJson"/&gt;
+
+&lt;transformer 
+    input-channel="incomingJson" 
+    output-channel="incomingPenjualan"
+    ref="jsonTransformer" 
+    method="jsonToPenjualan"
+/&gt;
+</code></pre>
+
+<p>Setelah menjadi object, kita masukkan ke router untuk ditentukan channelnya.</p>
+
+<h4>Routing</h4>
+
+<pre><code>&lt;router 
+    input-channel="incomingPenjualan" 
+    ref="namaKelasDanOperasiRouter" 
+    method="pilihChannel"
+/&gt;
+</code></pre>
+
+<p>Kemudian, dari channel kita sambungkan ke method save dan delete.</p>
+
+<h4>Method Save</h4>
+
+<pre><code>&lt;channel id="penjualan-simpan"/&gt;
+
+&lt;service-activator 
+    input-channel="penjualan-simpan"
+    ref="cabangService"
+    method="save"/&gt;
+</code></pre>
+
+<h4>Method Delete</h4>
+
+<pre><code>&lt;channel id="penjualan-hapus"/&gt;
+
+&lt;service-activator 
+    input-channel="penjualan-hapus"
+    ref="cabangService"
+    method="delete"/&gt;
+</code></pre>
+
+<p>Terakhir, kita buat class untuk menjalankan semua rangkaian integrasi ini.</p>
+
+<h4>CabangRouterDemo</h4>
+
+<pre><code>public class CabangRouterDemo {
+    public static void main(String[] args) {
+         // 1. Menginstankan Spring Application Context
+        AbstractApplicationContext ctx 
+            = new ClassPathXmlApplicationContext("cabang-router-ctx.xml", CabangRouterDemo.class);
+        ctx.registerShutdownHook();
+        Gateway gw = (Gateway) ctx.getBean("gateway");
+        Penjualan p1 = bikinTransaksi(100, "simpan");
+        Penjualan p2 = bikinTransaksi(102, "hapus");
+
+        gw.send(p1);
+        gw.send(p2);
+
+        System.exit(0);
+    }
+
+    private static Penjualan bikinTransaksi(Integer id, String operasi) {
+        Penjualan p = new Penjualan();
+        p.setId(id);
+        p.setOperasi(operasi);
+
+        Produk pr1 = new Produk(1001, "PR-001", "Produk 001");
+        Produk pr2 = new Produk(1002, "PR-002", "Produk 002");
+        Produk pr3 = new Produk(1003, "PR-003", "Produk 003");
+
+        PenjualanDetail pd1 = new PenjualanDetail(11, pr1, 1);
+        PenjualanDetail pd2 = new PenjualanDetail(12, pr2, 2);
+        PenjualanDetail pd3 = new PenjualanDetail(13, pr3, 3);
+
+        p.addPenjualanDetail(pd1);
+        p.addPenjualanDetail(pd2);
+        p.addPenjualanDetail(pd3);
+
+        return p;
+    }
+}
+</code></pre>
+
+<p>Demikianlah penggunaan routing dengan Spring Integration. Seperti kita lihat, dengan menggunakan Spring Integration, aplikasi kita menjadi fleksibel dan mudah ditest. Semua implementasi kode program Java, baik itu transformer, router, dan service method, bisa ditest dengan mudah menggunakan JUnit. Kita juga lihat bahwa semua kode program Java kita tidak memiliki ketergantungan terhadap Spring Integration.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/simulasi-slow-network/">Simulasi Slow Network</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-15T15:21:33+07:00" pubdate data-updated="true">Jun 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di salah satu proyek ArtiVisi, kita memiliki aplikasi client-server yang terhubung melalui koneksi internet berbandwidth kecil. Client menghubungi server melalui modem GPRS.</p>
+
+<p>Permasalahannya adalah bagaimana cara mengetes koneksi lemot ini pada saat development? Umumnya pada saat development kita menjalankan server dan client di komputer yang sama. Atau kalaupun di komputer berbeda, dijalankan di satu LAN, sehingga kecepatan bisa mencapai 100Mbps.</p>
+
+<p>Ada dua alternatif yang bisa kita gunakan. Yang pertama adalah aplikasi tc (traffic control) yang biasanya sudah terinstal secara default di Ubuntu. Kalau belum terinstal, kita bisa menginstal paket iproute atau iproute2, tergantung distro yang Anda gunakan.</p>
+
+<p>Alternatif kedua, menggunakan aplikasi ip_relay. Aplikasi ini bisa diinstal dengan nama paket iprelay.</p>
+
+<p>Berikut adalah referensi pemakaian tc :</p>
 
 <ul>
-<li>optimasi file/folder temporary</li>
-<li>mengganti scheduler</li>
-<li>optimasi proses hapus</li>
+<li><p><a href="http://www.kdedevelopers.org/node/1878">pipita&#8217;s blog</a></p></li>
+<li><p><a href="http://henrydu.com/blog/how-to/simulate-a-slow-link-by-linux-bridge-123.html">Henry&#8217;s Point</a></p></li>
 </ul>
 
 
+<p>Dan ini adalah referensi pemakaian iprelay :</p>
+
+<ul>
+<li><p><a href="http://ubuntuforums.org/showthread.php?t=670628">Ubuntu Forum</a></p></li>
+<li><p><a href="http://www.stewart.com.au/ip_relay/README">Readme di website ip_relay</a></p></li>
+</ul>
+
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/linux/menggunakan-ssd-di-ubuntu/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -196,7 +563,7 @@ Sebelumnya juga tidak terlalu lama, tapi masih berkisar di atas 1 menit. Demikia
       
   <header>
     
-      <h1 class="entry-title"><a href="/aplikasi/memasang-sertifikat-ssl/">Memasang Sertifikat SSL</a></h1>
+      <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-2/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 2]</a></h1>
     
     
       <p class="meta">
@@ -212,31 +579,1385 @@ Sebelumnya juga tidak terlalu lama, tapi masih berkisar di atas 1 menit. Demikia
   
 
 
-<time datetime="2013-07-12T14:14:00+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2013</time>
+<time datetime="2009-06-12T20:43:16+07:00" pubdate data-updated="true">Jun 12<span>th</span>, 2009</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Setelah kita menjalankan semua prosedur untuk mendapatkan digital certificate, tiba saatnya kita memasangnya di webserver supaya bisa melayani request https. Pada artikel ini, kita akan membahas konfigurasi https pada webserver yang sering digunakan. Karena banyaknya merek webserver yang beredar di pasaran, kita akan ambil dua sebagai perwakilan, yaitu Tomcat mewakili webserver Java, dan Nginx mewakili non-Java. Webserver Java merek lain seperti JBoss, Jetty, Glassfish, dan rekan-rekannya memiliki cara konfigurasi yang mirip dengan Tomcat. Demikian juga Apache HTTPD, Lighttpd, Mongrel, dan sejawatnya memiliki cara konfigurasi yang mirip dengan Nginx.</p>
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-1/">artikel sebelumnya</a>, kita sudah mendiskusikan requirement yang diinginkan. Sekarang kita akan melakukan implementasi menggunakan <a href="http://www.springsource.org/spring-integration">Spring Integration</a>.</p>
 
-<p>Artikel ini adalah bagian terakhir dari 4 artikel, yaitu:</p>
+<p>Spring Integration memiliki beberapa abstraksi utama yang perlu kita ketahui agar bisa membuat implementasi, yaitu :</p>
 
-<ol>
-<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
-<li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
-<li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
-<li><a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">Memasang sertifikat SSL</a></li>
-</ol>
+<ul>
+<li><p>Message : ini adalah data yang akan kita kirim, proses, dan terima</p></li>
+<li><p>Channel : ini adalah saluran tempat lewatnya message</p></li>
+<li><p>Endpoint : ini adalah ujung dari channel</p></li>
+<li><p>Transport : mekanisme pengiriman message. Spring Integration mendukung messaging (email,JMS), remoting (Web Service, RMI, HttpInvoker, HTTP), file, dan lainnya (stream)</p></li>
+</ul>
 
 
+<p>Ilustrasi hubungan antara message, channel, dan endpoint bisa dilihat di gambar berikut :</p>
+
+<p><img src="/images/uploads/2009/06/msg-channel-endpoint-300x59.png" title="Hubungan Message, Channel, dan Endpoint" ></p>
+
+<p>Message terdiri dari dua bagian utama, yaitu header dan payload (isi message).</p>
+
+<h3>Channel</h3>
+
+<p>Berdasarkan kemampuan menampung message, channel dibedakan menjadi :</p>
+
+<ul>
+<li><p>Pollable : memiliki buffer untuk menampung message. Dengan adanya kapasitas buffer, pengirim tidak perlu menunggu sampai penerima mendapatkan message, kecuali bila buffernya penuh. Dalam kondisi buffer penuh, pengirim akan menunggu (blocking) sampai ada slot kosong yang bisa digunakan untuk menyimpan message. Penerima dapat memeriksa keberadaan message dalam buffer. Dalam melakukan pemeriksaan, penerima dapat menunggu sampai ada message, atau sampai jangka waktu tertentu (timeout)</p></li>
+<li><p>Subscribable : tidak memiliki buffer, tiap message yang masuk langsung dikirim ke endpoint. Pengirim harus menunggu sampai message diterima.</p></li>
+</ul>
+
+
+<p>Berdasarkan perilaku pengiriman message, channel dibedakan menjadi :</p>
+
+<ul>
+<li><p>Point to Point (PTP) : tiap message hanya dikirimkan ke satu penerima saja. Walaupun ada beberapa penerima yang terhubung ke channel PTP, tapi hanya salah satu saja yang akan menerima message</p></li>
+<li><p>Point to Multipoint (PTM) : tiap message akan dikirim ke semua penerima yang terdaftar.</p></li>
+</ul>
+
+
+<p>Ada beberapa implementasi channel :</p>
+
+<ul>
+<li><p>Direct Channel : subscribable dan point-to-point. Seluruh proses (kirim, masuk channel, terima) akan dilakukan dalam thread yang sama</p></li>
+<li><p>Queue Channel : pollable dan point to point. Message yang datang duluan akan dikirim duluan juga (FIFO)</p></li>
+<li><p>Priority Channel : mirip dengan Queue Channel, tapi tidak menggunakan FIFO, melainkan melihat field Priority di Message Header untuk menentukan mana message yang harus dikirim terlebih dulu</p></li>
+<li><p>Rendezvous Channel : mirip dengan Direct Channel, tapi pengirim dan penerima menggunakan thread yang berbeda. Pengirim akan menunggu sampai message diterima atau sampai timeout. Atau sebaliknya, penerima akan menunggu sampai ada message yang masuk. Biasanya digunakan untuk mengimplementasikan request-reply.</p></li>
+<li><p>ThreadLocal Channel : pollable dan point-to-point. Message disimpan di thread local, sehingga tidak disharing dengan thread yang berbeda.</p></li>
+<li><p>Publish Subscribe Channel : subscribable dan point-to-multipoint. Setiap penerima yang terdaftar akan menerima message. Tidak bisa menyimpan message, sehingga kalau kita butuh buffer, kita harus merangkainya dengan channel jenis lain yang memiliki buffer.</p></li>
+</ul>
+
+
+<h3>Endpoint</h3>
+
+<p>Endpoint digunakan untuk menghubungkan channel. Pemrosesan message dilakukan dalam endpoint. Ada beberapa jenis endpoint, yaitu:</p>
+
+<ul>
+<li><p>Service Activator : kalau kita ingin memanggil business method kita, gunakan endpoint ini.</p></li>
+<li><p>Channel Adapter : ini adalah penghubung channel dengan transport, baik untuk menerima message (inbound) ataupun mengirim message (outbound).</p></li>
+<li><p>Transformer : digunakan untuk mengubah format message</p></li>
+<li><p>Filter : digunakan untuk memutuskan apakah suatu message akan diterima atau dibuang</p></li>
+<li><p>Router : digunakan untuk memilih channel mana yang akan menerima message</p></li>
+<li><p>Splitter : digunakan untuk memecah message menjadi beberapa bagian untuk diproses secara independen</p></li>
+<li><p>Aggregator : digunakan untuk menggabungkan beberapa message menjadi satu message untuk diteruskan ke channel berikutnya</p></li>
+<li><p>Resequencer : digunakan untuk menyusun urutan message</p></li>
+</ul>
+
+
+<h3>Implementasi Kantor Pusat</h3>
+
+<p>Sekarang, setelah kita memahami berbagai istilah dalam Spring Integration, kita bisa merancang implementasi dari requirement kita. Berikut adalah aliran message di sisi kantor pusat. Kantor pusat mengirim beberapa data produk baru, dan akan dikonversi menjadi JSON.</p>
+
+<p><img src="/images/uploads/2009/06/pusat-json-300x24.png" title="Flow konversi data menjadi JSON" ></p>
+
+<p>Setelah menjadi JSON, selanjutnya kita bisa kirim melalui berbagai transport yang disediakan. Untuk tahap development, kita kirim saja melalui file ke folder /tmp, supaya mudah didebug dan tidak butuh internet.</p>
+
+<p><img src="/images/uploads/2009/06/json-file-300x56.png" title="Flow message JSON ke shared folder" ></p>
+
+<p>Selanjutnya, setelah transport melalui file sudah dipastikan benar, baik format data, isi data, maupun rangkaian filternya, kita bisa mengganti channel adapter untuk mengirim ke GMail.</p>
+
+<p><img src="/images/uploads/2009/06/json-email-300x35.png" title="Flow message JSON ke Email" ></p>
+
+<p>Kita harus membuat beberapa file sebagai berikut :</p>
+
+<ul>
+<li><p>Produk.java : domain model dari data yang akan kita kirim</p></li>
+<li><p>JsonTransformer.java : kode program untuk mengubah object Produk menjadi JSON</p></li>
+<li><p>JsonTransformerTest.java : kode program untuk mengetes ProdukTransformer</p></li>
+<li><p>PusatSender.java : kode program untuk mengaktifkan Spring Integration dan mengirim data produk</p></li>
+<li><p>Gateway.java : interface untuk mengirim message. Kita harus membuat ini agar tidak ada dependensi ke library Spring Integration</p></li>
+<li><p>pusat-integration-ctx.xml : konfigurasi Spring Integration</p></li>
+</ul>
+
+
+<p>Berikut kode programnya.</p>
+
+<h4>Produk.java</h4>
+
+<pre><code>public class Produk implements Serializable {
+    private Integer id;
+    private String kode;
+    private String nama;
+
+    // getter dan setter generate dengan IDE
+}
+</code></pre>
+
+<h4>JsonTransformer.java</h4>
+
+<pre><code>public class JsonTransformer {
+    public Produk jsonToProduk(String json){
+        return (Produk) JSONObject.toBean(JSONObject.fromObject(json), Produk.class);
+    }
+
+    public String produkToJson(Produk p){
+        return JSONObject.fromObject(p).toString();
+    }
+}
+</code></pre>
+
+<h4>JsonTransformerTest.java</h4>
+
+<pre><code>public class JsonTransformerTest {
+
+    @Test
+    public void testJsonToProduk() {
+        Produk p = new JsonTransformer()
+                    .jsonToProduk("{\"id\":99,\"kode\":\"T-001\",\"nama\":\"Produk Test\"}");
+        assertEquals(new Integer(99), p.getId());
+        assertEquals("T-001", p.getKode());
+        assertEquals("Produk Test", p.getNama());
+    }
+
+    @Test
+    public void testProdukToJson() {
+        Produk p = new Produk();
+        p.setId(99);
+        p.setKode("T-001");
+        p.setNama("Produk Test");
+
+        assertEquals("{\"id\":99,\"kode\":\"T-001\",\"nama\":\"Produk Test\"}",
+                new JsonTransformer().produkToJson(p));
+    }
+}
+</code></pre>
+
+<h4>PusatSender.java</h4>
+
+<pre><code>public class PusatSender {
+    public static void main(String[] args) {
+        // 1. Menginstankan Spring Application Context
+        AbstractApplicationContext ctx 
+            = new ClassPathXmlApplicationContext("pusat-integration-ctx.xml", Gateway.class);
+        ctx.registerShutdownHook();
+        Gateway gw = (Gateway) ctx.getBean("gateway");
+
+        // 2. Kirim produk ke gateway
+        int jumlahProduk = 5;
+        for (int i = 0; i &lt; jumlahProduk; i++) {
+            Produk p = new Produk();
+            p.setId(i);
+            p.setKode("PRD-00"+i);
+            p.setNama("Produk "+i);
+            gw.send(p);
+            System.out.println("Kirim produk "+i);
+        }
+        System.out.println("Produk terkirim");
+        System.exit(0);
+    }
+}
+</code></pre>
+
+<h4>Gateway.java</h4>
+
+<pre><code>public interface Gateway {
+    public void send(Produk p);
+}
+</code></pre>
+
+<h4>pusat-integration-ctx.xml</h4>
+
+<pre><code>&lt;beans:beans xmlns="http://www.springframework.org/schema/integration"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:file="http://www.springframework.org/schema/integration/file"
+       xmlns:mail="http://www.springframework.org/schema/integration/mail"
+       xmlns:transformer="http://www.springframework.org/schema/integration/transformer"
+       xmlns:stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+           http://www.springframework.org/schema/integration/file
+           http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+           http://www.springframework.org/schema/integration/mail
+           http://www.springframework.org/schema/integration/mail/spring-integration-mail-1.0.xsd
+           http://www.springframework.org/schema/integration/stream
+           http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+           http://www.springframework.org/schema/integration/transformer
+           http://www.springframework.org/schema/integration/transformer/spring-integration-transformer-1.0.xsd"&gt;
+
+
+    &lt;gateway id="gateway"
+                service-interface="com.artivisi.explore.spring.integration.pusat.Gateway"
+                default-request-channel="outgoingProduk"/&gt;
+
+    &lt;channel id="outgoingProduk" /&gt;
+
+    &lt;transformer input-channel="outgoingProduk" output-channel="outgoingJson"
+    ref="jsonTransformer" method="produkToJson"/&gt;
+
+    &lt;publish-subscribe-channel id="outgoingJson" /&gt;
+
+    &lt;file:outbound-channel-adapter channel="outgoingJson" directory="/tmp"/&gt;
+
+    &lt;mail:header-enricher
+        id="mailHeaderEnricher"
+        subject="Spring Integration Demo"
+        to="cabang@gmail.com"
+        from="pusat@gmail.com"
+        reply-to="pusat@gmail.com"
+        overwrite="false"
+        input-channel="outgoingJson"
+        output-channel="outgoingEmail"/&gt;
+
+    &lt;channel id="outgoingEmail" /&gt;
+
+    &lt;mail:outbound-channel-adapter
+        mail-sender="mailSender"
+        channel="outgoingEmail"
+        /&gt;
+
+    &lt;beans:bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"&gt;
+        &lt;beans:property name="defaultEncoding" value="UTF-8"/&gt;
+        &lt;beans:property name="host" value="smtp.gmail.com"/&gt;
+        &lt;beans:property name="port" value="465"/&gt;
+        &lt;beans:property name="username" value="mygmailaccount"/&gt;
+        &lt;beans:property name="password" value="mygmailpassword"/&gt;
+        &lt;beans:property name="javaMailProperties"&gt;
+            &lt;beans:value&gt;
+                mail.debug=true
+                mail.smtp.starttls.enable=true
+                mail.smtp.auth=true
+                mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+                mail.smtp.socketFactory.fallback=false
+            &lt;/beans:value&gt;
+        &lt;/beans:property&gt;
+    &lt;/beans:bean&gt;
+
+    &lt;beans:bean id="jsonTransformer" class="com.artivisi.explore.spring.integration.model.JsonTransformer"/&gt;
+&lt;/beans:beans&gt;
+</code></pre>
+
+<h3>Implementasi Kantor Cabang</h3>
+
+<p>Di sisi kantor cabang, berikut aliran message dari transport hingga menjadi JSON. Kita mulai dengan transport file.</p>
+
+<p><img src="/images/uploads/2009/06/file-json-300x35.png" title="Flow dari shared folder menjadi JSON" ></p>
+
+<p>Bila kita menggunakan email, berikut gambarnya</p>
+
+<p><img src="/images/uploads/2009/06/email-json-300x35.png" title="Flow dari Email menjadi JSON" ></p>
+
+<p>Setelah menjadi JSON, kita proses sampai ke CabangService</p>
+
+<p><img src="/images/uploads/2009/06/json-cabang-300x25.png" title="Flow pemrosesan JSON menjadi Produk" ></p>
+
+<p>Kita harus membuat beberapa file sebagai berikut :</p>
+
+<ul>
+<li><p>CabangReceiver.java : kode program untuk mengaktifkan Spring Integration</p></li>
+<li><p>CabangService.java : kode program yang akan dipanggil setelah message diterima, dikonversi dari JSON menjadi Produk</p></li>
+<li><p>cabang-integration-ctx.xml : konfigurasi Spring Integration</p></li>
+</ul>
+
+
+<p>Kode programnya.</p>
+
+<h4>CabangReceiver.java</h4>
+
+<pre><code>public class CabangReceiver {
+    public static void main(String[] args) {
+        AbstractApplicationContext ctx 
+                = new ClassPathXmlApplicationContext("cabang-integration-ctx.xml", CabangReceiver.class);
+        ctx.registerShutdownHook();
+    }
+}
+</code></pre>
+
+<h4>CabangService.java</h4>
+
+<pre><code>public class CabangService {
+    public void terimaProduk(Produk p){
+        // Tampilkan data produk, tapi bisa juga disimpan di database
+        System.out.println("Terima produk");
+        System.out.println("ID : "+p.getId());
+        System.out.println("Kode : "+p.getKode());
+        System.out.println("Nama : "+p.getNama());
+    }
+}
+</code></pre>
+
+<h4>cabang-integration-ctx.xml</h4>
+
+<pre><code>&lt;beans:beans xmlns="http://www.springframework.org/schema/integration"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:file="http://www.springframework.org/schema/integration/file"
+       xmlns:mail="http://www.springframework.org/schema/integration/mail"
+       xmlns:transformer="http://www.springframework.org/schema/integration/transformer"
+       xmlns:stream="http://www.springframework.org/schema/integration/stream"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/integration
+           http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
+           http://www.springframework.org/schema/integration/stream
+           http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
+           http://www.springframework.org/schema/integration/file
+           http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+           http://www.springframework.org/schema/integration/mail
+           http://www.springframework.org/schema/integration/mail/spring-integration-mail-1.0.xsd
+           http://www.springframework.org/schema/integration/transformer
+           http://www.springframework.org/schema/integration/transformer/spring-integration-transformer-1.0.xsd"&gt;
+
+
+    &lt;file:inbound-channel-adapter id="filePoller"
+       directory="/tmp"
+       filename-pattern="^.*\.msg$"
+       channel="incomingFile"/&gt;
+
+    &lt;channel id="incomingFile" /&gt;
+
+    &lt;file:file-to-string-transformer
+       input-channel="incomingFile"
+       output-channel="incomingJson"
+       delete-files="true" /&gt;
+
+    &lt;channel id="incomingJson" /&gt;
+
+    &lt;transformer input-channel="incomingJson" output-channel="incomingProduk"
+    ref="jsonTransformer" method="jsonToProduk"/&gt;
+
+    &lt;channel id="incomingProduk" /&gt;
+
+    &lt;service-activator input-channel="incomingProduk"
+                      ref="cabangService"
+                      method="terimaProduk"/&gt;
+
+    &lt;poller id="defaultPoller" default="true"&gt;
+        &lt;interval-trigger interval="3" time-unit="SECONDS"/&gt;
+    &lt;/poller&gt;
+
+
+    &lt;beans:bean id="jsonTransformer" class="com.artivisi.explore.spring.integration.model.JsonTransformer"/&gt;
+    &lt;beans:bean id="cabangService" class="com.artivisi.explore.spring.integration.cabang.CabangService"/&gt;
+&lt;/beans:beans&gt;
+</code></pre>
+
+<p>Untuk menerima email, kita dapat memilih protokol POP3, IMAP, atau IMAP-Idle. POP3 dan IMAP akan mendownload semua email yang masuk, setelah itu, kita harus melakukan polling dengan interval tertentu untuk memeriksa apakah ada email baru. Bila kita menggunakan IMAP-Idle, kita tidak perlu melakukan polling. Mail server akan memberikan notifikasi bila ada email baru yang masuk, setelah itu kita bisa mendownloadnya.</p>
+
+<p>Berikut konfigurasi untuk GMail</p>
+
+<h4>Debug Output</h4>
+
+<pre><code>    &lt;beans:bean id="javaMailProperty" class="org.springframework.beans.factory.config.PropertiesFactoryBean"&gt;
+        &lt;beans:property name="properties"&gt;
+            &lt;beans:value&gt;
+                mail.debug=true
+            &lt;/beans:value&gt;
+        &lt;/beans:property&gt;
+    &lt;/beans:bean&gt;
+</code></pre>
+
+<h4>POP3</h4>
+
+<pre><code>    &lt;mail:inbound-channel-adapter
+    channel="incomingMail"
+    store-uri="pop3s://mygmailaccount:mygmailpassword@pop.gmail.com:995/INBOX"
+    java-mail-properties="javaMailProperty"/&gt;
+</code></pre>
+
+<h4>IMAP</h4>
+
+<pre><code>    &lt;mail:inbound-channel-adapter
+    channel="incomingMail"
+    store-uri="imaps://mygmailaccount:mygmailpassword@imap.gmail.com:993/INBOX" /&gt;
+</code></pre>
+
+<h4>IMAP-Idle</h4>
+
+<pre><code>    &lt;mail:imap-idle-channel-adapter channel="incomingMail"
+    store-uri="imaps://mygmailaccount:mygmailpassword@imap.gmail.com:993/INBOX"/&gt;
+</code></pre>
+
+<p>Setelah email masuk, jangan lupa konversi dulu jadi String.</p>
+
+<pre><code>    &lt;channel id="incomingMail" /&gt;
+
+    &lt;mail:mail-to-string-transformer 
+    input-channel="incomingMail" 
+    output-channel="incomingJson"/&gt;
+</code></pre>
+
+<p>Demikianlah tutorial penggunaan Spring Integration. Dengan menggunakan Spring Integration ini, ada beberapa benefit yang kita dapatkan dibandingkan coding sendiri :</p>
+
+<ul>
+<li><p>Kode program lebih sedikit</p></li>
+<li><p>Kode program lebih mudah ditest. Kita bisa menggunakan JUnit untuk JsonTransformer. Alur pengiriman data juga bisa ditest di komputer lokal tanpa koneksi ke GMail, sehingga kalau ada error bisa diperbaiki dengan lebih cepat.</p></li>
+<li><p>Aliran data lebih mudah dibaca, yaitu dalam konfigurasi Spring Integration</p></li>
+<li><p>Fleksibilitas dalam pemilihan transport. Bukan cuma email, tapi juga banyak opsi lain seperti remoting dan file. Opsi ini cuma butuh beberapa baris konfigurasi saja untuk mengaktifkannya.</p></li>
+</ul>
+
+
+<p>Konsumsi effort :</p>
+
+<ul>
+<li><p>Download : 1 jam</p></li>
+<li><p>Browsing tutorial : 2 jam</p></li>
+<li><p>Mempelajari Spring Integration : 8 jam</p></li>
+<li><p>Membuat sample aplikasi : 4 jam</p></li>
+<li><p>Menulis blog dan membuat gambar : 8 jam</p></li>
+<li><p><strong>Total : 23 jam (3 hari)</strong></p></li>
+</ul>
+
+
+<p>Apakah dalam 3 hari kita bisa membuat implementasi kirim-terima data produk via email yang bebas bug ??</p>
 </div>
   
   
-    <footer>
-      <a rel="full-article" href="/aplikasi/memasang-sertifikat-ssl/">Read on &rarr;</a>
-    </footer>
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/integrasi-pusat-cabang-1/">Integrasi Aplikasi Kantor Pusat Dan Cabang [Bagian 1]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-11T21:39:48+07:00" pubdate data-updated="true">Jun 11<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Integrasi Aplikasi Pusat Cabang - Bagian I</p>
+
+<p>Beberapa waktu yang lalu, kami di ArtiVisi dihadapkan pada suatu tantangan, yaitu sinkronisasi aplikasi antara pusat dan cabang.
+Aplikasi pusat maupun cabang memiliki database masing-masing, dan tentunya data transaksi masing-masing pula.</p>
+
+<p>Pada artikel ini, saya akan mengelaborasi proses problem solving yang dilakukan, solusi yang dipilih, dan tentunya dilengkapi dengan source code.</p>
+
+<h3>Use Case</h3>
+
+<p>Ada beberapa use case yang ingin didukung oleh aplikasi, sebagai berikut :</p>
+
+<ul>
+<li><p>Pusat menambahkan jenis produk baru, data ini harus segera diimplementasikan juga di cabang</p></li>
+<li><p>Transaksi yang dilakukan di cabang harus dikirim ke pusat agar bisa dibuatkan laporan keseluruhan</p></li>
+<li><p>Data pelanggan di cabang harus juga dikirim ke pusat</p></li>
+<li><p>Perpindahan stok barang dari pusat ke cabang dan sebaliknya</p></li>
+</ul>
+
+
+<h3>Constraint</h3>
+
+<p>Bicara requirement, tentu tidak bisa dilepaskan dari constraint. Berikut constraint yang ada :</p>
+
+<ul>
+<li><p>Pusat dan cabang sama-sama terhubung ke internet menggunakan Speedy</p></li>
+<li><p>Karena pakai Speedy, kita bisa mengekspose satu mesin ke internet menggunakan IP Public</p></li>
+<li><p>IP Public tidak dedicated, dan mungkin berubah sewaktu-waktu</p></li>
+<li><p>Server aplikasi dan database di pusat/cabang belum tentu hidup. Kalaupun hidup, belum tentu hidup berbarengan.
+Bisa saja pusat sedang nyala, cabang mati lampu, dan sebaliknya.</p></li>
+</ul>
+
+
+<h3>Alternatif Solusi</h3>
+
+<p>Setelah kita memiliki requirement dan constraint, tahap berikutnya adalah membuat daftar alternatif solusi.
+Berikut adalah alternatif yang bisa kita lakukan untuk memecahkan masalah di atas.</p>
+
+<ul>
+<li><p>Remoting</p>
+
+<ul>
+<li><p>Web Services</p></li>
+<li><p>RMI</p></li>
+<li><p>HttpInvoker</p></li>
+</ul>
+</li>
+<li><p>Messaging</p>
+
+<ul>
+<li><p>JMS</p></li>
+<li><p>Email (POP3/IMAP dan SMTP)</p></li>
+</ul>
+</li>
+<li><p>File</p>
+
+<ul>
+<li><p>Shared Folder</p></li>
+<li><p>FTP</p></li>
+<li><p>SSH/SCP</p></li>
+</ul>
+</li>
+<li><p>Database</p>
+
+<ul>
+<li><p>Shared Database</p></li>
+<li><p>Replikasi Database</p></li>
+</ul>
+</li>
+</ul>
+
+
+<h3>Pemilihan Solusi</h3>
+
+<p>Jaringan publik melalui internet sangat tidak reliable dan memiliki banyak keterbatasan.
+Kita tidak bisa membuka sembarang port, karena mungkin saja diblokir di tengah jalan.
+Kita juga tidak bisa menggunakan protokol yang terlalu kompleks atau cerewet (membutuhkan transfer data yang sering).
+Oleh karena itu, kita bisa menyingkirkan alternatif berikut.</p>
+
+<ul>
+<li><p>Remoting dengan RMI : port tidak standar</p></li>
+<li><p>Messaging dengan JMS : port tidak standar</p></li>
+<li><p>Replikasi MySQL : protokol terlalu kompleks dan cerewet, port tidak standar</p></li>
+</ul>
+
+
+<p>Kita harus mempertimbangkan konsumsi bandwidth. Protokol yang rakus bandwidth bisa kita singkirkan, yaitu Remoting dengan WS.</p>
+
+<p>Melihat constraint terakhir, kita juga harus mengeliminasi beberapa alternatif yang mengharuskan pusat dan cabang online bersamaan, yaitu Remoting dengan Spring HTTPInvoker dan File Transfer, baik FTP maupun SSH/SCP.</p>
+
+<p>Dengan demikian, yang tersisa adalah Messaging dengan Email. Kita bisa mengirim data dengan attachment. Untuk menghemat bandwidth, attachment bisa dikompresi. Pusat dan cabang bisa online kapanpun mereka mau, dan akan tetap menerima message. Kalau ada message yang hilang di tengah jalan, orang pusat/cabang bisa menelepon untuk minta dikirim ulang datanya.</p>
+
+<p>Sebagai bonus, dengan memilih email sebagai media transfer data, kita tidak perlu repot-repot mengelola infrastruktur sendiri. Kita bisa gunakan layanan GMail yang gratis, berkapasitas besar, dan memiliki implementasi POP3, IMAP, dan SMTP. Ada satu fitur istimewa dari IMAP, yaitu <a href="http://en.wikipedia.org/wiki/IMAP_IDLE">IMAP-Idle</a>. Fitur ini akan sangat berguna kelak di kemudian hari. Kebetulan <a href="http://samj.net/2008/07/proof-gmail-imap-gimap-supports-imap.html">GMail sudah mendukung fitur ini</a>.</p>
+
+<h3>Desain Implementasi</h3>
+
+<p>Baiklah, mari kita implementasikan sinkronisasi melalui email. Ada beberapa pertanyaan lanjutan. Pertama, apa yang ingin dikirim? Sebagai contoh sederhana, kita ingin mengirim data produk baru dari pusat ke cabang. Inilah class Produk.</p>
+
+<pre><code>public class Produk {
+  private Integer id;
+  private String kode;
+  private String nama;
+
+  // getter dan setter
+}
+</code></pre>
+
+<p>Bila kita membuat object Produk, datanya akan tersimpan di memori. Kita harus mengkonversi format data di memori ini ke bentuk file, supaya bisa dikirim dalam bentuk attachment. Ada beberapa pilihan lagi di sini, yaitu :</p>
+
+<ul>
+<li><p>java.io.Serializable, konversi dengan ObjectInputStream dan ObjectOutputStream</p></li>
+<li><p>JSON</p></li>
+<li><p>XML</p></li>
+</ul>
+
+
+<p>Serializable lebih unggul dalam hal kemudahan coding dan kecepatan marshall/unmarshall. Di Java menulis object ke file sangat mudah dan cepat. Prosesnya sama untuk apapun object yang ingin kita konversi. Untuk memproses konversi juga tidak dibutuhkan CPU dan Memori tinggi. Walaupun demikian, file yang dihasilkan berbentuk binary, sehingga menyulitkan debugging.</p>
+
+<p>JSON dan XML berbentuk text, sehingga mudah didebug kalau ada masalah. Walaupun demikian, kita harus membuat atau memilih dari yang ada implementasi generator dan parser untuk proses konversi. Proses konversinya butuh resource CPU dan memori. Dan yang paling penting, kita mungkin harus membuat generator/parser untuk tiap tipe data yang akan kita kirim.</p>
+
+<p>Sementara saya pilih JSON, karena ada <a href="http://json-lib.sourceforge.net/usage.html">json-lib</a> yang bisa mengkonversi object menjadi JSON dan sebaliknya dengan mudah.</p>
+
+<p>Selanjutnya, bagaimana cara mengirim email?</p>
+
+<p>Cara mengirim email dengan Java sudah ditunjukkan Ifnu <a href="http://ifnu.artivisi.com/?p=80">di sini</a>. Tapi saya tidak mau coding tangan kosong seperti itu. Bukan apa-apa, setiap baris kode yang kita tulis harus ditest dan dimaintain. Belum lagi kalo nanti ada perubahan requirement, bisa coding ulang.</p>
+
+<p>Nah, pertama saya memutuskan <a href="http://static.springframework.org/spring/docs/2.5.x/reference/mail.html">menggunakan Spring untuk mengirim email</a>. Ibaratnya kalau coding sendiri itu berkelahi dengan tangan kosong, pakai Spring berkelahi pakai pistol. Jauh lebih cepat dan mudah.</p>
+
+<p>Tapi ternyata, pistol juga tidak cukup, karena kita belum bisa menerima email. Bisa kirim gak bisa terima ya percuma, karena di sisi kantor cabang kita tentu harus mengambil dan memproses data yang dikirim dari pusat. Ifnu sebetulnya sudah membuat implementasi penerima emailnya, tapi nampaknya belum diposting.</p>
+
+<p>Saatnya membuka gudang senjata dan mencari senjata yang lebih besar. Saya menemukan rocket launcher, yaitu <a href="http://www.springsource.org/spring-integration">Spring Integration</a>.</p>
+
+<p>Bukan saja bisa menerima email, Spring Integration juga bisa menggunakan semua alternatif transport yang disebutkan di atas (WS, HTTPInvoker, RMI, FTP, SSH, JMS, Email) hanya dengan mengganti beberapa baris konfigurasi. Wow &#8230;. canggih sekali. Baiklah, saya akan pakai ini saja.</p>
+
+<p>Berhubung artikel ini sudah terlalu panjang. Implementasi Spring Integrationnya diteruskan di <a href="http://endy.artivisi.com/blog/java/integrasi-pusat-cabang-2">bagian kedua</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ejb-remote-clien/">Mengakses EJB Secara Remote</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-03T20:46:00+07:00" pubdate data-updated="true">Jun 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mengakses EJB secara Remote</p>
+
+<p>Beberapa buku tentang EJB, seperti EJB 3 in Action karangan Reza Rahman maupun Enterprise Java Beans 3.0 karangan Bill Burke, membahas secara detail tentang penggunaan EJB. Akan tetapi, ada satu hal kecil namun penting yang tidak dibahas. Bagaimana cara mengakses EJB secara remote?</p>
+
+<p>Di sisi server, ini mudah. Cukup membuat remote interface saja beres. Tapi bagaimana cara lookupnya dari client? Artikel ini akan membahas cara memanggil EJB dari method main.</p>
+
+<p>Sebelumnya, berikut adalah EJB yang akan kita panggil.</p>
+
+<h3>HaloBean.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.session;
+
+@Stateless
+public class HaloBean implements HaloRemote {
+   public String halo(String nama) {
+     return "Halo "+nama;
+   }
+}
+</code></pre>
+
+<h3>HaloRemote.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.session;
+
+@Remote
+public interface HaloRemote {
+   public String halo(String nama);
+}
+</code></pre>
+
+<p>EJB ini akan kita deploy ke Glassfish menggunakan Netbeans. Bagaimana caranya? Silahkan buka menu Help Netbeans.</p>
+
+<p>Berikut adalah kode untuk memanggil HaloBean secara remote.</p>
+
+<h3>HaloClient.java</h3>
+
+<pre><code>package com.artivisi.belajar.ejb.client;
+
+public class HaloClient {
+  public static void main(String[] args){
+    // 0. Konfigurasi host dan port
+    String ejbHost = "localhost";
+    String ejbPort = 12345;
+    String ejbName = HaloRemote.class.getName();
+
+    // 1. JNDI Context
+    Properties props = new Properties();
+    props.put("org.omg.CORBA.ORBInitialHost", ejbHost);
+    props.put("org.omg.CORBA.ORBInitialPort", ejbPort);
+
+    InitialContext ctx = new InitialContext(props);
+
+    // 2. Lookup EJB
+    HaloRemote haloBean = (HaloRemote) ctx.lookup(ejbName);
+
+    // 3. Panggil methodnya
+    System.out.println("Halo EJB : "+haloBean.halo("endy"));
+  }
+}
+</code></pre>
+
+<p>Ada beberapa variabel yang perlu diperhatikan di sini, yaitu ejbHost, ejbPort, dan ejbName. Variabel ejbHost tentunya adalah komputer tempat EJB dideploy. Variabel ejbPort adalah port yang digunakan oleh Application Server untuk mempublish EJB. Port ini berbeda-beda tergantung merek application server dan cara deploymentnya. Karena saya menggunakan Netbeans untuk mendeploy ke Glassfish, maka saya harus cari tahu dulu berapa port yang digunakan Netbeans.</p>
+
+<p>Caranya, login ke admin console Glassfish melalui Netbeans. Buka tab Services, klik kanan Glassfish, dan pilih View Admin Console.
+(/images/uploads/2009/06/netbeans-view-admin-console.png)
+Browser akan terbuka dan menampilkan halaman login Glassfish.
+(/images/uploads/2009/06/glassfish-login.png)
+Setelah login, klik Application Server di panel kiri. Port yang digunakan akan ditampilkan di panel kanan, yaitu dengan nama IIOP Port(s). Coba-coba saja semuanya. Di komputer saya, port yang benar adalah 10275.
+(/images/uploads/2009/06/glassfish-iiop-port.png)
+Variabel ejbName juga berbeda tergantung dari application server yang digunakan. Baca dokumentasi server Anda untuk memastikannya.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/lain/backup-mysql/">Backup MySQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-02T15:23:43+07:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelumnya, saya telah membahas script backup untuk <a href="http://endy.artivisi.com/blog/lain/backup-trac/">Trac</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">Subversion</a>. Kali ini, kita akan bahas backup script untuk MySQL.</p>
+
+<p>Sama seperti backup script sebelumnya, script ini akan membuat folder sesuai dengan tanggal dan jam backup. Selanjutnya, script akan melakukan backup terhadap database MySQL sesuai dengan nama database yang ditentukan. Backup ini akan disimpan di folder yang kita tentukan.</p>
+
+<p>Berikut backup scriptnya.</p>
+
+<p>[Update - 7 Des 2009] Sudah ditambahkan perintah untuk kompresi hasil backupnya.</p>
+
+<pre><code>#!/bin/sh
+
+test -x /bin/date || exit -1
+test -x /usr/bin/mysqldump || exit -1
+test -x /bin/tar || exit -1
+test -x /bin/bzip2 || exit -1
+
+DBHOST=$1
+DBNAME=$2
+USERNAME=$3
+PASSWORD=$4
+BACKUP_FOLDER=$5
+CURR_DATE="$(/bin/date +%Y%m%d-%H%M)"
+
+
+if [ "$1" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$2" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$3" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$4" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+
+echo "Create backup folder $BACKUP_FOLDER/$CURR_DATE"
+echo "..."
+
+/bin/mkdir "$BACKUP_FOLDER/$CURR_DATE"
+
+echo "Backup $DBNAME schema to $BACKUP_FOLDER/$CURR_DATE/$DBNAME-schema-$CURR_DATE.sql"
+echo "..."
+
+/usr/bin/mysqldump $DBNAME -u $USERNAME -p$PASSWORD -h$DBHOST -d &gt; "$BACKUP_FOLDER/$CURR_DATE/$DBNAME-schema-$CURR_DATE.sql"
+
+echo "Backup $DBNAME data to $BACKUP_FOLDER/$CURR_DATE/$DBNAME-data-$CURR_DATE.sql"
+echo "..."
+
+/usr/bin/mysqldump $DBNAME -u $USERNAME -p$PASSWORD -h $DBHOST -n -c -t --single-transaction &gt; "$BACKUP_FOLDER/$CURR_DATE/$DBNAME-data-$CURR_DATE.sql"
+
+echo "Compressing folder $CURR_DATE"
+echo "..."
+
+/bin/tar cvf - "$BACKUP_FOLDER/$CURR_DATE" | /bin/bzip2 -c9 &gt; "$BACKUP_FOLDER/$CURR_DATE.tar.bz2"
+
+echo "Removing folder $BACKUP_FOLDER/$CURR_DATE"
+echo "..."
+
+/bin/rm -rf "$BACKUP_FOLDER/$CURR_DATE"
+
+echo "Completed"
+</code></pre>
+
+<p>Script di atas dapat dijalankan setiap Jumat malam jam 23.00 dengan konfigurasi sebagai berikut.</p>
+
+<pre><code>0 23 * * 5 /bin/sh /path/ke/mysql-backup.sh db_user db_pass db_name backup_folder_mysql
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ssh-dengan-jsch/">SSH Dengan JSch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-05-03T00:38:00+07:00" pubdate data-updated="true">May 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mengakses Remote Server dengan Java</p>
+
+<p>Kita sudah biasa mengakses komputer lain menggunakan SSH.
+Cukup ketikkan ssh username@namaserver, tekan enter, dan lakukan apa yang kita mau.
+Nah, bagaimana kalau kita ingin membuat aplikasi yang butuh mengakses komputer lain?
+Misalnya, kita ingin membuat aplikasi sederhana yang menampilkan input IP Address, Username, Password serta tombol Shutdown.
+Begitu input field kita isi dan tombol Shutdown ditekan, aplikasi kita akan melakukan ssh ke komputer tersebut dan menjalankan perintah shutdown -h now.</p>
+
+<p>Di Java, hal ini dapat dengan mudah dilakukan menggunakan pustaka <a href="http://www.jcraft.com/jsch/">JSch</a>. Berikut langkah-langkah untuk menggunakan JSch.</p>
+
+<h2>Mendapatkan Pustaka JSch</h2>
+
+<p>Tentunya yang pertama kita lakukan adalah membuka <a href="http://www.jcraft.com/jsch/">website JSch</a> dan mengunduh rilis terbaru. Pilih yang ZIP, jangan yang JAR, karena di dalamnya ada beberapa contoh penggunaan yang akan kita butuhkan untuk mencontek nantinya.</p>
+
+<p>Paket ZIP ini belum dikompilasi, dan kita membutuhkan <a href="http://ant.apache.org">Ant</a> untuk melakukan proses build. Jika Anda belum pernah menggunakan Ant, baca dulu <a href="http://endy.artivisi.com/downloads/writings/Tutorial-Ant.pdf">tutorial ini</a>. Setelah proses build selesai dilakukan, akan muncul file *jar di dalam folder dist.</p>
+
+<h2>Template Aplikasi Java</h2>
+
+<p>Buatlah project Java menggunakan editor yang Anda sukai. Pastikan jar JSch sudah terdaftar di project Java yang barusan dibuat. Setelah itu, buatlah Java Class sebagai berikut</p>
+
+<pre><code>public class JschDemo {
+    public static void main(String[] args) throws Exception {
+
+    }
+}
+</code></pre>
+
+<p>Untuk selanjutnya, kode program akan ditulis di dalam method main.</p>
+
+<h2>Parameter koneksi</h2>
+
+<p>Untuk melakukan koneksi ke komputer lain, kita memerlukan beberapa variabel, ditunjukkan dengan kode sebagai berikut.</p>
+
+<pre><code>String host = "localhost";
+String user = "endy";
+String pass = "java";
+String command = "shutdown -h now";
+</code></pre>
+
+<p>Kita akan melakukan koneksi ke komputer kita sendiri (localhost) dengan username endy dan password java. Setelah berhasil terhubung, kita akan menjalankan perintah shutdown -h now.</p>
+
+<h2>Pre Requisite</h2>
+
+<p>Agar kode program kita bisa dijalankan, ada beberapa persyaratan sebagai berikut:</p>
+
+<ul>
+<li><p>Komputer yang ingin dihubungi harus menjalankan SSH server</p></li>
+<li><p>Komputer yang ingin menghubungi harus melakukan koneksi SSH secara manual terlebih dulu,
+agar komputer tujuan terdaftar di file known_hosts</p></li>
+<li><p>User yang digunakan untuk koneksi harus memiliki akses yang cukup untuk melakukan perintah yang diinginkan</p></li>
+</ul>
+
+
+<h2>Menggunakan JSch</h2>
+
+<p>Setelah parameter koneksi kita deklarasikan, dan juga prasyarat di komputer tujuan dipenuhi, sekarang kita bisa mulai menggunakan JSch.
+Pertama, kita instankan dulu object dari class JSch.</p>
+
+<pre><code>JSch jsch = new JSch();
+</code></pre>
+
+<p>Kemudian, kita berikan database known_hosts, yaitu daftar komputer tujuan beserta public keynya. Ini berguna untuk melakukan verifikasi terhadap komputer tujuan.</p>
+
+<pre><code>jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
+</code></pre>
+
+<p>File known_hosts ini akan otomatis dibuat bila kita melakukan koneksi SSH ke komputer lain. Itulah sebabnya kita harus melakukan koneksi manual terlebih dulu, sehingga public key komputer tujuan sudah terdaftar dalam file ini. Alternatif dari menggunakan file ini adalah <a href="http://endy.artivisi.com/blog/linux/login-ssh-dengan-private-key/">mendaftarkan public key di komputer tujuan dan menggunakan private key untuk login</a>.</p>
+
+<p>Selanjutnya, kita membuka koneksi ke komputer tujuan</p>
+
+<pre><code>Session session = jsch.getSession(user, host);
+session.setPassword(pass);
+session.connect();
+</code></pre>
+
+<p>Lalu, kita membuka channel. Channel menggambarkan bentuk interaksi kita dengan komputer tujuan. JSch menyediakan beberapa jenis channel, misalnya exec dan shell. Kita menggunakan exec untuk mengeksekusi satu perintah saja. Sedangkan shell bisa digunakan untuk membuka terminal interaktif yang bisa kita berikan perintah sebanyak kita mau.</p>
+
+<pre><code>ChannelExec channel = (ChannelExec) session.openChannel("exec");
+channel.setCommand(command);
+channel.connect();
+</code></pre>
+
+<p>Kita bisa membaca output dari perintah yang kita jalankan menggunakan I/O Stream seperti biasa.</p>
+
+<pre><code>BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+String output = reader.readLine();
+while (output != null) {
+    System.out.println(output);
+    output = reader.readLine();
+}
+reader.close();
+</code></pre>
+
+<p>Segera setelah perintah selesai dijalankan, kita mengakhiri channel dan session.</p>
+
+<pre><code>channel.disconnect();
+session.disconnect();
+</code></pre>
+
+<p>Berikut adalah keseluruhan kode program.</p>
+
+<pre><code>public class JschDemo {
+
+    public static void main(String[] args) throws Exception {
+    String host = "localhost";
+    String user = "endy";
+    String pass = "java";
+    String command = "shutdown -h now";
+
+        JSch jsch = new JSch();
+        jsch.setKnownHosts("/home/endy/.ssh/known_hosts");
+
+        Session session = jsch.getSession(user, host);
+        session.setPassword(pass);
+        session.connect();
+
+        ChannelExec channel = (ChannelExec) session.openChannel("exec");
+        channel.setCommand(command);
+        channel.connect();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(channel.getInputStream()));
+        String output = reader.readLine();
+        while (output != null) {
+            System.out.println(output);
+            output = reader.readLine();
+        }
+        reader.close();
+
+        channel.disconnect();
+        session.disconnect();
+
+    }
+}
+</code></pre>
+
+<p>Selamat mencoba. Bila percobaan Anda sukses, komputer yang sedang Anda gunakan akan shutdown setelah aplikasi selesai dijalankan.
+:D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/upgrade-ubuntu/">Upgrade Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-04-22T23:10:37+07:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
+
+<ul>
+<li><p>Unduh ISO Ubuntu terbaru</p></li>
+<li><p>Bakar ke CD</p></li>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird</p></li>
+<li><p>Remove semua hidden file di home folder</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+</ul>
+
+
+<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
+
+<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
+
+<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
+
+<ul>
+<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
+<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa &#8216;dititipkan&#8217; di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
+</ul>
+
+
+<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
+
+<ul>
+<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
+<li><p>Lakukan proses instalasi</p></li>
+<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
+<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
+<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
+</ul>
+
+
+<h2>Membuat daftar aplikasi</h2>
+
+<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
+
+<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
+</code></pre>
+
+<p>Buka file <code>daftar_aplikasi.txt</code> dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
+
+<pre><code>ttf-inconsolata
+ttf-droid
+nautilus-open-terminal
+mc
+chmsee
+unrar
+comix
+keepassx
+subversion
+git-svn
+gimp
+network-manager-openvpn
+network-manager-openvpn-gnome
+network-manager-pptp
+network-manager-pptp-gnome
+network-manager-vpnc
+network-manager-vpnc-gnome
+openssh-server
+gnome-alsamixer
+vlc
+rtorrent
+hamster-applet
+timer-applet
+inkscape
+mysql-server
+mysql-query-browser
+mysql-admin
+sun-java6-jdk
+ubuntu-restricted-extras
+build-essential
+ant
+</code></pre>
+
+<h2>Proses Instalasi</h2>
+
+<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
+
+<ul>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird, biasanya ada di folder <code>.mozilla-thunderbird</code></p></li>
+<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+<li><p>Edit <code>/etc/apt/sources.list</code> agar menggunakan mirror lokal. Saya biasa menggunakan <code>kambing.ui.ac.id</code></p></li>
+<li><p>Jalankan <code>apt-get update</code> untuk mengupdate database aplikasi</p></li>
+</ul>
+
+
+<p>Berikut isi file <code>/etc/apt/sources.list</code> saya.</p>
+
+<pre><code>deb http://kambing.ui.ac.id/ubuntu/ intrepid main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ intrepid-updates main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ intrepid-security main restricted universe multiverse
+</code></pre>
+
+<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
+
+<pre><code>deb http://kambing.ui.ac.id/ubuntu/ jaunty main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ jaunty-updates main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ jaunty-security main restricted universe multiverse
+</code></pre>
+
+<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
+
+<h2>Membuat daftar URL untuk download</h2>
+
+<p>Jalankan perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 &gt; daftar_url.txt
+</code></pre>
+
+<p>Perintah ini akan menghasilkan file <code>daftar_url.txt</code>, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
+
+<h2>Mengunduh *.deb</h2>
+
+<p>Berbekal <code>daftar_url.txt</code>, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
+
+<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
+
+<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
+</code></pre>
+
+<p>Proses pengunduhan dapat dipantau dengan melihat isi file <code>donlod-ubuntu.log</code>. Gunakan perintah tail seperti ini.</p>
+
+<pre><code>tail -f donlod-ubuntu.log 
+</code></pre>
+
+<p>Tekan Ctrl+C untuk keluar dari tail.</p>
+
+<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
+
+<h2>Instalasi *.deb</h2>
+
+<p>Copy semua file *.deb ke folder <code>/var/cache/apt/archives</code> di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
+</code></pre>
+
+<p>Tunggu sejenak sampai selesai.</p>
+
+<h2>Replikasi Instalasi</h2>
+
+<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
+
+<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
+
+<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
+</code></pre>
+
+<p>Copy file <code>daftar_instalasi.txt</code> ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
+
+<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
+
+<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
+</code></pre>
+
+<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
+
+<pre><code>sudo apt-get dselect-upgrade
+</code></pre>
+
+<p>Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/lain/intro-jquery/">Intro jQuery</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-17T22:38:56+07:00" pubdate data-updated="true">Mar 17<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Jaman sekarang, membuat tampilan menarik di aplikasi web sudah tidak sulit lagi.
+Banyak pustaka JavaScript yang siap digunakan dengan mudah.
+Tidak perlu lagi kita memusingkan keragaman browser dengan keanehannya masing-masing.</p>
+
+<p>Salah satu pustaka JavaScript yang populer adalah <a href="http://www.jquery.com">jQuery</a>.
+Berbeda dengan pustaka JavaScript lainnya, jQuery tidak menawarkan komponen UI yang aneh-aneh.
+Demikian juga dengan efek visual, hanya tersedia sekenanya saja.
+Dengan demikian, jQuery berukuran relatif kecil dan mudah dipelajari.</p>
+
+<p>Akan tetapi, di balik kesederhanaan tersebut tersimpan kecanggihan arsitekturnya.
+Dengan arsitektur yang rapi ini, orang mudah membuat plugin untuk menambah kemampuan jQuery.
+Hasilnya, ada <a href="http://www.jqueryui.com/">jQuery UI</a> dengan koleksi komponen UI yang kaya.
+Ada juga <a href="http://www.trirand.com/blog/">jqGrid</a> dengan komponen tabelnya yang canggih.</p>
+
+<p>Pada tutorial ini, kita akan mempelajari dasar-dasar pemrograman JavaScript menggunakan jQuery.
+Setelah menguasai dasar-dasarnya,
+kita akan mampu menggunakan berbagai teknik tingkat tinggi seperti AJAX dan efek visual.
+Kita juga akan mudah mempelajari dan menggunakan berbagai komponen dan plugin yang tersedia.</p>
+
+<p>Pada intinya, penggunaan jQuery terdiri dari dua langkah sederhana :
+1. Mendapatkan elemen HTML yang ingin kita gunakan
+2. Menambahkan behavior pada elemen HTML yang sudah didapatkan.</p>
+
+<p>Sebagai contoh kasus, kita akan membuat kalkulator sederhana yang tampilannya seperti ini:
+(/images/uploads/2009/03/kalkulator-jquery.png)</p>
+
+<p>Berikut adalah kode HTML untuk membuat kalkulator tersebut.</p>
+
+<pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Kalkulator jQuery&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Kalkulator jQuery&lt;/h1&gt;
+
+    &lt;input name="num1"&gt; * &lt;input name="num2"&gt;
+    &lt;input type="button" id="hitung" value="="&gt;
+    &lt;input name="hasil" disabled="true"&gt;
+
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Dari screenshot di atas kita sudah bisa menebak cara kerja halaman web tersebut.
+Bila tombol = ditekan, maka nilai yang ada di input num1 dan num2 akan dibaca dan dikalikan.
+Kemudian hasilnya akan ditampilkan di input hasil.</p>
+
+<p>jQuery menganjurkan kita untuk mengikuti prinsip <em>unobtrusive javascript</em>,
+yang artinya tidak menambahkan event pada kode HTML.</p>
+
+<p>Bila kita tidak mengikuti prinsip ini, biasanya kita akan langsung menambahkan event di tombol = seperti ini</p>
+
+<pre><code>&lt;input type="button" id="hitung" value="=" onclick="alert('Hello World');"&gt;
+</code></pre>
+
+<p>Dengan prinsip <em>unobtrusive javascript</em>, kode HTML untuk tampilan dibiarkan apa adanya.
+Event onclick akan kita tambahkan di kode JavaScript yang bisa dipasang di blok head secara inline (ditulis langsung),
+ataupun dikeluarkan ke file tersendiri.</p>
+
+<p>Pada contoh ini, kita akan menulis inline supaya lebih mudah.</p>
+
+<h2>Instalasi jQuery</h2>
+
+<p>Sebelum kita melakukan apa-apa, terlebih dulu halaman kalkulator tersebut harus bisa mengakses jQuery.
+Tambahkan baris berikut pada blok head.</p>
+
+<pre><code>&lt;script type="text/javascript" src="js/jquery-1.2.6.min.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>Pastikan lokasi file jQuery.js sudah benar.</p>
+
+<p>Setelah itu, biasanya kita akan menambahkan kode program JavaScript yang akan dijalankan <strong>setelah</strong> seluruh halaman selesai diload oleh browser. Tentunya kita tidak ingin menambahkan event pada elemen yang belum selesai diload.</p>
+
+<p>Berikut adalah blok standar untuk meletakkan kode JavaScript kita.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h2>Event onclick</h2>
+
+<p>Langkah pertama yang kita lakukan adalah menambahkan event ke tombol =.
+Agar bisa melakukannya, kita harus mendapatkan tombol tersebut.
+Kalau kita perhatikan kode HTML di atas, tombol = memiliki ID yang berisi nilai hitung.
+Atribut ID harus unik dalam satu halaman HTML.
+Dengan demikian, kita bisa langsung mendapatkan tombol = dengan menggunakan IDnya.
+Setelah tombol didapatkan, kita bisa langsung menggunakan function click untuk menambahkan event onclick.
+Berikut adalah kode programnya.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click();
+    });
+&lt;/script&gt;
+</code></pre>
+
+<p>Dalam JavaScript, kita bisa memasukkan function sebagai parameter dalam function lain.
+Bagi mereka yang sudah pernah coding C atau C++, pasti sudah tidak asing dengan teknik ini,
+biasa disebut function pointer dalam C atau C++.</p>
+
+<p>Nah, mari kita isikan function sebagai parameter untuk function click, seperti ini :</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click(function(){
+
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<p>Selanjutnya, kita tinggal mengimplementasikan logika kode program kita, yaitu :
+1. ambil nilai num1
+2. ambil nilai num2
+3. kalikan num1 dan num2
+4. hasilnya isikan ke input text hasil</p>
+
+<h2>Selector name</h2>
+
+<p>Fitur jQuery untuk menunjuk elemen HTML tertentu disebut selector.
+Pada penambahan event onclick di atas, kita sudah menggunakan selector berdasarkan ID.
+Sekarang, kita akan menggunakan selector atribut untuk memilih input dengan atribut name berisi num1, num2, dan hasil.
+Berikut kode program implementasi dari logika di atas.</p>
+
+<pre><code>&lt;script type="text/javascript"&gt;
+    $(function(){
+        $("#hitung").click(function(){
+            var num1 = $("input[name=num1]").val();
+            var num2 = $("input[name=num2]").val();
+            $("input[name=hasil]").val(num1 * num2);
+        });
+    });
+&lt;/script&gt;
+</code></pre>
+
+<h2>Kesimpulan</h2>
+
+<p>Silahkan buka kalkulator.html di browser, dan coba apakah sudah bekerja dengan benar.</p>
+
+<p>Secara garis besar, pemakaian jQuery dapat dijelaskan dengan satu kalimat,</p>
+
+<blockquote><p>pilih elemen menggunakan selector, lalu manipulasi sesuai keinginan</p></blockquote>
+
+<p>Setelah memahami artikel ini, kita bisa mengembangkan kemampuan kita dalam menggunakan jQuery, diantaranya:</p>
+
+<ul>
+<li><p>mempelajari berbagai selector selain id dan atribut. jQuery memiliki banyak sekali selector yang bisa digunakan</p></li>
+<li><p>menggunakan berbagai event lain selain onclick, misalnya onfocus, onchange, dsb</p></li>
+<li><p>operasi elemen selain mengeset value, misalnya menambahkan isi elemen, mengakses server dengan AJAX, dsb</p></li>
+<li><p>menggunakan plugin-plugin jQuery misalnya Date Picker, Tab, jqGrid, dan sebagainya</p></li>
+<li><p>membuat plugin sendiri</p></li>
+</ul>
+
+</div>
+  
   
 
 
@@ -318,6 +2039,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
@@ -351,10 +2076,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
   </ul>

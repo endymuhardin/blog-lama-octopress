@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Release, atau di-Indonesia-kan menjadi rilis, adalah tahap yang paling penting dalam software development. Segala kegiatan hulu (upstream activity) &hellip;">
+  <meta name="description" content="Menyimpan kode program Java ke repository tidak sulit. Yang lebih sulit adalah menyimpan artifak database, yaitu: Skema database Stored Procedure &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -95,7 +95,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/manajemen/release-management/">Release Management</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/version-control-database/">Version Control Untuk Database</a></h1>
     
     
       <p class="meta">
@@ -111,23 +111,63 @@
   
 
 
-<time datetime="2012-08-29T18:01:00+07:00" pubdate data-updated="true">Aug 29<span>th</span>, 2012</time>
+<time datetime="2007-01-06T01:24:50+07:00" pubdate data-updated="true">Jan 6<span>th</span>, 2007</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Release, atau di-Indonesia-kan menjadi rilis, adalah tahap yang paling penting dalam software development. Segala kegiatan hulu (upstream activity) lainnya seperti <a href="/manajemen/fase-requirement/" title="Fase Requirement">requirement</a>, desain aplikasi, coding, testing, dan lainnya, semua dilakukan demi untuk menghasilkan software yang bisa dirilis. Sebagus apapun kita melakukan kegiatan lainnya, jika rilisnya tidak bagus, maka semua yang kita kerjakan menjadi tidak bagus. Sebaliknya, berbagai kesalahan dan kekurangan di kegiatan lain akan mudah dimaafkan dan dilupakan kalau kita menghasilkan rilis yang baik. Walaupun demikian, perlu diingat bahwa bila kita melakukan kegiatan hulu dengan baik, biasanya kita bisa menghasilkan rilis yang berkualitas baik secara konsisten.</p>
+  <div class="entry-content"><p>Menyimpan kode program Java ke repository tidak sulit. Yang lebih sulit adalah menyimpan artifak database, yaitu:</p>
 
-<p>Pada artikel ini, kita akan membahas pernak-pernik yang berkaitan dengan rilis. Apa itu rilis, berbagai jenis rilis, syarat dan ketentuan rilis, dan juga prosedur yang kita gunakan di ArtiVisi.</p>
+<ul>
+<li> Skema database</li>
+<li> Stored Procedure</li>
+<li> Functions</li>
+<li> Sample/Initial data</li>
+</ul>
 
+
+<p>Kalau dilakukan dengan cara manual, akan sangat merepotkan, karena programmer harus melakukan langkah-langkah berikut untuk memastikan kode programnya tersimpan di repository:</p>
+
+<ol>
+<li>Copy semua source code melalui Query Editor</li>
+<li>Paste satu per satu ke text file</li>
+<li>Commit ke repository</li>
+<li>Ulangi langkah 1 - 3 untuk setiap kali perubahan</li>
+</ol>
+
+
+<p>Dengan skala ribuan procedure, cara ini sangat merepotkan dan dijamin tidak akan dilakukan oleh programmer. Harus ada cara yang lebih baik.</p>
+
+<p>Untungnya –seperti halnya masalah yang umum kita temukan– sudah banyak orang lain yang mengalami masalah sama, dan sudah ada yang memecahkannya. Kali ini solusinya adalah <a href="http://www.codeproject.com/cs/database/ScriptDB4Svn.asp" title="Homepage ScriptDB4SVN">ScriptDB4SVN</a>. Aplikasi kecil yang seumur hidupnya hanya bertugas melakukan langkah 1-3 di atas.</p>
+
+<p>Sayangnya aplikasi ini hanya bisa digunakan untuk Microsoft SQL Server.</p>
+
+<p>Aplikasi ini membutuhkan .Net Framework 2.0 yang dapat didownload secara cuma-cuma di website Microsoft. Segera setelah .Net Framework diinstal, kita dapat langsung menjalankan ScriptDB4SVN.</p>
+
+<p>Sebelumnya, kita harus edit dulu file konfigurasinya. Kita harus beritahu ScriptDB4SVN tentang:</p>
+
+<ul>
+<li> Host database</li>
+<li> Nama database yang akan digunakan</li>
+<li> Daftar tabel yang akan didump datanya</li>
+</ul>
+
+
+<p>Berikut adalah contoh konfigurasinya</p>
+
+<p>Setelah konfigurasi selesai dibuat, jalankan ScriptDB4SVN.exe. Hasilnya seperti ini.</p>
+
+<p><img src="/images/uploads/2007/01/scriptdb4svn.png" title="Screenshot ScriptDB4SVN" ></p>
+
+<p>Setiap kali ada perubahan di database, dobel-klik ScriptDB4SVN dan commit file yang berubah. Harus diperhatikan, ScriptDB4SVN tidak otomatis menjalankan svn add. Jadi kalau ada Store Procedure baru, kita harus jalankan svn add secara manual.</p>
+
+<p>Pembaca yang teliti mungkin akan melihat script sql dengan nama aneh pada screenshot di atas. Itu adalah script replikasi. Kalau script tersebut dijalankan di Query Analyzer, maka dia akan merekonstruksi database sehingga sama dengan kondisi database target pada saat ScriptDB4SVN dijalankan.</p>
+
+<p>Dengan adanya tools ini, masing-masing programmer dapat bekerja di database lokalnya sendiri. Secara periodik, dia harus melakukan svn update dan merekonstruksi database lokalnya dengan script terbaru sehingga tetap sinkron dengan kondisi terbaru.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/manajemen/release-management/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -138,7 +178,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/aplikasi/terima-kasih-wordpress/">Terima Kasih Wordpress</a></h1>
+      <h1 class="entry-title"><a href="/manajemen/starter-kit/">Project Starter Kit</a></h1>
     
     
       <p class="meta">
@@ -154,50 +194,130 @@
   
 
 
-<time datetime="2012-08-09T13:54:00+07:00" pubdate data-updated="true">Aug 9<span>th</span>, 2012</time>
+<time datetime="2006-12-28T23:45:57+07:00" pubdate data-updated="true">Dec 28<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Sejak pertama saya membuat blog, aplikasi yang saya gunakan adalah <a href="http://www.wordpress.org">Wordpress</a>. Aplikasi Wordpress sangat mudah digunakan dan banyak fiturnya. Selain itu, themes gratisan di internet juga berlimpah ruah, sehingga kita bisa ganti tampilan setiap hari kalau mau.</p>
+  <div class="entry-content"><p>Mengelola project software tidak mudah. Ada berbagai aspek teknis dan non teknis. Apalagi kalau projectnya berkaitan dengan pemerintahan atau organisasi lain yang birokratis. Akan banyak pekerjaan dokumentasi.</p>
 
-<p>Walaupun demikian, zaman berganti, dan cara kita bekerja juga berubah. Saya saat ini lebih banyak berkutat di pemrograman dengan workflow sebagai berikut :</p>
+<p>Di sisi lain, pekerjaan teknis selain coding juga tidak kalah banyaknya. Contohnya, dalam kehidupan sehari-hari programmer, dia harus:</p>
 
 <ol>
-<li>Buka text editor</li>
-<li>Edit source code</li>
-<li>Jalankan di local dan test</li>
-<li>Kalau sudah ok, simpan di version control (commit)</li>
-<li>Ulangi ke langkah 2 sampai selesai</li>
-<li>Begitu sudah siap untuk sharing hasil pekerjaan, upload (push) perubahan ke version control pusat.</li>
+<li>Menulis kode</li>
+<li>Menyimpan kode di repository</li>
+<li>Memberitahu programmer lain tentang perubahan yang dilakukan</li>
+<li>Menulis dokumentasi kode</li>
+<li>Menjalankan unit test</li>
+<li>Membuat rilis</li>
+<li>Menjawab pertanyaan client/bos/tim user manual</li>
 </ol>
 
 
-<p>Workflow ini sayangnya tidak dapat dilakukan untuk menulis blog. Workflow saya dalam menulis blog biasanya seperti ini:</p>
+<p>Semua kegiatan ini harus dikelola dengan baik agar tidak saling tumpang tindih. Untungnya banyak perangkat pembantu yang dapat memudahkan hidup kita. Pastikan Anda menggunakan persenjataan ini agar proyek bisa berjalan dengan lebih lancar. Berikut daftarnya:</p>
 
 <ol>
-<li>Buka text editor</li>
-<li>Ketik dalam format text file biasa, dengan menggunakan HTML tag bila perlu</li>
-<li>Simpan di folder Dropbox selama masih draft</li>
-<li>Setelah siap dipublish, buka Wordpress di browser</li>
-<li>Login ke Wordpress</li>
-<li>Create New Post</li>
-<li>Copy - Paste dari text editor</li>
-<li>Preview dan rapikan lagi</li>
-<li>Publish</li>
+<li>Version Control</li>
+<li>Bug tracker</li>
+<li>Mailing list</li>
+<li>File server</li>
+<li>Wiki</li>
+<li>Forum</li>
+<li>Build server</li>
 </ol>
 
 
-<p>Seperti bisa kita lihat, dengan workflow di atas, praktis fitur-fitur Wordpress yang serba canggih tidak termanfaatkan. Oleh karena itu, sudah tiba saatnya untuk mencari aplikasi blogging yang <strong>lebih sedikit</strong> fiturnya. Biasanya orang mengganti aplikasi dengan yang lebih banyak fiturnya, tapi kali ini saya melakukan hal yang sebaliknya.</p>
+<p>Mari kita bahas dengan lebih detail.</p>
 
+<h3>Version Control</h3>
+
+<p>Semacam file server, tapi lebih sakti. Mampu menyimpan riwayat perubahan, perbedaan antar versi, dan lainnya. Silahkan download <a href="http://endy.artivisi.com/downloads/writings/Subversion-presentation-20061129.pdf">presentasi saya tentang Subversion</a> untuk pemahaman lebih lanjut.</p>
+
+<h3>Bug Tracker</h3>
+
+<p>Sepanjang perjalanan project, pasti banyak terjadi kesalahan. Baik kesalahan dokumen, kode program, permintaan yang kurang jelas, dan sebagainya. Daripada membuat mencatat di satu file khusus, lebih baik gunakan aplikasi bug tracker. Setiap entri di bug tracker bisa ditugaskan pada satu user. Status dari setiap entri (sedang dikerjakan, sudah selesai, selesai tapi tidak memuaskan) semua bisa ditentukan.</p>
+
+<p>Gunakan bug tracker untuk memberikan tugas pada orang lain. Bug tracker yang baik biasanya terintegrasi dengan mail server, sehingga begitu kita membuat entri, email akan dikirim ke orang yang menerima tugas. Pada waktu suatu entri selesai dikerjakan dan statusnya diganti, email akan dikirim ke si pemberi tugas. Dengan demikian, tidak ada hal yang tercecer atau terlupakan.</p>
+
+<p>Berikut daftar beberapa aplikasi bugtracker yang gratis dan open source:</p>
+
+<ul>
+<li><a href="http://www.bugzilla.org/">Bugzilla</a></li>
+<li><a href="http://mantisbt.sourceforge.net/">Mantis</a></li>
+<li><a href="http://scarab.tigris.org">Scarab</a></li>
+<li><a href="http://trackit.sourceforge.net/">TrackIt</a></li>
+</ul>
+
+
+<h3>Mailing List</h3>
+
+<p>Biasanya dalam project, kita akan sering mengirim email ke beberapa orang sekaligus. Misalnya pengumuman rilis, klarifikasi requirement, janji meeting, atau laporan kemajuan. Daripada mengetik banyak alamat sekaligus, lebih baik buat mailing list sesuai tujuan komunikasi. Buatlah mailing list untuk manajemen dan development. Segala pengumuman dan diskusi tentang manajemen proyek dikirim ke mailing list manajemen. Pembicaraan tentang pemrograman dilakukan di milis development.</p>
+
+<p>Dengan demikian, selain tidak perlu mengetik alamat email satu persatu dan beresiko lupa, semua pembicaraan juga terekam secara kronologis.</p>
+
+<p>Tidak mau repot menginstal aplikasi milis? Gunakan saja milis gratisan seperti <a href="http://groups.yahoo.com">YahooGroups</a> atau <a href="http://groups.google.com">GoogleGroups</a>.</p>
+
+<h3>File Server</h3>
+
+<p>Selain melalui repository, kadang kita perlu bertukar file berukuran besar. Untuk itu, kita perlu file server. Banyak penyedia file server gratisan di internet, misalnya <a href="http://rapidshare.de">Rapidshare</a> atau <a href="http://www.megaupload.com">Megaupload</a>.</p>
+
+<p>Kalau tidak mau pakai gratisan &#8211;mungkin takut data penting diambil orang&#8211; gunakan <a href="http://www.apachefriends.org/en/xampp.html">XAMPP</a>.</p>
+
+<h3>Wiki</h3>
+
+<p> Wiki adalah website yang bisa diedit orang banyak. Contohnya <a href="http://tutorial.artivisi.com">wiki ArtiVisi</a>. Cara mengeditnya juga mudah dan sederhana. Tidak perlu keahlian HTML atau pemrograman web. Ideal digunakan untuk membuat dokumen yang sering berubah dan diakses sepanjang waktu, misalnya:</p>
+
+<ul>
+<li>spesifikasi aplikasi</li>
+<li>desain sistem</li>
+<li>manual penggunaan aplikasi</li>
+</ul>
+
+
+<p>Aplikasi wiki banyak tersedia secara gratis, misalnya:</p>
+
+<ul>
+<li><a href="http://wiki.splitbrain.org/wiki:dokuwiki">DokuWiki</a> (yang digunakan ArtiVisi, berbasis PHP)</li>
+<li><a href="http://www.jspwiki.org/">JSPWiki</a> (berbasis Java)</li>
+<li><a href="http://www.pmichaud.com/wiki/PmWiki/PmWiki">pmWiki</a> (berbasis PHP)</li>
+<li><a href="http://www.mediawiki.org/wiki/MediaWiki">MediaWiki</a> (yang digunakan <a href="http://www.wikipedia.org">Wikipedia</a>)</li>
+<li><a href="http://moinmoin.wikiwikiweb.de/">MoinMoin</a> (berbasis Python)</li>
+</ul>
+
+
+<p>dan masih banyak aplikasi lainnya.</p>
+
+<p>Perbandingan antar aplikasi dapat dilihat di situs <a href="http://en.wikipedia.org/wiki/Comparison_of_wiki_software">MediaWiki</a> dan <a href="http://wiki.splitbrain.org/wiki:compare">DokuWiki</a></p>
+
+<p>Instalasi DokuWiki sangat mudah, cukup extract, kemudian publish melalui webserver yang support PHP. Pengguna Windows bisa menggunakan XAMPP dan menjalankan DokuWiki dalam 5 (lima) menit saja.</p>
+
+<h3>Forum</h3>
+
+<p>Apabila proyek/produk kita digunakan masyarakat luas, pasti akan banyak interaksi dengan pengguna. Biasanya pengguna baru akan menemui kesulitan dan butuh tempat bertanya. Mereka ini biasanya malas ikut milis, karena mungkin cuma butuh satu jawaban dan tidak ingin mengikuti diskusi di milis.</p>
+
+<p>Kita bisa gunakan aplikasi forum yang banyak tersedia secara gratis. Salah satu yang terkenal adalah <a href="http://www.phpbb.com">phpBB</a>. Maniak Java bisa gunakan <a href="http://www.mvnforum.com">mvnforum</a>.</p>
+
+<h3>Build Server</h3>
+
+<p>Apabila proyek kita sudah dilengkapi dengan version control, automated unit test, dan automated code review, kita bisa gunakan build server. Gunanya adalah agar secara berkala (misalnya sehari sekali), ada yang mengambil semua kode terbaru dari repository, melakukan kompilasi, menjalankan semua automated test, dan melaporkan hasilnya via website, email, rss, instant messenger, sms, atau media komunikasi lainnya.</p>
+
+<p>Berkat keajaiban open source, aplikasi ini tersedia secara gratis. Kita bisa gunakan <a href="http://cruisecontrol.sourceforge.net">CruiseControl</a> atau <a href="http://luntbuild.javaforge.com">Luntbuild</a>. Buat yang nekat tetap ingin bayar, bisa gunakan <a href="http://zutubi.com/products/pulse/">Pulse</a> atau <a href="http://confluence.atlassian.com/display/BAMBOO">Bamboo</a>.</p>
+
+<blockquote><p>Wow &#8230; begitu banyak yang harus disiapkan?</p></blockquote>
+
+<p>Begitu dalam pikiran Anda.</p>
+
+<p>Jangan khawatir, ada aplikasi gratis untuk menyatukan semuanya. Gunakan <a href="http://trac.edgewall.org/">Trac</a>.</p>
+
+<blockquote><p>Bagaimana kalo projectnya banyak? Di kantor saya biasanya ada 10 project jalan berbarengan. Belum lagi 15 produk yang harus dikelola.</p></blockquote>
+
+<p>Jangan khawatir. Bawa pulang <a href="http://www.vasoftware.com/sourceforge/">Sourceforge</a> ke kantor Anda. Atau gunakan saingannya, <a href="http://gforge.org/">GForge</a>. Keduanya gratis dan open source.</p>
+
+<p>Demikianlah rangkaian persenjataan dalam mengelola proyek. Semoga bermanfaat.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/aplikasi/terima-kasih-wordpress/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -208,7 +328,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/java/konsep-dasar-log4/">Konsep Dasar Log4j</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/lain/snap/">Snap</a></h1>
     
     
       <p class="meta">
@@ -224,21 +344,1255 @@
   
 
 
-<time datetime="2012-07-30T20:59:00+07:00" pubdate data-updated="true">Jul 30<span>th</span>, 2012</time>
+<time datetime="2006-12-08T22:59:47+07:00" pubdate data-updated="true">Dec 8<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Walaupun sudah dibuatkan <a href="http://endy.artivisi.com/blog/java/menggunakan-log4j">minibook</a>, tapi ternyata ada juga beberapa orang yang tidak paham bagaimana cara enable/disable log message di aplikasi Java. Oleh karena itu, baiklah saya jelaskan lagi secara lebih singkat.</p>
+  <div class="entry-content"><p>Ide orang memang ada-ada saja. Kali ini ada situs yang menampilkan preview dari suatu link. Coba arahkan (tidak perlu klik) mouse anda ke <a href="http://snap.com" title="Snap.com">link Snap.com ini</a>. Tunggu sejenak, dan (tergantung kecepatan bandwidth anda) screenshot website Snap akan muncul.</p>
 
+<p>Cara mendapatkannya tidak sulit. Cukup buka halaman pendaftarannya, dan masukkan:</p>
+
+<ul>
+<li>URL website kita</li>
+<li>Email</li>
+<li>Tulisan di gambar captcha</li>
+</ul>
+
+
+<p>Centang <em>I Agree</em> dan klik <em>Get Code</em>.</p>
+
+<p>Pada halaman berikutnya kita akan mendapat sepotong kode untuk dipasang di kode HTML website kita. Sangat mudah.</p>
+
+<p>Selain Snap.Com, ada lagi website yang namanya Twitter. Kalau yang ini benar-benar kurang kerjaan. Silahkan <a href="http://twitter.com" title="Twitter">cek sendiri</a> dan cari tahu apa yang <a href="http://twitter.com/public_timeline" title="Twitter">dikerjakan dunia saat ini</a>.</p>
 </div>
   
   
-    <footer>
-      <a rel="full-article" href="/java/konsep-dasar-log4/">Read on &rarr;</a>
-    </footer>
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-5/">Ruthless Testing 5</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-12-01T18:35:39+07:00" pubdate data-updated="true">Dec 1<span>st</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah beberapa seri artikel Ruthless Testing, ternyata lebih banyak yang skeptis daripada yang antusias. Respon yang paling banyak ditemukan adalah:</p>
+
+<blockquote><p>Wah, ini konsep yang sangat menarik. Tentunya akan sangat baik jika diterapkan. Sayang sekali, di tempat saya tidak bisa, karena &#8230; [berbagai alasan dan kesulitan] &#8230;</p></blockquote>
+
+<p>Hmm &#8230; saya mengerti perasaan Anda. Been there, done that. Saya pernah jadi programmer, dan juga pernah jadi project manager. Saya mengerti beberapa keberatan dan kesulitan implementasinya.</p>
+
+<p>Daripada berkeluh kesah tiada guna, mari kita lihat satu persatu masalahnya.</p>
+
+<h4>Programmer : Bikin unit test? Nambah kerjaan aja. Lagian test code kan gak dideliver ke client</h4>
+
+<p>Jawaban saya:
+Unit test itu adalah investasi Anda. Bayangkan beberapa bulan/tahun yang akan datang, client datang ke kita, meminta perbaikan untuk error dalam aplikasi. Padahal kita sedang sibuk mengerjakan proyek lain yang sama sekali berbeda. Hampir seluruh kode sudah kita lupakan. Bahkan untuk method sederhana seperti ini</p>
+
+<pre><code>calc.divide(x, y);
+</code></pre>
+
+<p>kita sudah lupa bagaimana behaviournya kalau menghadapi pembagian dengan nol, bilangan negatif, atau bilangan tidak bulat. Dan seperti biasa, kita tidak membuat komentar Javadoc.</p>
+
+<p><em>Unit test to the rescue</em>. Tinggal buka unit test untuk kode di atas, dan kita akan melihat bagaimana kode tersebut menghadapi bilangan negatif, nol, dan kasus-kasus aneh lainnya.</p>
+
+<p>Next ..</p>
+
+<h4>Programmer : Aplikasi saya mengakses jaringan/database/email. Sulit dites</h4>
+
+<p>Jawaban saya:
+Itu namanya integration testing, bukan unit testing. Walaupun demikian, tetap bisa dites secara otomatis. Tapi butuh sedikit investasi tambahan.</p>
+
+<p>Misalnya, kita punya method seperti ini:</p>
+
+<pre><code>public void process(Order order) {
+    // coba lihat customernya, periksa saldonya
+    Customer c = order.getCustomer();
+    if(c.getBalance() &lt; 0) {
+        // handle error
+    }
+
+    // saldo ok, simpan order ke database
+    String sql = "INSERT INTO tbl_order VALUES (?, ?, ?)";
+
+    // kirim email konfirmasi
+    String dest = c.getEmail();
+    // kode send email tidak ditunjukkan
+}
+</code></pre>
+
+<p>Seperti kita lihat, ada beberapa integration point di sini, yaitu akses database dan koneksi ke mail server.</p>
+
+<p>Untuk mengotomasi pengetesan method ini, kita gunakan teknik yang sudah teruji dari 400 tahun lalu: <em>divide et impera</em>. Yang tidak tidur di kelas waktu pelajaran Sejarah pasti tau teknik ini.
+Sekarang teknik ini sudah diadaptasi ke dunia programming dengan istilah Refactoring. Silahkan google keyword tersebut untuk lebih jelasnya.</p>
+
+<p>Pada contoh kita di atas, kita me-refactor kode akses database dan koneksi mail server ke class yang berbeda. Kita pisahkan kode tersebut ke class tersendiri. Berikut adalah interfacenya:</p>
+
+<pre><code>public interface OrderDao {
+    public void save(Order o);
+}
+</code></pre>
+
+<p>dan</p>
+
+<pre><code>public interface MailSender {
+    public void send(String from, String to, String message);
+}
+</code></pre>
+
+<p>Implementasinya disisakan buat latihan di rumah.</p>
+
+<p>Sehingga method kita menjadi seperti ini:</p>
+
+<pre><code>public void process(Order order) {
+    // coba lihat customernya, periksa saldonya
+    Customer c = order.getCustomer();
+    if(c.getBalance() &lt; 0) {
+        // handle error
+    }
+
+    orderDao.save(order);
+
+    mailSender.send(adminEmail, c.getEmail(), "Order sudah dikirim");
+}
+</code></pre>
+
+<p>Dengan adanya kedua class tambahan ini, kita bisa menggunakan <a href="http://www.easymock.org/" title="Salah satu implementasi mock object">Mock Object</a> untuk memalsukan object orderDao dan mailSender. Kita bisa buat kedua object ini selalu sukses, atau selalu gagal, tergantung skenario yang mau dites.</p>
+
+<p>OrderDao sendiri bisa dites dengan menggunakan <a href="http://endy.artivisi.com/blog/java/ruthless-testing-4/" title="Database Testing">teknik pengetesan database</a>. MailSender dapat ditest dengan menggunakan <a href="http://quintanasoft.com/dumbster/" title="Mail Server Palsu">Dumbster</a>, mail server palsu.</p>
+
+<p>Kasus seperti ini biasanya terjadi karena kodenya sudah terlanjur campur aduk. Apabila unit test diterapkan dari awal project, programmer terkondisi untuk membuat kode yang mudah dites, sehingga effort untuk refactor tidak terlalu besar.</p>
+
+<p>Tujuan utama kita adalah semua tes bisa dijalankan otomatis, independen (tes satu tidak mempengaruhi tes lain) dan <em>repeatable</em>(bisa diulang-ulang dengan hasil yang konsisten).
+Tidak harus menggunakan JUnit. Bisa pakai tools buatan sendiri.</p>
+
+<p>Keberatan berikutnya datang dari project manager.</p>
+
+<h4>Project Manager : Berarti saya harus alokasikan waktu tambahan untuk membuat unit test, wah bisa-bisa saya dimarahi client/bos.</h4>
+
+<p>Jawaban saya:
+Bos&#8230; programmer Anda <em>pasti</em> membuat kode test, walaupun tidak otomatis. Ini sudah naluri dasar manusia.</p>
+
+<p>Berikut contohnya:</p>
+
+<pre><code>public void process(Order order) {
+    // coba lihat customernya, periksa saldonya
+
+    // saldo ok, simpan order ke database
+    String sql = "INSERT INTO tbl_order VALUES (?, ?, ?)";
+
+    // coba periksa ... nanti kita hapus lagi
+    String coba = "SELECT * FROM tbl_order WHERE .. ";
+
+    // kirim email konfirmasi
+    String dest = c.getEmail();
+    // kode send email tidak ditunjukkan
+}
+</code></pre>
+
+<p>Jadi, daripada dia pasang kode test di kode program, dan nantinya dihapus lagi, kan sayang. Lebih baik suruh saja untuk bikin unit test betulan.
+Keuntungan berikutnya, dengan banyaknya unit test, kesalahan coding akan lebih cepat ditemukan, sehingga pada tahap testing oleh client, lebih sedikit bug yang ditemukan.
+Dengan demikian, alokasi waktu untuk rework akan lebih sedikit.</p>
+
+<h4>Project Manager : Kalau terlalu banyak unit test, nanti aplikasinya menjadi rumit.</h4>
+
+<p>Jawaban saya:
+Justru sebaliknya. Aplikasi yang banyak unit testnya akan menjadi lebih modular dan tidak terlalu kusut struktur internalnya. Dengan demikian, kode program menjadi lebih mudah dipelihara dan dikembangkan.</p>
+
+<p>Terakhir, ada beberapa tips dari saya agar penerapan unit testing dapat berjalan dengan optimal:</p>
+
+<ul>
+<li>siapkan infrastruktur sebelum mulai coding</li>
+<li>sering-sering refactor agar kode mudah dites</li>
+<li>gunakan coverage testing sebagai pelengkap, agar kekurangan unit test cepat terdeteksi</li>
+<li>terapkan daily build otomatis yang menjalankan semua tes</li>
+</ul>
+
+
+<p>Demikian, semoga bermanfaat</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/lain/presentasi-subversion/">Presentasi Subversion</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-11-29T15:44:51+07:00" pubdate data-updated="true">Nov 29<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Hari Sabtu, 2 Desember 2006 pukul 10.00 WIB, saya akan memberikan presentasi tentang Subversion di pertemuan rutin programmer Java (JaMU - Java Meet Up).</p>
+
+<p>Adapun tempat kejadian presentasi (TKP) beralamat di:
+SUN Microsystem Indonesia
+Lantai 13, Gedung Wisma Metropolitan I (WTC Sudirman)
+Jakarta</p>
+
+<p>Subversion adalah aplikasi version control. Aplikasi ini mirip dengan file server, artinya dia bisa digunakan untuk menyimpan file, dan bisa diakses jika ingin mengambil file tersebut.
+Bedanya dengan file server biasa (FTP server, Samba, atau Windows Sharing), aplikasi version control menyimpan riwayat perubahan semua yang kita simpan di dalamnya.
+Kalau kita menyimpan satu file, kemudian isinya kita modifikasi (tambah baris, hapus, ganti nama, dan sebagainya), maka setiap perubahan tersebut dicatat oleh version control.</p>
+
+<p>Tidak hanya dicatat, kita juga bisa mengembalikan kondisi file sesuai keinginan. Kita bisa melihat versi awal dari file tersebut, atau nama file sebelum diganti, dan semua titik penting lain di masa lalu.
+Singkatnya, dalam urusan menyimpan file, version control mirip dengan mesin waktu.</p>
+
+<p>SIlahkan datang ke JaMU minggu ini. Gratis, tidak dipungut biaya.</p>
+
+<p>Materi yang akan dibawakan adalah:</p>
+
+<ol>
+<li>Konsep Version Control</li>
+<li>Penggunaan sehari-hari</li>
+<li>Tag, Branch, Merge</li>
+<li>Aplikasi pelengkap</li>
+<li>Keterbatasan Subversion</li>
+<li>Aplikasi sejenis (kompetitor)</li>
+</ol>
+
+
+<p>Presentasi dapat didownload <a href="http://endy.artivisi.com/downloads/writings/Subversion-presentation-20061129.pdf" title="Presentasi Subversion">di sini [PDF | 710KB]</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/berkeleydb-java-edition/">BerkeleyDB Java Edition</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-10-05T17:53:37+07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Beberapa waktu yang lalu, ada posting menarik tentang <a href="http://epsilondelta.net/2006/10/01/web-apps-why-does-statelessness-stop-at-the-database/" title="Stateless Database @ Google">Google yang menggunakan BerkeleyDB untuk mengelola user accountnya</a>. Karena penasaran, saya lalu mencoba mendownload dan bermain-main dengan BerkeleyDB versi Java (Java Edition).</p>
+
+<p>BerkeleyDB adalah produk embedded database open source yang populer. Belum lama ini dia diakuisisi oleh Oracle, sehingga membuat produk ini makin terkenal lagi.</p>
+
+<p>Pada tulisan kali ini, kita akan mencoba menggunakan BDB Java Edition.</p>
+
+<p>Tapi jangan salah paham dengan namanya. BerkeleyDB adalah database, tapi bukan relational database. Artinya, dia tidak memiliki fasilitas SQL. Walaupun demikian, dia mendukung ACID transaction. Salah satu contoh penggunaan BDB adalah pada aplikasi version control Subversion.</p>
+
+<p>Kalau tidak ada SQLnya, bagaimana kita melakukan operasi CRUD? Jawabnya adalah, anggap saja BDB sebagai Map. Kita bisa menggunakan Map seperti ini:</p>
+
+<pre><code>    Map myMap = new HashMap();
+    myMap.put(1, "Endy");
+</code></pre>
+
+<p>Maka object String akan disimpan dengan key 1. Object ini dapat diambil dengan kode:</p>
+
+<pre><code>    String data = myMap.get(1);
+</code></pre>
+
+<p>Bagi mereka yang sudah pernah mendengar Object Database tentunya sudah familiar dengan konsep seperti ini. Salah satu implementasi konsep ini adalah <a href="http://www.db4o.com/" title="DB4Object">db40</a> atau <a href="http://www.prevayler.org" title="Prevalence Layer">Prevayler</a>.</p>
+
+<p>Sekarang, coba kita gunakan contoh kasus yang standar. Ada class Person yang akan kita buatkan operasi CRUD-nya. Berikut kodenya:</p>
+
+<h3>Person.java</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.util.Date;
+
+    import com.sleepycat.persist.model.Entity;
+    import com.sleepycat.persist.model.PrimaryKey;
+
+    @Entity
+    public class Person {
+
+            @PrimaryKey(sequence="ID")
+            private Integer id;
+            private String name;
+            private Date birthdate;
+            private String email;
+
+            public Person(){
+
+            }
+
+            public String getEmail() {
+                    return email;
+            }
+            public void setEmail(String address) {
+                    this.email = address;
+            }
+            public Date getBirthdate() {
+                    return birthdate;
+            }
+            public void setBirthdate(Date birthdate) {
+                    this.birthdate = birthdate;
+            }
+
+            public Integer getId() {
+                    return id;
+            }
+            public void setId(Integer id) {
+                    this.id = id;
+            }
+            public String getName() {
+                    return name;
+            }
+            public void setName(String name) {
+                    this.name = name;
+            }
+    }
+</code></pre>
+
+<p>Perhatikan bahwa untuk menjadikan class Person persistent, kita hanya perlu menambahkan annotation, mirip dengan JPA atau Hibernate. Sekarang mari kita definisikan interface CRUD-nya.</p>
+
+<h3>PersonDao.java</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.util.List;
+
+    public interface PersonDao {
+            public void save(Person p);
+            public void delete(Person p);
+            public Person getById(Integer id);
+            public List&lt;Person&gt; getAll();
+    }
+</code></pre>
+
+<p>Dan berikut adalah implementasinya.</p>
+
+<h3>PersonDaoBerkeleyDB</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.util.ArrayList;
+    import java.util.Iterator;
+    import java.util.List;
+
+    import com.sleepycat.je.DatabaseException;
+    import com.sleepycat.persist.EntityCursor;
+    import com.sleepycat.persist.EntityStore;
+    import com.sleepycat.persist.PrimaryIndex;
+
+    public class PersonDaoBerkeleyDB implements PersonDao {
+
+            private PrimaryIndex&lt;Integer, Person&gt; personPrimaryKey;
+
+            public PersonDaoBerkeleyDB(EntityStore storage) {
+                    try {
+                            personPrimaryKey = storage.getPrimaryIndex(Integer.class, Person.class);
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+            }
+
+            public void delete(Person p) {
+                    try {
+                            personPrimaryKey.delete(p.getId());
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+            }
+
+            public List&lt;Person&gt; getAll() {
+                    List&lt;Person&gt; result = new ArrayList&lt;Person&gt;();
+                    try {
+                            EntityCursor&lt;Person&gt; allPerson = personPrimaryKey.entities();
+                            Iterator&lt;Person&gt; iter = allPerson.iterator();
+                            while (iter.hasNext()) {
+                                    result.add(iter.next());
+                            }
+                            allPerson.close();
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+                    return result;
+            }
+
+            public Person getById(Integer id) {
+                    try {
+                            return personPrimaryKey.get(id);
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+                    return null;
+            }
+
+            public void save(Person p) {
+                    try {
+                            personPrimaryKey.put(p);
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }       
+            }
+
+
+    }
+</code></pre>
+
+<p>Sebagai perbandingan, berikut kode CRUD menggunakan Hibernate dengan bantuan Spring.</p>
+
+<pre><code>    public class PersonDaoHibernate extends HibernateDaoSupport implements PersonDao{
+        public void save(Person p){
+            getHibernateTemplate().save(p);
+        }
+
+        public void delete(Person p){
+            getHibernateTemplate().delete(p);
+        }
+
+        public Person getById(Integer id){
+            Person result = null;
+            try {
+                    result = (Person) getHibernateTemplate().load(Person.class, id);
+                    getHibernateTemplate().initialize(result);
+            } catch (ObjectRetrievalFailureException e) {
+                    log.log(Level.WARNING, "no object with id:"+id+" in database");
+            }
+            return result;
+        }
+
+        public List&lt;Person&gt; getAll(){
+            return getHibernateTemplate().find("from Person p");
+        }
+    }
+</code></pre>
+
+<p>Oh iya, contoh kode BDB di atas dapat diujicoba dengan membuat Main class sebagai berikut:</p>
+
+<h3>Main.java</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.io.File;
+
+    public class Main {
+            private static EntityStore store;
+            private static Environment env;
+
+            public static void main(String[] args) throws Exception {
+                    openDatabase();
+
+                    Person endy = new Person();
+                    endy.setName("Endy Muhardin");
+                    endy.setBirthdate(new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
+                    endy.setEmail("endymuhardin@yahoo.com");
+
+                    PersonDao dao = new PersonDaoBerkeleyDB(store);
+                    dao.save(endy);     
+                    System.out.println("======== Create one person with ID:"+endy.getId()+" ========");
+
+                    System.out.println("======== Display all person from database ========");
+                    List&lt;Person&gt; all = dao.getAll();
+                    for (Person person : all) {
+                            displayPerson(person);
+                    }
+
+                    System.out.println("======== Add one more person to database ========");
+                    Person khalisa = new Person();
+                    khalisa.setName("Khalisa Alayya");
+                    khalisa.setBirthdate(new SimpleDateFormat("dd-MM-yyyy").parse("31-12-2000"));
+                    khalisa.setEmail("me@khalisa.web.id");
+                    dao.save(khalisa);
+
+                    System.out.println("======== Display all person from database ========");
+                    all = dao.getAll();
+                    for (Person person : all) {
+                            displayPerson(person);
+                    }
+
+                    System.out.println("======== Get person by ID "+endy.getId()+" from database ========");
+                    Person endyFromDb = dao.getById(endy.getId());      
+                    displayPerson(endyFromDb);
+
+                    System.out.println("======== Change person data with ID "+endy.getId()+" from database ========");
+                    endyFromDb.setEmail("endy.muhardin@gmail.com");
+                    dao.save(endyFromDb);
+
+                    System.out.println("======== Display person with ID "+endy.getId()+" after update ========");
+                    Person endyFromDb2 = dao.getById(endy.getId());     
+                    displayPerson(endyFromDb2);
+
+                    closeDatabase();
+            }
+
+            private static void displayPerson(Person person) {
+                    System.out.println("ID : "+person.getId());
+                    System.out.println("Name : "+person.getName());
+                    System.out.println("Birthdate : "+person.getBirthdate());
+                    System.out.println("Address : "+person.getEmail());
+            }
+
+            private static void openDatabase(){             
+                    try {           
+                            EnvironmentConfig config = new EnvironmentConfig();
+                            config.setAllowCreate(true);
+                            config.setTransactional(true);
+
+                            env = new Environment(new File("database"), config);
+
+                            StoreConfig storeConfig = new StoreConfig();
+                            storeConfig.setAllowCreate(true);
+                            storeConfig.setTransactional(true);
+
+                            store = new EntityStore(env, "PersonDatabase", storeConfig);            
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }           
+            }
+
+            private static void closeDatabase() {
+                    try {
+                            store.close();
+                            env.close();
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+            }
+    }
+</code></pre>
+
+<p>Selain contoh kode yang ditampilkan di sini, sebetulnya BDB juga mendukung asosiasi One to One, One to Many, dan Many to Many. Sayang sekali saya belum sempat coba.</p>
+
+<p>Dari percobaan sederhana ini, kita dapat menarik beberapa sisi positif dan negatif dari BerkeleyDB, juga kemungkinan kasus yang tepat dan tidak tepat untuk menggunakan BDB.</p>
+
+<h3>Positif</h3>
+
+<ul>
+<li>Ukuran jar kecil. Hanya butuh 1.1 MB untuk jar-nya BDB. Bandingkan jika kita gunakan MySQL + Hibernate. Jar mysql-connector 430KB, hibernate.jar 2MB, hibernate-annotation.jar 300KB, dependensi lainnya seperti ehcache, jta, cglib, asm, dan lainnya bisa mencapai 7MB total.</li>
+<li>Tidak perlu berkutat dengan SQL. Object oriented 100%</li>
+<li>Karena embedded, sangat cepat. Akses data instan langsung ke sumbernya. Bandingkan dengan rantai MySQL-network-hibernate-spring-aplikasi. Bagaikan langit dan bumi.</li>
+</ul>
+
+
+<h3>Negatif</h3>
+
+<ul>
+<li>Karena embedded, sulit dimanipulasi dengan tools lain. Berbeda dengan database RDBMS yang bisa diakses menggunakan command line, web-based interface, atau database management tools.</li>
+<li>Karena tidak support SQL, tidak bisa dimanipulasi aplikasi lainnya. Misalnya aplikasi reporting.</li>
+<li>Untuk sharing data dengan aplikasi lain, kita harus buatkan API via Java atau XML.</li>
+<li>BDB mengandalkan Serialization untuk menyimpan object ke dalam database. Siapapun yang sudah pernah belajar Serialization pasti tahu bahwa penyakitnya ada pada class evolution. Kalau class kita berubah &#8211;misalnya menambah atau mengurangi field, apalagi rename class&#8211; BDB akan bingung, dan kita harus menulis kode program untuk melakukan migrasi.</li>
+</ul>
+
+
+<h3>Kapan menggunakan BDB</h3>
+
+<ul>
+<li>Data yang disimpan hanya digunakan sendiri. Misalnya penyimpanan data session HTTP, cache untuk username dan password, dsb.</li>
+<li>Butuh kecepatan extra tinggi dan pemrograman yang mudah. Misalnya kita membuat server SMS gateway atau message processing. Butuh kecepatan tinggi, dan datanya kecil kemungkinan digunakan aplikasi lain.</li>
+<li>Anda termasuk orang yang living on the edge. Selalu menggunakan tools yang aneh dan terbaru.</li>
+</ul>
+
+
+<h3>Kapan menggunakan RDBMS</h3>
+
+<ul>
+<li>Data harus bisa diakses aplikasi lain seperti reporting.</li>
+<li>Data berjumlah besar, sehingga sulit untuk dimigrasi apabila terjadi refactoring. (Ingat masalah Serialization)</li>
+<li>Perusahaan sudah terlanjur beli Oracle atau DB2.</li>
+</ul>
+
+
+<p>Demikianlah .. semoga bermanfaat.
+:D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/eclipse-birt/">Menggunakan Eclipse BIRT [Bagian 1]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-29T16:54:11+07:00" pubdate data-updated="true">Sep 29<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk membuat laporan dari sumber data yang sudah ada.</p>
+
+<p>Cara kerjanya sederhana. Bagi yang belum pernah menggunakan aplikasi reporting dan ingin memahaminya secara sederhana, dapat menggunakan fasilitas mail merge yang dimiliki aplikasi <em>office</em> seperti Microsoft Word atau OpenOffice Writer.</p>
+
+<p>Intinya, kita membuat satu template. Di dalam template tersebut kita isikan variabel-variabel yang kita ingin tampilkan. Pada saat dijalankan (runtime), variabel ini akan digantikan oleh template processor dengan data yang diambil dari sumber data eksternal.</p>
+
+<p>Contoh umum penggunaan fasilitas mail merge adalah untuk mencetak label alamat pada undangan. Kita definisikan variabel yang akan tampil, misalnya:</p>
+
+<ul>
+<li>Nama</li>
+<li>Alamat</li>
+<li>Kota</li>
+</ul>
+
+
+<p>Kemudian, kita sediakan file lain di spreadsheet (MS Excel atau OO Calc) yang memuat data tersebut. Data yang disimpan bisa saja ratusan atau ribuan. Untuk Open Office, database yang digunakan tidak hanya dari spreadsheet, tapi bisa juga dari <em>database betulan</em> seperti MySQL atau Oracle.</p>
+
+<p>Setelah template dan data siap, aplikasi dijalankan untuk melakukan <em>merge</em>. Hasilnya adalah ratusan label yang sudah terisi dengan data dari database.</p>
+
+<p>Logika yang sama digunakan oleh perlengkapan reporting seperti Crystal Report dan kompetitor lainnya. Biasanya template dibuat dalam format XML. Selanjutnya, prosesnya sama. Desain templatenya, kemudian siapkan datanya.</p>
+
+<p>Saya tidak akan membahas Crystal Report di sini. Kita akan membahas aplikasi reporting yang gratis, yaitu <a href="http://www.eclipse.org/birt" title="BIRT Homepage">Eclipse BIRT</a>. Sebagai bagian dari Eclipse, aplikasi ini gratis dan berkualitas tinggi.</p>
+
+<p>Fitur BIRT juga tidak kalah dengan aplikasi reporting lain, diantaranya adalah:</p>
+
+<ol>
+<li>Berbagai pilihan datasource; RDBMS, XML, Text File, dan lain-lain. Lain-lain maksudnya di sini adalah sumber lain yang dapat diakses melalui scripting language BIRT.</li>
+<li>Berbagai pilihan output; PDF, XLS, CSV, HTML, XML adalah format yang didukung. Untuk format lain, asalkan berbasis text, bisa menggunakan output XML yang kemudian diproses lagi menggunakan XSLT.</li>
+<li>Berbagai pilihan integrasi. BIRT dapat dijalankan sebagai standalone report server, atau juga diembed (digabungkan) dengan aplikasi kita. Bila dijalankan sebagai standalone server, BIRT dapat berkomunikasi dengan aplikasi dengan bahasa pemrograman yang berbeda, misalnya PHP, Ruby, .Net, atau yang lainnya.</li>
+<li>Visual Designer. Eclipse sudah melengkapi BIRT dengan database explorer, drag-and-drop query builder, dan fitur canggih lainnya. Kita akan lihat fitur ini dalam screenshot di bawah.</li>
+<li>Integrated dengan IDE. Bila kita menggunakan Java, kita bisa coding di Eclipse, dan membuat report di Eclipse juga. Jadi tidak perlu menggunakan beberapa tools yang berbeda.</li>
+</ol>
+
+
+<p>Baiklah, mari kita coba saja.</p>
+
+<p>Pertama, kita harus donlod dulu dari <a href="http://www.eclipse.org/birt" title="Homepage BIRT">homepagenya</a>. Ukurannya relatif besar, sekitar 200 MB. Tapi jangan khawatir, ada mirrornya di <a href="http://anak.kambing.vlsm.org" title="Mirror Kambing">server Universitas Indonesia</a>. Kalau kita sudah punya Eclipse terbaru, bisa langsung gunakan fitur updatenya. Jalankan downloadnya sebelum pulang kantor. Dengan demikian, besok pagi ketika kita datang, BIRT sudah terinstal.</p>
+
+<p>Setelah terinstal, kita bisa langsung menggunakannya. BIRT terinstal lengkap bersama contoh database. <a href="http://www.eclipse.org/birt/phoenix/tutorial/basic/index.php" title="Cara penggunaan BIRT">Tutorial cara penggunaannya</a> juga cukup jelas dan lengkap. Sayangnya tidak ada screenshotnya. Jangan khawatir, pada artikel ini, saya akan sediakan screenshotnya.</p>
+
+<p>Berikut adalah tampilan Eclipse pada saat sudah dijalankan.</p>
+
+<p><img src="/images/uploads/2006/09/eclipse.png" title="Eclipse Interface" ></p>
+
+<p>Selanjutnya, kita langsung membuat project baru. Klik File > New, kemudian pilih Report Project</p>
+
+<p><img src="/images/uploads/2006/09/new-report-project.png" title="Create Report Project" ></p>
+
+<p>Beri nama projectnya. Kemudian klik Next. Eclipse akan menanyakan apakah kita ingin bekerja dalam Report Perspective. Jawab saja Yes.</p>
+
+<p>Report perspective tampil seperti screenshot berikut</p>
+
+<p><img src="/images/uploads/2006/09/eclipse-report.png" title="Report Perspective" ></p>
+
+<p>Perhatikan di sebelah kiri ada tiga tab : Pallete, Data Explorer, dan Library. Kita akan gunakan tab ini untuk mendesain report.</p>
+
+<p>Kemudian, mari kita buat report pertama kita. Datasource yang akan digunakan sudah disediakan Eclipse sebagai database sample. Sesuai tutorial Eclipse, kita akan membuat laporan yang berisi daftar nama pelanggan, dikelompokkan berdasarkan provinsi (State) dan kota (City).</p>
+
+<p>Untuk membuat report baru, klik File > New > Report. Kalau pilihan Report belum ada, pilih Others dan cari di daftar yang tersedia, dalam kategori Business Intelligence and Reporting Tools.</p>
+
+<p><img src="/images/uploads/2006/09/new-report.png" title="Create Report" ></p>
+
+<p>Beri nama reportnya</p>
+
+<p><img src="/images/uploads/2006/09/new-report-1.png" title="Define Report" ></p>
+
+<p>Kemudian pilih templatenya. Supaya lebih seru, kita akan gunakan Blank Template</p>
+
+<p><img src="/images/uploads/2006/09/new-report-blank2.png" title="Blank Template" ></p>
+
+<p>Selanjutnya, template report kita tampil di layar dalam Design View. Kita dapat berganti ke berbagai view melalui tab di bawah editor report.</p>
+
+<p>Setelah report tampil, kita dapat menambahkan label. Tambahkan saja satu label untuk judul, yaitu Laporan Data Pelanggan. Jenis huruf, rata tengah, dan setting lainnya dapat dilakukan melalui toolbar yang ada di bagian bawah.</p>
+
+<p><img src="/images/uploads/2006/09/report-design-label.png" title="Add Label" ></p>
+
+<p>Sebelum melangkah lebih jauh, kita perlu mendefinisikan Data Source untuk report ini. Buat Data Source baru melalui panel sebelah kiri.</p>
+
+<p><img src="/images/uploads/2006/09/report-datasource-new.png" title="Create DataSource" ></p>
+
+<p>Pilihan datasource akan muncul. Kita akan menggunakan database sample yang sudah ada. Untuk project betulan, kita dapat gunakan database atau sumber data yang lainnya.</p>
+
+<p><img src="/images/uploads/2006/09/report-datasource-new-1.png" title="Select DataSource" ></p>
+
+<p>Beri nama Sample di kolom Data Source Name, kemudian klik Finish.</p>
+
+<p>Dari datasource yang ada, kita dapat mendefinsikan Data Set. Data Set ini adalah sebagian dari isi Data Source yang akan kita gunakan dalam report.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new.png" title="Create Dataset" ></p>
+
+<p>Muncul pilihan datasource dan jenis data set. Kita bisa menggunakan lebih dari satu datasource dalam satu report. Untuk kali ini, cuma ada satu data source. Pilih tipe data set SQL Select Query. Jangan lupa beri nama yang deskriptif untuk dataset yang dibuat.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-1.png" title="Create Dataset" ></p>
+
+<p>Setelah kita tekan Next, akan muncul database explorer di panel kiri, dan SQL editor di kanan. Kita dapat melakukan drag and drop pada layar ini.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-2.png" title="Database Explorer" ></p>
+
+<p>Edit SQL menjadi seperti ini:</p>
+
+<pre><code>select * 
+from
+</code></pre>
+
+<p>Kemudian drag-and-drop tabel Customer ke sebelah kanan <em>from</em>, sehingga kodenya menjadi seperti ini:</p>
+
+<pre><code>select * 
+from CLASSICMODELS.CUSTOMERS
+</code></pre>
+
+<p>Klik Next. Selanjutnya muncul Data Set Editor.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-3.png" title="DataSet Editor" ></p>
+
+<p>Kita tidak melakukan perubahan apa-apa di sini. Tapi bila ingin tahu apa isi tabelnya, kita dapat melihat <em>Preview Result</em> seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-4.png" title="Preview DataSet" ></p>
+
+<p>Klik OK. Dataset siap digunakan.</p>
+
+<p>Selanjutnya, kita akan tampilkan data pelanggan dalam bentuk tabel. Pilih Table di Pallete, dan letakkan di report. Kita akan tampilkan 4 kolom dan 1 baris detail. Kolom yang nantinya akan ditampilkan adalah:</p>
+
+<ol>
+<li>Provinsi</li>
+<li>Kota</li>
+<li>Nama Pelanggan</li>
+<li>Nomer Telepon</li>
+</ol>
+
+
+<p>Tampilan yang dihasilkan adalah seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-1.png" title="Initial Table" ></p>
+
+<p>Dari seluruh data pelanggan yang ada, kita akan kelompokkan berdasarkan provinsi, kemudian kota. Untuk itu, kita tambahkan Group di tabel. Caranya, klik tombol pemilih tabel, kemudian klik kanan di baris detail.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-2.png" title="Insert Group" ></p>
+
+<p>Group Editor akan muncul. Beri nama State, kemudian klik OK.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-3.png" title="Group Editor" ></p>
+
+<p>Hasilnya akan tampak seperti ini</p>
+
+<p><img src="/images/uploads/2006/09/report-table-4.png" title="Group by State" ></p>
+
+<p>Untuk mengisikan State ke Group Row tersebut, drag-and-drop dari panel kiri ke kolom <em>paling kiri</em> di baris Group Header Row. Layar Select Data Binding akan muncul, langsung saja klik OK.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-5.png" title="State Data Binding" ></p>
+
+<p>Kita perlu memasukkan Group Row satu lagi untuk City. Caranya sama, yaitu dengan menambahkan Group Row di <em>bawah</em> Group Header State.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-6.png" title="Insert Group Below" ></p>
+
+<p>Beri nama City, kemudian klik OK. Lalu pilih field city dari Data Explorer di sebelah kiri, dan pasang di kolom kedua di Group Header Row 2. Hasilnya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-7.png" title="Group by City" ></p>
+
+<p>Terakhir, masukkan field CUSTOMERNAME dan PHONE ke Detail Row. Kolom judul CUSTOMERNAME kurang enak dibaca, jadi kita bisa ganti labelnya di baris paling atas menjadi Customer Name. Hasil akhirnya adalah seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-8.png" title="Final Design" ></p>
+
+<p>Report kita sudah selesai. Silahkan disave, kemudian lihat previewnya. Kalau semua dilakukan dengan benar, kita akan melihat tampilan seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-9.png" title="Report Preview" ></p>
+
+<p>Kita akan lihat bahwa data pelanggan sudah diurutkan dan dikelompokkan berdasarkan State dan City.</p>
+
+<p>Kalau kita tekan menu <em>File</em>, kita akan menemui pilihan View Report in Web Viewer, as HTML, dan as PDF. Silahkan gunakan sesuai kebutuhan.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-10.png" title="Export Format HTML PDF" ></p>
+
+<p>Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/gantt-jfreechart/">Membuat Gantt Chart Dengan JFreeChart</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-28T22:33:24+07:00" pubdate data-updated="true">Sep 28<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.jfree.org/jfreechart/" title="Homepage JFreeChart">JFreeChart</a> adalah library untuk menghasilkan chart dengan Java. Berbagai chart bisa dihasilkan, dari Pie Chart, Bar Chart, dan sebagainya.</p>
+
+<p>Pada artikel ini, kita akan mencoba membuat Gantt Chart. Gantt chart adalah diagram yang menunjukkan rangkaian task, tanggal mulai, selesai, dan persentase kemajuannya. Bagi mereka yang pernah menggunakan aplikasi manajemen proyek pasti tau apa itu Gantt Chart.</p>
+
+<p>Berikut output yang kita inginkan
+<img src="/images/uploads/2006/09/gantt.png" title="Gantt Chart" ></p>
+
+<p>Diagram di atas dihasilkan dari sumber data sebagai berikut</p>
+
+<table>
+<thead>
+<tr>
+<th>Aktivas     </th>
+<th> Tanggal Mulai     </th>
+<th> Tanggal Selesai   </th>
+<th> Persentase Selesai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UML Design  </td>
+<td> 01-01-2006        </td>
+<td> 03-01-2006        </td>
+<td> 100 %</td>
+</tr>
+<tr>
+<td>Coding      </td>
+<td> 02-01-2006        </td>
+<td> 03-01-2006        </td>
+<td> 75 %</td>
+</tr>
+<tr>
+<td>Testing     </td>
+<td> 03-01-2006        </td>
+<td> 14-01-2006        </td>
+<td> 50 %</td>
+</tr>
+<tr>
+<td>Integrate   </td>
+<td> 04-01-2006        </td>
+<td> 25-01-2006        </td>
+<td> 25 %</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Untuk mengubah data tersebut menjadi chart, berikut langkah-langkah dan kode yang digunakan.</p>
+
+<p>Pertama, kita harus buat data tersebut menjadi Task object.</p>
+
+<pre><code>Task design = new Task("UML Design", toDate("01-01-2006"), toDate("03-01-2006"));
+Task coding = new Task("Coding", toDate("02-01-2006"), toDate("03-01-2006"));
+Task test = new Task("Testing", toDate("03-01-2006"), toDate("14-01-2006"));
+Task commit = new Task("Integrate", toDate("04-01-2006"), toDate("25-01-2006"));
+</code></pre>
+
+<p>Untuk memudahkan konversi tanggal, saya buat method seperti ini</p>
+
+<pre><code>private static Date toDate(String date) throws ParseException {
+    return formatter.parse(date);
+}
+</code></pre>
+
+<p>kemudian, kita set persentase kemajuan task.</p>
+
+<pre><code>design.setPercentComplete(1);       
+coding.setPercentComplete(0.75);
+test.setPercentComplete(0.50);
+commit.setPercentComplete(0.25);
+</code></pre>
+
+<p>Task dapat dikelompokkan menjadi TaskSeries.</p>
+
+<pre><code>TaskSeries codingTasks = new TaskSeries("Coding Activities");
+codingTasks.add(design);
+codingTasks.add(coding);
+codingTasks.add(test);
+codingTasks.add(commit);
+</code></pre>
+
+<p>Dan kumpulan TaskSeries disebut TaskCollection</p>
+
+<pre><code>TaskSeriesCollection allTasks = new TaskSeriesCollection();
+allTasks.add(codingTasks);
+</code></pre>
+
+<p>TaskCollection ini digunakan untuk membuat chart.</p>
+
+<pre><code>JFreeChart chart = ChartFactory.createGanttChart("Coba Gantt Chart", "Task", "Tanggal", allTasks, false, false, false);
+</code></pre>
+
+<p>Terakhir, kita gambar chart menjadi file PNG</p>
+
+<pre><code>ChartUtilities.saveChartAsPNG(new File("output/gantt.png"), chart, 400, 300);
+</code></pre>
+
+<p>Selain menjadi PNG, kita juga bisa menghasilkan file JPEG</p>
+
+<pre><code>ChartUtilities.saveChartAsJPEG(new File("output/gantt.jpg"), chart, 400, 300);
+</code></pre>
+
+<p>Demikianlah cara membuat chart dengan JFreeChart. Selain Gantt chart masih banyak lagi fitur JFreeChart yang bagus. Silahkan download dan coba</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/membuat-installer-dengan-izpack/">Membuat Installer Dengan IzPack</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-27T18:49:25+07:00" pubdate data-updated="true">Sep 27<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Menggunakan izPack</p>
+
+<p>Setelah kita selesai membuat aplikasi, what next? Tentunya mendistribusikan pada orang yang membutuhkan. Bagaimana caranya agar aplikasi kita mudah digunakan? Langkah pertama adalah dengan cara memudahkan proses instalasi.
+Dalam tulisan ini, kita akan mempelajari cara menggunakan izPack, framework untuk membuat installer aplikasi, sehingga menginstal aplikasi akan semudah menekan tombol Next.</p>
+
+<p>Para programmer tentunya sudah familiar dengan berbagai framework installer. Ada yang komersil seperti InstallShield, dan ada juga yang gratis seperti <a href="http://nsis.sourceforge.net">NSIS</a> dan izPack. Kelebihan izPack adalah dia berbasis Java, tidak seperti NSIS yang cuma bisa jalan di Windows.</p>
+
+<p>Langkah pertama, mari kita <a href="http://www.izforge.com/izpack/downloads">download izPack</a>. IzPack disediakan sebagai installer, sehingga kita harus menginstalnya dulu sebelum bisa digunakan.</p>
+
+<p>Selanjutnya, mari kita lihat struktur folder project kita yang ingin dibuatkan installernya. Struktur folder saya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/project-folder-before.png" title="Struktur folder project" ></p>
+
+<p>Setelah terinstal di komputer pengguna, saya ingin foldernya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/project-folder-after.png" title="Hasil yang diinginkan" ></p>
+
+<p>Perhatikan bahwa folder src tidak perlu diikutkan. Pengguna dapat memilih apakah mau menginstal source code atau tidak. Jadi, folder source code adalah optional. Folder dokumentasi dan plugin tambahan juga biasanya diinstal secara optional.</p>
+
+<p>Berikutnya, tentukan screen yang akan tampil selama proses instalasi, biasanya adalah :</p>
+
+<ol>
+<li>Salam pembukaan, menyatakan kepada pengguna bahwa proses instalasi akan dimulai.</li>
+<li>Informasi aplikasi, menjelaskan tentang aplikasi dan kegunaannya.</li>
+<li>License Agreement</li>
+<li>Pemilihan paket yang akan diinstal. Di sini pengguna dapat memilih apakah dia akan menginstal paket optional atau tidak.</li>
+<li>Tujuan instalasi. Pengguna menentukan di folder mana dia akan menginstal.</li>
+<li>Proses instalasi. Menunjukkan kemajuan proses instalasi. Biasanya menggunakan progress bar.</li>
+<li>Instalasi selesai. Menampilkan pesan sukses atau gagal.</li>
+</ol>
+
+
+<p>Kerangka dari konfigurasi installer kita adalah sebagai berikut :</p>
+
+<pre><code>    &lt;installation version="1.0"&gt;
+        &lt;info&gt; &lt;/info&gt;
+        &lt;guiprefs&gt; &lt;/guiprefs&gt;
+        &lt;locale&gt; &lt;/locale&gt;
+        &lt;resources&gt; &lt;/resources&gt;
+        &lt;panels&gt; &lt;/panels&gt;
+        &lt;packs&gt; &lt;/packs&gt;
+    &lt;/installation&gt;
+</code></pre>
+
+<p>Isi dari tag info adalah sebagai berikut</p>
+
+<pre><code>    &lt;info&gt;
+        &lt;appname&gt;PlayBilling&lt;/appname&gt;
+        &lt;appversion&gt;1.1-RC3&lt;/appversion&gt;
+        &lt;authors&gt;
+            &lt;author name="Endy Muhardin" email="endy@artivisi.com"/&gt;
+            &lt;author name="Anton Raharja" email="anton@ngoprek.org"/&gt;
+        &lt;/authors&gt;
+        &lt;url&gt;http://playbilling.sourceforge.net&lt;/url&gt;
+        &lt;javaversion&gt;1.5.0&lt;/javaversion&gt;
+    &lt;/info&gt;
+</code></pre>
+
+<p>Bagian guiprefs menjelaskan tampilan yang akan digunakan. Kita akan pakai native saja, sesuai OS, supaya tampak alami. Kalau mau, kita dapat memilih beberapa tampilan Look &amp; Feel yang tersedia.</p>
+
+<pre><code>    &lt;guiprefs width="800" height="600" resizable="yes"/&gt;
+</code></pre>
+
+<p>Berikutnya, pilihan bahasa instalasi. Untuk mudahnya, gunakan bahasa Inggris saja.</p>
+
+<pre><code>    &lt;locale&gt;
+        &lt;langpack iso3="eng" /&gt;
+    &lt;/locale&gt;
+</code></pre>
+
+<p>Untuk bagian resource, kita perlu mendefinisikan file-file yang dibutuhkan installer. File-file ini harus sudah ada.</p>
+
+<pre><code>    &lt;resources&gt;
+        &lt;res src="installer/application-description.html" id="HTMLInfoPanel.info"/&gt;
+        &lt;res src="installer/gpl.txt" id="LicencePanel.licence"/&gt;
+    &lt;/resources&gt;
+</code></pre>
+
+<p>Tentukan urutan screen seperti sudah dijelaskan di atas.</p>
+
+<pre><code>    &lt;panels&gt; 
+        &lt;panel classname="HelloPanel"/&gt;
+        &lt;panel classname="HTMLInfoPanel"/&gt;
+        &lt;panel classname="LicencePanel"/&gt;
+        &lt;panel classname="PacksPanel"/&gt;
+        &lt;panel classname="TargetPanel"/&gt;
+        &lt;panel classname="InstallPanel"/&gt;
+        &lt;panel classname="SimpleFinishPanel"/&gt;
+    &lt;/panels&gt;
+</code></pre>
+
+<p>Bagian packs menentukan folder-folder yang akan diinstal. Sintaksnya mirip dengan Ant.</p>
+
+<pre><code>    &lt;packs&gt;
+        &lt;pack name="Base" required="yes"&gt;
+            &lt;description&gt;Base System files&lt;/description&gt;
+            &lt;fileset dir="." targetdir="$INSTALL_PATH"&gt;
+                &lt;include name="ext/jetty/*"/&gt;
+                &lt;include name="webapp/**/*"/&gt;
+                &lt;include name="*.sh"/&gt;
+                &lt;include name="*.bat"/&gt;
+            &lt;/fileset&gt;
+        &lt;/pack&gt;
+
+        &lt;pack name="Source" required="no"&gt;
+            &lt;description&gt;Source code and test files&lt;/description&gt;
+            &lt;fileset dir="." targetdir="$INSTALL_PATH"&gt;
+                &lt;include name="src/**/*"/&gt;
+                &lt;include name="lib/**/*"/&gt;
+                &lt;include name="*.xml"/&gt;
+            &lt;/fileset&gt;
+        &lt;/pack&gt;
+    &lt;/packs&gt;
+</code></pre>
+
+<p>Variabel $INSTALL_PATH akan diisikan sesuai folder tujuan yang dipilih pengguna.</p>
+
+<p>Ok, file konfigurasi installer kita sudah selesai. Sekarang tinggal diotomasi sehingga bisa dipanggil lewat <a href="http://ant.apache.org">Ant</a>.
+Ada beberapa informasi yang dibutuhkan oleh izPack, yaitu:</p>
+
+<ul>
+<li>lokasi konfigurasi instalasi (file xml yang baru saja kita buat)</li>
+<li>nama file installer yang akan dihasilkan (misalnya MyProject-installer.jar)</li>
+<li>jenis instalasi (desktop atau web)</li>
+<li>base folder (folder acuan untuk menentukan lokasi relatif folder yang lain)</li>
+<li>lokasi instalasi izPack</li>
+</ul>
+
+
+<p>Berikut adalah target untuk Ant</p>
+
+<pre><code>    &lt;taskdef name="izpack" 
+             classpath="${izpack_install_dir}/lib/compiler.jar"
+             classname="com.izforge.izpack.ant.IzPackTask"
+    /&gt;
+    &lt;target name="build-installer"&gt;
+        &lt;izpack input="installer/playbilling-installer.xml"
+                output="dist/playbilling-installer.jar"
+                installerType="standard"
+                basedir="."
+                izPackDir="${izpack_install_dir}"
+        /&gt;
+    &lt;/target&gt;
+</code></pre>
+
+<p>Setelah Ant target dijalankan, kita akan mendapatkan file playbilling-installer.jar di dalam folder dist.
+Mari kita coba jalankan file installer tersebut.</p>
+
+<pre><code>java -jar dist/playbilling-installer.jar
+</code></pre>
+
+<p>Kita akan disodori tampilan selamat datang</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-1.png" title="Screen Selamat Datang" ></p>
+
+<p>Klik Next, dan kita akan melihat keterangan tentang <a href="http://playbilling.sourceforge.net">PlayBilling</a>. Keterangan ini langsung dicopy-paste dari homepage PlayBilling</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-2.png" title="Deskripsi Aplikasi" ></p>
+
+<p>Next lagi, dan muncullah license agreement, yaitu GPL, yang diambil langsung dari <a href="http://www.gnu.org/copyleft/gpl.txt">website GPL</a>.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-3.png" title="GPL License" ></p>
+
+<p>Screen selanjutnya adalah pilihan paket yang akan diinstal. Perhatikan bahwa paket wajib diburamkan dan tidak bisa diklik.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-4.png" title="Pilihan paket instalasi" ></p>
+
+<p>Setelah itu, kita akan ditanya lokasi instalasi.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-5.png" title="Pilihan lokasi instalasi" ></p>
+
+<p>Pilih lokasi yang sesuai, kemudian Next. Instalasi akan segera dimulai.</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-6.png" title="Proses Instalasi" ></p>
+
+<p>Sukses &#8230; !</p>
+
+<p><img src="/images/uploads/2006/09/install-screen-7.png" title="Sukses" ></p>
+
+<p>Sebagai bonus, izPack juga akan membuatkan Uninstaller. Coba jalankan</p>
+
+<pre><code>java -jar /home/endy/PlayBilling/Uninstaller/uninstaller.jar
+</code></pre>
+
+<p><img src="/images/uploads/2006/09/uninstall-screen-1.png" title="Uninstall" ></p>
+
+<p>Klik OK, dan aplikasi akan dihilangkan dari komputer Anda.</p>
+
+<p>Selamat mencoba. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/tapestry-vs-spring/">Tapestry vs Spring MVC</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-27T15:13:51+07:00" pubdate data-updated="true">Sep 27<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dalam beberapa project terakhir, saya menggunakan <a href="http://www.springframework.org" title="Spring Framework">Spring</a> MVC untuk membuat presentation layer. Spring sangat fleksibel dan mudah dipelajari. Ini menambah fleksibilitas dalam menyusun tim programmer. Dengan kemudahannya, programmer yang sudah pernah membuat aplikasi web &#8211;baik menggunakan Struts, PHP, Ruby on Rails, atau bahkan yang cuma mengerti servlet&#8211; dapat beradaptasi dalam hitungan hari dan langsung produktif.</p>
+
+<p>Di lain pihak, saya sering sekali mendengar kehebatan <a href="http://tapestry.apache.org" title="Tapestry Framework">Tapestry</a>. Para pendukungnya menggembar-gemborkan peningkatan produktifitas (baca: kecepatan membuat aplikasi) yang signifikan. Harga yang harus dibayar untuk produktifitas tersebut adalah kompleksitas. Tapestry terkenal sulit. Dia menggunakan paradigma event-driven. Jadi kita harus berpikir seolah-olah kita membangun aplikasi desktop dengan Swing atau VB. Kompleksitas ini menyebabkan kita tidak bisa sembarangan menyusun tim programmer. Butuh orang yang pemahaman Java-nya menengah ke atas agar aplikasi dapat diselesaikan dengan baik.</p>
+
+<p>Setelah merasa nyaman menggunakan Spring di beberapa project terakhir, saya putuskan untuk keluar dari zona aman dan belajar Tapestry. Masa depan aplikasi web nampaknya adalah component-mania. Berbagai komponen siap pakai yang tersedia di pasaran (baik gratis maupun bayar) yang tinggal kita tempelkan di aplikasi kita, akan menjadi trend. Terutama dengan maraknya penggunaan Ajax belakangan ini. Pasti akan banyak orang yang membuat komponen Ajax-ready yang bisa langsung digunakan.</p>
+
+<p>Prediksi ini diperkuat dengan presentasi Chuk Mun Lee di Sun Developer Day 2006 kemarin. Dia menunjukkan bagaimana cepatnya orang bisa membuat aplikasi web. Cukup mendownload kumpulan komponen dari <a href="https://ajax.dev.java.net" title="Ajax-based component">jMaki</a>, dan langsung <em>menggambar</em> di IDE. Kalau para pesaing bekerja seperti ini, sementara kita masih secara manual memparsing request, wah &#8230; kita akan ketinggalan.</p>
+
+<p>Sebagai titik awal pelajaran, saya akan mulai dari Spring Framework. Ada beberapa kegiatan utama dalam pembangunan aplikasi web yang terjadi berulang-ulang. Dalam membandingkan Spring vs Tapestry, kegiatan-kegiatan ini akan menjadi kriteria penilaian. Dalam setiap kegiatan, saya akan memberi nilai dan menyatakan pemenangnya. Masing-masing kegiatan bobotnya berbeda, tergantung frekuensi kemunculannya dalam aplikasi.</p>
+
+<p>Berikut adalah kriteria penilaiannya :</p>
+
+<ol>
+<li>Hello World. Yaitu kegiatan setup pertama kali sampai Hello World muncul. Bobotnya cuma 5%, karena kegiatan ini cuma dilakukan sekali saja di awal.</li>
+<li>Form binding. Bagaimana semua variabel dalam form bisa diambil sebagai satu domain object. Bobotnya 20%, karena ini adalah kegiatan wajib, inti dari aplikasi.</li>
+<li>Validasi form. Bagaimana mencegah invalid input, baik secara server-side maupun client-side. Bobotnya 20%, saudara kembar dengan Form Binding.</li>
+<li>Web Asset. Bagaimana penanganan image, css, javascript. Bobotnya 10%.</li>
+<li>Security. Bagaimana kemudahan mengaktifkan otentikasi dan otorisasi. Bobotnya 20%. Ini juga bagian yang penting. Kalau penanganan di sisi ini tidak elegan, akan banyak duplikasi kode bertebaran di dalam kode program.</li>
+<li>Ajax readiness. Bobotnya 10%.</li>
+<li>Reusability. Bagaimana kemudahan menggunakan komponen/library yang sudah ada. Bobotnya 10%.</li>
+</ol>
+
+
+<p><em>Disclaimer: dalam kegiatan membandingkan ini, tidak ada tujuan untuk menjelekkan yang satu terhadap yang lainnya. Ini murni adalah pekerjaan harian software designer, yaitu memilih framework dan teknologi. Berbagai saran dan masukan dari pendukung masing-masing framework sangat diharapkan.</em></p>
+
+<p>Hello World akan dibahas di artikel selanjutnya.</p>
+</div>
+  
   
 
 
@@ -320,6 +1674,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
@@ -353,10 +1711,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
   </ul>

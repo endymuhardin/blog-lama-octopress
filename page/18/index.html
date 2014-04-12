@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini &hellip;">
+  <meta name="description" content="Database testing merupakan suatu kegiatan yang sulit, apalagi dalam dunia Java. Bayangkan saja, untuk melakukan testing database, kita harus &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -95,7 +95,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/java/monitoring-aplikasi-java/">Monitoring Aplikasi Java</a></h1>
+      <h1 class="entry-title"><a href="/java/ruthless-testing-4/">Ruthless Testing 4</a></h1>
     
     
       <p class="meta">
@@ -111,31 +111,526 @@
   
 
 
-<time datetime="2012-07-28T20:45:07+07:00" pubdate data-updated="true">Jul 28<span>th</span>, 2012</time>
+<time datetime="2006-09-26T19:39:44+07:00" pubdate data-updated="true">Sep 26<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Setelah aplikasi kita selesai dibuat, langkah selanjutnya tentu saja adalah menjalankannya di server production. Dalam software development, ini disebut dengan transisi dari development menjadi operation.</p>
+  <div class="entry-content"><p>Database testing merupakan suatu kegiatan yang sulit, apalagi dalam dunia Java. Bayangkan saja, untuk melakukan testing database, kita harus melakukan :</p>
 
-<p>Salah satu aspek penting dalam fase operation adalah monitoring performance. Monitoring dilakukan untuk berbagai tujuan, diantaranya :</p>
+<ol>
+<li><p>Membuat skema database. Skema terdiri dari dari tabel, constraint, view, dan lainnya.</p></li>
+<li><p>Mengisi sampel data.</p></li>
+<li><p>Mengeksekusi query.</p></li>
+<li><p>Periksa ke database untuk memastikan hasilnya benar.</p></li>
+<li><p>Koreksi atau lanjutkan sesuai dengan hasil di nomer 4.</p></li>
+</ol>
 
-<ul>
-<li><p>Mengetahui karakteristik aplikasi dalam menggunakan resource. Informasi ini bisa kita gunakan untuk melakukan tuning performance</p></li>
-<li><p>Mengetahui karakteristik user dalam menggunakan aplikasi. Perilaku user ini berguna untuk menentukan waktu-waktu sibuk dan waktu-waktu idle, sehingga kita bisa melakukan capacity planning dengan akurat.</p></li>
-<li><p>Mengetahui berapa persen resource yang sudah terpakai, sehingga kita punya gambaran kapan harus melakukan upgrade, dan apa yang harus diupgrade</p></li>
-<li><p>Mendapatkan notifikasi secepat mungkin pada saat sistem mengalami gangguan</p></li>
-</ul>
+
+<p>Semua kegiatan di atas sangat membosankan dan melelahkan untuk diulang-ulang setiap kali melakukan perubahan kode program. Akibatnya programmer menjadi bosan dan malas mengetes kode programnya. Padahal kode akses database merupakan salah satu bagian krusial dalam aplikasi.</p>
+
+<p>Pada artikel ini kita akan membahas cara membuat kode akses database yang mudah dan cepat, dilengkapi dengan testing yang menyeluruh dan menyenangkan.</p>
+
+<p>Saya biasanya menggunakan kombinasi Spring Framework dan Hibernate. Dengan kombinasi ini, kita dapat membuat aplikasi dengan sangat cepat.</p>
+
+<p>Kita mulai dengan struktur tabel sederhana. Misalnya kita memiliki class Siswa, sebagai berikut:</p>
+
+<h3>Class Siswa</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Siswa</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">nama</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Date</span> <span class="n">tanggalLahir</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">id</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getNama</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">nama</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Date</span> <span class="nf">getTanggalLahir</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">tanggalLahir</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// setter method  </span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
+<p>class ini akan disimpan di database dengan struktur tabel (MySQL) sebagai berikut:</p>
+
+<h3>mysql-schema.sql</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">TBL_SISWA</span> <span class="p">(</span>
+</span><span class='line'>  <span class="n">id_siswa</span> <span class="nb">INT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">nama</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+</span><span class='line'>  <span class="n">tanggal_lahir</span> <span class="nb">DATE</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dengan menggunakan Hibernate, kita tidak perlu menulis SQL query. Sebagai gantinya, kita harus memberitahu Hibernate tentang skema database kita. Caranya adalah dengan menambahkan annotation sehingga class kita menjadi seperti ini:</p>
+
+<h3>Siswa.java</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
+</span><span class='line'><span class="nd">@Entity</span>
+</span><span class='line'><span class="nd">@Table</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;TBL_SISWA&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Siswa</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">nama</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Date</span> <span class="n">tanggalLahir</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Id</span>
+</span><span class='line'>  <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;id_siswa&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="nd">@GeneratedValue</span><span class="o">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">GenerationType</span><span class="o">.</span><span class="na">AUTO</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">id</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getNama</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">nama</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;tanggal_lahir&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Date</span> <span class="nf">getTanggalLahir</span><span class="o">()</span> <span class="o">{</span> <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">tanggalLahir</span><span class="o">;</span> <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pembaca yang teliti segera protes, &#8220;Ada yang ketinggalan!! Di atas public String getNama() belum ada @Column&#8221; <br/>
+Tidak, itu bukan kelupaan. Tapi memang Hibernate dapat dengan cerdas menebak nama kolom. <em>public String getNama</em> akan diterjemahkan menjadi kolom <em>nama</em>. Bahkan seandainya nama tabel kita <em>SISWA</em> (bukannya <em>TBL_SISWA</em>), kita tidak perlu menuliskan @Table.</p>
+
+<p>Oke. Sekarang mapping sudah selesai. Saatnya membuat kode untuk mengisi record (create), membaca record (read), mengubah record (update), dan menghapus record (delete). Empat serangkai operasi database ini dikenal dengan istilah CRUD.</p>
+
+<p>Pertama, kita buat interface dulu, kode yang mendefinisikan operasi CRUD ini.</p>
+
+<h3>SiswaDao.java</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SiswaDao</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">create</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">);</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Siswa</span> <span class="nf">getById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">);</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">);</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pembuatan interface berguna supaya kapan-kapan kalau kita sudah bosan dengan Hibernate, kita bisa mengganti dengan implementasi yang lainnya, misalnya iBatis atau JDBC biasa.</p>
+
+<p>Berikut implementasi operasi CRUD dengan Spring dan Hibernate.</p>
+
+<h3>SiswaDaoHibernate.java</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SiswaDaoHibernate</span> <span class="kd">extends</span> <span class="n">HibernateDaoSupport</span> <span class="kd">implements</span> <span class="n">SiswaDao</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">create</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">save</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Siswa</span> <span class="nf">getById</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">){</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">(</span><span class="n">Siswa</span><span class="o">)</span> <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">load</span><span class="o">(</span><span class="n">Siswa</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">){</span>
+</span><span class='line'>    <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">update</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">Siswa</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">getHibernateTemplate</span><span class="o">().</span><span class="na">delete</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Lagi-lagi ada yang bertanya, &#8220;Kok tidak ada kode untuk menangani koneksi database? Mana connect dan disconnect dengan database? Mana kode untuk begin dan commit transaction?&#8221;</p>
+
+<p>Semua kode birokratis yang ditanyakan barusan akan diinisialisasi melalui Spring Framework. Sebenarnya kita bisa saja menginisialisasi sendiri melalui kode program biasa. Tapi akan lebih efisien dan konsisten apabila kita menggunakan Spring Framework, seperti akan kita lihat sebentar lagi.</p>
+
+<p>Berikut adalah deklarasi SiswaDaoHibernate, DataSource koneksi database, dan konfigurasi transaction :</p>
+
+<h3>belajar.xml</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;beans&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;siswaDaoAsli&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.hibernate.SiswaDaoHibernate&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;sessionFactory&quot;</span><span class="nt">&gt;&lt;ref</span> <span class="na">bean=</span><span class="s">&quot;sessionFactory&quot;</span><span class="nt">/&gt;&lt;/property&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sessionFactory&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">ref=</span><span class="s">&quot;dataSource&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;annotatedClasses&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;list&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;value&gt;</span>tutorial.hibernate.Siswa<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/list&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;hibernateProperties&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;props&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;hibernate.hbm2ddl.auto&quot;</span><span class="nt">&gt;</span>create<span class="nt">&lt;/prop&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;hibernate.dialect&quot;</span><span class="nt">&gt;</span>org.hibernate.dialect.MySQLInnoDBDialect<span class="nt">&lt;/prop&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/props&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/property&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;dataSource&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jdbc.datasource.DriverManagerDataSource&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;driverClassName&quot;</span> <span class="na">value=</span><span class="s">&quot;com.mysql.jdbc.Driver&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;url&quot;</span> <span class="na">value=</span><span class="s">&quot;jdbc:mysql://localhost/belajar&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;username&quot;</span> <span class="na">value=</span><span class="s">&quot;belajar&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;password&quot;</span> <span class="na">value=</span><span class="s">&quot;belajar&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;siswaDao&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.transaction.interceptor.TransactionProxyFactoryBean&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;transactionManager&quot;</span> <span class="na">ref=</span><span class="s">&quot;transactionManager&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;target&quot;</span> <span class="na">ref=</span><span class="s">&quot;siswaDaoAsli&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;transactionAttributes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="nt">&lt;props&gt;</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED,readOnly<span class="nt">&lt;/prop&gt;</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;create*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;update*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;delete*&quot;</span><span class="nt">&gt;</span>PROPAGATION_REQUIRED<span class="nt">&lt;/prop&gt;</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="nt">&lt;/props&gt;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="nt">&lt;/property&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;transactionManager&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;sessionFactory&quot;</span> <span class="na">ref=</span><span class="s">&quot;sessionFactory&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'><span class="nt">&lt;/beans&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Object yang kita gunakan adalah siswaDao. Object ini dirangkai dari berbagai object lain, diantaranya adalah koneksi database (dataSource), transaction interceptor (gunakan transaction untuk method create<em>, update</em>, delete*), dan transaction manager untuk mengelola transaction Hibernate.</p>
+
+<p>Perhatikan kode ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;prop</span> <span class="na">key=</span><span class="s">&quot;hibernate.hbm2ddl.auto&quot;</span><span class="nt">&gt;</span>create<span class="nt">&lt;/prop&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Baris kode di atas akan men-drop seluruh tabel dan constraint di database, dan membuat ulang semuanya. Dengan demikian, database kita akan fresh seperti baru.</p>
+
+<p><strong>PERHATIAN!!! Jangan dijalankan di database production!!</strong></p>
+
+<p>Berikut adalah unit test untuk class SiswaDaoHibernate:</p>
+
+<h3>SiswaDaoHibernateTest.java</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">hibernate</span><span class="o">;</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SiswaDaoHibernateTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">ApplicationContext</span> <span class="n">ctx</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">SiswaDao</span> <span class="n">dao</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">DataSource</span> <span class="n">ds</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Connection</span> <span class="n">conn</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">static</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;belajar.xml&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">dao</span> <span class="o">=</span> <span class="o">(</span><span class="n">SiswaDao</span><span class="o">)</span><span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;siswaDao&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">ds</span> <span class="o">=</span> <span class="o">(</span><span class="n">DataSource</span><span class="o">)</span><span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;dataSource&quot;</span><span class="o">););</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">tearDown</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">conn</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCreate</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Siswa</span> <span class="n">endy</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Siswa</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">endy</span><span class="o">.</span><span class="na">setNama</span><span class="o">(</span><span class="s">&quot;Endy Muhardin&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">endy</span><span class="o">.</span><span class="na">setTanggalLahir</span><span class="o">(</span><span class="k">new</span> <span class="n">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;dd-MM-yyyy&quot;</span><span class="o">).</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;17-08-1945&quot;</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">dao</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">endy</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// mari kita test</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;SELECT * FROM TBL_USER WHERE nama=&#39;Endy Muhardin&#39;&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">createStatement</span><span class="o">().</span><span class="na">executeQuery</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">assertTrue</span><span class="o">(</span><span class="s">&quot;harusnya ada minimal satu record&quot;</span><span class="o">,</span> <span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;coba cek tanggal lahir&quot;</span><span class="o">,</span> <span class="n">rs</span><span class="o">.</span><span class="na">getDate</span><span class="o">(</span><span class="s">&quot;tanggal_lahir&quot;</span><span class="o">),</span> <span class="k">new</span> <span class="n">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;dd-MM-yyyy&quot;</span><span class="o">).</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;17-08-1945&quot;</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nah, dengan adanya unit test di atas, kita tidak perlu lagi secara manual menjalankan kode test, kemudian memeriksa isi database.</p>
+
+<p>Sekarang, bagaimana mengetes method getById? Apakah kita harus melakukan <em>insert</em> dulu baru kemudian menjalankan <em>dao.getById(1)</em> ?</p>
+
+<p>Tidak perlu. Kita dapat menggunakan DBUnit untuk menginisialisasi sampel data.
+Kita buat sampel data (fixture) sebagai berikut:</p>
+
+<h3>siswa-fixture.xml</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;dataset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;TBL_USER</span> <span class="na">id=</span><span class="s">&quot;99&quot;</span>
+</span><span class='line'>              <span class="na">nama=</span><span class="s">&quot;Khalisa Alayya&quot;</span>
+</span><span class='line'>              <span class="na">tanggal_lahir=</span><span class="s">&quot;2005-12-31&quot;</span>
+</span><span class='line'>    <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dataset&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sekarang, pastikan fixture di atas dijalankan sebelum setiap test dieksekusi. Caranya adalah dengan menambahkan kode berikut di method setUp:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">conn</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// inisialisasi koneksi DBUnit</span>
+</span><span class='line'>    <span class="n">DatabaseConnection</span> <span class="n">dbUnitConn</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseConnection</span><span class="o">(</span><span class="n">conn</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// inisialisasi fixture</span>
+</span><span class='line'>    <span class="n">FlatXmlDataSet</span> <span class="n">fixture</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FlatXmlDataSet</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;siswa-fixtures.xml&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbUnitConn</span><span class="o">,</span><span class="n">fixture</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kode ini :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbUnitConn</span><span class="o">,</span><span class="n">fixture</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>akan menghapus semua data yang ada di database, dan mengisinya dengan satu record, yaitu <em>Khalisa Alayya</em>.</p>
+
+<p>Sehingga kita dapat membuat kode test seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">testGetById</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Siswa</span> <span class="n">khalisa</span> <span class="o">=</span> <span class="n">dao</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="mi">99</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">khalisa</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="s">&quot;Khalisa Alayya&quot;</span><span class="o">,</span> <span class="n">khalisa</span><span class="o">.</span><span class="na">getNama</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut adalah Ant script untuk mengeksekusi test di atas:</p>
+
+<h3>build.xml</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;project</span> <span class="na">name=</span><span class="s">&quot;belajar-hibernate&quot;</span> <span class="na">default=</span><span class="s">&quot;test&quot;</span> <span class="na">basedir=</span><span class="s">&quot;.&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c">&lt;!-- silahkan lengkapi dengan target compile --&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;test&quot;</span> <span class="na">depends=</span><span class="s">&quot;compile&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;junit</span> <span class="na">haltonfailure=</span><span class="s">&quot;true&quot;</span> <span class="na">fork=</span><span class="s">&quot;true&quot;</span> <span class="na">printsummary=</span><span class="s">&quot;yes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">refid=</span><span class="s">&quot;project-classpath&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;formatter</span> <span class="na">type=</span><span class="s">&quot;xml&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;batchtest</span> <span class="na">todir=</span><span class="s">&quot;report/junit&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;bin&quot;</span> <span class="na">includes=</span><span class="s">&quot;**/*Test.class&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/batchtest&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/junit&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/target&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/project&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Silahkan jalankan berkali-kali sepuasnya. Rangkaian kode di atas akan dengan senang hati melakukan:</p>
+
+<ol>
+<li><p>Pembuatan schema</p></li>
+<li><p>Mengisi sampel data</p></li>
+<li><p>Menjalankan kode program</p></li>
+<li><p>Memeriksa hasilnya di database</p></li>
+</ol>
+
+
+<p>Tidak perlu memelototi <em>phpmyadmin</em> lagi :D</p>
+
+<p>Semoga bermanfaat.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/java/monitoring-aplikasi-java/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -146,7 +641,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/linux/backup-home-folder/">Backup Home Folder</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/wiki/">Wiki</a></h1>
     
     
       <p class="meta">
@@ -162,27 +657,28 @@
   
 
 
-<time datetime="2011-08-26T23:00:29+07:00" pubdate data-updated="true">Aug 26<span>th</span>, 2011</time>
+<time datetime="2006-09-18T23:40:24+07:00" pubdate data-updated="true">Sep 18<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Seberapa penting file di komputer kita? Tentu tidak ternilai harganya. Tapi apakah kita melakukan backup secara terhadap file-file di komputer kita? Beberapa menit yang lalu, saya menjawab tidak untuk pertanyaan tersebut.</p>
+  <div class="entry-content"><p>Bagi mereka yang belum tahu, wiki adalah website yang bisa diedit. Contohnya ada di <a href="http://www.wikipedia.org" title="Bapak moyangnya wiki">Wikipedia</a></p>
 
-<p>Kenapa backup tidak dilakukan? Penyebab utamanya biasanya adalah karena merepotkan. Kita harus pilih file yang mau dibackup, membuka aplikasi backup, lalu menjalankannya. Walaupun cuma butuh waktu beberapa menit, tapi biasanya kita sering menunda dan akhirnya lupa.</p>
+<p>Biasanya wiki digunakan untuk membuat dokumentasi. Sifatnya yang bisa diedit siapa saja menyebabkan banyak orang bisa langsung berkontribusi mengisi wiki. Tidak perlu direpotkan dengan birokrasi aplikasi CMS seperti biasanya.</p>
 
-<p>Cara paling efektif untuk melakukan backup rutin adalah dengan mengotomasinya. Effort untuk melakukan setup cukup sekali saja, selanjutnya backup akan berjalan otomatis tanpa kita sadari. Pada artikel ini, saya akan posting teknik backup yang saya gunakan.</p>
+<p>Ada banyak aplikasi wiki yang tersedia. Dibuat dalam berbagai bahasa pemrograman. Biasanya, aplikasi wiki diinstal di web server dan diakses oleh orang banyak.</p>
 
-<p>Sebelum kita mulai, terlebih dulu kita tentukan requirementnya, supaya jelas apa yang kita ingin capai. Saya ingin membackup folder tertentu di komputer saya (misalnya <em>/home/endy</em> dan <em>/opt/multimedia/Photos</em>). Backup ini dilakukan secara rutin (misalnya satu jam sekali, satu hari sekali, atau satu minggu sekali). Selain rutin, juga harus incremental. Artinya kalau saya punya backup hari ini jam 11, maka backup selanjutnya di jam 12 hanya menyimpan file yang berubah saja. Dengan demikian, saya bisa jalankan backupnya satu jam sekali dan tidak akan menyebabkan harddisk menjadi penuh dalam beberapa jam saja.</p>
+<p>Selain yang diinstal di web server, ada juga yang digunakan di desktop. Saya sendiri menggunakan <a href="http://zoidberg.student.utwente.nl/zim/" title="Homepage Zim">Zim Desktop Wiki</a> di komputer saya untuk menulis buku.</p>
 
+<p>Buat yang malas (atau tidak bisa) menginstal, bisa menggunakan aplikasi wiki web based yang tidak perlu diinstal di server. Gunakan <a href="http://www.tiddlywiki.com/" title="Standalone Web based Wiki">Tiddly Wiki</a>. Wiki anda tinggal ditulis di komputer sendiri, kemudian diupload ketika sudah selesai.</p>
+
+<p>Saking banyaknya orang yang membuat aplikasi wiki, akhirnya ada yang menyediakan one stop solution untuk memilih wiki. Silahkan kunjungi <a href="http://www.wikimatrix.org" title="Wiki Matrix, bandingkan dan pilih wiki favorit">wikimatrix</a> untuk membandingkan berbagai aplikasi wiki. Dia juga menyediakan wizard untuk membantu pemilihan aplikasi wiki yang sesuai.</p>
+
+<p>Selamat mengeksplorasi. Semoga bermanfaat.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/linux/backup-home-folder/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -193,7 +689,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/java/staged-deployment/">Staged Deployment</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/technorati/">Technorati</a></h1>
     
     
       <p class="meta">
@@ -209,253 +705,1088 @@
   
 
 
-<time datetime="2011-08-16T15:57:35+07:00" pubdate data-updated="true">Aug 16<span>th</span>, 2011</time>
+<time datetime="2006-08-31T22:34:49+07:00" pubdate data-updated="true">Aug 31<span>st</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Staged Deployment</p>
+  <div class="entry-content"><p>Orang-orang pada rame Technorati. Pengen tau barang apa sih ini.</p>
 
-<p>Pada waktu kita coding, tentunya kita melakukan test terhadap kode program yang kita tulis. Kita jalankan langkah-langkah sesuai yang telah didefinisikan dalam test scenario. Setelah test di komputer kita sendiri (local) selesai dilakukan, tentunya kode program tersebut tidak langsung kita deploy ke production. Best practicesnya adalah, kita deploy aplikasinya ke server testing untuk kemudian ditest oleh Software Tester. Barulah setelah dinyatakan OK oleh tester, aplikasi versi terbaru tersebut kita deploy ke production.</p>
+<p>Buat yang udah merasakan manfaatnya, tolong kasi masukan dong.</p>
 
-<p>Dengan demikian, kita memiliki tiga deployment environment, yaitu :</p>
+<p>Terima kasih.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/life/ipk-tiarap/">IPK Tiarap</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-08-29T19:58:03+07:00" pubdate data-updated="true">Aug 29<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>Disclaimer : tiap perusahaan dan interviewer beda-beda. Ini bukan patokan absolut. Yang saya tuliskan di sini hanyalah pengalaman pribadi disertai bumbu penyedap. Saya tidak bertanggung jawab atas segala rekomendasi di bawah. Penggunaan tips di bawah sepenuhnya adalah resiko pengguna.</em></p>
+
+<p>Di milis Alumni STTTelkom, ada posting menarik, sebagai berikut:</p>
+
+<blockquote><p>mengapa sih perusahaan membuat rumusan sakral untuk rekrutasi pegawai yakni
+IPK >= 2.75 ???</p></blockquote>
+
+<p>Segera saja saya merasa berkompeten untuk menjawabnya. Bukan apa-apa, IPK saya yang <em>cuma</em> 2.69 kan termasuk yang melanggar <em>rumusan sakral</em> di atas :P.</p>
+
+<p>Berikut jawaban saya, saya paste di sini supaya khalayak ramai bisa ikut membaca dan berkomentar.</p>
+
+<blockquote><p>Alasan utama membatasi IP adalah untuk menyusutkan jumlah pelamar !!!</p></blockquote>
+
+<p>Batasan ini biasanya ada di posisi yang demandnya dikit, tapi supplynya berlimpah ruah.
+Misalnya, entry level position, di mana kandidatnya adalah fresh grad semua
+:D.</p>
+
+<p>Coba bayangkan Anda sebagai petugas penerima karyawan baru.
+Ada 15 tumpukan lamaran di meja Anda, masing-masing berisi 100 lamaran. Dan masih ada 23 tumpukan lagi di meja pojok ruangan. Kemudian office-boy datang dan mengantarkan 40 tumpukan lagi sambil berkata, &#8220;Di depan masih ada 4 kardus lagi Pak, sebentar saya mau ambil troli dulu .. gak kuat ngangkatnya.&#8221;</p>
+
+<p>Nah, kuis singkat. Bagaimana cara memproses lamaran tersebut?
+Jawaban bisa dikirim ke 8080 dengan SMS  KUIS</p>
+
+<p>Eh, tidak perlu &#8230; akan saya jawab sendiri.</p>
+
+<p>Begini caranya.
+Segera setelah si office-boy datang dengan troli dan 4 kardus lamaran, bilang ke dia, &#8220;Mas, tolong bantu saya ya. Coba ini lamaran dibuka, trus diperiksa satu-satu. Yang IPKnya lebih besar dari 2.75 kumpulkan di meja ini. Sisanya masukkan ke kardus kosong. Nanti kalo ada tukang loak lewat, dikiloin aja. Uangnya boleh buat Mas beli rokok.&#8221;</p>
+
+<p>Beberapa jam kemudian, coba periksa hasil pekerjaan si Mas. Kalau tumpukan yang lolos masih tinggi, bilang ke dia, &#8220;Mas, revisi sedikit. Yang IPKnya lebih besar dari 3.00 kumpulkan di meja ini. Sisanya &#8230; bla .. bla &#8230; (silahkan diteruskan)&#8221;</p>
+
+<p>Ulangi langkah di atas sampai jumlah lamaran &lt; 20.</p>
+
+<p>Wahh&#8230;. ternyata prosesnya begitu.
+Tapi, gimana kalo IPnya tiarap?
+Not to worry.</p>
+
+<p>Dalam beberapa kesempatan sebagai decision maker rekrutmen, berikut faktor yang saya pertimbangkan:</p>
+
+<ol>
+<li><p>Antusiasme, atau istilah kerennya, passion.
+Semangat itu harus ada dan berapi-api.
+Namanya juga fresh-grad .. masa gak semangat.
+Ini juga berkaitan dengan masalah motivasi. Orang yang udah dari sananya semangat, gak sulit disuruh-suruh. Gak perlu dibujuk, ditawari insentif macam-macam. Intinya adalah, saya cari yang memang menyukai pekerjaan yang ditawarkan. Jadi tidak sekedar kerja saja.</p></li>
+<li><p>Smart.
+Biasanya di sini saya akan menanyakan problem solving question.
+Dari cara problem solvingnya, saya bisa menilai apakah seseorang smart atau tidak.</p></li>
+<li><p>Get things done.
+Walaupun smart, tapi kalo gak bisa kerja percuma.
+Saya akan minta diperlihatkan produk-produk yang sudah dihasilkan kandidat.
+Kebetulan bidang saya adalah software development.
+Biasanya saya minta didemokan software yang pernah dibuat.</p></li>
+<li><p>Inisiatif, atau &#8216;kemampuan mengerjakan hal yang tidak wajib atas kemauan sendiri&#8217;
+Orang yang biasa &#8216;take extra mile&#8217; biasanya lebih bagus pekerjaannya dan tidak butuh banyak supervisi dan motivasi.</p></li>
+<li><p>Free time, waktu luang.
+Ini adalah indikator penting apakah kandidat tersebut &#8216;bisa berkembang&#8217; atau tidak.
+Orang yang berkembang akan memanfaatkan freetime nya untuk belajar hal baru, walaupun tidak disuruh.</p></li>
+</ol>
+
+
+<p>Lebih lanjut bisa baca <a href="http://joelonsoftware.com/articles/fog0000000073.html">panduan Joel dalam interview</a></p>
+
+<p>Atau panduan mas Mbot <a href="http://mbot.wordpress.com/2005/05/30/sharing-hrd-6-jangan-menghadapi-interview/">di sini</a> dan <a href="http://mbot.wordpress.com/2006/08/18/sharing-hrd-waspada-5-gelagat-buruk-waktu-melamar-kerja/">di sini</a>.</p>
+
+<p>Jadi, kalo IP anda tidak besar, jangan berkecil harapan, tips dari saya :</p>
+
+<ol>
+<li><p>Punya koleksi portofolio hasil karya yang siap dipamerkan.
+Buat dalam bentuk CD yang siap didemokan.</p></li>
+<li><p>Sering-sering terima pekerjaan freelance walaupun gratisan.
+Selain memperluas networking, juga tambah pengalaman dan mengasah problem solving skill. Kalau pekerjaannya tangible, tambahkan di koleksi portofolio</p></li>
+<li><p>Latih inisiatif sehingga menjadi refleks.
+Salah satu caranya adalah dengan aktif mengerjakan pekerjaan rumah seperti membereskan kamar, mendekorasi ruang kerja, berkebun, dsb.</p></li>
+<li><p>Isi waktu luang dengan banyak belajar.
+Sumber bisa diperoleh di internet atau toko buku</p></li>
+<li><p>Banyak berkontribusi di komunitas, misalnya milis, forum, dsb.
+Ini akan membuat kita menjadi terkenal sehingga nilai jual meningkat.</p></li>
+<li><p>Jual diri anda dengan cara memiliki personal website.
+Pasang semua portofolio di sana.
+Tulis artikel yang dapat menunjukkan kapabilitas dan kompetensi kita.</p></li>
+<li><p>Giat beribadah dan berdoa.
+Penghasilan besar kalo korupsi percuma.
+Jadi berdoa supaya dapat gaji besar yang halal.</p></li>
+<li><p>Kasihanilah office boy, maksudnya petugas penerima karyawan baru.
+Jangan melamar ke semua lowongan. Pilih yang benar-benar disukai dan dikuasai. Kalau belum menguasai, lihat #4. Bukan cuma perusahaan yang bisa selektif, kandidat juga dong.</p></li>
+<li><p>Kalau Anda fresh graduate, jangan terlalu cerewet tentang salary.
+Fokus fresh graduate, apalagi yang IPKnya tiarap, adalah sesegera mungkin meninggalkan status fresh graduate. Gimana caranya? Tentu saja dengan memiliki pengalaman kerja. Carilah pekerjaan yang walaupun gajinya kecil, tapi variatif dan besar tantangannya, juga bisa membuat kita tambah pintar. Biasanya ini bisa diperoleh di perusahaan kecil di mana orang biasanya merangkap pekerjaan.
+Tenang saja, begitu kompetensi meningkat, salary pasti mengikuti. Keuntungan tambahan, sebagai pemilik IPK tiarap, persaingan di perusahaan kecil pasti tidak seketat di perusahaan besar yang pasang iklan di Kompas atau Republika.</p></li>
+</ol>
+
+
+<p>Demikian, semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/intro-framework/">Intro Framework</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-08-11T20:37:33+07:00" pubdate data-updated="true">Aug 11<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Hari ini di milis jug ada yang bertanya tentang framework. <a href="http://dwiardiirawan.blogs.or.id">Si penanya</a> sendiri kelihatannya mengerti tentang framework, tapi kesulitan menjelaskan kepada orang lain.</p>
+
+<p>Ini umum terjadi, apalagi kalau programmer Java berbicara dengan programmer dari dunia lain, seperti PHP, C, C++, dsb. Ini bisa disebabkan karena penggunaan framework tidak umum di dunia lain tersebut, atau simply karena programmer lain tersebut fakir bandwidth, sehingga gak aware terhadap tren terbaru.</p>
+
+<p>Baiklah, mari kita bahas framework. Framework, sesuai dengan terjemahannya, adalah kerangka kerja. Jadi, di dalam framework ada beberapa kode program yang kalau kita gunakan, akan memberikan kerangka atau struktur ke aplikasi yang dihasilkan. Singkatnya seperti itu. Nanti akan lebih jelas setelah kita lihat contoh kasus dan contoh kode.</p>
+
+<p>Untuk memahami framework, mari kita lihat ke dunia yang minim framework, yaitu PHP. Sebelum tahun 2005-2006 ini, (setau saya) programmer PHP di Indonesia masih asing dengan framework.</p>
+
+<p>Misalnya saya buat aplikasi shopping cart. Aplikasi yang sangat umum dalam PHP. Setidaknya saya pernah mencoding ulang shopping cart minimal tiga kali. Dan semuanya arsitekturnya beda.</p>
+
+<p>Pertama, waktu masih belajar. Semua kode campur aduk jadi satu. Kalau ada perubahan warna font, beberapa kode SQL harus ikut diupdate. Ubah nama tabel, 7 file kode harus diedit. Singkatnya, perubahan sedikit saja memaksa saya mengubah di banyak tempat di kode program.</p>
+
+<p>Kemudian, setelah semakin banyak pengalaman, saya mulai memisahkan kode HTML dengan kode SQL. Dengan ini, aplikasi bisa berganti wajah dengan mudah. Cukup edit satu file konfigurasi, tampilan berubah seketika.</p>
+
+<p>Terakhir, saya mulai mempertimbangkan multi bahasa. Semua string yang berkaitan dengan label, dikeluarkan dalam satu file sendiri. Jadi kalau kita mau ganti bahasa, cukup bikin replika file tersebut, dan terjemahkan. Kemudian edit file konfigurasi, dan bahasa berubah seketika.</p>
+
+<p>Rapi dan bersih ..</p>
+
+<p>Setelah mendapatkan struktur yang optimal, saya mulai me-reuse struktur tersebut. Kapan-kapan membuat aplikasi baru, saya akan langsung memisahkan kode HTML, SQL, dan bahasa.</p>
+
+<p>Skenario di atas terjadi karena saya tidak menggunakan framework. Butuh banyak sekali trial and error buat saya sampai menemukan struktur yang rapi dan bersih. Setelah ditemukan, struktur tersebut saya jadikan framework. Kerangka untuk membuat aplikasi selanjutnya.</p>
+
+<p>Sekarang kita pindah dari dunia yang minim framework, ke dunia yang kebanjiran framework, Java.</p>
+
+<p>Di dunia Java, kelihatannya orang sangat suka coding framework, sehingga kalau kita search di sourceforge, mungkin lebih banyak framework daripada aplikasi siap pakai. Mengapa ini terjadi, saya tidak tahu. Yang jelas, kalau kita akrab dengan Java, pasti akan pakai framework.</p>
+
+<p>Framework yang ideal harusnya merupakan intisari dari best practices. Pengalaman bertahun-tahun membuat aplikasi yang mirip, disimpulkan dan dibakukan menjadi framework siap pakai. Tapi saking banyaknya framework di Java, akhirnya banyak juga framework sampah. Artinya, dibuat bukan dari best practices dan experiences, tapi lebih menjadi ajang belajar membuat framework.</p>
+
+<p>Penggunaan framework hasil belajar seperti ini sangat buruk dampaknya. APInya tidak stabil, sehingga kalau framework tersebut menerbitkan edisi baru, kode program kita harus diubah semua. Tentu saja, karena framework merupakan kerangka utama. Jadi kalau kerangkanya berubah, maka seluruh aplikasi akan terpengaruh. Selain itu, strukturnya juga belum terbukti keandalannya. Masalah sederhana menjadi kompleks, waktu banyak terbuang untuk &#8216;mengurusi&#8217; framework.
+Menggunakan framework jelek lebih fatal akibatnya daripada tanpa framework.</p>
+
+<p>Sampai sejauh ini, harusnya sudah ada gambaran tentang framework.</p>
+
+<h3>Framework vs Library</h3>
+
+<p>Jangan keliru membedakan framework dengan library. Framework, by definition, sangat invasif. Dia memaksakan bagaimana kita harus coding, bagaimana memberi nama class, di mana harus meletakkan file, dan banyak aturan-aturan lain. Sedangkan library, tinggal baca dokumentasi, daftar function, input dan output masing-masing function, selesai.</p>
+
+<p>Dengan demikian, menggunakan framework lebih sulit daripada library.
+Coba kita bedakan framework dengan library
+Framework Java:</p>
 
 <ul>
-<li><p>development (komputer si programmer)</p></li>
-<li><p>testing (test server)</p></li>
-<li><p>production (live system)</p></li>
+<li> <a href="http://www.springframework.org" title="Spring Framework Home Page">Spring Framework</a></li>
+<li> <a href="http://struts.apache.org">Struts</a></li>
 </ul>
 
 
-<p>Environment ini bisa lebih banyak lagi kalau aplikasi kita harus dites kompatibilitasnya dengan berbagai hardware atau sistem operasi.</p>
-
-<p>Cara kerja seperti ini disebut dengan istilah staged deployment atau deployment bertahap. Dengan menggunakan staged deployment, kita mencegah terjadinya bug fatal di production/live system.</p>
-
-<p>Tantangan yang kita hadapi adalah, bagaimana cara mengelola konfigurasi aplikasi kita sehingga bisa dideploy di berbagai environment secara baik. Teknik bagaimana cara melakukan ini berbeda-beda, tergantung bahasa pemrograman, framework, dan library yang kita gunakan.</p>
-
-<p>Pada artikel ini, kita akan membahas cara mengelola konfigurasi deployment menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">teknologi yang biasa digunakan di ArtiVisi</a>, yaitu<a href="http://www.springframework.org">Spring Framework</a> dan <a href="logback.qos.ch">Logback</a>.</p>
-
-<h2>Alternatif Solusi</h2>
-
-<p>Manajemen konfigurasi ini bisa kita lakukan dengan dua pendekatan, yaitu dikelola dengan <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html">Maven Profile</a>, atau dengan konfigurasi Spring Framework.</p>
-
-<p>Jika kita menggunakan Maven Profile, kita menambahkan opsi pada saat melakukan build, kira-kira seperti ini :</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=maven-profile.sh'></script>
-<noscript><pre><code>mvn -P production clean install</code></pre></noscript></div>
-
-
-<p>atau</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=maven-env-var.sh'></script>
-<noscript><pre><code>mvn -Denv=production clean install</code></pre></noscript></div>
-
-
-<p>Dalam konfigurasi profile, kita bisa memilih file mana yang akan diinclude di dalam hasil build. Hasilnya, kita bisa menghasilkan artifact yang berbeda tergantung dari opsi yang kita berikan pada saat build.</p>
-
-<p>Walaupun demikian, berdasarkan hasil Googling, ternyata <a href="http://java.dzone.com/articles/maven-profile-best-practices">metode ini tidak direkomendasikan</a>. Justru konfigurasi melalui Spring lebih disarankan.</p>
-
-<p>Dengan menggunakan konfigurasi Spring, artifact yang dihasilkan oleh build hanya satu jenis saja. Artifact ini berisi semua pilihan konfigurasi. Konfigurasi mana yang akan aktif pada saat dijalankan (runtime) akan ditentukan oleh setting environment variable, bukan oleh artifactnya.</p>
-
-<p>Selanjutnya, kita akan membahas metode manajemen konfigurasi menggunakan Spring.</p>
-
-<h2>Konfigurasi Database</h2>
-
-<p>Konfigurasi yang biasanya berbeda adalah informasi koneksi database. Untuk membedakan masing-masing environment, kita akan membuat tiga file, yaitu:</p>
+<p>Library Java:</p>
 
 <ul>
-<li><p>jdbc.properties : digunakan di laptop programmer</p></li>
-<li><p>jdbc.testing.properties : digunakan di server test</p></li>
-<li><p>jdbc.production.properties : digunakan di live</p></li>
+<li> <a href="http://joda-time.sourceforge.net/">Joda Time</a></li>
+<li> <a href="http://www.jfree.org/jfreechart/">JFreeChart</a></li>
+<li> <a href="http://freemarker.sourceforge.net">Freemarker</a></li>
+<li> <a href="http://jakarta.apache.org/commons/index.html">Jakarta Commons</a></li>
 </ul>
 
 
-<p>Berikut contoh isi jdbc.properties, yaitu konfigurasi koneksi database di laptop saya :</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=jdbc.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon?zeroDateTimeBehavior=convertToNull
-jdbc.username = kasbon
-jdbc.password = kasbon</code></pre></noscript></div>
-
-
-<p>Kemudian, ini file jdbc.testing.properties :</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=jdbc.testing.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon_testing?zeroDateTimeBehavior=convertToNull
-jdbc.username = root
-jdbc.password = admin</code></pre></noscript></div>
-
-
-<p>Perhatikan bahwa informasi nama database, username, dan password databasenya berbeda dengan yang ada di konfigurasi laptop.</p>
-
-<p>Terakhir, jdbc.production.properties</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=jdbc.production.properties'></script>
-<noscript><pre><code>hibernate.dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-jdbc.driver = com.mysql.jdbc.Driver
-jdbc.url = jdbc:mysql://localhost/kasbon_live?zeroDateTimeBehavior=convertToNull
-jdbc.username = root
-jdbc.password = admin</code></pre></noscript></div>
-
-
-<p>Ketiga file konfigurasi ini akan dibaca oleh konfigurasi Spring, yaitu di file applicationContext.xml. Isi lengkap dari file ini adalah sebagai berikut.</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=applicationContext.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-    xmlns:p=&quot;http://www.springframework.org/schema/p&quot; xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
-    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
-
-    &lt;context:property-placeholder location=&quot;
-    classpath*:jdbc.properties,
-    classpath*:jdbc.${stage}.properties
-    &quot; /&gt;
-
-    &lt;tx:annotation-driven /&gt;
-
-    &lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;
-        destroy-method=&quot;close&quot; p:driverClassName=&quot;${jdbc.driver}&quot; p:url=&quot;${jdbc.url}&quot;
-        p:username=&quot;${jdbc.username}&quot; p:password=&quot;${jdbc.password}&quot; p:maxWait=&quot;40000&quot;
-        p:maxActive=&quot;80&quot; p:maxIdle=&quot;20&quot; /&gt;
-
-    &lt;bean id=&quot;transactionManager&quot;
-        class=&quot;org.springframework.orm.hibernate3.HibernateTransactionManager&quot;
-        p:sessionFactory-ref=&quot;sessionFactory&quot; /&gt;
-
-
-    &lt;bean id=&quot;sessionFactory&quot;
-        class=&quot;org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean&quot;
-        p:dataSource-ref=&quot;dataSource&quot; p:configLocations=&quot;classpath*:com/artivisi/**/hibernate.cfg.xml&quot;&gt;
-        &lt;property name=&quot;hibernateProperties&quot;&gt;
-            &lt;props&gt;
-                &lt;prop key=&quot;hibernate.dialect&quot;&gt;${hibernate.dialect}&lt;/prop&gt;
-            &lt;/props&gt;
-        &lt;/property&gt;
-    &lt;/bean&gt;
-
-    &lt;bean id=&quot;messageSource&quot;
-        class=&quot;org.springframework.context.support.ResourceBundleMessageSource&quot;&gt;
-        &lt;property name=&quot;basenames&quot;&gt;
-            &lt;list&gt;
-                &lt;value&gt;messages&lt;/value&gt;
-            &lt;/list&gt;
-        &lt;/property&gt;
-    &lt;/bean&gt;
-
-&lt;/beans&gt;</code></pre></noscript></div>
-
-
-<p>Untuk lebih spesifik, konfigurasinya ada di baris berikut</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=context-loading.xml'></script>
-<noscript><pre><code>&lt;context:property-placeholder location=&quot;
-    classpath*:jdbc.properties, 
-    classpath*:jdbc.${stage}.properties
-&quot; /&gt;</code></pre></noscript></div>
-
-
-<p>Di sana kita melihat ada variabel ${stage}.
-Variabel ${stage} ini akan dicari dari <a href="http://static.springsource.org/spring/docs/3.0.x/spring-framework-reference/html/beans.html#beans-factory-xml-import">beberapa tempat, diantaranya environment variabel yang bisa diset di JVM ataupun di sistem operasi</a>. Cara mengeset variabel ${stage} akan kita bahas sebentar lagi.</p>
-
-<p>Di situ kita menyuruh Spring untuk membaca file jdbc.properties dan jdbc.${stage}.properties. Jika ada nilai variabel yang sama (misalnya jdbc.username), maka nilai variabel di file yang disebutkan belakangan akan menimpa nilai yang didefinisikan file di atasnya.</p>
-
-<p>Contohnya, misalnya variabel ${stage} nilainya adalah testing. Maka Spring akan membaca file jdbc.properties dan jdbc.testing.properties. Karena kedua file memiliki variabel jdbc.url, maka isi jdbc.url di file jdbc.testing.properties akan menimpa nilai jdbc.url di jdbc.properties.</p>
-
-<p>Bila variabel ${stage} tidak ada isinya, Spring akan mencari file yang namanya jdbc.${stage}.properties, dan tidak akan ketemu. Dengan demikian, nilai yang digunakan adalah yang ada di jdbc.properties.</p>
-
-<p>Dengan demikian, behavior aplikasi adalah sebagai berikut</p>
-
-<blockquote><p>Bila variabel stage diset production atau testing, maka yang digunakan adalah nilai konfigurasi di jdbc.production.properties atau jdbc.testing.properties. Bila tidak diset atau diset selain itu, maka yang digunakan adalah konfigurasi di jdbc.properties</p></blockquote>
-
-<p>Behavior seperti inilah yang kita inginkan. Selanjutnya, tinggal kita isi nilai variabel stage.</p>
-
-<h2>Setting Environment Variabel</h2>
-
-<p>Variabel stage bisa diset dengan berbagai cara. Bila kita menggunakan <a href="http://tomcat.apache.org">Apache Tomcat</a>, maka kita mengedit file startup.sh atau startup.bat. Modifikasi baris yang berisi CATALINA_OPTS menjadi seperti ini :</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=startup.sh'></script>
-<noscript><pre><code>export CATALINA_OPTS=&quot;-Dstage=production&quot;</code></pre></noscript></div>
-
-
-<p>Atau, kita bisa jalankan dengan Jetty melalui Maven</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=mvn-jetty-run.sh'></script>
-<noscript><pre><code>mvn jetty:run -Dstage=testing</code></pre></noscript></div>
-
-
-<p>Bisa juga melalui environment variabel sistem operasi, di Linux kita set seperti ini.</p>
-
-<div><script src='https://gist.github.com/1134126.js?file=linux-env-var.sh'></script>
-<noscript><pre><code>EXPORT stage=production</code></pre></noscript></div>
-
-
-<h2>Konfigurasi Logger</h2>
-
-<p>Dengan menggunakan Spring seperti di atas, kita bisa membaca konfigurasi apa saja, misalnya</p>
+<p>Framework PHP:</p>
 
 <ul>
-<li><p>Konfigurasi email : bila aplikasi kita mengirim/menerima email</p></li>
-<li><p>Konfigurasi server lain : bila aplikasi kita berinteraksi dengan aplikasi orang lain, misalnya webservice atau koneksi socket</p></li>
-<li><p>dsb</p></li>
+<li> <a href="http://seagullproject.org/">Seagull</a></li>
+<li> <a href="http://cakephp.org/">Cake</a></li>
 </ul>
 
 
-<p>Walaupun demikian, konfigurasi logger biasanya tidak diload oleh Spring, melainkan langsung dibaca oleh library loggernya.</p>
-
-<p>Kita di ArtiVisi menggunakan SLF4J dan Logback. Cara konfigurasinya mirip dengan Spring. Kita punya satu master file yang akan membaca file lain sesuai isi variabel stage. Untuk itu kita siapkan beberapa file berikut:</p>
+<p>Library PHP:</p>
 
 <ul>
-<li><p>logback.xml : file konfigurasi utama</p></li>
-<li><p>logback.production.xml : konfigurasi logger production, akan diinclude oleh logback.xml</p></li>
-<li><p>logback.testing.xml : konfigurasi logger testing, akan diinclude oleh logback.xml</p></li>
-<li><p>logback.development.xml : konfigurasi logger development, akan diinclude oleh logback.xml</p></li>
+<li> <a href="http://pear.php.net/">PEAR</a></li>
+<li> <a href="http://adodb.sourceforge.net/">AdoDb</a></li>
+<li> <a href="http://smarty.php.net/">Smarty</a></li>
 </ul>
 
 
-<p>Berikut isi file logback.xml.</p>
+<p>Ada lagi satu kategori, yaitu toolkit. Toolkit adalah kode yang kita gunakan dalam development, tapi tidak disertakan dalam produk akhir. Contohnya di Java antara lain: <a href="http://ant.apache.org">Ant</a> dan <a href="http://cruisecontrol.sourceforge.net/">CruiseControl</a>.</p>
 
-<div><script src='https://gist.github.com/1134126.js?file=logback.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;configuration&gt;
+<p>Tapi ada juga beberapa yang tidak jelas pengelompokannya. JUnit misalnya, di satu sisi, dia menyediakan perlengkapan untuk testing sehingga bisa dikategorikan sebagai library. Di sisi lain, dia mengharuskan ada prefix test di setiap nama method, sehingga layak disebut framework.</p>
 
-    &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
-        &lt;encoder&gt;
-            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
-        &lt;/encoder&gt;
-    &lt;/appender&gt;
+<h3>Plus Minus</h3>
 
-    &lt;appender name=&quot;FILE&quot; class=&quot;ch.qos.logback.core.FileAppender&quot;&gt;
-        &lt;file&gt;${catalina.home:-.}/logs/kasbon-${stage:-development}.log&lt;/file&gt;
-        &lt;encoder&gt;
-            &lt;pattern&gt;%d %-5level %logger{35} - %msg %n&lt;/pattern&gt;
-        &lt;/encoder&gt;
-    &lt;/appender&gt;
+<p>Sekarang pertanyaan yang penting. Apa keuntungan dan kerugian menggunakan framework? Asumsikan framework yang ingin digunakan bagus dan teruji.</p>
 
-    &lt;include resource=&quot;logback-${stage:-development}.xml&quot;/&gt;
+<p>Keuntungan</p>
 
-&lt;/configuration&gt;</code></pre></noscript></div>
+<ul>
+<li>Struktur yang konsisten. Sangat berguna bila developer banyak dan turnover tinggi.</li>
+<li>Struktur merupakan best practices. Semua sudah ditempatkan di tempat yang paling sesuai.</li>
+<li>Dapat belajar tentang desain aplikasi yang baik.</li>
+</ul>
 
 
-<p>Seperti kita lihat, file ini berisi konfigurasi yang berlaku umum, seperti appender yang digunakan. Di file ini kita menulis variabel seperti ini</p>
+<p>Kerugian</p>
 
-<div><script src='https://gist.github.com/1134126.js?file=logback-variable.txt'></script>
-<noscript><pre><code>${stage:-development}</code></pre></noscript></div>
+<ul>
+<li>Butuh investasi waktu belajar dan adaptasi</li>
+<li>Ada overhead. Untuk project sangat kecil, mungkin overheadnya lebih besar dari projectnya sendiri. Lagipula, tidak semua fitur framework kita pakai, sehingga cuma akan menjadi bloat.</li>
+<li>Menimbulkan dependensi. Ini terutama terasa di aplikasi yang berarsitektur plugin. Upgrade framework dapat merusak plugin.</li>
+</ul>
 
 
-<p>Yang artinya adalah, <a href="http://logback.qos.ch/manual/configuration.html">isi dengan variabel stage, kalau variabel tersebut tidak diset, defaultnya adalah development</a>. Ini sesuai dengan keinginan kita seperti pada waktu mengkonfigurasi Spring di atas.</p>
+<h3>Memilih Framework</h3>
 
-<p>Isi file logback-development.xml dan teman-temannya dapat dilihat <a href="https://github.com/artivisi/aplikasi-kasbon/tree/master/aplikasi-kasbon-config/src/main/resources">di Github</a>.</p>
+<p>Sekarang, bagaimana kita memutuskan pakai framework atau tidak? Kalau pakai, pilih yang mana? Sering sekali ada banyak framework yang menyelesaikan masalah yang sama.</p>
 
-<p>Demikianlah tutorial cara mengelola konfigurasi untuk keperluan staged deployment. Semoga bermanfaat.</p>
+<p>Pertama, pertimbangkan benefit vs cost.
+Di beberapa project, saya lebih memilih tanpa framework, karena ukuran projectnya kecil.</p>
+
+<p>Untuk <a href="http://playbilling.sourceforge.net">playbilling</a>, saya pakai <a href="http://ibatis.apache.org">iBatis</a> alih-alih <a href="http://www.hibernate.org" title="Hibernate Home Page">Hibernate</a> yang lebih lengkap fiturnya. Pertimbangannya adalah, saya tidak menggunakan banyak tipe database. Sehingga cross-database tidak terlalu dibutuhkan. Sekarang saya sedang mempertimbangkan menghilangkan <a href="http://ibatis.apache.org">iBatis</a>, dan pakai JDBC biasa untuk mengurangi dependensi dan ukuran donlod.</p>
+
+<p>Kedua, lihat kualitas dokumentasinya.
+Alasan yang jelas adalah, kalau tidak ada dokumentasi, gimana tau cara pakainya? Kita butuh dokumentasi untuk bisa menggunakan framework.</p>
+
+<p>Ada alasan kedua yang juga penting. Kualitas dokumentasi mencerminkan kualitas framework. Mengapa? Karena dokumentasi biasanya adalah by product (produk sampingan), apalagi di project open source. Logikanya, jika tim developer menghasilkan dokumentasi bagus, pasti kualitas dan desain frameworknya sendiri lebih bagus lagi.</p>
+
+<p>Sejauh ini, kesimpulan saya konsisten. Framework terbaik secara desain dan kualitas kode adalah <a href="http://www.springframework.org" title="Spring Framework Home Page">Spring Framework</a>. Coba lihat dokumentasinya. Sangat rinci, detail, dan minim kesalahan.
+Contoh lain adalah <a href="http://www.hibernate.org" title="Hibernate Home Page">Hibernate</a>. Dokumentasinya sangat lengkap. Bahkan di dalamnya juga dijelaskan tentang konsep Object Relational Mapping. Dengan membaca dokumentasinya saja, kita akan menambah wawasan. Apalagi menggunakan frameworknya.</p>
+
+<p>Ketiga, lihat aktivitas komunitasnya.
+Framework, apalagi open source, membutuhkan interaksi dengan sesama pengguna. Keuntungan  utama tentu saja technical support dan tutorial gratis. Apalagi dengan perkembangan blog yang sangat pesat beberapa tahun terakhir. Semua pengalaman baik, buruk, mudah, sulit, semua diceritakan para pengguna framework di blognya masing-masing.</p>
+
+<p>Kalau kita menggunakan framework minoritas, jarang digunakan orang, tutorialnya sedikit, diskusi di berbagai forum juga tidak banyak. Jadi, kalau kita search dengan <a href="http://www.google.com" title="Oom Google">Google</a>, lebih sulit menemukan permasalahan (dan solusi) yang sama dengan kebutuhan kita.</p>
+
+<p>Terakhir, learning curve, atau kurva belajar. Apakah framework tersebut sulit atau mudah dipelajari?</p>
+
+<p>Di bagian atas tadi saya menyebutkan keunggulan framework adalah dia dapat menyeragamkan struktur kode di antara banyak developer. Jadi, agar efektif, semua developer harus bisa menggunakan framework tersebut.</p>
+
+<p>Nah, seorang system architect, software designer, senior developer, development team leader, atau apapun istilahnya di tempat Anda, orang yang bertugas memilih framework, harus mempertimbangkan kurva belajar ini.</p>
+
+<p>Ini sering diabaikan banyak orang. Sebagai pemilih framework, tentunya orang tersebut memiliki keahlian/pengalaman teknis di atas rekan-rekannya. Penting bagi orang tersebut untuk memperhitungkan keahlian/pengalaman anggota tim yang lain yang tidak secanggih dirinya pada waktu memilih framework. Jangan sampai framework yang dipilih terlalu rumit, sehingga bukannya di-reuse malahan di-abuse.</p>
+
+<p>Demikian ulasan singkat tentang framework. Mudah-mudahan bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/manajemen/bisnis-open-source/">Bisnis Open Source</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-08-08T16:34:50+07:00" pubdate data-updated="true">Aug 8<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Artikel ini, tidak seperti biasanya, ditulis berdasarkan request oleh <a href="http://sleepless.ngoprek.org" title="Anton Raharja">teman saya</a>. Selain itu, juga ada thread di milis <a href="http://groups.yahoo.com/group/jug-indonesia" title="Milis JUG Indonesia">JUG Indonesia</a> yang membahas tentang bisnis open source. Di sana saya memberikan sedikit komentar yang secara singkat serupa dengan apa yang akan dijelaskan di sini.</p>
+
+<p>Beberapa tahun belakangan ini, gema open source mulai ramai di dunia. Banyak orang yang tadinya skeptis dengan ide software gratis, mulai mencoba peruntungannya di dunia yang buka-bukaan ini. Banyak juga orang (salah satunya saya) yang bergembira dan sangat mendukung open source, terutama karena ke&#8217;gratis&#8217;annya semata.</p>
+
+<p>Tidak kurang dari perusahaan besar di dunia seperti <a href="http://www.oracle.com" title="Oracle">Oracle</a>, <a href="http://www.ibm.com" title="IBM">IBM</a>, <a href="http://www.sun.com" title="Sun Microsystem">Sun</a>, dan masih banyak yang lainnya, merilis aplikasi mereka yang berharga jutaan dolar secara open source atau &#8216;gratis&#8217;.</p>
+
+<p>Open source tidak selalu gratis, walaupun biasanya begitu. Dan gratis juga tidak selalu berarti open-source. Untuk menyederhanakan urusan, yang akan kita bahas di sini adalah software gratis. Terlepas dari apakah software tersebut open source atau tidak.</p>
+
+<p>Orang-orang pun mulai bertanya, &#8220;Apa tidak rugi melepas aplikasi secara gratis? Dari mana keuntungannya? Padahal untuk membuat software tersebut, telah banyak biaya yang dikeluarkan.&#8221;
+Dan masih banyak lagi pertanyaan sejenis.</p>
+
+<p>Tapi yang jelas, mereka tidak menjadi rugi karena melepas aplikasinya. Tindakan ini tentunya sudah didahului dengan kalkulasi bisnis yang matang dan tidak semata ikut-ikutan trend open source atau tiba-tiba menjadi &#8216;baik hati&#8217; terhadap negara ketiga/miskin (misalnya, Indonesia). Nah, sekarang mari kita lihat, dari mana profitnya.</p>
+
+<p>Setidaknya ada beberapa modus operandi penggunaan strategi gratis untuk perusahaan, sepanjang pengetahuan saya:</p>
+
+<ol>
+<li>RND</li>
+<li>Teaser product</li>
+<li>Strategi Produk Komplementer</li>
+<li>By product</li>
+<li>Pendukung core business</li>
+<li>Sebagai produk utama</li>
+</ol>
+
+
+<p>Mari kita lihat satu per satu.</p>
+
+<p><em>Disclaimer: semua yang saya tulis di sini merupakan pendapat pribadi saya, atas pengamatan tentang penggunaan strategi gratisan, yang tidak terbukti kebenarannya. Tidak ada pernyataan resmi dari perusahaan yang disebut di sini tentang strategi gratisnya. Silahkan tulis komentar anda di bawah kalau setuju/tidak setuju dengan pendapat saya ini.</em></p>
+
+<h3>Research and Development</h3>
+
+<p>Strategi ini digunakan oleh RedHat. Mereka membuat project open source Fedora sebagai lini depan riset Linux. Teknologi yang dihasilkan di project Fedora kemudian digunakan di lini produk komersilnya Red Hat Enterprise Linux. Dengan menggunakan project open source sebagai divisi RND, Red Hat mendapat keuntungan dari kontribusi tenaga kerja gratisan (baca: sukarelawan) baik di posisi developer, tester, dokumenter, public relation (dalam bentuk komentar positif, testimoni, word of mouth), dan juga technical writer (blog membahas penggunaan Fedora, support forum, mailing list, dsb).
+Seperti kita lihat di sini, sebenarnya Red Hat mendapat keuntungan besar, setidaknya dari sisi payroll dan marketing, dengan menggunakan strategi open source.</p>
+
+<p>Latihan buat pembaca, sebutkan contoh lain perusahaan yang menggunakan open source sebagai divisi RND.</p>
+
+<h3>Teaser Product</h3>
+
+<p>Promosi produk yang terbaik adalah dengan cara memberikan produk tersebut ke konsumen, dan berharap mereka puas dan bercerita kepada teman-temannya (yang diharapkan akan membeli produk tersebut). Strategi ini digunakan Oracle pada saat mereka melepas produk Oracle 10g Express Edition. Harapannya adalah, dengan menggunakan produk gratis tersebut:</p>
+
+<ol>
+<li>Lebih banyak orang yang familiar dengan produk Oracle</li>
+<li>Pengguna merasa puas atau sudah terlalu terbiasa (baca: kecanduan) dengan Oracle</li>
+<li>Pada suatu saat, pengguna gratisan tersebut merasa kurang dengan fitur yang ada, dan akan membeli versi berbayarnya</li>
+<li>Jika pengguna gratisan diminta rekomendasi oleh bosnya/temannya, mereka akan merekomendasikan Oracle, karena itulah produk yang mereka kuasai, dan lagipula bukan mereka yang akan membayarnya.</li>
+</ol>
+
+
+<p>Strategi pemasaran ini lebih efektif daripada memasang iklan di media. Banyak orang (termasuk saya) yang sudah sangat bosan dengan iklan, sehingga ada fitur &#8216;autoskip&#8217; di otak saya yang secara otomatis menutup popup iklan, bahkan sebelum gambarnya selesai loading. Bahkan untuk kasus ekstrim, banyak orang mau bersusah payah yang memasang filter iklan seperti Adblock atau <a href="http://www.schooner.com/~loverso/no-ads/" title="Internal Proxy for No Ads">no-ads.pac</a> untuk melucuti media dari semua iklan.</p>
+
+<p>Dengan menggunakan &#8216;orang betulan&#8217; yang tulus dan jujur untuk merekomendasikan produknya, lebih besar kemungkinan produk akan dibeli.</p>
+
+<h3>Strategi Produk Komplementer</h3>
+
+<p>Ada kalanya perusahaan menggratiskan suatu aplikasi karena aplikasi tersebut adalah komplementer dari produk utamanya. Contohnya adalah Acrobat Reader.</p>
+
+<p>Waktu kita belajar di SMP dulu, kita belajar tentang produk substitusi dan komplementer. Produk substitusi adalah produk yang dapat menggantikan produk lain. Misalnya, Indomie adalah produk substitusi Mi Sedap.</p>
+
+<p>Sedangkan produk komplementer adalah produk yang saling melengkapi dengan produk lain. Seperti yang sering kita lihat di tivi, salah satu iklan tag linenya adalah, &#8220;Apapun makanannya, minumnya tetap &#8230; (produk XXX)&#8221;. Nampaknya produsen minuman tersebut berusaha serakah dengan menjadikan produknya sebagai komplementer untuk semua makanan padat.</p>
+
+<p>Acrobat Reader, adalah komplementer dari Acrobat Distiller. Dengan menggratiskan Reader, Adobe berharap penjualan Distiller akan meningkat. Sepertinya strategi ini cukup jitu, sehingga PDF bisa jadi standar format dokumen di internet.</p>
+
+<p>Lebih lanjut tentang penggunaan strategi produk komplementer ini dijelaskan oleh Joel Spolsky. Silahkan baca sendiri di <a href="http://www.joelonsoftware.com/articles/StrategyLetterV.html" title="Joel on Open Source">websitenya</a>.</p>
+
+<h3>By Products</h3>
+
+<p>By products artinya produk sampingan. Misalnya kita membuka usaha jualan kelapa parut di pasar, kita akan mendapatkan banyak sekali air kelapa sebagai limbah. Mereka yang jeli akan segera beternak jamur di dalam air kelapa tersebut dan segera membuka lini produk baru, yang lebih tenar disebut dengan Nata de Coco.</p>
+
+<p>Hal yang sama dilakukan oleh <a href="http://www.thoughtworks.com" title="ThoughtWorks">Martin Fowler dan gerombolannya</a>. Bisnis utama mereka adalah software development dan konsultasi bagi perusahaan software development yang lainnya. Sebagai mana konsultan manajemen pada umumnya, mereka juga berjualan jargon. Salah satu jargon yang mereka perdagangkan adalah Continuous Integration. Ini tidak lain adalah istilah keren dari <em>kompile sering-sering dan test sampai capek</em>. Menyuruh programmer kompile lima kali sehari dan testing sepuluh kali sehari kemudian menulis hasilnya dalam format HTML adalah cara cepat untuk membuat programmer pensiun dini alias resign. Oleh karena itu, mereka membuat program kecil yang bisa melakukan kegiatan tersebut secara terjadwal dan terus menerus. Sehingga jargon Continuous Integration bisa dijual dengan sukses.</p>
+
+<p>Program kecil tersebut adalah <a href="http://cruisecontrol.sourceforge.net" title="Cruise Control homepage">Cruise Control</a>. Dapat Anda peroleh secara gratis di <a href="http://www.sourceforge.net" title="Kost-kostan aplikasi open source">SourceForge</a>.</p>
+
+<p>Perhatikan di sini bahwa dagangan utama mereka adalah proses, bukan produk. Sehingga <a href="http://cruisecontrol.sourceforge.net" title="Cruise Control homepage">Cruise Control</a> tersebut adalah by product belaka. Sama seperti &#8216;nata de coco&#8217;. Karena bukan produk utama, tidak ada kerugian dari melepas aplikasi tersebut secara gratis. Keuntungannya, para calon prospek akan berpersepsi bahwa <a href="http://www.martinfowler.com" title="Bliki Martin Fowler">Martin Fowler</a> masih punya mainan lain yang lebih menarik yang tidak digratiskan. Sehingga dengan senang hati mereka akan mempekerjakan <a href="http://www.pyrasun.com/mike/mt/archives/2005/04/23/18.29.03/index.html" title="Para magang di thoughtworks">dia dan pasukan magangnya</a> dengan tarif selangit.</p>
+
+<h3>Pendukung produk utama</h3>
+
+<p>Framework favorit saya, <a href="http://www.springframework.org" title="Spring Framework">Spring Framework</a> adalah contohnya. Produk utama <a href="http://www.springframework.com" title="Interface 21">Interface 21</a>, perusahaan sponsor <a href="http://www.springframework.org" title="Spring Framework">Spring Framework</a>, adalah perusahaan software development. Berbagai perusahaan besar di dunia mempercayakan pengembangan aplikasi bisnisnya pada <a href="http://www.springframework.com" title="Interface 21">Interface 21</a>. Jadi, produk utama <a href="http://www.springframework.com" title="Interface 21">Interface 21</a> adalah software development. Dalam mengembangkan aplikasi pesanan client, Interface 21 membutuhkan framework berkualitas tinggi dan berarsitektur bagus. Di situlah peranan project Spring Framework, sebagai produk pendukung aktivitas bisnis Interface 21.</p>
+
+<h3>Produk Utama</h3>
+
+<p>Ada juga beberapa perusahaan yang menjadikan aplikasi gratisnya sebagai produk utama. Lalu datang pertanyaan, &#8220;Kalau produk utama digratiskan, dari mana dapat uangnya?&#8221;. Ada beberapa jalur lain di luar penjualan software: training, buku, dan customization. Jalur ini ditempuh JBoss dan Hibernate. Dokumentasi utama JBoss tidak gratis. Kita harus membeli dengan sistem berlangganan di websitenya.</p>
+
+<p>Hibernate, mendapat pemasukan dari penjualan buku. Pembuatnya, Gavin King dan Christian Bauer mengarang buku yang bagus sekali, Hibernate in Action. Isinya menjelaskan desain aplikasi pada umumnya, dan penggunaan framework Hibernate. Dengan semakin banyaknya pengguna Hibernate, buku dan training akan semakin laku.</p>
+
+<p>PlaySMS dan PlayBilling, mendapat pemasukan dari customization. Para pelanggan seringkali membutuhkan fitur khusus yang belum ada di rilis open source. Untuk itu, mereka membayar developer untuk menambahkan fitur yang dibutuhkan. Siapa yang lagi yang lebih berkompeten menulis tambahan fitur selain <a href="http://endy.artivisi.com" title="Endy Muhardin">pengembang</a> <a href="http://sleepless.ngoprek.org" title="Anton Raharja">asli</a>nya?</p>
+
+<p>Demikianlah uraian tentang bisnis open source. Jadi, hilangkan ilusi bahwa perusahaan besar sekarang menjadi dermawan, karena memberikan aplikasinya secara gratis. Ada kepentingan pemegang saham di baliknya, yang tentu saja, tidak mau rugi.</p>
+
+<p>Walaupun demikian, kita lihat ada situasi win-win di sini. Pengguna diuntungkan dengan adanya software gratis. Perusahaan juga diuntungkan dari promosi gratis, tenaga sukarela, dan berbagai keuntungan lainnya.</p>
+
+<p>Oleh karena itu, mari gunakan aplikasi gratis.
+Kalo bisa gratis, kenapa harus bayar?
+Kalo ada yang gratis, kenapa masih membajak?</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-3/">Ruthless Testing 3</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-20T22:38:19+07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam sistem. Jadi, user membuka form, mengisi data diri, dan menekan tombol Submit. Tidak ada yang aneh dengan fiturnya.</p>
+
+<p>Keanehannya adalah, entah kenapa, aplikasi tersebut cuma bisa digunakan 7 kali. Jadi pada waktu user ke-8 menekan tombol Submit, datanya tidak tersimpan di database. Anehnya juga, aplikasi tidak menimbulkan pesan error. Hmm &#8230; sungguh gaib.</p>
+
+<p>Berbagai upaya dilakukan untuk mengatasi masalah ini. Tim pengusir hantu didatangkan, lengkap dengan kostum putih-putih dan botol penangkap hantu, karena dicurigai ada &#8216;sesuatu&#8217; dengan angka 7. Tetapi tidak juga mencapai solusi yang memuaskan.</p>
+
+<p>Akhirnya, seorang anggota milis JUG didatangkan. Beliau memeriksa source code fitur registrasi tersebut, sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">username</span><span class="o">,</span> <span class="n">password</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">PreparedStatement</span> <span class="n">pstm</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO user VALUES (?,?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getUsername</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getPassword</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pembaca yang teliti (ya, maksudnya Anda) akan segera menemukan asal muasal semua &#8216;kejadian gaib&#8217; di atas, yaitu:</p>
+
+<ol>
+<li><p>Connection dibuka, tapi tidak pernah ditutup. Besar kemungkinan max connection di database adalah 7 concurrent connection. Sehingga setelah 7 kali connect dan 0 kali disconnect, database akan menolak koneksi baru.</p></li>
+<li><p>Catch block dibiarkan kosong, sehingga error dari database tidak akan tampil di mana-mana.</p></li>
+</ol>
+
+
+<p>Hmm .. kesalahan yang &#8216;newbie banget&#8217;. Melalui pemeriksaan menyeluruh, ditemukan kesalahan serupa di berbagai bagian kode yang lain.</p>
+
+<p>Pada titik ini, para project manager, development team leader akan segera mengeluh dan bersiap-siap mengisi komentar di bawah, &#8220;Masa saya harus baca kode baris-per-baris? Kayak kurang kerjaan aja !!&#8221;
+Sebelum Anda lakukan itu, sabar dulu .. baca sampai habis. Kita akan segera lihat solusinya.</p>
+
+<p>Pemeriksaan baris kode seperti ini sangat melelahkan. Semakin besar projectnya, semakin banyak baris kodenya, semakin tinggi beban pemeriksaannya. Di lain pihak, kalau kita tidak melakukan pemeriksaan, kita menimbulkan resiko terjadinya masalah di kemudian hari.</p>
+
+<p>Jadi, bagaimana solusinya?</p>
+
+<p>Untungnya &#8211;seperti biasa&#8211; kita bukan yang pertama menemukan masalah seperti ini. Masalah sudah pernah dialami orang lain, dan dibuatkan solusinya, sehingga kita &#8211;seperti biasa&#8211; tinggal download dan pakai :D</p>
+
+<p>Jawaban dari masalah ini adalah <strong>automated code review</strong>. Tools ini akan melakukan review terhadap source code, sesuai dengan aturan yang kita tetapkan, dengan teliti, otomatis, dan repeatable. Dengan tool ini, berapapun baris kode yang ada, semua akan diperiksa secara menyeluruh.</p>
+
+<p>Ada beberapa solusi yang dapat digunakan:</p>
+
+<ul>
+<li><p><a href="http://csdl.ics.hawaii.edu/Tools/Jupiter/">Jupiter (Eclipse Plugin)</a></p></li>
+<li><p><a href="http://pmd.sourceforge.net">PMD</a></p></li>
+<li><p><a href="http://www.hammurapi.org">Hammurapi</a></p></li>
+<li><p>Built-in feature IntelliJ IDEA</p></li>
+</ul>
+
+
+<p>Pada contoh kali ini, kita akan coba menggunakan PMD. Caranya mudah:</p>
+
+<ol>
+<li><p>Download dari websitenya.</p></li>
+<li><p>Extract</p></li>
+<li><p>Buat target di Ant untuk memanggil PMD.</p></li>
+<li><p>Lihat reportnya</p></li>
+</ol>
+
+
+<p>Untuk langkah #1 dan #2 tidak perlu dijelaskan lebih lanjut. Target Ant untuk langkah #3 adalah sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;code-review&quot;</span> <span class="na">depends=</span><span class="s">&quot;prepare&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;pmd</span> <span class="na">targetjdk=</span><span class="s">&quot;1.5&quot;</span> <span class="na">shortFilenames=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>basic<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>codesize<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>clone<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>controversial<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>coupling<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>design<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>finalizers<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>imports<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>javabeans<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-java<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-jakarta-commons<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>naming<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>optimizations<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strictexception<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strings<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>sunsecure<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>unusedcode<span class="nt">&lt;/ruleset&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;formatter</span>
+</span><span class='line'>        <span class="na">type=</span><span class="s">&quot;net.sourceforge.pmd.renderers.HTMLRenderer&quot;</span>
+</span><span class='line'>        <span class="na">toFile=</span><span class="s">&quot;${pmd.result}/pmd.html&quot;</span>
+</span><span class='line'>    <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;src&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;include</span> <span class="na">name=</span><span class="s">&quot;**/*.java&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/fileset&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/pmd&gt;</span>
+</span><span class='line'><span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut penjelasannya:</p>
+
+<ol>
+<li><p>Target JDK : memeriksa kesesuaian dengan JDK 1.5</p></li>
+<li><p>Ruleset : Aturan yang akan diberlakulkan. Detailnya bisa dilihat di website PMD. Sebagai contoh, dengan memberlakukan ruleset basic, kita memeriksa blok catch yang kosong, sehingga mencegah masalah pesan error di atas. Sedangkan ruleset design memeriksa apakah Connection yang dibuat sudah ditutup.</p></li>
+<li><p>Formatter : Jenis formatter yang digunakan. Report yang dihasilkan PMD dapat berupa text, xml, csv.</p></li>
+<li><p>Fileset: source code yang akan direview. Kita dapat mengganti parameter ini dan mereview semua source code yang ada di harddisk kita. SIlahkan mencoba mendownload source code project open source java (misalnya Tomcat, atau JBoss), dan lihat apakah kode programnya ditulis dengan baik.</p></li>
+</ol>
+
+
+<p>Laporan yang dihasilkan bentuknya seperti ini:
+<img src="/images/uploads/2006/07/pmd-report.png" title="PMD Review Result" ></p>
+
+<p>Selamat mencoba. Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/manajemen/cost-of-quality/">Cost of Quality</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T23:48:16+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Mumpung sedang <a href="http://endy.artivisi.com/blog/java/ruthless-testing-2/">hangat</a> membahas <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">testing</a>, coba kita dengarkan apa pendapat manajemen.</p>
+
+<p>Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, integration test, coverage test dsb
+Manager [M] : Stop, banyak sekali testnya? Memangnya kamu gak bisa bikin kode yang bener, sampe ditest segitu banyaknya?
+[P] : Ya bisa bos, tapi ..
+[M] : Ya sudah kalo bisa coding sana yang bener, test nanti saja waktu sudah delivery. Kita sudah mepet deadline ini. Kita dibayar bukan untuk coding unit test.
+[P] : (kecewa, cuma bisa gigit mouse) Ya deh bos &#8230;</p>
+
+<p>Umumnya, begitulah tanggapan pihak manajemen dalam menyikapi test. Test dianggap sebagai kegiatan yang (walaupun) penting, prioritasnya ada di kelas ekonomi.
+Saya sendiri, walaupun merupakan penggemar unit testing dan percaya akan manfaatnya, kadang merasa tidak pede untuk berargumen dengan manajemen tentang urusan ini.</p>
+
+<p>Sampai suatu hari, ada training di kantor tentang Software Engineering. Instrukturnya adalah konsultan manajemen yang ahli di bidang ISO dan CMMI.</p>
+
+<p>Biasanya, saya rada skeptis dengan yang namanya konsultan manajemen. Baik itu konsultan pemasaran, konsultan ISO, atau bidang manajemen yang lainnya. Kebanyakan dari mereka (tidak semua, tapi kebanyakan) biasanya cuma bisnis jargon saja. Cari uang dari menciptakan jargon aneh, menjelaskan jargon tersebut, dan menyuruh kita menggunakan jargon tersebut. Selebihnya nasihatnya mirip-mirip ramalan bintang, nasihat yang buram dan bisa ditafsirkan apa saja.</p>
+
+<p>Tapi kali ini, sang konsultan mengetengahkan jargon yang cukup menarik, yaitu <strong>Cost of Quality</strong>. Berikut penjelasannya.</p>
+
+<p>Biasanya, dalam mengerjakan project software, kegiatan apa yang ada di project schedule kita?
+Umumnya seperti ini:
+1. Analisa : membuat spesifikasi requirement user
+2. Desain : desain tampilan dan arsitektur aplikasi
+3. Coding
+4. User Testing
+5. Implementasi : migrasi data, training user, tuning
+6. Garansi
+7. Makan-makan (kalo ada profit)</p>
+
+<p>Si konsultan bilang, memang itu semua (1-6) adalah kegiatan utama. Tanpa kegiatan itu, project tidak bisa diutamakan. Tapi, dengan 6 aktifitas tersebut, kecil peluangnya kita akan sampai ke aktivitas #7, yaitu makan-makan.</p>
+
+<p>&#8220;Kenapa begitu ?&#8221;, demikian para peserta training bertanya dengan antusias, nampaknya jelas kalau urusannya menyangkut perut (tidak jadi makan-makan) orang ngantuk bisa langsung jadi segar.</p>
+
+<p>&#8220;Ya sebab di sana belum dianggarkan Biaya Kualitas (Cost of Quality), nantinya kualitas rendah, banyak perbaikan, sehingga profit terancam tergusur&#8221;, jawab instruktur.</p>
+
+<p>Nah, sekarang apa saja biaya kualitas itu? Diantaranya adalah:</p>
+
+<ol>
+<li><p>Training : memastikan pekerjaan tidak dikerjakan secara trial and error</p></li>
+<li><p>Review : mendeteksi kesalahan sedini mungkin. Kesalahan desain bisa diperbaiki dalam beberapa halaman dokumen desain. Tetapi jika dibiarkan sampai coding, banyak sekali effort untuk debug dan bugfix yang harus dikeluarkan. Misal: mengganti iBatis dengan Hibernate di dokumen desain cukup dengan Find and Replace. Mengganti iBatis dengan Hibernate di kode program? Bayangkan sendiri.</p></li>
+<li><p>Rework : harus ada anggaran untuk melakukan perbaikan dokumen, bugfix, dsb</p></li>
+<li><p>Audit : sebelum hasil pekerjaan dideliver ke client, harus diperiksa dulu secara internal. Audit proses juga dilakukan untuk memastikan semua Cost of Quality sudah diperhitungkan dan dijalankan.</p></li>
+<li><p>Testing : testing sebanyak mungkin dan seawal mungkin.</p></li>
+</ol>
+
+
+<p>Dalam project software, kita mengenal fenomena bola salju. Tadinya kecil, menggelinding menjadi besar sehingga dapat menggulung satu desa (seperti di film kartun). Di software sama. Kita ingin mendeteksi kesalahan sedini mungkin, kalau bisa di tahap analisa semua kesalahan sudah dieliminasi, sehingga tidak merembet ke kode program. Jadi, perlu ada review dan audit untuk memastikan kesalahan tidak ditemukan di fase-fase akhir. Karena memperbaiki kesalahan di awal (requirement dan design) jauh lebih murah daripada di akhir (kode program, materi user training, user manual, dan script migrasi data).</p>
+
+<p>Baiklah, cost of quality itu penting. Sekarang bagaimana cara menjelaskan pada manajemen mengenai tambahan biaya tersebut?</p>
+
+<p>Mari kita rekonstruksi dialog Programmer dan Manager.</p>
+
+<p>Programmer [P] : Bos, kata Mr. Endy, kita harus bikin unit test, integration test, coverage test &#8230;
+Manager [M] : Stop, banyak sekali testnya? Memangnya kamu gak bisa bikin kode yang bener, sampe ditest segitu banyaknya?
+[P] : Ya bisa bos, tapi ..
+[M] : Ya sudah kalo bisa coding sana yang bener, test nanti saja waktu sudah delivery. Kita sudah mepet deadline ini. Kita dibayar bukan untuk coding unit test.
+[P] : Memangnya kalo boleh tau, seperti apa jadwalnya Bos?
+[M] : Kamu programmer mau tau saja.
+Tapi gpp, karena ini percakapan boongan baiklah akan saya kasi tau:
+1. Analisa : 2 minggu
+2. Desain : 1 minggu
+3. Coding : 4 minggu
+4. User Testing dan Bugfix : 4 minggu
+5. Implementasi : 4 minggu
+6. Garansi : 8 minggu
+Total : 23 minggu</p>
+
+<p>[P] : Kenapa User Testing dan Implementasi lama sekali Bos? Sama lamanya dengan Coding?
+[M] : Ya itu karena kamu dan teman-temanmu kerjanya salah melulu, jadi di User Testing dan Implementasi banyak masalah.</p>
+
+<p>[P] : Bagaimana kalau saya usul jadwal seperti ini :
+1. Analisa : 2 minggu
+2. Review dan rework : 1 minggu
+3. Desain : 1 minggu
+4. Review dan rework : 1 minggu
+5. Training : 1 minggu
+6. Coding + Unit Testing: 6 minggu
+7. User Testing dan Bugfix: 2 minggu
+8. Implementasi : 1 minggu
+9. Garansi : 8 minggu
+Total : 23 minggu
+Sama kan Bos, total waktunya. Saya yakin dengan tambahan aktifitas review, rework, dan training, kita akan bisa tangkap sebagian besar bug sebelum User Testing. Dengan demikian, bug yang terlihat sama user tinggal sedikit karena sudah kita temukan duluan.
+Kalau sebelum coding kita ditraining dulu, codingnya bisa lebih cepat dan bener Bos, sehingga bugnya lebih sedikit. Mudah-mudahan client jadi puas.</p>
+
+<p>[M] : Wah pintar juga kamu, di rumah dikasi makan apa sama Emaknya bisa pintar gini? Baiklah akan saya coba usul kamu.</p>
+
+<p>Demikianlah, cost of quality itu penting. Lebih penting lagi adalah cara kita menjual pada manajemen, supaya kegiatan testing dan training tidak dianggap sebagai kegiatan &#8216;buang-buang uang&#8217; dan &#8216;tidak dibayar client&#8217;. Sebenarnya, client membayar untuk mendapat hasil yang berkualitas dan memuaskan. Secara tidak langsung, mereka membayar kita untuk melakukan testing.</p>
+
+<p>Referensi : <a href="http://www.stevemcconnell.com/articles/art04.htm">Software Quality at Top Speed</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-2/">Ruthless Testing 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T19:27:12+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel sebelumnya</a>, kita telah membahas tentang penggunaan <a href="http://www.junit.org">unit test</a> dan integration test sederhana menggunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>. Pada artikel kali ini, kita akan membahas tentang coverage testing</p>
+
+<p>Sebagai technical leader, project manager -atau apapun nama jabatannya- yang bertugas mengawasi segerombolan programmer, bagaimana cara kita memastikan bahwa mereka membuat unit test untuk setiap kode yang ditulis?</p>
+
+<p>Cara manual tentu saja dengan memeriksa unit test satu-persatu dan membandingkannya dengan kode program aplikasi. Kita cocokkan tiap unit test dengan pasangan kode yang ditest. Dengan demikian, kita tahu mana kode yang sudah ditest mana yang belum.</p>
+
+<p>Sayangnya, cara ini tidak otomatis. Sehingga kalau nanti dihadapkan pada deadline ketat, dipastikan kegiatan ini akan segera diabaikan. Oleh karena itu kita harus mengotomasi pemeriksaan test ini sehingga di tengah tekanan jadwal, kita tetap bisa memastikan unit test dibuat dengan benar.</p>
+
+<p>Ada beberapa tools yang beredar di pasaran untuk mengotomasi pemeriksaan ini, diantaranya:</p>
+
+<ul>
+<li><p><a href="http://www.cenqua.com/clover/">Clover</a> (komersial)</p></li>
+<li><p><a href="http://cobertura.sourceforge.net/">Cobertura</a> (open source)</p></li>
+<li><p><a href="http://emma.sourceforge.net/">Emma</a> (open source)</p></li>
+</ul>
+
+
+<p>Semua tools di atas melakukan &#8217;<em>coverage testing</em>&#8217;, yaitu pengetesan apakah unit test yang dibuat telah meng-cover semua kode yang ditest. Jika unit testnya terlalu sedikit, maka coverage testing akan failed.</p>
+
+<p>Pada contoh kali ini, kita akan menggunakan Cobertura. Cobertura mampu memeriksa coverage terhadap baris kode dan percabangan. Jadi kalau ada percabangan (if-else, switch) yang belum ditest, cobertura akan melaporkan. Kalau ada baris kode yang belum terjangkau unit test, cobertura juga akan memperingatkan.</p>
+
+<p>Sebagai supervisor, kita dapat menetapkan aturan pada project. Misalnya, &#8220;Untuk project ini, saya ingin test meng-cover minimal 70% dari seluruh baris dan 90% dari seluruh percabangan&#8221;.</p>
+
+<p>Bagaimana cara Cobertura melakukan keajaiban ini? Jawabannya, melalui mekanisme yang disebut <em>code instrumentation</em>.
+Cobertura akan memodifikasi bytecode (*.class) yang dihasilkan oleh proses kompilasi. Bytecode yang dihasilkan <em>javac</em> akan ditambah dengan kode-kode khusus untuk menghitung dan mendeteksi invokasi. Dengan demikian, pada saat unit test dijalankan, Cobertura akan mengetahui unit test yang mana menjalankan kode program yang mana. Bytecode yang akan diproses oleh Cobertura harus dikompile dengan flag -debug.</p>
+
+<p>Dengan demikian, untuk menjalankan Cobertura, kita membutuhkan dua kali tahap kompilasi. Kompilasi pertama mengubah <em>.java menjadi </em>.class. Kompilasi kedua menambahkan instrumen di *.class.</p>
+
+<p>Berikut adalah Ant target untuk melakukan instrumentasi.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;instrument-cobertura&quot;</span> <span class="na">depends=</span><span class="s">&quot;compile-cobertura&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="c">&lt;!--</span>
+</span><span class='line'><span class="c">                Instrument the application classes, writing the</span>
+</span><span class='line'><span class="c">                instrumented classes into ${build.instrumented.dir}.</span>
+</span><span class='line'><span class="c">        --&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-instrument</span> <span class="na">todir=</span><span class="s">&quot;${compile.cobertura}&quot;</span><span class="nt">&gt;</span>            
+</span><span class='line'>          <span class="nt">&lt;includeClasses</span> <span class="na">regex=</span><span class="s">&quot;.*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;excludeClasses</span> <span class="na">regex=</span><span class="s">&quot;.*\Test.*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;instrumentationClasspath&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;pathelement</span> <span class="na">location=</span><span class="s">&quot;${compile.debug}&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/instrumentationClasspath&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/cobertura-instrument&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selanjutnya, kita menjalankan unit test seperti biasa (melalui Ant target). Bedanya adalah, kita menggunakan hasil kompilasi Cobertura. Ant target untuk menjalankan unit test adalah sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;unit-test&quot;</span> <span class="na">depends=</span><span class="s">&quot;instrument-cobertura&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;junit</span> <span class="na">haltonfailure=</span><span class="s">&quot;false&quot;</span> <span class="na">fork=</span><span class="s">&quot;yes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">location=</span><span class="s">&quot;${compile.cobertura}&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">refid=</span><span class="s">&quot;cobertura-classpath&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;formatter</span> <span class="na">type=</span><span class="s">&quot;xml&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;batchtest</span> <span class="na">todir=</span><span class="s">&quot;${junit.result}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;${compile.debug}&quot;</span> <span class="na">includes=</span><span class="s">&quot;**/*Test.class&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/batchtest&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/junit&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan referensi ke <strong>${compile.cobertura}</strong> yang diletakkan di atas referensi <strong>cobertura-classpath</strong>. Ini mengisyaratkan bahwa class hasil instrumentasi Cobertura diload <strong>lebih dulu</strong> daripada class yang dikompilasi secara normal.</p>
+
+<p>Terakhir, kita buat Ant target untuk memeriksa coverage dan menghasilkan HTML report.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;coverage-test&quot;</span> <span class="na">depends=</span><span class="s">&quot;unit-test&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-check</span> <span class="na">datafile=</span><span class="s">&quot;cobertura.ser&quot;</span>
+</span><span class='line'>                         <span class="na">branchrate=</span><span class="s">&quot;70&quot;</span>
+</span><span class='line'>                         <span class="na">linerate=</span><span class="s">&quot;90&quot;</span>
+</span><span class='line'>                         <span class="na">haltonfailure=</span><span class="s">&quot;false&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-report</span> <span class="na">datafile=</span><span class="s">&quot;cobertura.ser&quot;</span>
+</span><span class='line'>                          <span class="na">srcdir=</span><span class="s">&quot;src&quot;</span> <span class="na">destdir=</span><span class="s">&quot;${cobertura.result}&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan nilai batas baris (linerate) dan percabangan (branchrate) yang harus ditest. Nilainya sudah disesuaikan dengan aturan yang kita tetapkan di atas, yaitu sebesar 70% dan 90%.</p>
+
+<p>Misalnya kita memiliki class DayCounter.java sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numDays</span><span class="o">(</span><span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">year</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">switch</span> <span class="o">(</span><span class="n">month</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">5</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">7</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">8</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">10</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">12</span><span class="o">:</span> <span class="k">return</span> <span class="mi">31</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">6</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">9</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">11</span><span class="o">:</span> <span class="k">return</span> <span class="mi">30</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">year</span><span class="o">%</span><span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="mi">29</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="mi">28</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="k">default</span><span class="o">:</span> <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan unit testnya DayCounterTest.java sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">testframework</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">junit.framework.TestCase</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounterTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">28</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">29</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">21</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-all-green-small.png" title="Cobertura All Pass" ></p>
+
+<p>Kita juga bisa melihat coverage detail dari class DayCounter.java:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-class-green-small.png" title="Cobertura Class Detail Pass" ></p>
+
+<p>Bila kita non-aktifkan beberapa test, seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">testframework</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">junit.framework.TestCase</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounterTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(28, d.numDays(2,2001));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(29, d.numDays(2,2000));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(0, d.numDays(21,2000));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-all-red-small.png" title="Cobertura All Failed" ></p>
+
+<p>dan detail classnya seperti ini</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-class-red-small.png" title="Cobertura Class Detail Failed" ></p>
+
+<p>Bagaimana?
+Mudah dan cepat kan?
+Dengan cara ini, kita dapat mendeteksi tingkat kemalasan programmer dalam membuat unit test.
+Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test ini sering juga disebut code-review.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/plugin-untuk-archive/">Plugin Untuk Archive</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T00:49:47+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Tadinya cuma pengen tampilan arsip seperti <a href="http://andryshuzain.com/archives">punyanya mas Andry</a>. Tapi sayangnya dia pakai <a href="http://textpattern.com/">aplikasi blog lain</a> yang beda dengan <a href="http://www.wordpress.org">saya punya</a>. Jadi solusinya dia kemungkinan besar tidak bisa diimplement di sini.</p>
+
+<p>Tadinya mau coding sendiri, browsing ke <a href="http://codex.wordpress.org">situs dokumentasi Wordpress</a>, malah ketemu <a href="http://www.sonsofskadi.net/extended-live-archive/">plugin Extended Live Archives</a>, berikut <a href="http://www.24fightingchickens.com/2006/01/03/extended-live-archives/">cara instalasinya</a>.</p>
+
+<p>Setelah sedikit berkutat dengan file CSS, tadaaa&#8230;. silahkan <a href="http://endy.artivisi.com/blog/archive-live/">lihat sendiri</a>. Kalau anda melihat halaman kosong, tunggu sejenak, tandanya dia sedang loading.
+Nanti setelah loading, ada rangkuman arsip canggih berteknologi AJAX.</p>
+
+<p>Cool &#8230; :D</p>
+
+<p>Update: Sesuai saran mas Andry, saya coba instal <a href="http://www.sporadicnonsense.com/2006/05/04/clean-archives-20/">SRG Clean Archives</a>. Hasilnya bisa dilihat <a href="http://endy.artivisi.com/blog/archive-simple/">di sini</a>.</p>
 </div>
   
   
@@ -539,6 +1870,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
@@ -572,10 +1907,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
   </ul>

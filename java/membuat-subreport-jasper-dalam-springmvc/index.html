@@ -1,0 +1,786 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Membuat subreport Jasper dalam SpringMVC - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada artikel ini, kita akan membuat implementasi download file PDF/XLS dari aplikasi web. Fitur ini akan kita implementasi menggunakan library Jasper &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/membuat-subreport-jasper-dalam-springmvc/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Membuat Subreport Jasper Dalam SpringMVC</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-12T12:26:00+07:00" pubdate data-updated="true">Apr 12<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada artikel ini, kita akan membuat implementasi download file PDF/XLS dari aplikasi web. Fitur ini akan kita implementasi menggunakan library <a href="http://community.jaspersoft.com/project/jasperreports-library">Jasper Report</a> dan framework <a href="http://docs.spring.io/spring/docs/4.0.2.RELEASE/spring-framework-reference/html/view.html#view-jasper-reports">Spring MVC</a>.</p>
+
+<p>Projectnya akan kita buat menggunakan Maven, supaya bisa dibuka dengan baik (portable) di berbagai IDE. Untuk bisa memahami artikel ini dengan baik, pembaca harus sudah paham tentang Spring Framework dan Spring MVC. Yang belum paham Spring Framework bisa membaca <a href="http://software.endy.muhardin.com/java/memahami-dependency-injection/">artikel terdahulu tentang Dependency Injection</a>. Sedangkan pembahasan tentang Spring MVC bisa dibaca di <a href="https://www.google.com/search?q=site%3Asoftware.endy.muhardin.com&amp;q=aplikasi+web+dengan+spring">rangkaian artikel berseri tentang membuat aplikasi web dengan Spring MVC</a>.</p>
+
+<p>Source code lengkap dapat diakses di <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports">repository Github</a>. Bagi yang ingin tahu urutan langkah-langkah implementasinya, bisa lihat <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/commits/master">commit history</a>.</p>
+
+<!--more-->
+
+
+<h2>Setup Project</h2>
+
+<p>Pertama, kita setup dulu projectnya menggunakan Maven Archetype dengan perintah berikut</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mvn archetype:create -DgroupId=com.muhardin.endy.belajar -DartifactId=belajar-springmvc-jasper</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kemudian konversi menjadi aplikasi web dengan cara:</p>
+
+<ul>
+<li>edit <code>pom.xml</code>, ganti <code>&lt;packaging&gt;jar&lt;/packaging&gt;</code> menjadi <code>&lt;packaging&gt;war&lt;/packaging&gt;</code></li>
+<li>tambahkan file <code>src/main/webapp/WEB-INF/web.xml</code></li>
+<li>ini langkah opsional, tambahkan <code>src/main/webapp/index.html</code> supaya ada halaman Hello World</li>
+</ul>
+
+
+<p>Kondisi project pada tahap ini bisa dilihat di <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/tree/1fa6134d10b2816b40367d1fc2cc4302ddcb9a02">commit 1fa6134d10</a></p>
+
+<p>Setelah selesai di tahap ini, kita bisa buka projectnya menggunakan Netbeans atau Eclipse.</p>
+
+<h2>Aktivasi Spring MVC</h2>
+
+<p>Mulai dari yang mudah dulu, kita buat controller yang menampilkan Hello World dengan Spring MVC. Ini sekedar memastikan bahwa konfigurasi Spring MVC kita sudah benar, sehingga pada waktu implementasi Jasper Report nanti kita tidak perlu lagi memusingkan error Spring MVC.</p>
+
+<p>Tambahkan dependensi Spring MVC di <code>pom.xml</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>spring-webmvc<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${org.springframework.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Saya menggunakan Maven properties untuk mendeklarasikan versi library. Ini akan memudahkan kalau di kemudian hari kita ingin mengupgrade versinya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;properties&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;org.springframework.version&gt;</span>4.0.2.RELEASE<span class="nt">&lt;/org.springframework.version&gt;</span>
+</span><span class='line'><span class="nt">&lt;/properties&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Agar bisa memproses file JSP, kita tambahkan juga library <code>jstl</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>javax.servlet<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>jstl<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${jstl.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;scope&gt;</span>runtime<span class="nt">&lt;/scope&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selanjutnya, deklarasikan <code>DispatcherServlet</code> milik Spring di <code>web.xml</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;servlet&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;servlet-name&gt;</span>belajar<span class="nt">&lt;/servlet-name&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;servlet-class&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="nt">&lt;/servlet-class&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;load-on-startup&gt;</span>1<span class="nt">&lt;/load-on-startup&gt;</span>
+</span><span class='line'><span class="nt">&lt;/servlet&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;servlet-mapping&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;servlet-name&gt;</span>belajar<span class="nt">&lt;/servlet-name&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;url-pattern&gt;</span>/<span class="nt">&lt;/url-pattern&gt;</span>
+</span><span class='line'><span class="nt">&lt;/servlet-mapping&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita harus membuat file konfigurasi sesuai dengan nama servlet. Karena namanya <code>belajar</code>, maka file yang harus dibuat adalah <code>belajar-servlet.xml</code>. Isinya tidak banyak, seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">&quot;http://www.springframework.org/schema/beans&quot;</span>
+</span><span class='line'>       <span class="na">xmlns:mvc=</span><span class="s">&quot;http://www.springframework.org/schema/mvc&quot;</span>
+</span><span class='line'>       <span class="na">xmlns:context=</span><span class="s">&quot;http://www.springframework.org/schema/context&quot;</span>
+</span><span class='line'>       <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+</span><span class='line'>       <span class="na">xsi:schemaLocation=</span><span class="s">&quot;</span>
+</span><span class='line'><span class="s">        http://www.springframework.org/schema/beans</span>
+</span><span class='line'><span class="s">        http://www.springframework.org/schema/beans/spring-beans.xsd</span>
+</span><span class='line'><span class="s">        http://www.springframework.org/schema/context</span>
+</span><span class='line'><span class="s">        http://www.springframework.org/schema/context/spring-context.xsd</span>
+</span><span class='line'><span class="s">        http://www.springframework.org/schema/mvc</span>
+</span><span class='line'><span class="s">        http://www.springframework.org/schema/mvc/spring-mvc.xsd&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;mvc:annotation-driven/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;mvc:default-servlet-handler</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&quot;com.muhardin.endy.belajar.springmvcjasper.controller&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jstlViewResolver&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;viewClass&quot;</span> <span class="na">value=</span><span class="s">&quot;org.springframework.web.servlet.view.JstlView&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/templates/jsp/&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/beans&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sediakan file <code>halo.jsp</code> dalam folder <code>WEB-INF/templates/jsp</code>. Isinya tidak saya pasang di sini, silahkan lihat sendiri <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/blob/5e5eed120ab0a58e91a5c130fa2957b82acfebb0/src/main/webapp/WEB-INF/templates/jsp/halo.jsp">di Github</a>.</p>
+
+<p>Buat controller dalam package <code>com.muhardin.endy.belajar.springmvcjasper.controller</code>, sesuai konfigurasi dalam <code>belajar-servlet.xml</code>. Isi file bisa dilihat <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/blob/5e5eed120ab0a58e91a5c130fa2957b82acfebb0/src/main/java/com/muhardin/endy/belajar/springmvcjasper/controller/HaloController.java">di Github</a>.</p>
+
+<p>Pada tahap ini, kita bisa menjalankan aplikasinya dengan perintah <code>mvn clean package tomcat:run</code> dan browse ke <code>http://localhost:8080/belajar-springmvc-jasper/halo</code></p>
+
+<p>Kondisi folder project pada tahap ini bisa dilihat <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/tree/5e5eed120ab0a58e91a5c130fa2957b82acfebb0">di sini</a>.</p>
+
+<h2>Aktivasi Jasper Report</h2>
+
+<p>Kita harus membuat dulu template reportnya. Gunakan <a href="http://community.jaspersoft.com/project/ireport-designer">iReport</a> untuk mendesain template secara visual, supaya lebih mudah. Berikut screenshot report yang saya buat</p>
+
+<p><img src="https://lh4.googleusercontent.com/-j44Qm1BUa70/U0jWOO7SwOI/AAAAAAAAFlM/vReeJlxCI3E/w916-h574-no/01-report-induk.png" title="" ></p>
+
+<p>Semua template Jasper Report kita simpan dalam folder <code>src/main/webapp/WEB-INF/templates/jrxml</code>.</p>
+
+<p>Agar bisa memproses template report tersebut, kita tambahkan dulu library Jasper Report di <code>pom.xml</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>net.sf.jasperreports<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>jasperreports<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>${jasperreports.version}<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;scope&gt;</span>runtime<span class="nt">&lt;/scope&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cukup gunakan scope <code>runtime</code> karena kita tidak perlu import class Jasper di kode program kita. Tambahkan juga dependensi <code>javax.servlet.http</code> supaya kita bisa menggunakan class <code>HttpServletRequest</code> nantinya. Scopenya kita gunakan <code>provided</code>, karena sudah disediakan dalam application server (misal: Tomcat).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;groupId&gt;</span>javax<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;artifactId&gt;</span>javaee-web-api<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;version&gt;</span>7.0<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dependency&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selanjutnya, kita tinggal isi data yang akan ditampilkan dalam dokumen PDF/XLS. Ini kita lakukan di kode program Java dalam class <code>HaloController</code>. Berikut methodnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/anggota/export*&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">ModelMap</span> <span class="nf">exportDataAnggota</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">uri</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getRequestURI</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">format</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="n">uri</span><span class="o">.</span><span class="na">lastIndexOf</span><span class="o">(</span><span class="s">&quot;.&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">ModelMap</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">&quot;format&quot;</span><span class="o">,</span> <span class="n">format</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">&quot;tanggal&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">Date</span><span class="o">())</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addAttribute</span><span class="o">(</span><span class="s">&quot;dataSource&quot;</span><span class="o">,</span> <span class="n">service</span><span class="o">.</span><span class="na">semuaAnggota</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada kode program di atas, pertama kita ambil dulu akhiran di URL yang diakses user. Contohnya, bila user mengakses <code>http://localhost:8080/belajar-springmvc-jasper/anggota/export.pdf</code>, maka variabel <code>format</code> akan berisi <code>pdf</code>. Variabel <code>format</code> ini akan digunakan Spring untuk menentukan jenis outputnya, apakah PDF, XLS, CSV, dsb.</p>
+
+<p>Kita isi variabel apapun yang kita butuhkan dalam report. Pada contoh di atas, kita kirim dua variabel yaitu <code>tanggal</code> dan <code>dataSource</code>. Variabel <code>tanggal</code> akan menjadi parameter dalam Jasper Report, sedangkan <code>dataSource</code> akan menjadi sumber data yang akan ditampilkan dalam <em>band</em> <code>detail</code>. Untuk lebih jelasnya, silahkan <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/blob/17dd0806ccf41d5edbcf646aa50458cfbd130d8f/src/main/webapp/WEB-INF/templates/jrxml/daftar-anggota.jrxml">buka file templatenya</a> dengan menggunakan iReport.</p>
+
+<p>Selanjutnya, kita konfigurasi Spring agar request ke url <code>http://localhost:8080/belajar-springmvc-jasper/anggota/export.pdf</code> diteruskan ke Jasper Report. Kita buat deklarasi resolver untuk Jasper Report dalam <code>belajar-servlet.xml</code> sebagai berikut</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jasperViewResolver&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.XmlViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;location&quot;</span> <span class="na">value=</span><span class="s">&quot;classpath:jasper-views.xml&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;0&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tambahkan juga property <code>order</code> di konfigurasi JSP supaya dia dijalankan setelah Jasper Report.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jstlViewResolver&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;viewClass&quot;</span> <span class="na">value=</span><span class="s">&quot;org.springframework.web.servlet.view.JstlView&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/templates/jsp/&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ini kita lakukan karena resolver JSP tidak bisa mengecek apakah templatenya ditemukan atau tidak. Dia akan langsung mengeluarkan pesan error. Dengan resolver Jasper dieksekusi duluan, maka flownya akan seperti ini:</p>
+
+<ol>
+<li>Dari controller terima nama view <code>/anggota/export.pdf</code></li>
+<li>Cari view dengan nama tersebut dalam <code>jasperViewResolver</code></li>
+<li>Kalau tidak ketemu lanjutkan cari dalam <code>jstlViewResolver</code></li>
+<li>Kalau tidak ketemu juga, keluarkan pesan error</li>
+</ol>
+
+
+<p>Kondisi folder project pada tahap ini bisa dilihat <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/tree/bce02983b044e80a97db7dc95689b643afbdea8a">di sini</a></p>
+
+<p>Pada tahap ini kita sudah bisa menghasilkan file PDF ataupun XLS menggunakan Jasper Report dan Spring MVC. Tentunya pada aplikasi sebenarnya data diambil dari database. Tapi untuk menyederhanakan masalah agar kita bisa fokus ke konfigurasi Jasper dan Spring, maka data yang ditampilkan kita hardcode saja.</p>
+
+<p>Selanjutnya, kita akan mencoba konfigurasi yang lebih sulit, yaitu sub report.</p>
+
+<h2>Sub Report</h2>
+
+<p>Subreport adalah report di dalam report. Ini adalah fitur canggih dari Jasper Report. Kita tidak akan membahas detail tentang apa itu subreport. Silahkan baca artikel <a href="http://www.richardnichols.net/2010/02/simple-guide-to-sub-reports-in-jasperreports-ireport/">ini</a> dan <a href="http://bytecoded.blogspot.com/2009/12/jasperreports-370demosamplessubreport.html">ini</a> untuk memahami apa itu subreport.</p>
+
+<p>Satu report induk bisa menampung banyak subreport. Masing-masing subreport memiliki template dan <code>dataSource</code> sendiri. Untuk itu, kita perlu memberitahukan pada semua pihak tentang lokasi / nama file template subreport dan nama variabel <code>dataSource</code> yang digunakan di subreport.</p>
+
+<p>Kita mulai dari desain template induk terlebih dulu. Ini kita lakukan di iReport. Drag and drop icon subreport di Palette ke template. iReport akan menampilkan wizard untuk membantu kita.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-gqIBrrd0qeg/U0jWNjg4bSI/AAAAAAAAFk4/XzTxNcCIyOU/w667-h435-no/02-membuat-subreport.png"></p>
+
+<p>Saya lebih suka membuat templatenya secara terpisah, kemudian menyatukannya secara manual. Oleh karena itu, kita pilih <em>Just create subreport element</em>.</p>
+
+<p>Hasilnya sebagai berikut.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-3ig57Gmr68A/U0jWOcc-8hI/AAAAAAAAFlI/49LtLA6TDFk/w916-h574-no/03-layout-subreport.png"></p>
+
+<p>Sebetulnya di dokumentasi Spring MVC ada penjelasan tentang cara menggunakan subreport.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-j7vN6jiyKIs/U0jWOktav7I/AAAAAAAAFlU/Qs8BbyjvYro/w917-h478-no/04-docs-springmvc-jasper-subreport.png"></p>
+
+<p>Tapi sayangnya, isinya tidak nyambung sama penjelasan di atasnya. Penjelasan report sederhana dibuat menggunakan konfigurasi file properties, sedangkan penjelasan subreport dibuat menggunakan konfigurasi file XML. Perbedaannya bisa dilihat <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/commit/bce02983b044e80a97db7dc95689b643afbdea8a">di sini</a> atau pada gambar di bawah.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-7xWAHJ6UnL0/U0jdR--3THI/AAAAAAAAFmI/1ZiMYLibtpM/w916-h617-no/09-properties-vs-xml.png"></p>
+
+<p>Selanjutnya, kita tambahkan parameter di desain report induk kita. Bisa menggunakan GUI ataupun langsung edit XMLnya. Kali ini saya pakai XML saja supaya bisa copy-paste</p>
+
+<p><img src="https://lh3.googleusercontent.com/-hCvlDw6HmAE/U0jWPcwj3iI/AAAAAAAAFlc/njZlxs_0lNI/w834-h383-no/05-subreport-params.png"></p>
+
+<p>Kita tambahkan dua parameter, yaitu <code>SubReportKantor</code> dan <code>dataSourceSubreport</code>. Kedua parameter ini kita gunakan pada deklarasi subreport yang sudah ditambahkan iReport pada waktu kita drag and drop tadi.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-zqWFEblHxvo/U0jWPXhcBVI/AAAAAAAAFlk/r5q5WZw3BlI/w917-h265-no/06-subreport-declaration.png"></p>
+
+<p>Perhatikan label <code>X</code> dan <code>Y</code>. Itu akan kita gunakan pada konfigurasi lainnya.</p>
+
+<p>Nama variabel <code>dataSourceSubreport</code> yang ditandai dengan label <code>X</code> kita gunakan untuk menyuplai data yang dibutuhkan subreport dari dalam kode program Java.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-FE5T4GfnzBE/U0jWPTUvL7I/AAAAAAAAFlo/Rl8SG7IZjkI/w672-h217-no/07-spring-controller.png"></p>
+
+<p>Selanjutnya kita edit konfigurasi Jasper Report di file <code>jasper-views.xml</code>. Tambahkan lokasi template subreport dan nama variabel yang digunakan untuk <code>dataSource</code>nya.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-qBxNAJ_nqsU/U0jWQwV3gAI/AAAAAAAAFlw/cqnz8eiWWd0/w917-h285-no/08-konfigurasi-jasperview.png"></p>
+
+<p>Selesai sudah. Silahkan coba akses lagi <code>http://localhost:8080/belajar-springmvc-jasper/anggota/export.pdf</code> untuk melihat hasil akhirnya.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-8-GCJgtp70I/U0jgW78hxnI/AAAAAAAAFmY/2jJIFCNeB6g/w917-h485-no/10-final-result.png"></p>
+
+<h2>FAQ</h2>
+
+<p>Pada umumnya, kita semua menggunakan konfigurasi Jasper yang berbasis file properties, karena itulah yang dicontohkan di dokumentasi Spring Framework. Pada waktu muncul kebutuhan subreport, ternyata file konfigurasinya XML.</p>
+
+<blockquote><p>Apakah saya harus konversi semua konfigurasi properties menjadi XML ??</p></blockquote>
+
+<p>Jangan khawatir. Kita bisa menggunakan dua-duanya sekaligus. Tidak perlu pilih salah satu. Konfigurasi report yang lama tidak perlu dibuang/ditulis ulang menjadi xml. Cukup deklarasikan dua <code>view resolver</code>, yang satu properties, satu lagi XML. Begini contohnya</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;propertiesJasperViewResolver&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.ResourceBundleViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;basename&quot;</span> <span class="na">value=</span><span class="s">&quot;views&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;0&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;xmlJasperViewResolver&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.XmlViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;location&quot;</span> <span class="na">value=</span><span class="s">&quot;classpath:jasper-views.xml&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jstlViewResolver&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;viewClass&quot;</span> <span class="na">value=</span><span class="s">&quot;org.springframework.web.servlet.view.JstlView&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;prefix&quot;</span> <span class="na">value=</span><span class="s">&quot;/WEB-INF/templates/jsp/&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;suffix&quot;</span> <span class="na">value=</span><span class="s">&quot;.jsp&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;order&quot;</span> <span class="na">value=</span><span class="s">&quot;2&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/bean&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dengan cara di atas, berikut flow Spring MVC dalam mencari template yang sesuai:</p>
+
+<ol>
+<li>Dari controller terima nama view <code>/anggota/export.pdf</code></li>
+<li>Cari view dengan nama tersebut dalam <code>propertiesJasperViewResolver</code></li>
+<li>Kalau tidak ketemu lanjutkan cari dalam <code>xmlJasperViewResolver</code></li>
+<li>Kalau masih tidak ketemu juga lanjutkan cari dalam <code>jstlViewResolver</code></li>
+<li>Kalau tidak ketemu juga, keluarkan pesan error</li>
+</ol>
+
+
+<p>Demikian penjelasan tentang integrasi Spring MVC dan Jasper Report. Source code lengkap bisa diambil <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/">di Github</a></p>
+
+<p>Semoga bermanfaat</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-12T12:26:00+07:00" pubdate data-updated="true">Apr 12<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/membuat-subreport-jasper-dalam-springmvc/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/membuat-subreport-jasper-dalam-springmvc/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/linux/cara-mengetahui-ip-address-dari-mac-address/" title="Previous Post: Cara Mengetahui IP Address dari MAC Address">&laquo; Cara Mengetahui IP Address dari MAC Address</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/membuat-subreport-jasper-dalam-springmvc/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://google.com/+EndyMuhardin">google.com/+EndyMuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+
+<section>
+
+Bila artikel di website ini membantu meningkatkan penghasilan Anda, 
+jangan ragu untuk memberikan donasi :)
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</form>
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
+      </li>
+    
+      <li class="post">
+        <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
+      </li>
+    
+      <li class="post">
+        <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/ongoing-learning/">Ongoing Learning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/development-stack-2014/">Development Stack 2014</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

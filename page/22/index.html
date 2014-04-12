@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Project Setup dengan menggunakan Gradle dan Git Hal pertama yang kita lakukan sebelum mulai bekerja tentunya adalah menyiapkan meja kerja dan &hellip;">
+  <meta name="description" content="Akhirnya, setelah dua hari bergulat dalam kompetisi Windows Wrestling Championship (WWC), saya menemukan titik terang. Solusi akhirnya adalah:
+1. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -95,7 +96,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/java/project-setup-dengan-gradle/">Project Setup Dengan Gradle</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/windows-tak-sulit-lagi/">Windows Tak Sulit Lagi</a></h1>
     
     
       <p class="meta">
@@ -111,349 +112,22 @@
   
 
 
-<time datetime="2011-02-01T20:21:35+07:00" pubdate data-updated="true">Feb 1<span>st</span>, 2011</time>
+<time datetime="2006-01-25T19:59:25+07:00" pubdate data-updated="true">Jan 25<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Project Setup dengan menggunakan Gradle dan Git</p>
+  <div class="entry-content"><p>Akhirnya, setelah dua hari <a href="http://endy.artivisi.com/blog/aplikasi/windows-semakin-sulit/">bergulat dalam kompetisi Windows Wrestling Championship (WWC)</a>, saya menemukan titik terang.</p>
 
-<p>Hal pertama yang kita lakukan sebelum mulai bekerja tentunya adalah menyiapkan meja kerja dan peralatannya. Sama juga dengan mulai membuat aplikasi. Kita harus menyiapkan struktur folder, library dan framework, dan mengatur semuanya agar siap dikerjakan di meja kita, dalam hal ini IDE.</p>
+<p>Solusi akhirnya adalah:
+1. Gunakan <a href="http://www.apachefriends.org/en/xampp-windows.html">XAMPP</a> satu versi lebih rendah, yaitu 1.4.16. Versi ini dapat menjalankan Bugzilla dan Subversion tanpa masalah.
+2. Mailserver bawaan XAMPP, yaitu Mercury, sangat sulit digunakan. Jadi -sesuai saran <a href="http://benny.telematicsindonesia.com">rekan saya</a>-, saya menggunakan <a href="http://www.hmailserver.com">hMailserver</a>. aplikasi mail server yang opensource dan sangat mudah digunakan. Membuat virtual domain dan user account sangat mudah. Cocok sekali kalau kita butuh mail server percobaan untuk coding.</p>
 
-<p>Di ArtiVisi, biasanya ini dikerjakan oleh programmer senior, yaitu <a href="http://martinusadyh.web.id/">Martinus</a> atau saya sendiri. Kegiatan project setup ini tidak terlalu tinggi frekuensinya, karena biasanya coding project yang existing jauh lebih sering daripada memulai project baru.</p>
+<p>Jadi, dengan solusi ini saya dapat melakukan training dengan minimal instalasi di komputer peserta. Satu-satunya aplikasi yang harus diinstal adalah ActivePerl. Untungnya aplikasi ini mudah diuninstall sehingga tidak mengotori sistem.</p>
 
-<p>Yang jarang dikerjakan biasanya cepat dilupakan. Inilah alasan utama saya menulis posting kali ini, sebagai pengingat buat diri sendiri. Selain itu, mudah-mudahan ada manfaatnya juga untuk para pembaca sekalian.</p>
-
-<p>Sebagai gambaran, tipikal aplikasi di ArtiVisi menggunakan <a href="http://endy.artivisi.com/blog/java/development-stack-2011/">stack standar 2011</a>. Jadi, project setup ini akan dibuat mengikuti stack standar tersebut.</p>
-
-<p>Pertama kali, kita buat dulu projectnya. Satu aplikasi biasanya kita pecah menjadi beberapa komponen, yaitu :</p>
-
-<ul>
-<li><p>Domain Model dan Service API : ini kita pisahkan untuk memudahkan distribusi ke aplikasi client. Perhatikan bahwa yang saya maksud client di sini bukanlah customer pembeli aplikasi, melainkan aplikasi di sisi hilir misalnya user interface yang dibuat dengan Swing. Di sisi client, tidak perlu ada detail implementasi. Cukup class-class domain seperti Produk, Kategori, dsb. Juga kita sediakan service interface, yaitu method yang bisa digunakan untuk menjalankan proses bisnis.</p></li>
-<li><p>Implementasi Service : ini adalah implementasi dari service interface di atas. Implementasi biasanya hanya ada di sisi server. Jadi, jar yang dihasilkan project ini tidak kita distribusikan ke client</p></li>
-<li><p>Konfigurasi : file konfigurasi seperti jdbc.properties, logback-test.xml, smtp.properties, dan setting-setting lain kita juga pisahkan ke project sendiri. Ini tujuannya untuk memudahkan deployment. Seperti kita tahu, biasanya ada beberapa environment seperti development di laptop programmer, testing server, dan production server. Dengan memisahkan konfigurasi, kita bisa menghindari mendeploy konfigurasi development ke server production. Yang perlu diperhatikan di sini, hibernate.cfg.xml dan applicationContext.xml bukanlah file konfigurasi. Itu adalah file aplikasi, walaupun bentuknya xml dan tidak perlu dikompilasi.</p></li>
-<li><p>User Interface : kalau aplikasi desktop, ini hanya satu project saja. Atau mungkin dua dengan konfigurasinya. Tapi untuk web, biasanya kita pecah dua juga. Yang satu berisi source code java, satu lagi berisi aplikasi web. Dengan demikian, bila ada perubahan di controller, kita cukup deploy 1 jar, tidak perlu upload 1 war.</p></li>
-</ul>
-
-
-<p>Sebagai ketentuan lain, biasanya nama package selalu kita awali dengan com.artivisi, dan struktur folder mengikuti standar Maven.</p>
-
-<p>Mari kita mulai, berikut rangkaian perintah di linux untuk membuat struktur awal project.</p>
-
-<div><script src='https://gist.github.com/794650.js?file=folder-structure.sh'></script>
-<noscript><pre><code>mkdir -p project-contoh/com.artivisi.contoh.{config,domain,service.impl,ui.springmvc,ui.web}/src/{main,test}/{java,resources}
-mkdir -p project-contoh/com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</code></pre></noscript></div>
-
-
-<p>Outputnya bisa kita lihat sebagai berikut</p>
-
-<pre><code>find . 
-.
-./com.artivisi.contoh.service.impl
-./com.artivisi.contoh.service.impl/src
-./com.artivisi.contoh.service.impl/src/test
-./com.artivisi.contoh.service.impl/src/test/java
-./com.artivisi.contoh.service.impl/src/test/resources
-./com.artivisi.contoh.service.impl/src/main
-./com.artivisi.contoh.service.impl/src/main/java
-./com.artivisi.contoh.service.impl/src/main/resources
-./com.artivisi.contoh.domain
-./com.artivisi.contoh.domain/src
-./com.artivisi.contoh.domain/src/test
-./com.artivisi.contoh.domain/src/test/java
-./com.artivisi.contoh.domain/src/test/resources
-./com.artivisi.contoh.domain/src/main
-./com.artivisi.contoh.domain/src/main/java
-./com.artivisi.contoh.domain/src/main/resources
-./com.artivisi.contoh.ui.springmvc
-./com.artivisi.contoh.ui.springmvc/src
-./com.artivisi.contoh.ui.springmvc/src/test
-./com.artivisi.contoh.ui.springmvc/src/test/java
-./com.artivisi.contoh.ui.springmvc/src/test/resources
-./com.artivisi.contoh.ui.springmvc/src/main
-./com.artivisi.contoh.ui.springmvc/src/main/java
-./com.artivisi.contoh.ui.springmvc/src/main/resources
-./com.artivisi.contoh.config
-./com.artivisi.contoh.config/src
-./com.artivisi.contoh.config/src/test
-./com.artivisi.contoh.config/src/test/java
-./com.artivisi.contoh.config/src/test/resources
-./com.artivisi.contoh.config/src/main
-./com.artivisi.contoh.config/src/main/java
-./com.artivisi.contoh.config/src/main/resources
-./com.artivisi.contoh.ui.web
-./com.artivisi.contoh.ui.web/src
-./com.artivisi.contoh.ui.web/src/test
-./com.artivisi.contoh.ui.web/src/test/java
-./com.artivisi.contoh.ui.web/src/test/resources
-./com.artivisi.contoh.ui.web/src/main
-./com.artivisi.contoh.ui.web/src/main/java
-./com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF
-./com.artivisi.contoh.ui.web/src/main/resources
-</code></pre>
-
-<p>Berikutnya, kita lengkapi dengan dependensi jar. Di ArtiVisi, kita menggunakan Gradle.
-Gradle meminta kita untuk mendaftarkan project yang terlibat dalam settings.gradle</p>
-
-<div><script src='https://gist.github.com/794650.js?file=settings.gradle'></script>
-<noscript><pre><code>include &quot;com.artivisi.contoh.config&quot;
-include &quot;com.artivisi.contoh.domain&quot;
-include &quot;com.artivisi.contoh.service.impl&quot;
-include &quot;com.artivisi.contoh.ui.springmvc&quot;
-include &quot;com.artivisi.contoh.ui.web&quot;</code></pre></noscript></div>
-
-
-<p>Dan ini build file Gradle.</p>
-
-<div><script src='https://gist.github.com/794650.js?file=build.gradle'></script>
-<noscript><pre><code>springVersion = &quot;3.0.5.RELEASE&quot;
-springSecurityVersion = &quot;3.0.5.RELEASE&quot;
-slf4jVersion = &quot;1.6.1&quot;
-logbackVersion = &quot;0.9.27&quot;
-jodaTimeVersion = &quot;1.6.2&quot;
-sourceCompatibility = 1.6
- 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'eclipse'
- 
-    configurations {
-        all*.exclude group: &quot;commons-logging&quot;, module: &quot;commons-logging&quot;
-    }
- 
-    repositories {
-        mavenCentral()
-    }
- 
-    dependencies {
-        compile &quot;org.slf4j:jcl-over-slf4j:$slf4jVersion&quot;,
-                &quot;org.slf4j:jul-to-slf4j:$slf4jVersion&quot;
-                
-        runtime &quot;joda-time:joda-time:$jodaTimeVersion&quot;        
-                
-        runtime &quot;ch.qos.logback:logback-classic:$logbackVersion&quot;
-  
-        testCompile 'junit:junit:4.7'
-    }
- 
-    group = 'com.artivisi.contoh'
-    version = '1.0-SNAPSHOT'
-    sourceCompatibility = 1.6
-    
-    task wrapper(type: Wrapper) {
-        gradleVersion = '0.9.1'
-        jarFile = 'wrapper/wrapper.jar'
-    }
-}
-
-project('com.artivisi.contoh.domain') {
-    dependencies { 
-        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
-     
-        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
-                &quot;org.springframework:spring-orm:$springVersion&quot;,
-                &quot;org.springframework:spring-jdbc:$springVersion&quot;
-                
-     
-    }
-}
-
-project('com.artivisi.contoh.service.impl') {
-    dependencies { 
-        compile project(':com.artivisi.contoh.domain')
-        compile &quot;org.hibernate:hibernate-entitymanager:3.4.0.GA&quot;
-     
-        compile &quot;org.springframework:spring-tx:$springVersion&quot;,
-                &quot;org.springframework:spring-orm:$springVersion&quot;,
-                &quot;org.springframework:spring-jdbc:$springVersion&quot;
-                
-     
-    }
-}
-
-project('com.artivisi.contoh.ui.springmvc') {
-    dependencies {
-        compile project(':com.artivisi.contoh.service.impl')
-     
-        compile &quot;org.springframework:spring-webmvc:$springVersion&quot;,
-                &quot;org.springframework:spring-aop:$springVersion&quot;
-     
-        compile &quot;org.springframework.security:spring-security-web:$springSecurityVersion&quot;,
-                &quot;org.springframework.security:spring-security-config:$springSecurityVersion&quot;
-     
-        compile &quot;javax.validation:validation-api:1.0.0.GA&quot;,
-                &quot;org.hibernate:hibernate-validator:4.0.2.GA&quot;
-     
-    }
-}
-
-project('com.artivisi.contoh.ui.web') {
-    apply plugin: 'war'
-    apply plugin: 'jetty'
-     
-    dependencies {
-        compile project(':com.artivisi.contoh.ui.springmvc')
-        runtime project(':com.artivisi.contoh.config')
-      
-        runtime &quot;javax.servlet:jstl:1.1.2&quot;,
-                &quot;taglibs:standard:1.1.2&quot;,
-                &quot;opensymphony:sitemesh:2.4.2&quot;
-     
-        providedCompile &quot;javax.servlet:servlet-api:2.5&quot;
-    }
-}</code></pre></noscript></div>
-
-
-<p>Build file ini sudah mendeskripsikan semua sub-projectnya. Sebetulnya kita bisa membuat buildfile di masing-masing project, tapi saya lebih suka terpusat seperti ini supaya terlihat keterkaitan antar project.</p>
-
-<p>Karena saya menggunakan Eclipse, saya menambahkan metadata supaya projectnya bisa dibuka di Eclipse. Ini bisa kita lakukan dengan cara menjalankan perintah</p>
-
-<pre><code>gradle eclipse
-</code></pre>
-
-<p>dalam masing-masing folder project. Tapi karena terlalu malas, saya gunakan satu baris perintah ini.</p>
-
-<div><script src='https://gist.github.com/794650.js?file=export-eclipse.sh'></script>
-<noscript><pre><code>for d in */; do cd &quot;$d&quot;; gradle eclipse; cd ..; done</code></pre></noscript></div>
-
-
-<p>Untung saja pakai linux, jadi bisa coding di command prompt :D</p>
-
-<p>Selanjutnya, kita bisa test dengan melakukan build di project paling hilir, yaitu ui.web</p>
-
-<pre><code>cd com.artivisi.contoh.ui.web
-gradle war
-</code></pre>
-
-<p>Hasilnya ada di folder build/libs
-Kita cek apakah semua dependensi sudah terpenuhi dengan perintah berikut.</p>
-
-<pre><code>jar tvf build/libs/com.artivisi.contoh.ui.web-1.0-SNAPSHOT.war
-</code></pre>
-
-<p>Ini juga bisa langsung dijalankan dengan plugin Jetty yang ada dalam Gradle.</p>
-
-<pre><code>cd com.artivisi.contoh.ui.web
-gradle jetty
-</code></pre>
-
-<p>Outputnya bisa kita lihat di browser, dengan port 8080.
-<img src="/images/uploads/2011/01/jetty-run-300x216.png" title="" ></p>
-
-<p>Di situ ada link menuju aplikasi kita. Silahkan diklik.
-<img src="/images/uploads/2011/01/klik-context-path-300x214.png" title="" ></p>
-
-<p>Folder WEB-INF masih terlihat, karena kita belum membuat web.xml. Berikut isi web.xml, masukkan dalam folder com.artivisi.contoh.ui.web/src/main/webapp/WEB-INF</p>
-
-<div><script src='https://gist.github.com/794650.js?file=web.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;web-app version=&quot;2.5&quot; xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-    xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd&quot;&gt;
-
-    &lt;!-- Reads request input using UTF-8 encoding --&gt;
-    &lt;filter&gt;
-        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
-        &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;encoding&lt;/param-name&gt;
-            &lt;param-value&gt;UTF-8&lt;/param-value&gt;
-        &lt;/init-param&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;forceEncoding&lt;/param-name&gt;
-            &lt;param-value&gt;true&lt;/param-value&gt;
-        &lt;/init-param&gt;
-    &lt;/filter&gt;
-
-    &lt;filter-mapping&gt;
-        &lt;filter-name&gt;characterEncodingFilter&lt;/filter-name&gt;
-        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-    &lt;/filter-mapping&gt;
-    
-    &lt;!-- Handles all requests into the application --&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-            &lt;param-value&gt;
-                /WEB-INF/springmvc-context.xml
-            &lt;/param-value&gt;
-        &lt;/init-param&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;
-
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;
-
-&lt;/web-app&gt;</code></pre></noscript></div>
-
-
-<p>Sekalian saja kita konfigurasi Spring MVC. Pasang file springmvc-context.xml ini di sebelahnya web.xml</p>
-
-<div><script src='https://gist.github.com/794650.js?file=springmvc-context.xml'></script>
-<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
-    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
-    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
-    xsi:schemaLocation=&quot;http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd&quot;&gt;
-
-    &lt;!-- Scans the classpath of this application for @Components to deploy as beans --&gt;
-    &lt;context:component-scan base-package=&quot;com.artivisi.contoh.ui.web&quot; /&gt;
-
-    &lt;!-- Configures the @Controller programming model --&gt;
-    &lt;mvc:annotation-driven /&gt;
-    
-    &lt;!-- mengganti default servletnya Tomcat dan Jetty --&gt;
-    &lt;!-- ini diperlukan kalau kita mapping DispatcherServlet ke / --&gt;
-    &lt;!-- sehingga tetap bisa mengakses folder selain WEB-INF, misalnya img, css, js --&gt;
-    &lt;mvc:default-servlet-handler/&gt;
-
-    &lt;!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources/ directory --&gt;
-    &lt;mvc:resources mapping=&quot;/resources/**&quot; location=&quot;/resources/&quot; /&gt;
-
-    &lt;!-- Application Message Bundle --&gt;
-    &lt;bean id=&quot;messageSource&quot; class=&quot;org.springframework.context.support.ReloadableResourceBundleMessageSource&quot;&gt;
-        &lt;property name=&quot;basename&quot; value=&quot;/WEB-INF/messages/messages&quot; /&gt;
-        &lt;property name=&quot;cacheSeconds&quot; value=&quot;0&quot; /&gt;
-    &lt;/bean&gt;
-
-    &lt;!-- Resolves view names to protected .jsp resources within the /WEB-INF/views directory --&gt;
-    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;
-        &lt;property name=&quot;prefix&quot; value=&quot;/WEB-INF/templates/jsp/&quot;/&gt;
-        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot;/&gt;
-    &lt;/bean&gt;
-    
-    &lt;!-- Forwards requests to the &quot;/&quot; resource to the &quot;hello&quot; view --&gt;
-    &lt;mvc:view-controller path=&quot;/&quot; view-name=&quot;hello&quot;/&gt;
-
-&lt;/beans&gt;
-</code></pre></noscript></div>
-
-
-<p>Kita cek juga apakah projectnya sudah bisa dibuka di Eclipse. Mari kita import.</p>
-
-<p>Pertama, arahkan workspace ke folder project-contoh.
-<img src="/images/uploads/2011/01/01-pilih-workspace-300x154.png" title="" ></p>
-
-<p>Setelah Eclipse terbuka, kita pilih menu Import Project, untuk membuka 4 project yang tadi sudah kita buat.
-<img src="/images/uploads/2011/01/02-import-existing-300x272.png" title="" ></p>
-
-<p>Pilih folder induknya.
-<img src="/images/uploads/2011/01/03-select-root-directory-272x300.png" title="" ></p>
-
-<p>Selesai, semua project kita bisa dibuka. Bahkan kita bisa menjalankan project ui.web dengan cara klik kanan Run in Server. Ini bisa dilihat dari icon project tersebut yang berbentuk bola dunia.</p>
-
-<p><img src="/images/uploads/2011/01/04-import-result-300x139.png" title="" ></p>
-
-<p>Selesai sudah, mari kita <a href="http://endy.artivisi.com/blog/aplikasi/sharing-repository-git/">share dengan rekan yang lain</a>.</p>
+<p>Terima kasih untuk <a href="http://benny.telematicsindonesia.com">Benny</a> atas saran dan masukannya.</p>
 </div>
   
   
@@ -466,7 +140,7 @@ gradle jetty
       
   <header>
     
-      <h1 class="entry-title"><a href="/aplikasi/konsep-clustering/">Konsep Clustering</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/windows-semakin-sulit/">Windows Semakin Sulit</a></h1>
     
     
       <p class="meta">
@@ -482,121 +156,51 @@ gradle jetty
   
 
 
-<time datetime="2011-01-30T04:15:14+07:00" pubdate data-updated="true">Jan 30<span>th</span>, 2011</time>
+<time datetime="2006-01-24T23:36:45+07:00" pubdate data-updated="true">Jan 24<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
+  <div class="entry-content"><p>Masih ingat cerita kemarin tentang <a href="http://endy.artivisi.com/blog/aplikasi/sulitnya-menggunakan-windows/">sulitnya menggunakan Windows</a>? Ternyata kesulitan itu belum berakhir.</p>
 
-<p>Demikian pertanyaannya.</p>
+<p>Sedikit cerita latar belakang, saya ingin mengadakan training Bugzilla dan Subversion. Yang mana Bugzilla adalah aplikasi bug tracker berbasis web yang dibuat menggunakan Perl. Sedangkan Subversion adalah aplikasi version control yang salah satu metode aksesnya bisa melalui web.</p>
 
-<blockquote></blockquote>
+<p>Berikut dependensi Bugzilla:
+1. Perl, berikut modul-modul khusus untuk Bugzilla
+2. Webserver (Apache)
+3. Database server (MySQL)</p>
 
-<p>Ini sebetulnya dua hal yang berbeda.
-Load balancing ya membagi beban.
-Failover ya mencegah single point of failure.</p>
+<p>Dan dependensi Subversion + Akses HTTP adalah:
+1. Webserver (harus versi 2.0, 1.3 tidak bisa, 2.2 harus kompile sendiri)
+2. mod_dav</p>
 
-<p>Load balancer terdiri dari satu balancer dan banyak worker.
-Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
-Bisa merata (round robin) bisa juga dengan bobot (weighted), misalnya worker X mendapat 2 kali worker Y karena dia specnya lebih tinggi.
-Atau bisa juga dynamic, artinya si LB akan mengetes kondisi semua worker, mana yang kira2 sedang idle itu yang dikasi.
-Mana yang sedang idle ini nanti ada lagi settingnya, apakah melihat CPU usage pakai SNMP, melihat ping response time, whatever.</p>
+<p>Nah sekarang, Perl sudah berhasil diinstal menggunakan <a href="http://aspn.activestate.com/ASPN/Downloads/ActivePerl/">ActivePerl</a>, MySQL dan Apache juga sudah bisa diinstal dengan <a href="http://www.apachefriends.org/en/xampp-windows.html">XAMPP</a>.</p>
 
-<p>Failover minimal harus ada 2 titik.
-Kalo kita implement LB aja, point of failure (POF) nya adalah si LB.
-Begitu LB nya mati, ya udah semua worker gak bisa diakses.
-Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
+<p>Masalahnya adalah, ternyata XAMPP itu menggunakan Apache 2.2. Dengan demikian, Bugzilla bisa jalan, Subversion tidak bisa.</p>
 
-<p>Contoh aplikasi load balancer :</p>
+<p>Kemudian saya coba pakai <a href="http://www.uniformserver.com">Uniform server</a>, yang menggunakan Apache 2.0. Setelah dicoba, entah kenapa Subversion tetap tidak bisa diakses, walaupun versi Apachenya benar. Tidak ada error message ataupun petunjuk mengapa Uniform server mogok jalan (setelah ditambah konfigurasi Subversion).</p>
 
-<blockquote><ul>
-<li><p>HAProxy</p></li>
-<li><p>ldirectord (Ultra Monkey)</p></li>
-<li><p>Pound</p></li>
-</ul>
-</blockquote>
+<p>Ada lagi aplikasi paket yang lain, yaitu <a href="http://www.server2go-web.de">Server2go</a>. Tetapi setelah diperiksa ternyata Apachenya 1.3. Gagal maning&#8230;. :(</p>
 
-<p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
+<p>Alternatif terakhir: fully manual.
+Dijamin akan membuat peserta training histeris, karena harus:
+1. Instal Perl
+2. Instal Apache
+3. Instal MySQL
+4. Instal PHP (agar bisa manage MySQL pakai PHPMyAdmin)
+5. Instal Subversion
+6. Konfigurasi mod_dav
+7. Instal Bugzilla
+8. Instal Mail Server (supaya Bugzilla bisa kirim email)
+9. Setup file hosts atau Instal DNS (supaya mail servernya gak cuma localhost)</p>
 
-<blockquote><ul>
-<li><p>Apache (mod_proxy_balancer)</p></li>
-<li><p>Nginx</p></li>
-<li><p>lighttpd</p></li>
-<li><p>bind (DNS Server)</p></li>
-</ul>
-</blockquote>
+<p>Yah, kegiatan di atas akan memakan waktu 2 hari untuk dijelaskan ke peserta training. Belum lagi ada error. Dan itu baru kegiatan instalasi, belum masuk ke materi. Padahal alokasi waktu untuk training cuma 1 hari.</p>
 
-<p>Contoh aplikasi failover :</p>
+<p>Sekarang saya lagi mau coba <a href="http://apache2triad.net/">ApacheTriad</a> dan XAMPP versi lebih rendah. Mudah-mudahan berhasil.</p>
 
-<blockquote><ul>
-<li><p>heartbeat (Ultra Monkey)</p></li>
-<li><p>keepalived</p></li>
-</ul>
-</blockquote>
-
-<p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
-
-<blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
-Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
-
-<p>Tidak selalu, tergantung konfigurasinya.
-Ada konfigurasi sticky session.
-Artinya, pada hit pertama, si user akan diberikan penanda, biasanya berbentuk cookie.
-Pada hit berikutnya, LB akan melihat cookienya, dan mengarahkan ke server yang sebelumnya sudah mengurus si user ini.</p>
-
-<p>Ada juga konfigurasi non-sticky.
-Artinya tiap hit dianggap hit baru, dan didistribusikan ke semua server sesuai algoritma yang dipilih, round robin, weighted, atau dynamic, sesuai penjelasan di atas.</p>
-
-<p>Mau pilih yang mana? Ya tergantung kemampuan LB nya.
-Ada yang bisa 2-2 nya sehingga bisa pilih, dan ada juga yang rada stupid sehingga terpaksa pakai non-sticky.
-Istilahnya, LBnya layer berapa? Kalo layer 7 biasanya bisa sticky, kalo layer 4 ya gak bisa.
-Lebih jauh tentang urusan layer-layeran ini bisa dibaca <a href="http://blog.loadbalancer.org/why-layer-7-sucks/">di sini</a> dan <a href="http://1wt.eu/articles/2006_lb/">di sini</a></p>
-
-<p>Nah, apa impact sticky vs non-sticky?
-Ini pengaruhnya ke session data.
-Session data adalah data sementara masing-masing user.
-Karena sifatnya sementara, maka biasanya tidak disimpan secara persistent di tabel database.
-Contoh paling klasik adalah isi shopping cart.
-Itu barang belum diorder, tapi sudah dipilih, sehingga biasanya belum disimpan di database.</p>
-
-<p>Kalo pake non-sticky, si user pertama milih barang di server X.
-Pada saat dia pilih barang kedua, dilayani server Y.
-Karena pilihan pertama ada di server X, ya pas dia pilih barang kedua, cuma tercatat 1 barang padahal harusnya 2.</p>
-
-<p>Ini tidak terjadi kalo kita pakai sticky balancer.
-Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
-
-<p>Jadi, sticky atau non-sticky itu impactnya ke temporary data user, sering disebut dengan istilah session data atau user state.</p>
-
-<p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
-
-<blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
-
-<p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
-Secara umum, settingan standar appserver biasanya simpan data session di memori.
-Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain.
-Pada saat worker utama mati, request berikutnya akan diarahkan ke worker cadangannya, sehingga user gak kehilangan data belanjaan.
-Biasanya, satu state itu disimpan ke 2 worker saja, bukan direplikasi ke semua untuk alasan efisiensi bandwidth.</p>
-
-<p>Pada penjelasan di atas banyak sekali saya gunakan kata &#8216;biasanya&#8217;. Ini karena kapabilitas dan konfigurasi masing-masing merek appserver sangat berbeda sehingga sulit untuk menggeneralisir kondisinya.</p>
-
-<p>Lalu bagaimana?
-Saya biasanya mengambil pendekatan yang universal, yang jalan di semua appserver, sehingga tidak perlu pusing menghafal appserver apa bisa apa settingnya gimana.
-Teknik universalnya sederhana: aplikasi webnya dibuat stateless.
-Jangan ada simpan data di memori. Simpan semua di database, atau di distributed cache (misalnya memcached).</p>
-
-<p>Di Java, data yang ada di memori antara lain : session variable, static variable, context variable.
-Di PHP, CMIIW cuma session dan global variable aja.</p>
-
-<p>Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terhadap appserver apa bisa apa settingnya gimana.
-Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya.
-Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah.
-Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah.</p>
-
-<p>Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah.</p>
+<p>Seandainya para peserta itu pakai Linux saja &#8230;.</p>
 </div>
   
   
@@ -609,7 +213,7 @@ Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey
       
   <header>
     
-      <h1 class="entry-title"><a href="/java/development-stack-2011/">Development Stack 2011</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/url-bagus/">URL Bagus</a></h1>
     
     
       <p class="meta">
@@ -625,72 +229,616 @@ Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey
   
 
 
-<time datetime="2011-01-25T20:33:18+07:00" pubdate data-updated="true">Jan 25<span>th</span>, 2011</time>
+<time datetime="2006-01-24T02:15:00+07:00" pubdate data-updated="true">Jan 24<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Posting ini adalah update dari <a href="http://endy.artivisi.com/blog/java/stack-2008-1/">posting tiga tahun yang lalu</a>. Tidak banyak yang berubah dalam stack ini, yang bisa berarti dua hal: pilihan tiga tahun yang lalu sudah tepat atau malas belajar selama 3 tahun ini.
-Mudah-mudahan alasannya yang pertama :D</p>
+  <div class="entry-content"><p>URL untuk website bagusnya tidak didikte oleh aplikasi maupun teknologi. Dengan demikian, kita bisa ganti engine website kita tanpa harus merusak URL.</p>
 
-<blockquote><p>Update : Gradle tidak jadi dipakai, karena kita tidak mau maintain 2 skillset. Maven 2 ternyata stabil dan bekerja sesuai harapan. Hudson terlibat kerusuhan dengan Oracle, akhirnya fork jadi Jenkins.</p></blockquote>
+<p>Untuk itu, saya mengaktifkan fungsi Permalinks pada Wordpress. Jadi, URL yang tadinya seperti ini: <strong>http://endy.artivisi.com/blog/?p=7</strong> akan berubah menjadi seperti ini: <strong>http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/</strong></p>
 
-<h3>Presentation Layer</h3>
+<p>Lebih canggih lagi, kalau kita browse ke <strong>http://endy.artivisi.com/blog/aplikasi/</strong> Wordpress akan menampilkan semua artikel yang ada dalam kategori <strong>aplikasi</strong>.</p>
+
+<p>Ini akan sangat meningkatkan usability website.</p>
+
+<p>Caranya, login ke control panel Wordpress, kemudian pergi ke Options > Permalinks.</p>
+
+<p>Lalu baca manual dan tentang:
+1. Format URL yang digunakan Wordpress
+2. Cara mengaktifkan .htaccess di Apache.</p>
+
+<p>Ini sebetulnya fitur lama dan umum digunakan orang, tapi saya belum sempat aktifkan sampai sekarang.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/sulitnya-menggunakan-windows/">Sulitnya Menggunakan Windows</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-01-24T01:20:28+07:00" pubdate data-updated="true">Jan 24<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Bulan depan saya akan menjadi instruktur untuk training <a href="http://www.bugzilla.org">Bugzilla</a>, <a href="http://subversion.tigris.org">Subversion</a>, dan <a href="http://ant.apache.org">Ant</a>. Sebetulnya tidak ada hambatan berarti, karena di proyek sebelumnya saya sudah banyak menggunakan aplikasi tersebut. Cara instalasi dan konfigurasi juga sudah banyak saya tulis di blog ini, antara lain:</p>
 
 <ul>
-<li><p>Spring MVC</p></li>
-<li><p>SiteMesh</p></li>
-<li><p>Dojo Toolkit</p></li>
-<li><p>ExtJS</p></li>
-<li><p>Spring Security</p></li>
-<li><p>Jasper Report</p></li>
-<li><p>Jackson</p></li>
+<li><p><a href="http://endy.artivisi.com/downloads/slide/Tutorial-Ant.pdf">Menggunakan Ant</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/?p=7">Cara Instalasi Subversion</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/?p=8">Konfigurasi Apache + Subversion + OpenLDAP</a></p></li>
 </ul>
 
 
-<h3>Business Layer</h3>
+<p>Masalahnya adalah, sekarang saya harus mengajarkan cara menginstal dan konfigurasi aplikasi tersebut di Windows. Lalu, apa sulitnya? Banyak .. berikut saya berikan listnya:</p>
+
+<ol>
+<li><p>Apache dan extension Subversion, instalasi Apache di linux (apalagi debian) sangat mudah. Cukup ketik:</p>
+
+<p> <code># apt-get install  apache2 subversion libapache2-svn</code></p></li>
+<li><p>Bugzilla. Aplikasi ini membutuhkan Perl yang bisa diakses melalui Apache dengan mod_perl. Selain itu, kita perlu mendownload dan instal modul-modul tambahan. Lagi-lagi biasanya cukup:</p>
+
+<p> <code># apt-get install  bugzilla</code></p></li>
+<li><p>Mail Server. Bugzilla membutuhkan mail server untuk mengirim email notifikasi. Di linux, aplikasi mail server biasanya terinstal secara default. Kalaupun tidak ada, bisa diselesaikan dengan satu baris.</p></li>
+</ol>
+
+
+<p>Untungnya, seperti biasa telah ada orang lain di belahan dunia berbeda yang sudah pernah mengalami kepusingan yang sama, kemudian membuat solusinya.</p>
+
+<p>Cukup instal saja <a href="http://www.apachefriends.org/en/xampp-windows.html">XAMPP</a>.</p>
+
+<p>Paketnya memuat:</p>
 
 <ul>
-<li><p>Spring Framework</p></li>
-<li><p>Hibernate</p></li>
+<li><p>Apache 2 dilengkapi WebDAV</p></li>
+<li><p>Perl 5.8</p></li>
+<li><p>Mail Server Mercury</p></li>
+<li><p>FTP Server Filezilla</p></li>
 </ul>
 
 
-<h3>Library lain yang sering digunakan</h3>
+<p>Sekarang tinggal memikirkan bagaimana cara konfigurasi mod_perl, mod_dav, dan dav_svn. Setelah itu, baru mencoba install <a href="http://www.bugzilla.org">Bugzilla</a>. Wuah, sangat tidak praktis.</p>
+
+<p>Kok masih ada orang yang berani-beraninya bilang pakai Windows lebih gampang ya? :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/life/kehilangan-laptop/">Kehilangan Laptop</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-12-23T23:04:54+07:00" pubdate data-updated="true">Dec 23<span>rd</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Teman saya baru saja kehilangan laptopnya kemarin. Kami pergi makan siang jam 12.10, dan kembali lagi ke kantor jam 12.40&#8230; dan laptopnya sudah tidak ada.</p>
+
+<p>Setelah berkoordinasi dengan pihak keamanan gedung, kami berhasil mendapatkan rekaman CCTVnya. Berikut kronologi aktivitas sang maling seperti terekam di kamera.</p>
 
 <ul>
-<li><p>Logback</p></li>
-<li><p>Joda Time</p></li>
-<li><p>Velocity</p></li>
-<li><p>JPos</p></li>
+<li><p>12.05 : Maling masuk di lobi lantai dasar</p></li>
+<li><p>12.10 : Maling turun lift di lantai 8.</p></li>
+<li><p>12.11 : Kami keluar dari kubikel dan menunggu lift. Sebenarnya berpapasan dengan sang maling. Tapi mana kami tau kalau dia mau mencuri?</p></li>
+<li><p>12.13 : Lift datang, semua orang masuk lift kecuali saya, karena mau ke toilet dulu</p></li>
+<li><p>12.14 : Saya selesai di toilet, menekan tombol lift. Sambil menunggu lift melongok ke kubikel untuk melihat keadaan. Sempat melihat orang itu, tapi tidak terlalu pay attention</p></li>
+<li><p>12.25 : Saya turun dengan lift</p></li>
+<li><p>12.25 : Sang maling meninjau situasi untuk terakhir kali, kemudian masuk ke ruangan kami (tidak tertangkap kamera)</p></li>
+<li><p>12.30 : Keluar dari ruangan membawa laptop, ditenteng dengan tangan (dia tidak bawa tas) dan tidak ditutupi apa-apa. Kemudian menekan tombol lift. Sambil menunggu lift datang, mondar-mandir petantang-petenteng di depan satpam IndoNet</p></li>
+<li><p>12.33 : Lift datang, dia masuk ke dalam lift</p></li>
+<li><p>12.34 : Terlihat di kamera lobi lantai dasar, menenteng laptop di tangan dan berjalan dengan santai keluar gedung</p></li>
 </ul>
 
 
-<h3>Infrastruktur</h3>
+<p>Hmm &#8230; begitu mudah, begitu cepat. Para pemilik laptop, jangan meninggalkan laptop Anda sembarangan. Bawalah kemana saja Anda pergi, ke toilet sekalipun.</p>
 
-<ul>
-<li><p>Version Control : Git + Gitosis</p></li>
-<li><p>Testing Tools : JUnit, DBUnit, JMeter, Sonar</p></li>
-<li><p>Issue Tracker : Redmine</p></li>
-<li><p>Build Tools : <del>Gradle</del>, Maven</p></li>
-<li><p>Continuous Integration : <del>Hudson</del> Jenkins</p></li>
-<li><p>OS Programmer : Ubuntu Desktop</p></li>
-<li><p>OS Server : Ubuntu Server, Debian</p></li>
-</ul>
+<p>Menurut pihak keamanan, maling yang sama telah menelan korban di lantai 10 bulan September lalu.  Guess what, mereka juga punya rekaman videonya (makanya tau orangnya sama). What the f@#*, kalo sudah tau tampang malingnya kenapa gak waspada. Terlalu banyak makan gaji buta :( .</p>
+</div>
+  
+  
 
 
-<h3>Deployment Target</h3>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/coding-java-tanpa-instal-java/">Coding Java Tanpa Instal Java</a></h1>
+    
+    
+      <p class="meta">
+        
 
-<ul>
-<li><p>Database Server : MySQL, Oracle</p></li>
-<li><p>Application Server : Tomcat, Glassfish</p></li>
-</ul>
 
 
-<p>Praktis perubahan yang terjadi hanyalah dari Subversion ganti menjadi Git.
-Nah, bagaimana menurut Anda? Pilihan tepat atau malas belajar?</p>
+
+
+
+
+
+  
+
+
+<time datetime="2005-12-20T16:53:51+07:00" pubdate data-updated="true">Dec 20<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://oky.or.id">Teman saya</a> bekerja di salah satu bank terkemuka di Indonesia. Sebagai mantan programmer yang biasa menginstal ulang komputer sebulan sekali, tentunya akan sangat terpenjara bekerja di bank. Bagaimana tidak, instal <a href="http://messenger.yahoo.com">Yahoo Messenger</a> saja harus bikin form permohonan dulu.</p>
+
+<p>Belakangan, teman saya ini sudah berhasil menginstal MySQL dan PHP tanpa akses Administrator. Ini dimungkinkan dengan penggunaan <a href="http://www.uniformserver.com">Uniform Server</a> yang tinggal extract dan jalankan. Nah, sekarang dia ingin coding Java.</p>
+
+<p>Untunglah kita bisa coding Java tanpa harus instal. Cukup copy folder jre dari instalasi yang sudah ada (misalnya punya teman), dan masukkan di dalam folder <a href="http://www.eclipse.org">Eclipse</a>.  Ternyata Eclipse ini hebat sekali, dia bisa compile source code tanpa harus instal <a href="http://java.sun.com/j2se/1.5.0/download.jsp">Java SDK</a>.</p>
+
+<p>Voila, Eclipse siap digunakan. Mungkin ini salah satu alasan kenapa aplikasi bank dibuat dengan Java, developer tidak perlu akses Administrator untuk instal :P.</p>
+
+<p>Selamat coding di bank &#8230;.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/life/geek-personality-quiz/">Geek Personality Quiz</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-12-09T22:41:56+07:00" pubdate data-updated="true">Dec 9<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ada lagi kuis untuk membuang-buang waktu luang dan bandwidth Anda. Jangan ketinggalan!! Ketahuilah jenis personality Anda segera.</p>
+
+<p>Ini hasil kuis saya :</p>
+
+<p><a href="http://www.bbspot.com/News/2004/10/extension_quiz.php"><img src="http://www.bbspot.com/Images/News_Features/2004/10/file_extensions/exe.jpg" alt="You are .exe When given proper orders, you execute them flawlessly.  You're familiar to most, and useful to all." /><br/>
+Which File Extension are You?</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/refactoring/">Refactoring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-28T18:55:21+07:00" pubdate data-updated="true">Nov 28<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Three times and you refactor !! Begitu kata Martin Fowler dalam bukunya Refactoring.</p>
+
+<p>Sering terjadi dalam pembuatan aplikasi, kita akan menulis suatu rutin yang sudah pernah kita tulis sebelumnya, dengan sedikit perbedaan parameter dan variabel.
+Biasanya, kalau menemui hal seperti ini, kita akan copy-paste dari kode yang sudah ada, melakukan sedikit modifikasi, dan selesai. Mudah dan sederhana, tapi terlalu rajin. Untuk jadi programmer yang efektif, kita perlu memiliki sifat malas.</p>
+
+<p>Misalnya, kita punya UserDao, dengan kode seperti ini :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="c1">// connect dulu</span>
+</span><span class='line'>      <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>      <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, kita akan menambahkan method untuk delete:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;DELETE FROM  tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nah, sekarang kita mau tambah method untuk search user berdasarkan id, tentunya kita akan tulis kode seperti ini :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;DELETE FROM  tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">User</span> <span class="nf">search</span> <span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;SELECT * FROM  tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Stop !!!
+Three times and you refactor. Artinya, begitu kita paste untuk kedua kali (berarti ada tiga kopi blok yang sama), itulah waktunya kita refactor.
+Kita paste blok tersebut, masukkan ke dalam function/method sendiri, berikan parameter seperlunya. Ini untuk menghindari terjadinya duplikasi kode, sehingga untuk tiap perintah cuma ada satu versi.</p>
+
+<p>Setelah direfactor, kode di atas menjadi :</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">UserDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">PreparedStatement</span> <span class="nf">prepareStatement</span><span class="o">(</span><span class="n">String</span> <span class="n">sql</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// connect dulu</span>
+</span><span class='line'>        <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">user</span><span class="o">,</span> <span class="n">pass</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO tbl_user VALUES (?,?)&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">prepareStatement</span><span class="o">(</span><span class="s">&quot;DELETE FROM tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="n">User</span> <span class="nf">search</span> <span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">prepareStatement</span><span class="o">(</span><span class="s">&quot;SELECT * FROM tbl_user WHERE id=?&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="c1">// ... dan seterusnya .... </span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apabila kita menggunakan IDE canggih seperti Eclipse, IDEA, atau Netbeans, refactoring ini mudah saja dilakukan. Tinggal blok kode yang akan direfactor, kemudian klik kanan, dan pilih Extract Method. Method baru akan dibuatkan dan diisi dengan kode yang kita blok. Sedangkan kode asal yang kita blok sebelumnya akan diganti dengan pemanggilan method baru.</p>
+
+<p>Extract Method hanya satu contoh kecil saja dari Refactoring. Masih ada Extract Classes, Inline Method, dan lain sebagainya. Buku wajib buat programmer Java.</p>
+
+<p>Silahkan <a href="http://www.amazon.com/gp/product/0201485672/002-3388109-5046409?v=glance&amp;n=283155&amp;n=507846&amp;s=books&amp;v=glance">beli di Amazon</a> atau <a href="http://www.flazx.com/ebook790.php">download di Flazx</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/life/deadline/">Deadline !!!</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-25T01:28:55+07:00" pubdate data-updated="true">Nov 25<span>th</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Deadline memang bikin stress.</p>
+
+<p>Cangkir kopi bertebaran, dan kantung mata bergelayutan.
+Tidak lupa bos mondar-mandir di belakang, terus menerus kirim email, telpon ke HP, kirim BUZZ lewat Y!, dan melakukan tindakan-tindakan lain yang menambah ketegangan.</p>
+
+<p>Di tengah kesibukan deadline, jangan lupa untuk selalu berpikir positif, dan yang paling penting, jangan mudah tertipu. Beberapa jenis deadline sebetulnya palsu, merupakan kelihaian pihak-pihak tertentu yang menguasai teknik khusus.</p>
+
+<p><a href="http://www.thomsett.com.au/main/articles/hot/games.htm">Di website ini</a> dapat Anda baca beberapa teknik untuk menciptakan nuansa deadline di lingkungan Anda.</p>
+
+<p>Selamat mengejar deadline, awas maag kumat. :P</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/subversion-backup-dan-restore/">Subversion Backup Dan Restore</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-22T21:59:04+07:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah repository terpasang dan telah terisi struktur folder awal, hal pertama yang wajib dilakukan adalah memasang perangkat backup otomatis. Berikut adalah checklistnya :</p>
+
+<ol>
+<li><p>Buat folder khusus backup (misalnya /home/endy/backup-svn)</p></li>
+<li><p><a href="http://pragmaticprogrammer.com/titles/svn/code.html">Download script backup</a> dari buku <a href="http://pragmaticprogrammer.com/titles/svn/index.html">Pragmatic Version Control Using Subversion</a>.
+Ada dua script yang didapat di sini, weekly-backup.pl dan daily-backup.pl
+Kedua script butuh instalasi Perl untuk dapat dijalankan.</p></li>
+<li><p>Letakkan script di folder backup</p></li>
+<li><p>Sesuaikan permission :</p></li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> $ chmod 755 *.pl </span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Test eksekusi script</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./weekly-backup.pl
+</span><span class='line'>$ ./daily-backup.pl </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seharusnya akan ada dua file : weekly-full-backup.yyyyMMdd.gz dan daily-incremental-backup.yyyyMMdd.gz</p>
+
+<ol>
+<li>Otomasi dengan cron</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Repository Weekly Backup
+</span><span class='line'>0 6 * * 1       /home/endy/backup-svn/weekly-backup.pl
+</span><span class='line'># Dijalankan setiap Senin jam 6 pagi.
+</span><span class='line'>
+</span><span class='line'># Repository Daily Backup
+</span><span class='line'>0 23 * * *      /home/endy/backup-svn/daily-backup.pl
+</span><span class='line'># Dijalankan setiap hari jam 23 malam</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Setiap Senin pagi, tulis semua file dari Senin minggu lalu sampai Minggu malam ke dalam CD. Simpan CD di lokasi yang berbeda (gedung lain, kota lain, negara lain, planet lain bila perlu).</li>
+</ol>
+
+
+<p>Bila semua ini dijalankan, cuma butuh 10 menit, sudah termasuk membaca artikel ini.
+Jangan sia-siakan hidup Anda hanya karena malas investasi 10 menit.</p>
+
+<p>Apabila terjadi bencana, dan repository rusak, kita tinggal ambil CD terbaru, dan dump dengan cara :
+1. Install ulang Subversion
+2. Buat repository
+3. Unzip dump file</p>
+
+<pre><code>$ gunzip *.gz
+</code></pre>
+
+<ol>
+<li>Load ke repository baru</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ svnadmin load newrepos &lt; weekly-full-backup.yyyyMMdd
+</span><span class='line'>$ svnadmin load newrepos &lt; daily-incremental-backup.yyyyMMdd</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dimulai dari tanggal paling lama, sampai tanggal terbaru.</p>
 </div>
   
   
@@ -774,6 +922,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
@@ -807,10 +959,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
   </ul>

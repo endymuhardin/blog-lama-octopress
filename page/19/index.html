@@ -9,8 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di milis manajemen proyek IT sedang rame diskusi tentang CMMI dan Scrum.
-Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam &hellip;">
+  <meta name="description" content="Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -96,7 +96,7 @@ Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam &hel
       
   <header>
     
-      <h1 class="entry-title"><a href="/manajemen/meluruskan-mitos-cmmi/">Meluruskan Mitos CMMI</a></h1>
+      <h1 class="entry-title"><a href="/java/ruthless-testing-1/">Ruthless Testing 1</a></h1>
     
     
       <p class="meta">
@@ -112,214 +112,255 @@ Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam &hel
   
 
 
-<time datetime="2011-08-10T15:01:25+07:00" pubdate data-updated="true">Aug 10<span>th</span>, 2011</time>
+<time datetime="2006-06-13T22:59:30+07:00" pubdate data-updated="true">Jun 13<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Di milis manajemen proyek IT sedang rame diskusi tentang CMMI dan Scrum.
-Seperti layaknya diskusi yang rame, perdebatan dibumbui dengan segala macam mitos dan &#8216;FUDification&#8217;.</p>
+  <div class="entry-content"><p>Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221;</p>
 
-<p>Berikut adalah tanggapan saya tentang mitos yang berkembang mengenai CMMI, dicopy-paste dari posting milis dengan sedikit penyesuaian.</p>
+<p>Nah, kalau begitu, pertanyaannya, apa saja yang sudah ditest?</p>
 
-<p>Beberapa mitos yang akan diluruskan :</p>
+<p>Jawaban orang biasanya bervariasi, tergantung nilai project, jumlah orang yang tersedia, dan juga tergantung tingkat kegaptekan si programmer terhadap teknologi testing yang tersedia.</p>
 
-<ul>
-<li>CMMI adalah metodologi manajemen proyek yang cenderung waterfall</li>
-<li>CMMI mewajibkan kita bikin banyak dokumen</li>
-</ul>
+<p>Testing minimal yang dilakukan biasanya adalah user testing. Jadi, ada user (atau programmer yang pura-pura jadi user) mencoba menggunakan aplikasi yang (katanya sih) sudah selesai. Biasanya fenomena ini akan berakhir dengan periode bugfix yang lebih lama daripada periode coding itu sendiri.</p>
 
+<p>Jadi, bagaimana tipsnya supaya user testing berjalan dengan lancar, minim bug, kalaupun ada, bisa diselesaikan dalam bilangan hari?</p>
 
-<p>Pada artikel ini, kita akan meluruskan mitos-mitos tersebut.</p>
+<p>Jawabannya adalah melaksanakan &#8220;ruthless testing&#8221;. Artinya testing secara kejam. Testing yang berlapis-lapis sehingga kalau ada programmer bandel yang membuat percabangan if terlalu dalam, akan langsung ketahuan.</p>
 
-<h2>CMMI = metodologi, cenderung waterfall</h2>
+<p>Bagaimana itu? Kita akan lihat sebentar lagi.</p>
 
-<p>CMMI bukanlah metodologi manajemen proyek seperti
-<a href="http://en.wikipedia.org/wiki/Scrum_(development">Scrum</a>), <a href="http://en.wikipedia.org/wiki/IBM_Rational_Unified_Process">IBM Rational Unified Process</a>, <a href="http://en.wikipedia.org/wiki/Extreme_Programming">XP</a>, apalagi <a href="http://en.wikipedia.org/wiki/Waterfall_model">Waterfall</a>.</p>
-
-<p>CMMI sebetulnya sudah pernah saya jelaskan <a href="http://endy.artivisi.com/blog/manajemen/apa-itu-cmmi/">di posting saya sebelumnya</a>. Tapi untuk lebih menyederhanakan lagi, kita bisa analogikan CMMI seperti akreditasi perguruan tinggi. Kalau kita mau daftar kuliah, biasanya kita cari tahu akreditasi kampus yang kita tuju. Semakin tinggi akreditasinya, semakin tinggi ekspektasi kita terhadap kualitas perguruan tinggi tersebut. <a href="http://ban-pt.kemdiknas.go.id/">Akreditasi perguruan tinggi</a> <a href="http://ban-pt.kemdiknas.go.id/index.php?option=com_content&amp;view=article&amp;id=57&amp;Itemid=63&amp;lang=in">ditentukan oleh banyak hal</a>, diantaranya :</p>
-
-<ul>
-<li>berapa jumlah dosen yang S3</li>
-<li>berapa karya ilmiah dan penelitian yang dihasilkan dalam satu periode</li>
-<li>dsb</li>
-</ul>
-
-
-<p>Untuk menentukan suatu kampus mendapat level A, B, atau lainnya, maka ada tim assessor yang akan memeriksa apakah kampus tersebut sudah memenuhi apa yang dipersyaratkan.</p>
-
-<p>Demikian juga dengan CMMI, berisi seperangkat checklist yang bentuknya kira-kira seperti ini:</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Level  </th>
-<th> Process Area </th>
-<th> OK </th>
-<th> Not OK </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td>   2    </td>
-<td> REQM         </td>
-<td> v  </td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>   2    </td>
-<td> PP           </td>
-<td> v  </td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>   2    </td>
-<td> PMC          </td>
-<td>    </td>
-<td>   v</td>
-</tr>
-<tr>
-<td></td>
-<td>   2    </td>
-<td> MA           </td>
-<td>    </td>
-<td>   v</td>
-</tr>
-</tbody>
-</table>
-
-
-<p>Nah, checklist itu nanti akan dicentang sesuai dengan kapabilitas perusahaan yang diperiksa.</p>
-
-<p>Adapun urusan Scrum, Waterfall, XP, whatever metodologi yang kita gunakan,
-hanyalah mencakup sebagian saja dari CMMI.</p>
-
-<p>CMMI itu model untuk menggambarkan organisasi pembuat software yang mature. Apa itu mature? Salah satu karakteristiknya adalah konsistensi. Perusahaan yang gak mature, hasil kerjanya gak konsisten. Project A ontime, Project B molor 3 tahun. Project X bugnya dikit, Project Y isinya bug doang gak ada fiturnya.</p>
-
-<p>Kalau kita bisa mengeksekusi project dengan sukses, kita hanya bisa lulus CMMI level 2. Untuk bisa mendapatkan level 3, kita harus bisa mengeksekusi project dengan sukses <strong>secara konsisten</strong>.
-Untuk bisa konsisten, maka kita harus bisa menduplikasi project sukses ke seluruh perusahaan. Jadi, kalau kita sudah sukses pakai Scrum di project kita sekarang, tetap saja baru level 2. Hanya setelah kesuksesan Scrum bisa direplikasi di keseluruhan perusahaan, barulah bisa level 3.</p>
-
-<p>Seperti juga halnya replikasi resep McDonalds ke seluruh cabang, untuk bisa mereplikasi project sukses ke seluruh perusahaan,
-dibutuhkan kegiatan tambahan di level organisasi, misalnya :</p>
-
-<ul>
-<li>Menulis SOP (OPD)</li>
-<li>Membuat program pelatihan internal (OT)</li>
-<li>Selalu menganalisas prosedur yang sekarang berlaku, supaya bisa diimprove (OPF)</li>
-</ul>
-
-
-<p>Yang di dalam kurung adalah process area yang bersesuaian di CMMI.</p>
-
-<p>Berurusan dengan perusahaan yang mature akan mengurangi resiko di client. Apa itu resiko?</p>
-
-<p>Buat orang awam seperti kita, resiko adalah simply sekian persen kemungkinan adanya masalah di kemudian hari. Nah, ada perspektif finansial yang kita orang teknis biasanya gak kepikiran. Buat orang finance, persentase tersebut bisa diuangkan. Misalnya kita mau bikin aplikasi costnya 100 M, uangnya minjem ke bank. Karena pada dasarnya bank gak mau rugi, 100 M itu akan diasuransikan sama dia. Jadi kalo projectnya bubaran, kita gak sanggup bayar, hutangnya akan ditalangin sama asuransi.</p>
-
-<p>Asuransi akan lihat, kita pakai vendor siapa. Kalo vendornya gak mature (baca: resiko tinggi) maka premi asuransinya akan tinggi. Akibatnya, biaya pinjaman kita (cost of money) juga tinggi.</p>
-
-<p>Bisa aja kita bayar 100 M (pokok) + 20 M (bunga) + 20 M (asuransi). Padahal kalo vendornya mature, premi asuransinya cuma 5 M. Nah, jadi urusan resiko dan maturity ini bukan semata jargon2 aja, tapi ada duit beneran yang tersangkut di dalamnya.</p>
-
-<p>Demikianlah mitos pertama, CMMI bukan metodologi manajemen proyek, melainkan manajemen keseluruhan perusahaan.</p>
-
-<h2>CMMI mewajibkan kita bikin banyak dokumen</h2>
-
-<p>CMMI sama sekali tidak mengharuskan kita bikin dokumen apa-apa.</p>
-
-<p>Yang ada, kita harus :</p>
-
-<ul>
-<li><strong>melakukan</strong> project planning (level 2)</li>
-<li><strong>melakukan</strong> project monitoring &amp; control (level 2)</li>
-<li><strong>mendefinisikan</strong> project life cycle : bisa waterfall, scrum, spiral, cowboy programming juga boleh</li>
-</ul>
-
-
-<p>Berikut beberapa definisi singkat</p>
-
-<ul>
-<li>Planning : merencanakan apa yang akan dilakukan</li>
-<li>Monitoring : melihat kondisi aktual, apakah sesuai dengan plan</li>
-<li>Control : melakukan tindakan kalau kondisi aktual tidak sesuai dengan plan</li>
-</ul>
-
-
-<p>Nah, kita harus membuktikan bahwa kita benar2 melakukan apa yang disuruh. Gimana cara membuktikannya?</p>
-
-<p>Kita bisa :</p>
+<p>Ada berapa jenis testing? Hmm .. menurut saya ada:</p>
 
 <ol>
-<li>Tunjukkan dokumen hardcopy, atau</li>
-<li>Tunjukkan bahwa kita melakukan planning, monitoring, dan control di aplikasi yang kita pakai (Redmine, planningpoker.com, pivotaltracker.com, basecamphq.com, fogbugz, whatever)</li>
+<li>Unit testing</li>
+<li>Integration testing</li>
+<li>Coverage testing</li>
+<li>Code compliance testing</li>
+<li>User/functional testing</li>
+<li>Performance testing</li>
 </ol>
 
 
-<p>Nah, dari 2 cara di atas, kalo kita <strong>benar-benar</strong> melakukan, akan lebih mudah menunjukkan yang #2. Tapi kalo akal2an, sebenarnya gak planning tapi mau ngakunya planning, akan lebih mudah memalsukan yang #1. Soalnya #2 gak bisa di-back-dated, sedangkan #1 bisa.</p>
+<p>Semua test ini harus dijalankan tanpa kecuali.</p>
 
-<p>Jadi, fokusnya lebih ke <strong>melakukan proses</strong>, bukan <strong>membuat dokumen</strong></p>
+<p>What the !@#$? Banyak sekali? Apakah semua harus dijalankan? Wah, bisa-bisa kerjaan kita cuma ngurusin test doang? Bagaimana ini?</p>
 
-<p>Kemudian, ada kesalah-kaprahan juga yang umum terjadi tentang planning. Planning itu tidak sekali saja lalu dipakai sepanjang project. Project plan harus mencerminkan kondisi yang terbaru dari project. Misalnya, kita bikin plan awal (versi 1) selesai 3 bulan. Ternyata waktu monitoring di akhir bulan 1, kita udah tau bahwa gak bakalan selesai dalam 2 bulan sisanya. Kita harus melakukan controlling terhadap projectnya. Tindakan control bisa macam2, bisa kita tambah orang biar tetap selesai dalam 3 bulan, bisa juga revisi plannya sehingga mencerminkan kondisi setelah 1 bulan berjalan.</p>
+<p>Hmm.. jangan khawatir, semua bisa dijalankan dengan investasi minimal di awal project.
+Tips saya adalah:</p>
 
-<p>UUD 45 aja bisa diamandemen, masa project plan gak bisa :D</p>
-
-<p>Contoh lain, mengelola requirement (Requirement Management), Level 2.</p>
-
-<blockquote><p>S.P 1.1 : Understand Requirement : kita harus memastikan bahwa requirement dipahami.</p></blockquote>
-
-
-<p>Gimana cara membuktikannya?</p>
-
-<p>Kalo prosesnya benar-benar dijalankan, kita bisa tunjukkan email dari BA ke Client yang isinya mengkonfirmasi pemahaman BA tentang requirement yang diminta Client.</p>
-
-<p>Atau kalo seperti Scrum, Clientnya hadir di ruangan yang sama, gak nyatet apa2, rekaman audio juga boleh. Intinya, ada sesuatu yang bisa ditunjukkan ke auditor bahwa kita sudah Understanding Requirement.</p>
-
-<p>Kalo prosesnya palsu, artinya sebenarnya gak dilakukan, tapi mau lulus Level 2, maka dibuatlah dokumen palsu. Bentuknya biasanya review report, isinya item2 requirement, lalu nanti ada tandatangan client palsu.</p>
-
-<p>So, overhead dokumen (mis: review report) itu ada kalo kita memalsukan proses.</p>
-
-<p>Selama kita benar-benar menjalankan apa yang disuruh, pasti ada evidence bahwa kita menjalankan, entah itu bentuknya chat YM, email, Skype call, apalah terserah, tidak ada CMMI mewajibkan formatnya harus mp3 atau apa.</p>
-
-<blockquote><p>SP 1.2 : Obtain Commitment to Requirement : semua pihak harus commit terhadap requirement yang sudah dibuat.</p></blockquote>
+<ol>
+<li><p>Alokasikan pembuatan test bersama-sama dengan construction. Jangan setelah construction. Jadi, wahai Project Managers, kalau merencanakan construction, tambahkan alokasi waktu untuk membuat test.</p></li>
+<li><p>Semua test harus otomatis dan bisa dijalankan dengan sekali perintah. Di project saya, semua test dijalankan cukup dengan:</p></li>
+</ol>
 
 
-<p>Gimana cara membuktikan bahwa kita comply dengan SP ini?</p>
+<p><code>ant full-test</code></p>
 
-<p>Paling gampang, BA kirim email ke Client, &#8220;Pak, di iterasi ini, kita kerjakan req #12, #14, sama #15 ya. #13 pending dulu aja&#8221;</p>
+<p>Baiklah, mari kita lihat satu persatu secara lebih detail.</p>
 
-<p>Client reply, &#8220;Ok&#8221;</p>
+<h3>Unit Testing</h3>
 
-<p>That&#8217;s it, tunjukkan emailnya ke auditor, beres.</p>
+<p>Ini adalah testing di level paling detail dari aplikasi. Artinya, testing di level method/function. Misalnya saya punya kode seperti ini:</p>
 
-<p>Kalau proses ini tidak dijalankan, akan menimbulkan masalah di kemudian hari. Usernya client bilang A, bosnya user bilang A+, programmer bilang C, PM bilang lain lagi. Sekali lagi, selama prosesnya dilakukan, emailnya pasti ada.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span><span class="o">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">  * menghitung jumlah hari dalam bulan dan tahun yang diminta. </span>
+</span><span class='line'><span class="cm">  * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.</span>
+</span><span class='line'><span class="cm">  * @param month bulan yang akan dihitung</span>
+</span><span class='line'><span class="cm">  * @param year tahun yang akan dihitung</span>
+</span><span class='line'><span class="cm">  * @return jumlah hari dalam bulan dan tahun bersangkutan</span>
+</span><span class='line'><span class="cm">  */</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numDays</span><span class="o">(</span><span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">year</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">29</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Kalo prosesnya palsu, atau clientnya gaptek gak kenal email, ya dibuatlah dokumen requirement sign off. Orang2 tandatangan. Dokumennya dijadikan evidence.</p>
 
-<blockquote><p>SP 1.3 : Manage Requirement Changes : kalo requirement berubah, harus di-manage.</p></blockquote>
+<p>Coba lihat contoh kode di atas? Salah bukan?
+Apapun yang kita masukkan, hasilnya pasti 29.
+Mari kita buktikan dengan unit test bahwa kode di atas salah.</p>
 
-
-<p>Apa itu dimanage?</p>
-
-<p>Dimanage artinya harus jelas :
-- apa yang berubah
-- siapa yang minta berubah
-- siapa yang approve
-- apa impactnya ke schedule/cost/effort/cuaca hari ini</p>
-
-<p>Apa buktinya? Email boleh, chat log boleh, rekaman cctv boleh.</p>
-
-<p>Ok, lalu kenapa semua harus ada evidence ??</p>
-
-<p>Berikut joke dari auditor kita dulu,</p>
-
-<blockquote><p>In God We Trust, everybody else brings data.</p></blockquote>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Jadi, CMMI = banyak dokumen hanyalah mitos belaka. Untuk bisa melakukan verifikasi, auditor tentu butuh melihat evidence. Di jaman modern seperti sekarang, evidence bentuknya tidak harus dokumen tertulis yang dibuat dengan aplikasi office.</p>
+<p>Pada waktu dijalankan, unit test tersebut akan menghasilkan tulisan FAILED</p>
+
+<p>Di Java, unit test dapat dilakukan secara otomatis dengan menggunakan <a href="http://ww.junit.org">JUnit</a>.</p>
+
+<h3>Integration Test</h3>
+
+<p>Sebagian besar aplikasi yang kita buat akan menggunakan database. Untuk itu, kita perlu mengetes apakah kode program kita dapat berinteraksi dengan database sesuai harapan.
+Mirip dengan JUnit, kita membuat unit test yang mengakses database. Misalnya, berikut kode programnya:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span><span class="o">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">  * memeriksa username dan password dalam database. </span>
+</span><span class='line'><span class="cm">  * Method ini akan mencocokkan username dan password yang diberikan </span>
+</span><span class='line'><span class="cm">  * dan yang terdaftar di database.</span>
+</span><span class='line'><span class="cm">  * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.</span>
+</span><span class='line'><span class="cm">  * @param username </span>
+</span><span class='line'><span class="cm">  * @param password</span>
+</span><span class='line'><span class="cm">  * @return true kalau cocok, false kalau tidak cocok</span>
+</span><span class='line'><span class="cm">  */</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">checkLogin</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;SELECT * FROM user WHERE username=? AND password=?&quot;</span>
+</span><span class='line'>    <span class="c1">// dst kode akses database</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan ini adalah kode untuk mengetesnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCheckLogin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DatabaseAccess</span> <span class="n">db</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseAccess</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// asumsikan ada username endy dan password secret di database</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;endy&quot;</span><span class="o">,</span> <span class="s">&quot;secret&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// coba dengan user sembarang, harusnya akan menghasilkan false</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;nobody&quot;</span><span class="o">,</span> <span class="s">&quot;gakada&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan bahwa kedua test di atas mengasumsikan bahwa kita punya database, terisi data endy:secret, dan tidak ada record nobody:gakada di dalam tabel user.
+Berarti, setiap dijalankan, kita harus memastikan asumsi di atas terpenuhi.
+Lalu, bagaimana cara menjalankannya secara otomatis? Gampang, gunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>.</p>
+
+<p>Dengan DBUnit, kita dapat me-reset kondisi database sesuai keinginan setiap kali test akan dijalankan.
+Caranya, kita harus buat test data, yaitu satu record berisi data endy:test dalam tabel user. Test data ini disimpan dalam file checkLogin.xml</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dataset&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;user</span> <span class="na">id=</span><span class="s">&#39;1&#39;</span>
+</span><span class='line'>        <span class="na">username=</span><span class="s">&#39;endy&#39;</span>
+</span><span class='line'>        <span class="na">password=</span><span class="s">&#39;secret&#39;</span>
+</span><span class='line'>  <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dataset&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sebelum test dimulai, pastikan database direset. Tambahkan method berikut di kode test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCheckLogin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// reset database</span>
+</span><span class='line'>    <span class="n">prepareDatabase</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">DatabaseAccess</span> <span class="n">db</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseAccess</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// asumsikan ada username endy dan password secret di database</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;endy&quot;</span><span class="o">,</span> <span class="s">&quot;secret&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// coba dengan user sembarang, harusnya akan menghasilkan false</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;nobody&quot;</span><span class="o">,</span> <span class="s">&quot;gakada&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">prepareDatabase</span><span class="o">(){</span>
+</span><span class='line'>    <span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbConn</span><span class="o">,</span> <span class="n">getTestData</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">IDataSet</span> <span class="nf">getTestData</span><span class="o">(){</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">FlatXmlDataSet</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;checkLogin.xml&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nah, DBUnit akan dengan senang hati me-reset isi <strong>database development</strong> Anda. Pastikan test tersebut dijalankan di DATABASE DEVELOPMENT, dan bukan DATABASE PRODUCTION.</p>
+
+<p>Sementara cukup sekian. Pada artikel selanjutnya, kita akan bahas tentang:
+3. Coverage Testing
+4. Code compliance testing
+5. User/functional testing
+6. Performance testing
+Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
 </div>
   
   
@@ -332,7 +373,7 @@ dibutuhkan kegiatan tambahan di level organisasi, misalnya :</p>
       
   <header>
     
-      <h1 class="entry-title"><a href="/aplikasi/redmine-jruby-tomca/">Instalasi Redmine Di Tomcat</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/game-oldies/">Game Oldies</a></h1>
     
     
       <p class="meta">
@@ -348,226 +389,31 @@ dibutuhkan kegiatan tambahan di level organisasi, misalnya :</p>
   
 
 
-<time datetime="2011-08-07T04:06:01+07:00" pubdate data-updated="true">Aug 7<span>th</span>, 2011</time>
+<time datetime="2006-05-30T23:55:50+07:00" pubdate data-updated="true">May 30<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Ada berbagai cara instalasi Redmine, diantaranya:</p>
+  <div class="entry-content"><p>Berangkat dari membaca <a href="http://www.saryada.com/2006/05/23/wow-transport-tycoon-deluxe-has-an-open-source-version/">blog teman</a> yang mengulas tentang <a href="http://www.tycoongames.net/downloadarea.html">Transport Tycoon Deluxe</a> yang sekarang ada <a href="http://www.openttd.org/">versi open sourcenya</a>, saya jadi teringat koleksi game oldies saya.</p>
 
-<ul>
-<li><p>Dijalankan langsung dari command prompt dengan Webrick</p></li>
-<li><p>Dijalankan menggunakan Mongrel dan FastCGI</p></li>
-<li><p>Dijalankan menggunakan Ruby Enterprise Edition dan Passenger</p></li>
-<li><p>Dibuat menjadi war dan dideploy ke application server Java seperti Tomcat, Glassfish, dsb</p></li>
-</ul>
+<p>Jaman saya SMU dulu, sekitar tahun 1994-1997, game favorit saya dan teman-teman adalah <a href="http://en.wikipedia.org/wiki/X-COM">UFO-Enemy Unknown</a>. Game ini berkisah tentang penyerbuan alien ke bumi. Dengan fitur yang cukup variatif, seperti kejar-kejaran pesawat alien, penyerbuan ke markas musuh, mempertahankan markas dari serbuan alien, dan riset teknologi, game ini terasa sangat canggih pada masa itu.</p>
 
+<p>Pada waktu mulai bermain, teknologi pasukan kita sangat minim. Seiring dengan seringnya bertempur, kita mulai mengkoleksi persenjataan alien. Persenjataan ini kemudian diteliti. Setelah penelitian selesai, kita bisa menggunakan senjata tersebut.</p>
 
-<p>Pada artikel ini, kita akan mencoba cara terakhir, yaitu menggunakan Tomcat untuk menghosting Redmine.
-Ini saya lakukan supaya semua tools manajemen proyek ArtiVisi bisa disatukan di satu Tomcat, sehingga memudahkan kegiatan maintenance.
-Sebelum Redmine, Tomcat ArtiVisi juga menghosting :</p>
+<p>Bukan cuma senjata, mayat dan pesawat alien juga diteliti, sehingga kalau kita sudah main cukup lama, semua teknologi alien bisa kita gunakan.</p>
 
-<ul>
-<li><p><a href="http://nexus.sonatype.org/">Nexus</a></p></li>
-<li><p><a href="http://jenkins-ci.org/">Jenkins</a></p></li>
-</ul>
+<p>Game yang sudah lama punah ini, tetap bisa dimainkan di masa kini dengan cara <a href="http://www.abandonia.com/games/38/download/UFOEnemyUnknown.htm">download dari abandonia</a>.</p>
 
+<p>Sekuelnya juga ada, yaitu <a href="http://www.abandonia.com/games/60/X-Com-TerrorFromTheDeep">Terror From The Deep</a> dan <a href="http://www.abandonia.com/games/307/X-Com-Apocalypse">Apocalypse</a>.</p>
 
-<p>Dan nantinya, kalau sudah ada waktu dan kesempatan, juga akan menghosting <a href="http://code.google.com/p/gerrit/">Gerrit</a></p>
+<p>Selain game itu, kami dulu juga suka memainkan <a href="http://www.abandonia.com/games/395/IncredibleMachine2">The Incredible Machine 2</a>. Ini adalah game puzzle, di mana kita disuruh mengkombinasikan alat-alat yang tersedia untuk memecahkan masalah yang diberikan. Alat-alat yang disediakan bermacam-macam, mulai dari balon zeppelin, anti gravitasi, motor listrik, blender, dan sebagainya.
+Sangat bermanfaat untuk mendongkrak kreativitas adik-adik kita di SD.</p>
 
-<p>Mari kita mulai.</p>
+<p>Untuk memainkan game berbasis DOS ini, kita membutuhkan DOS Emulator. Saya biasa menggunakan <a href="http://dosbox.sourceforge.net">DosBox</a> dengan front-end <a href="http://members.home.nl/mabus/">D-Fend</a>.</p>
 
-<h2>Instalasi JRuby</h2>
-
-<p>Pertama, kita <a href="http://jruby.org/">Download JRuby</a>. Setelah itu, extract di folder yang diinginkan (contohnya /opt)</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=install-jruby.sh'></script>
-<noscript><pre><code>cd /opt
-tar xzf ~/Downloads/jruby-bin-1.6.3.tar.gz
-chown -R endy.endy /opt/jruby-1.6.3
-ln -s jruby-1.6.3 jruby</code></pre></noscript></div>
-
-
-<p>Daftarkan jruby ke variabel PATH, supaya bisa diakses langsung dari command line.
-Tulis baris berikut ini di dalam file ~/.bashrc</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=bashrc'></script>
-<noscript><pre><code>export JRUBY_HOME=/opt/jruby
-export PATH=$PATH:$JRUBY_HOME/bin</code></pre></noscript></div>
-
-
-<p>Terakhir, test instalasi JRuby</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=test-jruby.sh'></script>
-<noscript><pre><code>jruby -v
-jruby 1.6.3 (ruby-1.8.7-p330) (2011-07-07 965162f) (Java HotSpot(TM) Client VM 1.6.0_26) [linux-i386-java]</code></pre></noscript></div>
-
-
-<h2>Instalasi Paket Gem</h2>
-
-<p>Redmine membutuhkan beberapa library Ruby yang dipaket dalam format gem, yaitu :</p>
-
-<ul>
-<li><p>rack versi 1.1.1 : ini adalah library untuk web server</p></li>
-<li><p>rails versi 2.3.11 (dibutuhkan karena kita akan menginstal Redmine dari Subversion, bukan dari distribusi)</p></li>
-<li><p>jruby-openssl : supaya bisa melayani https</p></li>
-<li><p>activerecord-jdbcmysql-adapter : library untuk koneksi database</p></li>
-<li><p>warbler : packager supaya Redmine bisa dibuat jadi war dan dideploy ke Tomcat</p></li>
-</ul>
-
-
-<p>Mari kita install</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=install-gem.sh'></script>
-<noscript><pre><code>gem install rack -v=1.1.1
-gem install rails -v=2.3.11
-gem install jruby-openssl activerecord-jdbcmysql-adapter warbler</code></pre></noscript></div>
-
-
-<p>Semua paket sudah lengkap, mari kita lanjutkan ke</p>
-
-<h2>Mengambil Redmine dari Subversion Repository</h2>
-
-<p>Sebetulnya ada dua pilihan untuk mendapatkan Redmine, download versi rilis atau checkout langsung dari Subversion.
-Saya lebih suka checkout langsung supaya nanti lebih gampang upgrade manakala rilis baru sudah terbit.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=checkout-redmine.sh'></script>
-<noscript><pre><code>cd ~/Downloads
-svn co http://redmine.rubyforge.org/svn/branches/1.2-stable redmine-1.2</code></pre></noscript></div>
-
-
-<p>Tunggu sejenak sampai proses checkout selesai. Setelah selesai, kita bisa langsung ke langkah selanjutnya.</p>
-
-<h2>Konfigurasi Database</h2>
-
-<p>Masuk ke folder Redmine, lalu copy file config/database.yml.example ke database.yml, kemudian edit.
-Saya menggunakan konfigurasi development sebagai berikut :</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=database.yml'></script>
-<noscript><pre><code>development:
-  adapter: jdbcmysql
-  database: redmine
-  host: localhost
-  username: redmine
-  password: redmine
-  encoding: utf8</code></pre></noscript></div>
-
-
-<p>Tentunya kita harus sediakan database dengan konfigurasi tersebut di MySQL. Login ke MySQL, kemudian buatlah database dan usernya.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=create-database.sh'></script>
-<noscript><pre><code>mysql -u root -p
-
-create database redmine character set utf8;
-create user 'redmine'@'localhost' identified by 'redmine';
-grant all privileges on redmine.* to 'redmine'@'localhost';</code></pre></noscript></div>
-
-
-<p>Setelah databasenya selesai dibuat, selanjutnya kita akan melakukan inisialisasi.</p>
-
-<h2>Inisialisasi Redmine</h2>
-
-<p>Pertama, kita inisialisasi dulu session store. Ini digunakan untuk menyimpan cookie dan session variabel.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-session.sh'></script>
-<noscript><pre><code>cd ~/Downloads/redmine-1.2
-rake generate_session_store</code></pre></noscript></div>
-
-
-<p>Setelah itu, inisialisasi skema database.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-skema-db.sh'></script>
-<noscript><pre><code>RAILS_ENV=development rake db:migrate</code></pre></noscript></div>
-
-
-<p>Isi data awal.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=inisialisasi-data-awal.sh'></script>
-<noscript><pre><code>RAILS_ENV=development rake redmine:load_default_data</code></pre></noscript></div>
-
-
-<p>Setelah terisi, selanjutnya kita bisa test jalankan Redmine.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=start-webrick.sh'></script>
-<noscript><pre><code>jruby script/server webrick -e development</code></pre></noscript></div>
-
-
-<p>Hasilnya bisa kita browse di http://localhost:3000
-Kemudian kita bisa login dengan username admin dan password admin.</p>
-
-<h2>Konfigurasi Email</h2>
-
-<p>Issue tracker yang baik harus bisa mengirim email, supaya dia bisa memberikan notifikasi pada saat ada issue baru ataupun perubahan terhadap issue yang ada.
-Redmine versi 1.2 membutuhkan file konfigurasi yang bernama configuration.yml, berada di folder config. Berikut isi file configuration.yml untuk mengirim email ke Gmail.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=configuration.yml'></script>
-<noscript><pre><code># = Outgoing email settings
-development:
-    email_delivery:
-        delivery_method: :smtp
-        smtp_settings:
-            tls: true
-            address: &quot;smtp.gmail.com&quot;
-            port: 587
-            authentication: :plain
-            user_name: &quot;nama.kita@gmail.com&quot;
-            password: &quot;passwordgmailkita&quot;</code></pre></noscript></div>
-
-
-<p>Selain itu, kita juga harus menginstal plugin action_mailer_optional_tls, seperti dijelaskan <a href="http://redmineblog.com/articles/setup-redmine-to-send-email-using-gmail/">di sini</a>.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=install-action-mailer-tls.sh'></script>
-<noscript><pre><code>jruby script/plugin install git://github.com/collectiveidea/action_mailer_optional_tls.git
-</code></pre></noscript></div>
-
-
-<p>Coba restart Redmine, sesuaikan alamat email kita dengan cara klik link My Account di pojok kanan atas.
-Di dalamnya ada informasi tentang email. Ganti dengan alamat email kita.
-Kemudian pergi ke menu Administration > Settings > Email Notifications,
-kemudian klik link Send a test email di pojok kanan bawah.
-Tidak lama kemudian, seharusnya test email dari Redmine sudah masuk di mailbox kita.</p>
-
-<p>Dengan demikian, Redmine sudah berhasil kita instal dan konfigurasi dengan baik.
-Selanjutnya, kita akan paketkan supaya bisa dideploy di Tomcat.</p>
-
-<h2>Generate WAR</h2>
-
-<p>Pertama, kita harus inisialisasi dulu konfigurasi warble.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=warble-config.sh'></script>
-<noscript><pre><code>warble config
-</code></pre></noscript></div>
-
-
-<p>Dia akan menghasilkan file config/warble.rb. Mari kita edit sehingga menjadi seperti ini.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=warble.rb'></script>
-<noscript><pre><code>Warbler::Config.new do |config|
-  config.dirs = %w(app config lib log vendor tmp extra files lang)
-  config.gems += [&quot;activerecord-jdbcmysql-adapter&quot;, &quot;jruby-openssl&quot;, &quot;i18n&quot;, &quot;rack&quot;]
-  config.webxml.rails.env = ENV['RAILS_ENV'] || 'development'
-end</code></pre></noscript></div>
-
-
-<p>Selanjutnya, kita tinggal menjalankan perintah warble untuk menghasilkan file war.</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=warble-generate.sh'></script>
-<noscript><pre><code>warble
-warning: application directory `lang' does not exist or is not a directory; skipping
-rm -f redmine-1.2.war
-Creating redmine-1.2.war</code></pre></noscript></div>
-
-
-<p>File war yang dihasilkan tinggal kita deploy ke Tomcat</p>
-
-<div><script src='https://gist.github.com/1129237.js?file=redmine-war-deploy.sh'></script>
-<noscript><pre><code>cp redmine-1.2.war /opt/apache-tomcat-7.0.12/webapps/redmine.war
-</code></pre></noscript></div>
-
-
-<p>Jalankan Tomcat, dan Redmine bisa diakses di http://localhost:8080/redmine</p>
+<p>Dengan dos emulator ini, kita bisa juga menjalankan game yang bahkan lebih tua lagi seperti Digger.</p>
 </div>
   
   
@@ -580,7 +426,7 @@ Creating redmine-1.2.war</code></pre></noscript></div>
       
   <header>
     
-      <h1 class="entry-title"><a href="/aplikasi/instalasi-spket-ide/">Instalasi Spket IDE</a></h1>
+      <h1 class="entry-title"><a href="/aplikasi/otomasi-transfer-file-dengan-winscp/">Otomasi Transfer File Dengan WinSCP</a></h1>
     
     
       <p class="meta">
@@ -596,110 +442,1005 @@ Creating redmine-1.2.war</code></pre></noscript></div>
   
 
 
-<time datetime="2011-07-07T02:16:13+07:00" pubdate data-updated="true">Jul 7<span>th</span>, 2011</time>
+<time datetime="2006-05-24T22:50:54+07:00" pubdate data-updated="true">May 24<span>th</span>, 2006</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Beberapa minggu terakhir ini, saya mencari-cari cara terbaik untuk melakukan development dengan ExtJS.
-Tentunya fitur utama yang kita inginkan adalah autocomplete,
-sehingga tidak perlu bolak-balik membaca dokumentasi di websitenya.</p>
+  <div class="entry-content"><p>Setelah sebelumnya kita mengotomasi backup untuk Subversion, baik <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">di Windows</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">di Linux</a>, masih ada sedikit PR yang tersisa.</p>
 
-<p>Setelah berhari-hari mencari, akhirnya saya menemukan <a href="http://www.spket.com">Spket IDE</a>.
-Di websitenya dinyatakan bahwa Spket sudah mendukung ExtJS versi 4, membuat saya tertarik untuk mencobanya.
-Sayangnya, petunjuk instalasi sulit didapat, sehingga harus trial-and-error.</p>
+<p>File backup yang dihasilkan oleh script masih berkeliaran di komputer yang sama dengan repository. Jadi kalau sempat terjadi bencana harddisk jebol, repository beserta backupnya akan musnah tanpa sisa.</p>
 
-<p>Di artikel ini, kita akan membahas petunjuk instalasi Spket IDE di Eclipse Indigo.</p>
+<p>Solusi sementaranya adalah dengan cara rajin memindahkan file-file backup secara periodik ke komputer lain, untuk selanjutnya ditulis ke dalam CD/DVD.
+Tetapi, kegiatan copy-mengcopy setiap minggu sangat membosankan. Belum lagi kalau ternyata ada assignment mendadak sehingga kegiatan transfer file menjadi terlupakan.
+Solusi yang lebih <em>hi-tech</em> adalah dengan mengotomasi proses transfer file. Jadi, file backup yang sudah dihasilkan akan kita transfer secara otomatis ke komputer lain, kalau perlu komputer di negara lain.</p>
 
-<h2>Klik menu Install New Software</h2>
+<p>Untuk melakukan otomasi ini, kita membutuhkan aplikasi <a href="http://www.winscp.net">WinSCP</a>. Ini adalah aplikasi untuk mentransfer file antara komputer Windows dengan Linux. Sejak menggunakan aplikasi ini, saya tidak pernah lagi menggunakan Windows Sharing dan Samba Server untuk kebutuhan file transfer.</p>
 
-<p><img src="/images/uploads/2011/07/01.-Install-New-Software.png" title="" ></p>
+<p>Berikut caranya. Perhatikan bahwa konfigurasi saya adalah sebagai berikut:</p>
 
-<h2>Masukkan Update Site Spket IDE</h2>
+<ul>
+<li><p>Repository Server: Windows 2000 Professional dengan WinSCP terinstal</p></li>
+<li><p>Backup Server: Linux OpenSuSE 10.0 dengan SSH server aktif [IP Address: 192.168.0.2]</p></li>
+<li><p>Username di Backup Server: <code>backuponly</code></p></li>
+<li><p>Password di Backup Server: <code>backuppasswd</code></p></li>
+<li><p>Folder yang mau dibackup: <code>c:\Backup</code></p></li>
+<li><p>Folder tujuan: <code>/home/endy/backup</code></p></li>
+</ul>
 
-<p>Tambahkan Update Site yang baru
-<img src="/images/uploads/2011/07/02.-Add-Update-Site.png" title="" ></p>
 
-<p>Update sitenya adalah http://www.spket.com/update/</p>
+<p>Salah satu keunggulan WinSCP adalah, selain bisa mengelola transfer secara GUI, dia juga memiliki kemampuan scripting, sehingga bisa dipanggil dari command prompt.</p>
 
-<p><img src="/images/uploads/2011/07/03.-Lokasi-Update-Site-Spket.png" title="" ></p>
+<p>%{ img /images/uploads/2006/05/winscp.png Screenshot WinSCP %}</p>
 
-<h2>Opsi Instalasi Spket</h2>
+<p>Berikut adalah script untuk mengotomasi proses copy folder <code>C:\Backup</code> dari Windows ke <code>/home/endy/backup</code> di Linux. Save sebagai <code>c:\upload-backup.txt</code></p>
 
-<p><img src="/images/uploads/2011/07/04.-Centang-Semua-Opsi.png" title="" ></p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Modus batch, supaya WinSCP tidak tanya-tanya
+</span><span class='line'>option batch on
+</span><span class='line'># Otomatis overwrite file yang sama
+</span><span class='line'>option confirm off
+</span><span class='line'># Masukkan username dan password
+</span><span class='line'>open backuponly:backuppasswd@192.168.0.2
+</span><span class='line'># Pindah ke folder backup
+</span><span class='line'>cd /home/endy/backup
+</span><span class='line'># Upload folder C:\Backup seisinya
+</span><span class='line'>put c:/Backup 
+</span><span class='line'># Disconnect
+</span><span class='line'>close
+</span><span class='line'># Exit WinSCP
+</span><span class='line'>exit</span></code></pre></td></tr></table></div></figure>
 
-<h2>Klik Next</h2>
 
-<p><img src="/images/uploads/2011/07/05.-Next-Terus.png" title="" ></p>
+<p>Dan berikut adalah bat script untuk mengeksekusi script di atas, save dengan nama <em>c:\backup-scp.bat</em>:</p>
 
-<p><img src="/images/uploads/2011/07/06.-Sit-Back-and-Relax.png" title="" ></p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"C:\Program Files\WinSCP3\winscp3.exe" /console /script=upload-backup.txt</span></code></pre></td></tr></table></div></figure>
 
-<p><img src="/images/uploads/2011/07/07.-Ada-Warning-Lanjut-Saja.png" title="" ></p>
 
-<p>Ada warning, klik saja Yes.</p>
+<p>Script backup-scp.bat siap dijalankan melalui Windows Scheduler, sebaiknya 10 menit setelah jadwal backup.</p>
+</div>
+  
+  
 
-<h2>Download Support ExtJS 4</h2>
 
-<p>Agar bisa mengenali ExtJS 4, kita harus <a href="http://forums.spket.com/viewtopic.php?f=6&amp;t=1866">mengunduh update terbaru dari forumnya</a>.
-Entah apa alasannya, tiap ada update baru, versi jarnya tidak dinaikkan dan update sitenya tidak diperbarui.
-Ini menyebabkan kita harus mengunduh file dari forum.</p>
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/synergy/">Synergy</a></h1>
+    
+    
+      <p class="meta">
+        
 
-<p>Ada dua file yang harus diunduh, yaitu jar
-<img src="/images/uploads/2011/07/08.-Download-jar-terbaru.png" title="" ></p>
 
-<p>dan jsb
-<img src="/images/uploads/2011/07/09.-Dukungan-Ext-4.png" title="" >
-Hasilnya, kita akan memiliki dua file.
-<img src="/images/uploads/2011/07/13.-Hasil-donlod-dari-forum-spket.png" title="" ></p>
 
-<h2>Patch Eclipse</h2>
 
-<p>File jar akan kita pasang di folder plugins di tempat Eclipse terinstal.<br/>
-<img src="/images/uploads/2011/07/11.-Folder-Plugin-Eclipse.png" title="" ></p>
 
-<p>Ini akan menimpa file dengan nama sama.
-<img src="/images/uploads/2011/07/14.-Replace-dengan-yang-baru.png" title="" ></p>
 
-<h2>Patch ExtJS</h2>
 
-<p>Sedangkan file jsb akan kita pasang di folder ExtJS 4.
-<img src="/images/uploads/2011/07/15.-Masukkan-jsb-ke-folder-extjs.png" title="" ></p>
 
-<h2>Edit jsb</h2>
+  
 
-<p>Sayangnya, file jsb ini juga masih ada bugnya. Dia salah menyebutkan nama file dalam folder pkgs.
-Kita harus edit, ganti <code>all.js</code> menjadi <code>classes.js</code>.
-<img src="/images/uploads/2011/07/16.-Edit-file-jsb-sesuai-nama-file.png" title="" ></p>
 
-<h2>Konfigurasi Spket</h2>
+<time datetime="2006-05-24T17:13:37+07:00" pubdate data-updated="true">May 24<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
 
-<p>Selanjutnya, kita masuk ke menu preferences untuk melakukan konfigurasi.
-<img src="/images/uploads/2011/07/17.-Konfigurasi-Spket.png" title="" >
-Masuk ke menu Spket - Javascript Profile
-<img src="/images/uploads/2011/07/18.-Javascript-Profile.png" title="" >
-Tambah Profile baru, beri nama ExtJS
-<img src="/images/uploads/2011/07/19.-Tambah-profile-baru.png" title="" >
-Di profile yang baru saja ditambahkan, Add Library dan pilih ExtJS
-<img src="/images/uploads/2011/07/20.-Tambah-library-ExtJS.png" title="" >
-Setelah itu, Add File jsb yang sudah kita edit tadi.
-<img src="/images/uploads/2011/07/21.-Add-File-JSB.png" title="" >
-Lalu, set profile ExtJS menjadi default
-<img src="/images/uploads/2011/07/22.-Set-Profile-ExtJS-sebagai-default.png" title="" >
-Kemudian, pergi ke menu General - Editors - File Associations. Pilih file js, dan jadikan Spket sebagai editornya.
-<img src="/images/uploads/2011/07/23.-Set-file-associations.png" title="" >
-Klik Ok, restart Eclipse.
-<img src="/images/uploads/2011/07/10.-Restart-Eclipse.png" title="" ></p>
 
-<h2>Code Completion</h2>
+  <div class="entry-content"><p><img src="/images/uploads/2006/05/synergy.gif" title="Synergy Screenshot" ></p>
 
-<p>Sekarang kita bisa melakukan code completion pada saat memberi titik di depan object.
-<img src="/images/uploads/2011/07/24.-Autocomplete-method.png" title="" >
-Atau juga pada saat mengetik di dalam tanda kurung.
-<img src="/images/uploads/2011/07/25.-Autocomplete-property.png" title="" ></p>
+<p>Perhatikan gambar di atas.</p>
 
-<p>Demikianlah cara instalasi Spket IDE di Eclipse.</p>
+<p>Seringkali kita bekerja dengan lebih dari satu komputer pada saat yang bersamaan. Misalnya seperti saya. Untuk kegiatan rutin sehari-hari saya menggunakan Debian GNU/Linux, yaitu untuk browsing (Firefox), membaca email (KMail), berlangganan RSS (aKregator), chatting (Gaim), dan sebagainya.</p>
+
+<p>Tetapi ada kalanya saya &#8216;terpaksa&#8217; menggunakan Windows. Misalnya untuk mengedit template dokumen dengan MS Word. Template dokumen sangat mementingkan ketepatan setting font, border, margin pada suatu dokumen. Jadi walaupun bisa dibuka dengan OpenOffice, tetap saja ada beberapa komponen layout yang rusak. Kegiatan lainnya adalah membuat perencanaan project dengan menggunakan MS Project. Aplikasi ini belum ada padanannya di Linux. Jadi mau tidak mau saya harus menggunakan MS Project agar rencana project saya bisa digunakan orang</p>
+
+<p>Banyak juga orang yang bekerja menggunakan laptop, sedangkan di kantor tetap disediakan PC. Biasanya polanya sama. Kegiatan internet rutin tetap di laptop, sedangkan pekerjaan kantor di PC.</p>
+
+<p>Apapun alasannya, banyak orang yang menggunakan dua komputer sekaligus.</p>
+
+<p>Pada jaman dahulu kala, kita terpaksa menggunakan dua perangkat keyboard dan mouse untuk mengendalikan kedua komputer tersebut. Yang lebih canggih biasanya menggunakan remote desktop agar bisa mengendalikan komputer satu dari lainnya, sehingga tidak perlu pindah-pindah keyboard. Tapi solusi ini, walaupun hi-tech, tetap masih kurang produktif. Karena dengan menggunakan dua monitor, kita bisa lebih cepat bekerja. Monitor satu menampilkan referensi/tutorial, monitor satu lagi digunakan untuk coding.</p>
+
+<p>Gambar di atas adalah solusinya. Ada aplikasi ajaib bernama <a href="http://synergy2.sourceforge.net">Synergy</a>. Selain ajaib, aplikasi ini juga gratis dan mudah diinstal.</p>
+
+<p>Cara kerjanya demikian. Kita instal Synergy di kedua komputer. Kemudian kita jalankan Synergy sebagai server <strong>di komputer yang keyboard dan mousenya ingin kita gunakan</strong>. Untuk berjalan sebagai server, kita perlu membuat file konfigurasi <em>synergy.conf</em> sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>section: screens
+</span><span class='line'>    laptop:
+</span><span class='line'>    pc:    
+</span><span class='line'>end
+</span><span class='line'>section: links
+</span><span class='line'>    laptop
+</span><span class='line'>        right = pc
+</span><span class='line'>    pc:
+</span><span class='line'>        left = laptop
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Berikut penjelasannya:</p>
+
+<ul>
+<li><p>laptop: hostname komputer yang pertama</p></li>
+<li><p>pc: hostname komputer yang kedua</p></li>
+<li><p>pada konfigurasi di atas, laptop diletakkan di sebelah kiri pc.</p></li>
+</ul>
+
+
+<p>Dengan konfigurasi di atas, apabila kita sedang mengendalikan laptop, kemudian kita menggerakkan kursor mouse ke pinggir layar sebelah kanan, kursor akan menyeberang dari monitor laptop ke monitor PC. Begitu juga sebaliknya.</p>
+
+<p>Untuk administrator, Synergy ini bisa digunakan untuk menggantikan KVM terminal. KVM terminal adalah hardware yang memungkinkan beberapa komputer dikendalikan dengan satu perangkat monitor, keyboard, dan mouse.</p>
+
+<p>Lebih canggih lagi, clipboardnya berhubungan. Artinya kita bisa copy text dari laptop, dan paste di PC.</p>
+
+<p>Setelah selesai, silahkan lakukan koneksi dari client ke server.
+Petunjuk lengkap bisa dibaca <a href="http://synergy2.sourceforge.net/running.html">di sini</a>.</p>
+
+<p>Oh iya, walaupun sudah jelas dari screenshot di atas (KDE di kiri -sudah pasti Linux- dan Windows di kanan), pasti ada aja yang tanya, &#8220;Bisa jalan di Windows atau Linux gak ya?&#8221;
+Jawabannya, &#8220;Sangat bisa !!!&#8221;</p>
+
+<p>Saya sudah menggunakan Synergy untuk menghubungkan Debian Sarge dan Windows 2000 Professional. Untuk Sarge harus pakai Synergy 1.2.2 (bawaan apt-get) sedangkan versi terbaru (per 24 Mei 2006) adalah 1.3.1.</p>
+
+<p>Tentu saja versi client dan server harus sama, untuk menghindari kepusingan tanpa manfaat.</p>
+
+<p>Update:
+Beberapa teman mencoba menjalankan Synergy server di Windows dan mengaku mengalami kesulitan. Kebetulan di tempat saya ada beberapa anak magang yang tertarik untuk mencoba.
+Ternyata, kesalahan utama dalam setting server di Windows adalah <strong>lupa memberitahu Synergy komputer mana yang di kiri dan yang mana yang di kanan.</strong></p>
+
+<p>Baiklah, mari kita lihat saja screenshotnya:</p>
+
+<h3>Tampilan Awal</h3>
+
+<p>Begitu Synergy dijalankan, kita akan melihat tampilan berikut:
+<img src="/images/uploads/2006/08/sinergi1.JPG" title="Synergy Start Up" ></p>
+
+<p>Dari sini, kita kemudian memilih setting Synergy sebagai server. Lalu klik configure, sehingga kita masuk ke halaman selanjutnya.</p>
+
+<h3>Konfigurasi Screen</h3>
+
+<p>Screen, atau layar, memberitahukan Synergy berapa komputer yang terlibat dalam jaringan, dan nama masing-masing komputer. Sebagai ilustrasi, kita akan menggunakan dua komputer, kita beri nama <strong>komputerkiri</strong> dan <strong>komputerkanan</strong>. Dengan layout (seperti dari namanya) komputerkiri berada di sebelah kiri komputerkanan.</p>
+
+<p>Berikut adalah tampilan untuk menambah screen:
+<img src="/images/uploads/2006/08/sinergi2.JPG" title="Konfigurasi Screen" ></p>
+
+<p>Setelah dikonfigurasi, komputerkiri muncul di layar sebagai berikut:
+<img src="/images/uploads/2006/08/sinergi3.JPG" title="KomputerKiri sudah dikonfigurasi" ></p>
+
+<p>Lanjutkan dengan konfigurasi komputerkanan.
+<img src="/images/uploads/2006/08/sinergi4.JPG" title="Konfigurasi KomputerKanan" ></p>
+
+<p>Layar setelah konfigurasi terlihat seperti ini:
+<img src="/images/uploads/2006/08/sinergi5.JPG" title="Setelah konfigurasi dua screen" ></p>
+
+<h3>Konfigurasi Link</h3>
+
+<p>Beberapa orang yang menceritakan kesulitan pada saya, biasanya berhenti pada tahap ini. Oh, kedua komputer sudah saya entri ke dalam Synergy, berarti sekarang sudah bisa connect. Ya memang bisa connect, kalo kita jalankan dengan log debug, akan terlihat bahwa kedua komputer sudah connected. Tapi kenapa mousenya belum bisa <em>menyeberang layar</em>?</p>
+
+<p>Jawabannya adalah, karena Synergy belum tau seperti apa layoutnya. Bagaimana susunan komputernya? Apakah komputerkiri di sebelah kiri, kanan, atas, bawah atau di mana?</p>
+
+<p>Baiklah, sekarang kita akan memberi tahu layoutnya kepada Synergy. Lihat panel Link di bawah? Nah di situlah letak konfigurasinya.
+Isikan nilai yang diinginkan, yaitu di 0-100% sisi layar kiri dari <strong>komputerkanan</strong> adalah <strong>komputerkiri</strong>. Setelah diisi, klik tombol +.
+Berikut adalah layar konfigurasinya adalah sebagai berikut:
+<img src="/images/uploads/2006/08/sinergi7.JPG" title="Link komputer kiri ke kanan" ></p>
+
+<p>Lakukan hal yang sama dengan komputer kanan. Ini supaya mouse yang sudah <strong>menyeberang</strong> ke komputer kiri bisa kembali lagi ke komputerkanan. Kalau cuma satu link, dia bisa pindah ke kiri, tapi tidak bisa kembali lagi. Jangan lupa membalik nilainya, isinya adalah:
+0-100% sisi layar kanan dari <strong>komputerkiri</strong> adalah <strong>komputerkanan</strong>.</p>
+
+<p>Berikut layar konfigurasi setelah diisi:
+<img src="/images/uploads/2006/08/sinergi8.JPG" title="Layar konfigurasi akhir" ></p>
+
+<p>Selanjutnya, jalankan servernya, dan coba connect dari client.</p>
+
+<p>Selamat mencoba :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/subversion-backup-script-untuk-windows/">Subversion Backup Script Untuk Windows</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-16T01:46:02+07:00" pubdate data-updated="true">May 16<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dulu saya pernah menulis tentang <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">cara backup repository Subversion secara otomatis</a>. Tetapi, script yang ada di situ hanya bisa dijalankan di Linux, karena ada satu baris bermasalah pada Perl scriptnya, yaitu:</p>
+
+<p><code>$next_backup_file = "daily-incremental-backup." .</code>date +%Y%m%d<code>;</code></p>
+
+<p>Baris di atas akan menjalankan perintah operating system seakan-akan kita menjalankan perintah ini di command prompt:
+<code>$ date +%Y%m%d</code></p>
+
+<p>Di Linux, perintah ini berjalan lancar, menampilkan output sebagai berikut:
+<code>20060515</code></p>
+
+<p>Output tersebut nantinya digunakan untuk membentuk nama file dump. Tetapi di Windows, hasilnya adalah:
+<code>The system cannot accept the date entered .. blablabla</code>
+Rupanya Windows mengira kita akan ganti tanggal komputer.</p>
+
+<p>Jadi akhirnya, karena saya tidak mengerti Perl, saya membuat backup script baru dengan Ruby. Logika yang sama, alur program yang sama, cuma beda bahasa. Inilah hasilnya. Silahkan digunakan dan dimodifikasi sesuai kebutuhan.</p>
+
+<h2>svn-weekly-backup.rb</h2>
+
+<pre><code># Full Backup script for Subversion Repository #
+require 'date'
+
+# 1. Initialize variables
+backup_folder = "c:/Backup"
+repo_folder = "c:/Repository/Imagine"
+youngest = `svnlook youngest #{repo_folder}`.strip
+next_backup_file = "weekly-full-backup.#{Time.now.strftime("%Y%m%d")}.dmp"
+compress_script = backup_folder+"/compress-"+youngest+".tzs"
+compress_command = "C:/Program Files/TUGZip/TzScript.exe #{compress_script}"
+
+
+# 2. Perform backup
+puts "Backing up to revision #{youngest}\n";
+result = `svnadmin dump #{repo_folder} &gt; #{backup_folder}/#{next_backup_file}`
+
+# 3. Compress backup result
+# 3.1 Creating temporary zip script [TugZip  Required]  
+puts "Generating compress script ...\n";
+tzs_file = &lt; &lt;-TZS
+        function main()
+        {
+             var Comp = new Compress();
+             Comp.Archive = "#{backup_folder}/#{next_backup_file}.zip";
+             Comp.Type = "ZIP";
+             Comp.Compression = 3;
+             Comp.WorkingDir = "#{backup_folder}";
+             Comp.Data = "#{next_backup_file}";
+             Comp.Password = "";
+             Comp.DateExtension = 0;
+             Comp.TimeExtension = 0;
+             Comp.Overwrite = 1;
+             Comp.Recurse = 0;
+             Comp.StoreFolderNames = 1;
+             Comp.IncludeHiddenFiles = 1;
+             Comp.DoCompress();
+        }
+    TZS
+File.open(compress_script, "w") do | file |
+    file &lt;&lt; tzs_file    
+end
+
+# 3.2. Executing compression
+puts "Compressing dump file...\n";
+puts `#{compress_command}`
+
+# 3.3. Deleting temporary zip script 
+puts "Deleting compress script ...\n";
+File.delete(compress_script);
+
+# 3.4 Deleting uncompressed dump file
+puts "Deleting uncompressed dump file ...\n";
+File.delete(backup_folder+"/"+next_backup_file);
+
+# 4. Write last backup position to marker file
+File.open(backup_folder+"/last_backed_up", "w") do | file |
+    file &lt;&lt; youngest
+end
+</code></pre>
+
+<h2>svn-daily-backup.rb</h2>
+
+<pre><code># Full Backup script for Subversion Repository #
+require 'date'
+
+# 1. Initialize variables
+backup_folder = "c:/Backup"
+repo_folder = "c:/Repository/Imagine"
+youngest = `svnlook youngest #{repo_folder}`.strip
+next_backup_file = "daily-incremental-backup.#{Time.now.strftime("%Y%m%d")}.dmp"
+compress_script = backup_folder+"/compress-"+youngest+".tzs"
+compress_command = "C:/Program Files/TUGZip/TzScript.exe #{compress_script}"
+
+# 1.a. Get last backed up revision
+last_backup = 0;
+if File.exist?(backup_folder+"/last_backed_up")
+    File.open(backup_folder+"/last_backed_up", "r") do | file |
+        while line = file.gets
+            last_backup = line.strip.to_i
+        end
+    end
+end
+
+
+# 2. Perform backup
+if last_backup == youngest.to_i
+    puts "No new revision since last backup .. exiting"
+    exit 0; 
+end
+
+start_backup = last_backup + 1
+
+puts "Backing up from revision #{last_backup} to revision #{youngest}\n";
+result = `svnadmin dump --incremental --revision #{last_backup}:#{youngest} #{repo_folder} &gt; #{backup_folder}/#{next_backup_file}`
+
+# 3. Compress backup result
+# 3.1 Creating temporary zip script [TugZip  Required]  
+puts "Generating compress script ...\n";
+tzs_file = &lt; &lt;-TZS
+        function main()
+        {
+             var Comp = new Compress();
+             Comp.Archive = "#{backup_folder}/#{next_backup_file}.zip";
+             Comp.Type = "ZIP";
+             Comp.Compression = 3;
+             Comp.WorkingDir = "#{backup_folder}";
+             Comp.Data = "#{next_backup_file}";
+             Comp.Password = "";
+             Comp.DateExtension = 0;
+             Comp.TimeExtension = 0;
+             Comp.Overwrite = 1;
+             Comp.Recurse = 0;
+             Comp.StoreFolderNames = 1;
+             Comp.IncludeHiddenFiles = 1;
+             Comp.DoCompress();
+        }
+    TZS
+File.open(compress_script, "w") do | file |
+    file &lt;&lt; tzs_file    
+end
+
+# 3.2. Executing compression
+puts "Compressing dump file...\n";
+puts `#{compress_command}`
+
+# 3.3. Deleting temporary zip script 
+puts "Deleting compress script ...\n";
+File.delete(compress_script);
+
+# 3.4 Deleting uncompressed dump file
+puts "Deleting uncompressed dump file ...\n";
+File.delete(backup_folder+"/"+next_backup_file);
+
+# 4. Write last backup position to marker file
+File.open(backup_folder+"/last_backed_up", "w") do | file |
+    file &lt;&lt; youngest
+end
+</code></pre>
+
+<p>Langkah terakhir, buat bat script sederhana untuk mengeksekusi script ruby ini. Dengan adanya bat script, kita bisa dengan mudah menambahkan entri di Windows Scheduler untuk dijalankan secara otomatis dan terjadwal.</p>
+
+<h2>svn-weekly-backup.bat</h2>
+
+<p><code>ruby C:\Backup\svn-weekly-backup.rb</code></p>
+
+<h2>daily-full-backup.bat</h2>
+
+<p><code>ruby C:\Backup\svn-daily-backup.rb</code></p>
+
+<p>Terakhir, buat folder c:\Backup dan letakkan file-file berikut dalam folder tersebut:</p>
+
+<ul>
+<li><p>svn-weekly-backup.rb</p></li>
+<li><p>svn-daily-backup.rb</p></li>
+<li><p>svn-weekly-backup.bat</p></li>
+<li><p>svn-daily-backup.bat</p></li>
+</ul>
+
+
+<p>Sistem backup Anda siap digunakan.</p>
+
+<p>Buat yang malas copy-paste, silahkan <a href="http://endy.artivisi.com/downloads/code/svn-backup-windows.tar.bz2">download keempat file tersebut</a> [tar.bz2 | 1.4 KB].</p>
+
+<p>**
+Perhatian: Untuk menjalankan kode ini dengan baik, Anda harus menginstal aplikasi <a href="http://www.tugzip.com">TugZIP</a>. Ini dibutuhkan untuk mengkompres file hasil dump. Buat yang lebih suka WinZip, WinRAR, atau aplikasi kompresi yang lain, silahkan memikirkan cara memanggilnya dari command prompt dan memodifikasi kode program di atas, yaitu bagian #3: Compress Backup Result.</p>
+
+<p>Selain itu, Anda juga harus menginstal <a href="http://ruby-lang.org/">bahasa pemrograman Ruby</a>. Installernya bisa didownload <a href="http://rubyforge.org/projects/rubyinstaller/">di sini</a>.
+**</p>
+
+<p>Selamat menggunakan, semoga bermanfaat :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/aplikasi-portabel/">Aplikasi Portabel</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-12T02:17:27+07:00" pubdate data-updated="true">May 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Masih ingat jaman DOS dulu? Untuk menyalakan komputer kita harus memasukkan floppy disk yang lebar. Setelah komputer selesai booting, kalau kita ingin mengetik, ganti disket booting dengan disket berisi aplikasi <a href="http://www.wordstar.org/">Wordstar</a>. Selesai mengetik, ingin menyimpan dokumen, ganti disket Wordstar dengan disket data. Capek bekerja, ingin main game, masukkan disket berisi <a href="http://www.digger.org">Digger</a>.</p>
+
+<p>Hidup begitu mudah dan sederhana. Satu aplikasi muat di dalam satu disket. Berbeda dengan jaman sekarang. Harus instal dulu semua aplikasi. Kalau sudah tidak digunakan dan harddisk penuh, uninstal lagi. Lama-lama registry jadi berantakan dan akibatnya komputer jadi lemot.</p>
+
+<p>Selain itu, kadang ada beberapa di antara kita yang kurang beruntung. Tidak bisa instal aplikasi di komputer yang sedang digunakan. Sebabnya bisa macam-macam. <a href="http://oky.or.id">Ada yang dilarang kantor</a>, ada juga yang cuma pinjam komputer sebentar, sehingga kalo mau instal aplikasi rasanya kurang sopan. Masa cuma pinjam 5 menit saja pakai instal-instal segala.</p>
+
+<p>Nah, sekarang ada solusi jitu. Namanya aplikasi portabel. Artinya, aplikasi ini cukup dicopy ke USB disk dan bisa langsung dijalankan tanpa perlu instalasi.</p>
+
+<p>Ada banyak aplikasi yang disertakan di dalamnya, antara lain:</p>
+
+<ul>
+<li><p>Gaim: untuk chatting</p></li>
+<li><p>Firefox: untuk browsing</p></li>
+<li><p>Thunderbird: untuk email</p></li>
+<li><p>OpenOffice: untuk menggantikan MS Office</p></li>
+<li><p>dan masih banyak lagi.</p></li>
+</ul>
+
+
+<p>Silahkan langsung ke <a href="http://portableapps.com">websitenya</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/prtscr-di-linux/">PrtScr Di Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-09T17:03:45+07:00" pubdate data-updated="true">May 9<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Membuat screenshot di Windows itu gampang. Tinggal ikuti <a href="http://mbot.multiply.com/journal/item/225">langkah-langkah yang dijelaskan Oom Mbot</a>, beres. Tapi bagaimana caranya membuat screenshot di Linux?</p>
+
+<p>Gampang, jika Anda pengguna KDE, instal saja KSnapshot. Ini adalah aplikasi kecil yang bisa menangkap tampilan layar.</p>
+
+<p><img src="/images/uploads/2006/05/ksnapshot.png" title="KSnapshot" ></p>
+
+<p>Ada beberapa mode yang bisa digunakan, yaitu Full Screen, Region, dan Window under cursor. Full screen menangkap seluruh layar, termasuk menunya. Window under cursor hanya menangkap aplikasi yang sedang kita gunakan. Sedangkan Region hanya menangkap wilayah yang kita pilih saja.</p>
+
+<p><img src="/images/uploads/2006/05/ksnapshot-mode.png" title="KSnapshot Mode" ></p>
+
+<p>Bagaimana kalau kita mau menampilkan popup-menu klik-kanan? Gampang, atur saja delay menjadi beberapa detik. Kemudian klik New Snapshot, dan lakukan klik kanan di aplikasi yang diinginkan. Selang beberapa detik kemudian, KSnapshot akan menangkap gambar.</p>
+
+<p>Berbeda dengan di Windows, di Linux tombol PrtScr tidak secara otomatis menangkap tampilan layar. Tetapi masalah ini mudah diatasi. Kita dapat menyambungkan tombol PrtScr dengan KSnapshot, sehingga apabila tombol tersebut kita tekan, KSnapshot akan muncul.</p>
+
+<p>Caranya, klik kanan tombol K di pojok kiri bawah. Kemudian pilih Menu Editor</p>
+
+<p><img src="/images/uploads/2006/05/kmenu-properties.png" title="Right Click K" ></p>
+
+<p>Di panel sebelah kiri, cari aplikasi KSnapshot. Di Debian Sarge, biasanya KSnapshot ada di Graphics, Other Application. Begitu ketemu, langsung saja klik.</p>
+
+<p><img src="/images/uploads/2006/05/kmenu-editor-left.png" title="Menu Editor - Left Pane" ></p>
+
+<p>Di panel sebelah kanan akan muncul keterangan tentang aplikasi. Kita akan mengatur Shortcut Key, letaknya di baris paling bawah.</p>
+
+<p><img src="/images/uploads/2006/05/kmenu-editor-right.png" title="Menu Editor - Right Pane" ></p>
+
+<p>Klik tombol shortcutnya, akan muncul dialog kecil. Di sini kita bisa langsung tekan tombol PrtScr. Kemudian klik OK.</p>
+
+<p><img src="/images/uploads/2006/05/edit-shortcut.png" title="Edit Shortcut" ></p>
+
+<p>Selesai sudah. Sekarang setiap kali tekan PrtScr, KSnapshot akan segera beraksi.</p>
+
+<p>Pembaca yang teliti akan berpikir, &#8220;Bagaimana caranya menangkap gambar KSnapshot itu sendiri? Padahal ketika kita tekan New Snapshot pasti KSnapshot akan menghilang.&#8221;</p>
+
+<p>Gampang, jalankan saja dua KSnapshot sekaligus. Yang satu untuk di-capture, satu lagi untuk meng-capture. :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/hello-hibernate-annotation/">Hello Hibernate Annotation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-05T00:49:49+07:00" pubdate data-updated="true">May 5<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Adanya fitur annotation di Java 5 membuka dunia baru bagi para coder Java. Dulu semua metadata mau tidak mau harus disimpan di XML file. Sekarang ada pilihan baru, kita bisa taruh di XML file, atau juga bisa di source code melalui annotation.</p>
+
+<p>Salah satu implementasinya adalah <a href="http://hibernate.org/247.html">annotation untuk hibernate</a> untuk mendefinisikan mapping <a href="http://www.hibernate.org">Hibernate</a>. Sekarang kita tidak perlu lagi <a href="http://endy.artivisi.com/downloads/writings/Hibernate.pdf">membuat *.hbm.xml</a> untuk menyatakan mapping antara Java class dengan tabel di database.</p>
+
+<p>Mari kita lihat kodenya.</p>
+
+<h2>Category.java</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">id</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">tutorial</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Category</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getDescription</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDescription</span><span class="o">(</span><span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Class di atas akan kita simpan ke database dengan skema tabel (MySQL) sebagai berikut:</p>
+
+<h2>Category-ddl.sql</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='sql'><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">Category</span> <span class="p">(</span>
+</span><span class='line'>  <span class="n">id</span> <span class="nb">INT</span> <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">name</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+</span><span class='line'>  <span class="n">description</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sebelum jaman annotation, kita harus buat mapping file sebagai berikut.</p>
+
+<h2>Category.hbm.xml</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE hibernate-mapping PUBLIC</span>
+</span><span class='line'><span class="cp">    &quot;-//Hibernate/Hibernate Mapping DTD//EN&quot;</span>
+</span><span class='line'><span class="cp">    &quot;http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd&quot;&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;hibernate-mapping&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">&quot;id.web.endy.tutorial.Category&quot;</span> <span class="na">table=</span><span class="s">&quot;Category&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;id</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span> <span class="na">column=</span><span class="s">&quot;id&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;generator</span> <span class="na">class=</span><span class="s">&quot;auto&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/id&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">column=</span><span class="s">&quot;name&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span> <span class="na">column=</span><span class="s">&quot;description&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/class&gt;</span>
+</span><span class='line'><span class="nt">&lt;/hibernate-mapping&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tapi dengan menggunakan annotation, kita bisa lupakan file Category.hbm.xml. Sebagai gantinya, kita tambahkan sedikit annotation pada class Category sebagai berikut</p>
+
+<h2>Category.java dengan Annotation</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">id</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">endy</span><span class="o">.</span><span class="na">tutorial</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Entity</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Category</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getDescription</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setDescription</span><span class="o">(</span><span class="n">String</span> <span class="n">description</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">description</span> <span class="o">=</span> <span class="n">description</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Id</span><span class="o">(</span><span class="n">generate</span><span class="o">=</span><span class="n">GeneratorType</span><span class="o">.</span><span class="na">AUTO</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perbedaan pada kode di atas cuma dua baris saja, yaitu:</p>
+
+<ul>
+<li>@Entity</li>
+<li>@Id(generate=GeneratorType.AUTO)</li>
+</ul>
+
+
+<p>Selain untuk property dan id biasa, hibernate annotation juga dapat digunakan untuk one-to-many, many-to-many, dan teknik-teknik advanced lainnya.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/booklet-printing/">Booklet Printing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-04T20:06:02+07:00" pubdate data-updated="true">May 4<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Jika Anda adalah kolektor PDF obsesif-kompulsif seperti saya, pasti cepat atau lambat Anda akan mencari cara yang paling efektif untuk mencetak koleksi PDF tersebut.</p>
+
+<p>Misalnya, kita punya <a href="http://ikc.cbn.net.id/umum/endy-php.php">Tutorial PHP-MySQL</a> seperti pada gambar berikut</p>
+
+<p><img src="/images/uploads/2006/05/endy-php.png" title="Modul PHP" ></p>
+
+<p>Berhubung ada 81 halaman di file tersebut, kita ingin menghemat kertas dengan cara print bolak balik. Selain itu, kita juga mau cetak 2 halaman per lembar, sehingga yang tadinya seperti ini</p>
+
+<p><img src="/images/uploads/2006/05/normal.png" title="Normal Page Print" ></p>
+
+<p>menjadi seperti ini</p>
+
+<p><img src="/images/uploads/2006/05/2sheet.png" title="Two Sheet per Page" ></p>
+
+<p>Tapi sebetulnya, ada lagi yang lebih optimal, yaitu teknik yang dikenal dengan nama keren &#8220;booklet printing&#8221;, menjadikan susunan halaman menjadi seperti ini:</p>
+
+<p><img src="/images/uploads/2006/05/booklet.png" title="Booklet Print" ></p>
+
+<p>Saya pernah membuat buku dengan cetakan seperti itu menggunakan printer Canon di Windows. Driver printer Canon tersebut sudah menyertakan fasilitas untuk melakukan booklet printing. Tetapi kalau menggunakan printer selain Canon, yah kita harus cari cara lain.</p>
+
+<p>Setelah googling ke sana kemari, dengan menggunakan keyword &#8220;booklet printing kprinter&#8221;, akhirnya saya berhasil menemukan <a href="http://wiki.scribus.net/index.php/How_to_make_a_booklet">tutorial ini</a>, yang menjelaskan cara melakukan booklet printing dengan KDE. Berikut langkah-langkahnya, saya contohkan dengan Acrobat Reader.</p>
+
+<h2>1. Buka Print Dialog, pilih kprinter sebagai print command, dan tekan Print</h2>
+
+<p><img src="/images/uploads/2006/05/acroprint.png" title="Acrobat Reader Print Dialog" ></p>
+
+<h2>2. Dialog KPrinter muncul, klik tombol Properties di pojok kanan atas</h2>
+
+<p><img src="/images/uploads/2006/05/kprinter.png" title="KPrinter Dialog" ></p>
+
+<h2>3. Pilih tab Filter, kemudian tambah filter baru dengan cara menekan tombok corong</h2>
+
+<p><img src="/images/uploads/2006/05/kprinter-properties.png" title="KPrinter Properties" ></p>
+
+<h2>4. Tambah filter baru dengan cara menekan tombol corong</h2>
+
+<p>Untuk tahap pertama, yang dipilih adalah Pamphlet Printing - Even Page (step 1)</p>
+
+<p><img src="/images/uploads/2006/05/kprinter-select-filter-1.png" title="Pamphlet Printing - Even Page (step 1)" ></p>
+
+<h2>5. Balikkan kertas</h2>
+
+<p>Setelah hasil print keluar, balikkan susunan kertas dan letakkan kembali di printer. Untuk tahap ini, kita perlu trial-and error untuk mendapatkan teknik yang tepat. Coba print halaman 1-8 dulu sebagai percobaan.</p>
+
+<h2>6. Print sekali lagi</h2>
+
+<p>Lakukan langkah 1-6, dengan sedikit perbedaan. Pada langkah #6, pilih Pamphlet Printing - Odd Page (step 2)</p>
+
+<p><img src="/images/uploads/2006/05/kprinter-select-filter-2.png" title="Pamphlet Printing - Odd Page (step 2)" ></p>
+
+<p>Selesai. Sekarang tinggal diberikan ke tukang jilid. :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/debian-sarge-vs-opensuse-100/">Debian Sarge vs OpenSuSE 10.0</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-05-04T01:01:13+07:00" pubdate data-updated="true">May 4<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di kantor saya ada PC berkualifikasi cukup canggih untuk ukuran workstation. Spesifikasinya P-4 3GHz HT, 4GB DDR, 2x80GB SATA, DVD RW. PC tersebut sebetulnya dibeli untuk menjadi server. Tetapi karena dia terlambat datang, semua aplikasi server sudah terinstal di mesin lain dan sudah terisi banyak data. Sebelum sempat semua data tersebut dimigrasi, tugas lain buat saya sudah datang bertubi-tubi, sehingga alhasil tidak sempat migrasi. Akhirnya, PC server tersebut turun kasta menjadi &#8217;<em>sekedar pembakar DVD saja</em>&#8217;.</p>
+
+<p>Sejak menjadi pembakar DVD, effort untuk migrasi menjadi semakin sulit. Karena banyak oknum-oknum yang pinjam untuk membackup data. Kalau sekedar pinjam saja tidak masalah, tetapi kadang data yang mau dibackup dicopy dan tidak dibakar-bakar, sehingga semakin sulit untuk reinstall PC tersebut.</p>
+
+<p>Kenapa harus reinstall? Hmm, saya menggunakan Software-RAID dan LVM untuk mempartisi server tersebut, berjalan di atas Debian Sarge. Kernel yang digunakan Debian Sarge (pada waktu saya instal PC tersebut) adalah 2.6.8, sedangkan dukungan LVM baru ada di 2.6.13. Jadi, terpaksa menggunakan kernel 2.4.sekian yang sudah bisa menangani LVM. Tapi dengan kernel tersebut, memori yang didukung cuma maksimal 1GB, sehingga sisanya 3GB lagi makan gaji buta. Dengan demikian, solusi yang paling feasible adalah instal ulang dengan distro lain. Buat linux-mania yang sedang siap-siap tulis komentar, tidak usah repot-repot, &#8220;Saya tidak akan kompile kernel, terimakasih&#8230;. &#8221;</p>
+
+<p>Berdasarkan anjuran <a href="http://sleepless.ngoprek.org">teman saya</a>, saya pilih <a href="http://www.opensuse.org">OpenSuSE 10.0</a>. Selain paketnya lebih maju daripada Debian, <a href="http://suse.cbn.net.id">mirrornya juga ada di Indonesia</a>. Belakangan saya tau kalo di CBN itu gak komplit. Tapi sudah terlambat &#8230; :P</p>
+
+<p>Jadi akhirnya saya lakukan juga migrasi ke OpenSuSE. Berikut adalah daftar aplikasi yang ingin dimigrasi:</p>
+
+<ul>
+<li><p>Repository Subversion dengan sebesar 5GB</p></li>
+<li><p>Bug Database</p></li>
+</ul>
+
+
+<p>Konfigurasi server:</p>
+
+<ul>
+<li><p>RAID + LVM</p></li>
+<li><p>HTTPS</p></li>
+<li><p>LDAP Authentication</p></li>
+<li><p>PHPLDAPAdmin</p></li>
+</ul>
+
+
+<p>Dan berikut adalah langkah-langkah migrasinya</p>
+
+<ol>
+<li>Install subversion, jangan lupa <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">buat group repousers dan mask-script</a></li>
+<li>Install apache2</li>
+<li><a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">Dump data repository dari repo lama</a></li>
+<li><p>Create repository di tempat baru, dan load hasil dump</p></li>
+<li><p>Dump data otentikasi (username dan password) dari OpenLDAP yang lama
+<code>slapcat -c -l data-otentikasi.ldif</code></p></li>
+<li><p>Config slapd.conf</p></li>
+<li><p>suffix = artivisi.com</p></li>
+<li><p>disable rootdn dan rootpw. Di Debian tidak ada entri ini. Entri ini menyebabkan saya (entah kenapa) tidak bisa login, padahal username dan password sudah benar</p></li>
+<li><p>access level</p></li>
+<li><p>Load data otentikasi ke OpenLDAP yang baru
+<code>slapadd -c -l data-otentikasi.ldif</code></p></li>
+<li><p>Konfigurasi Apache:</p></li>
+<li><p>Add user untuk apache (di OpenSuSE 10.0 namanya wwwuser, kalo di Debian www-data) dalam grup repousers</p></li>
+<li><p>Buat file svn.conf di folder conf.d</p></li>
+<li><p>Instalasi Subversion bawaan OpenSuSE 10.0 tidak ada mod_dav_svn.so dan mod_authz_svn.so, jadi copy aja dari Debian</p></li>
+<li><p>Selanjutnya <a href="http://endy.artivisi.com/blog/aplikasi/konfigurasi-user-subversion-di-xampp/">sama dengan tulisan saya sebelumnya</a></p></li>
+<li><p>Instalasi PHPLDAPAdmin.</p></li>
+<li><p>Download di <a href="http://phpldapadmin.sourceforge.net">websitenya</a>. Paket standar OpenSuSE tidak menyertakan, tidak seperti apt-get</p></li>
+<li><p>Extract dan edit config.php</p></li>
+<li><p>Install php-session bila ketemu error session_module_name() not found</p></li>
+<li><p>Aktifkan https</p></li>
+<li><p><a href="http://www.eclectica.ca/howto/ssl-cert-howto.php">buat sertifikat</a></p></li>
+<li><p>konfigurasi apache, buat vhost</p></li>
+<li><p><a href="http://en.opensuse.org/SDB:Apache_2_FAQ_(Frequently_Asked_Questions">edit /etc/sysconfig/apache2, tambahkan ssl di APACHE_MODULES dan &#8220;SSL&#8221; di APACHE_SERVER_FLAGS</a>#How_do_I_configure_Apache_2_for_SSL.3F)</p></li>
+</ol>
+
+
+<p>Kesimpulan akhir:</p>
+
+<ol>
+<li><p>Paket instalasi apt-get di <a href="http://komo.vlsm.org">rumahnya Si Komo</a> masih belum terkalahkan. Untuk menginstal aplikasi demi aplikasi di OpenSuSE, saya harus menjadi <em>human-cd-changer. Mirror sih ada, tapi internasional semua, sangat lemot dari tempat saya</em>.</p></li>
+<li><p>Entah salah setting atau gimana, kecepatan komputer tidak se-responsif ekspektasi saya.</p></li>
+<li><p>Paket aplikasi Debian masih jauh lebih kuno daripada OpenSuSE. Misalnya OpenOffice, di Debian  masih versi 1, sedangkan di distro lain sudah versi 2.</p></li>
+<li><p>Dukungan hardware OpenSuSE lebih banyak.</p></li>
+<li><p>Konfigurasi grafis disediakan dalam Yast, tapi modifikasi manual masih memungkinkan.</p></li>
+</ol>
+
 </div>
   
   
@@ -783,6 +1524,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
@@ -816,10 +1561,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
   </ul>

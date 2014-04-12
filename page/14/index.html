@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Jika kita ingin mengakses virtual machine di dalam Proxmox,
-ada beberapa opsi yang bisa kita gunakan, yaitu: SSH langsung ke IP virtual machine &hellip;">
+  <meta name="description" content="Maraknya akses internet 3G rupanya berimbas pada turunnya harga layanan GPRS. Salah satu yang sudah turun harga adalah Mentari, dari Rp. 5/kB menjadi &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -96,7 +95,7 @@ ada beberapa opsi yang bisa kita gunakan, yaitu: SSH langsung ke IP virtual mach
       
   <header>
     
-      <h1 class="entry-title"><a href="/linux/akses-vm-proxmox-tanpa-applet/">Akses VM Proxmox Tanpa Applet</a></h1>
+      <h1 class="entry-title"><a href="/linux/gprs-kg300/">Konfigurasi Mentari GPRS Dengan LG KG300 Di Ubuntu Gutsy</a></h1>
     
     
       <p class="meta">
@@ -112,35 +111,541 @@ ada beberapa opsi yang bisa kita gunakan, yaitu: SSH langsung ke IP virtual mach
   
 
 
-<time datetime="2013-02-28T14:22:00+07:00" pubdate data-updated="true">Feb 28<span>th</span>, 2013</time>
+<time datetime="2007-10-26T16:34:32+07:00" pubdate data-updated="true">Oct 26<span>th</span>, 2007</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Jika kita ingin mengakses virtual machine di dalam Proxmox,
-ada beberapa opsi yang bisa kita gunakan, yaitu:</p>
+  <div class="entry-content"><p>Maraknya akses internet 3G rupanya berimbas pada turunnya harga layanan GPRS. Salah satu yang sudah turun harga adalah Mentari, dari Rp. 5/kB menjadi Rp. 1/kB, setidaknya sampai Januari 2008.</p>
+
+<p>Dengan adanya perkembangan yang menggembirakan ini, saya segera mengaktifkan koneksi GPRS tersebut agar bisa digunakan dari laptop. Caranya tidak terlalu sulit, seperti akan kita lihat segera.</p>
+
+<h3>Hardware</h3>
+
+<p>Laptop saya <a href="http://minisites.nec-computers-ap.com/e3100/techspecs.html">NEC Versa E3100</a>, tepatnya seri E3100-1800DR. Handphone yang saya gunakan adalah <a href="http://tokolg.com/productsDetail.asp?item=KG300&amp;kategori=HP">LG KG300</a>, seperti yang diiklankan Agnes Monica di TV. Jadi kalau kapan-kapan Agnes mau setting GPRS juga, bisa lihat artikel ini :D</p>
+
+<p>Koneksi handphone ke laptop menggunakan kabel data, karena laptop saya tidak ada blututnya.</p>
+
+<h3>Software</h3>
+
+<p>Saya menggunakan Ubuntu Gutsy Gibbon 7.10, yang sudah dilengkapi dengan wvdialconf dan wvdial untuk melakukan koneksi. Tidak perlu ada instalasi software tambahan, karena kedua aplikasi ini sudah terinstal dari sananya.</p>
+
+<h3>Provider</h3>
+
+<p>Saya pakai Mentari. Sebelum mencoba koneksi melalui komputer, pastikan dulu kita bisa browsing langsung dari HP. Ini untuk memastikan bahwa dari HP ke Provider sudah OK. Jangan sampai sudah pusing-pusing utak-atik Ubuntu, ternyata masalahnya ada di HP.
+Untuk LG KG300, kita bisa konfigurasi otomatis melalui OTA. Cukup kirim SMS ke 3000 dengan isi sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gprs lg kg300</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nanti kita akan terima SMS, yang bila dibuka akan ada konfirmasi apakah kita ingin mengkonfigurasi GPRS. Tentu saja jawab Yes.
+Silahkan browsing ke Yahoo di http://m.yahoo.com atau Gmail di http://gmail.com/app.</p>
+
+<p>Bila Anda punya akun YM, bisa dicoba chatting di sana.</p>
+
+<p>LG KG300 punya fasilitas Java dengan versi MIDP 2.0. Bila malas chat melalui antarmuka Yahoo, bisa gunakan aplikasi <a href="http://shmessenger.ro/lang_en/index.jsp">shMessenger</a>.</p>
+
+<h3>Konfigurasi</h3>
+
+<p>Setelah lancar browsing dan chatting di handphone, kini tiba saatnya kita browsing di laptop. Hubungkan handphone ke laptop melalui kabel data yang disediakan. Nanti di handphone akan muncul pertanyaan, apakah kita ingin terhubung sebagai Storage Media atau COM2. Pilih COM2. Storage Media dipilih bila ingin melakukan transfer file.</p>
+
+<p>Oh iya, untuk memudahkan troubleshooting, selama melakukan konfigurasi, tampilkan kernel log dengan perintah <code>tail -f /var/log/messages</code> di konsol. Biarkan window ini tetap terbuka selama konfigurasi.</p>
+
+<p>Di kernel log akan muncul laporan deteksi modem seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Oct 26 09:19:28 sweetdreams kernel: [  507.608000] usb 1-2: new full speed USB device using uhci_hcd and address 2
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  507.792000] usb 1-2: configuration #1 chosen from 1 choice
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.100000] cdc_acm 1-2:1.1: ttyACM0: USB ACM device
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.104000] usbcore: registered new interface driver cdc_acm
+</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.104000] /build/buildd/linux-source-2.6.22-2.6.22/drivers/usb/class/cdc-acm.c: v0.25:USB Abstract Control Model driver for USB modems and ISDN adapters</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, jalankan wvdialconf sebagai root.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo wvdialconf
+</span><span class='line'>Editing `/etc/wvdial.conf'.
+</span><span class='line'>
+</span><span class='line'>Scanning your serial ports for a modem.
+</span><span class='line'>
+</span><span class='line'>Modem Port Scan: S0   S1   S2   S3   SL0  
+</span><span class='line'>WvModem: Cannot get information for serial port.
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 Z -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 -- OK
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
+</span><span class='line'>ttyACM0: Modem Identifier: ATI -- MTK2
+</span><span class='line'>ttyACM0: Speed 4800: AT -- OK
+</span><span class='line'>ttyACM0: Speed 9600: AT -- OK
+</span><span class='line'>ttyACM0: Speed 19200: AT -- OK
+</span><span class='line'>ttyACM0: Speed 38400: AT -- OK
+</span><span class='line'>ttyACM0: Speed 57600: AT -- OK
+</span><span class='line'>ttyACM0: Speed 115200: AT -- OK
+</span><span class='line'>ttyACM0: Speed 230400: AT -- OK
+</span><span class='line'>ttyACM0: Speed 460800: AT -- OK
+</span><span class='line'>ttyACM0: Max speed is 460800; that should be safe.
+</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
+</span><span class='line'>
+</span><span class='line'>Found an USB modem on /dev/ttyACM0.
+</span><span class='line'>/etc/wvdial.conf: Can't open '/etc/wvdial.conf' for reading: No such file or directory
+</span><span class='line'>/etc/wvdial.conf: ...starting with blank configuration.
+</span><span class='line'>Modem configuration written to /etc/wvdial.conf.
+</span><span class='line'>ttyACM0: Speed 460800; init "ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hasilnya adalah sebuah file <code>/etc/wvdial.conf</code> sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[Dialer Defaults]
+</span><span class='line'>Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>Modem Type = USB Modem
+</span><span class='line'>; Phone = 
+</span><span class='line'>ISDN = 0
+</span><span class='line'>; Username = 
+</span><span class='line'>Init1 = ATZ
+</span><span class='line'>; Password = 
+</span><span class='line'>Modem = /dev/ttyACM0
+</span><span class='line'>Baud = 460800</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Edit menjadi seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[Dialer Defaults]
+</span><span class='line'>Modem = /dev/ttyACM0
+</span><span class='line'>Init1 = ATZ
+</span><span class='line'>Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>Init3 = AT+CGDCONT=1,"IP","indosatgprs"
+</span><span class='line'>Stupid Mode = on
+</span><span class='line'>Modem Type = USB Modem
+</span><span class='line'>Phone = *99***1#
+</span><span class='line'>ISDN = 0
+</span><span class='line'>Username = indosat
+</span><span class='line'>Password = indosat
+</span><span class='line'>Baud = 460800</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Go Online</h3>
+
+<p>Kalau sudah, saatnya kita online. Gunakan perintah wvdial untuk melakukan dial-up.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo wvdial
+</span><span class='line'>WvDial&lt;*1&gt;: WvDial: Internet dialer version 1.56
+</span><span class='line'>WvModem&lt;*1&gt;: Cannot get information for serial port.
+</span><span class='line'>WvDial&lt;*1&gt;: Initializing modem.
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATZ
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ATZ
+</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
+</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: AT+CGDCONT=1,"IP","indosatgprs"
+</span><span class='line'>WvDial Modem&lt;*1&gt;: AT+CGDCONT=1,"IP","indosatgprs"
+</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
+</span><span class='line'>WvDial&lt;*1&gt;: Modem initialized.
+</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATDT*99***1#
+</span><span class='line'>WvDial&lt;*1&gt;: Waiting for carrier.
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ATDT*99***1#
+</span><span class='line'>WvDial Modem&lt;*1&gt;: CONNECT
+</span><span class='line'>WvDial Modem&lt;*1&gt;: ~[7f]}#@!}!} } }2}"}&} } } } }#}$@#}'}"}(}"R[04]~
+</span><span class='line'>WvDial&lt;*1&gt;: Carrier detected.  Starting PPP immediately.
+</span><span class='line'>WvDial&lt;Notice&gt;: Starting pppd at Fri Oct 26 09:25:58 2007
+</span><span class='line'>WvDial&lt;Notice&gt;: Pid of pppd: 6028
+</span><span class='line'>WvDial&lt;*1&gt;: Using interface ppp0
+</span><span class='line'>WvDial&lt;*1&gt;: local  IP address 10.33.41.205
+</span><span class='line'>WvDial&lt;*1&gt;: remote IP address 10.64.64.64
+</span><span class='line'>WvDial&lt;*1&gt;: primary   DNS address 202.155.0.10
+</span><span class='line'>WvDial&lt;*1&gt;: secondary DNS address 202.155.46.77</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, silahkan coba browsing. Jangan tutup window wvdial supaya tidak disconnect.</p>
+
+<p>Untuk menghentikan koneksi, cukup ketik Ctrl-C di window wvdial.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Caught signal 2:  Attempting to exit gracefully...
+</span><span class='line'>WvDial&lt;*1&gt;: Terminating on signal 15
+</span><span class='line'>WvDial&lt;*1&gt;: Connect time 1.2 minutes.
+</span><span class='line'>WvDial&lt;*1&gt;: Disconnecting at Fri Oct 26 09:27:20 2007</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kita dapat melihat keseluruhan sesi internet, berikut jumlah trafik yang kita gunakan di kernel log, sebagai berikut.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: pppd 2.4.4 started by root, uid 0
+</span><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: Using interface ppp0
+</span><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: Connect: ppp0 &lt;--&gt; /dev/ttyACM0
+</span><span class='line'>Oct 26 09:26:00 sweetdreams pppd[6028]: PAP authentication succeeded
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: Could not determine remote IP address: defaulting to 10.64.64.64
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: local  IP address 10.33.41.205
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: remote IP address 10.64.64.64
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: primary   DNS address 202.155.0.10
+</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: secondary DNS address 202.155.46.77
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Terminating on signal 15
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Connect time 1.2 minutes.
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Sent 0 bytes, received 0 bytes.
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Connection terminated.
+</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Demikianlah cara konfigurasi modem LG KG300 di Ubuntu. Mudah-mudahan dengan adanya artikel ini, Agnes Monica bisa segera online.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/hudson/">Continuous Integration Dengan Hudson</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-10-09T23:16:08+07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel sebelumnya, kita sudah membahas <a href="http://endy.artivisi.com/blog/java/luntbuild/">penggunaan Luntbuild</a> dan <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a> untuk menerapkan Continuous Integration (CI). Kali ini, kita akan mencoba <a href="https://hudson.dev.java.net/">Hudson</a>, aplikasi CI lain yang tersedia.</p>
+
+<p>Hudson dapat <a href="https://hudson.dev.java.net/servlets/ProjectDocumentList?folderID=2761&amp;expandFolder=2761&amp;folderID=0">diunduh dari websitenya</a>. Setelah mengunduh, kita akan mendapatkan satu file *war. File ini dapat langsung dijalankan standalone dengan perintah:</p>
+
+<p><code>java -jar hudson.war</code></p>
+
+<p>Ataupun dideploy ke servlet engine favorit Anda, seperti Tomcat atau sejenisnya.</p>
+
+<p>Setelah dideploy, kita bisa melihat tampilan awalnya melalui browser ke alamat http://localhost:8080 (untuk standalone) atau http://localhost:8080/hudson (bila dideploy ke servlet engine)</p>
+
+<p>Keunggulan pertama Hudson adalah kemudahan setupnya. Segera setelah dijalankan (baik standalone maupun dideploy), kita bisa segera mengunjungi halaman depannya.</p>
+
+<p><img src="/images/uploads/2007/10/welcome.png" title="Hudson Welcome Page" ></p>
+
+<p>Hal pertama yang saya lakukan adalah konfigurasi email. Bila ini tidak dilakukan, Hudson akan gagal mengirim email laporan hasil build.</p>
+
+<p>Klik Manage Hudson di sebelah kiri atas. Layar konfigurasi akan muncul.</p>
+
+<p><img src="/images/uploads/2007/10/manage-hudson.png" title="Manage Hudson" ></p>
+
+<p>Selanjutnya, pilih System Configuration, lalu scroll ke bagian bawah untuk mengatur email.</p>
+
+<p><img src="/images/uploads/2007/10/email-config.png" title="Email Configuration" ></p>
+
+<p>Setelah selesai, klik OK.</p>
+
+<p>Bila Ant belum ada di PATH komputer Anda, jangan lupa untuk menyebutkan folder instalasi Ant di halaman ini.</p>
+
+<p>Setelah selesai, kita bisa langsung mendaftarkan job. Klik tombol New Job di kiri atas.</p>
+
+<p><img src="/images/uploads/2007/10/create-job.png" title="Create New Job" ></p>
+
+<p>Project saya menggunakan Ant biasa, tanpa Maven. Jadi saya pilih free-style. Klik OK.</p>
+
+<p>Selanjutnya, kita konfigurasi repository project. Isikan nilai yang sesuai di bagian Source Code Management.</p>
+
+<p><img src="/images/uploads/2007/10/configure-svn.png" title="Configure Subversion" ></p>
+
+<p>Segera setelah kursor meninggalkan field Repository URL (on blur), Hudson akan memeriksa URL yang kita berikan. Bila URL tersebut membutuhkan otentikasi, Hudson akan mengeluarkan pesan error dengan link untuk mengkonfigurasi username dan password.</p>
+
+<p><img src="/images/uploads/2007/10/svn-auth.png" title="Subversion Authentication" ></p>
+
+<p>Isikan nilai yang sesuai. Seperti kita lihat, Hudson mendukung beberapa modus otentikasi.</p>
+
+<p>Bagian selanjutnya adalah jadwal build atau trigger. Hudson menggunakan format yang mirip dengan Cron.</p>
+
+<p><img src="/images/uploads/2007/10/build-schedule.png" title="Build Schedule" ></p>
+
+<p>Bila kita ingin melakukan build setiap jam, hanya pada hari kerja, entrinya adalah sebagai berikut:</p>
+
+<p><code>1 * * * 1-5</code></p>
+
+<p>Agar build berjalan setiap jam 1 dini hari, hari Senin dan Rabu, entrinya sebagai berikut:</p>
+
+<p><code>0 * 1 * 1,3</code></p>
+
+<p>Setelah jadwal, kita mengkonfigurasi proses build itu sendiri. Di project saya, build dilakukan oleh Ant. Kita bisa mendaftarkan target yang akan dieksekusi.</p>
+
+<p><img src="/images/uploads/2007/10/build-method.png" title="Build Method" ></p>
+
+<p>Terakhir, kita mengkonfigurasi post build. Ini adalah kegiatan yang dilakukan setelah build sukses dijalankan. Pada tahap ini, saya ingin Hudson mempublikasikan <em>.jar atau </em>.war yang dihasilkan agar siap didonlod.</p>
+
+<p><img src="/images/uploads/2007/10/post-build.png" title="Post Build" ></p>
+
+<p>Selain itu, saya juga bisa menyuruh Hudson untuk memproses hasil unit test JUnit. Hudson mengerti file XML yang dihasilkan JUnit dan TestNG.</p>
+
+<p>Hudson juga bisa disuruh mengirim email apabila terjadi kegagalan build. Di sini biasanya saya isi dengan alamat mailing list developer.</p>
+
+<p>Setelah selesai, klik Save.</p>
+
+<p>Selanjutnya, kita tinggal melihat-lihat hasilnya.</p>
+
+<p>Di halaman depan, kita bisa lihat rangkuman status tiap project.</p>
+
+<p><img src="/images/uploads/2007/10/build-status.png" title="Build Status" ></p>
+
+<p>Klik salah satu project, dan lihat detailnya</p>
+
+<p><img src="/images/uploads/2007/10/build-result.png" title="Build Result" ></p>
+
+<p>Di situ kita bisa lihat artifact yang sudah dipublish. Dari semua build yang sudah dilakukan, kita bisa lihat trendnya.</p>
+
+<p><img src="/images/uploads/2007/10/build-time-trend.png" title="Trend of Build Time" ></p>
+
+<p>Selain itu, kita juga bisa lihat hasil JUnit test.</p>
+
+<p><img src="/images/uploads/2007/10/junit-result.png" title="JUnit Result" ></p>
+
+<p>Kesimpulan akhir, berikut adalah perbandingan ketiga tools ini.</p>
+
+<p>Tools Setup Tampilan Aksesoris Tag Otomatis</p>
+
+<p>CruiseControl</p>
+
+<p>Sulit, semua harus pakai XML</p>
+
+<p>Kurang bagus, terlihat kuno</p>
+
+<p>Lengkap</p>
+
+<p>Bisa, menggunakan publisher</p>
+
+<p>Luntbuild</p>
+
+<p>Mudah, setup melalui web</p>
+
+<p>Rumit dan kurang intuitif</p>
+
+<p>Sangat sedikit</p>
+
+<p>Bisa, dikonfigurasi melalui web</p>
+
+<p>Hudson</p>
+
+<p>Sangat Mudah</p>
+
+<p>Bagus, intuitif, Web 2.0, AJAX</p>
+
+<p>Eclipse plugin, Netbeans Plugin, Trac Plugin</p>
+
+<p>Tidak bisa, harus manual</p>
+
+<p>Demikianlah, semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/dump-restore-postgresql/">Dump Restore PostgreSQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-25T22:01:48+07:00" pubdate data-updated="true">Sep 25<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, melakukan troubleshoot, data cleansing, dan sebagainya dengan tenang. Begitu sudah selesai, kita dump struktur tabel berikut datanya dari mesin development, kemudian buat database baru di mesin production, lalu restore.</p>
+
+<p>Agar tidak lupa, berikut saya tulis rangkaian langkah-langkahnya. Diasumsikan kita sudah memiliki database development dengan parameter sebagai berikut:</p>
 
 <ul>
-<li>SSH langsung ke IP virtual machine tersebut.</li>
-<li>Login ke web management Proxmox, kemudian pilih virtual machine, dan jalankan VNC console yang berupa aplikasi Java applet.</li>
-<li>SSH ke mesin host, dan kemudian masuk ke console virtual machine</li>
-<li>Membuat VNC server yang bisa diakses dari luar</li>
+<li><p>Nama Database : buku_tamu_devel</p></li>
+<li><p>Username : belajar</p></li>
+<li><p>Password : java</p></li>
+<li><p>File hasil dump : buku_tamu-dump-sql</p></li>
 </ul>
 
 
-<p>Kadangkala, kita tidak bisa menjalankan opsi pertama, karena belum menginstal SSH server di VM.
-Opsi kedua sering tidak lancar di Linux.
-Opsi ketiga hanya bisa dijalankan untuk OpenVZ, saya belum ketemu caranya untuk KVM.
-Dengan demikian, kita harus menggunakan cara keempat.</p>
+<p>Untuk melakukan dump, berikut adalah perintahnya:</p>
 
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pg_dump -CdD  -Fp -U belajar buku_tamu_devel &gt; buku_tamu-dump.sql</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Penjelasannya sebagai berikut:</p>
+
+<ul>
+<li><p>pg_dump : adalah aplikasi command line untuk melakukan import</p></li>
+<li><p>C : opsi untuk create semua tabel. Selain opsi C, kita juga bisa menggunakan opsi c, yaitu DROP dulu tabelnya baru kemudian CREATE. Pada skenario ini, file dump akan diaplikasikan ke database baru, jadi tidak perlu DROP dulu tabel-tabel yang sudah ada.</p></li>
+<li><p>d : opsi untuk mengisi data. Bila ada opsi ini, pg_dump akan menghasilkan statement INSERT dari data yang sudah ada.</p></li>
+<li><p>D : opsi untuk menulis nama kolom. Dengan opsi ini, di statement INSERT akan ada nama kolom.</p></li>
+<li><p>Fp : format hasilnya adalah plain text</p></li>
+<li><p>U : username untuk koneksi ke database</p></li>
+</ul>
+
+
+<p>Selanjutnya, tiba saat melakukan restore. Parameternya sama dengan database development, kecuali nama databasenya adalah <code>buku_tamu_prod</code>. Bila database belum ada, buat dulu dengan user postgres.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo su - postgres
+</span><span class='line'>$ createdb buku_tamu_prod
+</span><span class='line'>CREATE DATABASE
+</span><span class='line'>$ exit</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Baru setelah itu kita lakukan restore.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>psql -d buku_tamu_prod -U belajar -f buku_tamu-dump.sql</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Penjelasan opsinya adalah sebagai berikut:</p>
+
+<ul>
+<li><p>d : nama database yang akan direstore</p></li>
+<li><p>U : username yang digunakan untuk koneksi</p></li>
+<li><p>f : file dump</p></li>
+</ul>
+
+
+<p>Bila tidak ada pesan error, struktur tabel dan data seharusnya sudah masuk ke database baru.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/linux/akses-vm-proxmox-tanpa-applet/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -151,7 +656,7 @@ Dengan demikian, kita harus menggunakan cara keempat.</p>
       
   <header>
     
-      <h1 class="entry-title"><a href="/linux/setup-proxmox-dengan-1-ip-public/">Setup Proxmox Dengan 1 IP Public</a></h1>
+      <h1 class="entry-title"><a href="/lain/lowongan-experd/">Lowongan Experd</a></h1>
     
     
       <p class="meta">
@@ -167,36 +672,51 @@ Dengan demikian, kita harus menggunakan cara keempat.</p>
   
 
 
-<time datetime="2013-02-12T20:05:00+07:00" pubdate data-updated="true">Feb 12<span>th</span>, 2013</time>
+<time datetime="2007-09-25T15:36:49+07:00" pubdate data-updated="true">Sep 25<span>th</span>, 2007</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Jaman sekarang, membuat server untuk cloud tidak lagi sulit.
-Cukup cari server nganggur, unduh <a href="http://pve.proxmox.com/">Proxmox</a>,
-kemudian instal.</p>
+  <div class="entry-content"><p>Kemarin ada mbak-mbak yang kirim email ke saya, namanya mbak Hanna dari <a href="http://www.experd.org">Experd</a>, minta tolong dipostingkan lowongan. Entah kenapa, waktu saya cek websitenya, tulisannya Service Unavailable. Sedangkan www.experd.com bisa diakses. Entahlah, mungkin yang .org sedang bermasalah.</p>
 
-<p>Instalasinya pun tidak sulit, dia cuma menanyakan mau diberi IP berapa,
-password untuk user root, dan selesai sudah.
-Selanjutnya, server ini tinggal kita taruh di data center.</p>
+<p>Begini katanya,</p>
 
-<p>Dengan Proxmox ini, kita dapat membuat virtual machine (VM) sebanyak-banyaknya
-yang mampu ditangani oleh hardware servernya.
-Pembuatan VM ini dilakukan melalui antarmuka berbasis web,
-sehingga kita tidak perlu lagi menghafalkan perintah-perintah command line.</p>
+<blockquote><p>Sekedar share informasi lowongan, bahwa saat ini kami ada klien, sebuah konsultan IT yang berpusat di New Jersey, sedang membutuhkan JAVA/J2EE programmer. Nantinya kandidat yang dihired ini akan ditugaskan untuk proyek salah satu top bank di Malaysia. Status pekerjaan yang ditawarkan permanent employee. (selengkapnya di bawah ini).</p></blockquote>
 
-<p>Walaupun VM bisa dibuat sesuka hati, seringkali IP public yang tersedia terbatas jumlahnya.
-Punya VM banyak tapi tidak bisa diakses dari luar tentu percuma saja.
-Pada artikel ini, kita akan membahas cara supaya satu IP public bisa dimanfaatkan oleh banyak VM.</p>
+<p>Berikut detail lowongannya.</p>
 
+<ul>
+<li><p>Has 2-7 years experience in Java/J2EE Development</p></li>
+<li><p>Experience in DB2/Oracle and Unix is an advantage</p></li>
+<li><p>Preferably with Banking Project Experience</p></li>
+<li><p>Can join in 2-6 weeks</p></li>
+<li><p>Willing to work in Kuala Lumpur, Malaysia</p></li>
+</ul>
+
+
+<p>Mbak Hanna juga memberikan alamat kantornya, yaitu di:</p>
+
+<p>Plaza 3 Pondok Indah Blok C2, Jl. T.B. Simatupang, Jakarta 12310</p>
+
+<p>Telp. 62-21-75906448, Fax. 62-21-75906442</p>
+
+<p>Email. hanna [at] experd [dot] org, http://www.experd.com</p>
+
+<p>Jangan kirim lamaran ke saya, menurut mbak Hanna, kirimkan ke databank [at] experd [dot] org.</p>
+
+<p><strong>Disclaimer: Saya tidak kenal sama mbak Hanna. Artikel ini juga bukan anjuran kepada pembaca untuk mengirim lamaran</strong></p>
+
+<p>Saya juga sudah membaca bukunya Kevin Mitnick yang berjudul <a href="http://www.flazx.com/ebook1002.php">The Art of Deception</a>, yang berisi tentang <a href="http://en.wikipedia.org/wiki/Social_engineering_%28security%29">Social Engineering</a>. Jadi, saran saya bagi pembaca yang berminat, luangkan waktu beberapa menit untuk melakukan cross-check ke alamat dan nomer telepon yang ada di atas untuk memastikan kesahihan info lowongan ini sebelum mengirim resume Anda.</p>
+
+<p>Sekedar smoke-test, saya sudah lookup ke <a href="http://www.who.is/">layanan whois</a>, dan hasilnya experd.com dan experd.org diregistrasi oleh orang yang sama, dan alamatnya sama dengan alamat kantornya di atas.</p>
+
+<p>Untuk mbak Hanna, mohon maaf ya &#8230; bukannya tidak percaya. Tapi baca sendiri deh <a href="http://www.flazx.com/ebook4179.php">The Art of Deception</a>, nanti Anda akan mengerti kenapa saya <em>terkesan paranoid</em>. Anyway &#8230; terima kasih atas info lowongannya. Mudah-mudahan mendapatkan kandidat yang sesuai.</p>
+
+<p>Kalau ada orang Experd yang membaca artikel ini, mohon konfirmasi atau sanggahannya.</p>
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/linux/setup-proxmox-dengan-1-ip-public/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -207,7 +727,7 @@ Pada artikel ini, kita akan membahas cara supaya satu IP public bisa dimanfaatka
       
   <header>
     
-      <h1 class="entry-title"><a href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Mencari Relasi Foreign Key Ke Tabel MySQL</a></h1>
+      <h1 class="entry-title"><a href="/java/menggunakan-postgresql/">Menggunakan PostgreSQL</a></h1>
     
     
       <p class="meta">
@@ -223,34 +743,1007 @@ Pada artikel ini, kita akan membahas cara supaya satu IP public bisa dimanfaatka
   
 
 
-<time datetime="2013-02-07T15:24:00+07:00" pubdate data-updated="true">Feb 7<span>th</span>, 2013</time>
+<time datetime="2007-09-24T18:35:16+07:00" pubdate data-updated="true">Sep 24<span>th</span>, 2007</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Di aplikasi yang kita buat, biasanya ada fitur untuk menghapus data atau record tertentu.
-Bila kita menggunakan database relasional yang memiliki fitur <em>referential integrity</em>,
-kita akan dicegah bila data yang ingin kita hapus memiliki relasi ke data lain.</p>
+  <div class="entry-content"><p>Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan <a href="http://www.mysql.org">ikan lumba-lumba</a> menjadi <a href="http://www.postgresql.org">gajah</a>. Sebetulnya saya pernah menggunakan database gajah ini pada tahun 2005, tapi setelah itu jarang digunakan sehingga butuh waktu agak lama untuk melakukan porting ini.</p>
 
-<p>Contohnya, kita punya tabel <code>Produk</code>, yang kolom <code>id</code>nya digunakan sebagai <em>foreign key</em>
-oleh tabel <code>Penjualan</code>.
-Dengan demikian, pada waktu ingin menghapus data <code>Produk</code>, terlebih dulu kita cek ke tabel
-<code>Penjualan</code>, apakah ada data transaksi yang berelasi ke <code>Produk</code> yang ingin kita hapus.</p>
+<p>Agar lain kali tidak lupa lagi, baiklah saya tulis di sini saja. Mudah-mudahan bermanfaat juga untuk pembaca :D</p>
 
-<p>Akan menjadi masalah bila aplikasi kita sudah besar, tabelnya ada ratusan.
-Bagaimana cara kita mencari tabel mana saja yang memiliki relasi ke tabel <code>Produk</code>?
-Tentunya tidak mungkin dicek satu-persatu.</p>
+<h3>Instalasi</h3>
 
-<p>Dengan bantuan paman Google, berikut adalah cara mendapatkannya untuk database MySQL.</p>
+<p>Saya menggunakan Ubuntu, jadi instalasi tidak sulit. Cukup lakukan:
+<code>sudo apt-get install postgresql-8.2</code>
+Beres .. :D</p>
 
+<h3>Konfigurasi Akses Jaringan</h3>
+
+<p>Selanjutnya, konfigurasi Postgre agar meminta password setiap ada koneksi masuk, termasuk dari localhost. Ini dilakukan agar konfigurasi JDBCnya tidak terlalu berbeda dengan konfigurasi sebelumnya yang menggunakan MySQL.</p>
+
+<p>Ganti otentikasi dalam <code>pg_hba.conf</code> menjadi</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>local   all         all                           password
+</span><span class='line'>host    all         all         127.0.0.1/32      password
+</span><span class='line'>host    all         all         ::1/128           password</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File <code>pg_hba.conf</code> ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder <code>/etc/postgresql/8.2/main</code>. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/postgresql restart</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Menambahkan User</h3>
+
+<p>Untuk menambahkan user, kita perlu <em>menyamar</em> sebagai user <code>postgres</code>.  Gunakan <code>su</code>.
+<code>sudo su - postgres</code></p>
+
+<p>Selanjutnya, jalankan perintah <code>createuser</code> dengan argumen P untuk meminta password.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>createuser -P
+</span><span class='line'>Enter name of role to add: belajar
+</span><span class='line'>Enter password for new role: 
+</span><span class='line'>Enter it again: 
+</span><span class='line'>Shall the new role be a superuser? (y/n) n
+</span><span class='line'>Shall the new role be allowed to create databases? (y/n) y
+</span><span class='line'>Shall the new role be allowed to create more new roles? (y/n) n
+</span><span class='line'>CREATE ROLE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perintah di atas menambahkan user dengan username <code>belajar</code> yang memiliki ijin untuk membuat database baru.</p>
+
+<p>Selanjutnya, keluar dari user postgres dengan menggunakan perintah <code>exit</code>.</p>
+
+<h3>Membuat Database</h3>
+
+<p>Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yang namanya <code>buku_tamu</code>. Gunakan perintah <code>createdb</code> dengan argumen U untuk menyebutkan username.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>createdb -U belajar buku_tamu
+</span><span class='line'>Password: 
+</span><span class='line'>CREATE DATABASE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah selesai, coba koneksi ke database tersebut.</p>
+
+<p><code>psql -U belajar -d buku_tamu</code></p>
+
+<h3>Konfigurasi JDBC</h3>
+
+<p>Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
+</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Saya menggunakan Hibernate, sehingga butuh satu parameter lagi, yaitu dialek SQL yang digunakan.</p>
+
+<p><code>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</code></p>
+
+<p>Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti lima baris konfigurasi (bukan source code), dari seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url         = jdbc:mysql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java
+</span><span class='line'>hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Menjadi seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
+</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
+</span><span class='line'>jdbc.username    = belajar
+</span><span class='line'>jdbc.password    = java
+</span><span class='line'>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Oh iya, jangan lupa <a href="http://jdbc.postgresql.org/download.html">unduh dulu driver JDBC untuk PostgreSQL</a>. Saya menggunakan versi <strong>8.2-506 JDBC 4</strong>.</p>
+
+<p>Demikian setup PostgreSQL agar bisa diakses dari Java.</p>
 </div>
   
   
-    <footer>
-      <a rel="full-article" href="/java/mencari-relasi-foreign-key-ke-tabel-mysql/">Read on &rarr;</a>
-    </footer>
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/membuat-validasi-dalam-aplikasi/">Membuat Validasi Dalam Aplikasi</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-12T23:44:55+07:00" pubdate data-updated="true">Sep 12<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pertanyaan berikut muncul di <a href="http://tech.groups.yahoo.com/group/netbeans-indonesia/">milis netbeans-indonesia</a>, &#8220;Di mana sebaiknya kita menulis aturan validasi? Di database, di business layer, atau di presentation layer?&#8221;</p>
+
+<p>Saya pikir, pasti banyak juga yang memiliki kebimbangan serupa. Oleh karena itu, jawaban saya tulis di artikel ini.</p>
+
+<p>Menurut saya, validasi itu idealnya di semua layer, mulai dari database, business logic, dan presentation layer (UI).</p>
+
+<p>Kenapa di database harus ada validasi (dengan menggunakan database constraint) adalah karena data umurnya akan lebih panjang dari aplikasi. Front end bisa ditulis ulang dengan apapun teknologi/framework yang sedang populer, sedangkan data sekali sudah disimpan, biasanya akan terus ada dalam waktu yang lama.</p>
+
+<p>Kalau kita tidak pakai constraint di database, begitu aplikasi kita usang dan diganti (misal tadinya desktop jadi web) maka databasenya jadi &#8216;telanjang&#8217; tanpa validasi, sehingga rawan kemasukan data kotor. Dan siapa yang bisa memastikan database kita tidak diakses aplikasi lain? Mungkin sekarang tidak &#8230; tapi tahun depan ketika ada kebutuhan baru, bisa saja ada orang lain yang mengembangkan aplikasi di atas database kita tersebut.</p>
+
+<p>Di sisi lain, validasi di presentation layer juga penting, supaya round-trip nya tidak terlalu panjang.
+Katakanlah kita punya layer seperti ini:
+presentation &#8211;> business &#8211;> data access</p>
+
+<p>Kalau cuma ada validasi database, maka kita perlu meng-catch SQLException untuk kemudian diteruskan ke depan, entah itu as-is SQLException ataupun dienkapsulasi menjadi DataAccessException dan kemudian dibungkus lagi menjadi BusinessLayerException.
+Apalagi kalau aplikasinya ada di mesin berbeda. Ongkos perjalanan Exceptionnya jadi mahal.
+Itu makanya penting validasi di presentation layer.</p>
+
+<p>So &#8230; idealnya validasi ada di semua layer.</p>
+
+<p>Tapi ini tidak berarti saya menganjurkan untuk menulis kode validasi di semua layer lho. Kode program itu idealnya tidak boleh terduplikasi. Logika validasi hanya ditulis sekali. Kalau aturan yang sama ditulis berkali-kali nanti pasti akan datang masanya kita (atau orang lain yang mewarisi kode program kita) mengganti aturan di satu tempat, dan lupa mengganti di tempat lain. Jadi, untuk setiap aturan, harus satu kali saja menulisnya.</p>
+
+<p>Banyak cara agar codingnya cukup satu kali saja, misalnya mendefinisikan constraint dengan Hibernate, dan biarkan dia yang menggenerate DDL. Biasanya constraint unique, required, dan semacamnya akan langsung dibuatkan database constraintnya.</p>
+
+<p>Kemudian di presentation layer, buat aturan validasi yang dinamis, yang bisa membaca hibernate annotation dan kemudian menggenerate rutin validasi baik itu JavaScript (kalau aplikasinya web), atau pemanggilan method Java (kalau itu Swing).</p>
+
+<p>Demikian pendapat saya tentang validasi. Bagaimana menurut Anda?</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/menggunakan-hermesjms/">Menggunakan HermesJMS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-06T18:37:59+07:00" pubdate data-updated="true">Sep 6<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Kalau kita ingin membuat aplikasi menggunakan database, tentunya hal pertama yang kita lakukan adalah menginstal server database. Selanjutnya, langkah kedua adalah menginstal aplikasi untuk mengelola database. Paling tidak, kita harus bisa membuat tabel, melihat isi tabel, mengisi ataupun menghapus data ke dalam tabel.</p>
+
+<p>Demikian juga kalau kita membangun aplikasi menggunakan JMS (Java Messaging Service). Sebelum membuat Hello JMS, terlebih dulu kita harus menginstal JMS server dan aplikasi yang dapat melihat isi JMS Server tersebut.</p>
+
+<p>Pada artikel kali ini, kita akan menginstal JMS Server <a href="http://activemq.apache.org/">ActiveMQ</a> dan aplikasi pengelolaan JMS yang bernama <a href="http://www.hermesjms.com/confluence/display/HJMS/Home">HermesJMS</a>.</p>
+
+<p>ActiveMQ dan HermesJMS dapat diunduh di websitenya masing-masing.</p>
+
+<p>Setelah diunduh, terlebih dulu kita instal ActiveMQ. Caranya sangat gampang, cukup diekstrak saja. Saya meletakkannya di folder <code>/opt</code></p>
+
+<pre><code>&lt;code&gt;cd /opt
+sudo tar xvzf apache-activemq-4.1.1.tar.gz
+&lt;/code&gt;
+</code></pre>
+
+<p>Setelah diekstrak, kita bisa langsung jalankan dari folder instalasinya.</p>
+
+<pre><code>&lt;code&gt;cd /opt/apache-activemq-4.1.1
+bin/activemq&lt;/code&gt;
+</code></pre>
+
+<p>Kalau sukses, akan muncul log message seperti ini:</p>
+
+<pre><code>&lt;code&gt;INFO  TransportServerThreadSupport   - Listening for connections at: tcp://sweetdreams:61616
+INFO  TransportConnector             - Connector openwire Started
+INFO  TransportServerThreadSupport   - Listening for connections at: ssl://sweetdreams:61617
+INFO  TransportConnector             - Connector ssl Started
+INFO  TransportServerThreadSupport   - Listening for connections at: stomp://sweetdreams:61613
+INFO  TransportConnector             - Connector stomp Started
+INFO  NetworkConnector               - Network Connector default-nc Started
+INFO  BrokerService                  - ActiveMQ JMS Message Broker (localhost, ID:sweetdreams-32991-1188983887811-1:0) started
+&lt;/code&gt;
+</code></pre>
+
+<p>Server kita sudah siap diakses di port 61616.</p>
+
+<p>Sekarang kita akan menginstal HermesJMS. Inipun instalasinya tidak sulit, cukup jalankan saja installernya.</p>
+
+<pre><code>&lt;code&gt;java -jar hermes-installer-1.12.jar&lt;/code&gt;
+</code></pre>
+
+<p>Nantinya akan muncul layar instalasi. Klik saja Next &#8230; Next &#8230; seperti biasa sampai selesai.</p>
+
+<p>Setelah Hermes berhasil diinstal, jalankan Hermes. Berikut adalah tampilan awalnya.
+<img src="/images/uploads/2007/09/hello-hermes.png" title="Hello Hermes" ></p>
+
+<p>Selanjutnya, kita akan menambahkan koneksi ke server ActiveMQ kita.
+Buka menu Options - Preferences, kemudian pilih tab Classpath di sisi bawah panel.
+<img src="/images/uploads/2007/09/no-classpath.png" title="Belum ada classpath group" ></p>
+
+<p>Selanjutnya, klik kanan di panel kosong tersebut
+dan masukkan classpath group baru bernama ActiveMQ.
+<img src="/images/uploads/2007/09/add-classpath.png" title="Tambah Classpath Group" ></p>
+
+<p>Nanti akan muncul entri ActiveMQ dengan tab dibawahnya yang bertulisan Library.
+Klik kanan <strong>tepat pada tulisan Library</strong> dan pilih Add Jar.
+Kita harus menambahkan beberapa jar berikut:</p>
+
+<ul>
+<li><p>apache-activemq-4.1.1.jar</p></li>
+<li><p>backport-util-concurrent-2.1.jar</p></li>
+<li><p>geronimo-j2ee-management_1.0_spec-1.0.jar</p></li>
+</ul>
+
+
+<p>Semua file tersebut dapat ditemukan di lokasi instalasi ActiveMQ.</p>
+
+<p>Setelah konfigurasi dilakukan, layar tampilannya akan tampak seperti ini:
+<img src="/images/uploads/2007/09/classpath-activemq.png" title="Classpath ActiveMQ" ></p>
+
+<p>Tutup layar Preference, dan buka lagi.
+Entah kenapa kalau tidak ditutup dulu, pilihan ActiveMQ tidak akan keluar.</p>
+
+<p>Di layar Preference tab Session, ketikkan nama Session yang baru, yaitu ActiveMQ.
+Klik Apply, nantinya Hermes akan menanyakan apakah ini session baru atau bukan.
+Jawab saja, &#8220;Ya, ini adalah session baru&#8221;.</p>
+
+<p>Selanjutnya, ganti pilihan Loader menjadi ActiveMQ, dan pilih ActiveMQ Connection Factory pada pilihan Class.
+Hasilnya akan nampak seperti ini:
+<img src="/images/uploads/2007/09/session-activemq.png" title="Session Baru ActiveMQ" ></p>
+
+<p>Setelah selesai, session ActiveMQ akan muncul di panel sebelah kiri.
+<img src="/images/uploads/2007/09/session-activemq-configured.png" title="Konfigurasi Session ActiveMQ" ></p>
+
+<p>Kita bisa membuat queue baru di session tersebut. Gunakan tombol Create New Queue.
+<img src="/images/uploads/2007/09/queue-new.png" title="Membuat Queue" ></p>
+
+<p>Pembuatan queue pada layar ini bersifat sementara. Artinya, bila HermesJMS dimatikan, Queuenya akan hilang. Untuk membuat Queue yang permanen, kita dapat mendefinisikannya pada layar konfigurasi session.</p>
+
+<p>Queue yang sudah dibuat dapat dilihat di panel sebelah kiri.
+<img src="/images/uploads/2007/09/queue-browse.png" title="Queue Browser" ></p>
+
+<p>Pada queue yang sudah terbentuk, kita bisa mengirim Text Message.
+Gunakan menu Messages - Send TextMessages. Kita harus memilih satu text file untuk dikirim.</p>
+
+<p>Setelah pengiriman selesai dilakukan, refresh tampilan sehingga message baru tersebut muncul.
+<img src="/images/uploads/2007/09/queue-browse-message.png" title="Browse Message" ></p>
+
+<p>Kita dapat mengambil message tersebut dengan menggunakan kode program Java sebagai berikut.</p>
+
+<pre><code>&lt;code&gt;package tutorial.jms;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+public class HelloQueueReceiver {
+    public static void main(String[] args) throws Exception {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(
+                ActiveMQConnection.DEFAULT_USER,
+                ActiveMQConnection.DEFAULT_PASSWORD,
+                ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("Connecting to: "+ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("With username : "+ActiveMQConnection.DEFAULT_USER);
+        System.out.println("and password : "+ActiveMQConnection.DEFAULT_PASSWORD);
+
+        Connection conn = factory.createConnection();
+        System.out.println("Connected");
+
+        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        System.out.println("Session created");
+
+        Queue destination = sess.createQueue("coba");
+        System.out.println("Queue created");
+
+        MessageConsumer consumer = sess.createConsumer(destination);
+        System.out.println("Consumer created");
+
+        System.out.println("Fetching message");
+        conn.start();
+        int counter = 1;
+        while(true) {           
+            Message msg = consumer.receive(1000);
+            if (msg == null) break;
+            System.out.println("Retrieving message #"+counter++);
+            System.out.println("Message fetched");
+            if (msg instanceof TextMessage) {
+                TextMessage txtmsg = (TextMessage) msg;
+                System.out.println("Message ID: "+txtmsg.getJMSMessageID());
+                System.out.println("Message Content: "+txtmsg.getText());
+            }
+        }
+
+
+        System.out.println("Closing connections");
+        consumer.close();
+        sess.close();
+        conn.close();
+        System.out.println("All closed");
+    }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Setelah kode program di atas dijalankan, refresh queue browser di Hermes. Harusnya pengambilan message tersebut akan menghapus message di server.</p>
+
+<p>Kita juga bisa mengirim message menggunakan kode program berikut.</p>
+
+<pre><code>&lt;code&gt;package tutorial.jms;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
+import org.apache.activemq.ActiveMQConnection;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+public class HelloQueueSender {
+    public static void main(String[] args) throws JMSException {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(
+                ActiveMQConnection.DEFAULT_USER,
+                ActiveMQConnection.DEFAULT_PASSWORD,
+                ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("Connecting to: "+ActiveMQConnection.DEFAULT_BROKER_URL);
+        System.out.println("With username : "+ActiveMQConnection.DEFAULT_USER);
+        System.out.println("and password : "+ActiveMQConnection.DEFAULT_PASSWORD);
+
+        Connection conn = factory.createConnection();
+        System.out.println("Connected");
+
+        Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        System.out.println("Session created");
+
+        Queue destination = sess.createQueue("coba");
+        System.out.println("Queue created");
+
+        MessageProducer prod = sess.createProducer(destination);
+        TextMessage msg = sess.createTextMessage();
+        msg.setText("Hello JMS");
+
+        prod.send(msg);
+        System.out.println("Message sent");
+
+        prod.close();
+        sess.close();
+        conn.close();
+    }
+}
+&lt;/code&gt;
+</code></pre>
+
+<p>Setelah kode program di atas dijalankan, kita dapat merefresh queue browser di Hermes untuk memastikan bahwa kode program kita berhasil mengirim message.</p>
+
+<p>Demikianlah, dengan menggunakan HermesJMS, kita dapat memeriksa secara visual apakah kode program kita dapat mengakses JMS Server dengan benar.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/network-address-translation/">Network Address Translation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-30T00:50:36+07:00" pubdate data-updated="true">Aug 30<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>NAT adalah singkatan dari Network Address Translation.</p>
+
+<p>Gunanya supaya kita bisa mempublish komputer di internal (misal, IP dalamnya : 192.168.0.1)
+ke internet (misal, IP luarnya : 202.159.11.11).
+Atau agar komputer di jaringan dalam bisa berbagi pakai akses internet.</p>
+
+<p>Setiap request ke satu komputer, komputer asal mengirim paket data ke komputer tujuan.
+Mirip dengan kalau kita kirim surat. Pesannya ditulis di kertas, masukkan amplop,
+tulis alamat penerima dan alamat pengirim.</p>
+
+<p>Contoh paketnya kira-kira seperti ini.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.22.22
+</span><span class='line'>Untuk : 202.159.11.11
+</span><span class='line'>Pesan : halo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Gateway harus punya mapping IP luar dan IP dalam.
+Begitu gateway terima paket yang ditujukan ke IP luar,
+dia akan membungkus paket tersebut dengan amplop baru, alamat tujuannya diganti dengan IP dalam.
+Proses ini dinamakan DNAT (Destination NAT).</p>
+
+<p>Bila alamat tujuan tidak diganti, maka routernya akan bingung, karena dia tidak tahu IP luar itu mesinnya yang mana.</p>
+
+<p>Kalau di Linux, ini dilakukan dengan perintah iptables.
+Contohnya adalah sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -I PREROUTING -d 202.159.11.11 --to-destination 192.168.0.1 -j DNAT</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah di<code>DNAT</code>, paketnya menjadi seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.22.22
+</span><span class='line'>Untuk : 192.168.0.1
+</span><span class='line'>Pesan : halo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, amplop lewat proses routing. Router akan bisa menyampaikan paket tersebut,
+karena dia kenal <code>192.168.0.1</code> itu mesin yang mana.</p>
+
+<p>Akhirnya paket sampai di tujuan.</p>
+
+<p>Dengan menggunakan DNAT ini, kita bisa mempublikasikan mesin di jaringan internal agar bisa diakses dari luar.</p>
+
+<p>Bagaimana jika sebaliknya?</p>
+
+<p>Penerima akan mengirim balasan. Dia masukkan ke amplop, kirim ke router.
+Router akan lihat bahwa tujuannya adalah komputer di luar, maka dia kirim ke gateway.</p>
+
+<p>Paketnya kira-kira seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 192.168.0.1
+</span><span class='line'>Untuk : 202.159.22.22
+</span><span class='line'>Pesan : halo juga</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Gateway melihat bahwa alamat pengirim adalah IP dalam.
+Kalau diteruskan begitu saja, maka kalau ada balasan lagi, tidak akan sampai,
+karena IP dalam tidak dikenal di luar.
+Jadi dia harus membungkus lagi dengan amplop lagi, kali ini yang diganti adalah alamat pengirim.
+IP dalam diganti dengan IP public.
+Proses ini dinamakan SNAT (Source NAT)</p>
+
+<p>Contohnya adalah sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -I POSTROUTING -s 192.168.0.1 --to-source 202.159.11.11 -j SNAT</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah di<code>SNAT</code> paketnya menjadi seperti ini:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dari  : 202.159.11.11
+</span><span class='line'>Untuk : 202.159.22.22
+</span><span class='line'>Pesan : halo juga</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dengan menggunakan SNAT, kita bisa mengimplementasikan Internet Connection Sharing,
+yaitu satu koneksi internet dibagi beramai-ramai.</p>
+
+<p>Ada satu kasus khusus untuk SNAT, namanya Masquerade.
+Ini digunakan apabila IP public yang digunakan berubah-ubah.
+Misalnya kalau kita pakai dialup connection.</p>
+
+<p>Kalau kita nekat pakai SNAT, nanti akan repot, karena harus update rule setiap dial ke internet.</p>
+
+<p>Jadi, kita gunakan masquerade.
+Berikut perintahnya:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -I POSTROUTING -p tcp -s 192.168.0.1 -j MASQUERADE</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatian: Jangan lupa untuk mengaktifkan IP Forwarding di gateway dengan perintah</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat 1 &gt; /proc/sys/net/ipv4/ip_forward</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Rangkaian perintah ini akan hilang pada saat reboot.
+Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen.
+Caranya, tergantung masing-masing distro. Biasanya, kita simpan dulu ke file menggunakan perintah <code>iptables-save</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables-save &gt; /etc/sysconfig/iptables</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kemudian file tersebut kita load menggunakan perintah <code>iptables-restore</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables-restore /etc/sysconfig/iptables</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Agar berjalan setiap kali booting, panggil perintah <code>iptables-restore</code> dari script <code>rc.local</code>. Lokasi script ini berbeda antar distro, untuk keluarga Debian terletak di folder <code>/etc</code>.</p>
+
+<p>Sayangnya saat ini iptables hanya ada di Linux, dan nampaknya tidak akan ada versi Windowsnya. Karena iptables sangat <em>tightly-coupled</em> dengan kernel linux.</p>
+
+<p>Untuk Windows, kita dapat gunakan fitur Internet Connection Sharing apabila ada. Beberapa versi Windows (misalnya XP Home), tidak punya fitur ini. Jadi solusinya adalah dengan menggunakan aplikasi tambahan seperti misalnya <a href="http://www.wingate.com/product-wingate.php">WinGate</a> atau <a href="http://www.kerio.com/kwf_home.html">WinRoute</a>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/konfigurasi-mod_jk/">Konfigurasi Mod_jk</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-15T22:52:26+07:00" pubdate data-updated="true">Aug 15<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ada kalanya, kita ingin mempublikasikan aplikasi Java kita melalui Apache HTTPD, webserver paling populer dan paling banyak digunakan di dunia.</p>
+
+<p>Beberapa alasan untuk melakukan ini antara lain:</p>
+
+<ul>
+<li><p>Kita ingin menjalankan Tomcat dalam cluster, diakses melalui satu pintu gerbang, yaitu Apache HTTPD</p></li>
+<li><p>Kita tidak ingin membuka port 8080 ke seluruh dunia, cukup buka port 80 dan 443 saja. Sedangkan di port 80 sudah ada aplikasi lain (PHP, Rails, whatever) yang dihosting di atas Apache HTTPD</p></li>
+<li><p>Kita ingin melayani static page dengan Apache HTTPD, dan dynamic page dengan Tomcat</p></li>
+<li><p>Dan masih banyak alasan lain.</p></li>
+</ul>
+
+
+<p>Konfigurasi ini saya lakukan di Ubuntu Feisty 7.04. Langkah-langkahnya relatif mirip untuk distro lain, yang kalau disimpulkan terdiri dari:</p>
+
+<ol>
+<li><p>Install Apache</p></li>
+<li><p>Install Tomcat</p></li>
+<li><p>Deploy Aplikasi Java di Tomcat</p></li>
+<li><p>Install mod_jk</p></li>
+<li><p>Konfigurasi worker</p></li>
+<li><p>Konfigurasi virtual host</p></li>
+</ol>
+
+
+<p>Baiklah, mari kita mulai saja.</p>
+
+<h3>Instalasi Apache</h3>
+
+<p>Saya gunakan Apache 2.2 yang disediakan oleh repository Ubuntu. Instalasi sangat mudah:
+<code>sudo apt-get install apache2</code></p>
+
+<p>Setelah instalasi selesai pastikan webserver sudah berjalan dengan baik dengan cara mengakses <code>http://localhost</code></p>
+
+<h3>Instalasi Tomcat</h3>
+
+<p>Kita bisa menginstal Tomcat melalui apt-get, tetapi saya lebih suka menggunakan cara manual.
+Unduh dari <a href="http://tomcat.apache.org">situsnya</a>, kemudian ekstrak di folder /opt.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /opt
+</span><span class='line'>sudo tar xvzf apache-tomcat-xx.tar.gz</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, jalankan Tomcat.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /opt/tomcat/bin/startup.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Jangan lupa mengatur environment variable <code>JAVA_HOME</code> ke tempat instalasi Java SDK Anda sebelum menjalankan Tomcat.</p>
+
+<p>Periksa keberhasilan instalasi Tomcat dengan cara browse ke <code>http://localhost:8080</code></p>
+
+<h3>Deploy Aplikasi Java</h3>
+
+<p>Pada saat ini, kita sudah bisa mendeploy aplikasi Java ke Tomcat, tepatnya di folder <code>[TOMCAT_HOME]/webapps</code>.
+Untuk mudahnya, kita tidak akan instal aplikasi, tapi menggunakan tomcat-docs yang sudah disediakan Tomcat.</p>
+
+<h3>Install mod_jk</h3>
+
+<p>Instalasi mod_jk di Ubuntu sangat mudah, cukup lakukan <code>sudo apt-get install libapache2-mod-jk</code></p>
+
+<p><code>mod_jk</code> akan diinstal dan langsung diaktifkan.</p>
+
+<p>Sebelum <code>mod_jk</code> bisa bekerja dengan benar, kita harus melakukan sedikit konfigurasi. Saya membuat file konfigurasi di <code>/etc/apache2/mods-available/jk.conf</code>.
+Letak file konfigurasi tidak penting, yang penting adalah file tersebut dibaca oleh Apache. Silahkan baca-baca manual konfigurasi untuk distro Anda</p>
+
+<p>Berikut adalah isi file <code>/etc/apache2/mods-available/jk.conf</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>JkWorkersFile /etc/apache2/mods-available/workers.properties
+</span><span class='line'>JkShmFile     /var/log/apache2/mod_jk.shm
+</span><span class='line'>JkLogFile     /var/log/apache2/mod_jk.log
+</span><span class='line'>JkLogLevel    info
+</span><span class='line'>JkLogStampFormat "[%a %b %d %H:%M:$S %Y] "</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seperti kita lihat di baris pertama, ada referensi ke file <code>workers.properties</code>. Kita akan bahas file ini di bagian selanjutnya.</p>
+
+<p>Sisa file ini mendefinisikan konfigurasi log file.</p>
+
+<h3>Konfigurasi Workers</h3>
+
+<p>File <code>workers.properties</code> mendefinisikan semua worker yang tersedia. Worker adalah Tomcat yang akan melayani request ke aplikasi Java. Untuk mengaktifkan clustering, kita bisa mengkonfigurasi banyak worker sekaligus.
+Saat ini, sebagai contoh kita akan mengkonfigurasi satu saja dulu.</p>
+
+<p>Berikut adalah isi file <code>workers.properties</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>worker.list=worker1
+</span><span class='line'>worker.worker1.type=ajp13
+</span><span class='line'>worker.worker1.host=localhost
+</span><span class='line'>worker.worker1.port=8009</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Konfigurasi Virtual Host</h3>
+
+<p>Terakhir, kita akan mengkonfigurasi virtual host agar Apache HTTPD dapat melakukan forwarding dengan benar. Pada contoh ini, kita akan mengarahkan request ke <code>http://localhost/tomcat-docs</code> agar dilayani oleh Tomcat. Berikut konfigurasi Virtual Hostnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;VirtualHost&gt;</span>
+</span><span class='line'>    JkMount /tomcat-docs/* worker1
+</span><span class='line'><span class="nt">&lt;/VirtualHost&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Jika ingin mempublikasikan banyak aplikasi Java sekaligus, duplikasi saja baris <code>JkMount</code> di atas agar mengarah ke masing-masing aplikasi kita yang sudah dideploy di dalam folder <code>[TOMCAT_HOME]/webapps</code>.</p>
+
+<p>Konfigurasi virtual host di atas bisa digabungkan dengan konfigurasi lain seperti <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">repository Subversion</a>, Ruby on Rails, dan sebagainya. Cukup selipkan baris <code>JkMount</code> di dalam blok <code>VirtualHost</code>.</p>
+
+<p>Letak konfigurasi Virtual Host berbeda antar distro. Di keluarga Debian, konfigurasinya ada di folder <code>/etc/apache2/sites-available</code>.</p>
+
+<p>Setelah selesai, coba restart Apache HTTPD. Kalau semua berjalan lancar, dokumentasi Tomcat yang tadinya hanya bisa diakses di <code>http://localhost:8080/tomcat-docs/</code> sekarang juga bisa diakses di <code>http://localhost/tomcat-docs/</code>. Perhatikan perbedaan portnya, yang belakangan dilayani oleh Apache HTTPD.</p>
+
+<p>Selamat mencoba :D</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/luntbuild/">Continuous Integration Dengan Luntbuild</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
+kali ini kita akan menggunakan <a href="http://luntbuild.javaforge.com/proj/summary.do?proj_id=70">Luntbuild</a>,
+Continuous Integration Tools yang konfigurasinya tidak menggunakan XML sama sekali.</p>
+
+<p>Sama seperti CruiseControl, untuk menjalankan Continuous Integration, kita memerlukan:</p>
+
+<ul>
+<li><p>Repository Subversion yang berisi source code, lengkap dengan folder trunk dan release</p></li>
+<li><p>Code Review, Unit Test, Integration Test, Coverage Test yang lengkap</p></li>
+<li><p>File build.xml yang memiliki target untuk menjalankan semua test</p></li>
+</ul>
+
+
+<p>Struktur folder repository juga masih sama seperti artikel sebelumnya. Kita tidak membuat baru,
+melainkan langsung menggunakan repository pada artikel sebelumnya.</p>
+
+<p>Untuk menjalankan Luntbuild, kita memerlukan:</p>
+
+<ul>
+<li><p>Luntbuild installer</p></li>
+<li><p>Apache Ant 1.7.0</p></li>
+<li><p>Apache Tomcat 5.5</p></li>
+<li><p>Java SDK 6.0</p></li>
+</ul>
+
+
+<p>Installer Luntbuild dapat diunduh <a href="http://luntbuild.javaforge.com/proj/doc.do?doc_id=35767">di sini</a>.</p>
+
+<p>Cara instalasinya tidak sulit, begitu kita dapatkan file instalasinya, buka command prompt, dan masuk ke folder tempat installer tersebut berada.
+Kemudian jalankan installernya.</p>
+
+<pre><code>&lt;code&gt;$ cd Downloads
+$ java -jar luntbuild-1.4.2-installer.jar 
+&lt;/code&gt;
+</code></pre>
+
+<p>Tampilan instalasi Luntbuild akan segera tampil. Klik saja Next untuk melewati Release Note dan License Agreement,
+sampai pada pertanyaan lokasi instalasi.
+<img src="/images/uploads/2007/08/luntbuild-install-dir.png" title="Lokasi Instalasi Luntbuild" ></p>
+
+<p>Di komputer saya, saya pilih lokasi <code>/opt/luntbuild-1.4.2</code> sebagai lokasi instalasi.
+Klik Next, dan lanjutkan ke konfigurasi database.
+<img src="/images/uploads/2007/08/luntbuild-install-db.png" title="Instalasi Database" ></p>
+
+<p>Di sini saya tidak mengubah setting apa-apa. Langsung saja lanjutkan sampai menemui pertanyaan username dan password administrator.
+<img src="/images/uploads/2007/08/luntbuild-install-password.png" title="Setup Administrator Password" ></p>
+
+<p>Saya masukkan <code>luntbuild123</code> sebagai passwordnya.
+Kita juga akan ditanyai lokasi instalasi Tomcat agar Luntbuild bisa segera menginstal aplikasi webnya di sana.
+Entah apa yang terjadi, di komputer saya pilihan ini tidak berpengaruh apa-apa. Seharusnya installer akan membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code>.
+Setelah instalasi selesai saya tetap harus membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code> secara manual
+dan mengkopi semua isi <code>[LUNTBUILD_INSTALL]/web</code> ke dalamnya.</p>
+
+<p>Setelah semua layar berhasil dilalui, instalasi selesai. Kita bisa langsung jalankan Tomcat, dan browse ke http://localhost:8080/luntbuild.
+Jika instalasi berjalan benar, maka kita akan disambut oleh Luntbuild
+<img src="/images/uploads/2007/08/luntbuild-frontpage.png" title="Halaman Depan Luntbuild" ></p>
+
+<p>Secara default, kita login secara anonymous. Untuk bisa mengkonfigurasi project, kita harus logout dulu.
+Kita akan segera melihat halaman login.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-login.png" title="Login Page" ></p>
+
+<p>Masukkan username luntbuild dan password luntbuild123, sesuai yang kita isikan pada waktu instalasi.
+Kita akan melihat daftar builder yang masih kosong.</p>
+
+<p>Segera klik tab Project, dan klik tombol New Project di kanan atas.
+User interface Luntbuild kurang intuitif, sehingga saya harus berusaha keras mencari tombol tersebut.
+Halaman New Project segera tampil.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-new-project.png" title="Create New Project" ></p>
+
+<p>Masukkan nama project dan berikan keterangan, lalu Save.</p>
+
+<p>Selanjutnya, kita klik tab VCS.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-no-vc.png" title="No VCS Yet" ></p>
+
+<p>Di tab ini kita melakukan konfigurasi untuk version control.
+Luntbuild mendukung berbagai merek version control.
+Pilih Subversion pada drop down yang tersedia.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn.png" title="Add New Subversion Repo" ></p>
+
+<p>Untuk konfigurasi di komputer saya, isinya adalah sebagai berikut:</p>
+
+<ol>
+<li><p>Repository url base : svn://localhost</p></li>
+<li><p>Directory for trunk : trunk</p></li>
+<li><p>Directory for branches : kosongkan saja, karena project contoh ini tidak memiliki branch</p></li>
+<li><p>Directory for releases : releases/daily-build</p></li>
+<li><p>Username : endy. Ini adalah username yang digunakan Luntbuild untuk checkout dan membuat tag.
+Idealnya kita buatkan user khusus untuk Luntbuild</p></li>
+<li><p>Password : 123</p></li>
+<li><p>Quiet Period : kosongkan saja, ini tidak dibutuhkan untuk Subversion yang sudah mendukung atomic commit.</p></li>
+</ol>
+
+
+<p>Ada sedikit keanehan Luntbuild. Dia mengharuskan kita membuat modul.
+Kalau dia tidak menemukan modul, maka akan keluar pesan error.
+Oleh karena itu, kita klik New Module, lalu langsung saja save tanpa mengisi apa-apa.</p>
+
+<p>Hasil akhir dari tab VCS kita akan nampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn-summary.png" title="VCS Subversion" ></p>
+
+<p>Berikutnya, kita masuk ke tab berikutnya untuk konfigurasi Builder.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-no-builders.png" title="No Builder Yet" ></p>
+
+<p>Satu project bisa memiliki banyak builder.
+Dengan builder, kita bisa mengatur sejauh mana kita ingin melakukan build.
+Contoh beberapa build yang mungkin digunakan adalah:</p>
+
+<ul>
+<li><p>Unit test: hanya menjalankan unit test saja, mungkin dijalankan setiap 1 jam sekali.</p></li>
+<li><p>Full test: menjalankan semua jenis test, dijalankan sebelum jam makan siang dan sore sebelum pulang</p></li>
+<li><p>Nightly/Daily build : dijalankan sekali sehari, selain menjalankan semua test, juga menghasilkan <em>jar atau </em>war.
+Jenis build ini biasanya dikonfigurasi untuk menghasilkan tag di version control apabila sukses.</p></li>
+</ul>
+
+
+<p>Klik tombol New Builder untuk mengkonfigurasi build. Karena kita menggunakan Ant, pilih Ant pada dropdown yang tersedia.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-ant-builder.png" title="Ant Builder" ></p>
+
+<p>Pada contoh ini, kita akan mengkonfigurasi Build Jar.
+Sekali sudah paham konsepnya, tidak sulit untuk mengkonfigurasi jenis build yang lain.
+Berikut adalah nilai yang saya isikan:</p>
+
+<ol>
+<li><p>Name : Build Jar</p></li>
+<li><p>Command for Ant : /opt/apache-ant-1.7.0/bin/ant. Ini adalah path menuju Ant kita.</p></li>
+<li><p>Build script path : build.xml. Ini adalah nama file build.xml yang ada di project kita</p></li>
+<li><p>Build target : build-jar. Target Ant yang dipanggil pada saat build berjalan.
+Saya pilih target build-jar yang mengeksekusi semua test, kemudian membuat *.jar bila test tidak ada yang gagal.</p></li>
+<li><p>Field sisanya, biarkan saja sesuai default.</p></li>
+</ol>
+
+
+<p>Terakhir, kita mengkonfigurasi Schedule, alias jadwal. Ini menentukan kapan build dieksekusi.
+Untuk Build Jar yang sudah kita konfigurasi, kita ingin dia dijalankan setiap jam 01 dini hari, setiap hari.
+Berikut isian konfigurasinya.</p>
+
+<ol>
+<li><p>Name : Nightly Build</p></li>
+<li><p>Description : build setiap jam 01 dini hari</p></li>
+<li><p>Next build version : <code>nightly-${#currentDay=system.(year+"-"+numericMonth+"-"+dayOfMonth), #lastDay=project.var["day"].setValue(#currentDay), #dayIterator=project.var["dayIterator"].intValue, project.var["dayIterator"].setIntValue(#currentDay==#lastDay?#dayIterator+1:1), #currentDay}.${project.var["dayIterator"]}</code>.
+Ini adalah label yang akan diberikan untuk setiap build.
+String di atas akan menghasilkan label nightly-2007-08-17.1 bila dijalankan pada tanggal 17 Agustus 2007.</p></li>
+<li><p>Trigger Type: cron. Luntbuild menyediakan dua jenis trigger. Pertama, simple trigger yang berbasis interval.
+Dengan simple trigger, kita dapat menjadwalkan build untuk berjalan misalnya setiap dua jam, atau setiap 30 menit.
+Kedua, cron trigger, yang berbasis waktu. Dengan cron trigger, kita dapat menjalankan build setiap waktu tertentu,
+misalnya setiap Sabtu, atau setiap hari jam 1 pagi. Untuk menjalankan build setiap jam satu pagi, gunakan cron trigger
+dengan konfigurasi <code>0 0 1 * * ?</code>. Luntbuild menggunakan pustaka <a href="http://www.opensymphony.com/quartz/">Quartz</a> untuk melakukan penjadwalan ini.
+Lebih lanjut tentang konfigurasi jadwal Quartz dapat dilihat di <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html">websitenya</a>.</p></li>
+<li><p>Build necessary condition: vcsModified or dependencyNewer. Buat apa melakukan build kalau belum ada perubahan
+sejak terakhir kali build berjalan? Inilah maksud dari field ini. Dengan menyebutkan vcsModified, kita menjelaskan
+bahwa kalau tidak ada perubahan di dalam version control, tidak perlu lakukan build. Selain nilai ini, kita juga
+bisa menggunakan nilai always, yang artinya tetap build walaupun tidak ada yang commit.</p></li>
+<li><p>Associated builders. Di sini kita memilih builder mana yang ingin dijalankan.</p></li>
+<li><p>Associated post builder. Misalnya setelah build sukses dijalankan, kita ingin membuat installer yang siap diunduh.
+Kita bisa sebutkan hal tersebut di sini.</p></li>
+<li><p>Label strategy: Label if success. Hanya buat tag di version control bila build sukses.</p></li>
+<li><p>Notify strategy: notify if status change. Artinya, kirim pemberitahuan apabila status build berbeda dari sebelumnya,
+misalnya tadinya gagal menjadi sukses, atau sebaliknya.</p></li>
+</ol>
+
+
+<p>Demikian sebagian nilai yang harus diisikan. Untuk field yang tidak saya jelaskan, silahkan baca keterangannya atau ikuti saja default.</p>
+
+<p>Setelah semua konfigurasi selesai, kembali ke halaman depan untuk menyaksikan hasil pekerjaan kita.
+Di sana akan terpampang semua build yang sudah dikonfigurasi.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-builds.png" title="Daftar build" ></p>
+
+<p>Kita bisa menjalankan build tersebut secara manual tanpa harus
+menunggu jatuh temponya. Biasanya kita lakukan build manual untuk mengetes konfigurasi.
+Build yang sedang berjalan ditandai dengan ikon roda gigi.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-building.png" title="Building …" ></p>
+
+<p>Build yang gagal akan ditandai dengan warna merah, sedangkan build yang berhasil diwarnai hijau.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-success.png" title="Build Successful" ></p>
+
+<p>Bila build gagal, tentunya kita ingin melihat apa yang terjadi. Klik build info untuk menampilkan informasinya.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-info.png" title="Build Info" ></p>
+
+<p>Kurang detail? Buka saja lognya. Di sini akan terlihat di langkah yang mana build tersebut berhenti.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-log.png" title="Build Log" ></p>
+
+<p>Demikianlah cara penggunaan Luntbuild.
+Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelola dengan baik dan teratur.</p>
+</div>
+  
   
 
 
@@ -332,6 +1825,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
@@ -365,10 +1862,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/prasyarat-integrasi-aplikasi/">Prasyarat Integrasi Aplikasi</a>
       </li>
     
   </ul>
