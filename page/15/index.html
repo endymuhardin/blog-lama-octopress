@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Kalau Anda programmer Java, tentunya sudah tidak asing lagi dengan Tomcat atau Eclipse. Yang satu adalah application server, satunya lagi adalah &hellip;">
+  <meta name="description" content="Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
+kali ini kita akan menggunakan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +90,236 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/luntbuild/">Continuous Integration Dengan Luntbuild</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-08-13T20:44:57+07:00" pubdate data-updated="true">Aug 13<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah pada artikel sebelumnya kita menggunakan CruiseControl &#8211;sempat dikomentari sebagai XML Sit Ups&#8211;
+kali ini kita akan menggunakan <a href="http://luntbuild.javaforge.com/proj/summary.do?proj_id=70">Luntbuild</a>,
+Continuous Integration Tools yang konfigurasinya tidak menggunakan XML sama sekali.</p>
+
+<p>Sama seperti CruiseControl, untuk menjalankan Continuous Integration, kita memerlukan:</p>
+
+<ul>
+<li><p>Repository Subversion yang berisi source code, lengkap dengan folder trunk dan release</p></li>
+<li><p>Code Review, Unit Test, Integration Test, Coverage Test yang lengkap</p></li>
+<li><p>File build.xml yang memiliki target untuk menjalankan semua test</p></li>
+</ul>
+
+
+<p>Struktur folder repository juga masih sama seperti artikel sebelumnya. Kita tidak membuat baru,
+melainkan langsung menggunakan repository pada artikel sebelumnya.</p>
+
+<p>Untuk menjalankan Luntbuild, kita memerlukan:</p>
+
+<ul>
+<li><p>Luntbuild installer</p></li>
+<li><p>Apache Ant 1.7.0</p></li>
+<li><p>Apache Tomcat 5.5</p></li>
+<li><p>Java SDK 6.0</p></li>
+</ul>
+
+
+<p>Installer Luntbuild dapat diunduh <a href="http://luntbuild.javaforge.com/proj/doc.do?doc_id=35767">di sini</a>.</p>
+
+<p>Cara instalasinya tidak sulit, begitu kita dapatkan file instalasinya, buka command prompt, dan masuk ke folder tempat installer tersebut berada.
+Kemudian jalankan installernya.</p>
+
+<pre><code>&lt;code&gt;$ cd Downloads
+$ java -jar luntbuild-1.4.2-installer.jar 
+&lt;/code&gt;
+</code></pre>
+
+<p>Tampilan instalasi Luntbuild akan segera tampil. Klik saja Next untuk melewati Release Note dan License Agreement,
+sampai pada pertanyaan lokasi instalasi.
+<img src="/images/uploads/2007/08/luntbuild-install-dir.png" title="Lokasi Instalasi Luntbuild" ></p>
+
+<p>Di komputer saya, saya pilih lokasi <code>/opt/luntbuild-1.4.2</code> sebagai lokasi instalasi.
+Klik Next, dan lanjutkan ke konfigurasi database.
+<img src="/images/uploads/2007/08/luntbuild-install-db.png" title="Instalasi Database" ></p>
+
+<p>Di sini saya tidak mengubah setting apa-apa. Langsung saja lanjutkan sampai menemui pertanyaan username dan password administrator.
+<img src="/images/uploads/2007/08/luntbuild-install-password.png" title="Setup Administrator Password" ></p>
+
+<p>Saya masukkan <code>luntbuild123</code> sebagai passwordnya.
+Kita juga akan ditanyai lokasi instalasi Tomcat agar Luntbuild bisa segera menginstal aplikasi webnya di sana.
+Entah apa yang terjadi, di komputer saya pilihan ini tidak berpengaruh apa-apa. Seharusnya installer akan membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code>.
+Setelah instalasi selesai saya tetap harus membuat folder <code>luntbuild</code> di dalam <code>[TOMCAT_INSTALL]/webapps</code> secara manual
+dan mengkopi semua isi <code>[LUNTBUILD_INSTALL]/web</code> ke dalamnya.</p>
+
+<p>Setelah semua layar berhasil dilalui, instalasi selesai. Kita bisa langsung jalankan Tomcat, dan browse ke http://localhost:8080/luntbuild.
+Jika instalasi berjalan benar, maka kita akan disambut oleh Luntbuild
+<img src="/images/uploads/2007/08/luntbuild-frontpage.png" title="Halaman Depan Luntbuild" ></p>
+
+<p>Secara default, kita login secara anonymous. Untuk bisa mengkonfigurasi project, kita harus logout dulu.
+Kita akan segera melihat halaman login.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-login.png" title="Login Page" ></p>
+
+<p>Masukkan username luntbuild dan password luntbuild123, sesuai yang kita isikan pada waktu instalasi.
+Kita akan melihat daftar builder yang masih kosong.</p>
+
+<p>Segera klik tab Project, dan klik tombol New Project di kanan atas.
+User interface Luntbuild kurang intuitif, sehingga saya harus berusaha keras mencari tombol tersebut.
+Halaman New Project segera tampil.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-new-project.png" title="Create New Project" ></p>
+
+<p>Masukkan nama project dan berikan keterangan, lalu Save.</p>
+
+<p>Selanjutnya, kita klik tab VCS.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-no-vc.png" title="No VCS Yet" ></p>
+
+<p>Di tab ini kita melakukan konfigurasi untuk version control.
+Luntbuild mendukung berbagai merek version control.
+Pilih Subversion pada drop down yang tersedia.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn.png" title="Add New Subversion Repo" ></p>
+
+<p>Untuk konfigurasi di komputer saya, isinya adalah sebagai berikut:</p>
+
+<ol>
+<li><p>Repository url base : svn://localhost</p></li>
+<li><p>Directory for trunk : trunk</p></li>
+<li><p>Directory for branches : kosongkan saja, karena project contoh ini tidak memiliki branch</p></li>
+<li><p>Directory for releases : releases/daily-build</p></li>
+<li><p>Username : endy. Ini adalah username yang digunakan Luntbuild untuk checkout dan membuat tag.
+Idealnya kita buatkan user khusus untuk Luntbuild</p></li>
+<li><p>Password : 123</p></li>
+<li><p>Quiet Period : kosongkan saja, ini tidak dibutuhkan untuk Subversion yang sudah mendukung atomic commit.</p></li>
+</ol>
+
+
+<p>Ada sedikit keanehan Luntbuild. Dia mengharuskan kita membuat modul.
+Kalau dia tidak menemukan modul, maka akan keluar pesan error.
+Oleh karena itu, kita klik New Module, lalu langsung saja save tanpa mengisi apa-apa.</p>
+
+<p>Hasil akhir dari tab VCS kita akan nampak seperti ini.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-vcs-svn-summary.png" title="VCS Subversion" ></p>
+
+<p>Berikutnya, kita masuk ke tab berikutnya untuk konfigurasi Builder.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-no-builders.png" title="No Builder Yet" ></p>
+
+<p>Satu project bisa memiliki banyak builder.
+Dengan builder, kita bisa mengatur sejauh mana kita ingin melakukan build.
+Contoh beberapa build yang mungkin digunakan adalah:</p>
+
+<ul>
+<li><p>Unit test: hanya menjalankan unit test saja, mungkin dijalankan setiap 1 jam sekali.</p></li>
+<li><p>Full test: menjalankan semua jenis test, dijalankan sebelum jam makan siang dan sore sebelum pulang</p></li>
+<li><p>Nightly/Daily build : dijalankan sekali sehari, selain menjalankan semua test, juga menghasilkan <em>jar atau </em>war.
+Jenis build ini biasanya dikonfigurasi untuk menghasilkan tag di version control apabila sukses.</p></li>
+</ul>
+
+
+<p>Klik tombol New Builder untuk mengkonfigurasi build. Karena kita menggunakan Ant, pilih Ant pada dropdown yang tersedia.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-ant-builder.png" title="Ant Builder" ></p>
+
+<p>Pada contoh ini, kita akan mengkonfigurasi Build Jar.
+Sekali sudah paham konsepnya, tidak sulit untuk mengkonfigurasi jenis build yang lain.
+Berikut adalah nilai yang saya isikan:</p>
+
+<ol>
+<li><p>Name : Build Jar</p></li>
+<li><p>Command for Ant : /opt/apache-ant-1.7.0/bin/ant. Ini adalah path menuju Ant kita.</p></li>
+<li><p>Build script path : build.xml. Ini adalah nama file build.xml yang ada di project kita</p></li>
+<li><p>Build target : build-jar. Target Ant yang dipanggil pada saat build berjalan.
+Saya pilih target build-jar yang mengeksekusi semua test, kemudian membuat *.jar bila test tidak ada yang gagal.</p></li>
+<li><p>Field sisanya, biarkan saja sesuai default.</p></li>
+</ol>
+
+
+<p>Terakhir, kita mengkonfigurasi Schedule, alias jadwal. Ini menentukan kapan build dieksekusi.
+Untuk Build Jar yang sudah kita konfigurasi, kita ingin dia dijalankan setiap jam 01 dini hari, setiap hari.
+Berikut isian konfigurasinya.</p>
+
+<ol>
+<li><p>Name : Nightly Build</p></li>
+<li><p>Description : build setiap jam 01 dini hari</p></li>
+<li><p>Next build version : <code>nightly-${#currentDay=system.(year+"-"+numericMonth+"-"+dayOfMonth), #lastDay=project.var["day"].setValue(#currentDay), #dayIterator=project.var["dayIterator"].intValue, project.var["dayIterator"].setIntValue(#currentDay==#lastDay?#dayIterator+1:1), #currentDay}.${project.var["dayIterator"]}</code>.
+Ini adalah label yang akan diberikan untuk setiap build.
+String di atas akan menghasilkan label nightly-2007-08-17.1 bila dijalankan pada tanggal 17 Agustus 2007.</p></li>
+<li><p>Trigger Type: cron. Luntbuild menyediakan dua jenis trigger. Pertama, simple trigger yang berbasis interval.
+Dengan simple trigger, kita dapat menjadwalkan build untuk berjalan misalnya setiap dua jam, atau setiap 30 menit.
+Kedua, cron trigger, yang berbasis waktu. Dengan cron trigger, kita dapat menjalankan build setiap waktu tertentu,
+misalnya setiap Sabtu, atau setiap hari jam 1 pagi. Untuk menjalankan build setiap jam satu pagi, gunakan cron trigger
+dengan konfigurasi <code>0 0 1 * * ?</code>. Luntbuild menggunakan pustaka <a href="http://www.opensymphony.com/quartz/">Quartz</a> untuk melakukan penjadwalan ini.
+Lebih lanjut tentang konfigurasi jadwal Quartz dapat dilihat di <a href="http://www.opensymphony.com/quartz/wikidocs/TutorialLesson6.html">websitenya</a>.</p></li>
+<li><p>Build necessary condition: vcsModified or dependencyNewer. Buat apa melakukan build kalau belum ada perubahan
+sejak terakhir kali build berjalan? Inilah maksud dari field ini. Dengan menyebutkan vcsModified, kita menjelaskan
+bahwa kalau tidak ada perubahan di dalam version control, tidak perlu lakukan build. Selain nilai ini, kita juga
+bisa menggunakan nilai always, yang artinya tetap build walaupun tidak ada yang commit.</p></li>
+<li><p>Associated builders. Di sini kita memilih builder mana yang ingin dijalankan.</p></li>
+<li><p>Associated post builder. Misalnya setelah build sukses dijalankan, kita ingin membuat installer yang siap diunduh.
+Kita bisa sebutkan hal tersebut di sini.</p></li>
+<li><p>Label strategy: Label if success. Hanya buat tag di version control bila build sukses.</p></li>
+<li><p>Notify strategy: notify if status change. Artinya, kirim pemberitahuan apabila status build berbeda dari sebelumnya,
+misalnya tadinya gagal menjadi sukses, atau sebaliknya.</p></li>
+</ol>
+
+
+<p>Demikian sebagian nilai yang harus diisikan. Untuk field yang tidak saya jelaskan, silahkan baca keterangannya atau ikuti saja default.</p>
+
+<p>Setelah semua konfigurasi selesai, kembali ke halaman depan untuk menyaksikan hasil pekerjaan kita.
+Di sana akan terpampang semua build yang sudah dikonfigurasi.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-builds.png" title="Daftar build" ></p>
+
+<p>Kita bisa menjalankan build tersebut secara manual tanpa harus
+menunggu jatuh temponya. Biasanya kita lakukan build manual untuk mengetes konfigurasi.
+Build yang sedang berjalan ditandai dengan ikon roda gigi.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-building.png" title="Building …" ></p>
+
+<p>Build yang gagal akan ditandai dengan warna merah, sedangkan build yang berhasil diwarnai hijau.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-success.png" title="Build Successful" ></p>
+
+<p>Bila build gagal, tentunya kita ingin melihat apa yang terjadi. Klik build info untuk menampilkan informasinya.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-info.png" title="Build Info" ></p>
+
+<p>Kurang detail? Buka saja lognya. Di sini akan terlihat di langkah yang mana build tersebut berhenti.</p>
+
+<p><img src="/images/uploads/2007/08/luntbuild-build-log.png" title="Build Log" ></p>
+
+<p>Demikianlah cara penggunaan Luntbuild.
+Mudah-mudahan dengan menggunakan perangkat ini proyek software Anda bisa dikelola dengan baik dan teratur.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2213,100 +2444,6 @@ public class Main {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/life/nyambi-bolehkah/">Nyambi, Bolehkah??</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-04-03T00:52:44+07:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Posting ini saya tulis karena di milis JUG sedang rame membahas tentang boleh tidaknya karyawan nyambi. Sepanjang karir saya, urusan nyambi telah menjadi bagian hidup tak terpisahkan dari perkembangan pribadi saya. Jadi baiklah mari kita bahas sedikit tentang urusan nyambi ini.</p>
-
-<blockquote><p>Disclaimer : Pernyataan di bawah ini merupakan opini pribadi dan bukan merupakan sikap resmi perusahaan yang saat ini mempekerjakan saya.</p></blockquote>
-
-<p>Mari pertama kita bedakan antara masalah legal dan masalah etis.</p>
-
-<p>Yang menurut saya tidak legal (haram) :</p>
-
-<ul>
-<li><p>Nyambi di jam kantor (ngerjain project lain2 di kantor)</p></li>
-<li><p>Pakai resource kantor untuk project lain (telp, internet, komputer, dsb), <strong>tanpa sepengetahuan atasan</strong></p></li>
-</ul>
-
-
-<p>Yang menurut saya legal :</p>
-
-<ul>
-<li>Pagi datang ontime, sore tenggo, sampe rumah ngerjain project lain.</li>
-</ul>
-
-
-<p>Nah, kalo urusan etis, ini rada sulit juga, soalnya urusan kepantasan ini tergantung pendidikan yang diberikan orangtua masing-masing.</p>
-
-<p>Yang menurut saya kurang etis:</p>
-
-<ul>
-<li><p>Berebut pasar dengan kantor. Misal: kantornya terima project dengan kisaran nilai 100-500 juta, eh kita juga terima project dengan nilai 150jt. Lebih tidak etis lagi kalo ikut tendernya saingan.</p></li>
-<li><p>Ngerjain project sampingan sampe begadang, akibatnya pas ngantor ngantuk dan gak konsen.</p></li>
-<li><p>Yang ini dari sisi kantor. Mempekerjakan karyawan lembur sampai nginap, tanpa uang lembur. Padahal kalo si karyawan pulang, dia bisa dapat tambahan uang dari waktu miliknya.</p></li>
-</ul>
-
-
-<p>Yang menurut saya etis:</p>
-
-<ul>
-<li><p>Mengerjakan produk/project yang sama, tapi beda segmen. Misalnya kantor terima project Java 100-500 jt. Kalo dibawah itu dia gak terima karena gak nutup biaya. Nah, kita terima project 10 jt,  yang kalo dikasi ke kantor pun gak diterima. It&#8217;s fine &#8230; asal tidak ilegal.</p></li>
-<li><p>Mengkomersilkan sisi lain teknologi, misalnya di kantor coding, di luar ngasi training atau nulis buku.</p></li>
-</ul>
-
-
-<p>Sebenarnya kalo kita tanpa ada unsur paranoid, karyawan nyambi ada juga untungnya bagi perusahaan.</p>
-
-<p>Misalnya, di kampus tempat saya ngajar dulu, dosen itu dianjurkan untuk nulis buku, walaupun dikerjakan menggunakan resource kantor (waktu, komputer, internet). Saya tanya kenapa? Teman saya sesama dosen bilang,</p>
-
-<blockquote><p>kalo ada buku yang ditulis dosen, maka itu bisa meningkatkan image kampusnya.</p></blockquote>
-
-<p>Demikian juga apabila kita sering nulis blog, aktif di milis, banyak ngarang buku, sering masuk e-lifestyle, dsb. Perusahaan yang berpikiran maju akan dapat melihat manfaat dari ini, misalnya menggunakan resume karyawan tersebut untuk tender, atau diiklankan pada waktu pitching project.</p>
-
-<p>Nah, menurut saya, selain yang legal/ilegal, tidak ada hitam putih di sini.
-Yang paling penting adalah saling keterbukaan dan kesepakatan.</p>
-
-<p>Saya sendiri selama ini berterus terang pada perusahaan tentang kegiatan komersil lain yang saya lakukan. Bila ada konflik kepentingan ya kita rundingkan.
-Bila setelah dirundingkan tidak ada titik temu, ya mungkin sudah saatnya berpisah untuk menjalani hidup masing-masing.</p>
-
-<p>Untungnya selama ini saya tidak mengalami masalah dengan keterbukaan ini. Pada perusahaan sebelumnya, bahkan saya bisa nyambi ngajar di kampus di jam kantor, dengan dispensasi khusus.</p>
-
-<p>Jadi, jangan dulu pesimis bahwa nyambi itu haram. Coba saja diskusikan dengan kantor Anda. Siapa tau boleh, dengan kompromi tertentu :D.</p>
-
-<p>Demikian pendapat saya &#8230;</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/16/">&larr; Older</a>
@@ -2383,6 +2520,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
       </li>
     
@@ -2416,10 +2557,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
       </li>
     
   </ul>

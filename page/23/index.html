@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Sebelum diinstal di tempat customer, aplikasi yang kita buat harus ditest. Itu jelas. Semua orang melakukannya. Hanya saja, teknik melakukan testing &hellip;">
+  <meta name="description" content="Setelah repository terpasang dan telah terisi struktur folder awal, hal pertama yang wajib dilakukan adalah memasang perangkat backup otomatis. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,119 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/subversion-backup-dan-restore/">Subversion Backup Dan Restore</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2005-11-22T21:59:04+07:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2005</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Setelah repository terpasang dan telah terisi struktur folder awal, hal pertama yang wajib dilakukan adalah memasang perangkat backup otomatis. Berikut adalah checklistnya :</p>
+
+<ol>
+<li><p>Buat folder khusus backup (misalnya /home/endy/backup-svn)</p></li>
+<li><p><a href="http://pragmaticprogrammer.com/titles/svn/code.html">Download script backup</a> dari buku <a href="http://pragmaticprogrammer.com/titles/svn/index.html">Pragmatic Version Control Using Subversion</a>.
+Ada dua script yang didapat di sini, weekly-backup.pl dan daily-backup.pl
+Kedua script butuh instalasi Perl untuk dapat dijalankan.</p></li>
+<li><p>Letakkan script di folder backup</p></li>
+<li><p>Sesuaikan permission :</p></li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> $ chmod 755 *.pl </span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Test eksekusi script</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./weekly-backup.pl
+</span><span class='line'>$ ./daily-backup.pl </span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seharusnya akan ada dua file : weekly-full-backup.yyyyMMdd.gz dan daily-incremental-backup.yyyyMMdd.gz</p>
+
+<ol>
+<li>Otomasi dengan cron</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Repository Weekly Backup
+</span><span class='line'>0 6 * * 1       /home/endy/backup-svn/weekly-backup.pl
+</span><span class='line'># Dijalankan setiap Senin jam 6 pagi.
+</span><span class='line'>
+</span><span class='line'># Repository Daily Backup
+</span><span class='line'>0 23 * * *      /home/endy/backup-svn/daily-backup.pl
+</span><span class='line'># Dijalankan setiap hari jam 23 malam</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Setiap Senin pagi, tulis semua file dari Senin minggu lalu sampai Minggu malam ke dalam CD. Simpan CD di lokasi yang berbeda (gedung lain, kota lain, negara lain, planet lain bila perlu).</li>
+</ol>
+
+
+<p>Bila semua ini dijalankan, cuma butuh 10 menit, sudah termasuk membaca artikel ini.
+Jangan sia-siakan hidup Anda hanya karena malas investasi 10 menit.</p>
+
+<p>Apabila terjadi bencana, dan repository rusak, kita tinggal ambil CD terbaru, dan dump dengan cara :
+1. Install ulang Subversion
+2. Buat repository
+3. Unzip dump file</p>
+
+<pre><code>$ gunzip *.gz
+</code></pre>
+
+<ol>
+<li>Load ke repository baru</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ svnadmin load newrepos &lt; weekly-full-backup.yyyyMMdd
+</span><span class='line'>$ svnadmin load newrepos &lt; daily-incremental-backup.yyyyMMdd</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dimulai dari tanggal paling lama, sampai tanggal terbaru.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -862,110 +975,6 @@ Lalu &#8230; sit back and relax &#8230;. literally.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/lain/mencoba-wordpress/">Mencoba Wordpress</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2005-10-07T16:45:15+07:00" pubdate data-updated="true">Oct 7<span>th</span>, 2005</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Kalau kemarin pakai mambo, sekarang coba pakai Wordpress. Kata orang sih, ini adalah aplikasi yang terhebat di kelasnya (kelas weblog maksudnya). Buat saya, aplikasi weblog yang hebat haruslah bisa menampilkan kode program dengan bagus. Soalnya, saya sering menjadikan blog sebagai website tutorial.
-Menampilkan dengan bagus artinya adalah :</p>
-
-<ul>
-<li><p>Mengkonversi huruf menjadi fixed-width, misalnya Courier</p></li>
-<li><p>Dapat menampilkan screenshots</p></li>
-<li><p>Dapat menampilkan baris yang panjang</p></li>
-<li><p>Tidak memakan tag XML atau HTML</p></li>
-</ul>
-
-
-<p>Kode program yang akan ditampilkan tidak jauh dari Java, XML, dan PHP.
-Ok, mari kita coba saja.</p>
-
-<p>Berikut kode program Java :</p>
-
-<pre><code>package com.artivisi;
-
-public class HelloWorld {
-    public static void main(String[] args) {
-        try {
-            System.out.println("This is a very long string, let's see whether Wordpress able to render well");
-        } catch (IllegalArgumentException err) {
-           System.out.println("Error ... ");
-        }
-    }
-}
-</code></pre>
-
-<p>Kemudian build.xml</p>
-
-<pre><code>&lt;project default="compile" name="test-wordpress"&gt;
-    &lt;target name="compile"&gt;
-        &lt;javac srcdir="src" destdir="bin"&gt;&lt;/javac&gt;
-    &lt;/target&gt;
-&lt;/project&gt;
-</code></pre>
-
-<p>Dan, terakhir PHP :</p>
-
-<pre><code>&lt;code&gt;
-
-
-
-&lt;/code&gt;
-</code></pre>
-
-<p>Semua dibuat hanya dengan membungkus kode program seperti ini :</p>
-
-<pre><code>
-
- .. tulis kode di sini ... 
-
-</code></pre>
-
-
-<p>Let&#8217;s see &#8230;
-Ternyata :</p>
-
-<ol>
-<li><p>Baris panjang ditampilkan seadanya, ini bisa bagus, bisa juga jelek. Kadangkala kita memang tidak mau memotong baris, karena takut disalah-artikan. Dilain pihak, kalau tidak dipotong, akan merusak tampilan.</p></li>
-<li><p>String langsung diescape dengan backslash. &#8221; ditampilkan menjadi &#34; Very bad. Saya mengerti ini adalah tindakan pencegahan untuk SQL Injection. Tapi seharusnya string dikembalikan seperti semula waktu ditampilkan kembali.</p></li>
-</ol>
-
-
-<p>Mas Priyadi pernah membahas tentang <a href="http://priyadi.net/archives/2005/09/27/wordpress-plugin-code-autoescape/">plugin untuk mengatasi masalah ini</a>.</p>
-
-<p>Setelah dipasangi plugin, string kembali seperti semula.
-Great work mas Priyadi.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/24/">&larr; Older</a>
@@ -1042,6 +1051,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
       </li>
     
@@ -1075,10 +1088,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/source-code-milik-siapa/">Source Code Milik Siapa ?</a>
       </li>
     
   </ul>
