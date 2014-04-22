@@ -46,7 +46,7 @@ Berikut adalah tahapan yang biasa saya lakukan dalam mengembangkan aplikasi:
 8. Membuat detail implementasi source code sampai selesai
 9. User Acceptance Test, baik internal maupun external (kalau ada client/customer yang akan mengetes)
 
-Agar lebih mudah dipahami, kita akan menggunakan studi kasus aplikasi toko online. Kita pilih aplikasi ini karena semua orang sudah paham proses bisnisnya. Kalau saya pilih aplikasi seperti misalnya payment gateway, banking, gps tracking, dan aplikasi-aplikasi 'bergengsi' lainnya, saya khawatir proses bisnisnya tidak dipahami oleh mayoritas pembaca. Tidak semua orang paham apa yang terjadi pada saat nasabah membuka rekening bank.
+Agar lebih mudah dipahami, kita akan menggunakan studi kasus aplikasi perpustakaan. Kita pilih aplikasi ini karena semua orang sudah paham proses bisnisnya. Kalau saya pilih aplikasi seperti misalnya payment gateway, banking, gps tracking, dan aplikasi-aplikasi 'bergengsi' lainnya, saya khawatir proses bisnisnya tidak dipahami oleh mayoritas pembaca. Tidak semua orang paham apa yang terjadi pada saat nasabah membuka rekening bank.
 
 Ok mari kita mulai.
 
