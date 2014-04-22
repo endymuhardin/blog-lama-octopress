@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Tadinya cuma pengen tampilan arsip seperti punyanya mas Andry. Tapi sayangnya dia pakai aplikasi blog lain yang beda dengan saya punya. Jadi &hellip;">
+  <meta name="description" content="Pada artikel sebelumnya, kita telah membahas tentang penggunaan unit test dan integration test sederhana menggunakan DBUnit. Pada artikel kali ini, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,293 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-2/">Ruthless Testing 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-07-12T19:27:12+07:00" pubdate data-updated="true">Jul 12<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ruthless-testing-1/">artikel sebelumnya</a>, kita telah membahas tentang penggunaan <a href="http://www.junit.org">unit test</a> dan integration test sederhana menggunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>. Pada artikel kali ini, kita akan membahas tentang coverage testing</p>
+
+<p>Sebagai technical leader, project manager -atau apapun nama jabatannya- yang bertugas mengawasi segerombolan programmer, bagaimana cara kita memastikan bahwa mereka membuat unit test untuk setiap kode yang ditulis?</p>
+
+<p>Cara manual tentu saja dengan memeriksa unit test satu-persatu dan membandingkannya dengan kode program aplikasi. Kita cocokkan tiap unit test dengan pasangan kode yang ditest. Dengan demikian, kita tahu mana kode yang sudah ditest mana yang belum.</p>
+
+<p>Sayangnya, cara ini tidak otomatis. Sehingga kalau nanti dihadapkan pada deadline ketat, dipastikan kegiatan ini akan segera diabaikan. Oleh karena itu kita harus mengotomasi pemeriksaan test ini sehingga di tengah tekanan jadwal, kita tetap bisa memastikan unit test dibuat dengan benar.</p>
+
+<p>Ada beberapa tools yang beredar di pasaran untuk mengotomasi pemeriksaan ini, diantaranya:</p>
+
+<ul>
+<li><p><a href="http://www.cenqua.com/clover/">Clover</a> (komersial)</p></li>
+<li><p><a href="http://cobertura.sourceforge.net/">Cobertura</a> (open source)</p></li>
+<li><p><a href="http://emma.sourceforge.net/">Emma</a> (open source)</p></li>
+</ul>
+
+
+<p>Semua tools di atas melakukan &#8217;<em>coverage testing</em>&#8217;, yaitu pengetesan apakah unit test yang dibuat telah meng-cover semua kode yang ditest. Jika unit testnya terlalu sedikit, maka coverage testing akan failed.</p>
+
+<p>Pada contoh kali ini, kita akan menggunakan Cobertura. Cobertura mampu memeriksa coverage terhadap baris kode dan percabangan. Jadi kalau ada percabangan (if-else, switch) yang belum ditest, cobertura akan melaporkan. Kalau ada baris kode yang belum terjangkau unit test, cobertura juga akan memperingatkan.</p>
+
+<p>Sebagai supervisor, kita dapat menetapkan aturan pada project. Misalnya, &#8220;Untuk project ini, saya ingin test meng-cover minimal 70% dari seluruh baris dan 90% dari seluruh percabangan&#8221;.</p>
+
+<p>Bagaimana cara Cobertura melakukan keajaiban ini? Jawabannya, melalui mekanisme yang disebut <em>code instrumentation</em>.
+Cobertura akan memodifikasi bytecode (*.class) yang dihasilkan oleh proses kompilasi. Bytecode yang dihasilkan <em>javac</em> akan ditambah dengan kode-kode khusus untuk menghitung dan mendeteksi invokasi. Dengan demikian, pada saat unit test dijalankan, Cobertura akan mengetahui unit test yang mana menjalankan kode program yang mana. Bytecode yang akan diproses oleh Cobertura harus dikompile dengan flag -debug.</p>
+
+<p>Dengan demikian, untuk menjalankan Cobertura, kita membutuhkan dua kali tahap kompilasi. Kompilasi pertama mengubah <em>.java menjadi </em>.class. Kompilasi kedua menambahkan instrumen di *.class.</p>
+
+<p>Berikut adalah Ant target untuk melakukan instrumentasi.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;instrument-cobertura&quot;</span> <span class="na">depends=</span><span class="s">&quot;compile-cobertura&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="c">&lt;!--</span>
+</span><span class='line'><span class="c">                Instrument the application classes, writing the</span>
+</span><span class='line'><span class="c">                instrumented classes into ${build.instrumented.dir}.</span>
+</span><span class='line'><span class="c">        --&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-instrument</span> <span class="na">todir=</span><span class="s">&quot;${compile.cobertura}&quot;</span><span class="nt">&gt;</span>            
+</span><span class='line'>          <span class="nt">&lt;includeClasses</span> <span class="na">regex=</span><span class="s">&quot;.*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;excludeClasses</span> <span class="na">regex=</span><span class="s">&quot;.*\Test.*&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;instrumentationClasspath&gt;</span>
+</span><span class='line'>              <span class="nt">&lt;pathelement</span> <span class="na">location=</span><span class="s">&quot;${compile.debug}&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;/instrumentationClasspath&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/cobertura-instrument&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Selanjutnya, kita menjalankan unit test seperti biasa (melalui Ant target). Bedanya adalah, kita menggunakan hasil kompilasi Cobertura. Ant target untuk menjalankan unit test adalah sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;unit-test&quot;</span> <span class="na">depends=</span><span class="s">&quot;instrument-cobertura&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;junit</span> <span class="na">haltonfailure=</span><span class="s">&quot;false&quot;</span> <span class="na">fork=</span><span class="s">&quot;yes&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">location=</span><span class="s">&quot;${compile.cobertura}&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;classpath</span> <span class="na">refid=</span><span class="s">&quot;cobertura-classpath&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;formatter</span> <span class="na">type=</span><span class="s">&quot;xml&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;batchtest</span> <span class="na">todir=</span><span class="s">&quot;${junit.result}&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;${compile.debug}&quot;</span> <span class="na">includes=</span><span class="s">&quot;**/*Test.class&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>            <span class="nt">&lt;/batchtest&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/junit&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan referensi ke <strong>${compile.cobertura}</strong> yang diletakkan di atas referensi <strong>cobertura-classpath</strong>. Ini mengisyaratkan bahwa class hasil instrumentasi Cobertura diload <strong>lebih dulu</strong> daripada class yang dikompilasi secara normal.</p>
+
+<p>Terakhir, kita buat Ant target untuk memeriksa coverage dan menghasilkan HTML report.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;coverage-test&quot;</span> <span class="na">depends=</span><span class="s">&quot;unit-test&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-check</span> <span class="na">datafile=</span><span class="s">&quot;cobertura.ser&quot;</span>
+</span><span class='line'>                         <span class="na">branchrate=</span><span class="s">&quot;70&quot;</span>
+</span><span class='line'>                         <span class="na">linerate=</span><span class="s">&quot;90&quot;</span>
+</span><span class='line'>                         <span class="na">haltonfailure=</span><span class="s">&quot;false&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;cobertura-report</span> <span class="na">datafile=</span><span class="s">&quot;cobertura.ser&quot;</span>
+</span><span class='line'>                          <span class="na">srcdir=</span><span class="s">&quot;src&quot;</span> <span class="na">destdir=</span><span class="s">&quot;${cobertura.result}&quot;</span>
+</span><span class='line'>        <span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/target&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan nilai batas baris (linerate) dan percabangan (branchrate) yang harus ditest. Nilainya sudah disesuaikan dengan aturan yang kita tetapkan di atas, yaitu sebesar 70% dan 90%.</p>
+
+<p>Misalnya kita memiliki class DayCounter.java sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numDays</span><span class="o">(</span><span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">year</span><span class="o">){</span>
+</span><span class='line'>        <span class="k">switch</span> <span class="o">(</span><span class="n">month</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">5</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">7</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">8</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">10</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">12</span><span class="o">:</span> <span class="k">return</span> <span class="mi">31</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">4</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">6</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">9</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">11</span><span class="o">:</span> <span class="k">return</span> <span class="mi">30</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">year</span><span class="o">%</span><span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="mi">29</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">return</span> <span class="mi">28</span><span class="o">;</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="k">default</span><span class="o">:</span> <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan unit testnya DayCounterTest.java sebagai berikut:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">testframework</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">junit.framework.TestCase</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounterTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">28</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">29</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">21</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-all-green-small.png" title="Cobertura All Pass" ></p>
+
+<p>Kita juga bisa melihat coverage detail dari class DayCounter.java:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-class-green-small.png" title="Cobertura Class Detail Pass" ></p>
+
+<p>Bila kita non-aktifkan beberapa test, seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">testframework</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">junit.framework.TestCase</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounterTest</span> <span class="kd">extends</span> <span class="n">TestCase</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">assertEquals</span><span class="o">(</span><span class="mi">30</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">2001</span><span class="o">));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(28, d.numDays(2,2001));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(29, d.numDays(2,2000));</span>
+</span><span class='line'>        <span class="c1">//assertEquals(0, d.numDays(21,2000));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-all-red-small.png" title="Cobertura All Failed" ></p>
+
+<p>dan detail classnya seperti ini</p>
+
+<p><img src="/images/uploads/2006/07/cobertura-class-red-small.png" title="Cobertura Class Detail Failed" ></p>
+
+<p>Bagaimana?
+Mudah dan cepat kan?
+Dengan cara ini, kita dapat mendeteksi tingkat kemalasan programmer dalam membuat unit test.
+Pada artikel selanjutnya, kita akan membahas tentang code-compliance test. Test ini sering juga disebut code-review.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1304,92 +1591,6 @@ Perhatian: Untuk menjalankan kode ini dengan baik, Anda harus menginstal aplikas
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/booklet-printing/">Booklet Printing</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-05-04T20:06:02+07:00" pubdate data-updated="true">May 4<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Jika Anda adalah kolektor PDF obsesif-kompulsif seperti saya, pasti cepat atau lambat Anda akan mencari cara yang paling efektif untuk mencetak koleksi PDF tersebut.</p>
-
-<p>Misalnya, kita punya <a href="http://ikc.cbn.net.id/umum/endy-php.php">Tutorial PHP-MySQL</a> seperti pada gambar berikut</p>
-
-<p><img src="/images/uploads/2006/05/endy-php.png" title="Modul PHP" ></p>
-
-<p>Berhubung ada 81 halaman di file tersebut, kita ingin menghemat kertas dengan cara print bolak balik. Selain itu, kita juga mau cetak 2 halaman per lembar, sehingga yang tadinya seperti ini</p>
-
-<p><img src="/images/uploads/2006/05/normal.png" title="Normal Page Print" ></p>
-
-<p>menjadi seperti ini</p>
-
-<p><img src="/images/uploads/2006/05/2sheet.png" title="Two Sheet per Page" ></p>
-
-<p>Tapi sebetulnya, ada lagi yang lebih optimal, yaitu teknik yang dikenal dengan nama keren &#8220;booklet printing&#8221;, menjadikan susunan halaman menjadi seperti ini:</p>
-
-<p><img src="/images/uploads/2006/05/booklet.png" title="Booklet Print" ></p>
-
-<p>Saya pernah membuat buku dengan cetakan seperti itu menggunakan printer Canon di Windows. Driver printer Canon tersebut sudah menyertakan fasilitas untuk melakukan booklet printing. Tetapi kalau menggunakan printer selain Canon, yah kita harus cari cara lain.</p>
-
-<p>Setelah googling ke sana kemari, dengan menggunakan keyword &#8220;booklet printing kprinter&#8221;, akhirnya saya berhasil menemukan <a href="http://wiki.scribus.net/index.php/How_to_make_a_booklet">tutorial ini</a>, yang menjelaskan cara melakukan booklet printing dengan KDE. Berikut langkah-langkahnya, saya contohkan dengan Acrobat Reader.</p>
-
-<h2>1. Buka Print Dialog, pilih kprinter sebagai print command, dan tekan Print</h2>
-
-<p><img src="/images/uploads/2006/05/acroprint.png" title="Acrobat Reader Print Dialog" ></p>
-
-<h2>2. Dialog KPrinter muncul, klik tombol Properties di pojok kanan atas</h2>
-
-<p><img src="/images/uploads/2006/05/kprinter.png" title="KPrinter Dialog" ></p>
-
-<h2>3. Pilih tab Filter, kemudian tambah filter baru dengan cara menekan tombok corong</h2>
-
-<p><img src="/images/uploads/2006/05/kprinter-properties.png" title="KPrinter Properties" ></p>
-
-<h2>4. Tambah filter baru dengan cara menekan tombol corong</h2>
-
-<p>Untuk tahap pertama, yang dipilih adalah Pamphlet Printing - Even Page (step 1)</p>
-
-<p><img src="/images/uploads/2006/05/kprinter-select-filter-1.png" title="Pamphlet Printing - Even Page (step 1)" ></p>
-
-<h2>5. Balikkan kertas</h2>
-
-<p>Setelah hasil print keluar, balikkan susunan kertas dan letakkan kembali di printer. Untuk tahap ini, kita perlu trial-and error untuk mendapatkan teknik yang tepat. Coba print halaman 1-8 dulu sebagai percobaan.</p>
-
-<h2>6. Print sekali lagi</h2>
-
-<p>Lakukan langkah 1-6, dengan sedikit perbedaan. Pada langkah #6, pilih Pamphlet Printing - Odd Page (step 2)</p>
-
-<p><img src="/images/uploads/2006/05/kprinter-select-filter-2.png" title="Pamphlet Printing - Odd Page (step 2)" ></p>
-
-<p>Selesai. Sekarang tinggal diberikan ke tukang jilid. :D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/20/">&larr; Older</a>
@@ -1466,6 +1667,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
       </li>
     
@@ -1499,10 +1704,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/development-stack-2014/">Development Stack 2014</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
       </li>
     
   </ul>

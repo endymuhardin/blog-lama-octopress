@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Dulu, kita sudah mencoba untuk membuat remoting service dengan menggunakan Spring Framework. Salah satu protokol yang digunakan adalah Spring HTTP &hellip;">
+  <meta name="description" content="Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,131 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/log4j-spring-mvc/">Konfigurasi Lokasi Logfile Pada Spring MVC</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-07-15T19:38:18+07:00" pubdate data-updated="true">Jul 15<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di mana kita harus menyimpan log output aplikasi kita? Tentunya kita ingin menggunakan lokasi yang dinamis sesuai dengan lokasi deployment. Misalnya, di Windows kita mungkin mendeploy aplikasi kita di</p>
+
+<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya
+</code></pre>
+
+<p>Sedangkan di Linux, kita mendeploy aplikasi di</p>
+
+<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya
+</code></pre>
+
+<p>Dengan kemungkinan seperti di atas, bagaimana kita harus menulis konfigurasi log4j?
+Mudah, bila kita menggunakan Spring MVC.</p>
+
+<p>Kita bisa menggunakan <code>Log4jConfigListener</code> yang disediakan Spring. Class ini memungkinkan kita menggunakan variabel di konfigurasi log4j kita. Kita mendaftarkan class ini di dalam <code>web.xml</code>, sebelum <code>ContextLoaderListener</code>, seperti ini :</p>
+
+<pre><code>    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+</code></pre>
+
+<p>Dengan adanya <code>Log4jConfigListener</code> ini, kita bisa menyebutkan lokasi konfigurasi log4j seperti ini :</p>
+
+<pre><code>    &lt;context-param&gt;
+        &lt;param-name&gt;log4jConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;classpath:artivisi-log4j.properties&lt;/param-value&gt;
+    &lt;/context-param&gt;
+</code></pre>
+
+<p>Isi <code>artivisi-log4j.properties</code> terlihat seperti ini :</p>
+
+<pre><code># Konfigurasi kategori
+log4j.rootLogger=INFO,fileout
+
+# File output
+log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileout.file=${webapp.root.path}/WEB-INF/logs/application.log
+log4j.appender.fileout.datePattern='.'yyyy-MM-dd
+log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
+</code></pre>
+
+<p>Perhatikan konfigurasi <code>log4j.appender.fileout.file</code>. Kita menggunakan variabel <code>${webapp.root.path}</code> yang akan diisi dengan nilai lokasi deployment aplikasi web kita. Variabel <code>${webapp.root.path}</code> ini didefinisikan dalam web.xml sebagai berikut :</p>
+
+<pre><code>    &lt;context-param&gt;
+        &lt;param-name&gt;webAppRootKey&lt;/param-name&gt;
+        &lt;param-value&gt;webapp.root.path&lt;/param-value&gt;
+    &lt;/context-param&gt;
+</code></pre>
+
+<p>Dengan konfigurasi ini, kita dapat meletakkan log output kita di</p>
+
+<pre><code>C:\Program Files\Apache Tomcat\webapps\aplikasi-saya\WEB-INF\logs\application.log
+</code></pre>
+
+<p>bila kita mendeploy di Windows, dan di</p>
+
+<pre><code>/opt/apache-tomcat/webapps/aplikasi-saya/WEB-INF/logs/application.log
+</code></pre>
+
+<p>bila kita deploy di Linux.</p>
+
+<p>Konfigurasi di atas bisa disederhanakan lagi bila kita mengikuti nilai default yang disediakan Spring, yaitu cukup seperti ini dalam <code>web.xml</code> :</p>
+
+<pre><code>    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.util.Log4jConfigListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+</code></pre>
+
+<p>Kemudian memberi nama file konfigurasi logger kita <code>log4j.properties</code> yang berada di top level dalam classpath, dan berisi seperti ini :</p>
+
+<pre><code># Konfigurasi kategori
+log4j.rootLogger=INFO,fileout
+
+# File output
+log4j.appender.fileout=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.fileout.file=${webapp.root}/WEB-INF/logs/application.log
+log4j.appender.fileout.datePattern='.'yyyy-MM-dd
+log4j.appender.fileout.layout=org.apache.log4j.PatternLayout
+log4j.appender.fileout.layout.conversionPattern=%d [%t] %p (%F:%L) ­ %m%n
+</code></pre>
+
+<p>Nilai variabel <code>${webapp.root}</code> secara default akan diisi dengan lokasi deployment tanpa harus mengkonfigurasi <code>webAppRootKey</code></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1801,206 +1926,6 @@ session.disconnect();
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/upgrade-ubuntu/">Upgrade Ubuntu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-04-22T23:10:37+07:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
-
-<ul>
-<li><p>Unduh ISO Ubuntu terbaru</p></li>
-<li><p>Bakar ke CD</p></li>
-<li><p>Backup isi home folder</p></li>
-<li><p>Backup mailbox Thunderbird</p></li>
-<li><p>Remove semua hidden file di home folder</p></li>
-<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-</ul>
-
-
-<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
-
-<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
-
-<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
-
-<ul>
-<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
-<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa &#8216;dititipkan&#8217; di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
-</ul>
-
-
-<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
-
-<ul>
-<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
-<li><p>Lakukan proses instalasi</p></li>
-<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
-<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
-<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
-</ul>
-
-
-<h2>Membuat daftar aplikasi</h2>
-
-<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
-
-<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
-</code></pre>
-
-<p>Buka file <code>daftar_aplikasi.txt</code> dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
-
-<pre><code>ttf-inconsolata
-ttf-droid
-nautilus-open-terminal
-mc
-chmsee
-unrar
-comix
-keepassx
-subversion
-git-svn
-gimp
-network-manager-openvpn
-network-manager-openvpn-gnome
-network-manager-pptp
-network-manager-pptp-gnome
-network-manager-vpnc
-network-manager-vpnc-gnome
-openssh-server
-gnome-alsamixer
-vlc
-rtorrent
-hamster-applet
-timer-applet
-inkscape
-mysql-server
-mysql-query-browser
-mysql-admin
-sun-java6-jdk
-ubuntu-restricted-extras
-build-essential
-ant
-</code></pre>
-
-<h2>Proses Instalasi</h2>
-
-<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
-
-<ul>
-<li><p>Backup isi home folder</p></li>
-<li><p>Backup mailbox Thunderbird, biasanya ada di folder <code>.mozilla-thunderbird</code></p></li>
-<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
-<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
-<li><p>Edit <code>/etc/apt/sources.list</code> agar menggunakan mirror lokal. Saya biasa menggunakan <code>kambing.ui.ac.id</code></p></li>
-<li><p>Jalankan <code>apt-get update</code> untuk mengupdate database aplikasi</p></li>
-</ul>
-
-
-<p>Berikut isi file <code>/etc/apt/sources.list</code> saya.</p>
-
-<pre><code>deb http://kambing.ui.ac.id/ubuntu/ intrepid main restricted universe multiverse
-deb http://kambing.ui.ac.id/ubuntu/ intrepid-updates main restricted universe multiverse
-deb http://kambing.ui.ac.id/ubuntu/ intrepid-security main restricted universe multiverse
-</code></pre>
-
-<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
-
-<pre><code>deb http://kambing.ui.ac.id/ubuntu/ jaunty main restricted universe multiverse
-deb http://kambing.ui.ac.id/ubuntu/ jaunty-updates main restricted universe multiverse
-deb http://kambing.ui.ac.id/ubuntu/ jaunty-security main restricted universe multiverse
-</code></pre>
-
-<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
-
-<h2>Membuat daftar URL untuk download</h2>
-
-<p>Jalankan perintah berikut di command prompt.</p>
-
-<pre><code>cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 &gt; daftar_url.txt
-</code></pre>
-
-<p>Perintah ini akan menghasilkan file <code>daftar_url.txt</code>, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
-
-<h2>Mengunduh *.deb</h2>
-
-<p>Berbekal <code>daftar_url.txt</code>, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
-
-<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
-
-<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
-</code></pre>
-
-<p>Proses pengunduhan dapat dipantau dengan melihat isi file <code>donlod-ubuntu.log</code>. Gunakan perintah tail seperti ini.</p>
-
-<pre><code>tail -f donlod-ubuntu.log 
-</code></pre>
-
-<p>Tekan Ctrl+C untuk keluar dari tail.</p>
-
-<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
-
-<h2>Instalasi *.deb</h2>
-
-<p>Copy semua file *.deb ke folder <code>/var/cache/apt/archives</code> di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
-
-<pre><code>cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
-</code></pre>
-
-<p>Tunggu sejenak sampai selesai.</p>
-
-<h2>Replikasi Instalasi</h2>
-
-<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
-
-<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
-
-<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
-</code></pre>
-
-<p>Copy file <code>daftar_instalasi.txt</code> ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
-
-<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
-
-<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
-</code></pre>
-
-<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
-
-<pre><code>sudo apt-get dselect-upgrade
-</code></pre>
-
-<p>Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -2077,6 +2002,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
       </li>
     
@@ -2110,10 +2039,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/development-stack-2014/">Development Stack 2014</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
       </li>
     
   </ul>

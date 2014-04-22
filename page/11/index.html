@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Template project sudah dibuat pada artikel sebelumnya. Pada artikel ini, kita akan menghubungkan kedua modul ini dengan menggunakan Ivy. Seperti kita &hellip;">
+  <meta name="description" content="Pada artikel sebelumnya, kita telah menyimpan artifact modul person-model di shared repository melalui mekanisme scp dengan private key. Pada artikel &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,159 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ant-ivy-5/">Internal Dependency Dengan Ivy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-09-28T16:51:32+07:00" pubdate data-updated="true">Sep 28<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel sebelumny</a>a, kita telah menyimpan artifact modul person-model di shared repository melalui mekanisme scp dengan private key. Pada artikel ini, kita akan menggunakan artifact person-model tersebut dalam modul person-dao-api. Pengambilan artifact dilakukan melalui mekanisme yang sama, yaitu scp dengan private key.</p>
+
+<p>Berikut struktur folder modul person-dao-api.</p>
+
+<p><img src="/images/uploads/2008/09/folder-person-dao-api-before-resolve.png" title="" ></p>
+
+<p>Kita memiliki folder src yang berisi source code class <code>PersonDao.java</code>, yang isinya sebagai berikut.</p>
+
+<pre><code>package com.artivisi.tutorial.ivy.dao;
+
+import java.util.List;
+
+import com.artivisi.tutorial.ivy.model.Person;
+
+public interface PersonDao {
+
+    /**
+     * saves Person object into database. 
+     * If object is already exists (denoted by not-null ID field), 
+     * the existing record with the corresponding ID is updated. 
+     * If the object is new (denoted by null ID field), 
+     * new record is inserted.
+     * 
+     *  This method also set the ID field for new record.
+     * */
+    public void save(Person person);
+
+    /**
+     * fetch all person object in database.
+     * @return List of all person
+     * */
+    public List getAll();
+
+    /**
+     * fetch Person object with the speficied ID. 
+     * @param id identifier for person object
+     * @return Person object if there is record found for the speficied id, null otherwise
+     * */
+    public Person getById(Long id);
+}
+</code></pre>
+
+<p>Seperti terlihat dalam deklarasi import, class ini menggunakan class <code>Person</code>, yang sudah tersedia di shared repository. Kita akan melakukan build dengan menggunakan script <code>build.xml</code>. Isinya sama dengan yang ada di modul person-model, dengan perkecualian nama projectnya. Berikut isi <code>build.xml</code>.</p>
+
+<pre><code>&lt;project name="person-dao-api" default="build"&gt;
+
+    &lt;property file="build.properties"/&gt;
+
+    &lt;import file="${basedir}/../person-build/default.xml"/&gt;
+    &lt;import file="${basedir}/../person-build/ivy-builder.xml"/&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<p>Dependensi modul <code>person-dao-api</code> terhadap <code>person-model</code> kita deklarasikan dalam <code>ivy.xml</code> sebagai berikut.</p>
+
+<pre><code>&lt;ivy-module version="1.0"&gt;
+    &lt;info organisation="com.artivisi" module="person-dao-api"/&gt;
+
+    &lt;publications&gt;
+        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
+        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
+    &lt;/publications&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency name="person-model" rev="latest.integration" conf="api"/&gt;
+    &lt;/dependencies&gt;
+&lt;/ivy-module&gt;
+</code></pre>
+
+<p>Setelah <code>build.xml</code> dan <code>ivy.xml</code> selesai dibuat, kita bisa langsung melakukan build. Panggil target dari command line sebagai berikut:</p>
+
+<pre><code>ant build
+</code></pre>
+
+<p>Dari output perintah di atas terlihat bahwa Ivy akan menguraikan dependensi project dengan melakukan query ke semua resolver yang terdaftar. Setelah modul yang dibutuhkan (person-model) ditemukan, Ivy akan langsung mendonlodnya ke dalam folder lib. Karena isi folder lib sudah kita daftarkan ke dalam classpath, maka proses kompilasi akan berjalan dengan mulus. Berikut struktur folder <code>person-dao-api</code> setelah melakukan proses resolve.</p>
+
+<p><img src="/images/uploads/2008/09/folder-person-dao-api-after-resolve.png" title="" ></p>
+
+<p>Pada deklarasi dependensi di atas, terlihat bahwa modul <code>person-dao-api</code> memiliki dependensi terhadap modul <code>person-model</code> dengan revision <code>latest.integration</code>. Ini artinya Ivy akan menggunakan versi terbaru yang ada dalam repository. Untuk melihat kemampuan fitur ini, mari kita publish <code>person-model</code> dengan revision yang lebih baru.</p>
+
+<p>Edit file build.properties dalam modul person-model, sehingga menjadi seperti ini.</p>
+
+<pre><code>build.version = 0.0.2
+release.type = integration
+</code></pre>
+
+<p>Setelah itu, bersihkan hasil kompilasi terdahulu, dan publish modul <code>person-model</code>.</p>
+
+<pre><code>ant clean publish-local
+</code></pre>
+
+<p>Lalu, pindah ke modul person-dao-api, dan lakukan build lagi.</p>
+
+<pre><code>ant clean build
+</code></pre>
+
+<p>Terlihat pada output, bahwa modul <code>person-model</code> yang terbaru akan didonlod, dan yang versi lama akan dihapus. Sehingga isi folder lib akan terlihat sebagai berikut.</p>
+
+<p>Ivy memiliki beberapa cara untuk menentukan mana artifak yang terbaru (latest), yaitu: latest-time, latest-revision, dan latest-lexico.</p>
+
+<p>Dengan menggunakan latest-time, Ivy akan melihat tanggal dibuatnya suatu artifak. Kalau artifak berada di repository filesystem, maka tanggal sistem operasi akan digunakan. Bila repository diakses melalui http, Ivy akan melakukan query terhadap http server. Metode ini, walaupun efektif, relatif lambat bila akses jaringan ke repository tidak mumpuni.</p>
+
+<p>Latest-revision membandingkan nama versi artifak, dan mengenali beberapa keyword. Dia dapat menentukan bahwa versi 1.0-alpha lebih baru daripada 1.0-dev1, dan 1.0 lebih baru daripada 1.0-rc1.</p>
+
+<p>Sedangkan strategi latest-lexico hanya membandingkan berdasarkan urutan abjad. Jadi, 1.0-m1 akan lebih baru daripada 1.0-build135.</p>
+
+<p>Ketiga strategi tersebut sudah built-in dalam Ivy dan tidak memerlukan konfigurasi lebih lanjut.</p>
+
+<p>Selain revision, Ivy juga mengenal terminologi status. Secara default, Ivy menyediakan tiga status diurutkan dari yang paling stabil/mature, yaitu release, milestone, dan integration. Bila kita menggunakan latest.integration, Ivy akan mengambil artifak terbaru berstatus apapun dari repository. Bila kita gunakan latest.milestone, Ivy akan mengabaikan rilis integration, dan hanya akan membandingkan milestone dan release. Demikian juga bila kita gunakan latest.release, maka versi terbaru hanya akan dicari dari artifak berstatus release.</p>
+
+<p>Cara deklarasi latest.integration di atas disebut dengan dynamic revision, karena nomer revision tidak secara eksplisit disebutkan. Selain menggunakan latest.integration, ada beberapa mekanisme lain, yaitu menggunakan +, dan menggunakan range.</p>
+
+<p>Kita bisa menggunakan + untuk memilih revisi terbaru untuk rilis tertentu. Misalnya bila kita memiliki modul dengan revisi 1.0.1, 1.0.4, 1.0.7, dan 1.1.4 dalam repository, kita dapat menggunakan 1.0.+ untuk memilih versi terbaru dalam lini 1.0, yaitu 1.0.7.</p>
+
+<p>Kita juga bisa menggunakan range, untuk menentukan revisi yang dapat digunakan, misalnya [1.0,2.2] akan memilih semua revisi yang sama atau lebih besar dari 1.0, tapi lebih kecil atau sama dengan 2.2. Lebih lengkap tentang ini bisa dilihat di dokumentasi Ivy tentang dependensi.</p>
+
+<p>Demikianlah deklarasi dependensi dengan Ivy. Pada artikel ini, kita baru mencoba dependensi terhadap modul yang kita buat sendiri. Di <a href="http://endy.artivisi.com/blog/java/ant-ivy-6/">artikel selanjutnya</a>, kita akan lihat bagaimana mendeklarasikan dependensi terhadap modul eksternal seperti Spring Framework atau Hibernate.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1445,146 +1598,6 @@ Xauth username &lt;masukkan CorporateID digabung dengan UserID&gt;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/road-to-java-se/">Road to Java SE</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-07-13T17:56:34+07:00" pubdate data-updated="true">Jul 13<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Belajar bahasa pemrograman mirip dengan belajar bahasa manusia. Bahasa pertama adalah yang paling sulit. Ini disebabkan karena kita belum paham istilah-istilah yang digunakan, pola umum menyusun kata, dan ungkapan-ungkapan khusus yang biasa digunakan dalam bahasa tertentu.</p>
-
-<p>Mari kita ingat waktu pertama kali belajar bahasa Inggris (bahasa Indonesia tidak dihitung, karena kita sudah bisa dari kecil). Pertama kali, kita sama sekali tidak tahu vocabulary. Kemudian kita belajar tentang susunan kata, Subjek-Predikat-Objek. Belajar kalimat aktif dan pasif.</p>
-
-<p>Demikian juga dengan bahasa pemrograman. Bahasa pertama selalu paling sulit. Setelah kita menguasai satu bahasa, belajar bahasa berikutnya tidak sesulit yang pertama. Misalnya kita butuh waktu enam bulan untuk menguasai Java, maka untuk belajar PHP mungkin cuma butuh 2 bulan.</p>
-
-<p>Dengan asumsi kita sama sekali belum pernah mengenal bahasa pemrograman, berikut adalah peta jalan untuk belajar bahasa pemrograman Java.</p>
-
-<p>Pertama, kita kumpulkan dulu perlengkapan belajarnya. Kita membutuhkan:</p>
-
-<ul>
-<li><p>Java SDK</p></li>
-<li><p>Java Tutorial dari Sun</p></li>
-<li><p>Javadoc API</p></li>
-<li><p>Text Editor yang bisa memberi warna (syntax highlighting)</p></li>
-</ul>
-
-
-<p>Pada tahap ini, jangan menggunakan editor canggih &#8211;biasa disebut Integrated Development Environment (IDE)&#8211; macam Eclipse, Netbeans, dan lainnya. IDE memiliki fitur yang canggih dan juga kompleks. Di awal masa belajar, kita ingin belajar tentang bahasa Java, bukan penggunaan tombol dan wizard.</p>
-
-<p>Setelah itu, instal Java SDK. Tergantung metode instalasi Anda, mungkin Anda perlu mengatur environment variabel JAVA_HOME dan PATH. JAVA_HOME mengarah ke folder tempat instalasi Java SDK, sedangkan PATH mengarah pada folder bin di dalam lokasi JAVA_HOME.</p>
-
-<p>Untuk mengetes apakah instalasi Anda sudah berhasil, coba ketik perintah berikut di command prompt:</p>
-
-<pre><code>javac -version
-</code></pre>
-
-<p>Bila keluar pesan error &#8220;perintah javac tidak ditemukan&#8221; berarti environment variabel masih belum diatur dengan benar.</p>
-
-<p>Perhatikan bahwa setelah mengatur environment variabel, kita harus merestart command prompt. Command prompt baik di Windows maupun Linux tidak dapat mendeteksi perubahan environment variabel secara instan.</p>
-
-<p>Selanjutnya, buat kode program sederhana. Dalam semua bahasa pemrograman, kode ini disebut HelloWorld. Kode program ini hanya mencetak tulisan <strong>Hello World</strong> ke layar komputer.</p>
-
-<p>Coba kompilasi dan jalankan program HelloWorld tersebut. Dari sini Anda akan mengetahui beberapa konsep, yaitu:</p>
-
-<ul>
-<li><p>Cara kompilasi kode program Java</p></li>
-<li><p>Cara menjalankan aplikasi Java</p></li>
-<li><p>Konsep CLASSPATH</p></li>
-</ul>
-
-
-<p>Begitu kita sudah bisa mengkompilasi dan menjalankan kode program Java, kita bisa mulai belajar prinsip umum pemrograman. Prinsip ini sama di semua bahasa pemrograman, walaupun cara penulisannya berbeda. Berikut prinsip-prinsip yang perlu dipelajari:</p>
-
-<ol>
-<li><p>Anatomi aplikasi. Di Java, aplikasi terdiri dari banyak package, satu package berisi banyak class, satu class berisi banyak property dan method, satu method terdiri dari banyak statement.</p></li>
-<li><p>Menggunakan variabel</p></li>
-<li><p>Macam-macam tipe data</p></li>
-<li><p>Operator</p></li>
-<li><p>Statement, Comment, Expression</p></li>
-<li><p>Method, function, atau procedure. Istilah mana yang digunakan tergantung bahasa yang dipelajari</p></li>
-<li><p>Penggunaan variabel sebagai argumen dan return value. Pelajari juga pass-by-value vs pass-by-reference dan scope variabel</p></li>
-<li><p>Control Flow, meliputi percabangan menggunakan if-else dan switch, dan perulangan dengan while atau for.Ketahui juga keyword control flow seperti break, return, dan exit.</p></li>
-<li><p>Setelah mahir menggunakan variabel skalar, pelajari variabel majemuk. Variabel majemuk ini ada di semua bahasa pemrograman. Biasanya ada dua kategori dasar, yaitu yang menggunakan indeks numerik dan indeks non-numerik. Di PHP variabel majemuk berindeks numerik disebut dengan numeric-array, sedangkan yang berindeks non-numerik disebut associative-array. Di Java pilihan lebih banyak. Untuk indeks numerik ada List dan array. Sedangkan indeks non-numerik diwakili oleh Map. Java juga punya variabel majemuk yang dinamakan Set, yang tidak memiliki indeks berurut, tapi bisa digunakan untuk mencegah elemen yang duplikat. Pelajari konsep, implementasi, dan penggunaannya.</p></li>
-</ol>
-
-
-<p>Beberapa latihan yang dapat digunakan untuk memahami prinsip dasar ini antara lain:</p>
-
-<ul>
-<li><p>Hitung jumlah hari dalam bulan dan tahun tertentu</p></li>
-<li><p>Tampilkan nama sendiri secara berulang sebanyak jumlah hurufnya</p></li>
-<li><p>Hitung faktorial</p></li>
-<li><p>Deret Fibonacci</p></li>
-<li><p>dan sebagainya</p></li>
-</ul>
-
-
-<p>Salah satu keunggulan Java adalah dukungannya terhadap Object Oriented Programming. Sekarang, setelah menguasai cara kerja bahasa pemrograman melalui prinsip-prinsip di atas, kita belajar tentang bagaimana mendesain aplikasi dengan menggunakan prinsip orientasi objek.</p>
-
-<p>Langkah-langkah belajar OOP adalah:</p>
-
-<ol>
-<li><p>Belajar apa itu class dan apa itu object. Kalau di Java, ketahui perbedaan antara class dan instance. Perbedaan antara static variable dan instance variable.</p></li>
-<li><p>Encapsulation</p></li>
-<li><p>Inheritance</p></li>
-<li><p>Polymorphism</p></li>
-<li><p>Banyak orang mengalami kesulitan dalam menjelaskan, apalagi mempelajari encapsulation, inheritance, dan polymorphism. Berdasarkan pengalaman saya, design pattern dapat digunakan untuk membantu pemahaman ketiga konsep OO tersebut. Gunakan Strategy pattern untuk memahami polymorphism, Factory pattern untuk memahami encapsulation, dan Template Method untuk memahami Inheritance. Cukup dengan tiga pattern ini, seharusnya konsep OO sudah bisa dipahami dengan baik</p></li>
-</ol>
-
-
-<p>Beberapa bahasa pemrograman seperti Java, Ruby, C# memiliki fitur Exception Handling. Pelajari fitur ini. Khusus Java, pelajari bedanya Error, Checked Exception, dan Unchecked Exception. Yang lebih penting, kenali karakteristik masing-masing dan kapan harus menggunakannya.</p>
-
-<p>Semua bahasa pemrograman modern sudah memiliki infrastruktur Input/Output Stream. I/O Stream ini digunakan untuk membaca dan menulis data ke berbagai tujuan, misalnya file, jaringan, object, dan sebagainya. Dengan menggunakan I/O Stream, teknik baca/tulis file mirip dengan terima/kirim data dari jaringan.</p>
-
-<p>Sebagai latihan, coba buat aplikasi chatting sederhana.</p>
-
-<p>Terakhir, pelajari fitur-fitur Java yang advanced, seperti:</p>
-
-<ul>
-<li><p>Multithreading</p></li>
-<li><p>Reflections API</p></li>
-<li><p>Annotations</p></li>
-<li><p>Generics</p></li>
-<li><p>Enum</p></li>
-</ul>
-
-
-<p>Kalau sudah sampai di sini, pengetahuan Anda sudah cukup untuk meneruskan sendiri. Bila ingin membuat aplikasi bisnis, pelajari JDBC, kemudian ikuti <a href="http://endy.artivisi.com/blog/java/road-to-java-ee/">Road to Java EE</a>. Bila ingin membuat aplikasi daemon seperti web server atau sms gateway, dalami multithreading, classloading, socket programming, dan lainnya. Bila ingin konsentrasi di mobile, pelajari Java ME.</p>
-
-<p>Demikian panduan singkat untuk belajar bahasa pemrograman Java. Tidak ada yang instan di dunia ini, termasuk belajar bahasa pemrograman. Bila Anda sama sekali belum pernah coding, Anda butuh waktu paling tidak 6 bulan untuk menguasai Java. Bila sudah pernah menggunakan bahasa non-OOP, butuh waktu sekitar 2-3 bulan. Perkiraan waktu ini sekedar gambaran saja, mungkin juga ada yang 2 minggu sudah bisa, atau 2 tahun masih belum bisa. Tergantung kondisi.</p>
-
-<p>Setelah menguasai bahasanya, selanjutnya menguasai (Application Programming Interface) API yang dibutuhkan untuk menyelesaikan pekerjaan. Kemudian masih ada framework untuk membantu pembuatan aplikasi. Jangan lupa, kita masih harus belajar menggunakan tools seperti IDE, Ant, Maven, JUnit, Subversion, agar kita bisa bekerja secara efektif dan efisien.</p>
-
-<p>Selamat belajar Java.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -1661,6 +1674,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
       </li>
     
@@ -1694,10 +1711,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/development-stack-2014/">Development Stack 2014</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
       </li>
     
   </ul>

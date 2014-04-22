@@ -9,9 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Jaman sekarang, membuat tampilan menarik di aplikasi web sudah tidak sulit lagi.
-Banyak pustaka JavaScript yang siap digunakan dengan mudah.
-Tidak &hellip;">
+  <meta name="description" content="Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb: Unduh ISO Ubuntu &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,6 +89,206 @@ Tidak &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/upgrade-ubuntu/">Upgrade Ubuntu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-04-22T23:10:37+07:00" pubdate data-updated="true">Apr 22<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebentar lagi Ubuntu terbaru akan rilis. Seperti biasanya, saya akan menjalankan ritual 6 bulanan yang terdiri dari kegiatan sbb:</p>
+
+<ul>
+<li><p>Unduh ISO Ubuntu terbaru</p></li>
+<li><p>Bakar ke CD</p></li>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird</p></li>
+<li><p>Remove semua hidden file di home folder</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+</ul>
+
+
+<p>Saya tidak terlalu suka upgrade, karena banyak menyisakan sampah dan jebakan. Lebih nyaman dan cepat memformat partisi sistem daripada troubleshoot hasil upgrade.</p>
+
+<p>Karena ritual ini akan terus dilakukan di masa depan, ada baiknya kita optimasi workflownya agar lebih efisien.</p>
+
+<p>Berikut adalah requirement saya untuk workflow upgrade ini:</p>
+
+<ul>
+<li><p>Saya memiliki beberapa aplikasi yang mandatory tapi tidak termasuk dalam paket default Ubuntu, seperti Java SDK, Thunderbird, Inkscape, dan beberapa aplikasi lain. Saya ingin menyimpan daftar aplikasi ini, dan me-reuse-nya setiap kali upgrade.</p></li>
+<li><p>Saya ingin memisahkan proses download <em>.deb yang memakan waktu lama dengan proses instalasi aplikasi. Tujuannya, agar proses download </em>.deb ini bisa &#8216;dititipkan&#8217; di komputer lain yang online 24/7. Setelah selesai, hasilnya tinggal dicopy ke komputer saya, dan langsung diinstal</p></li>
+</ul>
+
+
+<p>Setelah browsing <a href="">kesana</a> <a href="http://beans.seartipy.com/2006/05/06/update-or-install-applications-on-debianubuntu-without-an-internet-connection/">kemari</a>, akhirnya saya mendapatkan workflow yang sesuai, sebagai berikut.</p>
+
+<ul>
+<li><p>Buat dulu daftar paket yang ingin diinstal, dari instalasi Ubuntu yang sekarang</p></li>
+<li><p>Lakukan proses instalasi</p></li>
+<li><p>Buat daftar URL untuk mengunduh *.deb menggunakan Ubuntu yang baru diinstal</p></li>
+<li><p>Jalankan proses unduh di komputer lain yang online 24/7</p></li>
+<li><p>Setelah selesai, pindahkan hasilnya ke komputer ber-Ubuntu baru, dan instal</p></li>
+</ul>
+
+
+<h2>Membuat daftar aplikasi</h2>
+
+<p>Daftar aplikasi yang terinstal di komputer yang kita pakai sekarang dapat didapatkan dengan menjalankan perintah berikut di command prompt.</p>
+
+<pre><code>dpkg --get-selections | sed -n 's/^\(.*\)\tinstall$/\1$/p' | cut -f1 &gt; daftar_aplikasi.txt
+</code></pre>
+
+<p>Buka file <code>daftar_aplikasi.txt</code> dengan Text Editor dan buang aplikasi yang terinstal secara default. Setelah diedit, file saya berisi sebagai berikut.</p>
+
+<pre><code>ttf-inconsolata
+ttf-droid
+nautilus-open-terminal
+mc
+chmsee
+unrar
+comix
+keepassx
+subversion
+git-svn
+gimp
+network-manager-openvpn
+network-manager-openvpn-gnome
+network-manager-pptp
+network-manager-pptp-gnome
+network-manager-vpnc
+network-manager-vpnc-gnome
+openssh-server
+gnome-alsamixer
+vlc
+rtorrent
+hamster-applet
+timer-applet
+inkscape
+mysql-server
+mysql-query-browser
+mysql-admin
+sun-java6-jdk
+ubuntu-restricted-extras
+build-essential
+ant
+</code></pre>
+
+<h2>Proses Instalasi</h2>
+
+<p>Tidak ada yang istimewa dari proses instalasi. Berikut checklist yang saya gunakan:</p>
+
+<ul>
+<li><p>Backup isi home folder</p></li>
+<li><p>Backup mailbox Thunderbird, biasanya ada di folder <code>.mozilla-thunderbird</code></p></li>
+<li><p>Remove semua hidden file dan folder di home. File hidden ini berisi konfigurasi aplikasi yang terinstal. Kita tidak ingin sistem baru kita menggunakan konfigurasi lama. Nanti jadi tidak terlihat barunya.</p></li>
+<li><p>Reinstall Ubuntu dengan memformat partisi sistem</p></li>
+<li><p>Edit <code>/etc/apt/sources.list</code> agar menggunakan mirror lokal. Saya biasa menggunakan <code>kambing.ui.ac.id</code></p></li>
+<li><p>Jalankan <code>apt-get update</code> untuk mengupdate database aplikasi</p></li>
+</ul>
+
+
+<p>Berikut isi file <code>/etc/apt/sources.list</code> saya.</p>
+
+<pre><code>deb http://kambing.ui.ac.id/ubuntu/ intrepid main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ intrepid-updates main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ intrepid-security main restricted universe multiverse
+</code></pre>
+
+<p>Setelah install ulang, file ini akan menjadi seperti ini</p>
+
+<pre><code>deb http://kambing.ui.ac.id/ubuntu/ jaunty main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ jaunty-updates main restricted universe multiverse
+deb http://kambing.ui.ac.id/ubuntu/ jaunty-security main restricted universe multiverse
+</code></pre>
+
+<p>Segera setelah database aplikasi kita up-to-date, kita bisa lanjut ke langkah berikutnya.</p>
+
+<h2>Membuat daftar URL untuk download</h2>
+
+<p>Jalankan perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt |  tr '\n' ' '| xargs apt-get install -qq --print-uris | cut -d\' -f2 &gt; daftar_url.txt
+</code></pre>
+
+<p>Perintah ini akan menghasilkan file <code>daftar_url.txt</code>, yang berisi daftar URL file *.deb yang dibutuhkan untuk instalasi.</p>
+
+<h2>Mengunduh *.deb</h2>
+
+<p>Berbekal <code>daftar_url.txt</code>, kita bisa segera menjalankan proses pengunduhan di komputer lain yang online 24/7. Komputer ini tidak perlu menjalankan Ubuntu terbaru. Bahkan tidak harus menjalankan Linux.</p>
+
+<p>Jika komputer tersebut juga menjalankan Linux, maka kita bisa menggunakan wget dengan perintah sebagai berikut.</p>
+
+<pre><code>wget -b -c -nc -o donlod-ubuntu.log -i daftar_url.txt
+</code></pre>
+
+<p>Proses pengunduhan dapat dipantau dengan melihat isi file <code>donlod-ubuntu.log</code>. Gunakan perintah tail seperti ini.</p>
+
+<pre><code>tail -f donlod-ubuntu.log 
+</code></pre>
+
+<p>Tekan Ctrl+C untuk keluar dari tail.</p>
+
+<p>Proses ini akan menghasilkan banyak file *.deb di folder tempat kita menjalankan perintah wget tadi. Setelah semua file didapatkan, copy ke komputer kita yang baru diinstal tersebut.</p>
+
+<h2>Instalasi *.deb</h2>
+
+<p>Copy semua file *.deb ke folder <code>/var/cache/apt/archives</code> di komputer berUbuntu baru. Selanjutnya kita lakukan proses instalasi dengan mengetik perintah berikut di command prompt.</p>
+
+<pre><code>cat daftar_aplikasi.txt  |  tr '\n' ' '| xargs apt-get install -y
+</code></pre>
+
+<p>Tunggu sejenak sampai selesai.</p>
+
+<h2>Replikasi Instalasi</h2>
+
+<p>Bagaimana jika kita disuruh melakukan instalasi identik di banyak komputer sekaligus? Gampang, berikut caranya.</p>
+
+<p>Instal salah satu komputer sampai selesai. Lengkapi semua aplikasi yang dibutuhkan. Segera setelah selesai, extract daftar aplikasi yang terinstal menggunakan perintah berikut.</p>
+
+<pre><code>dpkg --get-selections &gt; daftar_instalasi.txt
+</code></pre>
+
+<p>Copy file <code>daftar_instalasi.txt</code> ini berikut isi folder /var/cache/apt/archives/ ke komputer berikut yang akan diinstal.</p>
+
+<p>Di komputer berikut, copy file *.deb ke folder /var/cache/apt/archives/. Lalu jalankan perintah berikut untuk mengisi daftar instalasi.</p>
+
+<pre><code>sudo dpkg --set-selections &lt; daftar_instalasi.txt
+</code></pre>
+
+<p>Setelah itu, jalankan perintah berikut untuk memulai proses instalasi.</p>
+
+<pre><code>sudo apt-get dselect-upgrade
+</code></pre>
+
+<p>Semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1231,159 +1429,6 @@ public class PersonDaoHibernate implements PersonDao {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ant-ivy-5/">Internal Dependency Dengan Ivy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-28T16:51:32+07:00" pubdate data-updated="true">Sep 28<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada <a href="http://endy.artivisi.com/blog/java/ant-ivy-4/">artikel sebelumny</a>a, kita telah menyimpan artifact modul person-model di shared repository melalui mekanisme scp dengan private key. Pada artikel ini, kita akan menggunakan artifact person-model tersebut dalam modul person-dao-api. Pengambilan artifact dilakukan melalui mekanisme yang sama, yaitu scp dengan private key.</p>
-
-<p>Berikut struktur folder modul person-dao-api.</p>
-
-<p><img src="/images/uploads/2008/09/folder-person-dao-api-before-resolve.png" title="" ></p>
-
-<p>Kita memiliki folder src yang berisi source code class <code>PersonDao.java</code>, yang isinya sebagai berikut.</p>
-
-<pre><code>package com.artivisi.tutorial.ivy.dao;
-
-import java.util.List;
-
-import com.artivisi.tutorial.ivy.model.Person;
-
-public interface PersonDao {
-
-    /**
-     * saves Person object into database. 
-     * If object is already exists (denoted by not-null ID field), 
-     * the existing record with the corresponding ID is updated. 
-     * If the object is new (denoted by null ID field), 
-     * new record is inserted.
-     * 
-     *  This method also set the ID field for new record.
-     * */
-    public void save(Person person);
-
-    /**
-     * fetch all person object in database.
-     * @return List of all person
-     * */
-    public List getAll();
-
-    /**
-     * fetch Person object with the speficied ID. 
-     * @param id identifier for person object
-     * @return Person object if there is record found for the speficied id, null otherwise
-     * */
-    public Person getById(Long id);
-}
-</code></pre>
-
-<p>Seperti terlihat dalam deklarasi import, class ini menggunakan class <code>Person</code>, yang sudah tersedia di shared repository. Kita akan melakukan build dengan menggunakan script <code>build.xml</code>. Isinya sama dengan yang ada di modul person-model, dengan perkecualian nama projectnya. Berikut isi <code>build.xml</code>.</p>
-
-<pre><code>&lt;project name="person-dao-api" default="build"&gt;
-
-    &lt;property file="build.properties"/&gt;
-
-    &lt;import file="${basedir}/../person-build/default.xml"/&gt;
-    &lt;import file="${basedir}/../person-build/ivy-builder.xml"/&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>Dependensi modul <code>person-dao-api</code> terhadap <code>person-model</code> kita deklarasikan dalam <code>ivy.xml</code> sebagai berikut.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-api"/&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency name="person-model" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Setelah <code>build.xml</code> dan <code>ivy.xml</code> selesai dibuat, kita bisa langsung melakukan build. Panggil target dari command line sebagai berikut:</p>
-
-<pre><code>ant build
-</code></pre>
-
-<p>Dari output perintah di atas terlihat bahwa Ivy akan menguraikan dependensi project dengan melakukan query ke semua resolver yang terdaftar. Setelah modul yang dibutuhkan (person-model) ditemukan, Ivy akan langsung mendonlodnya ke dalam folder lib. Karena isi folder lib sudah kita daftarkan ke dalam classpath, maka proses kompilasi akan berjalan dengan mulus. Berikut struktur folder <code>person-dao-api</code> setelah melakukan proses resolve.</p>
-
-<p><img src="/images/uploads/2008/09/folder-person-dao-api-after-resolve.png" title="" ></p>
-
-<p>Pada deklarasi dependensi di atas, terlihat bahwa modul <code>person-dao-api</code> memiliki dependensi terhadap modul <code>person-model</code> dengan revision <code>latest.integration</code>. Ini artinya Ivy akan menggunakan versi terbaru yang ada dalam repository. Untuk melihat kemampuan fitur ini, mari kita publish <code>person-model</code> dengan revision yang lebih baru.</p>
-
-<p>Edit file build.properties dalam modul person-model, sehingga menjadi seperti ini.</p>
-
-<pre><code>build.version = 0.0.2
-release.type = integration
-</code></pre>
-
-<p>Setelah itu, bersihkan hasil kompilasi terdahulu, dan publish modul <code>person-model</code>.</p>
-
-<pre><code>ant clean publish-local
-</code></pre>
-
-<p>Lalu, pindah ke modul person-dao-api, dan lakukan build lagi.</p>
-
-<pre><code>ant clean build
-</code></pre>
-
-<p>Terlihat pada output, bahwa modul <code>person-model</code> yang terbaru akan didonlod, dan yang versi lama akan dihapus. Sehingga isi folder lib akan terlihat sebagai berikut.</p>
-
-<p>Ivy memiliki beberapa cara untuk menentukan mana artifak yang terbaru (latest), yaitu: latest-time, latest-revision, dan latest-lexico.</p>
-
-<p>Dengan menggunakan latest-time, Ivy akan melihat tanggal dibuatnya suatu artifak. Kalau artifak berada di repository filesystem, maka tanggal sistem operasi akan digunakan. Bila repository diakses melalui http, Ivy akan melakukan query terhadap http server. Metode ini, walaupun efektif, relatif lambat bila akses jaringan ke repository tidak mumpuni.</p>
-
-<p>Latest-revision membandingkan nama versi artifak, dan mengenali beberapa keyword. Dia dapat menentukan bahwa versi 1.0-alpha lebih baru daripada 1.0-dev1, dan 1.0 lebih baru daripada 1.0-rc1.</p>
-
-<p>Sedangkan strategi latest-lexico hanya membandingkan berdasarkan urutan abjad. Jadi, 1.0-m1 akan lebih baru daripada 1.0-build135.</p>
-
-<p>Ketiga strategi tersebut sudah built-in dalam Ivy dan tidak memerlukan konfigurasi lebih lanjut.</p>
-
-<p>Selain revision, Ivy juga mengenal terminologi status. Secara default, Ivy menyediakan tiga status diurutkan dari yang paling stabil/mature, yaitu release, milestone, dan integration. Bila kita menggunakan latest.integration, Ivy akan mengambil artifak terbaru berstatus apapun dari repository. Bila kita gunakan latest.milestone, Ivy akan mengabaikan rilis integration, dan hanya akan membandingkan milestone dan release. Demikian juga bila kita gunakan latest.release, maka versi terbaru hanya akan dicari dari artifak berstatus release.</p>
-
-<p>Cara deklarasi latest.integration di atas disebut dengan dynamic revision, karena nomer revision tidak secara eksplisit disebutkan. Selain menggunakan latest.integration, ada beberapa mekanisme lain, yaitu menggunakan +, dan menggunakan range.</p>
-
-<p>Kita bisa menggunakan + untuk memilih revisi terbaru untuk rilis tertentu. Misalnya bila kita memiliki modul dengan revisi 1.0.1, 1.0.4, 1.0.7, dan 1.1.4 dalam repository, kita dapat menggunakan 1.0.+ untuk memilih versi terbaru dalam lini 1.0, yaitu 1.0.7.</p>
-
-<p>Kita juga bisa menggunakan range, untuk menentukan revisi yang dapat digunakan, misalnya [1.0,2.2] akan memilih semua revisi yang sama atau lebih besar dari 1.0, tapi lebih kecil atau sama dengan 2.2. Lebih lengkap tentang ini bisa dilihat di dokumentasi Ivy tentang dependensi.</p>
-
-<p>Demikianlah deklarasi dependensi dengan Ivy. Pada artikel ini, kita baru mencoba dependensi terhadap modul yang kita buat sendiri. Di <a href="http://endy.artivisi.com/blog/java/ant-ivy-6/">artikel selanjutnya</a>, kita akan lihat bagaimana mendeklarasikan dependensi terhadap modul eksternal seperti Spring Framework atau Hibernate.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -1460,6 +1505,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
       </li>
     
@@ -1493,10 +1542,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/development-stack-2014/">Development Stack 2014</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/dasar-dasar-aplikasi-web-java/">Dasar-dasar Aplikasi Web Java</a>
       </li>
     
   </ul>
