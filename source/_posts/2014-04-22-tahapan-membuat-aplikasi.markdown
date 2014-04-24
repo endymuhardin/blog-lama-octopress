@@ -165,7 +165,7 @@ File Pencil dari UI Mockup di artikel ini bisa diunduh [di sini](../../downloads
 
 Berikut adalah tampilan screen entri anggota.
 
-{% img https://lh3.googleusercontent.com/-elgcon5WUmk/U1acWaIDVwI/AAAAAAAAFq0/5E-SCiu5xLI/w786-h420-no/entri_peminjaman.png %}
+{% img https://lh4.googleusercontent.com/-1hcFb859pOI/U1acWK5Y8YI/AAAAAAAAFqw/KxhM_jXmybE/w771-h474-no/entri_anggota.png %}
 
 Ada beberapa hal yang harus kita perhatikan di sini, yaitu:
 
