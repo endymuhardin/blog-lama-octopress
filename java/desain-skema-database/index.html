@@ -1,0 +1,592 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Desain Skema Database - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Pada artikel sebelumnya, kita telah belajar bagaimana memulai membuat aplikasi, yaitu dengan cara: membuat daftar fitur
+membuat UI Mockup Kedua &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/desain-skema-database/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Desain Skema Database</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-06T10:42:00+07:00" pubdate data-updated="true">May 6<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Pada <a href="http://software.endy.muhardin.com/manajemen/tahapan-membuat-aplikasi/">artikel sebelumnya</a>, kita telah belajar bagaimana memulai membuat aplikasi, yaitu dengan cara:</p>
+
+<ul>
+<li>membuat daftar fitur</li>
+<li>membuat UI Mockup</li>
+</ul>
+
+
+<p>Kedua langkah di atas membantu kita untuk memvisualisasikan apa yang ada di imajinasi kita menjadi bentuk yang bisa dilihat oleh banyak orang. Ada beberapa keuntungan dari proses visualisasi ini, yaitu:</p>
+
+<ul>
+<li>mengurangi kepusingan, karena apa yang sebelumnya cuma dibayangkan, sekarang terlihat bentuknya</li>
+<li>menunjukkan kekurangan dalam imajinasi kita. Seringkali saya mendapati ada informasi yang kurang sehingga harus ditanyakan lagi ke user. Kali lain, saya mendapati ternyata perpindahan antar screen tidak sistematis sehingga membingungkan user. Atau saya terlalu kompleks mendesain tampilan yang seharusnya bisa lebih sederhana.</li>
+<li>menjadi bahan diskusi dengan user, menghindarkan kita dari membuat sesuatu yang tidak dibutuhkan user.</li>
+<li>sebagai pedoman kita untuk merancang skema database</li>
+</ul>
+
+
+<p>Poin terakhir tersebut akan menjadi bahasan kita pada artikel kali ini.</p>
+
+<p>Saya tidak akan membahas tentang teori normal form. Seharusnya para mahasiswa informatika sudah mempelajarinya di mata kuliah Basis Data yang biasanya diberikan di semester 3. Silahkan ambil lagi mata kuliah tersebut di tahun/semester depan kalau ternyata Anda ketiduran waktu dosennya menerangkan. Sedangkan pembaca yang tidak kuliah di informatika (seperti saya), bisa baca-baca <a href="http://en.wikipedia.org/wiki/Database_normalization">referensi dari Wikipedia</a> atau <a href="http://www.bkent.net/Doc/simple5.htm">tutorial di sini</a>.</p>
+
+<p>Artikel ini ditulis dengan asumsi pembaca sudah paham apa itu normal form. Silahkan belajar dulu kalau belum paham, baru kembali lagi ke sini.</p>
+
+<!--more-->
+
+
+<p>Sebelum kita mulai mendesain skema database, ada satu hal penting yang kita perlu camkan baik-baik</p>
+
+<blockquote><p>Hasil desain, baik itu skema database, class diagram, flowchart, dan lainnya, bukanlah merupakan hasil sekali pukul. Dia adalah suatu produk yang harus terus disempurnakan bahkan sampai setelah aplikasinya go live.</p></blockquote>
+
+<p>Dengan demikian, adalah lumrah kalau kita merevisi skema database berkali-kali. Setelah go-live saja bisa berubah, apalagi pada saat development.</p>
+
+<h2>Desain tabel master</h2>
+
+<p>Dalam mendesain skema database, kita mulai dulu dengan yang paling sederhana, yaitu tabel master. Tabel master biasanya tidak berelasi ke tabel lain. Kalaupun ada relasi, biasanya relasi dengan tabel master lainnya. Contohnya, master pegawai berelasi ke master kabupaten, kecamatan, kodepos, tingkat pendidikan, dan lainnya. Karena dia sederhana, maka dalam membuat aplikasi, biasanya tabel-tabel master ini didefinisikan duluan.</p>
+
+<p>Ada pola yang biasa saya gunakan dalam mendesain tabel database (baik master data maupun transaksi), yaitu:</p>
+
+<ul>
+<li>harus ada primary key yang berupa surrogate key</li>
+<li>karena pakai surrogate key, maka kandidat natural key menjadi kolom biasa yang diberikan <em>unique constraint</em></li>
+<li>buat kolom lain sesuai yang ada di UI mockup</li>
+<li>untuk menyimpan nilai uang, gunakan DECIMAL, bukan FLOAT atau DOUBLE, supaya kita bisa mengontrol pembulatan dan tingkat presisi</li>
+</ul>
+
+
+<blockquote><p>Whoa, apa itu surrogate key dan natural key?</p></blockquote>
+
+<p>Mari kita bahas.</p>
+
+<h2>Menentukan Primary Key</h2>
+
+<p>Misalnya kita akan menyimpan data pegawai dalam tabel <code>m_pegawai</code>. Informasi pegawai memiliki beberapa data sebagai berikut:</p>
+
+<ul>
+<li>nip (nomor induk pegawai), dijamin unik karena tiap pegawai pasti beda.</li>
+<li>nama,  tidak unik. Agus, Budi, Cahyo biasanya banyak yang pakai.</li>
+<li>email, juga unik. Tidak mungkin satu email dipake rame-rame.</li>
+</ul>
+
+
+<p>Dari ketiga data di atas, hanya dua yang bisa jadi primary key yaitu <code>nip</code> dan <code>email</code>, karena secara proses bisnis, nilainya harus unik di tiap record pegawai. Kedua data ini, bila kita pilih salah satunya menjadi primary key, maka disebut dengan istilah <a href="http://en.wikipedia.org/wiki/Natural_key">natural key</a>, artinya primary key yang diambil dari data yang memang sudah ada.</p>
+
+<p>Selain natural key, kita juga bisa membuat data lain yang tidak berkaitan dengan proses bisnis. Misalnya menambahkan primary key berupa kolom <code>id</code> di tabel pegawai yang nilainya kita konfigurasi supaya bertambah satu (increment) tiap ada record baru yang dimasukkan ke tabel. Kolom <code>id</code> ini disebut dengan istilah <a href="http://en.wikipedia.org/wiki/Surrogate_key">surrogate key</a>.</p>
+
+<h3>Natural vs Surrogate</h3>
+
+<p>Keuntungan kita menggunakan natural key adalah, datanya sudah ada. Dengan demikian kita tidak perlu menambah kapasitas penyimpanan untuk satu kolom khusus primary key.</p>
+
+<p>Kerugian dari natural key adalah nilainya bisa berubah. Sebagai contoh, bila perusahaan merger, maka nilai <code>nip</code> bisa dipastikan akan menyesuaikan dengan perusahaan lain yang dimerger. Bisa formatnya ikut perusahaan lain tersebut, dan bisa juga membuat format baru sesuai kesepakatan bersama.</p>
+
+<blockquote><p>Kalau gitu, email saja yang jadi primary key.</p></blockquote>
+
+<p>Email justru lebih sering berubah. Gak perlu merger, cukup ada layanan yang menawarkan kapasitas lebih besar, orang langsung bikin akun email baru.</p>
+
+<blockquote><p>Lalu memangnya kenapa kalau berubah?</p></blockquote>
+
+<p>Yang namanya primary key, akan digunakan di tabel lain sebagai <em>foreign key</em>. Apalagi untuk tabel master, pasti dia akan direlasikan di berbagai tabel lainnya. Jika primary key berubah, maka semua tabel lain harus ikut diupdate isi foreign key-nya. Ini akan membutuhkan <em>locking</em> yang luas karena harus meliputi banyak tabel sekaligus. Semakin luas <em>locking</em>, semakin lemot performance, karena proses lain harus antri mendapatkan <em>lock</em>.</p>
+
+<p>Masalah kedua, penggunaan natural key cenderung akan mengarah pada penggunaan <a href="http://en.wikipedia.org/wiki/Compound_key">compound/composite key</a>, yaitu primary key yang terdiri dari dua atau lebih kolom. Ini akan lebih merepotkan lagi, karena foreign key dari composite key juga akan terdiri dari dua/lebih kolom.</p>
+
+<p>Kekurangan dari surrogate key adalah ada tambahan space harddisk untuk menyimpan data kolom tambahan. Juga tambahan space untuk membuat index dari natural key (yang seharusnya otomatis terindex bila dia menjadi primary key).</p>
+
+<blockquote><p>Lalu, sebaiknya pakai natural key atau surrogate key?</p></blockquote>
+
+<p>Saya selalu pakai surrogate key. Sebabnya karena space harddisk semakin lama semakin murah, sedangkan locking problem dan composite key akan memakan mandays programmer yang semakin lama semakin mahal.</p>
+
+<h3>Strategi Key Generator</h3>
+
+<p>Karena nilai dari surrogate key tidak berhubungan dengan data yang diwakilinya, maka kita bisa melakukan optimasi dalam pemilihan algoritma untuk menghasilkan nilai baru. Ada beberapa strategi yang biasa digunakan:</p>
+
+<ul>
+<li>Auto increment / sequence. Cara ini disebut dengan berbagai istilah, misalnya AUTO_INCREMENT (MySQL), SEQUENCE (Oracle), SERIAL (PostgreSQL), IDENTITY (MS SQL Server), AutoNumber (MS Access), dan lainnnya. Intinya adalah penggunaan tipe data integer yang nilainya bertambah terus.</li>
+<li><a href="http://en.wikipedia.org/wiki/Universally_Unique_Identifier">UUID</a> / <a href="http://en.wikipedia.org/wiki/Globally_Unique_Identifier">GUID</a>. Tipe datanya 32 karakter alfanumerik, bisa diwakili di database dengan CHAR atau VARCHAR.</li>
+</ul>
+
+
+<blockquote><p>Pilih yang mana?</p></blockquote>
+
+<p>Saya biasa pakai UUID, karena dia dijamin unik siapapun yang menjalankan generator. Ini akan sangat berguna dalam skenario database terdistribusi seperti ini.</p>
+
+<p>Misalnya database kita split menjadi database kantor pusat dan kantor cabang. Masing-masing cabang insert data transaksi ke database yang ada di kantor cabang. Pada sore hari, database cabang diupload ke kantor pusat dan digabungkan ke database pusat, bersama-sama dengan data transaksi dari cabang lain.</p>
+
+<p>Bila kita menggunakan sequence, akan terjadi duplikasi primary key, karena masing-masing cabang memulai sequence dari angka 1. Cabang A akan punya data 1 - 100, demikian juga cabang-cabang lain.</p>
+
+<p>Lain halnya bila kita menggunakan UUID. Nilai yang dihasilkan oleh cabang A dijamin berbeda dengan nilai yang dihasilkan cabang B. Dengan demikian, kita tinggal insert data cabang A dan cabang B ke database pusat tanpa ada primary key yang bentrokan.</p>
+
+<h2>Tabel Transaksi</h2>
+
+<p>Sekarang kita beranjak ke tabel untuk menyimpan data transaksi.</p>
+
+<p>Pola yang umum dipakai adalah relasi <code>master-detail-header</code> seperti ini</p>
+
+<p><img src="https://lh3.googleusercontent.com/-B_icVAf77dg/U2b9zeQw8FI/AAAAAAAAFvk/D7q35jK7U7Y/w915-h221-no/skema-master-header-detail.png"></p>
+
+<p>Pola ini bisa kita gunakan untuk aplikasi perpustakaan seperti ini</p>
+
+<p><img src="https://lh6.googleusercontent.com/-k1DUCU0X4K8/U2b9zUQq0yI/AAAAAAAAFvo/7saKCOClC0U/w876-h484-no/skema-perpustakaan.png"></p>
+
+<p>Ataupun untuk aplikasi bengkel, dimana detailnya ada dua (part dan jasa)</p>
+
+<p><img src="https://lh6.googleusercontent.com/-GDtsnS1_9gE/U2b9zQlqgII/AAAAAAAAFvs/afAswqUErzg/w873-h500-no/skema-bengkel.png"></p>
+
+<p>Pola yang sama bisa digunakan dalam pencatatan transaksi lain, misalnya:</p>
+
+<ul>
+<li>jurnal akuntansi : jurnal_header berisi tanggal dan keterangan, jurnal_detail berisi id_akun, debet/kredit, dan nilai nominal</li>
+<li>transaksi di minimarket : transaksi_header berisi tanggal dan nama kasir, transaksi_detail berisi id_produk, qty, harga_satuan</li>
+<li>keluar/masuk barang di gudang : transaksi_header berisi tanggal, transaksi_detail berisi id_barang, qty</li>
+<li>dan sebagainya</li>
+</ul>
+
+
+<h3>Identifying Relationship</h3>
+
+<p>Pembaca yang teliti akan melihat bahwa garis penghubung relasi antara <code>header</code> dan <code>detail</code> berbeda dengan <code>detail</code> dan <code>master</code>. <code>Header-detail</code> garisnya menyambung sedangkan <code>detail-master</code> putus-putus. Garis tersambung disebut dengan istilah <a href="http://stackoverflow.com/a/762994">identifying relationship</a>, yaitu hubungan parent-child. Artinya, kalau induknya (record di tabel header) dihapus, maka anaknya (record di tabel detail) juga harus dihapus karena sudah tidak relevan lagi.</p>
+
+<p>Berbeda dengan master-detail. Kalau masternya dihapus, belum tentu data transaksinya juga ikut dihapus. Bisa jadi relasinya cuma diset menjadi <code>NULL</code> saja, tapi datanya tetap ada dan tetap bisa dihitung.</p>
+
+<h2>Tabel Akumulasi</h2>
+
+<p>Terakhir, kita bahas tentang tabel akumulasi. Tabel ini sebetulnya tidak wajib dibuat. Kita membuat tabel ini terutama untuk alasan performance.</p>
+
+<p>Misalnya kita ingin menampilkan data jumlah stok buku di satu hari tertentu. Atau kita ingin mencari berapa jumlah barang yang tersisa untuk satu jenis barang tertentu.</p>
+
+<p>Tanpa tabel akumulasi, kita harus mencari dulu saldo awalnya, kemudian kita melakukan penjumlahan berapa penambahan dan pengurangan selama periode bisnis berjalan. Kalau bisnisnya baru jalan 3 hari tidak masalah, tapi bagaimana kalau sudah jalan 3 tahun? Tentu ada jutaan record yang harus dijumlahkan oleh database dalam sekali request. Bagaimana kalau usernya banyak?</p>
+
+<p>Untuk mengatasinya, kita buat tabel untuk akumulasi. Berikut skemanya</p>
+
+<p><img src="https://lh6.googleusercontent.com/-ZKiD_6GBDig/U2hUO-HearI/AAAAAAAAFwM/SJgzkIeJU9E/w619-h625-no/skema-akumulasi.png"></p>
+
+<p>Penjelasan kolomnya sebagai berikut:</p>
+
+<ul>
+<li>id : surrogate key</li>
+<li>id_xx : relasi ke tabel master barang/akun/produk/dsb</li>
+<li>tanggal : supaya memudahkan, kita buat satu record per hari</li>
+<li>saldo_awal : nilai di awal hari</li>
+<li>debet : penambahan nilai dalam hari itu</li>
+<li>kredit : pengurangan nilai dalam hari itu</li>
+</ul>
+
+
+<blockquote><p>Kok gak ada saldo akhir?</p></blockquote>
+
+<p>Ya kan tinggal dihitung saja. Saldo akhir = saldo awal + debet - kredit. Gampang kan?</p>
+
+<p>Ada dua pilihan metode dalam mengisi tabel akumulasi ini:</p>
+
+<ol>
+<li>Diupdate setiap insert transaksi. Jika menggunakan metode ini, jangan lupa menggunakan <a href="http://software.endy.muhardin.com/java/database-transaction/">database transaction</a> untuk menjaga konsistensi data.</li>
+<li>Diupdate secara batch di akhir hari. Jika menggunakan metode ini, jangan lupa memasang lock supaya tidak ada orang yang insert record baru pada saat kita sedang menghitung akumulasi. Biasanya kalau trafiknya tinggi dan harus selalu online (seperti ATM bank), perlu menggunakan teknik shadow balance supaya transaksi bisa terus jalan walaupun batch update sedang berjalan.</li>
+</ol>
+
+
+<h2>Kesimpulan</h2>
+
+<p>Poin penting yang bisa diambil dari artikel ini:</p>
+
+<ul>
+<li>natural key vs surrogate key</li>
+<li>pola master-detail-header</li>
+<li>pola master-akumulasi</li>
+</ul>
+
+
+<p>Skema database dibuat menggunakan aplikasi <a href="http://www.mysql.com/products/workbench/">MySQL Workbench</a>. Desain skema pada contoh di atas bisa <a href="../../downloads/skema-database-aplikasi.mwb">diunduh di sini</a></p>
+
+<p>Demikianlah pola desain skema database yang biasa saya gunakan untuk membuat aplikasi bisnis. Pada posting selanjutnya, kita akan bahas apa saja class dan package yang harus kita buat pada waktu coding. Stay tuned.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-06T10:42:00+07:00" pubdate data-updated="true">May 6<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/java/'>java</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/desain-skema-database/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/desain-skema-database/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/manajemen/tahapan-membuat-aplikasi/" title="Previous Post: Tahapan Membuat Aplikasi">&laquo; Tahapan Membuat Aplikasi</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/java/desain-skema-database/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://google.com/+EndyMuhardin">google.com/+EndyMuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+
+<section>
+
+Bila artikel di website ini membantu meningkatkan penghasilan Anda, 
+jangan ragu untuk memberikan donasi :)
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</form>
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/java/desain-skema-database/">Desain Skema Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
+      </li>
+    
+      <li class="post">
+        <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
+      </li>
+    
+      <li class="post">
+        <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/ongoing-learning/">Ongoing Learning</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
