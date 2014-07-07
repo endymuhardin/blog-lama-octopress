@@ -60,7 +60,7 @@ Penjelasan lengkapnya bisa dibaca [di sini](http://www.formilux.org/archives/hap
 
 Network oriented failover memastikan **minimal satu** service aktif, dan **tidak apa-apa** bila ada lebih dari satu service yang aktif. Ini cocok untuk dipasang di load balancer, karena load balancer tidak menyimpan state. Tidak masalah kalau user melihat ada dua LB, kadang diarahkan ke LB-1 dan kadang ke LB-2.
 
-Cluster oriented failover memastikan **hanya satu** service yang aktif, dan **tidak apa-apa** bila tidak ada service yang aktif. Ini cocok untuk dipasang di database server, karena kita tidak mau database utama dan cadangan dua-duanya aktif. Bisa-bisa datanya tidak tersimpan dengan benar ([split brain](http://en.wikipedia.org/wiki/Split-brain_(computing\)))
+Cluster oriented failover memastikan **hanya satu** service yang aktif, dan **tidak apa-apa** bila tidak ada service yang aktif. Ini cocok untuk dipasang di database server, karena kita tidak mau database utama dan cadangan dua-duanya aktif. Bisa-bisa datanya tidak tersimpan dengan benar ([split brain](http://en.wikipedia.org/wiki/Split-brain_(computing\))). Untuk lebih jelas tentang cara kerja cluster-oriented failover, bisa dibaca [di sini](http://blog.clusterlabs.org/blog/2010/pacemaker-heartbeat-corosync-wtf/).
 
 Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant. 
 
