@@ -11,18 +11,11 @@ categories:
 
 Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi. 
 
-
-Demikian pertanyaannya. 
-
-
-
-> 
-
-
-
 Ini sebetulnya dua hal yang berbeda. 
 Load balancing ya membagi beban. 
 Failover ya mencegah single point of failure. 
+
+### Load Balancing ###
 
 Load balancer terdiri dari satu balancer dan banyak worker. 
 Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih. 
@@ -37,48 +30,37 @@ Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).
 
 Contoh aplikasi load balancer : 
 
-> 
-> 
-	
->   * HAProxy
-> 
-	
->   * ldirectord (Ultra Monkey)
-> 
-	
->   * Pound
-> 
-
-
-
+* HAProxy
+* ldirectord (Ultra Monkey)
+* Pound
 
 Contoh aplikasi lain yang bisa jadi load balancer : 
+	
+* Apache (mod_proxy_balancer)
+* Nginx
+* lighttpd
+* bind (DNS Server)
 
-	
->   * Apache (mod_proxy_balancer)
-> 
-	
->   * Nginx
-> 
-	
->   * lighttpd
-> 
-	
->   * bind (DNS Server)
-> 
-
+### Failover ###
 
 Contoh aplikasi failover : 
 
-	
->   * heartbeat (Ultra Monkey)
-> 
-	
->   * keepalived
-> 
+* [heartbeat](http://www.linux-ha.org/wiki/Heartbeat)
+* [pacemaker](http://clusterlabs.org/wiki/Main_Page)
+* [corosync](http://corosync.github.io/corosync/)
+* [ucarp](http://www.pureftpd.org/project/ucarp)
+* [keepalived](http://www.keepalived.org/)
 
+Failover artinya mengatasi kalau ada service yang mati. Ada dua jenis aplikasi untuk menangani failover :
 
+* Network Oriented : keepalived, ucarp
+* Cluster Oriented : corosync, heartbeat
 
+Penjelasan lengkapnya bisa dibaca [di sini](http://www.formilux.org/archives/haproxy/1003/3259.html). Namun ringkasnya seperti ini:
+
+Network oriented failover memastikan **minimal satu** service aktif, dan **tidak apa-apa** bila ada lebih dari satu service yang aktif. Ini cocok untuk dipasang di load balancer, karena load balancer tidak menyimpan state. Tidak masalah kalau user melihat ada dua LB, kadang diarahkan ke LB-1 dan kadang ke LB-2.
+
+Cluster oriented failover memastikan **hanya satu** service yang aktif, dan **tidak apa-apa** bila tidak ada service yang aktif. Ini cocok untuk dipasang di database server, karena kita tidak mau database utama dan cadangan dua-duanya aktif. Bisa-bisa datanya tidak tersimpan dengan benar ([split brain](http://en.wikipedia.org/wiki/Split-brain_(computing\)))
 
 Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant. 
 
@@ -90,6 +72,8 @@ Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah 
 
 > 
 > 
+
+### Sticky Session ###
 
 Tidak selalu, tergantung konfigurasinya. 
 Ada konfigurasi sticky session. 
@@ -130,6 +114,8 @@ Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas suda
 > 
 > 
 
+### Session Replication ###
+
 Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan. 
 Secara umum, settingan standar appserver biasanya simpan data session di memori. 
 Kalau kita enable cluster, misalnya terdiri dari 4 worker, maka data session ini biasanya akan direplikasi ke satu worker lain. 
@@ -150,6 +136,7 @@ Karena selama ini saya menggunakan teknik ini, jadi saya kurang up to date terha
 Demikian juga tentang load balancer apa support sticky atau tidak, saya tidak pernah memikirkannya. 
 Pokoknya simpan state di distributed cache atau database, setelah itu mau pakai appserver Tomcat, Jetty, Glassfish, Weblogic, terserah. 
 Mau pakai load balancer Apache HTTPD, Nginx, lighty, HAProxy, Pound, Ultramonkey, juga terserah. 
+
 
 Demikian sekilas sharing mengenai load balancing dan clustering. Semoga menjadi cerah. 
 
