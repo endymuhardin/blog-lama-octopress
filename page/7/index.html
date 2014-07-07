@@ -1529,13 +1529,11 @@ gradle jetty
 
   <div class="entry-content"><p>Di milis JUG, lagi-lagi ada yang tanya tentang load balancing, failover, dan clustering. Jawabannya masih sama sejak 10 tahun saya berkecimpung di urusan coding-mengcoding. Jadi, baiklah saya tulis di blog saja, supaya next time bisa jadi referensi.</p>
 
-<p>Demikian pertanyaannya.</p>
-
-<blockquote></blockquote>
-
 <p>Ini sebetulnya dua hal yang berbeda.
 Load balancing ya membagi beban.
 Failover ya mencegah single point of failure.</p>
+
+<h3>Load Balancing</h3>
 
 <p>Load balancer terdiri dari satu balancer dan banyak worker.
 Bebannya dibagi2 ke semua worker dengan algoritma yang biasanya bisa dipilih.
@@ -1550,35 +1548,56 @@ Untuk mencegah ini, LB nya harus ada 2, satu aktif satu standby (pasif).</p>
 
 <p>Contoh aplikasi load balancer :</p>
 
-<blockquote><ul>
-<li><p>HAProxy</p></li>
-<li><p>ldirectord (Ultra Monkey)</p></li>
-<li><p>Pound</p></li>
+<ul>
+<li>HAProxy</li>
+<li>ldirectord (Ultra Monkey)</li>
+<li>Pound</li>
 </ul>
-</blockquote>
+
 
 <p>Contoh aplikasi lain yang bisa jadi load balancer :</p>
 
-<blockquote><ul>
-<li><p>Apache (mod_proxy_balancer)</p></li>
-<li><p>Nginx</p></li>
-<li><p>lighttpd</p></li>
-<li><p>bind (DNS Server)</p></li>
+<ul>
+<li>Apache (mod_proxy_balancer)</li>
+<li>Nginx</li>
+<li>lighttpd</li>
+<li>bind (DNS Server)</li>
 </ul>
-</blockquote>
+
+
+<h3>Failover</h3>
 
 <p>Contoh aplikasi failover :</p>
 
-<blockquote><ul>
-<li><p>heartbeat (Ultra Monkey)</p></li>
-<li><p>keepalived</p></li>
+<ul>
+<li><a href="http://www.linux-ha.org/wiki/Heartbeat">heartbeat</a></li>
+<li><a href="http://clusterlabs.org/wiki/Main_Page">pacemaker</a></li>
+<li><a href="http://corosync.github.io/corosync/">corosync</a></li>
+<li><a href="http://www.pureftpd.org/project/ucarp">ucarp</a></li>
+<li><a href="http://www.keepalived.org/">keepalived</a></li>
 </ul>
-</blockquote>
+
+
+<p>Failover artinya mengatasi kalau ada service yang mati. Ada dua jenis aplikasi untuk menangani failover :</p>
+
+<ul>
+<li>Network Oriented : keepalived, ucarp</li>
+<li>Cluster Oriented : corosync, heartbeat</li>
+</ul>
+
+
+<p>Penjelasan lengkapnya bisa dibaca <a href="http://www.formilux.org/archives/haproxy/1003/3259.html">di sini</a>. Namun ringkasnya seperti ini:</p>
+
+<p>Network oriented failover memastikan <strong>minimal satu</strong> service aktif, dan <strong>tidak apa-apa</strong> bila ada lebih dari satu service yang aktif. Ini cocok untuk dipasang di load balancer, karena load balancer tidak menyimpan state. Tidak masalah kalau user melihat ada dua LB, kadang diarahkan ke LB-1 dan kadang ke LB-2.</p>
+
+<p>Cluster oriented failover memastikan <strong>hanya satu</strong> service yang aktif, dan <strong>tidak apa-apa</strong> bila tidak ada service yang aktif. Ini cocok untuk dipasang di database server, karena kita tidak mau database utama dan cadangan dua-duanya aktif. Bisa-bisa datanya tidak tersimpan dengan benar (<a href="http://en.wikipedia.org/wiki/Split-brain_(computing)">split brain</a>)</p>
 
 <p>Nah, mudah2an sampe di sini jelas bahwa load balancing dan failover itu dua hal yang tidak saling terkait (orthogonal) dan biasanya dikombinasikan untuk mendapatkan konfigurasi yang robust dan performant.</p>
 
 <blockquote><blockquote><p>Setahu saya konsep2x Clustering diatas berlaku pada saat hit pertama.
 Pertanyaan saya.. Bagaimana jika request sudah terlayani tetapi ditengah-tengah proses server tiba2x down.. Apakah proses tersebut langsung di alihkan ke server yang lagi up? Jika iya apakah proses akan di restart dari awal atau server yang sedang up bisa melanjutkan sisa dari proses yang belum dikerjakan di server yang telah down?</p></blockquote></blockquote>
+
+<h3>Sticky Session</h3>
 
 <p>Tidak selalu, tergantung konfigurasinya.
 Ada konfigurasi sticky session.
@@ -1612,6 +1631,8 @@ Request kedua dan seterusnya akan diarahkan ke server X lagi.</p>
 <p>Nah, setelah jelas apa dampaknya sticky vs non-sticky, mari kita lanjut ke pertanyaan selanjutnya.</p>
 
 <blockquote><blockquote><p>Kalau untuk Java EE Application Server apakah untuk pertanyaan saya di atas sudah ada featurenya atau perlu ada tambahan produk lagi untuk bisa sharing informasi terhadap state suatu proses yang dijalankan di satu server sehingga jika server tersebut down proses bisa dilanjutkan di server yang lain tanpa merestart proses?</p></blockquote></blockquote>
+
+<h3>Session Replication</h3>
 
 <p>Mengenai urusan session/state management, ini sangat tergantung merek application server yang digunakan.
 Secara umum, settingan standar appserver biasanya simpan data session di memori.
