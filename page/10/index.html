@@ -9,8 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Mengakses Remote Server dengan Java Kita sudah biasa mengakses komputer lain menggunakan SSH.
-Cukup ketikkan ssh username@namaserver, tekan enter, &hellip;">
+  <meta name="description" content="Sebelumnya, saya telah membahas script backup untuk Trac maupun Subversion. Kali ini, kita akan bahas backup script untuk MySQL. Sama seperti backup &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -90,6 +89,117 @@ Cukup ketikkan ssh username@namaserver, tekan enter, &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/lain/backup-mysql/">Backup MySQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-02T15:23:43+07:00" pubdate data-updated="true">Jun 2<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelumnya, saya telah membahas script backup untuk <a href="http://endy.artivisi.com/blog/lain/backup-trac/">Trac</a> maupun <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">Subversion</a>. Kali ini, kita akan bahas backup script untuk MySQL.</p>
+
+<p>Sama seperti backup script sebelumnya, script ini akan membuat folder sesuai dengan tanggal dan jam backup. Selanjutnya, script akan melakukan backup terhadap database MySQL sesuai dengan nama database yang ditentukan. Backup ini akan disimpan di folder yang kita tentukan.</p>
+
+<p>Berikut backup scriptnya.</p>
+
+<p>[Update - 7 Des 2009] Sudah ditambahkan perintah untuk kompresi hasil backupnya.</p>
+
+<pre><code>#!/bin/sh
+
+test -x /bin/date || exit -1
+test -x /usr/bin/mysqldump || exit -1
+test -x /bin/tar || exit -1
+test -x /bin/bzip2 || exit -1
+
+DBHOST=$1
+DBNAME=$2
+USERNAME=$3
+PASSWORD=$4
+BACKUP_FOLDER=$5
+CURR_DATE="$(/bin/date +%Y%m%d-%H%M)"
+
+
+if [ "$1" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$2" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$3" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+if [ "$4" = '' ]; then
+    echo "Usage : $0 &lt;db name&gt; &lt;username&gt; &lt;password&gt; &lt;backup folder&gt;"
+    return 1
+fi
+
+
+echo "Create backup folder $BACKUP_FOLDER/$CURR_DATE"
+echo "..."
+
+/bin/mkdir "$BACKUP_FOLDER/$CURR_DATE"
+
+echo "Backup $DBNAME schema to $BACKUP_FOLDER/$CURR_DATE/$DBNAME-schema-$CURR_DATE.sql"
+echo "..."
+
+/usr/bin/mysqldump $DBNAME -u $USERNAME -p$PASSWORD -h$DBHOST -d &gt; "$BACKUP_FOLDER/$CURR_DATE/$DBNAME-schema-$CURR_DATE.sql"
+
+echo "Backup $DBNAME data to $BACKUP_FOLDER/$CURR_DATE/$DBNAME-data-$CURR_DATE.sql"
+echo "..."
+
+/usr/bin/mysqldump $DBNAME -u $USERNAME -p$PASSWORD -h $DBHOST -n -c -t --single-transaction &gt; "$BACKUP_FOLDER/$CURR_DATE/$DBNAME-data-$CURR_DATE.sql"
+
+echo "Compressing folder $CURR_DATE"
+echo "..."
+
+/bin/tar cvf - "$BACKUP_FOLDER/$CURR_DATE" | /bin/bzip2 -c9 &gt; "$BACKUP_FOLDER/$CURR_DATE.tar.bz2"
+
+echo "Removing folder $BACKUP_FOLDER/$CURR_DATE"
+echo "..."
+
+/bin/rm -rf "$BACKUP_FOLDER/$CURR_DATE"
+
+echo "Completed"
+</code></pre>
+
+<p>Script di atas dapat dijalankan setiap Jumat malam jam 23.00 dengan konfigurasi sebagai berikut.</p>
+
+<pre><code>0 23 * * 5 /bin/sh /path/ke/mysql-backup.sh db_user db_pass db_name backup_folder_mysql
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1124,304 +1234,6 @@ Konfigurasi ini dibuat dalam ivysettings.xml.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ant-ivy-7/">Ivy Configuration</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-10-03T17:55:34+07:00" pubdate data-updated="true">Oct 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Rangkaian <a href="http://endy.artivisi.com/blog/java/ant-ivy-6/">artikel sebelumnya</a> telah memberikan kita pemahaman yang memadai untuk menggunakan Ivy. Pada artikel ini, kita akan membahas satu fitur Ivy yang walaupun tidak wajib dikuasai, tapi sangat penting, karena dapat membuat konfigurasi modul kita menjadi fleksibel. Fitur ini dalam dunia Ivy dikenal dengan istilah <code>configuration</code>.</p>
-
-<p>Sebagai paket standar kualitas di ArtiVisi, kami menggunakan Cobertura untuk melakukan coverage test. Sayangnya Cobertura dan Hibernate tidak kompatibel. Hibernate menggunakan pustaka <code>asm</code> dengan versi 1.5.3. Sedangkan Cobertura juga menggunakan <code>asm</code>, dengan versi 2.2.1. Bila kedua versi kita campur, maka akan terjadi error karena Java VM kebingungan menentukan versi mana yang akan digunakan.</p>
-
-<p>Untuk mengatasi masalah ini, kita menggunakan fitur <code>configuration</code> Ivy. Kita membuat konfigurasi bernama <code>test</code> yang membawa <code>asm</code> versi 2.2.1 sesuai kebutuhan Cobertura. Selain itu, kita juga membuat konfigurasi bernama <code>runtime</code> dengan <code>asm</code> versi 1.5.3 untuk digunakan Hibernate. Hal ini dimungkinkan karena Cobertura hanya kita gunakan pada saat test.</p>
-
-<p>Contoh lain penggunaan <code>configuration</code> adalah kombinasi modul untuk merakit aplikasi. Misalnya, kita memiliki modul-modul berikut dalam aplikasi kita:</p>
-
-<ul>
-<li><p>model</p></li>
-<li><p>dao.api</p></li>
-<li><p>dao.hibernate</p></li>
-<li><p>dao.jdbc</p></li>
-<li><p>ui.web</p></li>
-<li><p>ui.desktop</p></li>
-</ul>
-
-
-<p>Kita dapat menggunakan konfigurasi Ivy untuk membentuk 4 kombinasi aplikasi, yaitu:</p>
-
-<ul>
-<li><p>Desktop dengan JDBC</p></li>
-<li><p>Desktop dengan Hibernate</p></li>
-<li><p>Web-based dengan JDBC</p></li>
-<li><p>Web-based dengan Hibernate</p></li>
-</ul>
-
-
-<p>Fitur configuration juga bisa digunakan untuk mengatur rilis artifak, sehingga dari satu paket source-code, kita bisa membuat rilis:</p>
-
-<ul>
-<li><p>Hanya source-code (source only)</p></li>
-<li><p>Hanya hasil kompilasi (binary only)</p></li>
-<li><p>Paket dokumentasi (javadoc, reference)</p></li>
-<li><p>Paket komplit (source, binary, dokumentasi)</p></li>
-</ul>
-
-
-<p>Kombinasi rilis ini umum kita temui dalam pustaka open-source populer seperti Spring Framework atau Hibernate.</p>
-
-<p>Masih banyak lagi skenario penggunaan configuration. Silahkan kembangkan imajinasi Anda untuk penggunaannya. Pada artikel ini, kita akan membahas skenario kombinasi aplikasi seperti ilustrasi di atas.</p>
-
-<p>Kita telah memiliki modul person-model, dengan deklarasi dependensi (ivy.xml) sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-model"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Daftar konfigurasi yang kita miliki didefinisikan dalam file ivyconfigurations.xml dan di-include dari masing-masing ivy.xml. Berikut isi ivyconfigurations.xml.</p>
-
-<pre><code>&lt;configurations&gt;
-    &lt;conf name="compile"            description="dependency for compile time only" /&gt;
-    &lt;conf name="api"     description="Domain Model and API only"/&gt;
-    &lt;conf name="impl"    description="implementation of APIs"/&gt;
-    &lt;conf name="source"  description="source code only"/&gt;
-&lt;/configurations&gt;
-</code></pre>
-
-<p>Kita juga punya modul person-dao, interface yang digunakan sebagai patokan implementasi akses database, dengan dependensi sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-api"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="api"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-    &lt;dependencies&gt;
-        &lt;dependency name="person-model" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Modul person-dao ini memiliki dua jenis implementasi, yaitu dengan JDBC:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-jdbc"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration" conf="api"/&gt;
-
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>dan dengan Hibernate:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-dao-hibernate"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration" conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Dengan memisahkan interface dan implementasi DAO, kita bisa langsung membuat dua jenis user interface, yaitu yang berbasis web sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-ui-springmvc"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration"  conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>dan berbasis desktop sebagai berikut:</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-ui-swing"/&gt;
-
-    &lt;configurations&gt;
-        &lt;include file="${basedir}/../person-build/ivy/ivyconfigurations.xml" /&gt;
-    &lt;/configurations&gt;
-
-    &lt;publications&gt;
-        &lt;artifact name="${ant.project.name}" conf="impl"/&gt;
-        &lt;artifact name="${ant.project.name}-sources" conf="source" type="src" ext="jar"/&gt;
-    &lt;/publications&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration"  conf="api"/&gt;
-    &lt;/dependencies&gt;
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Seperti kita lihat, untuk bisa membuat UI, kita hanya membutuhkan modul dao saja.</p>
-
-<p>Untuk merangkai aplikasi ini, kita membuat satu modul yang tidak berisi source-code Java sama sekali, melainkan hanya deklarasi dependensi saja.</p>
-
-<p>Berikut konfigurasi untuk aplikasi desktop dengan JDBC.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-apps"/&gt;
-
-    &lt;configurations&gt;
-        &lt;conf name="person-app-desktop-jdbc" description="Application with desktop UI and JDBC backend"/&gt;
-    &lt;/configurations&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency name="person-dao-jdbc" rev="latest.integration" 
-        conf="person-app-desktop-jdbc-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-swing" rev="latest.integration" 
-        conf="person-app-desktop-jdbc-&gt;impl"/&gt;
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>dan ini adalah konfigurasi untuk aplikasi web dengan Hibernate.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-apps"/&gt;
-
-    &lt;configurations&gt;
-        &lt;conf name="person-app-web-hibernate" description="Application with web-based UI and Hibernate backend"/&gt;
-    &lt;/configurations&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency name="person-dao-hibernate" rev="latest.integration" 
-        conf="person-app-web-hibernate-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-springmvc" rev="latest.integration" 
-        conf="person-app-web-hibernate-&gt;impl"/&gt;
-
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Deklarasi lengkap konfigurasi dan dependensi untuk keempat kombinasi aplikasi sebagai berikut.</p>
-
-<pre><code>&lt;ivy-module version="1.0"&gt;
-    &lt;info organisation="com.artivisi" module="person-apps"/&gt;
-
-    &lt;configurations&gt;
-        &lt;conf name="person-app-web-jdbc" description="Application with web-based UI and JDBC backend"/&gt;
-        &lt;conf name="person-app-desktop-jdbc" description="Application with desktop UI and JDBC backend"/&gt;
-        &lt;conf name="person-app-web-hibernate" description="Application with web-based UI and Hibernate backend"/&gt;
-        &lt;conf name="person-app-desktop-hibernate" description="Application with desktop UI and Hibernate backend"/&gt;
-    &lt;/configurations&gt;
-
-    &lt;dependencies&gt;
-
-        &lt;dependency name="person-model" rev="latest.integration" conf="*-&gt;api"/&gt;
-
-        &lt;dependency name="person-dao-api" rev="latest.integration" conf="*-&gt;api"/&gt;
-
-        &lt;dependency name="person-dao-jdbc" rev="latest.integration" 
-        conf="person-app-web-jdbc-&gt;impl;person-app-desktop-jdbc-&gt;impl"/&gt;
-
-        &lt;dependency name="person-dao-hibernate" rev="latest.integration" 
-        conf="person-app-web-hibernate-&gt;impl;person-app-desktop-hibernate-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-swing" rev="latest.integration" 
-        conf="person-app-desktop-jdbc-&gt;impl;person-app-desktop-hibernate-&gt;impl"/&gt;
-
-        &lt;dependency name="person-ui-springmvc" rev="latest.integration" 
-        conf="person-app-web-jdbc-&gt;impl;person-app-web-hibernate-&gt;impl"/&gt;
-
-
-    &lt;/dependencies&gt;
-
-&lt;/ivy-module&gt;
-</code></pre>
-
-<p>Kita dapat merakit aplikasi dengan ant sebagai berikut</p>
-
-<pre><code>ant resolve
-</code></pre>
-
-<p>Nanti pada folder lib akan terbentuk empat folder sesuai konfigurasi. Isi dari masing-masing folder mencerminkan paket aplikasi sesuai kombinasi yang kita inginkan.</p>
-
-<p>Seperti kita lihat, dengan menggunakan fitur configuration, kita dapat merangkai empat kombinasi aplikasi dengan mudah. Tentunya aplikasi kita harus dirancang secara modular supaya mudah dikombinasikan seperti cerita di atas.</p>
-
-<p><a href="http://endy.artivisi.com/blog/java/ant-ivy-8/">Artikel berikutnya</a> akan menutup seri Ivy ini dengan cara membuat repository dalam organisasi kita. Dengan adanya repository lokal, kita dapat menghemat bandwidth internasional karena kebutuhan dependensi dapat ditangani oleh server internal.</p>
-
-<p>Kita akan melihat kemampuan Ivy untuk mengadaptasi repository baik yang memiliki metadata Ivy, maupun Maven.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -1498,6 +1310,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/memahami-authentication/">Memahami Authentication</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/desain-skema-database/">Desain Skema Database</a>
       </li>
     
@@ -1531,10 +1347,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/ongoing-learning/">Ongoing Learning</a>
       </li>
     
   </ul>

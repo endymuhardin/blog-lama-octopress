@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2014-07-07T10:13:41+07:00</updated>
+  <updated>2014-07-27T00:25:53+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,155 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Memahami Authentication]]></title>
+    <link href="http://software.endy.muhardin.com/java/memahami-authentication/"/>
+    <updated>2014-07-26T23:49:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/memahami-authentication</id>
+    <content type="html"><![CDATA[<p>Menjelang penghujung bulan Ramadhan, ada yang <a href="https://groups.yahoo.com/neo/groups/jug-indonesia/conversations/messages/92685">bertanya di milis JUG</a>. Alhamdulillah, ada kesempatan bersedekah di detik-detik terakhir bulan puasa ;) Karena pertanyaannya membutuhkan jawaban yang cukup panjang, baiklah kita jawab di blog saja.</p>
+
+<p>Berikut pertanyaannya.</p>
+
+<blockquote><p>Saya pernah menggunakan Spring Security Framework. Tapi kalau cuma pakai, tanpa ngerti konsep dasar dan cara kerjanya dasarnya sakit kepala juga akhirnya kalau semua terjadi secara automagically.</p>
+
+<p>Jadi kalau murni tanpa menggunakan Framework apapun :</p>
+
+<ul>
+<li>Bagaimana membuat proses loginnya? dari beberapa artikel yang saya baca (saya baru tahu) katanya login username dan passwordnya dimasukan kedalam HTTP Header.</li>
+</ul>
+
+
+<p>Contohnya :</p>
+
+<p><code>Authorization:Basic c2VzdWF0dUB5YWhvby5jb206YmlzbWlsbGFo</code></p>
+
+<p>dimana <code>c2VzdWF0dUB5YWhvby5jb206YmlzbWlsbGFo</code> adalah Base64 encoding dari <code>sesuatu@yahoo.com:bismillah</code> (username:password)</p>
+
+<p>benarkah begitu?</p>
+
+<ul>
+<li><p>Bagaimana server mengenali client jika kita menggunakan method GET? (ini pertanyaan konsep sangat mendasar sekali). Mungkin jawabannya ya dengan token.</p></li>
+<li><p>Tapi ditaruh dimana? apakah dengan saya tempelkan saja di URL? misal</p></li>
+</ul>
+
+
+<p><code>GET /thewebapp/category/324?token=abcde1234</code></p>
+
+<p>atau saya masukkan dalam HTTP header? tapi dengan header apa?</p></blockquote>
+
+<p>Dan berikut jawaban saya</p>
+
+<!--more-->
+
+
+<p>Yang ditanyakan ini dinamakan proses authentication, artinya memastikan bahwa seseorang/sesuatu yang datang (principal) sesuai dengan yang diakuinya.
+Konkretnya, kalau ada request datang dari user <code>endy</code>, harus diverifikasi bahwa yang request benar-benar <code>endy</code> yang asli.</p>
+
+<p>Bagaimana caranya? Biasanya dengan cara menanyakan sesuatu yang hanya dimiliki oleh principal. Sesuatu ini disebut dengan istilah credential.</p>
+
+<p><a name="principal-credential"></a></p>
+
+<h2>Principal dan Credential</h2>
+
+<p>Principal dan credential itu macam-macam bentuknya. Yang paling umum ditemui : principal = username, credential = password.</p>
+
+<p>Ini kalau principalnya manusia. Bagaimana kalau principalnya aplikasi lain? Ada beberapa credential yang biasa digunakan, misalnya:</p>
+
+<ul>
+<li>digital certificate</li>
+<li>secret shared key</li>
+<li>private key</li>
+<li>dsb</li>
+</ul>
+
+
+<p>Bahkan walaupun usernya manusia, credential tidak cuma password. Bisa juga random number yang digenerate menggunakan algoritma. Dikenal juga dengan istilah <a href="http://en.wikipedia.org/wiki/One-time_password">One Time Password (OTP)</a>. Generatornya bisa software dan bisa juga hardware. Contoh hardwarenya seperti token internet banking yang biasa kita gunakan</p>
+
+<p><img src="https://farm4.staticflickr.com/3670/12361262404_50b4ab650e_z.jpg"></p>
+
+<p>Sedangkan contoh software yang populer antara lain <a href="http://code.google.com/p/google-authenticator/">Google Authenticator</a> dan <a href="https://www.wikidsystems.com/community-edition">WiKiD</a></p>
+
+<p>Mekanisme OTP ini biasanya digunakan bersama-sama dengan password, sehingga disebut juga dengan <a href="http://en.wikipedia.org/wiki/Two_factor_authentication">2 Factor Authentication</a>. Kenapa 2 Factor? Karena untuk bisa mengakses aplikasi, kita akan dimintai 2 hal : <em>what you know</em> dan <em>what you have</em>. What you know adalah password, karena hanya kita yang tahu. What you have adalah generator token, karena tiap generator akan menghasilkan nilai yang berbeda.</p>
+
+<p>Kalau mau lebih canggih lagi, kita bisa menambahkan berbagai lain sehingga menjadi <a href="http://en.wikipedia.org/wiki/Multi-factor_authentication">Multi Factor Authentication</a> yaitu <em>who you are</em> atau biometrik (scan mata, sidik jari, DNA, suara, dsb)</p>
+
+<p><a name="protokol-authentication"></a></p>
+
+<h2>Protokol Authentication</h2>
+
+<p>Setelah kita bicara principal dan credential, selanjutnya bicara protokol. Bagaimana cara principal dan credential disajikan?</p>
+
+<p>Ada beberapa cara:</p>
+
+<ul>
+<li>form login. Aplikasi yang mau diakses menampilkan form, principal mengisi credential. Setelah itu diperiksa valid atau tidak</li>
+<li>basic authentication. Informasi principal dan credential diencode (bukan encrypt ya) dengan algoritma Base64, kemudian ditaruh di HTTP Header.</li>
+<li>digest. Principal mengirim data yang diencode menggunakan credential. Kemudian data ini dikirim ke aplikasi yang mau diakses. Aplikasi (dengan mekanisme yang sama) membuat data yang sama dan diencode dengan proses yang sama. Kalau klop, berarti credential yang tersimpan di aplikasi sama dengan yang dimiliki principal.</li>
+<li><a href="http://en.wikipedia.org/wiki/Mutual_authentication">Mutual / Two-way SSL</a> Handshake. Principal mengirim digital signature yang kemudian akan divalidasi oleh aplikasi yang ingin diakses</li>
+</ul>
+
+
+<p>Untuk alasan efisiensi dan keamanan, proses authentication biasanya dilakukan sekali saja. Setelah proses selesai, principal akan diberikan token yang memiliki masa berlaku singkat. Request selanjutnya akan menggunakan token ini. Dengan demikian, credential tidak terus menerus dikirim melalui jaringan sehingga meningkatkan resiko dicuri.</p>
+
+<p>Jadi, token ini harus disimpan oleh principal dan disertakan pada setiap request.</p>
+
+<p>Bagaimana menyimpannya? Ada beberapa cara :</p>
+
+<ul>
+<li>cookie</li>
+<li>browser storage (ada local storage dan session storage)</li>
+</ul>
+
+
+<p>Bagaimana menyertakannya pada tiap request? Ada beberapa cara:</p>
+
+<ul>
+<li>ditaruh di URL (teknik URL rewrite). Request yang tadinya <code>http://aplikasi.com/halo</code> menjadi <code>http://aplikasi.com/halo?token=abcd</code></li>
+<li>dikirim dalam cookie</li>
+<li>ditaruh di form data (biasanya menggunakan <code>input type=hidden</code>)</li>
+</ul>
+
+
+<p>Jangan lupa bahwa semua informasi yang berlalu-lintas ini harus berjalan dalam jalur yang aman. Selalu <a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">gunakan HTTPS/SSL</a>.</p>
+
+<p><a name="verifikasi-credential"></a></p>
+
+<h2>Verifikasi Credential</h2>
+
+<p>Selanjutnya, kita bicara di sisi aplikasi yang menerima request. Dia harus melakukan verifikasi principal dan credential. Bagaimana cara verifikasinya? Ada beberapa cara:</p>
+
+<ul>
+<li>in memory data. Username dan password dihardcode di aplikasi. Request authentication akan dicek ke data dalam memori ini. Berguna kalau aplikasinya kecil atau masih dalam fase development.</li>
+<li>database relasional. Simpan username dan password dalam database. Password biasanya dihash (bukan encrypt ya) menggunakan berbagai algoritma seperti MD5, SHA, atau BCrypt. Lengkapi dengan salt untuk menambah keamanan.</li>
+<li>database hirarkis (LDAP). Sama seperti database relasional, bentuknya saja yang berbeda.</li>
+<li>delegasikan ke pihak ketiga (single sign on)</li>
+</ul>
+
+
+<p>Di jaman sekarang ini, mekanisme authentication dengan cara delegasi seperti ini semakin ngetren. Ada beberapa protokol standar yang populer :</p>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/OpenID">OpenID</a></li>
+<li><a href="http://en.wikipedia.org/wiki/OAuth">OAuth</a> (versi 1 dan versi 2). Contoh siklus authentication dengan OAuth versi 2 bisa dilihat di <a href="https://github.com/endymuhardin/belajar-springoauth2">contoh yang saya buatkan di Github</a>. Kalau ada waktu lowong, di lain hari akan saya jelaskan dengan lebih rinci di sini.</li>
+</ul>
+
+
+<p>Selain itu, ada juga protokol proprietary yang disediakan berbagai aplikasi single-sign-on, seperti:</p>
+
+<ul>
+<li><a href="http://www.jasig.org/cas">Jasig CAS</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Oracle_Identity_Management">Oracle Identity Management</a></li>
+<li><a href="http://en.wikipedia.org/wiki/Active_Directory">Microsoft Active Directory</a></li>
+<li>dsb</li>
+</ul>
+
+
+<p>Lalu apa kaitannya dengan Spring Security?</p>
+
+<p>Singkat saja. Intinya semua hal di atas harus kita implementasikan dalam aplikasi yang kita buat. Kalau kita pakai Spring Security, sebagian besar (90%) sudah dibuatkan, tinggal pasang saja. 10% sisanya sudah disediakan titik-titik extension di mana kita bisa buat implementasinya dan pasang sehingga klop dengan 90% yang sudah disediakan Spring Security.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Desain Skema Database]]></title>
@@ -974,391 +1123,6 @@ return new ModelMap()
 <blockquote><p>Logikanya sederhana saja, jutaan orang pakai teknologi tersebut. Kalau memang ada masalah besar masa iya tidak muncul di peringkat pertama pada waktu kita <a href="http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/">search di Google</a>?</p></blockquote>
 
 <p>Demikianlah stack development ArtiVisi di tahun 2014. Untuk lebih jelasnya, silahkan tonton video presentasi JaMU di atas.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Dasar-dasar Aplikasi Web Java]]></title>
-    <link href="http://software.endy.muhardin.com/java/dasar-dasar-aplikasi-web-java/"/>
-    <updated>2014-01-20T20:12:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/dasar-dasar-aplikasi-web-java</id>
-    <content type="html"><![CDATA[<p>Pada artikel terdahulu, kita telah membahas tentang <a href="http://software.endy.muhardin.com/life/lan-na-zha/">pentingnya penguasaan terhadap konsep dasar</a>. Kali ini, kita akan membahas tentang konsep dasar aplikasi web di Java. Ini juga akan menjawab pertanyaan yang sering ditanyakan di forum yaitu</p>
-
-<blockquote><p>Saya ingin belajar Java Enterprise Edition (Java EE), apa yang pertama harus saya pelajari?</p></blockquote>
-
-<!--more-->
-
-
-<p>Java EE sangat luas cakupannya, di antaranya adalah:</p>
-
-<ul>
-<li>Java Servlet</li>
-<li>JavaServer Faces</li>
-<li>JavaServer Pages</li>
-<li>Java Persistence</li>
-<li><a href="http://www.oracle.com/technetwork/java/javaee/tech/index.html">dan masih banyak lagi</a></li>
-</ul>
-
-
-<p>Untuk bisa memahami semuanya, tentu kita harus memulai dari yang paling sederhana dulu, yaitu Java Servlet. Teknologi ini adalah dasar dari semua aplikasi web di Java. Tanpa pemahaman terhadap teknologi ini, sulit bagi kita untuk mempelajari framework atau library yang lebih canggih seperti Spring MVC, Struts, JavaServer Faces, dan berbagai framework web lainnya. Kenapa sulit? Karena semua framework tersebut dibangun di atas Java Servlet. Kalau pondasinya saja tidak paham, bagaimana mau belajar yang lain?</p>
-
-<p>Ada beberapa hal penting yang harus dipahami dalam Java Servlet, yaitu:</p>
-
-<ul>
-<li>Struktur Folder Aplikasi Web Java</li>
-<li>Alur eksekusi HTTP Request sampai menghasilkan HTTP Response</li>
-<li><p>Tiga komponen Java Servlet yaitu:</p>
-
-<ul>
-<li>Servlet</li>
-<li>Filter</li>
-<li>Listener</li>
-</ul>
-</li>
-</ul>
-
-
-<p>Mari kita bahas satu persatu.</p>
-
-<h1>Struktur Folder</h1>
-
-<p>Aplikasi web Java struktur foldernya harus mengikuti kaidah berikut</p>
-
-<p><img src="https://github.com/endymuhardin/materi-kuliah-java-web/blob/master/materi-kuliah/img/struktur-folder-web-java.png?raw=true" alt="Struktur Folder Aplikasi Web Java" /></p>
-
-<p>Gambar di atas adalah struktur folder aplikasi yang siap dijalankan. Oleh karena itu kita tidak melihat adanya source code Java di sana.</p>
-
-<p>Setelah kita memiliki struktur folder seperti di atas, aplikasi siap dipaketkan (package) supaya bisa dideploy di application server. Packaging dilakukan dengan membungkus folder di atas dengan algoritma <code>zip</code>. Kita bisa menggunakan aplikasi kompresi seperti WinZip ataupun WinRAR. Bila kita menggunakan WinRAR, harus diingat bahwa algoritma yang digunakan haruslah <code>zip</code>, bukan <code>rar</code></p>
-
-<p>Setelah di-zip, rename extension file menjadi <code>war</code> agar dikenali oleh application server. <code>war</code> merupakan singkatan dari Web Archive.</p>
-
-<p>Untuk menjalankan aplikasi di application server (misalnya Tomcat), berikut langkah-langkah deployment:</p>
-
-<ul>
-<li>masukkan file <code>war</code> ke folder deployment sesuai merek application server yang digunakan</li>
-<li>contoh: untuk Tomcat, folder deploymentnya adalah <code>webapps</code></li>
-<li>Tomcat akan meng-extract file <code>war</code> tersebut</li>
-<li>Setelah deployment selesai (ditandai dengan file telah diextract dan tidak ada error di log) aplikasi bisa dibrowse di <code>http://ip-server:port/nama-file-war/index.html</code></li>
-</ul>
-
-
-<p>Bila aplikasi tidak lagi digunakan, kita bisa melakukan undeploy. Caranya:</p>
-
-<ul>
-<li>hapus file <code>war</code> dari folder deployment</li>
-<li>setelah folder aplikasi terhapus, undeploy berarti sukses</li>
-</ul>
-
-
-<p>Ada beberapa hal yang harus diperhatikan dalam struktur folder di atas, yaitu:</p>
-
-<ul>
-<li>Folder <code>WEB-INF</code></li>
-<li>File <code>web.xml</code></li>
-</ul>
-
-
-<h2>Folder WEB-INF</h2>
-
-<p>Folder ini adalah folder khusus. Dia tidak bisa dibrowse oleh user aplikasi. Maksudnya adalah, user aplikasi tidak bisa mengetik <code>http://localhost:8080/belajar/WEB-INF</code> di browser untuk menampilkan isi folder <code>WEB-INF</code>. Jadi bila kita memiliki file yang tidak boleh dilihat user (misalnya konfigurasi, logfile, file temporary, dan sebagainya), kita bisa letakkan file-file tersebut dalam folder <code>WEB-INF</code>.</p>
-
-<p>Di dalam folder ini biasanya ada dua folder khusus lain, yaitu</p>
-
-<ul>
-<li><code>classes</code> : berisi file <code>*.class</code> hasil kompilasi dari source code <code>*.java</code> kita</li>
-<li><code>lib</code> : berisi file <code>*.jar</code>, library tambahan yang kita gunakan seperti driver JDBC, JSON processor, pengolah tanggal, dan lainnya</li>
-</ul>
-
-
-<h2>File web.xml</h2>
-
-<p>File ini berisi konfigurasi dari aplikasi web kita. Di Java EE versi terbaru, file ini tidak harus ada. Tapi di Java EE versi terdahulu, dia wajib disertakan. Untuk amannya, agar aplikasi kita kompatibel dengan application server jadul, ada baiknya kita sertakan saja. Toh file ini juga akan kita buat kalau kita menggunakan framework seperti Spring MVC, JSF, Struts, dan sebagainya. Berikut isi file <code>web.xml</code> yang paling sederhana, yaitu hanya berisi <em>root tag</em> <code>webapp</code> kosong.</p>
-
-<p>```xml
-&lt;?xml version="1.0" encoding="UTF-8"?>
-&lt;web-app xmlns="http://java.sun.com/xml/ns/javaee"</p>
-
-<pre><code>      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
-      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-      version="3.0"&gt;
-</code></pre>
-
-<p></web-app>
-```</p>
-
-<p>Nantinya, file ini bisa berisi konfigurasi:</p>
-
-<ul>
-<li>Servlet</li>
-<li>Filter</li>
-<li>Listener</li>
-<li>Welcome Page : halaman yang dibuka kalau user tidak menyebutkan apa-apa, misalnya <code>http://aplikasi-saya.com/</code></li>
-<li>Error Page : halaman error bila URL yang diminta tidak ada (404), user belum login (401), ijin akses tidak memadai (403), error aplikasi (500), dan sebagainya</li>
-<li>Session timeout : rentang waktu user tidak mengakses aplikasi hingga session-nya dinyatakan kadaluarsa</li>
-</ul>
-
-
-<h1>Alur Eksekusi HTTP</h1>
-
-<blockquote><p>Apa yang terjadi bila kita mengetik <code>http://localhost:8080/aplikasi-web-sederhana/halo.php?nama=endy</code> di browser?</p></blockquote>
-
-<ol>
-<li>Browser akan mengakses port 8080 di localhost, yaitu komputer kita sendiri.</li>
-<li>Kita asumsikan bahwa Tomcat berjalan di port 8080, maka request ini akan diterima Tomcat</li>
-<li>Tomcat akan mencari aplikasi bernama <code>aplikasi-web-sederhana</code>. Biasanya aplikasi ini ditandai dengan adanya folder <code>aplikasi-web-sederhana</code> dalam folder <code>&lt;lokasi instalasi tomcat&gt;/webapps</code>. Folder ini akan terbentuk bila kita mendeploy file bernama <code>aplikasi-web-sederhana.war</code> seperti telah dijelaskan di atas.</li>
-<li>Tomcat akan mencari kode program yang bertanggung jawab menerima request <code>halo.php</code>. Biasanya penanggung jawab ini adalah servlet yang dideklarasikan dalam <code>aplikasi-web-sederhana/WEB-INF/web.xml</code></li>
-<li>Bila penanggung jawab tidak ditemukan, Tomcat akan mengembalikan kode error 404, artinya tidak ditemukan. Bila penanggung jawab ada, maka Tomcat akan memberikan data-data request kepada penanggung jawab ini untuk ditangani. Data request yang tersedia diantaranya adalah request parameter, HTTP header, dan request body</li>
-<li>Servlet yang bertanggung jawab akan memproses request, kemudian menghasilkan response. Response dikirim ke browser yang mengaksesnya.</li>
-</ol>
-
-
-<p>Sebagai ilustrasi, untuk menangani request <code>http://localhost:8080/aplikasi-web-sederhana/halo.php?nama=endy</code>, kita harus membuat deklarasi servlet di <code>web.xml</code> sebagai berikut:</p>
-
-<p>```xml
-<servlet></p>
-
-<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
-&lt;servlet-class&gt;com.muhardin.endy.training.web.HaloServlet&lt;/servlet-class&gt;
-</code></pre>
-
-<p></servlet></p>
-
-<p><servlet-mapping></p>
-
-<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
-&lt;url-pattern&gt;/halo.php&lt;/url-pattern&gt;
-</code></pre>
-
-<p></servlet-mapping>
-```</p>
-
-<p>Kemudian membuat class <code>HaloServlet</code> dalam package <code>com.muhardin.endy.training.web</code> yang isinya sebagai berikut</p>
-
-<p>```java
-public class HaloServlet extends HttpServlet {</p>
-
-<pre><code>public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
-        String asal = request.getRemoteAddr();
-        String nama = request.getParameter("nama");
-
-        String output = "&lt;html&gt;";
-        output += "&lt;body&gt;";
-        output += "&lt;h1&gt;Halo "+nama+"&lt;/h1&gt;";
-        output += "&lt;h2&gt;Anda datang dari "+asal+"&lt;/h2&gt;";
-        output += "&lt;/body&gt;";
-        output += "&lt;/html&gt;";
-
-        // content type = html
-        response.setContentType("text/html");
-        response.getWriter().print(output);
-    } catch (IOException ex) {
-        Logger.getLogger(HaloServlet.class.getName()).log(Level.SEVERE, null, ex);
-    }
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>Pembaca yang teliti akan merasa heran</p>
-
-<blockquote><p>Lho kok ekstensi requestnya <code>.php</code>?</p></blockquote>
-
-<p>Aplikasi web Java tidak peduli terhadap ekstensi request. Yang penting sesuai dengan mapping dalam <code>web.xml</code>. Jadi kita bisa pasang <code>halo.php</code>, <code>halo.jsp</code>, <code>halo.html</code>, <code>halo.asp</code>, bahkan <code>halo.halo</code>. Selama URL tersebut terdaftar dalam <code>web.xml</code>, maka request akan diproses dengan baik.</p>
-
-<p>Source code lengkap bisa diakses <a href="https://github.com/endymuhardin/materi-kuliah-java-web/tree/master/sample-code/sesi-01/aplikasi-web-sederhana">di sini</a></p>
-
-<h1>Komponen Aplikasi Web Java</h1>
-
-<h2>Servlet</h2>
-
-<p>Digunakan untuk menerima HTTP request dan membuat HTTP response</p>
-
-<p>Cara membuat:</p>
-
-<ol>
-<li>Buat class yang extends <code>HttpServlet</code></li>
-<li><p>Implement method sesuai HTTP method yang akan kita gunakan.</p>
-
-<ul>
-<li>GET -> doGet(HttpServletRequest req, HttpServletResponse res)</li>
-<li>POST -> doPost(HttpServletRequest req, HttpServletResponse res)</li>
-<li>dst</li>
-</ul>
-</li>
-<li><p>Buat mappingnya di <code>web.xml</code></p></li>
-<li>Compile dan deploy ke application server</li>
-<li>Test browse ke <code>http://localhost:8080/aplikasi-web-sederhana/halo.php?nama=endy</code></li>
-</ol>
-
-
-<h3>HaloServlet.java</h3>
-
-<p>```java
-public class HaloServlet extends HttpServlet {</p>
-
-<pre><code>public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    try {
-        String asal = request.getRemoteAddr();
-        String nama = request.getParameter("nama");
-
-        String output = "&lt;html&gt;";
-        output += "&lt;body&gt;";
-        output += "&lt;h1&gt;Halo "+nama+"&lt;/h1&gt;";
-        output += "&lt;h2&gt;Anda datang dari "+asal+"&lt;/h2&gt;";
-        output += "&lt;/body&gt;";
-        output += "&lt;/html&gt;";
-
-        // content type = html
-        response.setContentType("text/html");
-        response.getWriter().print(output);
-    } catch (IOException ex) {
-        Logger.getLogger(HaloServlet.class.getName()).log(Level.SEVERE, null, ex);
-    }
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>web.xml</h3>
-
-<p>```xml
-<servlet></p>
-
-<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
-&lt;servlet-class&gt;com.muhardin.endy.training.web.HaloServlet&lt;/servlet-class&gt;
-</code></pre>
-
-<p></servlet></p>
-
-<p><servlet-mapping></p>
-
-<pre><code>&lt;servlet-name&gt;halo&lt;/servlet-name&gt;
-&lt;url-pattern&gt;/halo.php&lt;/url-pattern&gt;
-</code></pre>
-
-<p></servlet-mapping>
-```</p>
-
-<h2>Filter</h2>
-
-<p>Digunakan untuk :</p>
-
-<ul>
-<li>mencegat HTTP request sebelum ditangani servlet</li>
-<li>mencegat HTTP response sebelum dikirim ke requester</li>
-</ul>
-
-
-<p>Contoh penggunaan :</p>
-
-<ul>
-<li>memproteksi URL yang membutuhkan login (Spring Security)</li>
-<li>mendekorasi HTML dengan header/footer/sidebar (Sitemesh)</li>
-<li>kompresi response</li>
-</ul>
-
-
-<p>Contoh implementasi :</p>
-
-<h3>Java (kode program)</h3>
-
-<p>```java
-public class HaloFilter implements Filter{</p>
-
-<pre><code>public void init(FilterConfig fc) throws ServletException {
-    System.out.println("Filter diinisialisasi");
-}
-
-public void doFilter(ServletRequest request, ServletResponse response, FilterChain fc) throws IOException, ServletException {
-    System.out.println("Mencegat request");
-    fc.doFilter(request, response);
-    System.out.println("Mencegat response");
-}
-
-public void destroy() {
-    System.out.println("Filter di-destroy");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>web.xml (konfigurasi)</h3>
-
-<p>```xml
-<filter></p>
-
-<pre><code>&lt;filter-name&gt;haloFilter&lt;/filter-name&gt;
-&lt;filter-class&gt;com.muhardin.endy.training.web.HaloFilter&lt;/filter-class&gt;
-</code></pre>
-
-<p></filter></p>
-
-<p><filter-mapping></p>
-
-<pre><code>&lt;filter-name&gt;haloFilter&lt;/filter-name&gt;
-&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
-</code></pre>
-
-<p></filter-mapping>
-```</p>
-
-<h2>Listener</h2>
-
-<p>Digunakan untuk merespon event dalam aplikasi, misalnya:</p>
-
-<ul>
-<li>aplikasi distart / deploy (context created)</li>
-<li>aplikasi distop / undeploy (context destroyed)</li>
-<li>session dibuat</li>
-<li>session timeout</li>
-<li>session dihapus (invalidation)</li>
-</ul>
-
-
-<p>Contoh implementasi:</p>
-
-<h3>Java (kode program)</h3>
-
-<p>```java
-public class HaloListener implements ServletContextListener, HttpSessionListener{</p>
-
-<pre><code>public void contextInitialized(ServletContextEvent sce) {
-    System.out.println("Aplikasi start");
-}
-
-public void contextDestroyed(ServletContextEvent sce) {
-    System.out.println("Aplikasi stop");
-}
-
-public void sessionCreated(HttpSessionEvent hse) {
-    System.out.println("Ada session baru");
-}
-
-public void sessionDestroyed(HttpSessionEvent hse) {
-    System.out.println("Session di-destroy");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>web.xml (konfigurasi)</h3>
-
-<p>```xml
-<listener></p>
-
-<pre><code>&lt;listener-class&gt;com.muhardin.endy.training.web.HaloListener&lt;/listener-class&gt;
-</code></pre>
-
-<p></listener>
-```</p>
-
-<p>Demikianlah konsep dasar aplikasi web di Java. Untuk bisa memahami, tentu kita harus sering berlatih membuat kode program, tidak hanya membaca tutorial saja. Contoh kode program lainnya bisa dilihat <a href="https://github.com/endymuhardin/materi-kuliah-java-web/tree/master/sample-code">di sini</a>. Silahkan dipraktekkan dan dilihat hasilnya.</p>
 ]]></content>
   </entry>
   

@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Saya akan berbicara pada pertemuan rutin komunitas Java, JaMU (Java Meet Up). Acaranya akan diadakan di kantor Sun Microsystem, Sabtu, 27 Januari &hellip;">
+  <meta name="description" content="Kapan pakai interface, dan kapan pakai abstract class? Pertanyaan menarik ini muncul di milis jug-indonesia. Karena jawabannya cukup panjang, jadi &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,115 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/interface-abstract/">Interface vs Abstract Class</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-01-25T23:31:25+07:00" pubdate data-updated="true">Jan 25<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>Kapan pakai interface, dan kapan pakai abstract class?</p></blockquote>
+
+<p>Pertanyaan menarik ini muncul di milis jug-indonesia. Karena jawabannya cukup panjang, jadi saya copy-paste, sesuaikan sedikit, dan posting di blog.</p>
+
+<p>First of all, ini pertanyaan advanced. Kapan pakai interface, dan kapan pakai abstract class itu cuma bisa dipahami dengan coding banyak-banyak (learning by doing), berpikir secara abstrak, dan banyak belajar desain aplikasi. Jadi jangan berkecil hati kalau Anda bingung setelah membaca artikel ini. Bukannya Anda tidak berbakat coding, tapi hanya kurang jam terbang saja.</p>
+
+<p>Berikut jawaban saya.</p>
+
+<blockquote><p>Abstract class itu digunakan untuk mengimplementasikan pattern Template Method. Sedangkan interface digunakan (diantaranya) untuk mengimplementasikan pattern Observer.</p></blockquote>
+
+<p>Pakai interface bila satu class mau memiliki beberapa tipe data. Di Java, tipe data ditentukan oleh interface dan class. Mengacu pada buku Design Pattern, interface digunakan untuk menerapkan pattern Observer.</p>
+
+<p>Contoh mudahnya seperti ini. Misalnya kita membuat aplikasi GUI. dan menggunakan komponen text (JTextArea). Komponen ini memiliki beberapa method untuk mengaktifkan event handling, beberapa diantaranya:</p>
+
+<ul>
+<li>addMouseListener(MouseListener msl) : merespon gerakan mouse</li>
+<li>addCaretListener(CaretListener cls) : merespon gerakan kursor</li>
+</ul>
+
+
+<p>Kalau kita definsikan class seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">EventLog</span> <span class="kd">implements</span> <span class="n">MouseListener</span><span class="o">,</span> <span class="n">CaretListener</span> <span class="o">{}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>maka class EventLog bisa diumpankan pada kedua method di atas, karena class EventLog bertipe data EventLog, MouseListener, dan juga CaretListener.</p>
+
+<p>Lalu, kapan kita menggunakan abstract class? Salah satunya apabila kita ingin membuat Template Method.</p>
+
+<p>Kutipan dari Design Pattern GoF</p>
+
+<blockquote><p>By defining some of the steps of an algorithm using abstract operations, the template method fixes their ordering, but it lets Application and Document subclasses vary those steps to suit their needs.</p></blockquote>
+
+<p>Seperti kita ketahui, Template Method itu salah satu methodnya concrete dan (sebaiknya) final.</p>
+
+<p>Contoh template method bisa dilihat di implementasi AbstractFormController di <a href="http://www.springframework.org">Spring Framework</a>.</p>
+
+<p>Untuk non-pengguna Spring, AbstractFormController itu mendefinisikan workflow pemrosesan HTML form. Method yang perlu diperhatikan di sini adalah method handleRequestInternal. Isi method ini kira2 seperti ini (dimodifikasi agar mudah dimengerti):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">handleRequestInternal</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">bindDataDariForm</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">setelahBindSebelumValidasi</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">validasiData</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">setelahValidasi</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">processFormSubmission</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Seperti kita lihat di atas, method ini memanggil beberapa method lain secara berurutan. Urutan ini penting, karena kita tidak mau validasi dipanggil setelah form diproses. Apa gunanya validasi kalau pemrosesan sudah selesai?</p>
+
+<p>Class AbstractFormController ini punya abstract method, yaitu:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">processFormSubmission</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Kenapa dibuat abstract? Karena pada saat menulis kode tersebut, Rod Johnson tidak tahu apa yang kita ingin lakukan pada saat form diproses. Ada yang mau simpan ke database, ada yang mau kirim email, dan berbagai kegiatan lain yang tidak terbayangkan sebelumnya. Oleh karena itu, method ini dibuat abstract, sehingga kita harus membuat implementasinya (override)</p>
+
+<p>Nah, kita sebagai end-user, biasanya hanya perlu mengimplement method processFormSubmission tersebut. Method lainnya hanya dioverride apabila perlu. Misalnya kita ingin pakai logika validasi sendiri, atau ada pemrosesan khusus setelah validasi.</p>
+
+<p>Teknik Template Method ini tidak bisa diimplement dengan interface, karena harus ada method concrete handleRequestInternal yang berfungsi untuk mendefinsikan workflow.</p>
+
+<p>Demikian, mudah-mudahan bisa dimengerti.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1320,214 +1429,6 @@ Singkatnya, dalam urusan menyimpan file, version control mirip dengan mesin wakt
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/eclipse-birt/">Menggunakan Eclipse BIRT [Bagian 1]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-09-29T16:54:11+07:00" pubdate data-updated="true">Sep 29<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk membuat laporan dari sumber data yang sudah ada.</p>
-
-<p>Cara kerjanya sederhana. Bagi yang belum pernah menggunakan aplikasi reporting dan ingin memahaminya secara sederhana, dapat menggunakan fasilitas mail merge yang dimiliki aplikasi <em>office</em> seperti Microsoft Word atau OpenOffice Writer.</p>
-
-<p>Intinya, kita membuat satu template. Di dalam template tersebut kita isikan variabel-variabel yang kita ingin tampilkan. Pada saat dijalankan (runtime), variabel ini akan digantikan oleh template processor dengan data yang diambil dari sumber data eksternal.</p>
-
-<p>Contoh umum penggunaan fasilitas mail merge adalah untuk mencetak label alamat pada undangan. Kita definisikan variabel yang akan tampil, misalnya:</p>
-
-<ul>
-<li>Nama</li>
-<li>Alamat</li>
-<li>Kota</li>
-</ul>
-
-
-<p>Kemudian, kita sediakan file lain di spreadsheet (MS Excel atau OO Calc) yang memuat data tersebut. Data yang disimpan bisa saja ratusan atau ribuan. Untuk Open Office, database yang digunakan tidak hanya dari spreadsheet, tapi bisa juga dari <em>database betulan</em> seperti MySQL atau Oracle.</p>
-
-<p>Setelah template dan data siap, aplikasi dijalankan untuk melakukan <em>merge</em>. Hasilnya adalah ratusan label yang sudah terisi dengan data dari database.</p>
-
-<p>Logika yang sama digunakan oleh perlengkapan reporting seperti Crystal Report dan kompetitor lainnya. Biasanya template dibuat dalam format XML. Selanjutnya, prosesnya sama. Desain templatenya, kemudian siapkan datanya.</p>
-
-<p>Saya tidak akan membahas Crystal Report di sini. Kita akan membahas aplikasi reporting yang gratis, yaitu <a href="http://www.eclipse.org/birt" title="BIRT Homepage">Eclipse BIRT</a>. Sebagai bagian dari Eclipse, aplikasi ini gratis dan berkualitas tinggi.</p>
-
-<p>Fitur BIRT juga tidak kalah dengan aplikasi reporting lain, diantaranya adalah:</p>
-
-<ol>
-<li>Berbagai pilihan datasource; RDBMS, XML, Text File, dan lain-lain. Lain-lain maksudnya di sini adalah sumber lain yang dapat diakses melalui scripting language BIRT.</li>
-<li>Berbagai pilihan output; PDF, XLS, CSV, HTML, XML adalah format yang didukung. Untuk format lain, asalkan berbasis text, bisa menggunakan output XML yang kemudian diproses lagi menggunakan XSLT.</li>
-<li>Berbagai pilihan integrasi. BIRT dapat dijalankan sebagai standalone report server, atau juga diembed (digabungkan) dengan aplikasi kita. Bila dijalankan sebagai standalone server, BIRT dapat berkomunikasi dengan aplikasi dengan bahasa pemrograman yang berbeda, misalnya PHP, Ruby, .Net, atau yang lainnya.</li>
-<li>Visual Designer. Eclipse sudah melengkapi BIRT dengan database explorer, drag-and-drop query builder, dan fitur canggih lainnya. Kita akan lihat fitur ini dalam screenshot di bawah.</li>
-<li>Integrated dengan IDE. Bila kita menggunakan Java, kita bisa coding di Eclipse, dan membuat report di Eclipse juga. Jadi tidak perlu menggunakan beberapa tools yang berbeda.</li>
-</ol>
-
-
-<p>Baiklah, mari kita coba saja.</p>
-
-<p>Pertama, kita harus donlod dulu dari <a href="http://www.eclipse.org/birt" title="Homepage BIRT">homepagenya</a>. Ukurannya relatif besar, sekitar 200 MB. Tapi jangan khawatir, ada mirrornya di <a href="http://anak.kambing.vlsm.org" title="Mirror Kambing">server Universitas Indonesia</a>. Kalau kita sudah punya Eclipse terbaru, bisa langsung gunakan fitur updatenya. Jalankan downloadnya sebelum pulang kantor. Dengan demikian, besok pagi ketika kita datang, BIRT sudah terinstal.</p>
-
-<p>Setelah terinstal, kita bisa langsung menggunakannya. BIRT terinstal lengkap bersama contoh database. <a href="http://www.eclipse.org/birt/phoenix/tutorial/basic/index.php" title="Cara penggunaan BIRT">Tutorial cara penggunaannya</a> juga cukup jelas dan lengkap. Sayangnya tidak ada screenshotnya. Jangan khawatir, pada artikel ini, saya akan sediakan screenshotnya.</p>
-
-<p>Berikut adalah tampilan Eclipse pada saat sudah dijalankan.</p>
-
-<p><img src="/images/uploads/2006/09/eclipse.png" title="Eclipse Interface" ></p>
-
-<p>Selanjutnya, kita langsung membuat project baru. Klik File > New, kemudian pilih Report Project</p>
-
-<p><img src="/images/uploads/2006/09/new-report-project.png" title="Create Report Project" ></p>
-
-<p>Beri nama projectnya. Kemudian klik Next. Eclipse akan menanyakan apakah kita ingin bekerja dalam Report Perspective. Jawab saja Yes.</p>
-
-<p>Report perspective tampil seperti screenshot berikut</p>
-
-<p><img src="/images/uploads/2006/09/eclipse-report.png" title="Report Perspective" ></p>
-
-<p>Perhatikan di sebelah kiri ada tiga tab : Pallete, Data Explorer, dan Library. Kita akan gunakan tab ini untuk mendesain report.</p>
-
-<p>Kemudian, mari kita buat report pertama kita. Datasource yang akan digunakan sudah disediakan Eclipse sebagai database sample. Sesuai tutorial Eclipse, kita akan membuat laporan yang berisi daftar nama pelanggan, dikelompokkan berdasarkan provinsi (State) dan kota (City).</p>
-
-<p>Untuk membuat report baru, klik File > New > Report. Kalau pilihan Report belum ada, pilih Others dan cari di daftar yang tersedia, dalam kategori Business Intelligence and Reporting Tools.</p>
-
-<p><img src="/images/uploads/2006/09/new-report.png" title="Create Report" ></p>
-
-<p>Beri nama reportnya</p>
-
-<p><img src="/images/uploads/2006/09/new-report-1.png" title="Define Report" ></p>
-
-<p>Kemudian pilih templatenya. Supaya lebih seru, kita akan gunakan Blank Template</p>
-
-<p><img src="/images/uploads/2006/09/new-report-blank2.png" title="Blank Template" ></p>
-
-<p>Selanjutnya, template report kita tampil di layar dalam Design View. Kita dapat berganti ke berbagai view melalui tab di bawah editor report.</p>
-
-<p>Setelah report tampil, kita dapat menambahkan label. Tambahkan saja satu label untuk judul, yaitu Laporan Data Pelanggan. Jenis huruf, rata tengah, dan setting lainnya dapat dilakukan melalui toolbar yang ada di bagian bawah.</p>
-
-<p><img src="/images/uploads/2006/09/report-design-label.png" title="Add Label" ></p>
-
-<p>Sebelum melangkah lebih jauh, kita perlu mendefinisikan Data Source untuk report ini. Buat Data Source baru melalui panel sebelah kiri.</p>
-
-<p><img src="/images/uploads/2006/09/report-datasource-new.png" title="Create DataSource" ></p>
-
-<p>Pilihan datasource akan muncul. Kita akan menggunakan database sample yang sudah ada. Untuk project betulan, kita dapat gunakan database atau sumber data yang lainnya.</p>
-
-<p><img src="/images/uploads/2006/09/report-datasource-new-1.png" title="Select DataSource" ></p>
-
-<p>Beri nama Sample di kolom Data Source Name, kemudian klik Finish.</p>
-
-<p>Dari datasource yang ada, kita dapat mendefinsikan Data Set. Data Set ini adalah sebagian dari isi Data Source yang akan kita gunakan dalam report.</p>
-
-<p><img src="/images/uploads/2006/09/report-dataset-new.png" title="Create Dataset" ></p>
-
-<p>Muncul pilihan datasource dan jenis data set. Kita bisa menggunakan lebih dari satu datasource dalam satu report. Untuk kali ini, cuma ada satu data source. Pilih tipe data set SQL Select Query. Jangan lupa beri nama yang deskriptif untuk dataset yang dibuat.</p>
-
-<p><img src="/images/uploads/2006/09/report-dataset-new-1.png" title="Create Dataset" ></p>
-
-<p>Setelah kita tekan Next, akan muncul database explorer di panel kiri, dan SQL editor di kanan. Kita dapat melakukan drag and drop pada layar ini.</p>
-
-<p><img src="/images/uploads/2006/09/report-dataset-new-2.png" title="Database Explorer" ></p>
-
-<p>Edit SQL menjadi seperti ini:</p>
-
-<pre><code>select * 
-from
-</code></pre>
-
-<p>Kemudian drag-and-drop tabel Customer ke sebelah kanan <em>from</em>, sehingga kodenya menjadi seperti ini:</p>
-
-<pre><code>select * 
-from CLASSICMODELS.CUSTOMERS
-</code></pre>
-
-<p>Klik Next. Selanjutnya muncul Data Set Editor.</p>
-
-<p><img src="/images/uploads/2006/09/report-dataset-new-3.png" title="DataSet Editor" ></p>
-
-<p>Kita tidak melakukan perubahan apa-apa di sini. Tapi bila ingin tahu apa isi tabelnya, kita dapat melihat <em>Preview Result</em> seperti ini:</p>
-
-<p><img src="/images/uploads/2006/09/report-dataset-new-4.png" title="Preview DataSet" ></p>
-
-<p>Klik OK. Dataset siap digunakan.</p>
-
-<p>Selanjutnya, kita akan tampilkan data pelanggan dalam bentuk tabel. Pilih Table di Pallete, dan letakkan di report. Kita akan tampilkan 4 kolom dan 1 baris detail. Kolom yang nantinya akan ditampilkan adalah:</p>
-
-<ol>
-<li>Provinsi</li>
-<li>Kota</li>
-<li>Nama Pelanggan</li>
-<li>Nomer Telepon</li>
-</ol>
-
-
-<p>Tampilan yang dihasilkan adalah seperti ini:</p>
-
-<p><img src="/images/uploads/2006/09/report-table-1.png" title="Initial Table" ></p>
-
-<p>Dari seluruh data pelanggan yang ada, kita akan kelompokkan berdasarkan provinsi, kemudian kota. Untuk itu, kita tambahkan Group di tabel. Caranya, klik tombol pemilih tabel, kemudian klik kanan di baris detail.</p>
-
-<p><img src="/images/uploads/2006/09/report-table-2.png" title="Insert Group" ></p>
-
-<p>Group Editor akan muncul. Beri nama State, kemudian klik OK.</p>
-
-<p><img src="/images/uploads/2006/09/report-table-3.png" title="Group Editor" ></p>
-
-<p>Hasilnya akan tampak seperti ini</p>
-
-<p><img src="/images/uploads/2006/09/report-table-4.png" title="Group by State" ></p>
-
-<p>Untuk mengisikan State ke Group Row tersebut, drag-and-drop dari panel kiri ke kolom <em>paling kiri</em> di baris Group Header Row. Layar Select Data Binding akan muncul, langsung saja klik OK.</p>
-
-<p><img src="/images/uploads/2006/09/report-table-5.png" title="State Data Binding" ></p>
-
-<p>Kita perlu memasukkan Group Row satu lagi untuk City. Caranya sama, yaitu dengan menambahkan Group Row di <em>bawah</em> Group Header State.</p>
-
-<p><img src="/images/uploads/2006/09/report-table-6.png" title="Insert Group Below" ></p>
-
-<p>Beri nama City, kemudian klik OK. Lalu pilih field city dari Data Explorer di sebelah kiri, dan pasang di kolom kedua di Group Header Row 2. Hasilnya seperti ini:</p>
-
-<p><img src="/images/uploads/2006/09/report-table-7.png" title="Group by City" ></p>
-
-<p>Terakhir, masukkan field CUSTOMERNAME dan PHONE ke Detail Row. Kolom judul CUSTOMERNAME kurang enak dibaca, jadi kita bisa ganti labelnya di baris paling atas menjadi Customer Name. Hasil akhirnya adalah seperti ini:</p>
-
-<p><img src="/images/uploads/2006/09/report-table-8.png" title="Final Design" ></p>
-
-<p>Report kita sudah selesai. Silahkan disave, kemudian lihat previewnya. Kalau semua dilakukan dengan benar, kita akan melihat tampilan seperti ini:</p>
-
-<p><img src="/images/uploads/2006/09/report-table-9.png" title="Report Preview" ></p>
-
-<p>Kita akan lihat bahwa data pelanggan sudah diurutkan dan dikelompokkan berdasarkan State dan City.</p>
-
-<p>Kalau kita tekan menu <em>File</em>, kita akan menemui pilihan View Report in Web Viewer, as HTML, dan as PDF. Silahkan gunakan sesuai kebutuhan.</p>
-
-<p><img src="/images/uploads/2006/09/report-table-10.png" title="Export Format HTML PDF" ></p>
-
-<p>Selamat mencoba.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/18/">&larr; Older</a>
@@ -1604,6 +1505,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/memahami-authentication/">Memahami Authentication</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/desain-skema-database/">Desain Skema Database</a>
       </li>
     
@@ -1637,10 +1542,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/ongoing-learning/">Ongoing Learning</a>
       </li>
     
   </ul>

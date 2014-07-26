@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="JFreeChart adalah library untuk menghasilkan chart dengan Java. Berbagai chart bisa dihasilkan, dari Pie Chart, Bar Chart, dan sebagainya. Pada &hellip;">
+  <meta name="description" content="Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,214 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/eclipse-birt/">Menggunakan Eclipse BIRT [Bagian 1]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-09-29T16:54:11+07:00" pubdate data-updated="true">Sep 29<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk membuat laporan dari sumber data yang sudah ada.</p>
+
+<p>Cara kerjanya sederhana. Bagi yang belum pernah menggunakan aplikasi reporting dan ingin memahaminya secara sederhana, dapat menggunakan fasilitas mail merge yang dimiliki aplikasi <em>office</em> seperti Microsoft Word atau OpenOffice Writer.</p>
+
+<p>Intinya, kita membuat satu template. Di dalam template tersebut kita isikan variabel-variabel yang kita ingin tampilkan. Pada saat dijalankan (runtime), variabel ini akan digantikan oleh template processor dengan data yang diambil dari sumber data eksternal.</p>
+
+<p>Contoh umum penggunaan fasilitas mail merge adalah untuk mencetak label alamat pada undangan. Kita definisikan variabel yang akan tampil, misalnya:</p>
+
+<ul>
+<li>Nama</li>
+<li>Alamat</li>
+<li>Kota</li>
+</ul>
+
+
+<p>Kemudian, kita sediakan file lain di spreadsheet (MS Excel atau OO Calc) yang memuat data tersebut. Data yang disimpan bisa saja ratusan atau ribuan. Untuk Open Office, database yang digunakan tidak hanya dari spreadsheet, tapi bisa juga dari <em>database betulan</em> seperti MySQL atau Oracle.</p>
+
+<p>Setelah template dan data siap, aplikasi dijalankan untuk melakukan <em>merge</em>. Hasilnya adalah ratusan label yang sudah terisi dengan data dari database.</p>
+
+<p>Logika yang sama digunakan oleh perlengkapan reporting seperti Crystal Report dan kompetitor lainnya. Biasanya template dibuat dalam format XML. Selanjutnya, prosesnya sama. Desain templatenya, kemudian siapkan datanya.</p>
+
+<p>Saya tidak akan membahas Crystal Report di sini. Kita akan membahas aplikasi reporting yang gratis, yaitu <a href="http://www.eclipse.org/birt" title="BIRT Homepage">Eclipse BIRT</a>. Sebagai bagian dari Eclipse, aplikasi ini gratis dan berkualitas tinggi.</p>
+
+<p>Fitur BIRT juga tidak kalah dengan aplikasi reporting lain, diantaranya adalah:</p>
+
+<ol>
+<li>Berbagai pilihan datasource; RDBMS, XML, Text File, dan lain-lain. Lain-lain maksudnya di sini adalah sumber lain yang dapat diakses melalui scripting language BIRT.</li>
+<li>Berbagai pilihan output; PDF, XLS, CSV, HTML, XML adalah format yang didukung. Untuk format lain, asalkan berbasis text, bisa menggunakan output XML yang kemudian diproses lagi menggunakan XSLT.</li>
+<li>Berbagai pilihan integrasi. BIRT dapat dijalankan sebagai standalone report server, atau juga diembed (digabungkan) dengan aplikasi kita. Bila dijalankan sebagai standalone server, BIRT dapat berkomunikasi dengan aplikasi dengan bahasa pemrograman yang berbeda, misalnya PHP, Ruby, .Net, atau yang lainnya.</li>
+<li>Visual Designer. Eclipse sudah melengkapi BIRT dengan database explorer, drag-and-drop query builder, dan fitur canggih lainnya. Kita akan lihat fitur ini dalam screenshot di bawah.</li>
+<li>Integrated dengan IDE. Bila kita menggunakan Java, kita bisa coding di Eclipse, dan membuat report di Eclipse juga. Jadi tidak perlu menggunakan beberapa tools yang berbeda.</li>
+</ol>
+
+
+<p>Baiklah, mari kita coba saja.</p>
+
+<p>Pertama, kita harus donlod dulu dari <a href="http://www.eclipse.org/birt" title="Homepage BIRT">homepagenya</a>. Ukurannya relatif besar, sekitar 200 MB. Tapi jangan khawatir, ada mirrornya di <a href="http://anak.kambing.vlsm.org" title="Mirror Kambing">server Universitas Indonesia</a>. Kalau kita sudah punya Eclipse terbaru, bisa langsung gunakan fitur updatenya. Jalankan downloadnya sebelum pulang kantor. Dengan demikian, besok pagi ketika kita datang, BIRT sudah terinstal.</p>
+
+<p>Setelah terinstal, kita bisa langsung menggunakannya. BIRT terinstal lengkap bersama contoh database. <a href="http://www.eclipse.org/birt/phoenix/tutorial/basic/index.php" title="Cara penggunaan BIRT">Tutorial cara penggunaannya</a> juga cukup jelas dan lengkap. Sayangnya tidak ada screenshotnya. Jangan khawatir, pada artikel ini, saya akan sediakan screenshotnya.</p>
+
+<p>Berikut adalah tampilan Eclipse pada saat sudah dijalankan.</p>
+
+<p><img src="/images/uploads/2006/09/eclipse.png" title="Eclipse Interface" ></p>
+
+<p>Selanjutnya, kita langsung membuat project baru. Klik File > New, kemudian pilih Report Project</p>
+
+<p><img src="/images/uploads/2006/09/new-report-project.png" title="Create Report Project" ></p>
+
+<p>Beri nama projectnya. Kemudian klik Next. Eclipse akan menanyakan apakah kita ingin bekerja dalam Report Perspective. Jawab saja Yes.</p>
+
+<p>Report perspective tampil seperti screenshot berikut</p>
+
+<p><img src="/images/uploads/2006/09/eclipse-report.png" title="Report Perspective" ></p>
+
+<p>Perhatikan di sebelah kiri ada tiga tab : Pallete, Data Explorer, dan Library. Kita akan gunakan tab ini untuk mendesain report.</p>
+
+<p>Kemudian, mari kita buat report pertama kita. Datasource yang akan digunakan sudah disediakan Eclipse sebagai database sample. Sesuai tutorial Eclipse, kita akan membuat laporan yang berisi daftar nama pelanggan, dikelompokkan berdasarkan provinsi (State) dan kota (City).</p>
+
+<p>Untuk membuat report baru, klik File > New > Report. Kalau pilihan Report belum ada, pilih Others dan cari di daftar yang tersedia, dalam kategori Business Intelligence and Reporting Tools.</p>
+
+<p><img src="/images/uploads/2006/09/new-report.png" title="Create Report" ></p>
+
+<p>Beri nama reportnya</p>
+
+<p><img src="/images/uploads/2006/09/new-report-1.png" title="Define Report" ></p>
+
+<p>Kemudian pilih templatenya. Supaya lebih seru, kita akan gunakan Blank Template</p>
+
+<p><img src="/images/uploads/2006/09/new-report-blank2.png" title="Blank Template" ></p>
+
+<p>Selanjutnya, template report kita tampil di layar dalam Design View. Kita dapat berganti ke berbagai view melalui tab di bawah editor report.</p>
+
+<p>Setelah report tampil, kita dapat menambahkan label. Tambahkan saja satu label untuk judul, yaitu Laporan Data Pelanggan. Jenis huruf, rata tengah, dan setting lainnya dapat dilakukan melalui toolbar yang ada di bagian bawah.</p>
+
+<p><img src="/images/uploads/2006/09/report-design-label.png" title="Add Label" ></p>
+
+<p>Sebelum melangkah lebih jauh, kita perlu mendefinisikan Data Source untuk report ini. Buat Data Source baru melalui panel sebelah kiri.</p>
+
+<p><img src="/images/uploads/2006/09/report-datasource-new.png" title="Create DataSource" ></p>
+
+<p>Pilihan datasource akan muncul. Kita akan menggunakan database sample yang sudah ada. Untuk project betulan, kita dapat gunakan database atau sumber data yang lainnya.</p>
+
+<p><img src="/images/uploads/2006/09/report-datasource-new-1.png" title="Select DataSource" ></p>
+
+<p>Beri nama Sample di kolom Data Source Name, kemudian klik Finish.</p>
+
+<p>Dari datasource yang ada, kita dapat mendefinsikan Data Set. Data Set ini adalah sebagian dari isi Data Source yang akan kita gunakan dalam report.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new.png" title="Create Dataset" ></p>
+
+<p>Muncul pilihan datasource dan jenis data set. Kita bisa menggunakan lebih dari satu datasource dalam satu report. Untuk kali ini, cuma ada satu data source. Pilih tipe data set SQL Select Query. Jangan lupa beri nama yang deskriptif untuk dataset yang dibuat.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-1.png" title="Create Dataset" ></p>
+
+<p>Setelah kita tekan Next, akan muncul database explorer di panel kiri, dan SQL editor di kanan. Kita dapat melakukan drag and drop pada layar ini.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-2.png" title="Database Explorer" ></p>
+
+<p>Edit SQL menjadi seperti ini:</p>
+
+<pre><code>select * 
+from
+</code></pre>
+
+<p>Kemudian drag-and-drop tabel Customer ke sebelah kanan <em>from</em>, sehingga kodenya menjadi seperti ini:</p>
+
+<pre><code>select * 
+from CLASSICMODELS.CUSTOMERS
+</code></pre>
+
+<p>Klik Next. Selanjutnya muncul Data Set Editor.</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-3.png" title="DataSet Editor" ></p>
+
+<p>Kita tidak melakukan perubahan apa-apa di sini. Tapi bila ingin tahu apa isi tabelnya, kita dapat melihat <em>Preview Result</em> seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-dataset-new-4.png" title="Preview DataSet" ></p>
+
+<p>Klik OK. Dataset siap digunakan.</p>
+
+<p>Selanjutnya, kita akan tampilkan data pelanggan dalam bentuk tabel. Pilih Table di Pallete, dan letakkan di report. Kita akan tampilkan 4 kolom dan 1 baris detail. Kolom yang nantinya akan ditampilkan adalah:</p>
+
+<ol>
+<li>Provinsi</li>
+<li>Kota</li>
+<li>Nama Pelanggan</li>
+<li>Nomer Telepon</li>
+</ol>
+
+
+<p>Tampilan yang dihasilkan adalah seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-1.png" title="Initial Table" ></p>
+
+<p>Dari seluruh data pelanggan yang ada, kita akan kelompokkan berdasarkan provinsi, kemudian kota. Untuk itu, kita tambahkan Group di tabel. Caranya, klik tombol pemilih tabel, kemudian klik kanan di baris detail.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-2.png" title="Insert Group" ></p>
+
+<p>Group Editor akan muncul. Beri nama State, kemudian klik OK.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-3.png" title="Group Editor" ></p>
+
+<p>Hasilnya akan tampak seperti ini</p>
+
+<p><img src="/images/uploads/2006/09/report-table-4.png" title="Group by State" ></p>
+
+<p>Untuk mengisikan State ke Group Row tersebut, drag-and-drop dari panel kiri ke kolom <em>paling kiri</em> di baris Group Header Row. Layar Select Data Binding akan muncul, langsung saja klik OK.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-5.png" title="State Data Binding" ></p>
+
+<p>Kita perlu memasukkan Group Row satu lagi untuk City. Caranya sama, yaitu dengan menambahkan Group Row di <em>bawah</em> Group Header State.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-6.png" title="Insert Group Below" ></p>
+
+<p>Beri nama City, kemudian klik OK. Lalu pilih field city dari Data Explorer di sebelah kiri, dan pasang di kolom kedua di Group Header Row 2. Hasilnya seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-7.png" title="Group by City" ></p>
+
+<p>Terakhir, masukkan field CUSTOMERNAME dan PHONE ke Detail Row. Kolom judul CUSTOMERNAME kurang enak dibaca, jadi kita bisa ganti labelnya di baris paling atas menjadi Customer Name. Hasil akhirnya adalah seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-8.png" title="Final Design" ></p>
+
+<p>Report kita sudah selesai. Silahkan disave, kemudian lihat previewnya. Kalau semua dilakukan dengan benar, kita akan melihat tampilan seperti ini:</p>
+
+<p><img src="/images/uploads/2006/09/report-table-9.png" title="Report Preview" ></p>
+
+<p>Kita akan lihat bahwa data pelanggan sudah diurutkan dan dikelompokkan berdasarkan State dan City.</p>
+
+<p>Kalau kita tekan menu <em>File</em>, kita akan menemui pilihan View Report in Web Viewer, as HTML, dan as PDF. Silahkan gunakan sesuai kebutuhan.</p>
+
+<p><img src="/images/uploads/2006/09/report-table-10.png" title="Export Format HTML PDF" ></p>
+
+<p>Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1569,200 +1777,6 @@ Kalo ada yang gratis, kenapa masih membajak?</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ruthless-testing-3/">Ruthless Testing 3</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-07-20T22:38:19+07:00" pubdate data-updated="true">Jul 20<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Alkisah, di suatu project, ada kode program yang berkelakuan aneh. Kode program tersebut berfungsi untuk melakukan pendaftaran user baru ke dalam sistem. Jadi, user membuka form, mengisi data diri, dan menekan tombol Submit. Tidak ada yang aneh dengan fiturnya.</p>
-
-<p>Keanehannya adalah, entah kenapa, aplikasi tersebut cuma bisa digunakan 7 kali. Jadi pada waktu user ke-8 menekan tombol Submit, datanya tidak tersimpan di database. Anehnya juga, aplikasi tidak menimbulkan pesan error. Hmm &#8230; sungguh gaib.</p>
-
-<p>Berbagai upaya dilakukan untuk mengatasi masalah ini. Tim pengusir hantu didatangkan, lengkap dengan kostum putih-putih dan botol penangkap hantu, karena dicurigai ada &#8216;sesuatu&#8217; dengan angka 7. Tetapi tidak juga mencapai solusi yang memuaskan.</p>
-
-<p>Akhirnya, seorang anggota milis JUG didatangkan. Beliau memeriksa source code fitur registrasi tersebut, sebagai berikut:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">save</span> <span class="o">(</span><span class="n">User</span> <span class="n">u</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">Connection</span> <span class="n">conn</span> <span class="o">=</span> <span class="n">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">username</span><span class="o">,</span> <span class="n">password</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">PreparedStatement</span> <span class="n">pstm</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">&quot;INSERT INTO user VALUES (?,?,?)&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getUsername</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">u</span><span class="o">.</span><span class="na">getPassword</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">pstm</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
-</span><span class='line'>  <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">err</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Pembaca yang teliti (ya, maksudnya Anda) akan segera menemukan asal muasal semua &#8216;kejadian gaib&#8217; di atas, yaitu:</p>
-
-<ol>
-<li><p>Connection dibuka, tapi tidak pernah ditutup. Besar kemungkinan max connection di database adalah 7 concurrent connection. Sehingga setelah 7 kali connect dan 0 kali disconnect, database akan menolak koneksi baru.</p></li>
-<li><p>Catch block dibiarkan kosong, sehingga error dari database tidak akan tampil di mana-mana.</p></li>
-</ol>
-
-
-<p>Hmm .. kesalahan yang &#8216;newbie banget&#8217;. Melalui pemeriksaan menyeluruh, ditemukan kesalahan serupa di berbagai bagian kode yang lain.</p>
-
-<p>Pada titik ini, para project manager, development team leader akan segera mengeluh dan bersiap-siap mengisi komentar di bawah, &#8220;Masa saya harus baca kode baris-per-baris? Kayak kurang kerjaan aja !!&#8221;
-Sebelum Anda lakukan itu, sabar dulu .. baca sampai habis. Kita akan segera lihat solusinya.</p>
-
-<p>Pemeriksaan baris kode seperti ini sangat melelahkan. Semakin besar projectnya, semakin banyak baris kodenya, semakin tinggi beban pemeriksaannya. Di lain pihak, kalau kita tidak melakukan pemeriksaan, kita menimbulkan resiko terjadinya masalah di kemudian hari.</p>
-
-<p>Jadi, bagaimana solusinya?</p>
-
-<p>Untungnya &#8211;seperti biasa&#8211; kita bukan yang pertama menemukan masalah seperti ini. Masalah sudah pernah dialami orang lain, dan dibuatkan solusinya, sehingga kita &#8211;seperti biasa&#8211; tinggal download dan pakai :D</p>
-
-<p>Jawaban dari masalah ini adalah <strong>automated code review</strong>. Tools ini akan melakukan review terhadap source code, sesuai dengan aturan yang kita tetapkan, dengan teliti, otomatis, dan repeatable. Dengan tool ini, berapapun baris kode yang ada, semua akan diperiksa secara menyeluruh.</p>
-
-<p>Ada beberapa solusi yang dapat digunakan:</p>
-
-<ul>
-<li><p><a href="http://csdl.ics.hawaii.edu/Tools/Jupiter/">Jupiter (Eclipse Plugin)</a></p></li>
-<li><p><a href="http://pmd.sourceforge.net">PMD</a></p></li>
-<li><p><a href="http://www.hammurapi.org">Hammurapi</a></p></li>
-<li><p>Built-in feature IntelliJ IDEA</p></li>
-</ul>
-
-
-<p>Pada contoh kali ini, kita akan coba menggunakan PMD. Caranya mudah:</p>
-
-<ol>
-<li><p>Download dari websitenya.</p></li>
-<li><p>Extract</p></li>
-<li><p>Buat target di Ant untuk memanggil PMD.</p></li>
-<li><p>Lihat reportnya</p></li>
-</ol>
-
-
-<p>Untuk langkah #1 dan #2 tidak perlu dijelaskan lebih lanjut. Target Ant untuk langkah #3 adalah sebagai berikut:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;target</span> <span class="na">name=</span><span class="s">&quot;code-review&quot;</span> <span class="na">depends=</span><span class="s">&quot;prepare&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;pmd</span> <span class="na">targetjdk=</span><span class="s">&quot;1.5&quot;</span> <span class="na">shortFilenames=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>basic<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>codesize<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>clone<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>controversial<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>coupling<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>design<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>finalizers<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>imports<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>javabeans<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-java<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>logging-jakarta-commons<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>naming<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>optimizations<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strictexception<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>strings<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>sunsecure<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;ruleset&gt;</span>unusedcode<span class="nt">&lt;/ruleset&gt;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nt">&lt;formatter</span>
-</span><span class='line'>        <span class="na">type=</span><span class="s">&quot;net.sourceforge.pmd.renderers.HTMLRenderer&quot;</span>
-</span><span class='line'>        <span class="na">toFile=</span><span class="s">&quot;${pmd.result}/pmd.html&quot;</span>
-</span><span class='line'>    <span class="nt">/&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;fileset</span> <span class="na">dir=</span><span class="s">&quot;src&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;include</span> <span class="na">name=</span><span class="s">&quot;**/*.java&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>    <span class="nt">&lt;/fileset&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/pmd&gt;</span>
-</span><span class='line'><span class="nt">&lt;/target&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Berikut penjelasannya:</p>
-
-<ol>
-<li><p>Target JDK : memeriksa kesesuaian dengan JDK 1.5</p></li>
-<li><p>Ruleset : Aturan yang akan diberlakulkan. Detailnya bisa dilihat di website PMD. Sebagai contoh, dengan memberlakukan ruleset basic, kita memeriksa blok catch yang kosong, sehingga mencegah masalah pesan error di atas. Sedangkan ruleset design memeriksa apakah Connection yang dibuat sudah ditutup.</p></li>
-<li><p>Formatter : Jenis formatter yang digunakan. Report yang dihasilkan PMD dapat berupa text, xml, csv.</p></li>
-<li><p>Fileset: source code yang akan direview. Kita dapat mengganti parameter ini dan mereview semua source code yang ada di harddisk kita. SIlahkan mencoba mendownload source code project open source java (misalnya Tomcat, atau JBoss), dan lihat apakah kode programnya ditulis dengan baik.</p></li>
-</ol>
-
-
-<p>Laporan yang dihasilkan bentuknya seperti ini:
-<img src="/images/uploads/2006/07/pmd-report.png" title="PMD Review Result" ></p>
-
-<p>Selamat mencoba. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/19/">&larr; Older</a>
@@ -1839,6 +1853,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/memahami-authentication/">Memahami Authentication</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/desain-skema-database/">Desain Skema Database</a>
       </li>
     
@@ -1872,10 +1890,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/ongoing-learning/">Ongoing Learning</a>
       </li>
     
   </ul>

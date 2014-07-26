@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di tempat saya bekerja saat ini (BaliCamp), saya sedang membutuhkan anggota tim. Tidak butuh yang terlalu canggih, saya justru cari fresh graduate. &hellip;">
+  <meta name="description" content="Sekarang sedang marak layanan internet berbasis paket. Artinya, kita dikenakan biaya berdasarkan besar data yang kita konsumsi, baik kirim (uplink) &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,82 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/vnstat/">vnStat</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-19T17:50:52+07:00" pubdate data-updated="true">Apr 19<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sekarang sedang marak layanan internet berbasis paket. Artinya, kita dikenakan biaya berdasarkan besar data yang kita konsumsi, baik kirim (uplink) maupun terima (downlink).</p>
+
+<p>Perbedaan cara penagihan tentunya juga mempengaruhi perilaku berinternet kita. Dengan layanan berbasis waktu, kita dapat membatasi pengeluaran dengan cara membatasi durasi berinternet. Nah, kalau berbasis paket, bagaimana cara mengendalikan pemakaian?</p>
+
+<p>Berbagai aplikasi open source dapat digunakan untuk memonitor pemakaian internet, salah satunya adalah <a href="http://humdi.net/vnstat/">vnStat</a>. Aplikasi kecil ini sangat mudah digunakan. Cukup instal, inisialisasi databasenya, dan lihat laporannya.</p>
+
+<h3>Instalasi vnStat</h3>
+
+<p>Instalasi, seperti biasa, sangat mudah. Di Ubuntu, cukup dengan satu baris.
+<code>sudo apt-get install vnstat</code></p>
+
+<p>Setelah terinstal, kita harus menginisialisasi database tempat data monitoring diletakkan. Di komputer saya, ada dua antarmuka jaringan, WiFi (eth1) dan kabel (eth2). Nantinya bila menggunakan modem ADSL, biasanya saya akan menggunakan antarmuka kabel (eth2) yang terhubung ke modem ADSL.</p>
+
+<p>Untuk menginisialisasi database, lakukan perintah berikut, sesuai dengan nama antarmuka yang akan dimonitor.</p>
+
+<pre><code>&lt;code&gt;sudo vnstat -u -i eth1
+sudo vnstat -u -i eth2&lt;/code&gt;
+</code></pre>
+
+<p>vnStat akan mengeluarkan pesan error tentang file database yang tidak ditemukan. Biarkan saja, karena filenya belum ada.</p>
+
+<p>Setelah itu, vnStat sudah bekerja di belakang layar. Untuk melihat pemakaian internet, kita harus menginstal satu aplikasi lagi, yaitu <a href="http://www.sqweek.com/sqweek/index.php?p=1">vnStat Front End</a>. Aplikasi ini kerjanya membaca database yang dihasilkan vnStat dan menampilkannya di web. Karena berbasis PHP, seharusnya tidak sulit untuk diinstal.</p>
+
+<h3>Instalasi vnStat FrontEnd</h3>
+
+<p>Instalasinya tidak sulit. Cukup download dari websitenya, dan extract di folder yang dikenali oleh Apache HTTPD. Di komputer saya, saya gunakan folder <code>/opt/lampp/htdocs/vnstat</code>.</p>
+
+<p>Edit file config.php sehingga menjadi seperti ini.</p>
+
+<pre><code>&lt;code&gt;
+// list of network interfaces monitored by vnStat
+$iface_list = array('eth1', 'eth2');
+$iface_title['eth1'] = 'Wireless';
+$iface_title['eth2'] = 'Wired';
+&lt;/code&gt;
+</code></pre>
+
+<p>Selanjutnya, browse ke http://localhost/vnstat. Kita akan mendapati data penggunaan jaringan kita seperti gambar di bawah.
+<img src="/images/uploads/2007/04/vnstat.png" title="vnStat Front End Screenshot" ></p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1804,115 +1880,6 @@ Selamat menampilkan rangkuman website orang di website anda sendiri. Jangan lupa
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/interface-abstract/">Interface vs Abstract Class</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-01-25T23:31:25+07:00" pubdate data-updated="true">Jan 25<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><blockquote><p>Kapan pakai interface, dan kapan pakai abstract class?</p></blockquote>
-
-<p>Pertanyaan menarik ini muncul di milis jug-indonesia. Karena jawabannya cukup panjang, jadi saya copy-paste, sesuaikan sedikit, dan posting di blog.</p>
-
-<p>First of all, ini pertanyaan advanced. Kapan pakai interface, dan kapan pakai abstract class itu cuma bisa dipahami dengan coding banyak-banyak (learning by doing), berpikir secara abstrak, dan banyak belajar desain aplikasi. Jadi jangan berkecil hati kalau Anda bingung setelah membaca artikel ini. Bukannya Anda tidak berbakat coding, tapi hanya kurang jam terbang saja.</p>
-
-<p>Berikut jawaban saya.</p>
-
-<blockquote><p>Abstract class itu digunakan untuk mengimplementasikan pattern Template Method. Sedangkan interface digunakan (diantaranya) untuk mengimplementasikan pattern Observer.</p></blockquote>
-
-<p>Pakai interface bila satu class mau memiliki beberapa tipe data. Di Java, tipe data ditentukan oleh interface dan class. Mengacu pada buku Design Pattern, interface digunakan untuk menerapkan pattern Observer.</p>
-
-<p>Contoh mudahnya seperti ini. Misalnya kita membuat aplikasi GUI. dan menggunakan komponen text (JTextArea). Komponen ini memiliki beberapa method untuk mengaktifkan event handling, beberapa diantaranya:</p>
-
-<ul>
-<li>addMouseListener(MouseListener msl) : merespon gerakan mouse</li>
-<li>addCaretListener(CaretListener cls) : merespon gerakan kursor</li>
-</ul>
-
-
-<p>Kalau kita definsikan class seperti ini:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">EventLog</span> <span class="kd">implements</span> <span class="n">MouseListener</span><span class="o">,</span> <span class="n">CaretListener</span> <span class="o">{}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>maka class EventLog bisa diumpankan pada kedua method di atas, karena class EventLog bertipe data EventLog, MouseListener, dan juga CaretListener.</p>
-
-<p>Lalu, kapan kita menggunakan abstract class? Salah satunya apabila kita ingin membuat Template Method.</p>
-
-<p>Kutipan dari Design Pattern GoF</p>
-
-<blockquote><p>By defining some of the steps of an algorithm using abstract operations, the template method fixes their ordering, but it lets Application and Document subclasses vary those steps to suit their needs.</p></blockquote>
-
-<p>Seperti kita ketahui, Template Method itu salah satu methodnya concrete dan (sebaiknya) final.</p>
-
-<p>Contoh template method bisa dilihat di implementasi AbstractFormController di <a href="http://www.springframework.org">Spring Framework</a>.</p>
-
-<p>Untuk non-pengguna Spring, AbstractFormController itu mendefinisikan workflow pemrosesan HTML form. Method yang perlu diperhatikan di sini adalah method handleRequestInternal. Isi method ini kira2 seperti ini (dimodifikasi agar mudah dimengerti):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">handleRequestInternal</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">bindDataDariForm</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">setelahBindSebelumValidasi</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">validasiData</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">setelahValidasi</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">processFormSubmission</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Seperti kita lihat di atas, method ini memanggil beberapa method lain secara berurutan. Urutan ini penting, karena kita tidak mau validasi dipanggil setelah form diproses. Apa gunanya validasi kalau pemrosesan sudah selesai?</p>
-
-<p>Class AbstractFormController ini punya abstract method, yaitu:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">processFormSubmission</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Kenapa dibuat abstract? Karena pada saat menulis kode tersebut, Rod Johnson tidak tahu apa yang kita ingin lakukan pada saat form diproses. Ada yang mau simpan ke database, ada yang mau kirim email, dan berbagai kegiatan lain yang tidak terbayangkan sebelumnya. Oleh karena itu, method ini dibuat abstract, sehingga kita harus membuat implementasinya (override)</p>
-
-<p>Nah, kita sebagai end-user, biasanya hanya perlu mengimplement method processFormSubmission tersebut. Method lainnya hanya dioverride apabila perlu. Misalnya kita ingin pakai logika validasi sendiri, atau ada pemrosesan khusus setelah validasi.</p>
-
-<p>Teknik Template Method ini tidak bisa diimplement dengan interface, karena harus ada method concrete handleRequestInternal yang berfungsi untuk mendefinsikan workflow.</p>
-
-<p>Demikian, mudah-mudahan bisa dimengerti.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/17/">&larr; Older</a>
@@ -1989,6 +1956,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/memahami-authentication/">Memahami Authentication</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/desain-skema-database/">Desain Skema Database</a>
       </li>
     
@@ -2022,10 +1993,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/ongoing-learning/">Ongoing Learning</a>
       </li>
     
   </ul>
