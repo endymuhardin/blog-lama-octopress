@@ -128,13 +128,13 @@ Jadi harus ada usaha tambahan agar konfigurasi ini jadi permanen.
 Caranya, tergantung masing-masing distro. Biasanya, kita simpan dulu ke file menggunakan perintah `iptables-save`
 
 ```
-iptables-save > /etc/sysconfig/iptables
+iptables-save > /etc/iptables/rules.v4
 ```
 
 Kemudian file tersebut kita load menggunakan perintah `iptables-restore`
 
 ```
-iptables-restore /etc/sysconfig/iptables
+iptables-restore < /etc/iptables/rules.v4
 ```
 
 Agar berjalan setiap kali booting, panggil perintah `iptables-restore` dari script `rc.local`. Lokasi script ini berbeda antar distro, untuk keluarga Debian terletak di folder `/etc`.

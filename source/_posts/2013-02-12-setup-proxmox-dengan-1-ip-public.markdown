@@ -180,4 +180,18 @@ iptables -t nat -A PREROUTING -i vmbr0 -p tcp -m tcp --dport 10780 -j DNAT --to-
 Perintah di atas akan membuka port `10780` di IP public Proxmox Host 
 dan data yang datang ke sana diarahkan ke port `80` di VM `107` yang memiliki IP private `192.168.100.100`.
 
+Setelah semua konfigurasi dicek dan berjalan dengan baik, simpan konfigurasi `iptables` ke folder yang kita inginkan menggunakan perintah `iptables-save`. Ini kita lakukan supaya konfigurasinya tidak hilang pada waktu reboot.
+
+```
+iptables-save > /etc/iptables/rules.v4
+```
+
+Pada waktu komputer shutdown, konfigurasi `iptables` yang sudah kita pasang akan hilang. Oleh karena itu kita perlu install paket `iptables-persistent` yang akan membaca dan memasang file hasil save kita di `/etc/iptables/rules.v4`.
+
+```
+apt-get install iptables-persistent
+```
+
 Demikianlah, satu IP public yang kita miliki bisa dipakai oleh banyak VM yang ada dalam satu server tersebut.
+
+Konsep konfigurasi ini dikenal juga dengan istilah Network Address Translation(NAT). Lebih jauh tentang NAT bisa dibaca [di artikel ini](http://software.endy.muhardin.com/linux/network-address-translation/)
