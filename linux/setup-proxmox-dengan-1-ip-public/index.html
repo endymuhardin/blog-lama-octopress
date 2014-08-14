@@ -348,7 +348,21 @@ tentu rekan-rekan yang biasa mengkonfigurasi internet gateway tidak merasa asing
 <p>Perintah di atas akan membuka port <code>10780</code> di IP public Proxmox Host
 dan data yang datang ke sana diarahkan ke port <code>80</code> di VM <code>107</code> yang memiliki IP private <code>192.168.100.100</code>.</p>
 
+<p>Setelah semua konfigurasi dicek dan berjalan dengan baik, simpan konfigurasi <code>iptables</code> ke folder yang kita inginkan menggunakan perintah <code>iptables-save</code>. Ini kita lakukan supaya konfigurasinya tidak hilang pada waktu reboot.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables-save &gt; /etc/iptables/rules.v4</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada waktu komputer shutdown, konfigurasi <code>iptables</code> yang sudah kita pasang akan hilang. Oleh karena itu kita perlu install paket <code>iptables-persistent</code> yang akan membaca dan memasang file hasil save kita di <code>/etc/iptables/rules.v4</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>apt-get install iptables-persistent</span></code></pre></td></tr></table></div></figure>
+
+
 <p>Demikianlah, satu IP public yang kita miliki bisa dipakai oleh banyak VM yang ada dalam satu server tersebut.</p>
+
+<p>Konsep konfigurasi ini dikenal juga dengan istilah Network Address Translation(NAT). Lebih jauh tentang NAT bisa dibaca <a href="http://software.endy.muhardin.com/linux/network-address-translation/">di artikel ini</a></p>
 </div>
 
 
