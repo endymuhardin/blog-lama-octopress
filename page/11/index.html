@@ -9,7 +9,10 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Rangkaian artikel sebelumnya telah memberikan kita pemahaman yang memadai untuk menggunakan Ivy. Pada artikel ini, kita akan membahas satu fitur Ivy &hellip;">
+  <meta name="description" content="Pada rangkaian artikel sebelumnya, kita telah membahas tentang: Instalasi Ivy
+Build Management dengan Ivy
+Otomasi Build Process dengan Ant
+Publish &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +92,171 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ant-ivy-8/">Membuat Mirror Repository Ivy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-10-05T14:30:53+07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada rangkaian artikel sebelumnya, kita telah membahas tentang:</p>
+
+<ol>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-1">Instalasi Ivy</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-2">Build Management dengan Ivy</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-3">Otomasi Build Process dengan Ant</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-4">Publish Modul ke Repository</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-5">Deklarasi internal dependency</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-6">Deklarasi external dependency</a></p></li>
+<li><p><a href="http://endy.artivisi.com/blog/java/ant-ivy-7">Ivy Configuration</a></p></li>
+</ol>
+
+
+<p>Semua konsep dan pengetahuan di atas memungkinkan kita untuk menggunakan Ivy secara efektif untuk mengelola pembuatan aplikasi. Tetapi ada sedikit hal yang masih mengganjal, yaitu borosnya bandwidth yang digunakan selama build process dilakukan.</p>
+
+<p>Pada artikel kali ini, kita akan membahas cara membuat mirror repository, sehingga pengambilan artifak dapat dilakukan dari server internal maupun harddisk lokal, sehingga tidak memboroskan bandwidth.</p>
+
+<p>Di artikel sebelumnya, kita telah membahas tentang deklarasi resolver. Resolver adalah konfigurasi yang menyatakan lokasi repository. Ada beberapa jenis resolver yang disediakan Ivy:</p>
+
+<ul>
+<li><p>Filesystem : repository Ivy di harddisk lokal</p></li>
+<li><p>URL : repository Ivy yang diakses melalui protokol http</p></li>
+<li><p>SSH : repository Ivy yang diakses melalui protokol scp/ssh</p></li>
+<li><p>SFTP : repository Ivy, diakses melalui protokol sftp</p></li>
+<li><p>VFS : repository Ivy, kompatibel dengan file system yang didukung oleh <a href="http://jakarta.apache.org/commons/vfs/">Apache Commons VFS</a>, diantaranya WebDAV, FTP, ZIP, <a href="http://jakarta.apache.org/commons/vfs/filesystems.html">dan sebagainya</a></p></li>
+<li><p>Ibiblio : repository Maven 2, diakses melalui protokol http</p></li>
+</ul>
+
+
+<p>Sebagai contoh kasus, kita akan membuat mirror dari repository ivy milik SpringSource dan repository Maven2 di Ibiblio.</p>
+
+<p>Pertama, kita deklarasikan dulu resolver untuk kedua repository sumber.
+Konfigurasi ini dibuat dalam ivysettings.xml.</p>
+
+<p>SpringSource memiliki dua repo berbeda, untuk artifak yang dihasilkannya sendiri (Spring Portfolio) disebut dengan release, dan untuk pustaka external (Hibernate, JSF, dsb; disebut dengan external. Berikut konfigurasi untuk kedua repo SpringSource, sesuai dengan <a href="http://www.springsource.com/repository/app/faq#q7">dokumentasinya</a>:</p>
+
+<pre><code>&lt;url name="springsource.release.repo.resolver"&gt;
+    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/url&gt;
+
+&lt;url name="springsource.external.repo.resolver"&gt;
+    &lt;ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/url&gt;
+</code></pre>
+
+<p>Dan ini adalah resolver untuk Ibiblio.</p>
+
+<pre><code>&lt;ibiblio name="maven2" m2compatible="true" /&gt;
+</code></pre>
+
+<p>Repository SpringSource akan kita mirror di <code>http://repo.artivisi.com/ivy/springsource/</code> dengan struktur folder <code>nama-organisasi/nama-modul/nomer-revisi/[artifak]-[revisi].[extension]</code>. Folder tersebut berada di mesin <code>repo.artivisi.com</code> dalam folder <code>/var/www/repo.artivisi.com/ivy/springsource</code>. Berikut konfigurasi repo mirror-springsource.</p>
+
+<pre><code>&lt;ssh name="springsource.mirror.resolver" keyFile="${user.home}/.ssh/id_rsa" host="repo.artivisi.com" user="${mirror.host.user}"&gt;
+    &lt;ivy pattern="/var/www/repo.artivisi.com/ivy/springsource/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+    &lt;artifact pattern="/var/www/repo.artivisi.com/ivy/springsource/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" /&gt;
+&lt;/ssh&gt;
+</code></pre>
+
+<p>Repository Ibiblio akan kita mirror di <code>http://repo.artivisi.com/ibiblio</code> dengan struktur folder berbeda, untuk metadata sebagai berikut: <code>[nama-organisasi]/[nama-modul]/ivys/ivy-[nomer-revisi].xml</code>, dan untuk artifak sebagai berikut: <code>[nama-organisasi]/[nama-modul]/[jenis]s/[artifak]-[nomer-revisi].[extension]</code>. Folder tersebut berada di mesin <code>repo.artivisi.com</code> dalam folder <code>/var/www/repo.artivisi.com/ibiblio</code>. Berikut konfigurasinya:</p>
+
+<pre><code>&lt;ssh name="ibiblio.mirror.resolver" keyFile="${user.home}/.ssh/id_rsa" host="repo.artivisi.com" user="${mirror.host.user}"&gt;
+    &lt;ivy pattern="/var/www/repo.artivisi.com/ibiblio/[organisation]/[module]/ivys/ivy-[revision].xml"/&gt;
+    &lt;artifact pattern="/var/www/repo.artivisi.com/ibiblio/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/&gt;
+&lt;/ssh&gt;
+</code></pre>
+
+<p>Setelah kita memiliki dua repository sumber dan dua repository tujuan, kita buat target untuk melakukan mirroring. Di Ivy, kegiatan mirroring ini disebut dengan istilah install. Kita memiliki tiga target install, untuk ibiblio, SpringSource release, dan SpringSource external. Berikut deklarasi targetnya, kita masukkan di <code>ivybuilder.xml</code> bersama dengan target untuk resolve dan publish.</p>
+
+<pre><code>&lt;target name="install-springsource-release" description="--&gt; install dependency from springsource repo"&gt;
+    &lt;ivy:install 
+        organisation="${organisation}" 
+        module="${module}" 
+        revision="${revision}"
+        from="${springsource.release.repo.resolver}" 
+        to="${springsource.mirror.resolver}" 
+        transitive="true"
+        overwrite="true"
+    /&gt;  
+&lt;/target&gt;
+
+&lt;target name="install-springsource-external" description="--&gt; install dependency from springsource repo"&gt;
+    &lt;ivy:install
+        organisation="${organisation}" 
+        module="${module}" 
+        revision="${revision}"
+        from="${springsource.external.repo.resolver}" 
+        to="${springsource.mirror.resolver}" 
+        transitive="true"
+        overwrite="true"
+    /&gt;
+
+&lt;/target&gt;
+
+&lt;target name="install-ibiblio" description="--&gt; install dependency from ibiblio maven2 repo"&gt;
+    &lt;ivy:install 
+        organisation="${organisation}" 
+        module="${module}" 
+        revision="${revision}"
+        from="${ibiblio.repo.resolver}" 
+        to="${ibiblio.mirror.resolver}" 
+        transitive="true"
+        overwrite="true"
+    /&gt;
+&lt;/target&gt;
+</code></pre>
+
+<p>Seperti kita lihat di atas, deklarasi target install cukup generik, dengan menggunakan variabel yang bisa di-override pada saat runtime. Untuk target <code>install-springsource-external</code>, kita gunakan repo external SpringSource sebagai sumber, dan mirror-springsource sebagai tujuan. Target <code>install-springsource-release</code> dan <code>install-ibiblio</code> juga mirip.</p>
+
+<p>Sekarang saatnya kita coba. Mari kita install Hibernate Annotations versi 3.3.1.GA. Modul ini ada di repository SpringSource external.</p>
+
+<p>Langkah pertama, cari dulu modul yang kita inginkan. Kita bisa gunakan <a href="http://www.springsource.com/repository">halaman search yang telah disediakan</a>. Dari <a href="http://www.springsource.com/repository/app/bundle/version/detail?name=com.springsource.org.hibernate.annotations&amp;version=3.3.1.ga">hasil pencarian</a>, kita menemukan modul yang diinginkan, berikut dengan deklarasi dependensinya. Sekarang kita telah mengetahui nama organisasi, nama modul, dan nomer revisinya.</p>
+
+<pre><code>ant install-springsource-external -Dorganisation="org.hibernate" -Dmodule="com.springsource.org.hibernate.annotations" -Drevision="3.3.1.ga"
+</code></pre>
+
+<p>Ivy akan melakukan resolve dan melihat semua dependensi dari Hibernate Annotations versi 3.3.1.GA. Setelah itu, Ivy akan mendonlodnya ke cache lokal, untuk kemudian diupload melalui scp ke lokasi mirror.</p>
+
+<p>Terakhir, tentunya mirror repository ini akan diakses orang menggunakan http, bukan ssh. Jadi kita harus buatkan resolver untuk mengakses <code>http://repo.artivisi.com/ivy/springsource</code> dan <code>http://repo.artivisi.com/ibiblio</code>. Berikut konfigurasinya, kita satukan menggunakan chain-resolver.</p>
+
+<p>Demikianlah rangkaian tutorial tentang penggunaan Ivy. Mungkin banyak pembaca yang membatin,</p>
+
+<blockquote><p>Buat apa repot-repot, pakai Netbeans atau Eclipse kan juga bisa bikin jar/war.</p></blockquote>
+
+<p>Biar saya kasih bocoran sedikit tentang dapur ArtiVisi. Kami akan mengadopsi SOA (Service Oriented Architecture) dalam semua produk dan project kami. Adopsi ini dilakukan di level mikro dengan menggunakan platform OSGi. Karakteristik utama aplikasi SOA dengan OSGi adalah aplikasi akan terdiri dari banyak modul-modul kecil yang saling berinteraksi. Contohnya bisa dilihat di diagram modul yang disajikan di awal artikel.</p>
+
+<p>Memecah aplikasi besar menjadi modul-modul kecil tidak terlalu sulit. Siapapun yang mengenal keyword <code>import</code> dan konsep CLASSPATH di Java bisa melakukannya. Yang sulit adalah mengelola kegiatan development dan integrasi antar modul. Oleh karena itu, penggunaan dependency management seperti Ivy atau Maven2 adalah hal yang wajib.</p>
+
+<p>Pembaca bisa memilih apakah akan menggunakan Maven2 ataupun Ivy. Konsep dasarnya mirip, tapi implementasinya berbeda. Jadi, kalau sudah menguasai Ivy, Maven2 tidak sulit. Demikian juga sebaliknya. Silahkan mencari yang sesuai dengan kebutuhan tim Anda.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1736,145 +1904,6 @@ webadmin.* = enabled
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/ant-ivy-1/">Instalasi Ant Ivy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-03T18:54:15+07:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://ant.apache.org">Ant</a>, adalah tools untuk mengotomasi kegiatan build di Java. Seperti kita tahu, dari mulai source code diketik sampai bisa digunakan user, ada beberapa kegiatan yang harus dilakukan, misalnya:</p>
-
-<ol>
-<li><p>Bersihkan sisa-sisa kompilasi terdahulu</p></li>
-<li><p>Setting CLASSPATH</p></li>
-<li><p>Kompilasi</p></li>
-<li><p>Masukkan artifak lain ke CLASSPATH sesuai kebutuhan (<em>.properties, </em>.xml)</p></li>
-<li><p>Jalankan automated test</p></li>
-<li><p>Kompilasi Javadoc</p></li>
-<li><p>Paket menjadi <em>jar atau </em>war</p></li>
-<li><p>Deploy ke server (bila perlu)</p></li>
-</ol>
-
-
-<p>Rangkaian kegiatan ini disebut dengan proses build.</p>
-
-<p>Jika kegiatan ini dilakukan secara manual, tentu saja masa muda kita akan habis untuk melakukan build dan tidak akan sempat menulis kode program.</p>
-
-<p>Kita bisa memudahkan proses build dengan bantuan IDE. Tinggal klik Clean and Build, langsung beres. Tapi kita tahu bahwa masing-masing orang memiliki IDE favorit masing-masing. Jadi langkah-langkah build bisa jadi berbeda di masing-masing IDE. Selain itu, build dengan IDE tidak otomatis. Harus ada seseorang yang menekan tombol Clean and Build. Tentu saja hal ini mencegah kita untuk melakukan otomasi penuh semacam Continuous Integration.</p>
-
-<p>Ada dua tools yang biasa digunakan untuk build, yaitu Ant dan <a href="http://maven.apache.org">Maven</a>. Maven memiliki kelebihan dibanding Ant, yaitu dia:</p>
-
-<ul>
-<li><p>mampu mengelola dependensi</p></li>
-<li><p>membuatkan website</p></li>
-<li><p>melakukan kegiatan lain yang fancy, seperti menjalankan webserver (mvn:jetty), unit test, dan lain sebagainya</p></li>
-</ul>
-
-
-<p>dan fitur-fitur lain yang bisa dilihat <a href="http://maven.apache.org/what-is-maven.html">di sini</a> dan <a href="http://maven.apache.org/maven-features.html">di sini</a>.</p>
-
-<p>Maven sangat powerful, tapi seperti sudah sering saya katakan,</p>
-
-<blockquote><p>with great power, comes great complexity</p></blockquote>
-
-<p>Maven relatif sulit dipelajari dan <a href="http://bluxte.net/blog/2006-04/27-06-50.html">banyak mengandung black-magic</a> (baca: banyak mengandung undocumented behavior). Selain itu, Maven juga <a href="http://www.bearaway.org/wp/?p=518">tidak reliable</a>, dibuktikan dengan <a href="http://svn.apache.org/repos/asf/cocoon/trunk/README.txt">dokumentasi cara melakukan build untuk salah satu project open source terkenal Cocoon</a>.</p>
-
-<p>Dengan berbagai plus-minus di atas, akhirnya saya memutuskan untuk menggunakan Ant ditambah dengan <a href="http://ant.apache.org/ivy">Ivy</a> saja. Toh sebenarnya kami di ArtiVisi cuma butuh dependency management saja. Ivy lebih mudah dipelajari, dan hei &#8230; <a href="http://www.springsource.com/beta/applicationplatform">contoh aplikasi SpringSource Application Platform (SSAP)</a> di-build menggunakan Ivy.</p>
-
-<p>Sekedar informasi, contoh aplikasi Petclinic SSAP cukup kompleks. Aplikasi tersebut memiliki banyak konfigurasi yang dapat dipilih, antara lain:</p>
-
-<ul>
-<li><p>Framework akses database : JDBC, JPA, Hibernate, atau Eclipselink</p></li>
-<li><p>Database provider : HSQLDB atau MySQL</p></li>
-</ul>
-
-
-<p>Dengan banyak kombinasi tersebut, pengelolaan dependency dan proses build menjadi rumit. Domain modelnya saja digunakan oleh banyak modul lain. Belum lagi dependency terhadap pustaka external seperti Hibernate dan Eclipselink. Akan ada banyak konfigurasi untuk compile, test, dan deployment.</p>
-
-<p>Aplikasi contoh tersebut sudah mencerminkan kemampuan Ivy untuk mengelola project dengan banyak relasi ke project lainnya. Dan faktor yang paling penting, <strong>Ivy mudah dipelajari</strong>. Kita akan buktikan dalam beberapa posting berikutnya.</p>
-
-<p>Lebih jauh tentang dependency management akan dibahas pada posting selanjutnya tentang Ivy. Untuk sekarang, kita akan bahas cara instalasinya.</p>
-
-<h3>Instalasi Ant</h3>
-
-<p>Pertama, kita harus menginstal Ant dulu. Karena saya menggunakan Ubuntu, instalasi tidak terlalu sulit. Cukup ketikkan perintah berikut di command prompt.</p>
-
-<pre><code>sudo apt-get install ant ant-optional
-</code></pre>
-
-<p>Atau jika Anda alergi dengan command prompt, bisa menggunakan System > Administration > Synaptic Package Manager.</p>
-
-<p>Selain cara otomatis seperti di atas, kita juga bisa menginstal secara manual. Caranya, <a href="http://ant.apache.org/bindownload.cgi">donlod Ant</a>, kemudian extract. Masukkan path menuju folder bin di dalam hasil extract ke dalam environment variable PATH.</p>
-
-<p>Kemudian, test instalasi dengan mengetik perintah <code>ant -v</code> di command prompt. Berikut hasilnya di komputer saya:</p>
-
-<pre><code>endy@kintoun:~$ ant -v
-Apache Ant version 1.7.0 compiled on August 29 2007
-Buildfile: build.xml does not exist!
-Build failed
-</code></pre>
-
-<p>Baiklah, kita sudah mendapatkan Ant versi 1.7.0. Selanjutnya, instalasi Ivy.</p>
-
-<h3>Instalasi Ivy</h3>
-
-<p>Pertama, tentunya <a href="http://ant.apache.org/ivy/download.html">download dulu Ivy-nya</a>. Pada saat artikel ini ditulis, versi terbaru adalah 2.0.0-beta2. Jangan khawatir dengan status beta, karena menurut pengalaman saya, versi ini cukup stabil.</p>
-
-<p>Setelah donlod, kemudian extract. Kita membutuhkan file berikut :</p>
-
-<ul>
-<li><p>ivy-2.0.0-beta2.jar</p></li>
-<li><p>ivy-core-2.0.0-beta2</p></li>
-</ul>
-
-
-<p>dan satu file lagi bila kita ingin mengakses repository melalui ssh.</p>
-
-<ul>
-<li>lib/jsch-0.1.25.jar</li>
-</ul>
-
-
-<p>Masukkan file tersebut ke lokasi instalasi Ant, dalam folder lib. Bila Anda menggunakan Ubuntu seperti saya, dan menginstal Ant menggunakan Synaptic, apt-get, atau aptitude, maka lokasi instalasi Ant ada di</p>
-
-<pre><code>/usr/share/ant
-</code></pre>
-
-<p>Instalasi Ivy selesai.</p>
-
-<p>Dengan menggunakan Ivy, kita dapat mengelola proyek raksasa (terdiri dari banyak modul, dikerjakan oleh puluhan tim) dengan lebih mudah.</p>
-
-<p>Bagaimana cara menggunakannya? Tunggu posting selanjutnya :D
-  *[IDE]: Integrated Development Environment</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -1951,6 +1980,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/capacity-planning/">Capacity Planning</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/memahami-authentication/">Memahami Authentication</a>
       </li>
     
@@ -1984,10 +2017,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel kali ini, kita akan mengurusi masalah sepele tapi penting, yaitu Internationalization (i18n) dan Localization (l10n). i18n adalah &hellip;">
+  <meta name="description" content="Di milis Java sedang dibahas tentang kombinasi teknologi yang digunakan untuk membuat aplikasi Java. Ada beberapa kategori teknologi, yaitu: &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,130 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/stack-2008-1/">Java Stack 2008</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-24T16:59:36+07:00" pubdate data-updated="true">Jan 24<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di milis Java sedang dibahas tentang kombinasi teknologi yang digunakan untuk membuat aplikasi Java.</p>
+
+<p>Ada beberapa kategori teknologi, yaitu:</p>
+
+<ul>
+<li><p>Presentation Layer. Yaitu teknologi untuk membangun User Interface</p></li>
+<li><p>Business Layer. Yaitu teknologi untuk menyediakan logika proses bisnis.</p></li>
+<li><p>Data Access Layer. Yaitu teknologi untuk mengakses penyimpanan data, misalnya database.</p></li>
+<li><p>Security Framework. Teknologi untuk mengelola otentikasi dan otorisasi.</p></li>
+<li><p>Build System. Sistem untuk mengotomasi proses build.</p></li>
+<li><p>Testing System. Sistem untuk mengotomasi pengetesan aplikasi.</p></li>
+<li><p>Application Server</p></li>
+<li><p>Database Server</p></li>
+<li><p>Project Management Tools. Perangkat pembantu untuk mengelola project.</p></li>
+</ul>
+
+
+<p>Berikut adalah stack yang saya gunakan, per Januari 2008. Sesuai perkembangan jaman, mungkin sekali stack ini akan berubah.</p>
+
+<h3>Presentation Layer</h3>
+
+<p>Tergantung tujuan developmentnya. Kalau butuh rapid, saya pakai JSF 1.2 dengan komponen RichFaces. Kalau ingin sederhana dan fleksibel, saya pakai Spring MVC.</p>
+
+<p>Sebagai tambahan, sekarang saya sedang mengeksplorasi  Spring Web Flow untuk mengelola state aplikasi. Framework ini bisa digunakan baik untuk JSF maupun Spring MVC.</p>
+
+<p>Baik dalam Spring MVC maupun JSF,  kita dapat memilih View Engine yang digunakan. Kebanyakan orang tidak tahu, atau tidak mau repot, atau mungkin juga merasa nyaman menggunakan JSP. Tapi saya tidak. Saya lebih suka pakai Velocity atau Freemarker untuk Spring MVC, dan pakai Facelets di JSF.</p>
+
+<h3>Business Layer</h3>
+
+<p>Saya menggunakan Spring Framework untuk mengorkestrasi transaction, integrasi dengan berbagai data access layer, messaging system, dan sebagainya.</p>
+
+<h3>Data Access Layer</h3>
+
+<p>Bila ingin rapid development, saya pakai Hibernate. Bila ingin main low level SQL, saya pakai Spring JDBC.</p>
+
+<p>Saya tidak pakai JPA. Dulu pernah pakai iBatis, tapi belakangan sepertinya sudah cukup dengan Spring JDBC saja.</p>
+
+<h3>Security Framework</h3>
+
+<p>Pakai Spring Security. Fiturnya cukup lengkap dan desainnya sudah teruji di skenario dunia nyata.</p>
+
+<h3>Build System</h3>
+
+<p>Orang-orang pada pakai Maven. Saya sudah merasa cukup pakai Ant saja.</p>
+
+<h3>Testing System</h3>
+
+<p>Saat ini pakai JUnit 4 dan DBUnit. Tapi sedang eksplorasi TestNG. Saya tertarik dengan kemampuan test-grouping. Ini penting apabila kita ingin memisahkan test yang harus dieksekusi programmer sebelum dia commit (sehingga harus cepat), dan test yang dieksekusi oleh tools Continuous Integration saja (karena butuh waktu lama).</p>
+
+<p>Test sebelum commit contohnya adalah unit test dan integration test. Selain itu, ada test yang butuh waktu lama, misalnya test End of Day/Month/Year process, dan test simulasi kinerja aplikasi dengan data satu tahun kedepan.</p>
+
+<p>Untuk coverage test, saya gunakan Cobertura. Sedangkan untuk Static Code Analysis saya gunakan PMD.</p>
+
+<p>Ke depan, saya sedang menganalisa efektifitas penggunakan JDepend untuk memastikan dependensi antar modul yang sudah ditentukan di awal tidak dilanggar programmer lain. Misalnya, tidak ada urusannya presentation layer melakukan import HibernateException. Nah, ini sepertinya bisa dienforce oleh JDepend, tapi belum sempat saya coba.</p>
+
+<h3>Application Server</h3>
+
+<p>Saya gunakan Winstone untuk tutorial dan pelatihan. Untuk development saya gunakan Tomcat. Untuk production saya gunakan Glassfish.</p>
+
+<h3>Database Server</h3>
+
+<p>Untuk development dan production, saya menggunakan PostgreSQL. Untuk pelatihan dan tutorial, saya gunakan MySQL.</p>
+
+<h3>Project Management Tools</h3>
+
+<p>Untuk melakukan tracking terhadap:</p>
+
+<ul>
+<li><p>implementasi fitur</p></li>
+<li><p>resiko dalam project</p></li>
+<li><p>masalah dalam project</p></li>
+<li><p>penyelesaian bug</p></li>
+<li><p>perbaikan dokumen berdasarkan review/audit</p></li>
+</ul>
+
+
+<p>saya menggunakan Redmine.</p>
+
+<p>Untuk membantu proses Configuration Management, saya menggunakan Subversion. Kadang-kadang dibantu dengan SVK bila ingin kerja offline.</p>
+
+<p>Sebelum saya tutup artikel ini, pasti nanti ada yang ingin berkomentar seperti ini,</p>
+
+<blockquote><p>Wuah, banyak sekali persenjataannya. Kok repot-repot sekali sih?</p></blockquote>
+
+<p>Di sebelah rumah saya, tetangga sedang membangun rumah. Para pekerjanya (2-3 orang) cukup bermodalkan cangkul untuk mengaduk semen. Bila mereka ingin mengecor lantai dua, cukup membuat bekisting dari triplek dan papan bekas, yang setelah pakai bisa langsung dibuang. Sekali-sekali, saya melihat mereka menggotong perkakas dan bahan baku bila lokasi kerjanya pindah.</p>
+
+<p>Di depan jendela saya di kantor, sedang dibangun gedung perkantoran yang baru. Untuk mengaduk semen, tidak pakai cangkul, melainkan dituang dari truk molen. Tim pekerjanya (200-300 orang) punya cetakan/bekisting khusus yang reusable untuk mengecor tiang dan lantai. Bila ada perkakas atau bahan baku yang perlu dipindahkan, mereka tidak gotong sendiri. Untuk keperluan itu, ada alat sendiri yang namanya <a href="http://science.howstuffworks.com/tower-crane.htm">tower crane</a>. Bahkan ada pilotnya khusus.</p>
+
+<p>Nah, itu analoginya. Silahkan simpulkan sendiri, kenapa harus repot-repot.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1833,239 +1957,6 @@ public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jum
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-2/">Aplikasi Web Dengan Spring 2.5 [Bagian 2]</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-12-06T18:27:16+07:00" pubdate data-updated="true">Dec 6<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring, cara menyuplai data ke form, melakukan validasi, dan memproses form ketika tombol Submit ditekan.</p>
-
-<p>Kita akan menggunakan template yang sama untuk pengeditan Person yang sudah ada maupun pendaftaran Person baru. Templatenya bernama personform.html. Berikut kodenya.</p>
-
-<h3>personform.html</h3>
-
-<pre><code>&lt;html&gt;
-
-&lt;head&gt;
-&lt;title&gt;:: Edit Person ::&lt;/title&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-&lt;form method="POST"&gt;
-&lt;input type="hidden" name="id" value="$!person.Id"&gt;
-
-&lt;table&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Nama&lt;/td&gt;
-    &lt;td&gt;&lt;input type="text" name="name" value="$!person.Name"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td&gt;Email&lt;/td&gt;
-    &lt;td&gt;&lt;input type="text" name="email" value="$!person.Email"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-    &lt;td colspan="2"&gt;&lt;input type="submit" value="Save"&gt;&lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/table&gt;
-
-&lt;/form&gt;
-&lt;/body&gt;
-
-&lt;/html&gt;
-</code></pre>
-
-<p>Kita melihat ada variabel yang agak berbeda pada contoh di atas, yaitu $!person. Ini merupakan variabel opsional dalam Velocity. Bila variabel $person tidak ada isinya, Velocity akan menampilkan apa adanya, yaitu $person ke halaman web. Kita ingin bila $person null, jangan tampilkan apa-apa. Untuk itu, kita mengubah variabel $person menjadi $!person.</p>
-
-<p>Kalau dijadikan kode Java, kira-kira $!person sama dengan ini:</p>
-
-<pre><code>String personName;
-if(person != null &amp;&amp; person.getName() != null) {
-  personName = person.getName();
-} else {
-  personName = "";
-}
-</code></pre>
-
-<p>Variabel $!person ini digunakan karena form ini menangani New Person dan juga Edit Person. Untuk kasus Edit Person, kita dapat memberikan object person yang sudah ada di database. Sedangkan untuk New Person, objectnya belum ada atau null. Dengan $!person, kita dapat menangani kedua skenario ini.</p>
-
-<p>Berikut kerangka class PersonFormController.</p>
-
-<pre><code>package tutorial.spring25.ui.springmvc;
-
-@Controller
-@RequestMapping("/personform")
-public class PersonFormController { 
-  private PersonDao personDao;
-
-  @Autowired
-  public void setPersonDao(final PersonDao personDao) {
-    this.personDao = personDao;
-  }
-
-  @RequestMapping(method = RequestMethod.GET)
-  public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
-
-  }
-
-  @RequestMapping(method = RequestMethod.POST)
-  public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
-
-  }
-}
-</code></pre>
-
-<p>Ada dua method di sini, yaitu displayForm dan processForm. Yang satu untuk menampilkan form, dan satu lagi untuk memproses hasil submit. Nama method bebas saja, tidak ada aturan yang harus dipatuhi.</p>
-
-<p>Kedua method dimapping ke request /personform. Dengan demikian, request ke <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> akan memanggil class PersonFormController. Di dalam form htmlnya juga action setelah submit dikosongkan. Artinya, kalau dia disubmit, form tersebut akan memanggil URL yang sama dengan yang memanggilnya.</p>
-
-<p>Tetapi, bagaimana kita memilih kapan harus mendisplay form dan memproses form? Kita membedakannya dengan memasang annotation <code>@RequestMapping</code> dengan parameter <code>RequestMethod</code>. Bila requestnya GET (terjadi bila kita mengetik <code>http://localhost:8080/tutorial-spring25/tutorial/personform</code> di browser dan menekan Enter), maka jalankan method displayForm. Tapi bila requestnya POST (terjadi bila kita menekan tombol Submit di <code>personform.html</code>), maka jalankan method processForm.</p>
-
-<p>Sekarang mari kita isi method displayForm. Berikut isinya</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.GET)
-public ModelMap displayForm(@RequestParam(value = "person_id", required = false) Long id) {
-  Person person = personDao.getById(id);
-
-  if (person == null) person = new Person();
-
-  return new ModelMap(person);
-}
-</code></pre>
-
-<p>Di sini kita melakukan binding untuk request parameter person_id. Berbeda dengan tampilan detail pada artikel sebelumnya, di form ini parameter person_id belum tentu ada. Bila kita membuat object Person baru, field id akan berisi null. Untuk itu, kita berikan parameter required yang bernilai false pada anotasi @RequestMapping.</p>
-
-<p>Logika pada method ini tidak rumit. Ambil object Person dari database berdasarkan id. Kalau tidak ada, berikan saja object baru.</p>
-
-<p>Method ini bisa langsung dicoba dengan mengakses personform dengan memberikan parameter person_id, misalnya dengan URL http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100. Tentunya kita harus memiliki record di tabel T_PERSON dengan id 100. Kalau codingnya benar, maka akan tampil form yang terisi dengan data record tersebut.</p>
-
-<p>Berikutnya, kita akan implementasi method untuk memproses form. Berikut isi method processForm</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.POST)
-public String processForm(@ModelAttribute("person") Person person) {
-  personDao.save(person);
-  return "redirect:personlist";
-}
-</code></pre>
-
-<p>Mudah kan? Cukup gunakan personDao untuk menyimpan object ke database, kemudian redirect ke halaman personlist.</p>
-
-<p>Begitu saja? Tidak ada yang lupa?</p>
-
-<p>Ya untuk memproses form begitu saja langkahnya, tidak perlu susah-susah.</p>
-
-<p>Bagaimana dengan validasi? Mana ada form tanpa validasi.</p>
-
-<p>Baiklah, mari kita tambahkan kode validasi. Untuk itu, method processForm perlu dimodifikasi menjadi seperti ini</p>
-
-<pre><code>@RequestMapping(method = RequestMethod.POST)
-public String processForm(@ModelAttribute("person") Person person, BindingResult result, SessionStatus status) {
-  new PersonValidator().validate(person, result);
-  if (result.hasErrors()) {
-    return "personform";
-  } else {
-    personDao.save(person);
-    status.setComplete();
-    return "redirect:personlist";
-  }
-}
-</code></pre>
-
-<p>Tidak terlalu rumit, kan? Cukup buat class PersonValidator, kemudian jalankan method validate dengan input object person yang ingin divalidasi, dan object result untuk menampung error validasi bila ada.</p>
-
-<p>Selanjutnya, kita periksa object result. Bila ada errornya, kembali ke form. Bila tidak ada, langsung save dengan personDao, set status menjadi complete, dan redirect ke personlist.</p>
-
-<p>Isi class PersonValidator juga tidak banyak. Berikut kodenya.</p>
-
-<pre><code>package tutorial.spring25.validator;
-public class PersonValidator {
-
-  private static final String EMAIL_FORMAT = ".*@.*\\.com";
-
-  public void validate(Person person, Errors errors) {
-    // field nama harus diisi
-    if(!StringUtils.hasText(person.getName())) {
-      errors.rejectValue("name", "required", "nama harus diisi");
-    }
-
-    // bila field email diisi, formatnya harus benar
-    if (StringUtils.hasLength(person.getEmail()) &amp;&amp; !person.getEmail().matches(EMAIL_FORMAT) ) {
-      errors.rejectValue("email", "email.format", "format email salah");
-    }
-  }
-}
-</code></pre>
-
-<p>Mudah bukan?</p>
-
-<p>Para penggemar framework berbasis komponen (seperti Tapestry atau JSF) mungkin bertanya, untuk apa saya belajar lagi Spring MVC? Sepertinya tidak lebih mudah.</p>
-
-<p>Coba perhatikan URL yang kita gunakan:</p>
-
-<ul>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personlist</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/persondetail?person_id=100</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform</p></li>
-<li><p>http://localhost:8080/tutorial-spring25/tutorial/personform?person_id=100</p></li>
-</ul>
-
-
-<p>Semuanya bersih dan <em>bookmarkable</em>. Dengan Spring MVC kita bisa mengatur URL sesuai keinginan.</p>
-
-<p>Selanjutnya, coba perhatikan kode Java kita. Jangankan lokasi template Velocity kita, bahkan dia tidak tahu menahu kalau kita pakai Velocity. Tugas kode Java cuma menerima input dan mengembalikan data. Terserah data itu mau diformat seperti apa. Dia tidak peduli teknologi view yang digunakan.</p>
-
-<p>Implikasinya, selama data yang disuplai tidak berubah, hanya dengan mengubah konfigurasi kita dapat mengubah tampilan. Tentunya kita harus menyediakan template yang sesuai.</p>
-
-<p>Kita bisa membuat template dengan teknologi yang lain, misalnya JSP, Freemarker, atau Jasper Report. Kita juga bisa merender tampilan tidak hanya dalam format HTML, tapi juga PDF, XLS, XML, JSON, plain-text, atau mengkonversinya menjadi grafik SVG.</p>
-
-<p>Kelebihan lainnya, kita mengendalikan secara penuh output HTML aplikasi kita. Implikasinya, kita bisa menerapkan teknik-teknik teruji dalam protokol HTTP seperti <a href="http://www.mnot.net/cache_docs/">Cache Control pada HTTP Header</a>.</p>
-
-<p>Atau kita bisa manfaatkan <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">HTTP Response Code</a> <em>304 Not Modified</em> untuk memberi tahu client bahwa halaman yang dia akses belum berubah sejak terakhir diakses, sehingga client tidak mendownload lagi keseluruhan page, melainkan langsung menampilkan local cache-nya.</p>
-
-<p>Teknik seperti ini sederhana, mudah, sudah teruji di lapangan, berlaku untuk berbagai bahasa pemrograman, dan sangat efektif. Hanya dengan mengubah HTTP response code, kita bisa menghemat bandwidth dan mengurangi load application server. Sayangnya teknik ini belum tentu dapat digunakan pada framework yang terlalu canggih. Spring MVC memungkinkan kita untuk memanipulasi HTTP response dengan mudah kalau kita mau.</p>
-
-<p>Source code untuk rangkaian artikel ini sudah dipublish di GoogleCode. Anda bisa:</p>
-
-<ul>
-<li><a href="http://code.google.com/p/hello-spring-25/source">Checkout project</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.war">Download WAR</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25-winstone.jar">Download JAR</a></li>
-<li><a href="http://hello-spring-25.googlecode.com/files/tutorial-spring25.tar.bz2"> Download keseluruhan project folder</a></li>
-</ul>
-
-
-<p>Jangan lupa membaca <a href="http://code.google.com/p/hello-spring-25/">instruksi untuk menjalankannya</a>.</p>
-
-<p>Demikian sekilas tentang framework Spring MVC. Semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/14/">&larr; Older</a>
@@ -2142,6 +2033,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/capacity-planning/">Capacity Planning</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/memahami-authentication/">Memahami Authentication</a>
       </li>
     
@@ -2175,10 +2070,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
       </li>
     
   </ul>

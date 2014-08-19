@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Setelah menjadi pengusaha, KlikBCA saya berganti, dari Individual menjadi Bisnis. Hmm &#8230; tentunya KlikBCA ini juga harus bisa diakses via Linux &hellip;">
+  <meta name="description" content="Ant, adalah tools untuk mengotomasi kegiatan build di Java. Seperti kita tahu, dari mulai source code diketik sampai bisa digunakan user, ada &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,145 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ant-ivy-1/">Instalasi Ant Ivy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-09-03T18:54:15+07:00" pubdate data-updated="true">Sep 3<span>rd</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://ant.apache.org">Ant</a>, adalah tools untuk mengotomasi kegiatan build di Java. Seperti kita tahu, dari mulai source code diketik sampai bisa digunakan user, ada beberapa kegiatan yang harus dilakukan, misalnya:</p>
+
+<ol>
+<li><p>Bersihkan sisa-sisa kompilasi terdahulu</p></li>
+<li><p>Setting CLASSPATH</p></li>
+<li><p>Kompilasi</p></li>
+<li><p>Masukkan artifak lain ke CLASSPATH sesuai kebutuhan (<em>.properties, </em>.xml)</p></li>
+<li><p>Jalankan automated test</p></li>
+<li><p>Kompilasi Javadoc</p></li>
+<li><p>Paket menjadi <em>jar atau </em>war</p></li>
+<li><p>Deploy ke server (bila perlu)</p></li>
+</ol>
+
+
+<p>Rangkaian kegiatan ini disebut dengan proses build.</p>
+
+<p>Jika kegiatan ini dilakukan secara manual, tentu saja masa muda kita akan habis untuk melakukan build dan tidak akan sempat menulis kode program.</p>
+
+<p>Kita bisa memudahkan proses build dengan bantuan IDE. Tinggal klik Clean and Build, langsung beres. Tapi kita tahu bahwa masing-masing orang memiliki IDE favorit masing-masing. Jadi langkah-langkah build bisa jadi berbeda di masing-masing IDE. Selain itu, build dengan IDE tidak otomatis. Harus ada seseorang yang menekan tombol Clean and Build. Tentu saja hal ini mencegah kita untuk melakukan otomasi penuh semacam Continuous Integration.</p>
+
+<p>Ada dua tools yang biasa digunakan untuk build, yaitu Ant dan <a href="http://maven.apache.org">Maven</a>. Maven memiliki kelebihan dibanding Ant, yaitu dia:</p>
+
+<ul>
+<li><p>mampu mengelola dependensi</p></li>
+<li><p>membuatkan website</p></li>
+<li><p>melakukan kegiatan lain yang fancy, seperti menjalankan webserver (mvn:jetty), unit test, dan lain sebagainya</p></li>
+</ul>
+
+
+<p>dan fitur-fitur lain yang bisa dilihat <a href="http://maven.apache.org/what-is-maven.html">di sini</a> dan <a href="http://maven.apache.org/maven-features.html">di sini</a>.</p>
+
+<p>Maven sangat powerful, tapi seperti sudah sering saya katakan,</p>
+
+<blockquote><p>with great power, comes great complexity</p></blockquote>
+
+<p>Maven relatif sulit dipelajari dan <a href="http://bluxte.net/blog/2006-04/27-06-50.html">banyak mengandung black-magic</a> (baca: banyak mengandung undocumented behavior). Selain itu, Maven juga <a href="http://www.bearaway.org/wp/?p=518">tidak reliable</a>, dibuktikan dengan <a href="http://svn.apache.org/repos/asf/cocoon/trunk/README.txt">dokumentasi cara melakukan build untuk salah satu project open source terkenal Cocoon</a>.</p>
+
+<p>Dengan berbagai plus-minus di atas, akhirnya saya memutuskan untuk menggunakan Ant ditambah dengan <a href="http://ant.apache.org/ivy">Ivy</a> saja. Toh sebenarnya kami di ArtiVisi cuma butuh dependency management saja. Ivy lebih mudah dipelajari, dan hei &#8230; <a href="http://www.springsource.com/beta/applicationplatform">contoh aplikasi SpringSource Application Platform (SSAP)</a> di-build menggunakan Ivy.</p>
+
+<p>Sekedar informasi, contoh aplikasi Petclinic SSAP cukup kompleks. Aplikasi tersebut memiliki banyak konfigurasi yang dapat dipilih, antara lain:</p>
+
+<ul>
+<li><p>Framework akses database : JDBC, JPA, Hibernate, atau Eclipselink</p></li>
+<li><p>Database provider : HSQLDB atau MySQL</p></li>
+</ul>
+
+
+<p>Dengan banyak kombinasi tersebut, pengelolaan dependency dan proses build menjadi rumit. Domain modelnya saja digunakan oleh banyak modul lain. Belum lagi dependency terhadap pustaka external seperti Hibernate dan Eclipselink. Akan ada banyak konfigurasi untuk compile, test, dan deployment.</p>
+
+<p>Aplikasi contoh tersebut sudah mencerminkan kemampuan Ivy untuk mengelola project dengan banyak relasi ke project lainnya. Dan faktor yang paling penting, <strong>Ivy mudah dipelajari</strong>. Kita akan buktikan dalam beberapa posting berikutnya.</p>
+
+<p>Lebih jauh tentang dependency management akan dibahas pada posting selanjutnya tentang Ivy. Untuk sekarang, kita akan bahas cara instalasinya.</p>
+
+<h3>Instalasi Ant</h3>
+
+<p>Pertama, kita harus menginstal Ant dulu. Karena saya menggunakan Ubuntu, instalasi tidak terlalu sulit. Cukup ketikkan perintah berikut di command prompt.</p>
+
+<pre><code>sudo apt-get install ant ant-optional
+</code></pre>
+
+<p>Atau jika Anda alergi dengan command prompt, bisa menggunakan System > Administration > Synaptic Package Manager.</p>
+
+<p>Selain cara otomatis seperti di atas, kita juga bisa menginstal secara manual. Caranya, <a href="http://ant.apache.org/bindownload.cgi">donlod Ant</a>, kemudian extract. Masukkan path menuju folder bin di dalam hasil extract ke dalam environment variable PATH.</p>
+
+<p>Kemudian, test instalasi dengan mengetik perintah <code>ant -v</code> di command prompt. Berikut hasilnya di komputer saya:</p>
+
+<pre><code>endy@kintoun:~$ ant -v
+Apache Ant version 1.7.0 compiled on August 29 2007
+Buildfile: build.xml does not exist!
+Build failed
+</code></pre>
+
+<p>Baiklah, kita sudah mendapatkan Ant versi 1.7.0. Selanjutnya, instalasi Ivy.</p>
+
+<h3>Instalasi Ivy</h3>
+
+<p>Pertama, tentunya <a href="http://ant.apache.org/ivy/download.html">download dulu Ivy-nya</a>. Pada saat artikel ini ditulis, versi terbaru adalah 2.0.0-beta2. Jangan khawatir dengan status beta, karena menurut pengalaman saya, versi ini cukup stabil.</p>
+
+<p>Setelah donlod, kemudian extract. Kita membutuhkan file berikut :</p>
+
+<ul>
+<li><p>ivy-2.0.0-beta2.jar</p></li>
+<li><p>ivy-core-2.0.0-beta2</p></li>
+</ul>
+
+
+<p>dan satu file lagi bila kita ingin mengakses repository melalui ssh.</p>
+
+<ul>
+<li>lib/jsch-0.1.25.jar</li>
+</ul>
+
+
+<p>Masukkan file tersebut ke lokasi instalasi Ant, dalam folder lib. Bila Anda menggunakan Ubuntu seperti saya, dan menginstal Ant menggunakan Synaptic, apt-get, atau aptitude, maka lokasi instalasi Ant ada di</p>
+
+<pre><code>/usr/share/ant
+</code></pre>
+
+<p>Instalasi Ivy selesai.</p>
+
+<p>Dengan menggunakan Ivy, kita dapat mengelola proyek raksasa (terdiri dari banyak modul, dikerjakan oleh puluhan tim) dengan lebih mudah.</p>
+
+<p>Bagaimana cara menggunakannya? Tunggu posting selanjutnya :D
+  *[IDE]: Integrated Development Environment</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1176,130 +1315,6 @@ Fresh graduate Java programmer, berdasarkan survei yang tidak serius dan tidak b
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/stack-2008-1/">Java Stack 2008</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-01-24T16:59:36+07:00" pubdate data-updated="true">Jan 24<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di milis Java sedang dibahas tentang kombinasi teknologi yang digunakan untuk membuat aplikasi Java.</p>
-
-<p>Ada beberapa kategori teknologi, yaitu:</p>
-
-<ul>
-<li><p>Presentation Layer. Yaitu teknologi untuk membangun User Interface</p></li>
-<li><p>Business Layer. Yaitu teknologi untuk menyediakan logika proses bisnis.</p></li>
-<li><p>Data Access Layer. Yaitu teknologi untuk mengakses penyimpanan data, misalnya database.</p></li>
-<li><p>Security Framework. Teknologi untuk mengelola otentikasi dan otorisasi.</p></li>
-<li><p>Build System. Sistem untuk mengotomasi proses build.</p></li>
-<li><p>Testing System. Sistem untuk mengotomasi pengetesan aplikasi.</p></li>
-<li><p>Application Server</p></li>
-<li><p>Database Server</p></li>
-<li><p>Project Management Tools. Perangkat pembantu untuk mengelola project.</p></li>
-</ul>
-
-
-<p>Berikut adalah stack yang saya gunakan, per Januari 2008. Sesuai perkembangan jaman, mungkin sekali stack ini akan berubah.</p>
-
-<h3>Presentation Layer</h3>
-
-<p>Tergantung tujuan developmentnya. Kalau butuh rapid, saya pakai JSF 1.2 dengan komponen RichFaces. Kalau ingin sederhana dan fleksibel, saya pakai Spring MVC.</p>
-
-<p>Sebagai tambahan, sekarang saya sedang mengeksplorasi  Spring Web Flow untuk mengelola state aplikasi. Framework ini bisa digunakan baik untuk JSF maupun Spring MVC.</p>
-
-<p>Baik dalam Spring MVC maupun JSF,  kita dapat memilih View Engine yang digunakan. Kebanyakan orang tidak tahu, atau tidak mau repot, atau mungkin juga merasa nyaman menggunakan JSP. Tapi saya tidak. Saya lebih suka pakai Velocity atau Freemarker untuk Spring MVC, dan pakai Facelets di JSF.</p>
-
-<h3>Business Layer</h3>
-
-<p>Saya menggunakan Spring Framework untuk mengorkestrasi transaction, integrasi dengan berbagai data access layer, messaging system, dan sebagainya.</p>
-
-<h3>Data Access Layer</h3>
-
-<p>Bila ingin rapid development, saya pakai Hibernate. Bila ingin main low level SQL, saya pakai Spring JDBC.</p>
-
-<p>Saya tidak pakai JPA. Dulu pernah pakai iBatis, tapi belakangan sepertinya sudah cukup dengan Spring JDBC saja.</p>
-
-<h3>Security Framework</h3>
-
-<p>Pakai Spring Security. Fiturnya cukup lengkap dan desainnya sudah teruji di skenario dunia nyata.</p>
-
-<h3>Build System</h3>
-
-<p>Orang-orang pada pakai Maven. Saya sudah merasa cukup pakai Ant saja.</p>
-
-<h3>Testing System</h3>
-
-<p>Saat ini pakai JUnit 4 dan DBUnit. Tapi sedang eksplorasi TestNG. Saya tertarik dengan kemampuan test-grouping. Ini penting apabila kita ingin memisahkan test yang harus dieksekusi programmer sebelum dia commit (sehingga harus cepat), dan test yang dieksekusi oleh tools Continuous Integration saja (karena butuh waktu lama).</p>
-
-<p>Test sebelum commit contohnya adalah unit test dan integration test. Selain itu, ada test yang butuh waktu lama, misalnya test End of Day/Month/Year process, dan test simulasi kinerja aplikasi dengan data satu tahun kedepan.</p>
-
-<p>Untuk coverage test, saya gunakan Cobertura. Sedangkan untuk Static Code Analysis saya gunakan PMD.</p>
-
-<p>Ke depan, saya sedang menganalisa efektifitas penggunakan JDepend untuk memastikan dependensi antar modul yang sudah ditentukan di awal tidak dilanggar programmer lain. Misalnya, tidak ada urusannya presentation layer melakukan import HibernateException. Nah, ini sepertinya bisa dienforce oleh JDepend, tapi belum sempat saya coba.</p>
-
-<h3>Application Server</h3>
-
-<p>Saya gunakan Winstone untuk tutorial dan pelatihan. Untuk development saya gunakan Tomcat. Untuk production saya gunakan Glassfish.</p>
-
-<h3>Database Server</h3>
-
-<p>Untuk development dan production, saya menggunakan PostgreSQL. Untuk pelatihan dan tutorial, saya gunakan MySQL.</p>
-
-<h3>Project Management Tools</h3>
-
-<p>Untuk melakukan tracking terhadap:</p>
-
-<ul>
-<li><p>implementasi fitur</p></li>
-<li><p>resiko dalam project</p></li>
-<li><p>masalah dalam project</p></li>
-<li><p>penyelesaian bug</p></li>
-<li><p>perbaikan dokumen berdasarkan review/audit</p></li>
-</ul>
-
-
-<p>saya menggunakan Redmine.</p>
-
-<p>Untuk membantu proses Configuration Management, saya menggunakan Subversion. Kadang-kadang dibantu dengan SVK bila ingin kerja offline.</p>
-
-<p>Sebelum saya tutup artikel ini, pasti nanti ada yang ingin berkomentar seperti ini,</p>
-
-<blockquote><p>Wuah, banyak sekali persenjataannya. Kok repot-repot sekali sih?</p></blockquote>
-
-<p>Di sebelah rumah saya, tetangga sedang membangun rumah. Para pekerjanya (2-3 orang) cukup bermodalkan cangkul untuk mengaduk semen. Bila mereka ingin mengecor lantai dua, cukup membuat bekisting dari triplek dan papan bekas, yang setelah pakai bisa langsung dibuang. Sekali-sekali, saya melihat mereka menggotong perkakas dan bahan baku bila lokasi kerjanya pindah.</p>
-
-<p>Di depan jendela saya di kantor, sedang dibangun gedung perkantoran yang baru. Untuk mengaduk semen, tidak pakai cangkul, melainkan dituang dari truk molen. Tim pekerjanya (200-300 orang) punya cetakan/bekisting khusus yang reusable untuk mengecor tiang dan lantai. Bila ada perkakas atau bahan baku yang perlu dipindahkan, mereka tidak gotong sendiri. Untuk keperluan itu, ada alat sendiri yang namanya <a href="http://science.howstuffworks.com/tower-crane.htm">tower crane</a>. Bahkan ada pilotnya khusus.</p>
-
-<p>Nah, itu analoginya. Silahkan simpulkan sendiri, kenapa harus repot-repot.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/13/">&larr; Older</a>
@@ -1376,6 +1391,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/capacity-planning/">Capacity Planning</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/memahami-authentication/">Memahami Authentication</a>
       </li>
     
@@ -1409,10 +1428,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Programmer beraliran komersial tentunya sudah tidak asing dengan perlengkapan reporting seperti Crystal Report. Reporting tools ini berguna untuk &hellip;">
+  <meta name="description" content="Beberapa waktu yang lalu, ada posting menarik tentang Google yang menggunakan BerkeleyDB untuk mengelola user accountnya. Karena penasaran, saya lalu &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,366 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/berkeleydb-java-edition/">BerkeleyDB Java Edition</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-10-05T17:53:37+07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Beberapa waktu yang lalu, ada posting menarik tentang <a href="http://epsilondelta.net/2006/10/01/web-apps-why-does-statelessness-stop-at-the-database/" title="Stateless Database @ Google">Google yang menggunakan BerkeleyDB untuk mengelola user accountnya</a>. Karena penasaran, saya lalu mencoba mendownload dan bermain-main dengan BerkeleyDB versi Java (Java Edition).</p>
+
+<p>BerkeleyDB adalah produk embedded database open source yang populer. Belum lama ini dia diakuisisi oleh Oracle, sehingga membuat produk ini makin terkenal lagi.</p>
+
+<p>Pada tulisan kali ini, kita akan mencoba menggunakan BDB Java Edition.</p>
+
+<p>Tapi jangan salah paham dengan namanya. BerkeleyDB adalah database, tapi bukan relational database. Artinya, dia tidak memiliki fasilitas SQL. Walaupun demikian, dia mendukung ACID transaction. Salah satu contoh penggunaan BDB adalah pada aplikasi version control Subversion.</p>
+
+<p>Kalau tidak ada SQLnya, bagaimana kita melakukan operasi CRUD? Jawabnya adalah, anggap saja BDB sebagai Map. Kita bisa menggunakan Map seperti ini:</p>
+
+<pre><code>    Map myMap = new HashMap();
+    myMap.put(1, "Endy");
+</code></pre>
+
+<p>Maka object String akan disimpan dengan key 1. Object ini dapat diambil dengan kode:</p>
+
+<pre><code>    String data = myMap.get(1);
+</code></pre>
+
+<p>Bagi mereka yang sudah pernah mendengar Object Database tentunya sudah familiar dengan konsep seperti ini. Salah satu implementasi konsep ini adalah <a href="http://www.db4o.com/" title="DB4Object">db40</a> atau <a href="http://www.prevayler.org" title="Prevalence Layer">Prevayler</a>.</p>
+
+<p>Sekarang, coba kita gunakan contoh kasus yang standar. Ada class Person yang akan kita buatkan operasi CRUD-nya. Berikut kodenya:</p>
+
+<h3>Person.java</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.util.Date;
+
+    import com.sleepycat.persist.model.Entity;
+    import com.sleepycat.persist.model.PrimaryKey;
+
+    @Entity
+    public class Person {
+
+            @PrimaryKey(sequence="ID")
+            private Integer id;
+            private String name;
+            private Date birthdate;
+            private String email;
+
+            public Person(){
+
+            }
+
+            public String getEmail() {
+                    return email;
+            }
+            public void setEmail(String address) {
+                    this.email = address;
+            }
+            public Date getBirthdate() {
+                    return birthdate;
+            }
+            public void setBirthdate(Date birthdate) {
+                    this.birthdate = birthdate;
+            }
+
+            public Integer getId() {
+                    return id;
+            }
+            public void setId(Integer id) {
+                    this.id = id;
+            }
+            public String getName() {
+                    return name;
+            }
+            public void setName(String name) {
+                    this.name = name;
+            }
+    }
+</code></pre>
+
+<p>Perhatikan bahwa untuk menjadikan class Person persistent, kita hanya perlu menambahkan annotation, mirip dengan JPA atau Hibernate. Sekarang mari kita definisikan interface CRUD-nya.</p>
+
+<h3>PersonDao.java</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.util.List;
+
+    public interface PersonDao {
+            public void save(Person p);
+            public void delete(Person p);
+            public Person getById(Integer id);
+            public List&lt;Person&gt; getAll();
+    }
+</code></pre>
+
+<p>Dan berikut adalah implementasinya.</p>
+
+<h3>PersonDaoBerkeleyDB</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.util.ArrayList;
+    import java.util.Iterator;
+    import java.util.List;
+
+    import com.sleepycat.je.DatabaseException;
+    import com.sleepycat.persist.EntityCursor;
+    import com.sleepycat.persist.EntityStore;
+    import com.sleepycat.persist.PrimaryIndex;
+
+    public class PersonDaoBerkeleyDB implements PersonDao {
+
+            private PrimaryIndex&lt;Integer, Person&gt; personPrimaryKey;
+
+            public PersonDaoBerkeleyDB(EntityStore storage) {
+                    try {
+                            personPrimaryKey = storage.getPrimaryIndex(Integer.class, Person.class);
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+            }
+
+            public void delete(Person p) {
+                    try {
+                            personPrimaryKey.delete(p.getId());
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+            }
+
+            public List&lt;Person&gt; getAll() {
+                    List&lt;Person&gt; result = new ArrayList&lt;Person&gt;();
+                    try {
+                            EntityCursor&lt;Person&gt; allPerson = personPrimaryKey.entities();
+                            Iterator&lt;Person&gt; iter = allPerson.iterator();
+                            while (iter.hasNext()) {
+                                    result.add(iter.next());
+                            }
+                            allPerson.close();
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+                    return result;
+            }
+
+            public Person getById(Integer id) {
+                    try {
+                            return personPrimaryKey.get(id);
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+                    return null;
+            }
+
+            public void save(Person p) {
+                    try {
+                            personPrimaryKey.put(p);
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }       
+            }
+
+
+    }
+</code></pre>
+
+<p>Sebagai perbandingan, berikut kode CRUD menggunakan Hibernate dengan bantuan Spring.</p>
+
+<pre><code>    public class PersonDaoHibernate extends HibernateDaoSupport implements PersonDao{
+        public void save(Person p){
+            getHibernateTemplate().save(p);
+        }
+
+        public void delete(Person p){
+            getHibernateTemplate().delete(p);
+        }
+
+        public Person getById(Integer id){
+            Person result = null;
+            try {
+                    result = (Person) getHibernateTemplate().load(Person.class, id);
+                    getHibernateTemplate().initialize(result);
+            } catch (ObjectRetrievalFailureException e) {
+                    log.log(Level.WARNING, "no object with id:"+id+" in database");
+            }
+            return result;
+        }
+
+        public List&lt;Person&gt; getAll(){
+            return getHibernateTemplate().find("from Person p");
+        }
+    }
+</code></pre>
+
+<p>Oh iya, contoh kode BDB di atas dapat diujicoba dengan membuat Main class sebagai berikut:</p>
+
+<h3>Main.java</h3>
+
+<pre><code>    package tutorial.berkeleydb;
+
+    import java.io.File;
+
+    public class Main {
+            private static EntityStore store;
+            private static Environment env;
+
+            public static void main(String[] args) throws Exception {
+                    openDatabase();
+
+                    Person endy = new Person();
+                    endy.setName("Endy Muhardin");
+                    endy.setBirthdate(new SimpleDateFormat("dd-MM-yyyy").parse("17-08-1945"));
+                    endy.setEmail("endymuhardin@yahoo.com");
+
+                    PersonDao dao = new PersonDaoBerkeleyDB(store);
+                    dao.save(endy);     
+                    System.out.println("======== Create one person with ID:"+endy.getId()+" ========");
+
+                    System.out.println("======== Display all person from database ========");
+                    List&lt;Person&gt; all = dao.getAll();
+                    for (Person person : all) {
+                            displayPerson(person);
+                    }
+
+                    System.out.println("======== Add one more person to database ========");
+                    Person khalisa = new Person();
+                    khalisa.setName("Khalisa Alayya");
+                    khalisa.setBirthdate(new SimpleDateFormat("dd-MM-yyyy").parse("31-12-2000"));
+                    khalisa.setEmail("me@khalisa.web.id");
+                    dao.save(khalisa);
+
+                    System.out.println("======== Display all person from database ========");
+                    all = dao.getAll();
+                    for (Person person : all) {
+                            displayPerson(person);
+                    }
+
+                    System.out.println("======== Get person by ID "+endy.getId()+" from database ========");
+                    Person endyFromDb = dao.getById(endy.getId());      
+                    displayPerson(endyFromDb);
+
+                    System.out.println("======== Change person data with ID "+endy.getId()+" from database ========");
+                    endyFromDb.setEmail("endy.muhardin@gmail.com");
+                    dao.save(endyFromDb);
+
+                    System.out.println("======== Display person with ID "+endy.getId()+" after update ========");
+                    Person endyFromDb2 = dao.getById(endy.getId());     
+                    displayPerson(endyFromDb2);
+
+                    closeDatabase();
+            }
+
+            private static void displayPerson(Person person) {
+                    System.out.println("ID : "+person.getId());
+                    System.out.println("Name : "+person.getName());
+                    System.out.println("Birthdate : "+person.getBirthdate());
+                    System.out.println("Address : "+person.getEmail());
+            }
+
+            private static void openDatabase(){             
+                    try {           
+                            EnvironmentConfig config = new EnvironmentConfig();
+                            config.setAllowCreate(true);
+                            config.setTransactional(true);
+
+                            env = new Environment(new File("database"), config);
+
+                            StoreConfig storeConfig = new StoreConfig();
+                            storeConfig.setAllowCreate(true);
+                            storeConfig.setTransactional(true);
+
+                            store = new EntityStore(env, "PersonDatabase", storeConfig);            
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }           
+            }
+
+            private static void closeDatabase() {
+                    try {
+                            store.close();
+                            env.close();
+                    } catch (DatabaseException e) {
+                            e.printStackTrace();
+                    }
+            }
+    }
+</code></pre>
+
+<p>Selain contoh kode yang ditampilkan di sini, sebetulnya BDB juga mendukung asosiasi One to One, One to Many, dan Many to Many. Sayang sekali saya belum sempat coba.</p>
+
+<p>Dari percobaan sederhana ini, kita dapat menarik beberapa sisi positif dan negatif dari BerkeleyDB, juga kemungkinan kasus yang tepat dan tidak tepat untuk menggunakan BDB.</p>
+
+<h3>Positif</h3>
+
+<ul>
+<li>Ukuran jar kecil. Hanya butuh 1.1 MB untuk jar-nya BDB. Bandingkan jika kita gunakan MySQL + Hibernate. Jar mysql-connector 430KB, hibernate.jar 2MB, hibernate-annotation.jar 300KB, dependensi lainnya seperti ehcache, jta, cglib, asm, dan lainnya bisa mencapai 7MB total.</li>
+<li>Tidak perlu berkutat dengan SQL. Object oriented 100%</li>
+<li>Karena embedded, sangat cepat. Akses data instan langsung ke sumbernya. Bandingkan dengan rantai MySQL-network-hibernate-spring-aplikasi. Bagaikan langit dan bumi.</li>
+</ul>
+
+
+<h3>Negatif</h3>
+
+<ul>
+<li>Karena embedded, sulit dimanipulasi dengan tools lain. Berbeda dengan database RDBMS yang bisa diakses menggunakan command line, web-based interface, atau database management tools.</li>
+<li>Karena tidak support SQL, tidak bisa dimanipulasi aplikasi lainnya. Misalnya aplikasi reporting.</li>
+<li>Untuk sharing data dengan aplikasi lain, kita harus buatkan API via Java atau XML.</li>
+<li>BDB mengandalkan Serialization untuk menyimpan object ke dalam database. Siapapun yang sudah pernah belajar Serialization pasti tahu bahwa penyakitnya ada pada class evolution. Kalau class kita berubah &#8211;misalnya menambah atau mengurangi field, apalagi rename class&#8211; BDB akan bingung, dan kita harus menulis kode program untuk melakukan migrasi.</li>
+</ul>
+
+
+<h3>Kapan menggunakan BDB</h3>
+
+<ul>
+<li>Data yang disimpan hanya digunakan sendiri. Misalnya penyimpanan data session HTTP, cache untuk username dan password, dsb.</li>
+<li>Butuh kecepatan extra tinggi dan pemrograman yang mudah. Misalnya kita membuat server SMS gateway atau message processing. Butuh kecepatan tinggi, dan datanya kecil kemungkinan digunakan aplikasi lain.</li>
+<li>Anda termasuk orang yang living on the edge. Selalu menggunakan tools yang aneh dan terbaru.</li>
+</ul>
+
+
+<h3>Kapan menggunakan RDBMS</h3>
+
+<ul>
+<li>Data harus bisa diakses aplikasi lain seperti reporting.</li>
+<li>Data berjumlah besar, sehingga sulit untuk dimigrasi apabila terjadi refactoring. (Ingat masalah Serialization)</li>
+<li>Perusahaan sudah terlanjur beli Oracle atau DB2.</li>
+</ul>
+
+
+<p>Demikianlah .. semoga bermanfaat.
+:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1647,136 +2007,6 @@ Framework, apalagi open source, membutuhkan interaksi dengan sesama pengguna. Ke
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/manajemen/bisnis-open-source/">Bisnis Open Source</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-08-08T16:34:50+07:00" pubdate data-updated="true">Aug 8<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Artikel ini, tidak seperti biasanya, ditulis berdasarkan request oleh <a href="http://sleepless.ngoprek.org" title="Anton Raharja">teman saya</a>. Selain itu, juga ada thread di milis <a href="http://groups.yahoo.com/group/jug-indonesia" title="Milis JUG Indonesia">JUG Indonesia</a> yang membahas tentang bisnis open source. Di sana saya memberikan sedikit komentar yang secara singkat serupa dengan apa yang akan dijelaskan di sini.</p>
-
-<p>Beberapa tahun belakangan ini, gema open source mulai ramai di dunia. Banyak orang yang tadinya skeptis dengan ide software gratis, mulai mencoba peruntungannya di dunia yang buka-bukaan ini. Banyak juga orang (salah satunya saya) yang bergembira dan sangat mendukung open source, terutama karena ke&#8217;gratis&#8217;annya semata.</p>
-
-<p>Tidak kurang dari perusahaan besar di dunia seperti <a href="http://www.oracle.com" title="Oracle">Oracle</a>, <a href="http://www.ibm.com" title="IBM">IBM</a>, <a href="http://www.sun.com" title="Sun Microsystem">Sun</a>, dan masih banyak yang lainnya, merilis aplikasi mereka yang berharga jutaan dolar secara open source atau &#8216;gratis&#8217;.</p>
-
-<p>Open source tidak selalu gratis, walaupun biasanya begitu. Dan gratis juga tidak selalu berarti open-source. Untuk menyederhanakan urusan, yang akan kita bahas di sini adalah software gratis. Terlepas dari apakah software tersebut open source atau tidak.</p>
-
-<p>Orang-orang pun mulai bertanya, &#8220;Apa tidak rugi melepas aplikasi secara gratis? Dari mana keuntungannya? Padahal untuk membuat software tersebut, telah banyak biaya yang dikeluarkan.&#8221;
-Dan masih banyak lagi pertanyaan sejenis.</p>
-
-<p>Tapi yang jelas, mereka tidak menjadi rugi karena melepas aplikasinya. Tindakan ini tentunya sudah didahului dengan kalkulasi bisnis yang matang dan tidak semata ikut-ikutan trend open source atau tiba-tiba menjadi &#8216;baik hati&#8217; terhadap negara ketiga/miskin (misalnya, Indonesia). Nah, sekarang mari kita lihat, dari mana profitnya.</p>
-
-<p>Setidaknya ada beberapa modus operandi penggunaan strategi gratis untuk perusahaan, sepanjang pengetahuan saya:</p>
-
-<ol>
-<li>RND</li>
-<li>Teaser product</li>
-<li>Strategi Produk Komplementer</li>
-<li>By product</li>
-<li>Pendukung core business</li>
-<li>Sebagai produk utama</li>
-</ol>
-
-
-<p>Mari kita lihat satu per satu.</p>
-
-<p><em>Disclaimer: semua yang saya tulis di sini merupakan pendapat pribadi saya, atas pengamatan tentang penggunaan strategi gratisan, yang tidak terbukti kebenarannya. Tidak ada pernyataan resmi dari perusahaan yang disebut di sini tentang strategi gratisnya. Silahkan tulis komentar anda di bawah kalau setuju/tidak setuju dengan pendapat saya ini.</em></p>
-
-<h3>Research and Development</h3>
-
-<p>Strategi ini digunakan oleh RedHat. Mereka membuat project open source Fedora sebagai lini depan riset Linux. Teknologi yang dihasilkan di project Fedora kemudian digunakan di lini produk komersilnya Red Hat Enterprise Linux. Dengan menggunakan project open source sebagai divisi RND, Red Hat mendapat keuntungan dari kontribusi tenaga kerja gratisan (baca: sukarelawan) baik di posisi developer, tester, dokumenter, public relation (dalam bentuk komentar positif, testimoni, word of mouth), dan juga technical writer (blog membahas penggunaan Fedora, support forum, mailing list, dsb).
-Seperti kita lihat di sini, sebenarnya Red Hat mendapat keuntungan besar, setidaknya dari sisi payroll dan marketing, dengan menggunakan strategi open source.</p>
-
-<p>Latihan buat pembaca, sebutkan contoh lain perusahaan yang menggunakan open source sebagai divisi RND.</p>
-
-<h3>Teaser Product</h3>
-
-<p>Promosi produk yang terbaik adalah dengan cara memberikan produk tersebut ke konsumen, dan berharap mereka puas dan bercerita kepada teman-temannya (yang diharapkan akan membeli produk tersebut). Strategi ini digunakan Oracle pada saat mereka melepas produk Oracle 10g Express Edition. Harapannya adalah, dengan menggunakan produk gratis tersebut:</p>
-
-<ol>
-<li>Lebih banyak orang yang familiar dengan produk Oracle</li>
-<li>Pengguna merasa puas atau sudah terlalu terbiasa (baca: kecanduan) dengan Oracle</li>
-<li>Pada suatu saat, pengguna gratisan tersebut merasa kurang dengan fitur yang ada, dan akan membeli versi berbayarnya</li>
-<li>Jika pengguna gratisan diminta rekomendasi oleh bosnya/temannya, mereka akan merekomendasikan Oracle, karena itulah produk yang mereka kuasai, dan lagipula bukan mereka yang akan membayarnya.</li>
-</ol>
-
-
-<p>Strategi pemasaran ini lebih efektif daripada memasang iklan di media. Banyak orang (termasuk saya) yang sudah sangat bosan dengan iklan, sehingga ada fitur &#8216;autoskip&#8217; di otak saya yang secara otomatis menutup popup iklan, bahkan sebelum gambarnya selesai loading. Bahkan untuk kasus ekstrim, banyak orang mau bersusah payah yang memasang filter iklan seperti Adblock atau <a href="http://www.schooner.com/~loverso/no-ads/" title="Internal Proxy for No Ads">no-ads.pac</a> untuk melucuti media dari semua iklan.</p>
-
-<p>Dengan menggunakan &#8216;orang betulan&#8217; yang tulus dan jujur untuk merekomendasikan produknya, lebih besar kemungkinan produk akan dibeli.</p>
-
-<h3>Strategi Produk Komplementer</h3>
-
-<p>Ada kalanya perusahaan menggratiskan suatu aplikasi karena aplikasi tersebut adalah komplementer dari produk utamanya. Contohnya adalah Acrobat Reader.</p>
-
-<p>Waktu kita belajar di SMP dulu, kita belajar tentang produk substitusi dan komplementer. Produk substitusi adalah produk yang dapat menggantikan produk lain. Misalnya, Indomie adalah produk substitusi Mi Sedap.</p>
-
-<p>Sedangkan produk komplementer adalah produk yang saling melengkapi dengan produk lain. Seperti yang sering kita lihat di tivi, salah satu iklan tag linenya adalah, &#8220;Apapun makanannya, minumnya tetap &#8230; (produk XXX)&#8221;. Nampaknya produsen minuman tersebut berusaha serakah dengan menjadikan produknya sebagai komplementer untuk semua makanan padat.</p>
-
-<p>Acrobat Reader, adalah komplementer dari Acrobat Distiller. Dengan menggratiskan Reader, Adobe berharap penjualan Distiller akan meningkat. Sepertinya strategi ini cukup jitu, sehingga PDF bisa jadi standar format dokumen di internet.</p>
-
-<p>Lebih lanjut tentang penggunaan strategi produk komplementer ini dijelaskan oleh Joel Spolsky. Silahkan baca sendiri di <a href="http://www.joelonsoftware.com/articles/StrategyLetterV.html" title="Joel on Open Source">websitenya</a>.</p>
-
-<h3>By Products</h3>
-
-<p>By products artinya produk sampingan. Misalnya kita membuka usaha jualan kelapa parut di pasar, kita akan mendapatkan banyak sekali air kelapa sebagai limbah. Mereka yang jeli akan segera beternak jamur di dalam air kelapa tersebut dan segera membuka lini produk baru, yang lebih tenar disebut dengan Nata de Coco.</p>
-
-<p>Hal yang sama dilakukan oleh <a href="http://www.thoughtworks.com" title="ThoughtWorks">Martin Fowler dan gerombolannya</a>. Bisnis utama mereka adalah software development dan konsultasi bagi perusahaan software development yang lainnya. Sebagai mana konsultan manajemen pada umumnya, mereka juga berjualan jargon. Salah satu jargon yang mereka perdagangkan adalah Continuous Integration. Ini tidak lain adalah istilah keren dari <em>kompile sering-sering dan test sampai capek</em>. Menyuruh programmer kompile lima kali sehari dan testing sepuluh kali sehari kemudian menulis hasilnya dalam format HTML adalah cara cepat untuk membuat programmer pensiun dini alias resign. Oleh karena itu, mereka membuat program kecil yang bisa melakukan kegiatan tersebut secara terjadwal dan terus menerus. Sehingga jargon Continuous Integration bisa dijual dengan sukses.</p>
-
-<p>Program kecil tersebut adalah <a href="http://cruisecontrol.sourceforge.net" title="Cruise Control homepage">Cruise Control</a>. Dapat Anda peroleh secara gratis di <a href="http://www.sourceforge.net" title="Kost-kostan aplikasi open source">SourceForge</a>.</p>
-
-<p>Perhatikan di sini bahwa dagangan utama mereka adalah proses, bukan produk. Sehingga <a href="http://cruisecontrol.sourceforge.net" title="Cruise Control homepage">Cruise Control</a> tersebut adalah by product belaka. Sama seperti &#8216;nata de coco&#8217;. Karena bukan produk utama, tidak ada kerugian dari melepas aplikasi tersebut secara gratis. Keuntungannya, para calon prospek akan berpersepsi bahwa <a href="http://www.martinfowler.com" title="Bliki Martin Fowler">Martin Fowler</a> masih punya mainan lain yang lebih menarik yang tidak digratiskan. Sehingga dengan senang hati mereka akan mempekerjakan <a href="http://www.pyrasun.com/mike/mt/archives/2005/04/23/18.29.03/index.html" title="Para magang di thoughtworks">dia dan pasukan magangnya</a> dengan tarif selangit.</p>
-
-<h3>Pendukung produk utama</h3>
-
-<p>Framework favorit saya, <a href="http://www.springframework.org" title="Spring Framework">Spring Framework</a> adalah contohnya. Produk utama <a href="http://www.springframework.com" title="Interface 21">Interface 21</a>, perusahaan sponsor <a href="http://www.springframework.org" title="Spring Framework">Spring Framework</a>, adalah perusahaan software development. Berbagai perusahaan besar di dunia mempercayakan pengembangan aplikasi bisnisnya pada <a href="http://www.springframework.com" title="Interface 21">Interface 21</a>. Jadi, produk utama <a href="http://www.springframework.com" title="Interface 21">Interface 21</a> adalah software development. Dalam mengembangkan aplikasi pesanan client, Interface 21 membutuhkan framework berkualitas tinggi dan berarsitektur bagus. Di situlah peranan project Spring Framework, sebagai produk pendukung aktivitas bisnis Interface 21.</p>
-
-<h3>Produk Utama</h3>
-
-<p>Ada juga beberapa perusahaan yang menjadikan aplikasi gratisnya sebagai produk utama. Lalu datang pertanyaan, &#8220;Kalau produk utama digratiskan, dari mana dapat uangnya?&#8221;. Ada beberapa jalur lain di luar penjualan software: training, buku, dan customization. Jalur ini ditempuh JBoss dan Hibernate. Dokumentasi utama JBoss tidak gratis. Kita harus membeli dengan sistem berlangganan di websitenya.</p>
-
-<p>Hibernate, mendapat pemasukan dari penjualan buku. Pembuatnya, Gavin King dan Christian Bauer mengarang buku yang bagus sekali, Hibernate in Action. Isinya menjelaskan desain aplikasi pada umumnya, dan penggunaan framework Hibernate. Dengan semakin banyaknya pengguna Hibernate, buku dan training akan semakin laku.</p>
-
-<p>PlaySMS dan PlayBilling, mendapat pemasukan dari customization. Para pelanggan seringkali membutuhkan fitur khusus yang belum ada di rilis open source. Untuk itu, mereka membayar developer untuk menambahkan fitur yang dibutuhkan. Siapa yang lagi yang lebih berkompeten menulis tambahan fitur selain <a href="http://endy.artivisi.com" title="Endy Muhardin">pengembang</a> <a href="http://sleepless.ngoprek.org" title="Anton Raharja">asli</a>nya?</p>
-
-<p>Demikianlah uraian tentang bisnis open source. Jadi, hilangkan ilusi bahwa perusahaan besar sekarang menjadi dermawan, karena memberikan aplikasinya secara gratis. Ada kepentingan pemegang saham di baliknya, yang tentu saja, tidak mau rugi.</p>
-
-<p>Walaupun demikian, kita lihat ada situasi win-win di sini. Pengguna diuntungkan dengan adanya software gratis. Perusahaan juga diuntungkan dari promosi gratis, tenaga sukarela, dan berbagai keuntungan lainnya.</p>
-
-<p>Oleh karena itu, mari gunakan aplikasi gratis.
-Kalo bisa gratis, kenapa harus bayar?
-Kalo ada yang gratis, kenapa masih membajak?</p>
-
-<p>:D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/19/">&larr; Older</a>
@@ -1853,6 +2083,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/capacity-planning/">Capacity Planning</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/memahami-authentication/">Memahami Authentication</a>
       </li>
     
@@ -1886,10 +2120,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/persiapan-coding-nodejs/">Persiapan Coding NodeJS</a>
       </li>
     
   </ul>

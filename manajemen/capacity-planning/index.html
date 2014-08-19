@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Capacity Planning - Living life and make it better</title>
+  <meta name="author" content="Endy Muhardin">
+
+  
+  <meta name="description" content="Ada pertanyaan bagus di milis IT Project Management, sebagai berikut Mohon di-share caranya menentukan spesifikasi minimal hardware yang dibutuhkan &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://software.endy.muhardin.com/manajemen/capacity-planning/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Living life and make it better" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+
+<meta property="fb:app_id" content="269506799827290" />
+
+
+
+  <link href="/stylesheets/data-table.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="/stylesheets/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css" />
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-36102948-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:software.endy.muhardin.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+    <li><a href="/">
+        <span class="my_site_title">
+            Living life and make it better
+        </span>
+       
+           <span class="my_site_subtitle">
+             life, learn, contribute
+           </span>
+       
+    </a></li>
+  <li><a href="/">Blog</a></li>
+  <li><a href="/archives">Archives</a></li>
+  <li><a href="/calendar">Calendar</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Capacity Planning</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-19T17:48:00+07:00" pubdate data-updated="true">Aug 19<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Ada pertanyaan bagus di milis IT Project Management, sebagai berikut</p>
+
+<blockquote><p>Mohon di-share caranya menentukan spesifikasi minimal hardware yang dibutuhkan sebuah sistem.
+contoh <a href="http://en.wikipedia.org/wiki/System_requirements">http://en.wikipedia.org/wiki/System_requirements</a>
+Kriteria apa saja yang digunakan dalam memilih hardware? Terutama menentukan jumlah RAM dan Speed Processor nya. Apakah cukup dari jumlah concurrent user? Atau menggunakan metode trial-and-error.
+Kalaupun trial-and-error, tentunya ada standar yang digunakan sebagai benchmark awal ya kan? Bagaimana standar awal tersebut?</p></blockquote>
+
+<p>Mari kita bahas</p>
+
+<!--more-->
+
+
+<p>Proses perencanaan seperti ini disebut dengan istilah Capacity Planning. Penjelasan lengkapnya bisa dibaca <a href="http://en.wikipedia.org/wiki/Capacity_planning">di Wikipedia</a>.</p>
+
+<p>Pada intinya, proses Capacity Planning di dunia IT dilakukan untuk mengetahui perencanaan infrastruktur yang dibutuhkan agar sistem yang dibangun bisa bekerja dengan baik sesuai kebutuhannya. Ada beberapa metrik yang ingin dihasilkan dari proses ini, antara lain:</p>
+
+<ul>
+<li>kebutuhan hardware (berapa server, masing-masing prosesornya apa, memori berapa, harddisk berapa, dan sebagainya)</li>
+<li>kebutuhan jaringan (berapa besar bandwidth, berapa IP public, berapa jalur redundan/backup, dan sebagainya)</li>
+<li>kebutuhan tempat (berapa luas ruang server, apakah dibutuhkan lokasi sekunder untuk Disaster Recovery Center)</li>
+<li>kebutuhan energi (berapa watt listriknya, berapa UPS, perlu genset atau tidak, dan sebagainya)</li>
+</ul>
+
+
+<h2>Data yang dibutuhkan</h2>
+
+<p>Angka-angka di atas tentu tidak turun dari langit. Ada beberapa data yang kita butuhkan sebagai input, antara lain:</p>
+
+<ul>
+<li>proyeksi pertumbuhan kegiatan bisnis. Berapa user di tahun pertama, berapa user di tahun kedua, dan seterusnya</li>
+<li>profil perilaku user. Apakah ramai di tanggal tertentu (misalnya aplikasi pembayaran tagihan)? Apakah ramai di bulan tertentu (misalnya aplikasi penjualan tiket pesawat)? Atau di hari tertentu (misalnya tiket bioskop)?</li>
+<li>constraint yang harus dipenuhi secara bisnis. Berapa detik user boleh menunggu? Berapa banyak user yang diperbolehkan mengantri dalam sistem? Apakah boleh sistemnya down? Kalau boleh, berapa lama batas waktunya sampai dia harus aktif lagi?</li>
+<li>profil perilaku aplikasi kita sendiri. Berapa besar data yang disimpan dalam disk untuk tiap user? Berapa besar data tersimpan untuk satu transaksi? Berapa besar data yang lewat di jaringan untuk satu transaksi? Bagaimana rinciannya, berapa byte antara database server ke application server, berapa byte antara application server ke perangkat yang digunakan user?</li>
+</ul>
+
+
+<h2>Cara Memperoleh Data</h2>
+
+<p>Data-data ini bisa kita peroleh dengan berbagai cara, misalnya:</p>
+
+<ul>
+<li>proyeksi pertumbuhan bisa diminta dari divisi marketing. Mereka tentu punya target pasar yang nantinya kita konversi menjadi jumlah user.</li>
+<li>profil perilaku user juga bisa diminta dari divisi marketing. Segmentasinya seperti apa (anak, remaja, atau dewasa; orang kota atau orang desa), demografinya bagaimana, sebaran geografisnya di mana saja, dan sebagainya.</li>
+<li>constraint juga bisa diperoleh dari divisi bisnis / marketing. Seperti apa penawaran kompetitor, apakah mereka menjanjikan fitur tertentu yang diunggulkan, dan sebagainya.</li>
+<li>data tentang aplikasi kita, tentu kita bisa kumpulkan sendiri. Deploy aplikasi kita di testing server, lalu lakukan functional dan stress test dengan tools seperti <a href="http://jmeter.apache.org/">JMeter</a>. Jalankan aplikasi, jalankan testing tools, dan kumpulkan datanya. Cara melakukan profiling bisa dibaca di <a href="http://software.endy.muhardin.com/programming/tuning-performance/">artikel saya tentang tuning performance</a></li>
+</ul>
+
+
+<p>Beberapa data yang bisa dikumpulkan dari cara ini misalnya:</p>
+
+<h3>Storage</h3>
+
+<ul>
+<li>besar data yang digunakan oleh satu user aplikasi</li>
+<li>besar data yang digunakan untuk masing-masing jenis transaksi bisnis (penjualan, pembelian, barang masuk, barang keluar, dan sebagainya)</li>
+</ul>
+
+
+<h3>Processing</h3>
+
+<p>Processing di sini maksudnya, dengan prosesor dan RAM tertentu, berapa</p>
+
+<ul>
+<li>jumlah maksimal request yang bisa dihandle tanpa terjadi error (100% sukses)</li>
+<li>jumlah maksimal request yang bisa dihandle dengan tingkat error yang bisa diterima (10% transaksi gagal)</li>
+<li>waktu yang dibutuhkan untuk memproses masing-masing jenis request (login, entri transaksi, generate report, pencarian data, dsb)</li>
+</ul>
+
+
+<h3>Network</h3>
+
+<ul>
+<li>berapa byte yang ditransmisikan untuk masing-masing jenis request dan response</li>
+<li>waktu yang dibutuhkan untuk transmisi dengan berbagai jenis koneksi (ADSL, leased line, fiber optik, GPRS, 3G, dsb)</li>
+<li>waktu yang ditoleransi aplikasi sebelum request dinyatakan timeout</li>
+</ul>
+
+
+<p>Sampai di sini, kita sudah tahu output, dan juga sudah punya input. Tinggal diproses saja.</p>
+
+<h2>Memproses Data</h2>
+
+<p>Ada beberapa hal yang bisa kita analisa dari data di atas, yaitu:</p>
+
+<ul>
+<li>kebutuhan hardware</li>
+<li>kebutuhan jaringan</li>
+<li>skema deployment</li>
+<li>kebutuhan infrastruktur pendukung</li>
+</ul>
+
+
+<h3>Kebutuhan Hardware</h3>
+
+<p>Dari stress test yang kita lakukan, kita bisa tahu 2 hal:</p>
+
+<ol>
+<li>Spesifikasi hardware yang kita gunakan pada waktu test</li>
+<li>Jumlah maksimal load yang bisa ditangani oleh hardware tersebut</li>
+</ol>
+
+
+<p>Sebagai ilustrasi, misalnya kita menggunakan server test dengan spesifikasi sebagai berikut:</p>
+
+<ul>
+<li>Prosesor Xeon Dual Core</li>
+<li>RAM 8GB</li>
+<li>SATA 120GB</li>
+</ul>
+
+
+<p>Bisa menangani load sebagai berikut</p>
+
+<ul>
+<li>1000 concurrent user</li>
+<li>masing-masing user melakukan login, entri transaksi dua kali, melihat report, dan kemudian mengunduh laporan dalam format PDF</li>
+</ul>
+
+
+<p>Dan bisa menampung data untuk</p>
+
+<ul>
+<li>10.000 registered user</li>
+<li>1.000.000 transaksi</li>
+</ul>
+
+
+<p>Perlu diperhatikan bahwa jumlah user yang bisa ditangani tentu berbeda tergantung kompleksitas aplikasinya. Jadi jangan bertanya di forum seperti ini</p>
+
+<blockquote><p>Aplikasi saya kok boros resource ya? Padahal sudah pakai Xeon Dual Core dan RAM 8GB, tapi cuma bisa menghandle 1000 user?</p></blockquote>
+
+<p>Pertanyaan di atas tidak bisa dijawab tanpa tahu persis isi perut aplikasinya. Hanya arsitek aplikasinya yang bisa menjawab, karena dia yang tahu apa bisnis proses yang dijalankan, apa teknologi yang digunakan, bagaimana teknik query database, bagaimana strategi caching, dan sebagainya. Bahkan mungkin saja angka 1000 user itu sudah merupakan prestasi yang luar biasa.</p>
+
+<p>Jadi sebetulnya, dari proses test tersebut kita cuma butuh kesimpulan sebagai berikut</p>
+
+<blockquote><p>Xeon Dual Core + RAM 8GB + Disk 120GB = 1000 concurrent user + 10.000 registered user + 1.000.000 transaksi</p></blockquote>
+
+<p>Dari kesimpulan di atas, kita bisa interpolasi ke requirement dari sisi bisnis. Kalau bisnisnya ingin melayani 2000 concurrent user, 20.000 registered user, dan 2.000.000 transaksi, tentu kita harus beli minimal Xeon Quad Core, RAM 16GB, dan Disk 300GB.</p>
+
+<p>Jangan lupa, selain spesifikasi minimal kita juga bisa mengeluarkan spesifikasi yang ideal / direkomendasikan. Soalnya bagian finance dan purchasing biasanya suka kalau mereka punya alternatif. Pastikan saja spesifikasi minimal yang kita berikan sudah mempunyai cadangan kapasitas. Biasanya saya berikan tiga level spesifikasi:</p>
+
+<ul>
+<li>minimal</li>
+<li>rekomendasi</li>
+<li>ideal</li>
+</ul>
+
+
+<p>Tentu saja sebenarnya sudah saya markup dari perhitungan sebenarnya, sehingga spesifikasi minimal sebenarnya adalah spesifikasi rekomendasi, spesifikasi rekomendasi sebenarnya adalah spesifikasi ideal, dan yang saya tulis sebagai spesifikasi ideal sebenarnya adalah spesifikasi <em>all you can eat</em>. Jangan heran kalau nanti isinya adalah <a href="http://en.wikipedia.org/wiki/NonStop">NonStop Server</a></p>
+
+<h3>Skema Deployment</h3>
+
+<p>Beberapa requirement bisnis menuntut skema deployment tertentu. Contohnya, kita mendapatkan requirement seperti ini</p>
+
+<blockquote><p>Sistem harus berjalan dengan SLA 99.9%. Bila terjadi downtime, sistem cadangan harus aktif paling lambat dalam waktu 1 jam. Sistem cadangan harus menyimpan data transaksi minimal satu hari kerja sebelumnya.</p></blockquote>
+
+<p>Requirement bisnis tersebut harus kita terjemahkan dulu menjadi angka yang bisa kita pahami secara teknis.</p>
+
+<p>Pertama, kita <a href="http://www.joshualyman.com/2010/12/sla-uptime-guarantees-in-minutes-and-hours/">terjemahkan SLA tersebut</a>. Angka 99.9% artinya dalam setahun sistem cuma boleh mati maksimal 525.6 menit atau 8.76 jam. Perlu diperhatikan bahwa angka ini sudah termasuk proses terencana (scheduled downtime) seperti misalnya upgrade versi aplikasi, deployment karena fixing bug, ataupun server crash karena berbagai alasan.</p>
+
+<p>Kedua, dari requirement di atas, kita bisa menyimpulkan adanya kebutuhan sistem cadangan. Sistem cadangan ini biasanya harus berjauhan dari sistem utama (geographic diversity).</p>
+
+<p>Ketiga, dari waktu aktivasi sistem cadangan dan sinkronisasi data, kita dapat menentukan strategi replication antar kedua sistem. Delay data satu hari artinya kita bisa melakukan sinkronisasi data dengan file transfer biasa (FTP atau Rsync).</p>
+
+<p>Aktivasi 1 jam artinya kita bisa menyimpan data dalam bentuk dump database karena waktu 1 jam memungkinkan kita untuk melakukan proses restore.</p>
+
+<p>Bila data harus sinkron secara hampir real-time dan aktivasi di bawah 10 menit, maka kita harus mempertimbangkan strategi sinkronisasi yang berbeda (misalnya di level disk menggunakan DRBD).</p>
+
+<h3>Kebutuhan Jaringan</h3>
+
+<p>Lakukan logika yang sama untuk kebutuhan jaringan. Interpolasikan antara requirement bisnis dengan karakteristik aplikasi. Nanti kita akan dapatkan kesimpulan misalnya seperti ini:</p>
+
+<ul>
+<li>untuk menangani 2000 transaksi per detik</li>
+<li>dibutuhkan koneksi uplink dengan bandwidth 1Mbps dengan maksimum delay 0.1ms</li>
+</ul>
+
+
+<p>Dengan contoh kasus di atas, setidaknya ada tiga segmen jaringan yang kita harus pikirkan:</p>
+
+<ul>
+<li>dari sistem utama / cadangan ke end user</li>
+<li>dari sistem utama ke sistem cadangan (untuk keperluan sinkronisasi dan replikasi data)</li>
+<li>di internal sistem (utama dan cadangan)</li>
+</ul>
+
+
+<p>Kebutuhan jaringan menuju end user dapat dikalkulasi dengan mengkombinasikan:</p>
+
+<ul>
+<li>jumlah concurrent user</li>
+<li>apa yang dilakukan masing-masing user di aplikasi</li>
+<li>besar data yang ditransmisikan untuk masing-masing aktifitas user</li>
+</ul>
+
+
+<p>Kebutuhan jaringan dari sistem utama ke sistem cadangan bisa dikalkulasi dengan mempertimbangkan:</p>
+
+<ul>
+<li>delay sinkronisasi data. Bila data harus sinkron secara real time, maka bandwidth harus besar dan delay harus kecil supaya data bisa ditransfer dengan lancar dan cepat</li>
+<li>delay aktivasi sistem cadangan. Bila aktivasinya tidak harus cepat, kita bisa mentransfer data dalam bentuk dump yang membutuhkan proses restore sebelum sistem aktif. Tapi kalau aktivasi harus cepat, maka data harus ditransfer dalam bentuk yang lebih instan seperti byte-per-byte blok dalam disk. Ini butuh jaringan dengan spesifikasi yang tinggi</li>
+</ul>
+
+
+<p>Kebutuhan jaringan di internal sistem juga harus dipertimbangkan, terutama antara application server dan database server. Walaupun demikian, karena sifatnya jaringan internal, maka kita memiliki keleluasaan untuk memasang perangkat gigabit.</p>
+
+<h3>Infrastruktur Pendukung</h3>
+
+<p>Hasil perhitungan terhadap kebutuhan hardware, skema deployment, dan jaringan bisa kita gunakan untuk menghitung berapa ruangan, rak, listrik yang kita butuhkan untuk menjalankan sekian banyak server dan perangkat jaringan. Sesuai dengan requirement SLA, kita juga mungkin perlu menyewa lokasi kedua untuk sistem cadangan.</p>
+
+<h2>Kesimpulan</h2>
+
+<p>Singkatnya, untuk membuat Capacity Planning kita perlu mengetahui:</p>
+
+<ul>
+<li>requirement bisnis sekarang dan beberapa tahun ke depan</li>
+<li>profil dan karakteristik aplikasi yang kita bangun</li>
+</ul>
+
+
+<p>Dengan data tersebut, kita bisa menghitung:</p>
+
+<ul>
+<li>apa saja perangkat yang dibutuhkan</li>
+<li>berapa jumlah masing-masing perangkat</li>
+<li>bagaimana spesifikasi masing-masing perangkat</li>
+<li>apa saja infrastruktur untuk menjalankan semua perangkat tersebut</li>
+<li>sampai kapan perangkat bisa digunakan</li>
+<li>pada titik mana kita harus upgrade / menambah perangkat</li>
+</ul>
+
+
+<p>Demikianlah sekilas tentang Capacity Planning, semoga bermanfaat.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Endy Muhardin</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-19T17:48:00+07:00" pubdate data-updated="true">Aug 19<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/manajemen/'>manajemen</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/manajemen/capacity-planning/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/manajemen/capacity-planning/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/java/memahami-authentication/" title="Previous Post: Memahami Authentication">&laquo; Memahami Authentication</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+<section>
+  <h1>Comments</h1>
+  <div id="facebook_comments" aria-live="polite">
+    <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
+<div
+  class="fb-comments"
+  data-href="http://software.endy.muhardin.com/manajemen/capacity-planning/"
+  data-num-posts="2"
+  data-width="470"
+  data-colorscheme="light" ></div>
+
+  </div>
+</section>
+
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Endy Muhardin</h1>
+
+<p>Software Developer berdomisili di Jabodetabek, berkutat di lingkungan open source, terutama Java dan Linux.</p>
+
+<p>
+    <ul>
+        <li>
+            <span class="icon-phone" style="text-align: left; width: 100%">&nbsp;
+            +62 812 98000 468
+            </span>
+        </li>
+        <li>
+            <span class="icon-envelope" style="text-align: left; width: 100%">&nbsp;
+                <a href="mailto:endy.muhardin@gmail.com">endy.muhardin@gmail.com</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-twitter" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://twitter.com/endymuhardin">@endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-github" style="text-align: left; width: 100%">&nbsp;
+                <a href="https://github.com/endymuhardin">github.com/endymuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-facebook" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://facebook.com/endy.muhardin">facebook.com/endy.muhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-google-plus" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://google.com/+EndyMuhardin">google.com/+EndyMuhardin</a>
+            </span>
+        </li>
+        <li>
+            <span class="icon-linkedin" style="text-align: left; width: 100%">&nbsp;
+                <a href="http://id.linkedin.com/pub/endy-muhardin/3/940/1bb">LinkedIn</a>
+            </span>
+        </li>
+    </ul>
+</p>
+</section>
+
+<section>
+
+Bila artikel di website ini membantu meningkatkan penghasilan Anda, 
+jangan ragu untuk memberikan donasi :)
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</form>
+
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/manajemen/capacity-planning/">Capacity Planning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/memahami-authentication/">Memahami Authentication</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/desain-skema-database/">Desain Skema Database</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
+      </li>
+    
+      <li class="post">
+        <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
+      </li>
+    
+      <li class="post">
+        <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
+      </li>
+    
+      <li class="post">
+        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
+      </li>
+    
+      <li class="post">
+        <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
+      </li>
+    
+      <li class="post">
+        <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("endymuhardin", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/endymuhardin" class="twitter-follow-button" data-show-count="false">Follow @endymuhardin</a>
+  
+</section>
+
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/endymuhardin">@endymuhardin</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'endymuhardin',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Endy Muhardin -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=269506799827290&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
