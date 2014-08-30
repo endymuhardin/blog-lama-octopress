@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Di kantor saya sekarang sedang terjadi euforia Linux. Hmm&#8230;. bukan euforia. Tampaknya histeria lebih tepat. Karena semua orang tampak histeris &hellip;">
+  <meta name="description" content="Di Ubuntu, menulis ke partisi NTFS sangat mudah. Cukup lakukan sudo apt-get install ntfs-config dan partisi NTFS siap ditulisi. Di OpenSuSE 10.2, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,101 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/ntfs-write-di-opensuse-102/">NTFS Write Di OpenSuSE 10.2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-06-22T01:39:23+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Di Ubuntu, menulis ke partisi NTFS sangat mudah. Cukup lakukan</p>
+
+<pre><code>sudo apt-get install ntfs-config
+</code></pre>
+
+<p>dan partisi NTFS siap ditulisi.</p>
+
+<p>Di OpenSuSE 10.2, tidak semudah ini. Secara default, repository OpenSuSE tidak mengandung <code>ntfs-3g</code>, paket yang dibutuhkan untuk menulis ke NTFS, yang siap digunakan. Oleh karena itu, beberapa orang memilih untuk mengkompilasi sendiri, salah satunya <a href="http://sugandi.blogspot.com/2007/01/how-to-write-to-ntfs-partition-on-linux.html">Oom Andi Sugandi</a>.</p>
+
+<p>Tetapi akhirnya saya menemukan cara yang mudah, tidak melibatkan kompilasi ulang. Berikut caranya.</p>
+
+<h3>Tambah Repository</h3>
+
+<p>Pertama, kita harus menggunakan repository milik Jan Engel***. Masuk ke Yast, dan pilih Installation Source. Kita akan menggunakan protokol FTP. Alamat servernya adalah <code>ftp-1.gwdg.de</code> dan folder repositorynya adalah <code>/pub/linux/misc/suser-jengelh/SUSE-10.2/</code>. Silahkan tambahkan entri tersebut dan klik OK. Yast akan segera memperbaharui database aplikasinya.</p>
+
+<h3>Instalasi Paket</h3>
+
+<p>Selanjutnya, kita bisa langsung menginstal paketnya. Dari Yast, buka Software Management, dan cari dengan keyword <code>ntfs</code>. Kita akan menemukan paket <code>ntfs-3g</code>. Instal paket tersebut.
+Yast akan meminta paket tambahan, yaitu <code>fuse</code>. Instal saja dua-duanya.</p>
+
+<h3>Edit fstab</h3>
+
+<p>Sebelum mengubah isi <code>/etc/fstab</code>, jangan lupa untuk melakukan umount pada partisi windows yang kita miliki.
+Agar partisi windows kita dimount secara otomatis pada saat boot, kita perlu mengedit file <code>/etc/fstab</code>. Temukan entri seperti ini,</p>
+
+<pre><code>/dev/sda1            /media/windows/C     ntfs    ro,users,gid=users,umask=0002,nls=utf8 0 0
+</code></pre>
+
+<p>dan ubah menjadi seperti ini</p>
+
+<pre><code>/dev/sda1            /media/windows/C     ntfs-3g    silent,unmask=0,locale=en_US.utf8 0 0
+</code></pre>
+
+<p>Setelah itu, kita bisa menguji coba dengan perintah <code>mount -a</code>. Di komputer saya muncul warning sebagai berikut.</p>
+
+<pre><code>WARNING: Deficient Linux kernel detected. Some driver features are
+         not available (swap file on NTFS, boot from NTFS by LILO), and
+         unmount is not safe unless it's made sure the ntfs-3g process
+         naturally terminates after calling 'umount'. If you wish this
+         message to disappear then you should upgrade to at least kernel
+         version 2.6.20, or request help from your distribution to fix
+         the kernel problem. The below web page has more information:
+         http://ntfs-3g.org/support.html#fuse26
+</code></pre>
+
+<p>Tapi warning ini tidak berbahaya.</p>
+
+<h3>Edit Boot Config</h3>
+
+<p>Selain fstab, ada satu file lagi yang harus diedit agar mounting otomatis berjalan lancar pada saat booting. Edit file <code>/etc/sysconfig/kernel</code>. Cari baris berikut</p>
+
+<pre><code>MODULES_LOADED_ON_BOOT=""
+</code></pre>
+
+<p>dan ganti menjadi seperti ini</p>
+
+<pre><code>MODULES_LOADED_ON_BOOT="fuse"
+</code></pre>
+
+<p>Partisi NTFS siap digunakan. Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1885,77 +1980,6 @@ Selamat menampilkan rangkuman website orang di website anda sendiri. Jangan lupa
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/apa-itu-rss/">Apa Itu RSS ?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-02-08T23:43:52+07:00" pubdate data-updated="true">Feb 8<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sudah tau RSS?</p>
-
-<p>Jika Anda bukan programmer, wajar jika tidak tahu. Tapi jika Anda programmer &#8230; jangan sampai tidak tahu. Apalagi bilang,</p>
-
-<blockquote><p>RSS itu kan sama dengan CSS &#8230;</p></blockquote>
-
-<p>RSS itu banyak kepanjangannya, beberapa diantaranya antara lain:</p>
-
-<ul>
-<li><p>Really Simple Syndication</p></li>
-<li><p>Rich Site Summary</p></li>
-<li><p>RDF Site Summary</p></li>
-</ul>
-
-
-<p>RSS berisi rangkuman dari isi suatu website. Misalnya kita mengunjungi website yang berisi banyak artikel. Kita bisa mengambil data RSSnya, yang berisi :</p>
-
-<ul>
-<li><p>Judul Artikel</p></li>
-<li><p>Tanggal Publish</p></li>
-<li><p>Pengarang</p></li>
-<li><p>Potongan isinya</p></li>
-</ul>
-
-
-<p>Sebagai contoh, misalnya kita ingin selalu mengikuti perkembangan terbaru di dunia PHP. Cukup masukkan URL http://www.php.net/news.rss di aplikasi aggregator. Nanti aplikasi aggregator akan menampilkan RSS feed tersebut dengan antarmuka yang mudah dibaca.</p>
-
-<p>Ada beberapa versi format data RSS, yaitu versi 0.9, 0.91, 1.0, dan 2.0. Selain itu, juga ada format lain yang namanya Atom. Data ini (baik RSS maupun Atom) tersebut dikemas dalam format XML, yang nantinya dapat dibaca oleh aplikasi yang namanya aggregator. Ulasan tentang berbagai jenis aplikasi aggregator berbasis desktop dapat dilihat <a href="http://endy.artivisi.com/blog/aplikasi/aggregator-on-windows-2/">di sini</a>.</p>
-
-<p>Aplikasi aggregator juga ada yang berbasis web. Misalnya Google Reader dan Bloglines. Kita juga bisa membuat sendiri dengan menggunakan library <a href="http://magpierss.sourceforge.net">Magpie RSS</a> atau menggunakan plugin di berbagai aplikasi Content Management System populer. Biasanya aplikasi populer seperti Wordpress, Drupal, atau Joomla sudah memiliki plugin untuk itu. Contoh nyatanya bisa dilihat di <a href="http://www.prayudi.web.id">website Pak Cipi</a>. Website ini dibuat dengan Drupal.</p>
-
-<p>Cara kerja aplikasi aggregator sama dengan aplikasi mail client (Outlook Express, Evolution, atau Thunderbird). Bedanya, kalau aplikasi mail client mengambil data email dari mail server, aplikasi aggregator mengambil data RSS dari website yang menyediakan. Kita bisa memasukkan website sebanyak-banyaknya sesuai keinginan kita. Nantinya, kalau website yang kita daftarkan merilis artikel/berita baru, rangkumannya akan muncul di aggregator kita. Di aplikasi aggregator akan muncul entri <strong>Unread Items</strong> seperti halnya <strong>Unread Mails</strong>. Aplikasi aggregator ini berguna agar kita tidak perlu mengunjungi setiap website satu persatu. Cukup lihat judul dan ringkasan artikel baru. Jika menarik, kita kunjungi websitenya. Jika tidak menarik, diabaikan saja.</p>
-
-<p>Demikianlah penjelasan singkat tentang RSS. Jangan salah lagi membedakan antara RSS dan CSS.</p>
-
-<p>They are different !!</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/17/">&larr; Older</a>
@@ -2032,6 +2056,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/belajar-project-management-dari-ubuntu/">Belajar Project Management dari Ubuntu</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/capacity-planning/">Capacity Planning</a>
       </li>
     
@@ -2065,10 +2093,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
       </li>
     
   </ul>

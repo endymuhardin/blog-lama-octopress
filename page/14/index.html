@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel Spring bagian ketiga ini, kita akan membuat form untuk mengedit data Person. Di sini kita akan lihat kemampuan form binding dari Spring &hellip;">
+  <meta name="description" content="Salah satu komentator bertanya seperti ini, kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,183 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/konfigurasi-anotasi-vs-xml/">Annotation Dan XML</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-12-07T21:30:47+07:00" pubdate data-updated="true">Dec 7<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Salah satu <a href="http://endy.artivisi.com/blog/java/akses-database-spring25/#comment-9582">komentator bertanya seperti ini</a>,</p>
+
+<blockquote><p>kenapa annotation lebih diprefer daripada xml configuration ? bukannya xml configuration di spring membuat kontrol kita lebih sentralisasi, sehingga lebih mudah dimaintain ?</p></blockquote>
+
+<p>Hmm&#8230; saya tidak ingin terlibat flame war annotation vs xml. Masing-masing memiliki plus minusnya. Ada saatnya kita memakai annotation dan ada saatnya XML lebih tepat. Mari kita bahas.</p>
+
+<p>Beberapa waktu yang lalu, saya pernah ditugaskan untuk memeriksa aplikasi finansial yang error. Pada salah satu halaman, bila tombol Submit ditekan, aplikasi akan hang. Aplikasi ini dibuat menggunakan teknologi VB 6 (RIP) untuk komponen akses database, ASP untuk tampilan, dan Stored Procedure MS-SQL Server 2005 untuk sebagian logika bisnis.</p>
+
+<p>Setelah memasukkan trace statement ke dalam Stored Procedure (ternyata bukan hal yang mudah, tidak semudah menyisipkan System.out.println(), terlihat penyebabnya karena ada cyclic dependency antar transaksi database. Transaksi A mencoba mengurangi saldo, tapi sebelumnya memeriksa posisi saldo, kalau-kalau tidak mencukupi. Pemeriksaan saldo dilakukan melalui transaksi B. Transaksi B mencoba melihat tabel saldo, yang ternyata sudah dikunci oleh transaksi A. Ya sampai kapanpun transaksi A dan B akan saling menunggu.</p>
+
+<p>Baiklah, masalah sudah ditemukan, saatnya untuk memperbaiki. Memperbaiki jauh lebih mudah daripada menemukan bug, kan?</p>
+
+<p>Sayangnya tidak demikian. Ada berbagai faktor, salah satunya yang paling signifikan adalah saya awam dengan teknologi Microsoft. Saya sama sekali tidak mengerti bagaimana cara mengatur transaksi di VB dan Stored Procedure.</p>
+
+<p>Akhirnya setelah google kesana kemari, saya menemukan empat cara untuk melakukan setting transaksi:</p>
+
+<ul>
+<li>coding di VB</li>
+<li>coding di Stored Procedure</li>
+<li>konfigurasi class properties di VB</li>
+<li>konfigurasi di COM service pada Control Panel Windows</li>
+</ul>
+
+
+<p>Waduh &#8230; ini mimpi buruk. Berarti ada banyak kombinasi yang harus dicoba. Saya yakin para MVP pasti dengan cepat bisa memilih, tapi saya hanyalah seorang programmer Java. Mana saya tahu hal beginian.</p>
+
+<p>Dari kejadian ini, saya mendapat pelajaran penting. Pengaturan transaksi haruslah dekat dengan kode yang melakukan transaksi. Alasannya, kode program yang mengakses database sangat erat hubungannya dengan pengaturan transaksi. Tidak mungkin kita menulis kode untuk transfer antar rekening tapi menon-aktifkan transaksi database.</p>
+
+<p>Kode seperti ini mudah dipahami dan mudah didebug.</p>
+
+<pre><code>@Transactional(readOnly=false)
+public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Kode seperti ini perlu banyak Alt-Tab untuk mendebugnya.</p>
+
+<p>Di Java:</p>
+
+<pre><code>public void transferAntarRekening(Rekening asal, Rekening tujuan, BigDecimal jumlah){
+  asal.credit(jumlah);
+  tujuan.debet(jumlah);
+}
+</code></pre>
+
+<p>Di XML</p>
+
+<pre><code>&lt;property name="transactionAttributes"&gt;
+  &lt;props&gt;
+    &lt;prop key="transfer*"&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+  &lt;/props&gt;
+&lt;/property&gt;
+</code></pre>
+
+<p>Bedakan antara cara melakukan transaksi, dan cara melakukan konfigurasi. Di Java, kita bisa memilih beberapa cara transaksi:</p>
+
+<ul>
+<li>Local Transaction: mengelola transaksi melalui java.sql.Connection dalam source code</li>
+<li>Programmatic Transaction: mengambil object Transaction dari JTS provider, kemudian menggunakannya untuk commit/rollback. Ini juga dilakukan dalam source code.</li>
+<li>Declarative Transaction: mengatur transaksi melalui konfigurasi.</li>
+</ul>
+
+
+<p>Kalau kita pilih declarative transaction, ada beberapa cara konfigurasinya:</p>
+
+<ul>
+<li>Melalui XML</li>
+<li>Melalui Annotation</li>
+</ul>
+
+
+<p>Yang mana yang paling dekat dengan source code yang bertransaksi? Tentu saja annotation.</p>
+
+<p>Ok, sudah jelas mengenai transaction, sebaiknya di annotation saja.</p>
+
+<p>Berikutnya, deklarasi DAO. Sebelumnya kita melakukan deklarasi DAO di XML. Yang biasa saya lakukan kalau ada DAO baru biasanya sama:</p>
+
+<ul>
+<li>copy paste deklarasi DAO di atasnya</li>
+<li>ganti bean id</li>
+<li>ganti nama class</li>
+</ul>
+
+
+<p>Beres. Tidak ada added value di sini. Deklarasi manual di XML tidak membuat konfigurasi Spring jadi lebih mudah dipahami. Juga tidak membuat kita makin pintar. Ini adalah overhead pemrograman dengan Spring. Boilerplate code. Kode yang ditulis hanya untuk memuaskan framework.</p>
+
+<p>Jadi, lebih baik kalau kita suruh Spring autodetect saja dari annotation @Repository.</p>
+
+<p>Bagaimana dengan relasi dengan datasource? Bukankah kalau di XML jadi terlihat DAO mana menggunakan DataSource mana?</p>
+
+<p>Hmm &#8230; untuk kasus datasource, ada dua kemungkinan:</p>
+
+<ul>
+<li>menggunakan satu datasource</li>
+<li>menggunakan lebih dari satu datasource</li>
+</ul>
+
+
+<p>Untuk kasus pertama, biasanya sebagian aplikasi seperti ini, tidak perlu ada deklarasi eksplisit untuk injeksi dataSource. Lha wong cuma satu, apanya yang ambigu? @Autowired saja semuanya.</p>
+
+<p>Untuk kasus kedua, mau tidak mau memang harus XML. Soalnya @Autowired by type tidak akan bisa, karena ada lebih dari satu bean bertipe DataSource.</p>
+
+<p>Sekarang kita lihat, apa yang tertinggal di konfigurasi XML, setelah banyak hal kita pindahkan ke annotation:</p>
+
+<ul>
+<li>deklarasi datasource</li>
+<li>deklarasi transaction manager</li>
+</ul>
+
+
+<p>Kedua hal ini tidak logis bila kita pindahkan ke annotation. Dua-duanya adalah konfigurasi, sangat mungkin berubah tergantung strategi deployment. Bila kita mengelola koneksi database melalui application server, maka kita akan menggunakan JNDI. Bila kita deploy di <a href="http://winstone.sourceforge.net">Winstone</a>, maka kita tidak menggunakan JTA, jadi transaction manager menggunakan LocalTransactionManager.</p>
+
+<p>Setelah selesai dengan isu backend, mari sekarang kita bahas presentation layer. Ada beberapa anotasi di sini:</p>
+
+<ul>
+<li>@Controller : untuk menandai class Controller</li>
+<li>@RequestMapping : untuk mapping URL atau Request Method ke handlernya</li>
+<li>@RequestParam : untuk mem-bind request parameter ke variabel</li>
+<li>@ModelAttribute : untuk mem-bind object ke request attribute</li>
+<li>@SessionAttribute : untuk mem-bind object ke session attribute</li>
+</ul>
+
+
+<p>@Controller sama dengan @Repository. Keberadaannya menghilangkan boilerplate deklarasi di XML. Menurut saya, ini sangat mengurangi clutter dan duplikasi di XML.</p>
+
+<p>@RequestMapping, saya 50:50 di sini.</p>
+
+<p>Di satu sisi, seharusnya kita tidak mengikat handler method dengan URL pattern, supaya kita bisa mengganti skema URL sesuai trend terbaru (RESTful, etc) atau sebaliknya, supaya bisa mengganti handler method tanpa mengubah URL.</p>
+
+<p>Tapi di sisi lain, saya ingin menggunakan Convention over Configuration ala <a href="http://rubyonrails.org">Rails</a>. Yaitu nama view otomatis diambil dari request URL. Ini benar-benar mengurangi jumlah konfigurasi yang harus ditulis. Lagipula, seberapa sering sih kita mengganti pasangan URL-Handler?</p>
+
+<p>Jadi untuk @RequestMapping, posisi saya adalah, tergantung situasi. Ada saatnya mapping di XML, dan ada saatnya mapping dengan annotation.</p>
+
+<p>@RequestParam, @ModelAttribute, dan @SessionAttribute setahu saya tidak punya padanan XML. Ini adalah anotasi untuk memudahkan coding saja. Jadi tidak perlu diperdebatkan apakah sebaiknya di XML saja.</p>
+
+<p>Yah, begitulah sekilas perbandingan antara konfigurasi melalui anotasi dan XML. Sepertinya menambah bingung. Tapi jangan khawatir, untuk bisa mengerti harus bingung dulu.</p>
+
+<p>Semoga bermanfaat.</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2187,165 +2364,6 @@ Silahkan browsing ke Yahoo di http://m.yahoo.com atau Gmail di http://gmail.com/
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/menggunakan-postgresql/">Menggunakan PostgreSQL</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-09-24T18:35:16+07:00" pubdate data-updated="true">Sep 24<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Saya baru saja memporting project yang sedang saya kerjakan, dari menggunakan <a href="http://www.mysql.org">ikan lumba-lumba</a> menjadi <a href="http://www.postgresql.org">gajah</a>. Sebetulnya saya pernah menggunakan database gajah ini pada tahun 2005, tapi setelah itu jarang digunakan sehingga butuh waktu agak lama untuk melakukan porting ini.</p>
-
-<p>Agar lain kali tidak lupa lagi, baiklah saya tulis di sini saja. Mudah-mudahan bermanfaat juga untuk pembaca :D</p>
-
-<h3>Instalasi</h3>
-
-<p>Saya menggunakan Ubuntu, jadi instalasi tidak sulit. Cukup lakukan:
-<code>sudo apt-get install postgresql-8.2</code>
-Beres .. :D</p>
-
-<h3>Konfigurasi Akses Jaringan</h3>
-
-<p>Selanjutnya, konfigurasi Postgre agar meminta password setiap ada koneksi masuk, termasuk dari localhost. Ini dilakukan agar konfigurasi JDBCnya tidak terlalu berbeda dengan konfigurasi sebelumnya yang menggunakan MySQL.</p>
-
-<p>Ganti otentikasi dalam <code>pg_hba.conf</code> menjadi</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>local   all         all                           password
-</span><span class='line'>host    all         all         127.0.0.1/32      password
-</span><span class='line'>host    all         all         ::1/128           password</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Konfigurasi di atas artinya, koneksi ke semua database, dari local maupun remote, mintalah password. File <code>pg_hba.conf</code> ini lokasinya tergantung distro yang digunakan. Di tempat saya, ada di folder <code>/etc/postgresql/8.2/main</code>. Jangan lupa merestart PostgreSQL setelah memodifikasi file ini.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo /etc/init.d/postgresql restart</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Menambahkan User</h3>
-
-<p>Untuk menambahkan user, kita perlu <em>menyamar</em> sebagai user <code>postgres</code>.  Gunakan <code>su</code>.
-<code>sudo su - postgres</code></p>
-
-<p>Selanjutnya, jalankan perintah <code>createuser</code> dengan argumen P untuk meminta password.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>createuser -P
-</span><span class='line'>Enter name of role to add: belajar
-</span><span class='line'>Enter password for new role: 
-</span><span class='line'>Enter it again: 
-</span><span class='line'>Shall the new role be a superuser? (y/n) n
-</span><span class='line'>Shall the new role be allowed to create databases? (y/n) y
-</span><span class='line'>Shall the new role be allowed to create more new roles? (y/n) n
-</span><span class='line'>CREATE ROLE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Perintah di atas menambahkan user dengan username <code>belajar</code> yang memiliki ijin untuk membuat database baru.</p>
-
-<p>Selanjutnya, keluar dari user postgres dengan menggunakan perintah <code>exit</code>.</p>
-
-<h3>Membuat Database</h3>
-
-<p>Agar bisa menyimpan data, kita harus punya database. Mari kita buat database yang namanya <code>buku_tamu</code>. Gunakan perintah <code>createdb</code> dengan argumen U untuk menyebutkan username.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>createdb -U belajar buku_tamu
-</span><span class='line'>Password: 
-</span><span class='line'>CREATE DATABASE</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Setelah selesai, coba koneksi ke database tersebut.</p>
-
-<p><code>psql -U belajar -d buku_tamu</code></p>
-
-<h3>Konfigurasi JDBC</h3>
-
-<p>Kalau sudah OK, berikut adalah konfigurasi JDBC untuk mengakses database tersebut.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
-</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-</span><span class='line'>jdbc.username    = belajar
-</span><span class='line'>jdbc.password    = java</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Saya menggunakan Hibernate, sehingga butuh satu parameter lagi, yaitu dialek SQL yang digunakan.</p>
-
-<p><code>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</code></p>
-
-<p>Dengan menggunakan Hibernate, maka porting database hanyalah perkara mengganti lima baris konfigurasi (bukan source code), dari seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = com.mysql.jdbc.Driver
-</span><span class='line'>jdbc.url         = jdbc:mysql://localhost/buku_tamu
-</span><span class='line'>jdbc.username    = belajar
-</span><span class='line'>jdbc.password    = java
-</span><span class='line'>hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Menjadi seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver      = org.postgresql.Driver
-</span><span class='line'>jdbc.url         = jdbc:postgresql://localhost/buku_tamu
-</span><span class='line'>jdbc.username    = belajar
-</span><span class='line'>jdbc.password    = java
-</span><span class='line'>hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Oh iya, jangan lupa <a href="http://jdbc.postgresql.org/download.html">unduh dulu driver JDBC untuk PostgreSQL</a>. Saya menggunakan versi <strong>8.2-506 JDBC 4</strong>.</p>
-
-<p>Demikian setup PostgreSQL agar bisa diakses dari Java.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/15/">&larr; Older</a>
@@ -2422,6 +2440,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/belajar-project-management-dari-ubuntu/">Belajar Project Management dari Ubuntu</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/capacity-planning/">Capacity Planning</a>
       </li>
     
@@ -2455,10 +2477,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
-      </li>
-    
-      <li class="post">
-        <a href="/javascript/javascript-development-stack/">JavaScript Development Stack</a>
       </li>
     
   </ul>
