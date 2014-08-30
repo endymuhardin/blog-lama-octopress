@@ -47,6 +47,8 @@ Setelah penambahan fitur berhenti, semua orang berkonsentrasi fixing bug, tuning
 
 Setelah stable release, kembali ke awal proses, yaitu issue tracker. 
 
+Simak juga [penjelasan Kate Stewart, Release Manager Ubuntu dari Canonical](http://www.ubuntu-user.com/Online/Blogs/Amber-Graner-You-in-Ubuntu/Interview-Kate-Stewart-Ubuntu-Release-Manager-at-Canonical).
+
 Nah, demikianlah proses yang terjadi di dalam dapur Ubuntu. Sebagai bahan perbandingan, kita juga bisa menyimak skema project management yang terjadi di berbagai project open source lain, misalnya:
 
 * [Eclipse](http://wiki.eclipse.org/SimRel/Overview)
