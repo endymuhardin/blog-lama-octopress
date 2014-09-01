@@ -28,25 +28,29 @@ Begini maksudnya.
 Kalau interview, saya selalu mengajukan pertanyaan yang makin lama makin sulit.
 Job seeker, perhatikan ini, Endy's interview style.
 
-1. Urusan coding standar. Percabangan dan perulangan.
-Misalnya:
-- tampilkan nama anda sebanyak jumlah hurufnya
-kalau namanya Endy, tampilkan
-endy endy endy endy
-kalau namanya Dhiku, tampilkan
-dhiku dhiku dhiku dhiku dhiku
-- dengan input bulan dan tahun, buat function/method untuk menghitung jumlah harinya
+* Urusan coding standar. Percabangan dan perulangan.Misalnya:
+    - tampilkan nama anda sebanyak jumlah hurufnya. Kalau namanya Endy, tampilkan endy endy endy endy. Kalau namanya Dhiku, tampilkan dhiku dhiku dhiku dhiku dhiku.
+    - dengan input bulan dan tahun, buat function/method untuk menghitung jumlah harinya
 
-2. Lalu topik-topik populer
-- HTML syntax
-- Tableless layout with CSS
-- SQL Injection   3. Setelah itu masalah yang membutuhkan imajinasi, misalnya perbedaan pass by value dan pass by reference   4. Kalau masih lolos juga, matakuliah CS yang biasanya bikin ngantuk
-- Struktur Data
-- Algoritma tingkat menengah (tree, sorting, dsb)
-- Automata / Finite State Machine   5. Baru kemudian pertanyaan tentang wawasan
-- Primary Operating System, dan Secondary OS, yang biasa digunakan
+* Topik-topik populer
+    - HTML syntax
+    - Tableless layout with CSS
+    - SQL Injection
+
+* Setelah itu masalah yang membutuhkan imajinasi, misalnya perbedaan pass by value dan pass by reference 
+
+* Kalau masih lolos juga, matakuliah CS yang biasanya bikin ngantuk
+    - Struktur Data
+    - Algoritma tingkat menengah (tree, sorting, dsb)
+    - Automata / Finite State Machine   5. Baru kemudian pertanyaan tentang wawasan
+    - Primary Operating System, dan Secondary OS, yang biasa digunakan
+
 Cuma pernah pakai Windows??? Hmm ... terima kasih atas waktunya, nanti akan saya hubungi lagi.
-Tidak pernah pakai OS selain FreeBSD?? Hmm ... menarik juga ... mari kita tanya lebih lanjut, "Kamu sekolah TK di mana?"Saya pernah posting tentang kandidat ideal menurut saya [di sini](http://endy.artivisi.com/blog/life/pengetahuan-wajib-buat-programmer/).
+Tidak pernah pakai OS selain FreeBSD?? Hmm ... menarik juga ... mari kita tanya lebih lanjut, 
+
+> Kamu sekolah TK di mana?
+
+Saya pernah posting tentang kandidat ideal menurut saya [di sini](http://software.endy.muhardin.com/life/pengetahuan-wajib-buat-programmer/).
 
 Lalu banyak yang berkomentar tentang betapa sulitnya persyaratan tersebut.
 
@@ -64,7 +68,7 @@ Fresh graduate Java programmer, berdasarkan survei yang tidak serius dan tidak b
 
 Jadi ... kalau saya punya budget 3-4 juta, lalu buka lowongan, bandingkan apa yang akan saya peroleh.
 
-*PHP Programmer*
+** PHP Programmer **
 
 * Berpengalaman 2-3 tahun, sudah tahu sopan santun kerja di kantor
 * Bisa HTML
@@ -74,7 +78,9 @@ Jadi ... kalau saya punya budget 3-4 juta, lalu buka lowongan, bandingkan apa ya
 * Kalau beruntung, mungkin bisa dapat yang ngerti SOAP segala
 * Hey, 4 juta cukup mahal ... coba kita lihat mungkin dia ngerti Photoshop juga :D
 
-*Java Programmer*  * Fresh graduate, masih bergaya mahasiswa
+** Java Programmer **
+
+* Fresh graduate, masih bergaya mahasiswa
 * Ngerti HTML seadanya, belum tentu ngerti perilakunya frameset
 * Gak bisa CSS, apalagi table-less layout
 * Forget about AJAX
