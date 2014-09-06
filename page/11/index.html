@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Dalam membuat aplikasi, seringkali kita membutuhkan source-code dari aplikasi lainnya. Misalnya, jika kita sudah membuat cukup banyak aplikasi, maka &hellip;">
+  <meta name="description" content="Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,61 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/enkripsi-jdbc-properties/">Enkripsi JDBC Properties</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-01-16T22:24:04+07:00" pubdate data-updated="true">Jan 16<span>th</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama jdbc.properties. Isinya kira-kira sebagai berikut:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>jdbc.driver = com.mysql.jdbc.Driver
+</span><span class='line'>jdbc.url = jdbc:mysql://localhost/belajar
+</span><span class='line'>jdbc.username = belajar
+</span><span class='line'>jdbc.password = java</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cepat atau lambat, kita akan menemui kebutuhan untuk menyembunyikan nilai yang diisikan ke dalam file tersebut untuk alasan keamanan. Tentunya kita tidak ingin orang yang bisa membaca file tersebut login ke database dan melihat berbagai data rahasia dalam database.</p>
+
+<p>Kita ingin mengenkripsi minimal variabel <code>jdbc.password</code>, supaya tidak bisa dibaca sembarang orang. Bila kita menggunakan Spring Framework untuk membaca file tersebut, kita bisa menggunakan <a href="http://www.jasypt.org/">Jasypt</a> yang mampu menangani masalah enkripsi file tersebut.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/java/enkripsi-jdbc-properties/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -1729,107 +1784,6 @@ The key fingerprint is:
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/backup-trac/">Backup Trac</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-04T19:41:14+07:00" pubdate data-updated="true">Sep 4<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://endy.artivisi.com/blog/linux/instalasi-trac">Trac sudah terinstal</a>, sekarang harus diamankan melalui prosedur backup.</p>
-
-<p>Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau tidak begitu, pasti tidak akan dijalankan. Jadi, selain kegiatan memburn CD, kegiatan backup lainnya harus diotomasi.</p>
-
-<p>Di website Trac sudah dijelaskan tentang <a href="http://trac.edgewall.org/wiki/TracBackup">cara melakukan backup terhadap instalasi Trac</a>. Kita hanya perlu membuat script sedikit supaya bisa membackup seluruh project dalam folder parent trac, dan mengkompresnya.</p>
-
-<p>Berikut scriptnya, seperti biasa, menggunakan Ruby.</p>
-
-<p>Script ini diadaptasi dari <a href="http://endy.artivisi.com/blog/aplikasi/svn-parentpath-backup/">script sebelumnya untuk backup Subversion repo</a>.</p>
-
-<p>Berikut scriptnya</p>
-
-<pre><code>require 'zlib'
-require 'fileutils' 
-
-if ARGV.length &lt; 2
-  puts "Usage : ruby trac-backup.rb &lt;Trac Parent folder&gt; &lt;backupfolder&gt;"
-  exit
-end
-
-# some configuration
-trac_parent_path = ARGV[0]
-backup_folder = ARGV[1]
-
-# variable initialization
-current_date = Time.now.strftime("%Y%m%d")
-
-Dir.foreach(trac_parent_path) { |trac|
-    next if('.' == trac || '..' == trac)
-    puts "Start to process folder : "+trac
-
-    puts "Performing trac hotcopy"
-    project_name = trac_parent_path + File::SEPARATOR + trac
-    dumpfile_folder = trac + '-' +current_date
-    dumpfile = backup_folder + File::SEPARATOR + dumpfile_folder
-
-    `trac-admin #{project_name} hotcopy #{dumpfile}`
-
-    puts "Compressing dumpfile"
-    `tar czf #{backup_folder}/#{dumpfile_folder}.tar.gz -C #{backup_folder} #{dumpfile_folder}`
-
-    puts "Deleting uncompressed backup"
-    FileUtils.rm_r dumpfile
-}
-</code></pre>
-
-<p>Save dengan nama <code>trac-backup.rb</code>.</p>
-
-<p>Warning, kode di atas tidak bisa dijalankan di Windows, karena menggunakan command line tar untuk mengkompres file. Jika Anda ingin menggunakan di Windows, silahkan gunakan TugZIP seperti <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">contoh ini</a>.</p>
-
-<p>Untuk menjalankannya, cukup panggil dari command prompt.</p>
-
-<pre><code>ruby trac-backup.rb /var/lib/trac /folder/tempat/backup
-</code></pre>
-
-<p>Supaya fully-automated, daftarkan di cron. Buka editor crontab.</p>
-
-<pre><code>crontab -e
-</code></pre>
-
-<p>Kemudian ketikkan entri sebagai berikut</p>
-
-<pre><code>0 23 * * 5 /usr/bin/ruby /full/path/ke/trac-backup.rb /var/lib/trac /full/path/ke/folder/backup
-</code></pre>
-
-<p>Backup akan dijalankan setiap jam 23.00 pada hari Jumat. Lebih lanjut tentang cron bisa <a href="http://bandung.linux.or.id/node/24">dibaca di sini</a>. Jika bingung dengan formatnya, bisa gunakan <a href="http://www.htmlbasix.com/crontab.shtml">generator crontab online</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -1906,6 +1860,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/akademik/tanya-judul-skripsi/">Tanya Judul Skripsi</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/belajar-project-management-dari-ubuntu/">Belajar Project Management dari Ubuntu</a>
       </li>
     
@@ -1939,10 +1897,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/silabus-kuliah-pemrograman/">Silabus Kuliah Pemrograman</a>
       </li>
     
   </ul>
