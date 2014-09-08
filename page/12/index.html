@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Trac sudah terinstal, sekarang harus diamankan melalui prosedur backup. Seperti biasa, semua prosedur backup harus otomatis dan terjadwal. Kalau &hellip;">
+  <meta name="description" content="Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,150 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/login-ssh-dengan-private-key/">Login Ssh Dengan Private Key</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-09-05T22:45:03+07:00" pubdate data-updated="true">Sep 5<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis.</p>
+
+<p>Ada berbagai cara kita memindahkan file dari satu komputer ke komputer lain, diantaranya:</p>
+
+<ul>
+<li><p>Menggunakan USB Flashdisk</p></li>
+<li><p>Windows File Sharing</p></li>
+<li><p>NFS</p></li>
+<li><p>FTP atau SFTP</p></li>
+<li><p>SCP</p></li>
+<li><p>dan sebagainya</p></li>
+</ul>
+
+
+<p>Cara pertama jelas tidak bisa diotomasi.</p>
+
+<p>Cara kedua sampai keempat mengharuskan kita membuka write access tanpa password di komputer tujuan supaya bisa otomatis. Kalau ada passwordnya kan harus ada seseorang yang mengetik password tersebut. Jadi agak sulit mengotomasinya.</p>
+
+<p>Oleh karena itu, kita akan membahas cara kelima, yaitu SCP. SCP &#8211;atau Secure Copy&#8211; adalah mekanisme copy file melalui protokol SSH. File yang dikirim terenkripsi. Untuk dapat masuk ke komputer tujuan, kita harus melakukan otentikasi. Jadi ini adalah cara yang relatif aman untuk mengirim file.</p>
+
+<p>Tunggu dulu, katanya mau otomatis, tapi kok harus otentikasi?? Berarti harus ada yang mengetik password dong &#8230;.</p>
+
+<p>Tidak juga, makanya saya menggunakan istilah otentikasi, bukan password. SSH dapat melakukan otentikasi dengan password maupun private key. Pada artikel ini, kita akan membahas tentang otentikasi private key.</p>
+
+<p>Artikel ini dibuat menggunakan Ubuntu Hardy dengan openssh sudah terinstal.</p>
+
+<p>Ada beberapa langkah yang harus kita lakukan, yaitu:</p>
+
+<ol>
+<li><p>Membuat private key di komputer pengirim</p></li>
+<li><p>Mengirim public key ke komputer tujuan</p></li>
+<li><p>Registrasi public key di komputer tujuan</p></li>
+</ol>
+
+
+<p>Sebelum mulai, kita tentukan dulu studi kasusnya.</p>
+
+<blockquote><p>Di tengah pertarungan dengan Pain, guru genit Jiraiya tiba-tiba berhasil menemukan kelemahan musuhnya. Dia ingin mengirim file berisi informasi tersebut ke sang Hokage seksi, yaitu Tsunade. Rencananya, dia akan login ke server di markas dengan username Tsunade dan menyimpan file tersebut di folder <code>/home/tsunade/important</code>.</p></blockquote>
+
+<p>Tentunya Tsunade tidak akan memberitahukan passwordnya kepada Jiraiya, mengingat tabiatnya yang genit. Sebagai gantinya, dia mendaftarkan public key Jiraiya ke user accountnya di server, sehingga Jiraiya bisa login sebagai Tsunade, tanpa Tsunade harus memberitahukan passwordnya kepada Jiraiya.</p>
+
+<p>Pada cerita di atas, kita punya dua komputer, yaitu laptopnya Jiraiya yang dibawanya kemanapun pergi, dan server di markas. Kita juga punya dua user, yaitu Jiraiya dan Tsunade.</p>
+
+<p>Agar bisa melakukan public key authentication, tentunya hal pertama yang harus dilakukan adalah membuat public key.</p>
+
+<h3>Membuat public key</h3>
+
+<p>Jiraiya harus membuat public key di laptopnya sendiri. Public key selalu berpasangan dengan private key. Untuk membuat public key, Jiraiya mengetik perintah berikut di terminal.</p>
+
+<pre><code>ssh-keygen
+</code></pre>
+
+<p>Perintah tersebut akan menanyakan password untuk membuka private key. Jiraiya memilih tidak memberikan password. Sebetulnya ini kurang aman, karena kalau ada orang lain yang berhasil mendapatkan file private key, dia bisa login ke server di markas tanpa hambatan.</p>
+
+<p>Tapi mau bagaimana lagi, hidup sebagai ninja sangat berbahaya. Kita tidak tahu apakah setelah pertarungan kita masih punya tangan untuk mengetik password.</p>
+
+<p>Tekan enter beberapa kali sampai selesai. Berikut output yang dihasilkan.</p>
+
+<pre><code>Generating public/private rsa key pair.
+Enter file in which to save the key (/home/jiraiya/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/jiraiya/.ssh/id_rsa.
+Your public key has been saved in /home/jiraiya/.ssh/id_rsa.pub.
+The key fingerprint is:
+6f:7c:e2:52:f1:14:5d:2c:7f:3a:53:5e:fe:7f:98:9c jiraiya@laptop
+</code></pre>
+
+<p>Selanjutnya, kita harus kirimkan file public key ke Tsunade agar didaftarkan di accountnya. File public key ini bisa ditemukan di folder <code>/home/jiraiya/.ssh/</code> dengan nama <code>id_rsa.pub</code>. Public key bisa dikirim melalui media apapun, misalnya email, usb flashdisk, burung hantu, maupun burung merpati.</p>
+
+<h3>Registrasi Public Key</h3>
+
+<p>Singkat kata, Tsunade telah menerima public key dari Jiraiya. Dia harus mendaftarkannya di accountnya agar Jiraiya bisa login.</p>
+
+<p>Tsunade harus login dulu ke server dan menaruh file public key tersebut di sana. Misalnya dia letakkan di folder <code>/home/tsunade/</code> dan nama filenya diubah menjadi <code>jiraiya_id_rsa.pub</code>.</p>
+
+<p>Untuk meregistrasinya, Tsunade menggunakan perintah berikut di terminal.</p>
+
+<pre><code>cat /home/tsunade/jiraiya_id_rsa.pub &gt;&gt; /home/tsunade/.ssh/authorized_keys
+</code></pre>
+
+<p>Setelah itu, public key tidak lagi diperlukan, sehingga bisa dihapus.</p>
+
+<pre><code>rm /home/tsunade/jiraiya_id_pub
+</code></pre>
+
+<p>Selesai sudah konfigurasi di server, sekarang kita kembali ke pertarungan Jiraiya vs Pain.</p>
+
+<h3>Login dengan public key</h3>
+
+<blockquote><p>Sesaat sebelum Jiraiya menekan tombol Send di Mozilla Thunderbird, Pain mendaratkan serangan mematikan ke Jiraiya, sehingga ybs tidak dapat menggerakkan tangannya. Jiraiya membatin, &#8220;Untung saja saya sudah setup public key di server dengan account Tsunade. Baiklah, mari kita scp saja.&#8221;</p></blockquote>
+
+<p>Untuk mengirim file tersebut melalui scp dengan public key, berikut adalah perintahnya</p>
+
+<pre><code>scp -i /path/menuju/private/key username@komputer-tujuan:folder-tujuan
+</code></pre>
+
+<p>Jadi, untuk mengirim file <code>pain-secret.txt</code> ke server dengan username tsunade, Jiraiya menggunakan perintah berikut</p>
+
+<pre><code>scp -i /home/jiraiya/.ssh/id_rsa pain-secret.txt tsunade@server:/home/tsunade/important/
+</code></pre>
+
+<p>File akan segera terkirim tanpa harus mengetik password.</p>
+
+<p>Lebih lanjut tentang ssh dengan public/private key bisa dibaca <a href="http://www.debuntu.org/ssh-key-based-authentication">di sini</a>.</p>
+
+<p>Lebih lanjut tentang nasib Jiraiya bisa dibaca <a href="http://narutochaos.com/download/10/429">di sini</a>.</p>
+
+<p>Selamat mencoba</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1206,123 +1350,6 @@ for(int i=1; i&lt;=5; i++) {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/road-to-java-ee/">Road to Java EE</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-03-27T18:41:19+07:00" pubdate data-updated="true">Mar 27<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Another Frequently Asked Question.</p>
-
-<blockquote><p>Saya sudah menguasai Java Standard Edition dan sekarang mau belajar Java Enterprise Edition. Bagaimana learning-path-nya?</p></blockquote>
-
-<p>Inilah Road to Java Enterprise versi saya:</p>
-
-<h3>Tahap Pertama</h3>
-
-<ol>
-<li>Belajar HTTP.</li>
-<li>bedanya GET dan POST</li>
-<li>apa itu session</li>
-<li>bagaimana cara implement state management</li>
-<li><p>konsep multipart dan mekanisme upload file</p></li>
-<li><p>Belajar Servlet Fundamental.</p></li>
-<li>Servlet</li>
-<li>Filter</li>
-<li>Listener</li>
-<li><p>Tidak perlu repot2 belajar JSP</p></li>
-<li><p>Belajar JDBC.
-Pastikan Anda tau:</p></li>
-<li>Cara connect ke database</li>
-<li>Cara eksekusi DML</li>
-<li><p>Cara menjalankan SQL select</p></li>
-<li><p>Belajar Database Transaction Fundamental.
-Pastikan Anda tau:</p></li>
-<li>Syarat-syarat untuk mengaktifkan transaction</li>
-<li>Local vs Managed Transaction</li>
-<li>Programmatic vs Declarative Transaction</li>
-<li>Transaction Isolation Level</li>
-<li>Transaction Propagation</li>
-</ol>
-
-
-<p>Untuk tahap pertama, itu dulu saja.</p>
-
-<p>Kalau sudah ngerti itu, bisa dengan mudah memahami:</p>
-
-<ul>
-<li>Web framework apapun (Spring MVC, Struts 1 dan 2, Java Server Faces)</li>
-<li>Database abstraction framework seperti Spring JDBC, iBatis, dan Hibernate.</li>
-</ul>
-
-
-<h3>Tahap Kedua</h3>
-
-<p>Tahap kedua ini relatif rumit. Karena itu, untuk tiap materi, pastikan:
-- Anda tau masalah yang mendasari munculnya teknologi ini.
-- Anda tau cara memecahkan masalah tersebut dengan teknologi ybs.
-- Anda tau keterbatasan dari teknologi ybs.
-- Anda tau alternatif solusi selain menggunakan teknologi ybs</p>
-
-<ol>
-<li>Remote Method Invocation</li>
-<li>Mekanisme remote invocation</li>
-<li>Mekanisme rmiregistry</li>
-<li>Cara membuat remote object</li>
-<li>Cara mempublish remote object</li>
-<li><p>Cara membuat client yang mengakses remote object</p></li>
-<li><p>Java Messaging Service (JMS)</p></li>
-<li>Arsitektur Messaging</li>
-<li>Point to Point vs Publisher - Subscriber</li>
-<li>Bedanya Durable dan Non-Durable Subscriber</li>
-<li>Cara mengirim message</li>
-<li><p>Cara menerima message</p></li>
-<li><p>Enterprise Java Bean</p></li>
-<li>Stateless Session Beans</li>
-<li>Stateful Session Beans</li>
-<li>Message Driven Beans</li>
-<li>Entity Beans dan evolusinya dari versi 2 sampai versi 3.</li>
-</ol>
-
-
-<p>Kalau sudah menyelesaikan tahap 2 ini, seharusnya Anda akan mudah memahami Seam Framework dan bisa menggunakan sebagian besar fitur dari application server Java (seperti Glassfish, Geronimo, JBoss AS, IBM Websphere, Oracle iAS, BEA Weblogic, dsb).</p>
-
-<p>Selain itu, masih ada tahap ketiga, yaitu urusan lain-lain seperti JMX, dan teman-temannya. Tapi saya yakin kalau sudah lulus tahap dua, sudah tidak bingung lagi mau belajar apa.</p>
-
-<p>Daftar di atas memang cukup menggetarkan hati. Sebagai gambaran, saya sendiri butuh waktu satu tahun lebih untuk memahami itu semua.</p>
-
-<p>Tapi jangan khawatir, kalau Anda mulai hari ini, berarti tahun depan sudah menguasai. Kalau menunda belajar, bukan saja akan lebih lama selesainya, tapi juga materinya akan lebih banyak. Framework integrasi ala OSGi dan fitur baru Java 7 seperti Closure sudah di ambang pintu.</p>
-
-<p><strong>Mulailah dari sekarang !!!</strong></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/13/">&larr; Older</a>
@@ -1399,6 +1426,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/tips-meletakkan-file-konfigurasi-aplikasi/">Tips Meletakkan File Konfigurasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/akademik/tanya-judul-skripsi/">Tanya Judul Skripsi</a>
       </li>
     
@@ -1432,10 +1463,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
       </li>
     
   </ul>

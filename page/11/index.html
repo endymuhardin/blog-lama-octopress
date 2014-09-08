@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Bila kita membuat aplikasi Java yang menggunakan database, pasti kita akan membuat satu file untuk konfigurasi koneksi database, biasanya diberi nama &hellip;">
+  <meta name="description" content="Saya menggunakan VMWare secara intensif dalam proses development.
+Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +90,67 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/linux/vmware-eth/">Network Device Menghilang Di VMWare</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-03-03T15:04:24+07:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Saya menggunakan VMWare secara intensif dalam proses development.
+Salah satu penggunaannya adalah untuk menginstal aplikasi atau database milik client. Beberapa merek database seperti Oracle relatif invasif terhadap sistem, misalnya mendikte jumlah swap ataupun mengharuskan mengedit kernel parameter. Tentunya ini membuat kotor sistem operasi saya.</p>
+
+<p>Selain itu, kadangkala client menggunakan sistem operasi yang berbeda dengan yang saya gunakan. Ini juga dapat diselesaikan dengan menggunakan VMWare.</p>
+
+<p>Saya menyimpan file-file VM di harddisk eksternal, untuk meningkatkan performance. Menurut <a href="http://www.codinghorror.com">Jeff Atwood</a>, kinerja VM akan meningkat bila dia berada di harddisk yang berbeda dengan hostnya.</p>
+
+<p>Penyimpanan di harddisk eksternal ini ternyata mengundang sedikit masalah. Kadangkala network interface VM saya menghilang. Masalah ini terjadi pada kombinasi host Ubuntu dan guest Ubuntu.</p>
+
+<p>Setelah googling kesana kemari, ternyata ini disebabkan oleh beberapa hal :</p>
+
+<ol>
+<li><p>Ubuntu me-mount partisi harddisk eksternal secara acak. Kadang partisi 1 dimount ke /media/disk-1, kadang ke /media-disk-2</p></li>
+<li><p>Bila posisi mount berubah, VMWare akan menggenerate UUID (ID unik untuk guest VM) baru</p></li>
+<li><p>Setiap kali UUID berubah, MAC Address network interface guest VM juga berubah.</p></li>
+<li><p>Ubuntu di guest VM meng-cache MAC address, sehingga kalau MAC yang dia cache tidak ada, network interface tersebut tidak akan diload</p></li>
+</ol>
+
+
+<p>Solusinya mudah, yaitu menghapus cache MAC address di guest Ubuntu, dan merestartnya. Caranya, login ke guest OS, lalu hapus file /etc/udev/rules.d/70-persistent-net.rules. Setelah itu restart.</p>
+
+<pre><code>sudo rm /etc/udev/rules.d/70-persistent-net.rules
+sudo reboot
+</code></pre>
+
+<p>Setelah restart, guest VM akan kembali memiliki ethernet card.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1640,150 +1702,6 @@ public class Person {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/login-ssh-dengan-private-key/">Login Ssh Dengan Private Key</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2008-09-05T22:45:03+07:00" pubdate data-updated="true">Sep 5<span>th</span>, 2008</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Masih dalam rangka mengotomasi workflow di ArtiVisi, artikel ini akan membahas tentang cara memindahkan file antar komputer secara aman tapi otomatis.</p>
-
-<p>Ada berbagai cara kita memindahkan file dari satu komputer ke komputer lain, diantaranya:</p>
-
-<ul>
-<li><p>Menggunakan USB Flashdisk</p></li>
-<li><p>Windows File Sharing</p></li>
-<li><p>NFS</p></li>
-<li><p>FTP atau SFTP</p></li>
-<li><p>SCP</p></li>
-<li><p>dan sebagainya</p></li>
-</ul>
-
-
-<p>Cara pertama jelas tidak bisa diotomasi.</p>
-
-<p>Cara kedua sampai keempat mengharuskan kita membuka write access tanpa password di komputer tujuan supaya bisa otomatis. Kalau ada passwordnya kan harus ada seseorang yang mengetik password tersebut. Jadi agak sulit mengotomasinya.</p>
-
-<p>Oleh karena itu, kita akan membahas cara kelima, yaitu SCP. SCP &#8211;atau Secure Copy&#8211; adalah mekanisme copy file melalui protokol SSH. File yang dikirim terenkripsi. Untuk dapat masuk ke komputer tujuan, kita harus melakukan otentikasi. Jadi ini adalah cara yang relatif aman untuk mengirim file.</p>
-
-<p>Tunggu dulu, katanya mau otomatis, tapi kok harus otentikasi?? Berarti harus ada yang mengetik password dong &#8230;.</p>
-
-<p>Tidak juga, makanya saya menggunakan istilah otentikasi, bukan password. SSH dapat melakukan otentikasi dengan password maupun private key. Pada artikel ini, kita akan membahas tentang otentikasi private key.</p>
-
-<p>Artikel ini dibuat menggunakan Ubuntu Hardy dengan openssh sudah terinstal.</p>
-
-<p>Ada beberapa langkah yang harus kita lakukan, yaitu:</p>
-
-<ol>
-<li><p>Membuat private key di komputer pengirim</p></li>
-<li><p>Mengirim public key ke komputer tujuan</p></li>
-<li><p>Registrasi public key di komputer tujuan</p></li>
-</ol>
-
-
-<p>Sebelum mulai, kita tentukan dulu studi kasusnya.</p>
-
-<blockquote><p>Di tengah pertarungan dengan Pain, guru genit Jiraiya tiba-tiba berhasil menemukan kelemahan musuhnya. Dia ingin mengirim file berisi informasi tersebut ke sang Hokage seksi, yaitu Tsunade. Rencananya, dia akan login ke server di markas dengan username Tsunade dan menyimpan file tersebut di folder <code>/home/tsunade/important</code>.</p></blockquote>
-
-<p>Tentunya Tsunade tidak akan memberitahukan passwordnya kepada Jiraiya, mengingat tabiatnya yang genit. Sebagai gantinya, dia mendaftarkan public key Jiraiya ke user accountnya di server, sehingga Jiraiya bisa login sebagai Tsunade, tanpa Tsunade harus memberitahukan passwordnya kepada Jiraiya.</p>
-
-<p>Pada cerita di atas, kita punya dua komputer, yaitu laptopnya Jiraiya yang dibawanya kemanapun pergi, dan server di markas. Kita juga punya dua user, yaitu Jiraiya dan Tsunade.</p>
-
-<p>Agar bisa melakukan public key authentication, tentunya hal pertama yang harus dilakukan adalah membuat public key.</p>
-
-<h3>Membuat public key</h3>
-
-<p>Jiraiya harus membuat public key di laptopnya sendiri. Public key selalu berpasangan dengan private key. Untuk membuat public key, Jiraiya mengetik perintah berikut di terminal.</p>
-
-<pre><code>ssh-keygen
-</code></pre>
-
-<p>Perintah tersebut akan menanyakan password untuk membuka private key. Jiraiya memilih tidak memberikan password. Sebetulnya ini kurang aman, karena kalau ada orang lain yang berhasil mendapatkan file private key, dia bisa login ke server di markas tanpa hambatan.</p>
-
-<p>Tapi mau bagaimana lagi, hidup sebagai ninja sangat berbahaya. Kita tidak tahu apakah setelah pertarungan kita masih punya tangan untuk mengetik password.</p>
-
-<p>Tekan enter beberapa kali sampai selesai. Berikut output yang dihasilkan.</p>
-
-<pre><code>Generating public/private rsa key pair.
-Enter file in which to save the key (/home/jiraiya/.ssh/id_rsa): 
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
-Your identification has been saved in /home/jiraiya/.ssh/id_rsa.
-Your public key has been saved in /home/jiraiya/.ssh/id_rsa.pub.
-The key fingerprint is:
-6f:7c:e2:52:f1:14:5d:2c:7f:3a:53:5e:fe:7f:98:9c jiraiya@laptop
-</code></pre>
-
-<p>Selanjutnya, kita harus kirimkan file public key ke Tsunade agar didaftarkan di accountnya. File public key ini bisa ditemukan di folder <code>/home/jiraiya/.ssh/</code> dengan nama <code>id_rsa.pub</code>. Public key bisa dikirim melalui media apapun, misalnya email, usb flashdisk, burung hantu, maupun burung merpati.</p>
-
-<h3>Registrasi Public Key</h3>
-
-<p>Singkat kata, Tsunade telah menerima public key dari Jiraiya. Dia harus mendaftarkannya di accountnya agar Jiraiya bisa login.</p>
-
-<p>Tsunade harus login dulu ke server dan menaruh file public key tersebut di sana. Misalnya dia letakkan di folder <code>/home/tsunade/</code> dan nama filenya diubah menjadi <code>jiraiya_id_rsa.pub</code>.</p>
-
-<p>Untuk meregistrasinya, Tsunade menggunakan perintah berikut di terminal.</p>
-
-<pre><code>cat /home/tsunade/jiraiya_id_rsa.pub &gt;&gt; /home/tsunade/.ssh/authorized_keys
-</code></pre>
-
-<p>Setelah itu, public key tidak lagi diperlukan, sehingga bisa dihapus.</p>
-
-<pre><code>rm /home/tsunade/jiraiya_id_pub
-</code></pre>
-
-<p>Selesai sudah konfigurasi di server, sekarang kita kembali ke pertarungan Jiraiya vs Pain.</p>
-
-<h3>Login dengan public key</h3>
-
-<blockquote><p>Sesaat sebelum Jiraiya menekan tombol Send di Mozilla Thunderbird, Pain mendaratkan serangan mematikan ke Jiraiya, sehingga ybs tidak dapat menggerakkan tangannya. Jiraiya membatin, &#8220;Untung saja saya sudah setup public key di server dengan account Tsunade. Baiklah, mari kita scp saja.&#8221;</p></blockquote>
-
-<p>Untuk mengirim file tersebut melalui scp dengan public key, berikut adalah perintahnya</p>
-
-<pre><code>scp -i /path/menuju/private/key username@komputer-tujuan:folder-tujuan
-</code></pre>
-
-<p>Jadi, untuk mengirim file <code>pain-secret.txt</code> ke server dengan username tsunade, Jiraiya menggunakan perintah berikut</p>
-
-<pre><code>scp -i /home/jiraiya/.ssh/id_rsa pain-secret.txt tsunade@server:/home/tsunade/important/
-</code></pre>
-
-<p>File akan segera terkirim tanpa harus mengetik password.</p>
-
-<p>Lebih lanjut tentang ssh dengan public/private key bisa dibaca <a href="http://www.debuntu.org/ssh-key-based-authentication">di sini</a>.</p>
-
-<p>Lebih lanjut tentang nasib Jiraiya bisa dibaca <a href="http://narutochaos.com/download/10/429">di sini</a>.</p>
-
-<p>Selamat mencoba</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/12/">&larr; Older</a>
@@ -1860,6 +1778,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/tips-meletakkan-file-konfigurasi-aplikasi/">Tips Meletakkan File Konfigurasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/akademik/tanya-judul-skripsi/">Tanya Judul Skripsi</a>
       </li>
     
@@ -1893,10 +1815,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
       </li>
     
   </ul>

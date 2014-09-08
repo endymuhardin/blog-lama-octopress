@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Teknik Menggunakan Google - Living life and make it better</title>
+  <title>Tips Meletakkan File Konfigurasi Aplikasi - Living life and make it better</title>
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel terdahulu, sudah dibahas bahwa kemampuan terpenting yang harus dimiliki profesional IT (khususnya programmer) adalah kemampuan otodidak &hellip;">
+  <meta name="description" content="Dalam membuat aplikasi, biasanya ada nilai variabel yang ingin kita simpan di file konfigurasi, supaya pada saat isinya berubah tidak perlu melakukan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/">
+  <link rel="canonical" href="http://software.endy.muhardin.com/java/tips-meletakkan-file-konfigurasi-aplikasi/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <script src="/javascripts/modernizr-2.0.js"></script>
@@ -92,7 +92,7 @@
   
   <header>
     
-      <h1 class="entry-title">Teknik Menggunakan Google</h1>
+      <h1 class="entry-title">Tips Meletakkan File Konfigurasi Aplikasi</h1>
     
     
       <p class="meta">
@@ -108,100 +108,154 @@
   
 
 
-<time datetime="2013-10-04T22:59:00+07:00" pubdate data-updated="true">Oct 4<span>th</span>, 2013</time>
+<time datetime="2014-09-08T14:00:00+07:00" pubdate data-updated="true">Sep 8<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Pada <a href="http://software.endy.muhardin.com/life/otodidak/">artikel terdahulu</a>, sudah dibahas bahwa kemampuan terpenting yang harus dimiliki profesional IT (khususnya programmer) adalah kemampuan otodidak.</p>
+<div class="entry-content"><p>Dalam membuat aplikasi, biasanya ada nilai variabel yang ingin kita simpan di file konfigurasi, supaya pada saat isinya berubah tidak perlu melakukan kompilasi ulang. Misalnya konfigurasi koneksi database. Alamat database server, username, dan password biasanya sering berubah, tergantung tempat di mana aplikasi dideploy.</p>
 
-<p>Kali ini, kita akan bahas kemampuan terpenting kedua yang harus dimiliki, yaitu teknik mendayagunakan saudara jauh kita yaitu Paman Google.</p>
+<p>Ada beberapa hal yang biasanya menjadi pertanyaan, yaitu:</p>
 
-<p>Seringkali kita temui sergahan para senior di berbagai forum ketika ada <em>newbie</em> yang bertanya</p>
+<ol>
+<li>Di mana sebaiknya kita menyimpan file tersebut?</li>
+<li>Bagaimana caranya supaya aplikasi kita portable? Portable artinya bisa dicopy paste ke berbagai komputer dengan lokasi folder berbeda-beda.</li>
+<li>Bagaimana cara membaca file konfigurasi tersebut?</li>
+</ol>
 
-<blockquote><p>Google dulu dong sebelum tanya !!!</p></blockquote>
 
-<p>Tapi namanya juga <em>newbie</em>, pastinya gak tau cara googling yang efektif. Kalau dia mahir pakai Google, pasti sudah bukan <em>newbie</em> lagi namanya kan? ;)</p>
+<p>Pertanyaan ini diajukan salah satu member di grup <a href="https://www.facebook.com/groups/netbeans.id/?fref=nf">Netbeans Indonesia</a></p>
 
-<p>Nah, begini caranya menggunakan Google.</p>
+<p>Berikut screenshot kode program yang sudah dia buat</p>
+
+<p><img src="https://lh4.googleusercontent.com/-5j9PxOw3oUM/VA1UZR2oPRI/AAAAAAAAGpM/FxnUMInN8ME/w660-h312-no/error-load-file.jpg"></p>
 
 <!--more-->
 
 
-<h2>Kasus Sederhana</h2>
+<h2>Lokasi File Konfigurasi</h2>
 
-<p>Seringkali terjadi, kita mengikuti diskusi di berbagai forum dan kemudian menemui istilah-istilah aneh yang baru kita dengar. Ini lazim terjadi kalau kita mengikuti komunitas yang baru, misalnya programmer ikut komunitas fotografi.</p>
+<p>Kita jawab dulu tentang tempat menaruh file konfigurasi. Ada tiga lokasi utama yang umum digunakan orang, yaitu:</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/php-wtf-2.png" title="PHP??? WTF!!!" ></p>
+<ul>
+<li><p>folder konfigurasi global. Kalau di Linux biasanya di folder <code>/etc</code>. Di Windows biasanya dalam folder <code>system32</code>. Konfigurasi yang disimpan di sini biasanya berlaku global dalam satu komputer. Nilainya terlihat dan digunakan oleh semua user komputer.</p></li>
+<li><p>folder tempat aplikasi terinstal. Di Linux orang biasanya menginstal aplikasi di <code>/opt</code>, <code>/usr/local</code>, atau di home foldernya. Di Windows biasanya dalam <code>C:\Program Files</code></p></li>
+<li><p>folder home masing-masing user. Di Linux biasanya <code>/home/namauser</code>, misalnya <code>/home/endy</code>. Di Windows, tergantung versinya. Windows 7 ke atas ada di <code>C:\Users\namauser</code>. Windows XP ada di <code>C:\Documents and Settings\namauser</code></p></li>
+</ul>
 
-<p>Karena penasaran buru-buru pengen tau, secara refleks kita akan klik kotak komentar, lalu mengetik disana</p>
 
-<blockquote><p>PHP apaan sih ??</p></blockquote>
+<blockquote><p>Wuah banyak sekali.. Lalu kita pilih yang mana?</p></blockquote>
 
-<p><strong>STOP !!! Jangan lakukan !!!</strong></p>
+<p><a href="http://software.endy.muhardin.com/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi yang baik</a>, menggunakan tiga-tiganya dengan urutan prioritas yang berbeda-beda. Pertama dia akan mencari ke folder konfigurasi global. Kalau ada, maka nilainya akan digunakan. Selanjutnya, dia lihat ke folder tempat aplikasi terinstal. Terakhir, baru dia lihat ke folder home usernya.</p>
 
-<p>Itu hanya akan menunjukkan identitas kita sebagai manusia jadul yang <em>kamseupay</em>. Ada cara lain yang lebih berpendidikan, yaitu buka tab baru, lalu kita ketik disana.</p>
+<blockquote><p>Lalu bagaimana kalau di ketiga tempat konfigurasi diisi dengan nilai berbeda?</p></blockquote>
 
-<p>Untuk kasus sederhana seperti ini, jawabannya bisa langsung ditemukan. Berikut contoh screenshot yang saya buat ketika ada orang yang menanyakan</p>
+<p>Misalnya username database, nilainya terisi di ketiga tempat tersebut. Username mana yang dipakai aplikasi?</p>
 
-<blockquote><p>Apa itu OO Calc ?</p></blockquote>
+<p>Kebiasaan yang berlaku adalah, yang lebih spesifik lebih diutamakan daripada yang umum. Dalam hal ini, setting username di home lebih menang daripada setting username di folder aplikasi. Bila ada setting username di folder aplikasi dan folder konfigurasi global, maka yang dipakai adalah yang di folder aplikasi.</p>
 
-<p>di sebuah <a href="https://www.facebook.com/groups/ForumJavaIndonesia/10151680460748017/?comment_id=10151680514093017">forum di Facebook</a>.</p>
+<h2>Cara Membaca Konfigurasi</h2>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/tanya-paman-google.png" title="Apa itu OO Calc?" ></p>
+<p>Karena ada tiga tempat:</p>
 
-<p>Semua jawaban ada di halaman tersebut, tanpa kita klik ke halaman berikutnya semua sudah tersaji di sana.</p>
+<ul>
+<li>folder global</li>
+<li>folder instalasi</li>
+<li>folder home</li>
+</ul>
 
-<h2>Kasus Kompleks</h2>
 
-<p>Nah sebagai programmer, tentu masalah yang kita hadapi jauh lebih rumit daripada sekedar <code>Apa itu OO Calc ?</code>. Kita ambil contoh lain di forum yang sama.</p>
+<p>Maka cara membacanya juga berbeda-beda. Sebagai ilustrasi, misalnya nama filenya sama, yaitu <code>config.txt</code>. Cuma lokasinya saja yang berbeda.</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/arccot-java-00.png" title="Bagaimana menghitung arccot di Java?" ></p>
+<h3>Folder Global</h3>
 
-<p>TS menanyakan tentang suatu perhitungan matematika yang namanya <code>ARCCOT</code>. Melihat posting di atasnya, saya mendapatkan petunjuk bahwa beliau sedang membicarakan tentang <em>trigonometri</em>. Waduh, terakhir saya dengar istilah ini, teknologi <code>pager</code> belum lagi ditemukan orang. Nah, saya yakin banyak pembaca blog ini yang bahkan tidak tahu apa itu <code>pager</code>. Untuk itu, baiklah saya tunjukkan fotonya. Nih dia barangnya.</p>
+<p>Folder global biasanya sama antar komputer. Dia hanya akan berbeda kalau sistem operasinya berbeda (Windows vs Linux). Tapi dalam sesama sistem operasi, biasanya tetap sama, misalnya folder <code>/etc</code> ada di seluruh Linux. Demikian juga dengan folder <code>C:\Windows\System32</code>.</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/pager.JPG" title="Pager" >
-<img src="/images/uploads/2013/10/teknik-menggunakan-google/pager_in_hand.jpg" title="Pager dipegang" ></p>
+<p>Karena nama foldernya sama, kita bisa langsung load menggunakan absolute path seperti ini</p>
 
-<p>Gambar diambil dari <a href="http://www.pagers.co.uk/shop/">sini</a> dan <a href="http://www.ebay.com/itm/MOTOROLA-ADVISOR-II-VHF-PAGER-143-152-9875-MHz-EMS-FIRE-PAGER-with-ZOOM-/190645429104">sana</a></p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">File</span> <span class="n">konfig</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;/etc/config.txt&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Masih gak tau juga benda apakah itu? Nah, cukuplah menjadi ilustrasi seberapa jadulnya urusan trigonometri ini buat saya. Pada masa itu, bahkan Bill Gates belum lagi menciptakan Windows.</p>
 
-<p>Lalu, apa yang harus dilakukan? Ya tentu saja buka tab baru, ketikkan <code>arccot java</code> di address bar. Ini hasilnya</p>
+<p>atau di Windows</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/arccot-java-01.png" title="Google arccot java" ></p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">File</span> <span class="n">konfig</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="s">&quot;C:\\Windows\\System32\\config.txt&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Baris ketiga nampaknya menarik, buka di tab baru. Bisa klik kanan lalu <code>Open in new tab</code>, atau klik dengan tombol tengah mouse. Klik tengah ini merupakan fitur andalan pada waktu kita googling. Buka link baris ketiga</p>
 
-<p>Scroll ke bawah, sampai kita menemukan hal yang menarik. Saya menemukan dua, ini yang pertama</p>
+<p>Jangan lupa menggunakan escape character, karena karakter backslash (\) memiliki arti khusus.</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/arccot-java-02.png" title="Hasil search halaman pertama jawaban pertama" ></p>
+<h3>Folder Aplikasi</h3>
 
-<p>dan scroll lagi ke bawah, dapat jawaban di bawahnya</p>
+<p>Kalau di Java, biasanya file konfigurasi akan disimpan di dalam file jar atau dalam folder yang terdaftar dalam <code>CLASSPATH</code> seperti misalnya <code>WEB-INF/classes</code> dalam aplikasi web.</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/arccot-java-03.png" title="Hasil search halaman pertama jawaban kedua" ></p>
+<p>Folder atau jar yang terdaftar dalam CLASSPATH memiliki keistimewaan, yaitu bisa diakses dengan mengacu pada class yang memanggilnya. Misalnya kita memiliki deklarasi class seperti ini</p>
 
-<p>Waduh, dia menjelaskan tentang apa itu <code>arccot</code>, dan cara menghitungnya. Bahkan ada link ke Wikipedia segala. Nah, sebetulnya ini bukan urusan saya, tapi urusan <code>Irfan Rockability</code> yang bertanya di Facebook. Jadi saya tidak tertarik untuk belajar lagi trigonometri dari Wikipedia. Mari kita buka link di jawaban sebelumnya.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">belajar</span><span class="o">.</span><span class="na">java</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BacaKonfig</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">xx</span><span class="o">){</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<blockquote><p>This is it !! Inilah nasi selada ala chef Farah Quinn !!! It&#8217;s so yummy</p></blockquote>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/farah-quinn.jpg" title="This is it !!" ></p>
+<p>Bila file <code>config.txt</code> ada dalam folder <code>belajar</code> dalam jar atau CLASSPATH, maka kita bisa akses sebagai berikut</p>
 
-<p>Foto diambil <a href="http://sidomi.com/68276/ala-chef-nya-farah-quinn-kena-tegur-kpi/">dari sini</a>. Kurang jelas mana yang yummy, nasi selada atau orangnya ;)</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">belajar</span><span class="o">.</span><span class="na">java</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">BacaKonfig</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">xx</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">InputStream</span> <span class="n">konfig</span> <span class="o">=</span> <span class="n">BacaKonfig</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="s">&quot;/belajar/config.txt&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Lho kok trigonometri yummy begitu? Nah, maksud saya, jawabannya sudah tersaji dengan lengkap di halaman yang kita buka tadi.</p>
 
-<p><img src="/images/uploads/2013/10/teknik-menggunakan-google/arccot-java-04.png" title="Jawaban akhir" ></p>
+<p>Dengan method <code>getResourceAsStream</code>, di manapun lokasi file atau foldernya tidak masalah. Yang penting terdaftar dalam CLASSPATH. Metode ini biasa saya gunakan untuk membaca file-file template cetakan dan laporan (misalnya file jrxml-nya Jasper Report).</p>
+
+<h3>Folder Home</h3>
+
+<p>Sebagai ilustrasi, file <code>config.txt</code> kita taruh dalam folder aplikasi dalam home user. Di Linux ini artinya <code>/home/endy/aplikasi-saya/config.txt</code>. Di Windows 7 namanya adalah <code>C:\Users\endy\aplikasi-saya\config.txt</code>.</p>
+
+<p>Untuk membaca file tersebut, pertama kita harus dapatkan dulu lokasi sebenarnya dari home user</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">lokasiHome</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&quot;user.home&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Setelah itu, baru kita load filenya. Pastikan kita menggunakan konstanta <code>File.separator</code> untuk mengatasi perbedaan separator folder di Linux (<code>/</code>) dan Windows (<code>\</code>).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">File</span> <span class="n">konfig</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">lokasiHome</span> <span class="o">+</span> <span class="n">File</span><span class="o">.</span><span class="na">separator</span> <span class="o">+</span> <span class="s">&quot;config.txt&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <h2>Kesimpulan</h2>
 
-<p>Sekarang ini jaman mudah. Mulai dari hal sederhana seperti <code>Apa itu OO Calc</code> sampai <code>Bagaimana cara menghitung arc cotangent dengan Java</code> sudah tersedia jawabannya di internet. Kadangkala langsung ketemu di halaman pertama. Kali lain harus melalui membuka 3 tab dan melalui 8 langkah. 3 tab itu bukan angka yang besar.</p>
+<p>Demikianlah <em>best-practices</em> dalam menaruh dan membaca file konfigurasi. Jangan lupa tujuan utamanya adalah supaya aplikasi kita portable (bisa berjalan di berbagai kondisi dan lokasi).</p>
 
-<p>Jadi jangan malas, rajin-rajin Google.</p>
-
-<blockquote><p>Ingatlah bahwa skill memilih keyword pencarian di Google akan berdampak signifikan terhadap perkembangan karir Anda. Skill ini hanya bisa didapatkan melalui <a href="http://software.endy.muhardin.com/life/lan-na-zha/">GongFu</a></p></blockquote>
+<p>Semoga bermanfaat.</p>
 </div>
 
 
@@ -224,12 +278,12 @@
   
 
 
-<time datetime="2013-10-04T22:59:00+07:00" pubdate data-updated="true">Oct 4<span>th</span>, 2013</time>
+<time datetime="2014-09-08T14:00:00+07:00" pubdate data-updated="true">Sep 8<span>th</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/categories/aplikasi/'>aplikasi</a>
+    <a class='category' href='/categories/java/'>java</a>
   
 </span>
 
@@ -238,7 +292,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://software.endy.muhardin.com/java/tips-meletakkan-file-konfigurasi-aplikasi/" data-via="endymuhardin" data-counturl="http://software.endy.muhardin.com/java/tips-meletakkan-file-konfigurasi-aplikasi/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -251,10 +305,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/java/migrasi-database-dengan-liquibase/" title="Previous Post: Migrasi Database dengan Liquibase">&laquo; Migrasi Database dengan Liquibase</a>
+        <a class="basic-alignment left" href="/akademik/tanya-judul-skripsi/" title="Previous Post: Tanya Judul Skripsi">&laquo; Tanya Judul Skripsi</a>
       
-      
-        <a class="basic-alignment right" href="/java/mendapatkan-informasi-system-dengan-java/" title="Next Post: Mendapatkan Informasi System dengan Java">Mendapatkan Informasi System dengan Java &raquo;</a>
       
     </p>
   </footer>
@@ -267,7 +319,7 @@
     <noscript>Please enable JavaScript to view the comments powered by facebook</a></noscript>
 <div
   class="fb-comments"
-  data-href="http://software.endy.muhardin.com/aplikasi/teknik-menggunakan-google/"
+  data-href="http://software.endy.muhardin.com/java/tips-meletakkan-file-konfigurasi-aplikasi/"
   data-num-posts="2"
   data-width="470"
   data-colorscheme="light" ></div>

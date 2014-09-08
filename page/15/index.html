@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Kemarin ada mbak-mbak yang kirim email ke saya, namanya mbak Hanna dari Experd, minta tolong dipostingkan lowongan. Entah kenapa, waktu saya cek &hellip;">
+  <meta name="description" content="Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,101 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/dump-restore-postgresql/">Dump Restore PostgreSQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-09-25T22:01:48+07:00" pubdate data-updated="true">Sep 25<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, melakukan troubleshoot, data cleansing, dan sebagainya dengan tenang. Begitu sudah selesai, kita dump struktur tabel berikut datanya dari mesin development, kemudian buat database baru di mesin production, lalu restore.</p>
+
+<p>Agar tidak lupa, berikut saya tulis rangkaian langkah-langkahnya. Diasumsikan kita sudah memiliki database development dengan parameter sebagai berikut:</p>
+
+<ul>
+<li><p>Nama Database : buku_tamu_devel</p></li>
+<li><p>Username : belajar</p></li>
+<li><p>Password : java</p></li>
+<li><p>File hasil dump : buku_tamu-dump-sql</p></li>
+</ul>
+
+
+<p>Untuk melakukan dump, berikut adalah perintahnya:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pg_dump -CdD  -Fp -U belajar buku_tamu_devel &gt; buku_tamu-dump.sql</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Penjelasannya sebagai berikut:</p>
+
+<ul>
+<li><p>pg_dump : adalah aplikasi command line untuk melakukan import</p></li>
+<li><p>C : opsi untuk create semua tabel. Selain opsi C, kita juga bisa menggunakan opsi c, yaitu DROP dulu tabelnya baru kemudian CREATE. Pada skenario ini, file dump akan diaplikasikan ke database baru, jadi tidak perlu DROP dulu tabel-tabel yang sudah ada.</p></li>
+<li><p>d : opsi untuk mengisi data. Bila ada opsi ini, pg_dump akan menghasilkan statement INSERT dari data yang sudah ada.</p></li>
+<li><p>D : opsi untuk menulis nama kolom. Dengan opsi ini, di statement INSERT akan ada nama kolom.</p></li>
+<li><p>Fp : format hasilnya adalah plain text</p></li>
+<li><p>U : username untuk koneksi ke database</p></li>
+</ul>
+
+
+<p>Selanjutnya, tiba saat melakukan restore. Parameternya sama dengan database development, kecuali nama databasenya adalah <code>buku_tamu_prod</code>. Bila database belum ada, buat dulu dengan user postgres.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo su - postgres
+</span><span class='line'>$ createdb buku_tamu_prod
+</span><span class='line'>CREATE DATABASE
+</span><span class='line'>$ exit</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Baru setelah itu kita lakukan restore.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>psql -d buku_tamu_prod -U belajar -f buku_tamu-dump.sql</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Penjelasan opsinya adalah sebagai berikut:</p>
+
+<ul>
+<li><p>d : nama database yang akan direstore</p></li>
+<li><p>U : username yang digunakan untuk koneksi</p></li>
+<li><p>f : file dump</p></li>
+</ul>
+
+
+<p>Bila tidak ada pesan error, struktur tabel dan data seharusnya sudah masuk ke database baru.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2304,101 +2399,6 @@ $ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/konfigurasi-svn-http-di-opensuse-102/">Konfigurasi SVN-HTTP Di OpenSuSE 10.2</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-27T21:24:53+07:00" pubdate data-updated="true">Jun 27<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Artikel ini akan menjelaskan tentang konfigurasi Apache dan OpenLDAP di OpenSuSE 10.2 agar Subversion Repository yang kita miliki bisa diakses melalui protokol HTTP.</p>
-
-<p>Pertama, instal software yang dibutuhkan. Jalankan Yast dan instal paket-paket berikut:</p>
-
-<ul>
-<li><p>subversion</p></li>
-<li><p>apache2</p></li>
-<li><p>subversion-server</p></li>
-<li><p>yast2-http-server</p></li>
-</ul>
-
-
-<p>Setelah itu, modifikasi executable Subversion agar repository yang dihasilkan memiliki nilai umask yang tepat. Caranya dapat dilihat <a href="http://endy.artivisi.com/blog/aplikasi/instalasi-subversion/">di sini</a>.</p>
-
-<p>Lalu buat repository untuk percobaan, sebagai contoh saya akan membuat repository di folder <code>/opt/repository/repo-percobaan</code>.</p>
-
-<pre><code>&lt;code&gt;svnadmin create --fs-type fsfs /opt/repository/repo-percobaan&lt;/code&gt;
-</code></pre>
-
-<p>Selanjutnya, kita akan mengkonfigurasi Apache agar membaca folder tersebut dan memetakannya ke URL /svn. Jadi, bila kita mengakses <code>http://localhost/svn/repo-percobaan</code> di browser, Apache akan menampilkan isi repository kita.</p>
-
-<p>Caranya, buka Yast, kemudian masuk ke Network Services > HTTP Server.
-<img src="/images/uploads/2007/06/yast-http-server.png" title="Yast Control Panel" ></p>
-
-<p>Ikuti wizard tanpa perubahan sampai layar terakhir. Setelah itu, klik Expert Configuration.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server5.png" title="Expert Configuration" ></p>
-
-<p>Layar pertama adalah pilihan port yang dilayani Apache. Tambahkan port 443 untuk mengaktifkan SSL.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server7.png" title="Port SSL" ></p>
-
-<p>Setelah itu, masuk ke tab Server Modules. Aktifkan module <code>dav</code>, <code>dav_fs</code>.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server8.png" title="Apache Module" ></p>
-
-<p>Kita juga butuh modul tambahan untuk Subversion. Klik Add Module, tambahkan modul <code>dav_svn</code> dan <code>authz_svn</code>.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server9.png" title="Add Subversion Module" ></p>
-
-<p>Selesai dengan Yast. Klik OK untuk menyimpan perubahan. Sekarang kita akan mengedit konfigurasi modul Subversion agar membaca folder repository kita.</p>
-
-<p>Buka file /etc/apache2/conf.d/subversion.conf. Di sana sudah disediakan template yang siap diedit sesuai kebutuhan. Untuk tahap pertama ini, ubah isi file tersebut menjadi seperti ini.</p>
-
-<pre><code>&lt;code&gt;&lt;IfModule mod_dav_svn.c&gt;
-&lt;Location /svn&gt;
-   DAV svn
-   SVNParentPath /opt/repository
-&lt;/Location&gt;
-
-&lt;/IfModule&gt;&lt;/code&gt;
-</code></pre>
-
-<p>Server ini akan digunakan untuk beberapa project sekaligus. Untuk setiap repository baru yang dibuat di kemudian hari, tidak perlu setting ulang Apache. Cukup buat folder repository baru di dalam <code>/opt/repository</code>.</p>
-
-<p>Save file tersebut, dan restart Apache melalui Yast. Repository sudah bisa dibaca. Arahkan browser Anda ke <code>http://localhost/svn/repo-percobaan</code>. Instalasi yang sukses akan menghasilkan tampilan seperti ini.</p>
-
-<p><img src="/images/uploads/2007/06/yast-http-server11.png" title="Browse Repository Content" ></p>
-
-<p>Silahkan baca <a href="http://endy.artivisi.com/blog/aplikasi/otentikasi-apache-menggunakan-ldap/">artikel ini</a> untuk mengaktifkan otentikasi melalui OpenLDAP.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/16/">&larr; Older</a>
@@ -2475,6 +2475,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/tips-meletakkan-file-konfigurasi-aplikasi/">Tips Meletakkan File Konfigurasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/akademik/tanya-judul-skripsi/">Tanya Judul Skripsi</a>
       </li>
     
@@ -2508,10 +2512,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
       </li>
     
   </ul>

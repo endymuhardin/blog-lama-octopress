@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel ini, kita akan mengulas secara singkat perintah-perintah yang sering kita gunakan dalam Git. Tapi sebelum mulai, perlu kita pahami &hellip;">
+  <meta name="description" content="Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini, halo rekan2 dba &amp; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,184 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/database-transaction/">Database Transaction</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-02-14T04:14:22+07:00" pubdate data-updated="true">Feb 14<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Artikel ini saya tulis berdasarkan diskusi tentang transaction di milis id-mysql. Awalnya sederhana, ada yang tanya begini,</p>
+
+<blockquote><p>halo rekan2 dba &amp; developer</p>
+
+<p>mysql-innodb kan punya fasilitas transaction yang seperti oracle/postgres tuh.
+mau nanya, dalam implementasi real di aplikasi,
+contoh bussiness process/use case apa aja yang menggunakan transaction?
+kemudian contoh kasus rollbacknya gimana?</p></blockquote>
+
+<p>Tadinya saya kurang semangat menjawab, karena asumsi saya, ini pertanyaan mendasar, dan pastilah banyak yang bisa menjawab secara benar dan tidak menyesatkan. Tapi apa lacur, saya membaca pertanyaan lanjutan seperti ini.</p>
+
+<blockquote><p>Ada yang pernah punya pengalaman pake software accounting tanpa feature
+transaction?</p></blockquote>
+
+<p>Dan jawabannya ternyata sangat mengerikan.</p>
+
+<blockquote><p>yup, pernah.. 3 aplikasi sudah berjalan berbeda2 kasus accounting nya..
+dan tidak menggunakan feature transaction&#8230;
+skrng sedang garap accounting lainnya untuk perusahan dagang, dan
+sudah direncakan tanpa feature transaction.</p>
+
+<p>yg aplikasi 1 dr taun 2002, aplikasi 2 dr taun 2004, aplikasi 3 dr jan 2010.
+oya, ada jg aplikasi lain di sekitar taun 2005-2009, beberapa masih
+dipakai, beberapa tdk dipakai karena masalah internal mereka.
+dan selama ini aplikasi yg telah dipakai masih ok2 saja pak.</p>
+
+<p>menurut singkat saya, jika peng-handle php nya sudah cukup
+menanggulangi masalah transaksi data, tidak harus menggunakan feature
+transaction pada database nya.
+karena pd umumnya yg sudah berjalan, kebutuhan inti ada pada
+pencarian, input, edit, delete dengan kecepatan yg tinggi dan diakses
+oleh beberapa user, dan juga optimize database, dengan begitu menurut
+hemat saya, saya lebih condong menggunakan MyIsam yg tdk menggunakan
+feature transaction yg sedikit memberatkan proses data.</p>
+
+<p>oya, untuk case mengharuskan memakai feature transaction itu misalnya
+pada kasus:
+jika pada aplikasi tidak meng-handle apabila ada data transaksi yg
+dihapus/update/input yg mengharuskan ada link data yg juga ikut
+terupdate/terhapus/terinput</p>
+
+<p>untuk yg sudah menggunakan feature transaction, silahkan saya juga
+menunggu tanggapan dan pengalamannya.</p></blockquote>
+
+<p>What the @#$!
+Ini kalo meminjam istilah MUI, harus dibimbing untuk kembali ke jalan yang benar, tapi tidak boleh anarkis :D</p>
+
+<p>Salah satu poin penting dalam database transaction adalah atomic, yaitu beberapa perintah dianggap sebagai satu kesatuan.
+Kalau satu gagal, yang lain harus dibatalkan.</p>
+
+<p>Ini adalah fundamental dari pemrograman dengan menggunakan database relasional.</p>
+
+<p>Pada kasus apa perlu transaction?
+Ya pada semua kasus yang perlu atomic.
+Contohnya : header detail. Sekali insert, 1 header dan beberapa detail.
+Kalo pada waktu insert detail gagal, ya headernya harus diundo, kalo ngga ada header yang gantung tanpa detail sehingga datanya juga jadi salah.</p>
+
+<p>Sekarang balik saya tanya, aplikasi apa yang gak pake skema header detail?
+Kecuali aplikasi prakarya tugas sekolah, aplikasi bisnis <strong>pasti</strong> pake header detail.</p>
+
+<p>Itu masalah atomicity. Kemudian ada masalah isolation.
+Isolation ini artinya, transaction yang belum dicommit, tidak akan bisa dibaca oleh session lain.
+Contohnya gini, kita terima order 1000 item.
+Tentunya butuh waktu untuk menginsert 1000 record, misalnya butuh waktu 2 detik.
+Di dunia prosesor, 2 detik itu lama sekali, dan banyak hal bisa terjadi dalam rentang waktu tersebut.
+Nah, akan terjadi musibah, kalo kita ternyata ada fitur untuk menghitung jumlah order, katakan saja querynya seperti ini.</p>
+
+<pre><code>select sum(nilai) from t_order where tanggal = '2011-02-02'
+</code></pre>
+
+<p>yang berjalan di tengah-tengah proses insert tadi, misalnya pada waktu baru terinsert 53 order saja. Query hitung ini dijalankan oleh user lain. Suatu hal yang sangat umum terjadi, aplikasi diakses beberapa user berbarengan.</p>
+
+<p>Query ini akan menghasilkan nilai yang salah, karena 1000 order itu belum tentu sukses diinsert.
+Misalnya pada record ke 143 terjadi mati lampu, hardisk penuh, komputer hang, browser ketutup, laptop kesiram kopi, usernya menekan tombol cancel, validasi stok produk tidak cukup, atau whatever kejadian remeh-temeh yang umum terjadi dalam kehidupan sehari-hari, tentu akan terjadi kekacauan.
+Karena tidak atomic, maka kita tidak tau sudah berapa record yang terinsert, sehingga menyulitkan proses recovery. Order mana yang harus diinsert ulang, dan order mana yang sudah masuk?
+Karena tidak ada isolation, maka user yang menjalankan perhitungan order akan mendapat hasil yang tidak sahih kebenarannya.</p>
+
+<p>Seandainya saja kita menggunakan transaction dengan benar, maka pada waktu terjadi sesuatu pada waktu proses insert tadi, maka posisi database akan dikembalikan ke posisi sebelum insert dilakukan. Karena posisi sebelum insert kita tahu dengan pasti, maka recovery gampang.
+Insert ulang saja 1000 order tadi tanpa kecuali. Sederhana dan mudah.</p>
+
+<p>Jadi kalo ada di sini yang bilang bikin aplikasi bisnis tanpa transaction, maka itu adalah nonsense.
+Tidak peduli kalo sampe saat ini jalan lancar, maka itu hanyalah kebetulan belaka, dan kita tidak mau selamanya mengandalkan keberuntungan kan?
+Kalau sampai saat ini berjalan lancar, ya mungkin aplikasinya cuma dipakai 1 concurrent user saja dan itupun jarang-jarang pake.</p>
+
+<p>Nah, jadi transaction itu adalah fitur fundamental yang harus digunakan, sama seperti kalo kita keluar rumah ya harus pake celana.
+Di daerah lain sana orang kemana2 cuma pake koteka, dan saya tidak mau berdebat dengan mereka urusan celana.
+Jadi kalo masih ada yang bersikukuh bikin aplikasi bisnis gak pake transaction, ya silahkan, saya tidak mau berdebat urusan ini.
+Percuma berdebat sama orang yang gak pake celana ;p</p>
+
+<p>Selanjutnya, sebetulnya apa benar transaction itu memberatkan aplikasi?
+Hmm &#8230; ini sebetulnya hanyalah mitos belaka.
+Yang mau mendebat silahkan sajikan benchmark antara non-transactional dan transactional.
+Kalo selisih performance cuma 100%, artinya kalo non-transactional cuma 2 kali lebih lemot, saya mendingan upgrade hardware daripada mengorbankan data integrity untuk gain performance yang tidak seberapa ini.</p>
+
+<p>Jadi, apa kita tidak boleh pakai MyISAM ?
+Tentu ada waktu dan tempatnya.
+Data2 read only seperti misalnya tabel kategori, master produk, bolehlah pake MyISAM.
+Tapi kalo sudah data header detail, ya harus InnoDB dan harus menggunakan transaction supaya atomic.</p>
+
+<p>Setelah kita menggunakan InnoDB, sebetulnya kita tidak bisa non-transactional.
+Kalo kita tidak begin dan commit secara explisit, sebenarnya untuk tiap SQL statement, itu dianggap satu transaction.
+Sehingga SQL seperti ini :</p>
+
+<pre><code>update table harga set nilai = nilai + 1000;
+</code></pre>
+
+<p>Sebetulnya akan dijalankan seperti ini ;</p>
+
+<pre><code>begin;
+update table harga set nilai = nilai + 1000;
+commit;
+</code></pre>
+
+<p>Ini namanya fitur autocommit. Di MySQL defaultnya dienable.</p>
+
+<p>Dengan adanya autocommit ini, justru kita akan lebih lemot kalo tidak menggunakan transaction secara benar.
+Contoh, insert 100 data produk.
+Kalo tanpa begin dan commit explisit, berarti ada 100 begin dan ada 100 commit, artinya 100 kali menjalankan transaction.
+Akan lebih efisien kalo kita lakukan explisit, seperti ini :</p>
+
+<pre><code>begin; 
+insert into table produk (kode) values ('P-001');
+... ulangi 99 kali lagi ..
+commit; 
+</code></pre>
+
+<p>Cara di atas hanya akan membutuhkan satu transaction saja.
+Jauh lebih efisien.</p>
+
+<p>Baiklah, ada beberapa pesan moral di artikel ini</p>
+
+<ol>
+<li><p>Header detail harus dioperasikan secara atomic</p></li>
+<li><p>Operasi yang belum selesai, tidak boleh dilihat session lain, sehingga untuk aplikasi multiuser, pasti butuh isolation</p></li>
+<li><p>Karena aplikasi bisnis umumnya multiuser, dan pasti punya skema header-detail, maka <strong>pasti harus</strong>menggunakan transaction</p></li>
+<li><p>Masalah performance di transaction umumnya mitos belaka, dan walaupun ada, tidak sebanding dengan mengabaikan integritas data</p></li>
+<li><p>Jangan lupa pakai celana kalau keluar rumah</p></li>
+</ol>
+
+
+<p>Pembaca setia blog saya tentu paham bahwa biasanya saya memberikan anjuran dengan kata-kata sebaiknya, tergantung situasi, dan istilah-istilah yang relatif. Tapi di artikel ini, banyak kata-kata pasti, harus, dan sejenisnya. Ini karena masalah transaction ini berkaitan dengan integritas data. Aplikasi yang kita buat haruslah bisa dipercaya untuk menghasilkan perhitungan yang benar. Tanpa menjaga integritas data dengan transaction, mustahil perhitungan yang benar bisa didapatkan.</p>
+
+<p>Lebih lanjut tentang masalah-masalah yang bisa terjadi, bisa lihat <a href="http://en.wikipedia.org/wiki/Database_transaction">di Wikipedia</a>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1671,338 +1849,6 @@ Tools ini lumayan bagus, dijalankan sebagai Firefox Add Ons. Sudah ada palette u
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/mendebug-database-production/">Mendebug Database Production</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-06-30T14:44:11+07:00" pubdate data-updated="true">Jun 30<span>th</span>, 2010</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Suatu aplikasi, walaupun sudah go-live di environment production, tetap bisa saja mengalami error dan bug. Bug ini seringkali tidak ditemukan di environment development karena berbagai hal, misalnya variasi data, jumlah data, dan sebagainya.</p>
-
-<p>Langkah pertama ketika kita mengetahui ada bug tentunya adalah melokalisir masalah. Pada kondisi mana saja bug tersebut muncul. Setelah itu, kita dapat memfokuskan pencarian masalah di lokasi tersebut. Ini lebih efisien daripada kita harus menelusuri keseluruhan sistem.</p>
-
-<p>Misalnya kita sudah berhasil melokalisir masalah, yaitu transaksi di bulan tertentu. Langkah selanjutnya adalah memindahkan data production di lokasi tersebut ke environment development. Ini kita lakukan supaya kita bebas bereksperimen dengan data tersebut tanpa khawatir membahayakan data production.</p>
-
-<p>Masalahnya, tools backup database yang tersedia biasanya tidak bisa digunakan untuk mengambil sebagian data. Walaupun bisa (mysqldump menyediakan opsi where untuk membatasi record yang diambil), biasanya terbatas hanya di satu tabel saja. Sedangkan untuk bisa merestore-nya di development, kita butuh semua relasinya.</p>
-
-<p>Sebagai contoh, coba lihat skema berikut.</p>
-
-<p><img src="/images/uploads/2010/06/diagram-er-payment.png" title="" ></p>
-
-<p>Untuk mengambil data payment, tentunya kita juga harus menarik data lain yang berelasi dengannya, yaitu di tabel grup loket, loket, payment value, payment info dan fee loket. Ini sangat sulit dilakukan, apalagi kalau data payment tersebut jumlahnya ratusan ribu record.</p>
-
-<p>Untunglah ada tools untuk mengatasi masalah ini, namanya <a href="http://jailer.sourceforge.net/">Jailer</a>. Dengan menggunakan Jailer, kita dapat menentukan tabel mana yang akan diambil datanya (payment), kriteria pengambilan (bulan tertentu saja), dan relasi mana saja yang ingin kita ambil. Hasilnya adalah satu set data lengkap dengan dependensinya yang bisa kita restore di development.</p>
-
-<h2>Persiapan Jailer</h2>
-
-<p>Pertama, tentunya kita unduh dulu Jailer di websitenya. Jangan lupa teriakkan, &#8220;Hidup Open Source !!!&#8221;, karena aplikasi ini tersedia secara gratis berkat gerakan open source.</p>
-
-<p>Setelah berhasil diunduh, extract ke folder tertentu. Jailer tidak menyertakan driver untuk koneksi ke database, sehingga kita harus sediakan sendiri. Karena saya menggunakan MySQL, saya masukkan file mysql-connector.jar ke dalam folder lib. Kita mengikutkan driver database ke folder Jailer karena nantinya folder ini akan kita pack dan upload ke server production.</p>
-
-<p>Jailer ini akan kita jalankan di mesin development yang sudah terisi skema database. Kita akan coba dulu ambil data di development, kalau sudah sukses baru kita jalankan di production.</p>
-
-<p>Ada dua script untuk menjalankan jailer, yaitu jailerGUI dan jailer. jailerGUI digunakan untuk mendesain pengambilan data, sedangkan jailer adalah antarmuka command line untuk menjalankan pengambilan data. Karena kita ingin mendesain proses pengambilannya, kita gunakan jailerGUI.</p>
-
-<pre><code>$ sh jailerGUI.sh
-</code></pre>
-
-<p>Berikut adalah tampilan awal Jailer.</p>
-
-<p><img src="/images/uploads/2010/06/01-jailer-welcome-300x206.png" title="Jailer Welcome Page" ></p>
-
-<p>Jailer memberitahu kita bahwa belum ada data model yang bisa dikerjakan, dan menyarankan kita untuk menganalisa database. Klik Analyze Database. Selanjutnya Jailer akan meminta informasi cara koneksi ke database.</p>
-
-<p><img src="/images/uploads/2010/06/02-analyze-db-300x134.png" title="Analyze Database" ></p>
-
-<p>Isikan informasi koneksi database dan driver yang digunakan. Driver yang kita gunakan adalah yang tadi sudah kita copy ke folder lib.</p>
-
-<p><img src="/images/uploads/2010/06/03-mysql-connectorj-300x128.png" title="Konfigurasi MySQL" ></p>
-
-<p>Klik OK untuk menganalisa database.</p>
-
-<p><img src="/images/uploads/2010/06/04-connect-to-db-300x212.png" title="Koneksi ke database" ></p>
-
-<p>Setelah itu, Jailer akan menghubungi database untuk mengambil informasi. Lognya akan ditampilkan di log output. Jailer akan memberi tahu kita tabel-tabel yang tidak ada primary keynya. Jailer tidak dapat memproses tabel tanpa primary key.</p>
-
-<p><img src="/images/uploads/2010/06/05-autodetect-result-300x233.png" title="Hasil Autodetect" ></p>
-
-<p>Klik tabel yang berwarna merah, dan definisikan primary keynya. Primary key yang kita definisikan di sini hanya digunakan Jailer, sehingga tidak perlu khawatir skema aslinya akan berubah.</p>
-
-<p><img src="/images/uploads/2010/06/06-edit-table-pk-300x200.png" title="Add Primary Key" ></p>
-
-<p>Setelah itu, klik OK. Jailer akan menampilkan screen Extraction Model Editor. Pilih tabel payment, di dropdown subject, karena inilah tabel yang akan kita gunakan sebagai pusat extraction.</p>
-
-<p><img src="/images/uploads/2010/06/07-payment-relasi-300x206.png" title="Pilih tabel yang ingin diimport" ></p>
-
-<p>Jailer mendeteksi relasi antar tabel berdasarkan constraint foreign key yang kita pasang di database. Kadangkala ada tabel-tabel yang berelasi, namun tidak ada constraintnya. Entah karena malas mendefinisikan, atau memang sengaja tidak dikaitkan. Kita bisa mendaftarkan relasi tanpa constraint ini dengan membuka lagi Data Model Editor, kemudian klik Add di kotak Association sebelah kanan.</p>
-
-<p><img src="/images/uploads/2010/06/08-relasi-non-fk-300x234.png" title="Relasi non Foreign Key" ></p>
-
-<p>Setelah diklik OK, maka skema relasi di Extraction Model Editor akan berubah sesuai relasi yang ditambahkan. Sama dengan definisi primary key di atas, relasi ini hanya disimpan oleh Jailer dan tidak diaplikasikan ke skema database.</p>
-
-<p><img src="/images/uploads/2010/06/09-payment-relasi-2-300x168.png" title="Relasi Payment - Loket" ></p>
-
-<p>Kita perlu mendefinisikan batasan record payment yang akan diambil, yaitu yang terjadi di bulan Juni 2010. Dalam bentuk SQL, berikut adalah query yang digunakan</p>
-
-<pre><code>select * from payment where date_format(paid_date, '%Y-%m') = '2010-06'
-</code></pre>
-
-<p>Kita ambil expression setelah where dan pasang di textfield where dalam Extraction Model Editor.</p>
-
-<p><img src="/images/uploads/2010/06/10-payment-where-300x206.png" title="Restriction" ></p>
-
-<p>Simpan dulu extraction modelnya.</p>
-
-<p><img src="/images/uploads/2010/06/11-save-extraction-300x208.png" title="Save Extraction" ></p>
-
-<p>Beri nama yang representatif, misalnya payment-201006. Jailer akan menyimpan extraction model ini dalam format csv. Kalau sudah memahami formatnya, kita bisa membuatnya dengan text editor tanpa GUI (kalau mau).</p>
-
-<p>Setelah tersimpan, kita bisa klik Export Data sehingga memunculkan dialog berikut.</p>
-
-<p><img src="/images/uploads/2010/06/12-data-export-300x283.png" title="Export Data" ></p>
-
-<p>Di screen tersebut kita bisa mengatur konfigurasi pengambilan data. Bagi saya, nilai defaultnya sudah memadai sehingga tidak ada yang diubah.</p>
-
-<p>Di box paling bawah ada command line yang bisa kita copy-paste untuk dijalankan tanpa GUI. Copy saja isinya ke text file untuk digunakan nanti.</p>
-
-<p>Yang harus kita isi di screen ini adalah textfield Into. Ini adalah nama file yang akan menampung script SQL berisi data yang diinginkan. Isi saja dengan nama payment-201006.sql.</p>
-
-<p><img src="/images/uploads/2010/06/13-export-into-300x205.png" title="Export Into File" ></p>
-
-<p>Setelah itu, klik Export Data. Jailer akan segera bekerja dan menampilkan hasilnya dalam bentuk tree.</p>
-
-<p><img src="/images/uploads/2010/06/14-export-result-300x168.png" title="Hasil Export" ></p>
-
-<p>Di situ kita bisa lihat berapa row yang akan diambil dari masing-masing tabel.
-Seperti kita lihat, cukup signifikan, yaitu 2000an record. Ini disebabkan karena jailer mengambil record secara rekursif tanpa ada batasan.</p>
-
-<p>Setelah dianalisa, kita hanya ingin mengambil tabel-tabel yang berkaitan langsung, yaitu payment, payment_info, payment_value, dan fee_loket. Sedangkan tabel sisanya dapat diabaikan karena bersifat pelengkap atau master data yang sudah ada di database development.</p>
-
-<p>Dengan melihat ke tree-nya, kita bisa memutus relasi fee_loket ke loket, karena dari situlah semua data lain akan ikut terbawa.</p>
-
-<p>Tutup screennya, dan kembali ke Extraction Model Editor.</p>
-
-<p><img src="/images/uploads/2010/06/15-restricted-dependency-300x168.png" title="Membatasi Relasi" ></p>
-
-<p>Di kotak Association, expand node yang ingin kita putuskan, yaitu fee loket. Klik relasi loket, dan centang checkbox disabled di pojok kiri bawah. Setelah itu, jalankan lagi Export Data.</p>
-
-<p><img src="/images/uploads/2010/06/16-restricted-dependency-warning-300x153.png" title="Warning Restricted Dependency" ></p>
-
-<p>Jailer akan mengingatkan bahwa dengan membatasi dependensi, referential integrity akan rusak, karena relasi foreign key dari fee_loket ke loket akan terputus. Klik saja Yes, karena di database development kita tabel loket sudah terisi lengkap.</p>
-
-<p>Inilah hasilnya</p>
-
-<p><img src="/images/uploads/2010/06/17-restricted-export-result-300x82.png" title="Hasil Export setelah dibatasi" ></p>
-
-<p>Seperti kita lihat di atas, kita cuma mendapatkan 84 record dan pengambilan data berhenti di tabel fee_loket.
-Periksa output payment-201006.sql di folder Jailer untuk memastikan hasilnya sudah benar.</p>
-
-<p>Setelah sukses dijalankan di database development, compress lagi jailer yang sudah dimodifikasi barusan dan upload ke server production. Setibanya di server production, extract, kemudian jalankan script yang tadi kita copy-paste.</p>
-
-<p>Kalau baru pertama kali dijalankan, script ini akan menimbulkan error sebagai berikut :</p>
-
-<pre><code>$ ./export-payment-201006.sh 
-2010-06-28 14:15:08,114 [main] INFO   - Jailer 3.4.5
-2010-06-28 14:15:08,117 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
-2010-06-28 14:15:08,119 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
-2010-06-28 14:15:08,700 [main] INFO   - begin guessing SQL dialect
-2010-06-28 14:15:08,711 [main] INFO   - end guessing SQL dialect
-2010-06-28 14:15:08,718 [main] ERROR  - Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
-java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
-    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:122)
-    at net.sf.jailer.Jailer.export(Jailer.java:1142)
-    at net.sf.jailer.Jailer.jailerMain(Jailer.java:1064)
-    at net.sf.jailer.Jailer.jailerMain(Jailer.java:989)
-    at net.sf.jailer.Jailer.main(Jailer.java:967)
-Caused by: java.sql.SQLException: "Table 'ppobgsp_test.JAILER_GRAPH' doesn't exist" in statement "Insert into JAILER_GRAPH(id, age) values (2104021762, 1)"
-    at net.sf.jailer.database.Session.executeUpdate(Session.java:470)
-    at net.sf.jailer.entitygraph.EntityGraph.create(EntityGraph.java:120)
-    ... 4 more
-Error: java.lang.RuntimeException: Can't find working tables! Run 'bin/jailer.sh create-ddl' and execute the DDL-script first!
-2010-06-28 14:15:08,724 [main] ERROR  - working directory is /opt/downloads/java/tools/test/integration-test/jailer
-</code></pre>
-
-<p>Ini disebabkan karena Jailer ternyata membuat beberapa tabel di database untuk kebutuhan internalnya. Ini dapat dilihat pada database development kita.</p>
-
-<p><img src="/images/uploads/2010/06/18-jailer-tables-300x226.png" title="Tabel Internal Jailer" ></p>
-
-<p>Untuk menggenerate tabel di atas, kita jalankan jailer dengan opsi create-ddl. Ini akan menghasilkan SQL di layar. SQL ini harus kita jalankan di database production supaya tabelnya terbentuk.</p>
-
-<pre><code>$ sh jailer.sh create-ddl
-DROP TABLE JAILER_ENTITY;
-DROP TABLE JAILER_DEPENDENCY;
-DROP TABLE JAILER_SET;
-DROP TABLE JAILER_GRAPH;
-DROP TABLE JAILER_CONFIG;
-DROP TABLE JAILER_TMP;
-
-CREATE TABLE JAILER_CONFIG
-(
-   jversion        VARCHAR(20),
-   jkey            VARCHAR(200),
-   jvalue          VARCHAR(200)
-) ;
-
-INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'magic', '837065098274756382534403654245288');
-
-CREATE TABLE JAILER_GRAPH
-(
-   id              INTEGER NOT NULL,
-   age             INTEGER NOT NULL
-
---   ,CONSTRAINT jlr_pk_graph PRIMARY KEY(id)
-) ;
-
-CREATE TABLE JAILER_ENTITY
-(
-   r_entitygraph   INTEGER NOT NULL,
-
-   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT ,
-   birthday        INTEGER NOT NULL,
-   type            VARCHAR(120) NOT NULL,
-
-   PRE_PK0 BIGINT , PRE_PK1 VARCHAR(255) , PRE_PK2 VARCHAR(255) , PRE_PK3 INT , PRE_PK4 VARCHAR(255) , PRE_PK5 BIGINT ,
-   PRE_TYPE        VARCHAR(120),
-   orig_birthday   INTEGER,
-   association     INTEGER
-
--- ,  CONSTRAINT jlr_fk_graph_e FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
-) ;
-
-CREATE INDEX jlr_enty_brthdy ON JAILER_ENTITY (r_entitygraph, birthday, type) ;
-CREATE INDEX jlr_enty_upk1 ON JAILER_ENTITY (r_entitygraph , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
-
-
-CREATE TABLE JAILER_SET
-(
-   set_id          INTEGER NOT NULL,
-   type            VARCHAR(120) NOT NULL,
-   PK0 BIGINT , PK1 VARCHAR(255) , PK2 VARCHAR(255) , PK3 INT , PK4 VARCHAR(255) , PK5 BIGINT 
-) ;
-
-CREATE INDEX jlr_pk_set1 ON JAILER_SET (set_id , PK0, PK1, PK2, PK3, PK4, PK5, type) ;
-
-
-CREATE TABLE JAILER_DEPENDENCY
-(
-   r_entitygraph   INTEGER NOT NULL,
-   assoc           INTEGER NOT NULL,
-   depend_id       INTEGER NOT NULL,
-   traversed       INTEGER,
-   from_type       VARCHAR(120) NOT NULL,
-   to_type         VARCHAR(120) NOT NULL,
-   FROM_PK0 BIGINT , FROM_PK1 VARCHAR(255) , FROM_PK2 VARCHAR(255) , FROM_PK3 INT , FROM_PK4 VARCHAR(255) , FROM_PK5 BIGINT ,
-   TO_PK0 BIGINT , TO_PK1 VARCHAR(255) , TO_PK2 VARCHAR(255) , TO_PK3 INT , TO_PK4 VARCHAR(255) , TO_PK5 BIGINT    
-
--- ,  CONSTRAINT jlr_fk_graph_d FOREIGN KEY (r_entitygraph) REFERENCES JAILER_GRAPH(id)
-) ;
-
-CREATE INDEX jlr_dep_from1 ON JAILER_DEPENDENCY (r_entitygraph, assoc , FROM_PK0, FROM_PK1, FROM_PK2, FROM_PK3, FROM_PK4, FROM_PK5) ;
-
-CREATE INDEX jlr_dep_to1 ON JAILER_DEPENDENCY (r_entitygraph , TO_PK0, TO_PK1, TO_PK2, TO_PK3, TO_PK4, TO_PK5) ;
-
-
-CREATE TABLE JAILER_TMP 
-(
-    c1 INTEGER, 
-    c2 INTEGER
-) ;
-
-INSERT INTO JAILER_CONFIG(jversion, jkey, jvalue) values('3.4.5', 'upk', '679547784');
-</code></pre>
-
-<p>Setelah tabelnya siap, jalankan kembali script yang error di atas. Berikut outputnya.</p>
-
-<pre><code>$ ./export-payment-201006.sh 
-2010-06-28 14:12:31,175 [main] INFO   - Jailer 3.4.5
-2010-06-28 14:12:31,190 [main] INFO   - added 'lib/mysql-connector-java-5.1.6-bin.jar' to classpath
-2010-06-28 14:12:31,191 [main] INFO   - exporting 'extractionmodel/payment-201006.csv' to 'payment-201006.sql'
-2010-06-28 14:12:32,850 [main] INFO   - SQL dialect is MYSQL
-2010-06-28 14:12:32,925 [main] INFO   - gather statistics after 0 inserted rows...
-2010-06-28 14:12:32,966 [main] INFO   - reading file 'renew.sql'
-2010-06-28 14:12:32,966 [main] INFO   - 0 statements (100%)
-2010-06-28 14:12:32,967 [main] INFO   - successfully read file 'renew.sql'
-2010-06-28 14:12:32,977 [main] INFO   - exporting payment Where date_format(paid_date,'%Y-%m') = '2010-06'
-2010-06-28 14:12:33,028 [main] INFO   - day 1, progress: payment
-2010-06-28 14:12:33,039 [main] INFO   - starting 4 jobs
-2010-06-28 14:12:33,040 [main] INFO   - gather statistics after 3 inserted rows...
-2010-06-28 14:12:33,041 [main] INFO   - reading file 'renew.sql'
-2010-06-28 14:12:33,042 [main] INFO   - 0 statements (100%)
-2010-06-28 14:12:33,042 [main] INFO   - successfully read file 'renew.sql'
-2010-06-28 14:12:33,047 [main] INFO   - resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,105 [main] INFO   - 66 entities found resolving payment -&gt; payment_info (inverse-FKE25C3F47AB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,105 [main] INFO   - resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,126 [main] INFO   - 0 entities found resolving payment -&gt; cetak_ulang (inverse-FK45B985E0AB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,126 [main] INFO   - resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,129 [main] INFO   - 3 entities found resolving payment -&gt; fee_loket (inverse-FK9632AFFEAB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,131 [main] INFO   - resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id...
-2010-06-28 14:12:33,142 [main] INFO   - 12 entities found resolving payment -&gt; payment_value (inverse-FK69DD09F8AB64A229) 1:n on B.id_payment=A.id
-2010-06-28 14:12:33,143 [main] INFO   - executed 4 jobs
-2010-06-28 14:12:33,143 [main] INFO   - day 2, progress: payment_info, fee_loket, payment_value
-2010-06-28 14:12:33,144 [main] INFO   - skip reversal association payment_info -&gt; payment
-2010-06-28 14:12:33,144 [main] INFO   - skip reversal association fee_loket -&gt; payment
-2010-06-28 14:12:33,147 [main] INFO   - skip reversal association payment_value -&gt; payment
-2010-06-28 14:12:33,147 [main] INFO   - starting 1 jobs
-2010-06-28 14:12:33,148 [main] INFO   - executed 1 jobs
-2010-06-28 14:12:33,149 [main] INFO   - exported payment Where date_format(paid_date,'%Y-%m') = '2010-06'
-2010-06-28 14:12:33,149 [main] INFO   - total progress: payment_info, payment, fee_loket, payment_value
-2010-06-28 14:12:33,149 [main] INFO   - export statistic:
-2010-06-28 14:12:33,169 [main] INFO   - Exported Rows:     84
-2010-06-28 14:12:33,169 [main] INFO   -     fee_loket                      3
-2010-06-28 14:12:33,169 [main] INFO   -     payment                        3
-2010-06-28 14:12:33,172 [main] INFO   -     payment_info                   66
-2010-06-28 14:12:33,172 [main] INFO   -     payment_value                  12
-2010-06-28 14:12:33,173 [main] INFO   - writing file 'payment-201006.sql'...
-2010-06-28 14:12:33,178 [main] INFO   - independent tables: payment
-2010-06-28 14:12:33,179 [main] INFO   - starting 1 jobs
-2010-06-28 14:12:33,380 [main] INFO   - executed 1 jobs
-2010-06-28 14:12:33,380 [main] INFO   - independent tables: payment_info, fee_loket, payment_value
-2010-06-28 14:12:33,384 [main] INFO   - starting 3 jobs
-2010-06-28 14:12:33,447 [main] INFO   - executed 3 jobs
-2010-06-28 14:12:33,447 [main] INFO   - cyclic dependencies for: 
-2010-06-28 14:12:33,447 [main] INFO   - starting 0 jobs
-2010-06-28 14:12:33,448 [main] INFO   - executed 0 jobs
-2010-06-28 14:12:33,448 [main] INFO   - gather statistics after 84 inserted rows...
-2010-06-28 14:12:33,450 [main] INFO   - reading file 'renew.sql'
-2010-06-28 14:12:33,450 [main] INFO   - 0 statements (100%)
-2010-06-28 14:12:33,454 [main] INFO   - successfully read file 'renew.sql'
-2010-06-28 14:12:33,456 [main] INFO   - starting 0 jobs
-2010-06-28 14:12:33,467 [main] INFO   - executed 0 jobs
-2010-06-28 14:12:33,486 [main] INFO   - file 'payment-201006.sql' written.
-</code></pre>
-
-<p>Selesai sudah, data yang kita inginkan ada di file payment-201006.sql, siap diunduh dan dijalankan di database development.</p>
-
-<p>Semoga bermanfaat, kalau ada yang kurang jelas, silahkan baca <a href="http://jailer.sourceforge.net/exporting-data.htm">tutorial resminya</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/9/">&larr; Older</a>
@@ -2079,6 +1925,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/tips-meletakkan-file-konfigurasi-aplikasi/">Tips Meletakkan File Konfigurasi Aplikasi</a>
+      </li>
+    
+      <li class="post">
         <a href="/akademik/tanya-judul-skripsi/">Tanya Judul Skripsi</a>
       </li>
     
@@ -2112,10 +1962,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
-      </li>
-    
-      <li class="post">
-        <a href="/life/menjadi-mahasiswa-hi-tech/">Menjadi Mahasiswa Hi-Tech</a>
       </li>
     
   </ul>
