@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada tahap implementasi, fitur dump-restore database sangat penting. Dengan fitur ini, kita bisa melakukan migrasi data di mesin development, &hellip;">
+  <meta name="description" content="Pada artikel sebelumnya, kita sudah membahas penggunaan Luntbuild dan CruiseControl untuk menerapkan Continuous Integration (CI). Kali ini, kita akan &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,164 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/hudson/">Continuous Integration Dengan Hudson</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-10-09T23:16:08+07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Pada artikel sebelumnya, kita sudah membahas <a href="http://endy.artivisi.com/blog/java/luntbuild/">penggunaan Luntbuild</a> dan <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a> untuk menerapkan Continuous Integration (CI). Kali ini, kita akan mencoba <a href="https://hudson.dev.java.net/">Hudson</a>, aplikasi CI lain yang tersedia.</p>
+
+<p>Hudson dapat <a href="https://hudson.dev.java.net/servlets/ProjectDocumentList?folderID=2761&amp;expandFolder=2761&amp;folderID=0">diunduh dari websitenya</a>. Setelah mengunduh, kita akan mendapatkan satu file *war. File ini dapat langsung dijalankan standalone dengan perintah:</p>
+
+<p><code>java -jar hudson.war</code></p>
+
+<p>Ataupun dideploy ke servlet engine favorit Anda, seperti Tomcat atau sejenisnya.</p>
+
+<p>Setelah dideploy, kita bisa melihat tampilan awalnya melalui browser ke alamat http://localhost:8080 (untuk standalone) atau http://localhost:8080/hudson (bila dideploy ke servlet engine)</p>
+
+<p>Keunggulan pertama Hudson adalah kemudahan setupnya. Segera setelah dijalankan (baik standalone maupun dideploy), kita bisa segera mengunjungi halaman depannya.</p>
+
+<p><img src="/images/uploads/2007/10/welcome.png" title="Hudson Welcome Page" ></p>
+
+<p>Hal pertama yang saya lakukan adalah konfigurasi email. Bila ini tidak dilakukan, Hudson akan gagal mengirim email laporan hasil build.</p>
+
+<p>Klik Manage Hudson di sebelah kiri atas. Layar konfigurasi akan muncul.</p>
+
+<p><img src="/images/uploads/2007/10/manage-hudson.png" title="Manage Hudson" ></p>
+
+<p>Selanjutnya, pilih System Configuration, lalu scroll ke bagian bawah untuk mengatur email.</p>
+
+<p><img src="/images/uploads/2007/10/email-config.png" title="Email Configuration" ></p>
+
+<p>Setelah selesai, klik OK.</p>
+
+<p>Bila Ant belum ada di PATH komputer Anda, jangan lupa untuk menyebutkan folder instalasi Ant di halaman ini.</p>
+
+<p>Setelah selesai, kita bisa langsung mendaftarkan job. Klik tombol New Job di kiri atas.</p>
+
+<p><img src="/images/uploads/2007/10/create-job.png" title="Create New Job" ></p>
+
+<p>Project saya menggunakan Ant biasa, tanpa Maven. Jadi saya pilih free-style. Klik OK.</p>
+
+<p>Selanjutnya, kita konfigurasi repository project. Isikan nilai yang sesuai di bagian Source Code Management.</p>
+
+<p><img src="/images/uploads/2007/10/configure-svn.png" title="Configure Subversion" ></p>
+
+<p>Segera setelah kursor meninggalkan field Repository URL (on blur), Hudson akan memeriksa URL yang kita berikan. Bila URL tersebut membutuhkan otentikasi, Hudson akan mengeluarkan pesan error dengan link untuk mengkonfigurasi username dan password.</p>
+
+<p><img src="/images/uploads/2007/10/svn-auth.png" title="Subversion Authentication" ></p>
+
+<p>Isikan nilai yang sesuai. Seperti kita lihat, Hudson mendukung beberapa modus otentikasi.</p>
+
+<p>Bagian selanjutnya adalah jadwal build atau trigger. Hudson menggunakan format yang mirip dengan Cron.</p>
+
+<p><img src="/images/uploads/2007/10/build-schedule.png" title="Build Schedule" ></p>
+
+<p>Bila kita ingin melakukan build setiap jam, hanya pada hari kerja, entrinya adalah sebagai berikut:</p>
+
+<p><code>1 * * * 1-5</code></p>
+
+<p>Agar build berjalan setiap jam 1 dini hari, hari Senin dan Rabu, entrinya sebagai berikut:</p>
+
+<p><code>0 * 1 * 1,3</code></p>
+
+<p>Setelah jadwal, kita mengkonfigurasi proses build itu sendiri. Di project saya, build dilakukan oleh Ant. Kita bisa mendaftarkan target yang akan dieksekusi.</p>
+
+<p><img src="/images/uploads/2007/10/build-method.png" title="Build Method" ></p>
+
+<p>Terakhir, kita mengkonfigurasi post build. Ini adalah kegiatan yang dilakukan setelah build sukses dijalankan. Pada tahap ini, saya ingin Hudson mempublikasikan <em>.jar atau </em>.war yang dihasilkan agar siap didonlod.</p>
+
+<p><img src="/images/uploads/2007/10/post-build.png" title="Post Build" ></p>
+
+<p>Selain itu, saya juga bisa menyuruh Hudson untuk memproses hasil unit test JUnit. Hudson mengerti file XML yang dihasilkan JUnit dan TestNG.</p>
+
+<p>Hudson juga bisa disuruh mengirim email apabila terjadi kegagalan build. Di sini biasanya saya isi dengan alamat mailing list developer.</p>
+
+<p>Setelah selesai, klik Save.</p>
+
+<p>Selanjutnya, kita tinggal melihat-lihat hasilnya.</p>
+
+<p>Di halaman depan, kita bisa lihat rangkuman status tiap project.</p>
+
+<p><img src="/images/uploads/2007/10/build-status.png" title="Build Status" ></p>
+
+<p>Klik salah satu project, dan lihat detailnya</p>
+
+<p><img src="/images/uploads/2007/10/build-result.png" title="Build Result" ></p>
+
+<p>Di situ kita bisa lihat artifact yang sudah dipublish. Dari semua build yang sudah dilakukan, kita bisa lihat trendnya.</p>
+
+<p><img src="/images/uploads/2007/10/build-time-trend.png" title="Trend of Build Time" ></p>
+
+<p>Selain itu, kita juga bisa lihat hasil JUnit test.</p>
+
+<p><img src="/images/uploads/2007/10/junit-result.png" title="JUnit Result" ></p>
+
+<p>Kesimpulan akhir, berikut adalah perbandingan ketiga tools ini.</p>
+
+<p>Tools Setup Tampilan Aksesoris Tag Otomatis</p>
+
+<p>CruiseControl</p>
+
+<p>Sulit, semua harus pakai XML</p>
+
+<p>Kurang bagus, terlihat kuno</p>
+
+<p>Lengkap</p>
+
+<p>Bisa, menggunakan publisher</p>
+
+<p>Luntbuild</p>
+
+<p>Mudah, setup melalui web</p>
+
+<p>Rumit dan kurang intuitif</p>
+
+<p>Sangat sedikit</p>
+
+<p>Bisa, dikonfigurasi melalui web</p>
+
+<p>Hudson</p>
+
+<p>Sangat Mudah</p>
+
+<p>Bagus, intuitif, Web 2.0, AJAX</p>
+
+<p>Eclipse plugin, Netbeans Plugin, Trac Plugin</p>
+
+<p>Tidak bisa, harus manual</p>
+
+<p>Demikianlah, semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1768,637 +1926,6 @@ $ ./cruisecontrol.sh -configfile [CC_WORK]/config.xml
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/ubuntu-dual-head/">Dual Head Ubuntu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-06-28T17:00:00+07:00" pubdate data-updated="true">Jun 28<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pertanyaan : Kalau kita punya komputer, upgrade hardware apa yang paling meningkatkan produktifitas ??</p>
-
-<p>Jawaban 1 : Prosesor</p>
-
-<p>Jawaban 2 : Memori</p>
-
-<p>Saya tidak sependapat dengan kedua jawaban di atas. Prosesor lebih kencang atau memori memang meningkatkan kemampuan komputer. Tapi ada upgrade lain yang lebih signifikan efeknya, yaitu tambah monitor.</p>
-
-<p>Anda pernah menonton film Swordfish? Film ini bercerita tentang Stanley Jobson, pensiunan hacker yang dipaksa membobol bank demi menyelamatkan anaknya. Di film ini, Stanley diberikan komputer super canggih agar bisa membobol jaringan bank. Komputer tersebut memiliki enam screen.</p>
-
-<p>Mereka yang sudah pernah merasakan bekerja dengan dua (atau lebih) monitor pasti mengerti maksud saya. Bayangkan coding di satu screen dan melihat Java API di screen yang satu lagi. Atau membuat desain software (UML, ERD, dsb) di screen kanan sambil melihat dokumen analisa di screen kiri. Dan masih banyak kemungkinan lain yang bisa dilakukan. Bahkan <a href="http://money.cnn.com/2006/03/30/news/newsmakers/gates_howiwork_fortune/">Bill Gates bekerja dengan tiga monitor sekaligus</a>.</p>
-
-<p>Pada artikel ini, saya akan membahas tentang cara setup dua monitor di Ubuntu. Komputer yang saya gunakan adalah NEC Versa 3100. Walaupun berbeda di sisi teknis, cara ini juga bisa diterapkan di komputer lain yang menggunakan X.Org sebagai X servernya.</p>
-
-<p>Sebelum mulai, mari kita kenali dulu istilah-istilah yang ada di dalam konfigurasi X.Org.</p>
-
-<ul>
-<li><p>InputDevice : Ini adalah segala alat input seperti mouse, keyboard, touchscreen, pulpen elektronik, dan teman-temannya. Dalam satu file konfigurasi bisa dimasukkan banyak device.</p></li>
-<li><p>Device: Yang dimaksud device di sini adalah display adapter kita, atau lebih dikenal dengan istilah VGA Card. Bila kita memasang lebih dari satu VGA Card, maka harus ada konfigurasi Device yang sesuai agar VGA Card tersebut bisa berfungsi dengan baik.</p></li>
-<li><p>Monitor: Self Explanatory. Monitor adalah yang menampilkan output dari komputer.</p></li>
-</ul>
-
-
-<p>Untuk mengaktifkan dual head, kita membutuhkan dua monitor. Perlu diperhatikan bahwa kita belum tentu butuh lebih dari satu VGA Card, tergantung tipe yang kita gunakan. Di PC saya yang lainnya, saya menggunakan NVidia GForce yang memiliki tiga output: VGA, DVI, dan TV. Yang biasa kita gunakan di monitor CRT adalah VGA port, sedangkan beberapa tipe monitor LCD biasanya menyediakan kabel VGA dan juga DVI. TV Out tentunya kita sudah tahu bentuknya, seperti colokan dari DVD player itu lho ..</p>
-
-<p>Karena saya menggunakan notebook, maka saya memiliki dua output dari VGA, yang satu adalah LCD bawaan notebook tersebut, dan satu lagi VGA port yang biasa kita gunakan untuk presentasi.</p>
-
-<p>Jumlah VGA dan output port yang kita miliki sangat penting diketahui agar bisa mengkonfigurasi dual head dengan benar. Untuk mereka yang VGA outputnya cuma satu port terpaksa pasang satu card lagi agar bisa menggunakan dual head.</p>
-
-<p>Baiklah, mari kita masuk ke konfigurasi. Sebagai titik awal, berikut konfigurasi X.Org saya sebelum ada modifikasi apa-apa. Ini merupakan konfigurasi yang dibuatkan Ubuntu.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-<span class='line-number'>144</span>
-<span class='line-number'>145</span>
-<span class='line-number'>146</span>
-<span class='line-number'>147</span>
-<span class='line-number'>148</span>
-<span class='line-number'>149</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># /etc/X11/xorg.conf (xorg X Window System server configuration file)
-</span><span class='line'>#
-</span><span class='line'># This file was generated by dexconf, the Debian X Configuration tool, using
-</span><span class='line'># values from the debconf database.
-</span><span class='line'>#
-</span><span class='line'># Edit this file with caution, and see the xorg.conf(5) manual page.
-</span><span class='line'># (Type "man xorg.conf" at the shell prompt.)
-</span><span class='line'>#
-</span><span class='line'># This file is automatically updated on xserver-xorg package upgrades *only*
-</span><span class='line'># if it has not been modified since the last upgrade of the xserver-xorg
-</span><span class='line'># package.
-</span><span class='line'>#
-</span><span class='line'># If you have edited this file but would like it to be automatically updated
-</span><span class='line'># again, run the following command:
-</span><span class='line'>#   sudo dpkg-reconfigure -phigh xserver-xorg
-</span><span class='line'>
-</span><span class='line'>Section "Files"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/misc"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/cyrillic"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/100dpi/:unscaled"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/75dpi/:unscaled"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/Type1"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/100dpi"
-</span><span class='line'>  FontPath    "/usr/share/fonts/X11/75dpi"
-</span><span class='line'>  # path to defoma fonts
-</span><span class='line'>  FontPath    "/var/lib/defoma/x-ttcidfont-conf.d/dirs/TrueType"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "Module"
-</span><span class='line'>  Load    "i2c"
-</span><span class='line'>  Load    "bitmap"
-</span><span class='line'>  Load    "ddc"
-</span><span class='line'>  Load    "dri"
-</span><span class='line'>  Load    "extmod"
-</span><span class='line'>  Load    "freetype"
-</span><span class='line'>  Load    "glx"
-</span><span class='line'>  Load    "int10"
-</span><span class='line'>  Load    "vbe"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "InputDevice"
-</span><span class='line'>  Identifier  "Generic Keyboard"
-</span><span class='line'>  Driver      "kbd"
-</span><span class='line'>  Option      "CoreKeyboard"
-</span><span class='line'>  Option      "XkbRules"  "xorg"
-</span><span class='line'>  Option      "XkbModel"  "pc105"
-</span><span class='line'>  Option      "XkbLayout" "us"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "InputDevice"
-</span><span class='line'>  Identifier  "Configured Mouse"
-</span><span class='line'>  Driver      "mouse"
-</span><span class='line'>  Option      "CorePointer"
-</span><span class='line'>  Option      "Device"        "/dev/input/mice"
-</span><span class='line'>  Option      "Protocol"      "ImPS/2"
-</span><span class='line'>  Option      "ZAxisMapping"      "4 5"
-</span><span class='line'>  Option      "Emulate3Buttons"   "true"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "InputDevice"
-</span><span class='line'>  Identifier  "Synaptics Touchpad"
-</span><span class='line'>  Driver      "synaptics"
-</span><span class='line'>  Option      "SendCoreEvents"    "true"
-</span><span class='line'>  Option      "Device"        "/dev/psaux"
-</span><span class='line'>  Option      "Protocol"      "auto-dev"
-</span><span class='line'>  Option      "HorizScrollDelta"  "0"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "InputDevice"
-</span><span class='line'>  Driver      "wacom"
-</span><span class='line'>  Identifier  "stylus"
-</span><span class='line'>  Option      "Device"    "/dev/input/wacom"
-</span><span class='line'>  Option      "Type"      "stylus"
-</span><span class='line'>  Option      "ForceDevice"   "ISDV4"     # Tablet PC ONLY
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "InputDevice"
-</span><span class='line'>  Driver      "wacom"
-</span><span class='line'>  Identifier  "eraser"
-</span><span class='line'>  Option      "Device"    "/dev/input/wacom"
-</span><span class='line'>  Option      "Type"      "eraser"
-</span><span class='line'>  Option      "ForceDevice"   "ISDV4"     # Tablet PC ONLY
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "InputDevice"
-</span><span class='line'>  Driver      "wacom"
-</span><span class='line'>  Identifier  "cursor"
-</span><span class='line'>  Option      "Device"    "/dev/input/wacom"
-</span><span class='line'>  Option      "Type"      "cursor"
-</span><span class='line'>  Option      "ForceDevice"   "ISDV4"     # Tablet PC ONLY
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "Device"
-</span><span class='line'>  Identifier  "Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller"
-</span><span class='line'>  Driver      "i810"
-</span><span class='line'>  BusID       "PCI:0:2:0"
-</span><span class='line'># Option "ForceBIOS" "1920x1440=1280x768"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "Monitor"
-</span><span class='line'>  Identifier  "Generic Monitor"
-</span><span class='line'>  Option      "DPMS"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "Screen"
-</span><span class='line'>  Identifier  "Default Screen"
-</span><span class='line'>  Device      "Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller"
-</span><span class='line'>  Monitor     "Generic Monitor"
-</span><span class='line'>  DefaultDepth    24
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       1
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       4
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       8
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       15
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       16
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       24
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "ServerLayout"
-</span><span class='line'>  Identifier  "Default Layout"
-</span><span class='line'>  Screen      "Default Screen"
-</span><span class='line'>  InputDevice "Generic Keyboard"
-</span><span class='line'>  InputDevice "Configured Mouse"
-</span><span class='line'>  InputDevice     "stylus"    "SendCoreEvents"
-</span><span class='line'>  InputDevice     "cursor"    "SendCoreEvents"
-</span><span class='line'>  InputDevice     "eraser"    "SendCoreEvents"
-</span><span class='line'>  InputDevice "Synaptics Touchpad"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "DRI"
-</span><span class='line'>  Mode    0666
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Perlu saya ingatkan untuk SELALU BACKUP konfigurasi awal Anda sebelum mengubah konfigurasi. Jadi bila terjadi kegagalan, kita selalu bisa kembali ke setting awal.</p>
-
-<h4>Penggantian Nama</h4>
-
-<p>Pertama, mari kita ganti dulu beberapa nama pada file konfigurasi di atas agar lebih mudah dimengerti. Yang perlu diganti adalah bagian Monitor dan Device. Saya ganti menjadi seperti ini.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Section "Device"
-</span><span class='line'>  Identifier  "Intel i915 LCD Output"
-</span><span class='line'>  Driver      "i810"
-</span><span class='line'>  BusID       "PCI:0:2:0"
-</span><span class='line'># Option "ForceBIOS" "1920x1440=1280x768"
-</span><span class='line'>EndSection
-</span><span class='line'>
-</span><span class='line'>Section "Monitor"
-</span><span class='line'>  Identifier  "Default LCD"
-</span><span class='line'>  Option      "DPMS"
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Artinya, device di atas mengacu pada output yang menuju LCD screen saya. Nama monitor juga diganti menjadi LCD agar lebih jelas.</p>
-
-<h4>Menambah Monitor</h4>
-
-<p>Sekarang, kita tambah monitor dan juga port VGA output. Konfigurasinya adalah sebagai berikut.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Section "Device"
-</span><span class='line'>  Identifier  "Intel i915 External Output"
-</span><span class='line'>  Driver      "i810"
-</span><span class='line'>  BusID       "PCI:0:2:0"
-</span><span class='line'>  Option "ForceBIOS" "1920x1440=1280x768"
-</span><span class='line'>EndSection
-</span><span class='line'>Section "Monitor"
-</span><span class='line'>  Identifier  "External Monitor"
-</span><span class='line'>  Option      "DPMS"
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Karena ada tambahan output, kita perlu menjelaskan pada X.Org mana screen utama kita. Kalau kita tidak lakukan ini, maka bisa saja pada saat booting LCD screen saya blank, karena outputnya dikeluarkan ke monitor CRT yang belum tentu dipasang. Tambahkan nomor screen pada konfigurasi VGA Card seperti ini.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Section "Device"
-</span><span class='line'>  Identifier  "Intel i915 LCD Output"
-</span><span class='line'>  Driver      "i810"
-</span><span class='line'>  BusID       "PCI:0:2:0"
-</span><span class='line'># Option "ForceBIOS" "1920x1440=1280x768"
-</span><span class='line'>  Option "MonitorLayout" "CRT,LFP"
-</span><span class='line'>  Screen      0
-</span><span class='line'>EndSection
-</span><span class='line'>Section "Device"
-</span><span class='line'>  Identifier  "Intel i915 External Output"
-</span><span class='line'>  Driver      "i810"
-</span><span class='line'>  BusID       "PCI:0:2:0"
-</span><span class='line'>  Option "ForceBIOS" "1920x1440=1280x768"
-</span><span class='line'>  Screen      1
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Dari konfigurasi di atas dapat terlihat bahwa screen utama (screen 0) adalah LCD Output. Di atas juga ada tambahan konfigurasi <code>MonitorLayout</code>. Ini ditambahkan agar secara default kedua output langsung aktif. Biasanya kalau kita pakai laptop, ada kombinasi tombol untuk mengaktifkan VGA Output, misalnya Fn+F5 atau Fn+F3. Nah, dengan opsi ini, VGA output langsung aktif tanpa harus menekan Fn+Something.</p>
-
-<h4>Konfigurasi Screen</h4>
-
-<p>Selanjutnya, kita akan mengkonfigurasi Screen. Screen adalah kombinasi antara Device dan Monitor. Artinya, konfigurasi ini akan menentukan VGA Output mana yang terhubung ke Monitor mana, berikut resolusi tampilannya. Karena tadi kita mengganti nama monitor dan VGA Output, maka kita harus sesuaikan konfigurasi Screen yang sudah ada. Berikut hasilnya.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Section "Screen"
-</span><span class='line'>  Identifier  "Default Screen"
-</span><span class='line'>  Device      "Intel i915 LCD Output"
-</span><span class='line'>  Monitor     "Default LCD"
-</span><span class='line'>  DefaultDepth    24
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       1
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       4
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       8
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       15
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       16
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       24
-</span><span class='line'>      Modes       "1280x768"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>dan selanjutnya, ini adalah tambahan untuk screen kedua kita.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Section "Screen"
-</span><span class='line'>  Identifier  "External Screen"
-</span><span class='line'>  Device      "Intel i915 External Output"
-</span><span class='line'>  Monitor     "External Monitor"
-</span><span class='line'>  DefaultDepth    24
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       1
-</span><span class='line'>      Modes       "1024x768" "800x600"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       4
-</span><span class='line'>      Modes       "1024x768" "800x600"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       8
-</span><span class='line'>      Modes       "1024x768" "800x600"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       16
-</span><span class='line'>      Modes       "1024x768" "800x600"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       16
-</span><span class='line'>      Modes       "1024x768" "800x600"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>  SubSection "Display"
-</span><span class='line'>      Depth       24
-</span><span class='line'>      Modes       "1024x768" "800x600"
-</span><span class='line'>  EndSubSection
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Kedua screen siap digunakan. Sekarang tinggal satu langkah terakhir.</p>
-
-<h4>ServerLayout</h4>
-
-<p>Kita perlu memberitahu X.Org screen mana yang ada di kiri, dan mana yang sebelah kanan. Gunanya agar mouse pointer kita bisa &#8216;menembus batas&#8217; dengan benar. Misalnya monitor CRT kita pasang di sebelah kiri laptop, maka seharusnya kalau mouse pointer digerakkan ke pinggir kiri LCD, dia akan muncul di pinggir kanan CRT.</p>
-
-<p>Berikut adalah konfigurasi ServerLayout.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Section "ServerLayout"
-</span><span class='line'>  Identifier  "Multihead Layout"
-</span><span class='line'>  Screen      0 "Default Screen" 0 0
-</span><span class='line'>  Screen      1 "External Screen" LeftOf "Default Screen"
-</span><span class='line'>  InputDevice "Generic Keyboard"
-</span><span class='line'>  InputDevice "Configured Mouse"
-</span><span class='line'>  InputDevice     "stylus"    "SendCoreEvents"
-</span><span class='line'>  InputDevice     "cursor"    "SendCoreEvents"
-</span><span class='line'>  InputDevice     "eraser"    "SendCoreEvents"
-</span><span class='line'>  InputDevice "Synaptics Touchpad"
-</span><span class='line'># Option      "Xinerama" "true"
-</span><span class='line'>EndSection</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Pada konfigurasi di atas, saya menon-aktifkan opsi Xinerama. Kalau opsi ini dijalankan, kita akan memiliki desktop super lebar. Kita bisa drag satu window menembus batas. Tapi kalau opsi ini dimatikan, seolah-olah ada dua desktop yang terpisah, mouse pointer bisa tembus, tapi window aplikasi tidak.</p>
-
-<p>Kalau Anda menonton Swordfish, Stanley Jobson mendapatkan konfigurasi Xinerama. Ini dapat dilihat dari screensaver komet yang berjalan mengelilingi keenam screen yang tersedia. Tergantung kebutuhan, opsi ini bisa dinyalakan atau dimatikan.</p>
-
-<p>Setelah selesai, logout dari desktop. Untuk memastikan, restart X server dengan kombinasi tombol Ctrl+Alt+Backspace. Kalau segalanya berjalan lancar, dual head akan tampil di hadapan kita. Perlu diperhatikan, kadang resolusi layar tidak berjalan sesuai harapan. Kadang kita perlu reboot agar resolusinya benar.</p>
-
-<p>Demikian artikel kali ini, semoga bermanfaat.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/16/">&larr; Older</a>
@@ -2475,6 +2002,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/waterfall-is-the-best/">Waterfall is The Best</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/tips-meletakkan-file-konfigurasi-aplikasi/">Tips Meletakkan File Konfigurasi Aplikasi</a>
       </li>
     
@@ -2508,10 +2039,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
-      </li>
-    
-      <li class="post">
-        <a href="/linux/cara-mengetahui-ip-address-dari-mac-address/">Cara Mengetahui IP Address dari MAC Address</a>
       </li>
     
   </ul>
