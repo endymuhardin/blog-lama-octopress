@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Bila kita ingin mempublish komputer di internet, hal pertama yang kita pikirkan adalah firewall. Bagaimana membatasi akses hanya ke port-port yang &hellip;">
+  <meta name="description" content="Tools untuk Continuous Integration sudah sering dibahas di sini. Ada CruiseControl, Luntbuild, dan Hudson. Apa yang begitu pentingnya dari proses ini &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,174 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/manajemen/continuous-integration/">Continuous Integration</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-16T22:37:23+07:00" pubdate data-updated="true">Jan 16<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Tools untuk Continuous Integration sudah sering dibahas di sini. Ada <a href="http://endy.artivisi.com/blog/java/cruise-control/">CruiseControl</a>, <a href="http://endy.artivisi.com/blog/java/luntbuild/">Luntbuild</a>, dan <a href="http://endy.artivisi.com/blog/java/hudson/">Hudson</a>. Apa yang begitu pentingnya dari proses ini sehingga saya meluangkan waktu untuk melihat setiap tools yang ada?</p>
+
+<p>Continuous Integration, <a href="http://martinfowler.com/articles/continuousIntegration.html">menurut Martin Fowler</a>, begini:</p>
+
+<blockquote><p>Continuous Integration is a software development practice where members of a team integrate their work frequently, usually each person integrates at least daily - leading to multiple integrations per day.</p></blockquote>
+
+<p>Each integration is verified by an automated build (including test) to detect integration errors as quickly as possible.</p>
+
+<p>Many teams find that this approach leads to significantly reduced integration problems and allows a team to develop cohesive software more rapidly.</p>
+
+<p>Ada beberapa keyword di sini:</p>
+
+<ul>
+<li>integrate their work</li>
+<li>frequently</li>
+<li>verified by automated build (including test)</li>
+<li>detect errors as quickly as possible</li>
+<li>significant reduced problems</li>
+<li>develop .. rapidly</li>
+</ul>
+
+
+<p>Mari kita bahas lebih jauh.</p>
+
+<p>Sebagai contoh, kita membuat aplikasi dengan bahasa pemrograman Java. Langkah-langkah yang harus dilakukan sampai suatu kode program bisa digunakan antara lain:</p>
+
+<ol>
+<li>tulis source code</li>
+<li>kompilasi</li>
+<li>coba dijalankan sendiri (unit-test)</li>
+<li>coba gabungkan dengan kode lain (integration-test)</li>
+<li>deploy / install</li>
+<li>coba fitur-fiturnya</li>
+<li>kalau semua OK, cepat-cepat diarsip</li>
+</ol>
+
+
+<p>Cukup banyak kegiatan yang harus dilakukan untuk menambah satu fitur. Penggunaan bahasa dinamik (seperti PHP atau Ruby) hanya mengurangi langkah kedua. Sisanya sama.</p>
+
+<p>Kegiatan yang banyak ini akan sangat membosankan kalau dikerjakan secara manual. Bukan cuma boring, tapi juga rawan error. Di tengah tekanan deadline, sangat mungkin kita akan melewatkan test yang sudah pernah dijalankan sebelumnya.</p>
+
+<blockquote><p>Hei, dulu saja jalan .. kenapa sekarang tidak?</p></blockquote>
+
+<p>Ya belum tentu. Membangun aplikasi mirip seperti membangun rumah-rumahan dari kartu. Sedikit penambahan bisa merobohkan seluruh bangunan. Jadi sangat penting kita untuk sering-sering melakukan integrasi. Dan yang juga penting, test yang sudah ada harus dijalankan semuanya.</p>
+
+<p>Sekarang sudah ada tools yang membantu kita melakukannya. Cukup investasi waktu 10 menit untuk melakukan instalasi dan konfigurasi. Investasi 10 menit ini akan menghasilkan:</p>
+
+<ul>
+<li>build scheduler</li>
+<li>laporan kemajuan project setiap saat</li>
+<li>notifikasi setiap ada error</li>
+<li>arsip build</li>
+</ul>
+
+
+<p>Lalu apa manfaat dari fitur-fitur ini?</p>
+
+<p>Banyak, mari kita bahas satu persatu.</p>
+
+<h3>Build Scheduler</h3>
+
+<p>Semua kegiatan build kita tadi, mulai dari checkout dari version control sampai membuat installer aplikasi bisa dilakukan secara terjadwal. Misalnya satu jam sekali, satu hari tiga kali, dan sebagainya.</p>
+
+<p>Kita juga bisa mengkonfigurasi macam-macam jadwal. Misalnya untuk test dengan data sedikit bisa dijalankan sering-sering. Test yang melibatkan data banyak &#8211;seperti test End Of Day process atau simulasi performance aplikasi dengan satu tahun data&#8211; bisa dijalankan di malam hari, waktu semua orang sedang tidur.</p>
+
+<h3>Laporan Kemajuan Project</h3>
+
+<p>Pernahkah Anda, sedang asyik coding, puluhan variabel beterbangan di dalam otak, tiba-tiba dipanggil oleh Project Manager.</p>
+
+<blockquote><p>Fitur XX sudah selesai?</p></blockquote>
+
+<p>Kita jawab, &#8220;Sudah&#8221;. Kemudian balik lagi ke kode program, hanya untuk menyadari bahwa seluruh konsentrasi sudah buyar, sehingga butuh waktu 10 menit untuk mengingat-ingat apa yang tadi sedang dikerjakan.</p>
+
+<p>Dengan adanya tools Continuous Integration, Project Manager bisa langsung melihat kemajuan project di websitenya. Sehingga dia tidak perlu mengganggu konsentrasi orang lain.</p>
+
+<h3>Notifikasi Error</h3>
+
+<p>Misalnya kita mengubah nama kolom di database, ternyata menyebabkan fungsi-fungsi lain jadi error. Akan lebih cepat untuk memperbaiki hal ini jika antara kita mengubah nama kolom dan saat error ketahuan selisihnya singkat. Bagaimana cara supaya error cepat ketahuan? Ada dua cara:</p>
+
+<ol>
+<li>test suite harus lengkap, sehingga mencakup seluruh bagian kode.</li>
+<li>test suite harus sering-sering dijalankan.</li>
+</ol>
+
+
+<p>Tools CI membantu kita di item #2. Tetapi test suite tetap harus kita yang membuatnya.</p>
+
+<h3>Arsip Build</h3>
+
+<p>Project Manager lagi-lagi mengganggu konsentrasi kita. Kali ini dia mau presentasi ke customer dan mau menunjukkan aplikasi terbaru. Sialnya, tadi pagi kita baru saja mulai mengganti framework, tadinya pakai <a href="http://www.icefaces.org/main/home/index.jsp">IceFaces</a> mau diganti jadi <a href="http://labs.jboss.com/jbossrichfaces/">RichFaces</a>. Wow, kenapa harus diganti?? Hmm .. sayangnya itu diluar pembahasan artikel ini.</p>
+
+<p>Karena ada perombakan arsitektur besar-besaran, maka aplikasi saat ini sedang berantakan. Tidak mungkin kita memberikan aplikasi terbaru ini untuk dibawa presentasi. Bisa-bisa Project Manager kita mendapat malu karena bukannya mendemokan aplikasi, malah mendemokan stack trace.</p>
+
+<p>Untuk mengambil versi sebelum dirombak juga belum tentu pekerjaan mudah. Tergantung apakah Anda menggunakan Subversion atau tidak. Dan apakah kita rajin membuat tag untuk menandai titik-titik penting.</p>
+
+<p>Continuous Integration Tools to the rescue &#8230;.</p>
+
+<p>Langsung saja buka arsip build. Cari build terakhir yang sukses, dan berikan pada bos. Jangan lupa diberi pesan, &#8220;Kapan-kapan kalau butuh yang seperti ini lagi, langsung saja buka URL ini ya.&#8221;</p>
+
+<p>Bila proses CI ini berjalan lancar, hidup programmer jadi jauh lebih nyaman. Dia tinggal:</p>
+
+<ul>
+<li>coding</li>
+<li>buat unit test dan integration test</li>
+<li>jalankan dua-duanya</li>
+<li>kalau OK, commit</li>
+<li>balik lagi ke coding</li>
+</ul>
+
+
+<p>Sekarang kita kembali ke daftar keywordnya Martin Fowler di atas. Agar proses CI ini bisa berjalan baik, semua orang harus <em>integrate their work</em>. Setiap kode yang ditulis harus segera digabungkan dengan kode yang lainnya (yang ditulis anggota tim lainnya).</p>
+
+<p>Ini harus dilakukan <em>frequently</em>, sering-sering. Ini agar error yang muncul bisa segera terdeteksi.</p>
+
+<p>Seluruh kegiatan mulai dari kompilasi sampai <a href="http://endy.artivisi.com/blog/java/membuat-installer-dengan-izpack/">bikin installer</a> harus diotomasi. Kalau sudah otomatis, CI tools akan bisa mengeksekusinya dengan mudah.</p>
+
+<p>Kalau semua ini dilakukan, Martin Fowler berjanji bahwa kegiatan coding akan menjadi lebih <em>rapid</em> dan <em>significantly reduces problem</em>.</p>
+
+<p>Nah, investasinya cuma 5-10 menit instalasi dan konfigurasi, keuntungannya banyak sekali. Lalu kenapa tidak banyak yang mengimplementasikannya?</p>
+
+<p>Oh iya, saya lupa kasi tau. Implementasi CI sendiri mungkin 5-10 menit. Tapi proses ini punya ketergantungan terhadap tools dan praktek lain, yaitu:</p>
+
+<ul>
+<li>Automated Testing</li>
+<li>Version Control</li>
+</ul>
+
+
+<p>Dua praktek ini mengharuskan kita mengubah pola pikir dan kebiasaan, mirip seperti orang yang mau kurus atau berhenti merokok.</p>
+
+<p>So &#8230; Good Luck</p>
+
+<p>:D</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2366,314 +2534,6 @@ Tidak akan bisa coding desktop dengan Netbeans, kemudian buka Eclipse untuk codi
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/linux/gprs-kg300/">Konfigurasi Mentari GPRS Dengan LG KG300 Di Ubuntu Gutsy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-10-26T16:34:32+07:00" pubdate data-updated="true">Oct 26<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Maraknya akses internet 3G rupanya berimbas pada turunnya harga layanan GPRS. Salah satu yang sudah turun harga adalah Mentari, dari Rp. 5/kB menjadi Rp. 1/kB, setidaknya sampai Januari 2008.</p>
-
-<p>Dengan adanya perkembangan yang menggembirakan ini, saya segera mengaktifkan koneksi GPRS tersebut agar bisa digunakan dari laptop. Caranya tidak terlalu sulit, seperti akan kita lihat segera.</p>
-
-<h3>Hardware</h3>
-
-<p>Laptop saya <a href="http://minisites.nec-computers-ap.com/e3100/techspecs.html">NEC Versa E3100</a>, tepatnya seri E3100-1800DR. Handphone yang saya gunakan adalah <a href="http://tokolg.com/productsDetail.asp?item=KG300&amp;kategori=HP">LG KG300</a>, seperti yang diiklankan Agnes Monica di TV. Jadi kalau kapan-kapan Agnes mau setting GPRS juga, bisa lihat artikel ini :D</p>
-
-<p>Koneksi handphone ke laptop menggunakan kabel data, karena laptop saya tidak ada blututnya.</p>
-
-<h3>Software</h3>
-
-<p>Saya menggunakan Ubuntu Gutsy Gibbon 7.10, yang sudah dilengkapi dengan wvdialconf dan wvdial untuk melakukan koneksi. Tidak perlu ada instalasi software tambahan, karena kedua aplikasi ini sudah terinstal dari sananya.</p>
-
-<h3>Provider</h3>
-
-<p>Saya pakai Mentari. Sebelum mencoba koneksi melalui komputer, pastikan dulu kita bisa browsing langsung dari HP. Ini untuk memastikan bahwa dari HP ke Provider sudah OK. Jangan sampai sudah pusing-pusing utak-atik Ubuntu, ternyata masalahnya ada di HP.
-Untuk LG KG300, kita bisa konfigurasi otomatis melalui OTA. Cukup kirim SMS ke 3000 dengan isi sebagai berikut:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>gprs lg kg300</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Nanti kita akan terima SMS, yang bila dibuka akan ada konfirmasi apakah kita ingin mengkonfigurasi GPRS. Tentu saja jawab Yes.
-Silahkan browsing ke Yahoo di http://m.yahoo.com atau Gmail di http://gmail.com/app.</p>
-
-<p>Bila Anda punya akun YM, bisa dicoba chatting di sana.</p>
-
-<p>LG KG300 punya fasilitas Java dengan versi MIDP 2.0. Bila malas chat melalui antarmuka Yahoo, bisa gunakan aplikasi <a href="http://shmessenger.ro/lang_en/index.jsp">shMessenger</a>.</p>
-
-<h3>Konfigurasi</h3>
-
-<p>Setelah lancar browsing dan chatting di handphone, kini tiba saatnya kita browsing di laptop. Hubungkan handphone ke laptop melalui kabel data yang disediakan. Nanti di handphone akan muncul pertanyaan, apakah kita ingin terhubung sebagai Storage Media atau COM2. Pilih COM2. Storage Media dipilih bila ingin melakukan transfer file.</p>
-
-<p>Oh iya, untuk memudahkan troubleshooting, selama melakukan konfigurasi, tampilkan kernel log dengan perintah <code>tail -f /var/log/messages</code> di konsol. Biarkan window ini tetap terbuka selama konfigurasi.</p>
-
-<p>Di kernel log akan muncul laporan deteksi modem seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Oct 26 09:19:28 sweetdreams kernel: [  507.608000] usb 1-2: new full speed USB device using uhci_hcd and address 2
-</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  507.792000] usb 1-2: configuration #1 chosen from 1 choice
-</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.100000] cdc_acm 1-2:1.1: ttyACM0: USB ACM device
-</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.104000] usbcore: registered new interface driver cdc_acm
-</span><span class='line'>Oct 26 09:19:29 sweetdreams kernel: [  508.104000] /build/buildd/linux-source-2.6.22-2.6.22/drivers/usb/class/cdc-acm.c: v0.25:USB Abstract Control Model driver for USB modems and ISDN adapters</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Setelah itu, jalankan wvdialconf sebagai root.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo wvdialconf
-</span><span class='line'>Editing `/etc/wvdial.conf'.
-</span><span class='line'>
-</span><span class='line'>Scanning your serial ports for a modem.
-</span><span class='line'>
-</span><span class='line'>Modem Port Scan: S0   S1   S2   S3   SL0  
-</span><span class='line'>WvModem: Cannot get information for serial port.
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 -- OK
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 Z -- OK
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 -- OK
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 -- OK
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 -- OK
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
-</span><span class='line'>ttyACM0: Modem Identifier: ATI -- MTK2
-</span><span class='line'>ttyACM0: Speed 4800: AT -- OK
-</span><span class='line'>ttyACM0: Speed 9600: AT -- OK
-</span><span class='line'>ttyACM0: Speed 19200: AT -- OK
-</span><span class='line'>ttyACM0: Speed 38400: AT -- OK
-</span><span class='line'>ttyACM0: Speed 57600: AT -- OK
-</span><span class='line'>ttyACM0: Speed 115200: AT -- OK
-</span><span class='line'>ttyACM0: Speed 230400: AT -- OK
-</span><span class='line'>ttyACM0: Speed 460800: AT -- OK
-</span><span class='line'>ttyACM0: Max speed is 460800; that should be safe.
-</span><span class='line'>ttyACM0: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0 -- OK
-</span><span class='line'>
-</span><span class='line'>Found an USB modem on /dev/ttyACM0.
-</span><span class='line'>/etc/wvdial.conf: Can't open '/etc/wvdial.conf' for reading: No such file or directory
-</span><span class='line'>/etc/wvdial.conf: ...starting with blank configuration.
-</span><span class='line'>Modem configuration written to /etc/wvdial.conf.
-</span><span class='line'>ttyACM0: Speed 460800; init "ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hasilnya adalah sebuah file <code>/etc/wvdial.conf</code> sebagai berikut:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>[Dialer Defaults]
-</span><span class='line'>Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-</span><span class='line'>Modem Type = USB Modem
-</span><span class='line'>; Phone = 
-</span><span class='line'>ISDN = 0
-</span><span class='line'>; Username = 
-</span><span class='line'>Init1 = ATZ
-</span><span class='line'>; Password = 
-</span><span class='line'>Modem = /dev/ttyACM0
-</span><span class='line'>Baud = 460800</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Edit menjadi seperti ini:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>[Dialer Defaults]
-</span><span class='line'>Modem = /dev/ttyACM0
-</span><span class='line'>Init1 = ATZ
-</span><span class='line'>Init2 = ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-</span><span class='line'>Init3 = AT+CGDCONT=1,"IP","indosatgprs"
-</span><span class='line'>Stupid Mode = on
-</span><span class='line'>Modem Type = USB Modem
-</span><span class='line'>Phone = *99***1#
-</span><span class='line'>ISDN = 0
-</span><span class='line'>Username = indosat
-</span><span class='line'>Password = indosat
-</span><span class='line'>Baud = 460800</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Go Online</h3>
-
-<p>Kalau sudah, saatnya kita online. Gunakan perintah wvdial untuk melakukan dial-up.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo wvdial
-</span><span class='line'>WvDial&lt;*1&gt;: WvDial: Internet dialer version 1.56
-</span><span class='line'>WvModem&lt;*1&gt;: Cannot get information for serial port.
-</span><span class='line'>WvDial&lt;*1&gt;: Initializing modem.
-</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATZ
-</span><span class='line'>WvDial Modem&lt;*1&gt;: ATZ
-</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
-</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-</span><span class='line'>WvDial Modem&lt;*1&gt;: ATQ0 V1 E1 S0=0 &C1 &D2 +FCLASS=0
-</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
-</span><span class='line'>WvDial&lt;*1&gt;: Sending: AT+CGDCONT=1,"IP","indosatgprs"
-</span><span class='line'>WvDial Modem&lt;*1&gt;: AT+CGDCONT=1,"IP","indosatgprs"
-</span><span class='line'>WvDial Modem&lt;*1&gt;: OK
-</span><span class='line'>WvDial&lt;*1&gt;: Modem initialized.
-</span><span class='line'>WvDial&lt;*1&gt;: Sending: ATDT*99***1#
-</span><span class='line'>WvDial&lt;*1&gt;: Waiting for carrier.
-</span><span class='line'>WvDial Modem&lt;*1&gt;: ATDT*99***1#
-</span><span class='line'>WvDial Modem&lt;*1&gt;: CONNECT
-</span><span class='line'>WvDial Modem&lt;*1&gt;: ~[7f]}#@!}!} } }2}"}&} } } } }#}$@#}'}"}(}"R[04]~
-</span><span class='line'>WvDial&lt;*1&gt;: Carrier detected.  Starting PPP immediately.
-</span><span class='line'>WvDial&lt;Notice&gt;: Starting pppd at Fri Oct 26 09:25:58 2007
-</span><span class='line'>WvDial&lt;Notice&gt;: Pid of pppd: 6028
-</span><span class='line'>WvDial&lt;*1&gt;: Using interface ppp0
-</span><span class='line'>WvDial&lt;*1&gt;: local  IP address 10.33.41.205
-</span><span class='line'>WvDial&lt;*1&gt;: remote IP address 10.64.64.64
-</span><span class='line'>WvDial&lt;*1&gt;: primary   DNS address 202.155.0.10
-</span><span class='line'>WvDial&lt;*1&gt;: secondary DNS address 202.155.46.77</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Setelah itu, silahkan coba browsing. Jangan tutup window wvdial supaya tidak disconnect.</p>
-
-<p>Untuk menghentikan koneksi, cukup ketik Ctrl-C di window wvdial.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Caught signal 2:  Attempting to exit gracefully...
-</span><span class='line'>WvDial&lt;*1&gt;: Terminating on signal 15
-</span><span class='line'>WvDial&lt;*1&gt;: Connect time 1.2 minutes.
-</span><span class='line'>WvDial&lt;*1&gt;: Disconnecting at Fri Oct 26 09:27:20 2007</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Kita dapat melihat keseluruhan sesi internet, berikut jumlah trafik yang kita gunakan di kernel log, sebagai berikut.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: pppd 2.4.4 started by root, uid 0
-</span><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: Using interface ppp0
-</span><span class='line'>Oct 26 09:25:58 sweetdreams pppd[6028]: Connect: ppp0 &lt;--&gt; /dev/ttyACM0
-</span><span class='line'>Oct 26 09:26:00 sweetdreams pppd[6028]: PAP authentication succeeded
-</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: Could not determine remote IP address: defaulting to 10.64.64.64
-</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: local  IP address 10.33.41.205
-</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: remote IP address 10.64.64.64
-</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: primary   DNS address 202.155.0.10
-</span><span class='line'>Oct 26 09:26:12 sweetdreams pppd[6028]: secondary DNS address 202.155.46.77
-</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Terminating on signal 15
-</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Connect time 1.2 minutes.
-</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Sent 0 bytes, received 0 bytes.
-</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Connection terminated.
-</span><span class='line'>Oct 26 09:27:19 sweetdreams pppd[6028]: Exit.</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Demikianlah cara konfigurasi modem LG KG300 di Ubuntu. Mudah-mudahan dengan adanya artikel ini, Agnes Monica bisa segera online.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/15/">&larr; Older</a>
@@ -2750,6 +2610,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/pembagian-kerja-dalam-programming/">Pembagian Kerja dalam Programming</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/waterfall-is-the-best/">Waterfall is The Best</a>
       </li>
     
@@ -2783,10 +2647,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
       </li>
     
   </ul>

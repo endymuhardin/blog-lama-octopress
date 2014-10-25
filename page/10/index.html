@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Pada artikel sebelumnya, kita telah membahas tentang konsep integrasi aplikasi, dan implementasinya menggunakan Spring Integration. Contoh &hellip;">
+  <meta name="description" content="Menggunakan PostgreSQL Sequence dengan Hibernate Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,106 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/postgresql-sequence-hibernate/">PostgreSQL Sequence Dengan Hibernate</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2009-06-22T22:08:58+07:00" pubdate data-updated="true">Jun 22<span>nd</span>, 2009</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Menggunakan PostgreSQL Sequence dengan Hibernate</p>
+
+<p>Pada artikel ini, kita akan membahas tentang bagaimana membuat Hibernate menggunakan sequence yang dibuat PostgreSQL.</p>
+
+<p>Bila kita membuat Hibernate mapping untuk entity class sebagai berikut:</p>
+
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue
+    private Integer id;
+
+    private String name;
+
+    // getter dan setter    
+}
+</code></pre>
+
+<p>kemudian menyuruh Hibernate untuk menggenerate DDL ke PostgreSQL, maka kita akan mendapatkan hasil sebagai berikut.</p>
+
+<pre><code>create table example (id int4 not null, name varchar(255), primary key (id))
+create sequence example_id_seq
+</code></pre>
+
+<p>Artinya, Hibernate akan membuat sequence bernama example_id_seq dan menggunakannya untuk menghasilkan id.</p>
+
+<p>Skema yang dihasilkan ini berbeda dengan skema yang biasa digunakan DBA PostgreSQL dalam membuat tabel, yaitu seperti ini</p>
+
+<pre><code>CREATE TABLE example (id serial, name text)
+</code></pre>
+
+<p>Bila kita menggunakan mapping di atas ke skema tabel dengan id bertipe serial ini, kita akan mendapatkan exception sebagai berikut.</p>
+
+<pre><code>SEVERE: ERROR: relation "hibernate_sequence" does not exist
+Exception in thread "main" org.hibernate.exception.SQLGrammarException: could not get next sequence value
+Caused by: org.postgresql.util.PSQLException: ERROR: relation "hibernate_sequence" does not exist
+</code></pre>
+
+<p>Ini disebabkan karena mapping di atas akan mencari sequence bernama hibernate_sequence yang tidak ada kalau kita membuat tabel dengan id serial.</p>
+
+<p>Solusinya adalah dengan menggunakan Hibernate Annotation Extension, yaitu anotasi @GenericGenerator seperti ini.</p>
+
+<pre><code>@Entity @Table(name="example")
+public class Example {
+    @Id @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pg_seq")
+    @GenericGenerator(name="pg_seq", strategy="sequence", parameters={
+        @Parameter(name="sequence", value="example_id_seq")
+    })
+    private Integer id;
+
+    private String name;
+}
+</code></pre>
+
+<p>Nama sequence diambil dari sequence yang dibuatkan PostgreSQL pada saat kita melakukan create table.
+Nama sequence ini bisa dilihat dengan mengetikkan \d example, yang akan menghasilkan output sebagai berikut.</p>
+
+<pre><code>\d example
+                          Table "public.example"
+ Column |  Type   |                       Modifiers                       
+--------+---------+-------------------------------------------------------
+ id     | integer | not null default nextval('example_id_seq'::regclass)
+ name   | text    | 
+</code></pre>
+
+<p>Barulah setelah itu kita bisa menyimpan object ke database dengan mulus.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1863,44 +1963,6 @@ Berikut kode program implementasi dari logika di atas.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/spring-build/">Spring Build</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2009-03-04T20:22:32+07:00" pubdate data-updated="true">Mar 4<span>th</span>, 2009</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://martinus.artivisi.com">Martinus</a> dan <a href="http://ifnu.artivisi.com">Ifnu</a> kalo <a href="http://blog.springsource.com/2009/03/03/building-spring-3/">baca ini</a> pasti merasa familiar dengan struktur folder dan prosesnya.</p>
-
-<p>Saya gak nyontek lho &#8230; :p</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/11/">&larr; Older</a>
@@ -1977,6 +2039,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/pembagian-kerja-dalam-programming/">Pembagian Kerja dalam Programming</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/waterfall-is-the-best/">Waterfall is The Best</a>
       </li>
     
@@ -2010,10 +2076,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
       </li>
     
   </ul>

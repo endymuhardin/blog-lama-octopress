@@ -9,7 +9,8 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Berangkat dari membaca blog teman yang mengulas tentang Transport Tycoon Deluxe yang sekarang ada versi open sourcenya, saya jadi teringat koleksi &hellip;">
+  <meta name="description" content="Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +90,283 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/ruthless-testing-1/">Ruthless Testing 1</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2006-06-13T22:59:30+07:00" pubdate data-updated="true">Jun 13<span>th</span>, 2006</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sebelum menyerahkan aplikasi ke client, sudahkah Anda melakukan testing?
+100% programmer pasti menjawab dengan kompak, &#8220;SUDAAAAHHHH !!!&#8221;</p>
+
+<p>Nah, kalau begitu, pertanyaannya, apa saja yang sudah ditest?</p>
+
+<p>Jawaban orang biasanya bervariasi, tergantung nilai project, jumlah orang yang tersedia, dan juga tergantung tingkat kegaptekan si programmer terhadap teknologi testing yang tersedia.</p>
+
+<p>Testing minimal yang dilakukan biasanya adalah user testing. Jadi, ada user (atau programmer yang pura-pura jadi user) mencoba menggunakan aplikasi yang (katanya sih) sudah selesai. Biasanya fenomena ini akan berakhir dengan periode bugfix yang lebih lama daripada periode coding itu sendiri.</p>
+
+<p>Jadi, bagaimana tipsnya supaya user testing berjalan dengan lancar, minim bug, kalaupun ada, bisa diselesaikan dalam bilangan hari?</p>
+
+<p>Jawabannya adalah melaksanakan &#8220;ruthless testing&#8221;. Artinya testing secara kejam. Testing yang berlapis-lapis sehingga kalau ada programmer bandel yang membuat percabangan if terlalu dalam, akan langsung ketahuan.</p>
+
+<p>Bagaimana itu? Kita akan lihat sebentar lagi.</p>
+
+<p>Ada berapa jenis testing? Hmm .. menurut saya ada:</p>
+
+<ol>
+<li>Unit testing</li>
+<li>Integration testing</li>
+<li>Coverage testing</li>
+<li>Code compliance testing</li>
+<li>User/functional testing</li>
+<li>Performance testing</li>
+</ol>
+
+
+<p>Semua test ini harus dijalankan tanpa kecuali.</p>
+
+<p>What the !@#$? Banyak sekali? Apakah semua harus dijalankan? Wah, bisa-bisa kerjaan kita cuma ngurusin test doang? Bagaimana ini?</p>
+
+<p>Hmm.. jangan khawatir, semua bisa dijalankan dengan investasi minimal di awal project.
+Tips saya adalah:</p>
+
+<ol>
+<li><p>Alokasikan pembuatan test bersama-sama dengan construction. Jangan setelah construction. Jadi, wahai Project Managers, kalau merencanakan construction, tambahkan alokasi waktu untuk membuat test.</p></li>
+<li><p>Semua test harus otomatis dan bisa dijalankan dengan sekali perintah. Di project saya, semua test dijalankan cukup dengan:</p></li>
+</ol>
+
+
+<p><code>ant full-test</code></p>
+
+<p>Baiklah, mari kita lihat satu persatu secara lebih detail.</p>
+
+<h3>Unit Testing</h3>
+
+<p>Ini adalah testing di level paling detail dari aplikasi. Artinya, testing di level method/function. Misalnya saya punya kode seperti ini:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span><span class="o">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">  * menghitung jumlah hari dalam bulan dan tahun yang diminta. </span>
+</span><span class='line'><span class="cm">  * Misalnya, bila month = 2 dan year = 2000, method ini akan menghasilkan 29.</span>
+</span><span class='line'><span class="cm">  * @param month bulan yang akan dihitung</span>
+</span><span class='line'><span class="cm">  * @param year tahun yang akan dihitung</span>
+</span><span class='line'><span class="cm">  * @return jumlah hari dalam bulan dan tahun bersangkutan</span>
+</span><span class='line'><span class="cm">  */</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">numDays</span><span class="o">(</span><span class="kt">int</span> <span class="n">month</span><span class="o">,</span> <span class="kt">int</span> <span class="n">year</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">29</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Coba lihat contoh kode di atas? Salah bukan?
+Apapun yang kita masukkan, hasilnya pasti 29.
+Mari kita buktikan dengan unit test bahwa kode di atas salah.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DayCounter</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testNumDays</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DayCounter</span> <span class="n">d</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DayCounter</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">assertEquals</span><span class="o">(</span><span class="mi">31</span><span class="o">,</span> <span class="n">d</span><span class="o">.</span><span class="na">numDays</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="mi">2000</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pada waktu dijalankan, unit test tersebut akan menghasilkan tulisan FAILED</p>
+
+<p>Di Java, unit test dapat dilakukan secara otomatis dengan menggunakan <a href="http://ww.junit.org">JUnit</a>.</p>
+
+<h3>Integration Test</h3>
+
+<p>Sebagian besar aplikasi yang kita buat akan menggunakan database. Untuk itu, kita perlu mengetes apakah kode program kita dapat berinteraksi dengan database sesuai harapan.
+Mirip dengan JUnit, kita membuat unit test yang mengakses database. Misalnya, berikut kode programnya:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span><span class="o">{</span>
+</span><span class='line'>  <span class="cm">/**</span>
+</span><span class='line'><span class="cm">  * memeriksa username dan password dalam database. </span>
+</span><span class='line'><span class="cm">  * Method ini akan mencocokkan username dan password yang diberikan </span>
+</span><span class='line'><span class="cm">  * dan yang terdaftar di database.</span>
+</span><span class='line'><span class="cm">  * Apabila cocok, akan menghasilkan true, dan apabila tidak cocok akan menghasilkan false.</span>
+</span><span class='line'><span class="cm">  * @param username </span>
+</span><span class='line'><span class="cm">  * @param password</span>
+</span><span class='line'><span class="cm">  * @return true kalau cocok, false kalau tidak cocok</span>
+</span><span class='line'><span class="cm">  */</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">checkLogin</span><span class="o">(</span><span class="n">String</span> <span class="n">username</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;SELECT * FROM user WHERE username=? AND password=?&quot;</span>
+</span><span class='line'>    <span class="c1">// dst kode akses database</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dan ini adalah kode untuk mengetesnya.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCheckLogin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">DatabaseAccess</span> <span class="n">db</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseAccess</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// asumsikan ada username endy dan password secret di database</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;endy&quot;</span><span class="o">,</span> <span class="s">&quot;secret&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// coba dengan user sembarang, harusnya akan menghasilkan false</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;nobody&quot;</span><span class="o">,</span> <span class="s">&quot;gakada&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Perhatikan bahwa kedua test di atas mengasumsikan bahwa kita punya database, terisi data endy:secret, dan tidak ada record nobody:gakada di dalam tabel user.
+Berarti, setiap dijalankan, kita harus memastikan asumsi di atas terpenuhi.
+Lalu, bagaimana cara menjalankannya secara otomatis? Gampang, gunakan <a href="http://dbunit.sourceforge.net/">DBUnit</a>.</p>
+
+<p>Dengan DBUnit, kita dapat me-reset kondisi database sesuai keinginan setiap kali test akan dijalankan.
+Caranya, kita harus buat test data, yaitu satu record berisi data endy:test dalam tabel user. Test data ini disimpan dalam file checkLogin.xml</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dataset&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;user</span> <span class="na">id=</span><span class="s">&#39;1&#39;</span>
+</span><span class='line'>        <span class="na">username=</span><span class="s">&#39;endy&#39;</span>
+</span><span class='line'>        <span class="na">password=</span><span class="s">&#39;secret&#39;</span>
+</span><span class='line'>  <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dataset&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sebelum test dimulai, pastikan database direset. Tambahkan method berikut di kode test:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DatabaseAccess</span> <span class="kd">extends</span> <span class="n">junit</span><span class="o">.</span><span class="na">framework</span><span class="o">.</span><span class="na">TestCase</span><span class="o">{</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCheckLogin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// reset database</span>
+</span><span class='line'>    <span class="n">prepareDatabase</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">DatabaseAccess</span> <span class="n">db</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DatabaseAccess</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// asumsikan ada username endy dan password secret di database</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;endy&quot;</span><span class="o">,</span> <span class="s">&quot;secret&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// coba dengan user sembarang, harusnya akan menghasilkan false</span>
+</span><span class='line'>    <span class="n">assertFalse</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">checkLogin</span><span class="o">(</span><span class="s">&quot;nobody&quot;</span><span class="o">,</span> <span class="s">&quot;gakada&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">prepareDatabase</span><span class="o">(){</span>
+</span><span class='line'>    <span class="n">DatabaseOperation</span><span class="o">.</span><span class="na">CLEAN_INSERT</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">dbConn</span><span class="o">,</span> <span class="n">getTestData</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">IDataSet</span> <span class="nf">getTestData</span><span class="o">(){</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">FlatXmlDataSet</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;checkLogin.xml&quot;</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nah, DBUnit akan dengan senang hati me-reset isi <strong>database development</strong> Anda. Pastikan test tersebut dijalankan di DATABASE DEVELOPMENT, dan bukan DATABASE PRODUCTION.</p>
+
+<p>Sementara cukup sekian. Pada artikel selanjutnya, kita akan bahas tentang:
+3. Coverage Testing
+4. Code compliance testing
+5. User/functional testing
+6. Performance testing
+Dan sesuai janji saya, semua test otomatis dan sekali pencet.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1170,118 +1448,6 @@ Perhatian: Untuk menjalankan kode ini dengan baik, Anda harus menginstal aplikas
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/belajar-java-mulai-dari-mana/">Belajar Java, Mulai Dari Mana?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2006-04-28T18:43:54+07:00" pubdate data-updated="true">Apr 28<span>th</span>, 2006</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ini adalah pertanyaan yang paling sering ditanyakan ke saya, baik melalui Y!, email, ataupun tatap muka di kelas.</p>
-
-<p>Saya sendiri belajar Java secara otodidak. Tidak melalui bangku kuliah (saya kuliah Teknik Industri), tidak juga ikut kursus atau pelatihan. Pada waktu itu -sekitar tahun 2002- milis <a href="http://groups.yahoo.com/group/jug-indonesia/">jug-indonesia</a> dan <a href="http://groups.yahoo.com/group/jlinux/">jlinux</a> belum seramai sekarang. Sehingga untuk konsultasi dan tanya-jawab agak sulit. Perlu diperhatikan juga bahwa pada masa itu blog belum ngetren. Jarang ada blog yang membahas pemrograman Java dalam bahasa Indonesia.</p>
-
-<p>Singkat kata, resource di internet tidak sebanyak saat ini (awal 2006).</p>
-
-<p>Sebelum mulai belajar Java, kemampuan teknis saya adalah sebagai berikut:</p>
-
-<ul>
-<li><p>Bisa menggunakan Linux, tapi sebatas user, bukan administrator ahli.</p></li>
-<li><p>Mengerti tentang basic networking (IP Address, Subnet, cara kerja DNS, dan sedikit tentang routing)</p></li>
-<li><p>Mengerti sedikit tentang relational database. SELECT, INSERT, UPDATE sih bisa.</p></li>
-<li><p>Bisa PHP sedikit-sedikit. Cuma bisa HelloWorld, dan simpan isian form HTML ke dalam database. Tapi untuk aplikasi skala besar belum pernah buat.</p></li>
-</ul>
-
-
-<p>Dengan modal pas-pasan seperti itu, saya berhasil diterima bekerja di sebuah kursus pendidikan franchise dari India. Waktu itu mereka baru membuka cabang di Surabaya, dan saya masuk sebelum grand-launching dilakukan.</p>
-
-<p>Karena masih baru, siswa peserta kursus juga masih sedikit.Seingat saya, sehari cuma ada satu kelas selama 4 jam sehari. 4 jam sisanya, 20 perangkat komputer terbaru terhubung dengan jaringan termasuk satu asisten lab (tidak lain dan tidak bukan adalah saya) praktis menjadi pengangguran. Internet di sana dial-up, tapi ada beberapa buku pelajaran dan referensi di perpustakaan mini.</p>
-
-<p>Waktu luang banyak, komputer banyak, buku banyak, internet agak lemot. Ya sudah, akhirnya saya ngoprek saja sendirian. Instruktur di sana, walaupun native speaker India, nampaknya kurang kompeten, sehingga kalo tanya ke dia, yang ada malah tambah bingung.</p>
-
-<p>Minggu-minggu pertama saya habiskan membuat website dengan PHP. Berusaha bikin Content Management System kecil-kecilan. Tapi karena belum pengalaman, yang ada malah berantakan. Pengguna bukannya menjadi mudah malah menjadi sulit, karena untuk posting artikel harus mengerti HTML dan PHP :D. Padahal niatnya mau memudahkan. Yah, mau bagaimana lagi &#8230; ada masanya ketika kita masih muda dan bodoh :P</p>
-
-<p>Bosan dengan PHP, saya mulai lihat-lihat buku di perpustakaan. Ada VB, Java, Windows 2000 Server, Oracle, dan sebagainya. Entah karena background saya yang pengguna Linux, saya kurang tertarik belajar VB. Selain itu, instruktur di sana (menganggap dirinya) master VB. Jadi saya tidak mau kompetitif dengan belajar VB juga. Oracle terlalu sulit buat saya (waktu itu). Instalasi saja sulitnya setengah mati. Installernya terlalu banyak tanya ini-itu yang saya gak ngerti apa jawabannya. Windows 2000 Server juga kelihatan kurang menarik. Jadilah akhirnya saya pilih belajar Java saja.</p>
-
-<p>Saya coba belajar dari buku yang ada. Referensinya waktu itu Core Java vol 1 dan 2 karangan Cay Horstmann. Belakangan saya tau kalo buku itu sangat bagus dan lengkap. Ada beberapa konsep rumit seperti <em>anonymous inner class</em> yang dijelaskan dengan sangat baik di sana. Tapi untuk pemula, Core Java itu relatif sulit dimengerti.</p>
-
-<p>Sekitar sebulan saya berputar-putar mencari cara belajar dan referensi yang bagus. Karena kualitas dan kecocokan referensi dengan cara belajar kita akan sangat berpengaruh terhadap kecepatan belajar.</p>
-
-<p>Setelah browsing ke <a href="http://java.sun.com">website Sun</a>, saya berhasil menemukan <a href="http://java.sun.com/docs/books/tutorial/index.html">tutorial Java</a> dan <a href="http://java.sun.com/j2se/1.5.0/docs/api/index.html">dokumentasi Java</a>. Ini merupakan referensi yang benar-benar cocok buat saya. Dengan bermodalkan dua bahan tersebut, akhirnya dua bulan berikutnya menjadi terang-benderang.</p>
-
-<p>Satu demi satu konsep Java saya pelajari:</p>
-
-<ol>
-<li><p>Sintaks dan Semantic (for loop, statement, if-else, dsb)</p></li>
-<li><p>Konsep OOP</p></li>
-<li><p>Implementasi Class dan Object di Java</p></li>
-<li><p>Package</p></li>
-<li><p>I/O</p></li>
-<li><p>Collection</p></li>
-<li><p>Swing</p></li>
-<li><p>Thread</p></li>
-<li><p>JDBC</p></li>
-<li><p>dsb</p></li>
-</ol>
-
-
-<p>Sampai akhirnya saya lumayan bisa membuat aplikasi desktop sederhana yang mengakses database.</p>
-
-<p>Pada bulan keempat, saya masuk ke kantornya instruktur dan menemukan buku baru. Modul pelatihan Java Servlet. Wah, ada mainan baru. Segera saja saya coba semua contoh kodenya. Lumayan dari buku tersebut saya bisa memahami web.xml, servlet, dan application server. Waktu itu <a href="http://tomcat.apache.org">Tomcat</a> belum terkenal seperti sekarang. Saya pakai Java Web Server untuk mendeploy servlet.</p>
-
-<p>Sekitar enam bulan kemudian, saya sudah cukup mengerti apa itu EJB (waktu itu masih versi 1.x) dan bisa mendeploy EJB kecil-kecilan.</p>
-
-<p>Kemudian saya ditugaskan menjadi dosen di Stikom, sebagai bagian dari paket kerjasama kursus tempat saya bekerja dengan Stikom. Di sana lebih banyak teman diskusi dan buku.</p>
-
-<p>Dari titik ini, perjalanan belajar Java menjadi lebih mudah. Karena selain perpustakaan cukup lengkap, milis java juga sudah lumayan aktif. Sehingga saya dapat mainan baru seperti Hibernate dan Ant.</p>
-
-<p>Sudah cukup panjang ceritanya. Pesan moral dari cerita ini adalah:</p>
-
-<ol>
-<li><p>Dengan waktu luang dan referensi yang tepat, belajar Java secara otodidak sangat mungkin dilakukan</p></li>
-<li><p>Download <a href="http://java.sun.com/docs/books/tutorialNB/download/tutorial.zip">tutorial</a> dan <a href="http://java.sun.com/j2se/1.5.0/download.jsp">dokumentasi</a> Java yang dikeluarkan Sun.</p></li>
-<li><p>Banyak berlatih (saya berlatih 6-8 jam sehari, setelah jam kantor saya masih stay untuk belajar)</p></li>
-<li><p>Untuk dapat melakukan poin #1 dan #2, kemampuan bahasa Inggris (read-only sudah cukup) wajib dimiliki.</p></li>
-</ol>
-
-
-<p>Sedikit saran dari saya, cobalah berkontribusi di milis. Baik bertanya maupun menjawab. &#8220;Bagaimana kalo saya menjawab tapi jawabannya salah? Nanti diketawain &#8230;  &#8221;
-Jangan takut. Menjawab itu bagian dari belajar. Ini berarti kita mengujicoba pemahaman kita terhadap sesuatu.</p>
-
-<p>Kalau pemahaman kita benar, komunitas akan memperkuat, dan kadang menambahkan sudut pandang yang berbeda sehingga pengetahuan kita semakin kaya.
-Kalau kita salah, akan ada yang mengoreksi. Sehingga pemahaman kita yang salah tersebut tidak akan terbawa sampai tua dan terungkap dalam event yang jauh lebih memalukan.</p>
-
-<p>Nada-nada pedas dan komentar tidak ramah jangan sampai mengendurkan semangat. Anggap saja sebagai biaya kursus, karena : &#8220;Hei, ternyata bertanya di milis gak bayar. GRATIISS !!!&#8221;</p>
-
-<p>Ok, selamat belajar mandiri :D</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/21/">&larr; Older</a>
@@ -1358,6 +1524,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/manajemen/pembagian-kerja-dalam-programming/">Pembagian Kerja dalam Programming</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/waterfall-is-the-best/">Waterfall is The Best</a>
       </li>
     
@@ -1391,10 +1561,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/membuat-subreport-jasper-dalam-springmvc/">Membuat subreport Jasper dalam SpringMVC</a>
       </li>
     
   </ul>
