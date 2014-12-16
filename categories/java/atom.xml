@@ -4,7 +4,7 @@
   <title><![CDATA[Category: java | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/java/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2014-10-25T09:49:22+07:00</updated>
+  <updated>2014-12-16T15:38:28+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,221 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mengapa kita membuat class]]></title>
+    <link href="http://software.endy.muhardin.com/java/mengapa-kita-membuat-class/"/>
+    <updated>2014-12-16T15:26:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mengapa-kita-membuat-class</id>
+    <content type="html"><![CDATA[<p>Ada pertanyaan di <a href="https://www.facebook.com/groups/ForumJavaIndonesia/">grup Facebook</a> yang cukup menarik untuk kita bahas di sini. Sample code yang ditanyakan saya modifikasi sedikit supaya lebih cocok.</p>
+
+<h2>Class Mahasiswa</h2>
+
+<p>```java
+public class Mahasiswa {</p>
+
+<pre><code>private String nama;
+private Date tanggalLahir;
+private JenisKelamin jenisKelamin;
+
+// getter setter
+</code></pre>
+
+<p>}</p>
+
+<p>public enum JenisKelamin{</p>
+
+<pre><code>PRIA, WANITA
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Class SimpanMahasiswaServlet</h2>
+
+<p>```java
+public class SimpanMahasiswaServlet extends HttpServlet {</p>
+
+<pre><code>private MahasiswaDao md = new MahasiswaDao();
+
+public void doPost(HttpServletRequest req, HttpServletResponse resp){
+    Mahasiswa m = new Mahasiswa();
+
+    m.setNama(req.getParameter("nama"));
+
+    SimpleDateFormat formatTanggal = new SimpleDateFormat("yyyy-MM-dd");
+    m.setTanggalLahir(formatTanggal.parse(req.getParameter("tanggal")));
+
+    m.setJenisKelamin(JenisKelamin.valueOf(req.getParameter("jenis")));
+
+    md.simpan(m);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Class MahasiswaDao</h2>
+
+<p>```java
+public class MahasiswaDao {</p>
+
+<pre><code>public void simpan(Mahasiswa m){
+    String sql = "INSERT INTO mahasiswa values (?,?,?)";
+    PreparedStatement ps = koneksi.prepareStatement(sql);
+    ps.setString(1, m.getNama());
+    ps.setDate(2, new java.sql.Date(m.getTanggalLahir().getTime()));
+    ps.setString(3, m.getJenisKelamin().name());
+    ps.executeUpdate();
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<blockquote><p>Pertanyaan : Lebih kenceng mana contoh kode di atas (menggunakan class Mahasiswa) dibandingkan langsung saja pakai Map/Array ?</p></blockquote>
+
+<p>Supaya lebih jelas, berikut contoh yang pakai array.</p>
+
+<p>```java
+public class SimpanMahasiswaServlet extends HttpServlet {</p>
+
+<pre><code>private MahasiswaDao md = new MahasiswaDao();
+
+public void doPost(HttpServletRequest req, HttpServletResponse resp){
+    String[] m = new String[3];
+
+    m[0] = req.getParameter("nama");
+    m[1] = req.getParameter("tanggal");
+    m[2] = req.getParameter("jenis");
+
+    md.simpan(m);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Class MahasiswaDao</h2>
+
+<p>```java
+public class MahasiswaDao {</p>
+
+<pre><code>public void simpan(String[] m){
+    String sql = "INSERT INTO mahasiswa values (?,?,?)";
+    PreparedStatement ps = koneksi.prepareStatement(sql);
+
+    for(int i=0; i&lt;m.length; m++){
+        ps.setString(i, m[i]);
+    }
+
+    ps.executeUpdate();
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Pembuatan class <code>Mahasiswa</code> di atas merupakan salah satu implementasi prinsip <code>encapsulation</code> dalam OOP. Class <code>Mahasiswa</code> disebut dengan istilah domain class, yaitu class yang dibuat untuk memodelkan kasus yang akan dibuat.</p>
+
+<!--more-->
+
+
+<blockquote><p>Jawaban : gak usah mikirin kenceng dulu. Soalnya pakai Array/Map itu salah. Buat apa aplikasi salah dibikin kenceng?</p></blockquote>
+
+<p>Kenapa salah?</p>
+
+<ol>
+<li>Susah dipahami</li>
+<li>Tidak bisa pakai library pihak ketiga</li>
+<li>Menyia-nyiakan dukungan tipe data yang sudah disediakan Java</li>
+</ol>
+
+
+<h2>Source code susah dipahami</h2>
+
+<p>Bayangkan kita lagi mau ngisi variabel di Netbeans/Eclipse.</p>
+
+<p><code>java
+Mahasiswa m = new Mahasiswa();
+g. &lt;-- Ctrl-Spasi autocomplete, keluar pilihan setNama, setTanggalLahir, dsb
+</code></p>
+
+<p>Lebih gampang mana dipahami daripada seperti ini</p>
+
+<p><code>java
+String[] m = new String[3];
+m &lt;-- gak bisa Ctrl-Spasi, gak keluar pilihan apa-apa
+</code></p>
+
+<p>Kalau seandainya ada programmer baru masuk, lebih besar mana kemungkinan melakukan kesalahan ini</p>
+
+<p><code>java
+m.setNama(req.getParameter("jenis"));
+</code></p>
+
+<p>atau ini</p>
+
+<p><code>
+m[0] = req.getParameter("tanggal");
+</code></p>
+
+<h2>Tidak bisa menggunakan library pihak ketiga</h2>
+
+<p>Semua baris untuk set nilai di <code>SimpanMahasiswaServlet</code> itu bisa diotomasi pakai Spring MVC. Semua baris untuk get isinya dan simpan ke db di <code>MahasiswaDao</code> bisa diotomasi pakai Hibernate.</p>
+
+<p>Bila suatu saat kita ingin konversi objek <code>Mahasiswa</code> menjadi JSON, kita bisa dengan mudah melakukan ini</p>
+
+<p>```
+Mahasiswa m = new Mahasiswa();</p>
+
+<p>// isi nama, tanggal lahir, jenis kelamin</p>
+
+<p>ObjectMapper om = new ObjectMapper();
+String json = om.writeValue(m);
+```</p>
+
+<p>Nah, coba lakukan hal di atas pakai array. Mana bisa?</p>
+
+<p>Hal yang sama berlaku kalau mau konversi ke XML menggunakan JAXB.</p>
+
+<h2>Menyia-nyiakan fitur yang sudah disediakan</h2>
+
+<p>Kalau kita bikin class Mahasiswa, kita bisa bikin nama itu String, jenis kelamin Enum, tanggal lahir Date. Dengan pakai tipe data, kalau salah entri langsung ketahuan error pada saat ngetik source code. Kalau gak pake itu, pas dijalanin baru ketahuan.</p>
+
+<p>Sebagai contoh, error ini langsung ketahuan di Eclipse/Netbeans, atau pada waktu compile (kalau pakai Notepad++)</p>
+
+<p>```java
+Mahasiswa m = new Mahasiswa();</p>
+
+<p>// bakalan error karena tipe data tanggalLahir adalah Date, bukan String
+m.setTanggalLahir(req.getParameter("nama"));
+```</p>
+
+<p>Kalau pakai array, tidak akan ketahuan</p>
+
+<p>```java
+String[] m = new String[3];</p>
+
+<p>// gak error karena sama-sama String
+m[1] = req.getParameter("nama");
+```</p>
+
+<h2>Kesimpulan</h2>
+
+<p>Prioritas utama dalam menulis kode program adalah sebagai berikut:</p>
+
+<ol>
+<li>Benar (correctness)</li>
+<li>Mudah dipahami (readability)</li>
+<li>Mudah dikembangkan (maintainability)</li>
+<li>Performance</li>
+</ol>
+
+
+<p>Nah, jadi jangan pagi-pagi udah mikir performance dengan mengorbankan 3 hal diatasnya ya ;)</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Tips Meletakkan File Konfigurasi Aplikasi]]></title>
@@ -831,302 +1046,6 @@ return new ModelMap()
 <p>Demikian penjelasan tentang integrasi Spring MVC dan Jasper Report. Source code lengkap bisa diambil <a href="https://github.com/endymuhardin/belajar-springmvc-jasperreports/">di Github</a></p>
 
 <p>Semoga bermanfaat</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Silabus Kuliah Pemrograman]]></title>
-    <link href="http://software.endy.muhardin.com/java/silabus-kuliah-pemrograman/"/>
-    <updated>2014-03-05T12:11:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/java/silabus-kuliah-pemrograman</id>
-    <content type="html"><![CDATA[<p>Melanjutkan rutinitas 2 tahun terakhir, minggu ini musim perkuliahan semester genap di Universitas Pancasila dimulai. Saya kebagian pegang Pemrograman 2 di kelas reguler, dan Pemrograman 4 di kelas karyawan. Buat para fans yang pengen ketemu dipersilahkan cari saya di Fakultas Teknik Universitas Pancasila setiap Kamis jam 18-21 dan Jumat jam 09-11.</p>
-
-<p>Berikut adalah silabus perkuliahan dari Pemrograman 1 sampai Pemrograman 4. Silabus ini akan sering saya update mengikuti perkembangan jaman.</p>
-
-<!--more-->
-
-
-<p><a name="pemrograman-1"></a></p>
-
-<h1>Pemrograman 1 : Fundamental</h1>
-
-<h2>Tujuan</h2>
-
-<ul>
-<li>Paham dasar-dasar pemrograman dengan Java</li>
-<li>Paham cara implementasi OOP dengan Java</li>
-<li>Paham cara menggunakan class-class penting dalam Java SDK</li>
-</ul>
-
-
-<h2>Batasan</h2>
-
-<ul>
-<li>Hanya menggunakan library standar bawaan Java SDK</li>
-<li>Tidak membahas konsep OOP (karena ada mata kuliahnya sendiri)</li>
-</ul>
-
-
-<h2>Referensi</h2>
-
-<ul>
-<li><a href="http://docs.oracle.com/javase/tutorial/index.html">Official Java Tutorial, Oracle Corp</a></li>
-<li><a href="http://docs.oracle.com/javase/7/docs/api/index.html">SDK Documentation, Oracle Corp</a></li>
-<li><a href="http://project-template.googlecode.com/files/Java%20Desktop%20-%20Ifnu%20Bima.pdf">Java Desktop, Ifnu Bima</a></li>
-</ul>
-
-
-<h2>Kebutuhan Software Lab</h2>
-
-<ul>
-<li>Java SDK 1.6</li>
-<li><a href="http://www.sublimetext.com/">Sublime Text 3</a></li>
-</ul>
-
-
-<h2>Materi Kuliah</h2>
-
-<ul>
-<li>Penjelasan Silabus</li>
-<li>Setup / Instalasi Java</li>
-<li>Version Control (Git)</li>
-<li>Github</li>
-<li>Anatomi Aplikasi Java</li>
-<li>Classpath</li>
-<li>Variabel dan Tipe Data</li>
-<li>Operator</li>
-<li>Control Flow (if-else, for/while)</li>
-<li>Class &amp; Object</li>
-<li>Method</li>
-<li>Exception</li>
-<li>Konsep OOP</li>
-<li>Inheritance</li>
-<li>Encapsulation</li>
-<li>Polymorphism</li>
-<li>Abstract Class &amp; Interface</li>
-<li>Composition &amp; Aggregation</li>
-<li>Studi Kasus / Tugas</li>
-<li>Presentasi Kasus</li>
-</ul>
-
-
-<p><a name="pemrograman-2"></a></p>
-
-<h1>Pemrograman 2 : Essential Library</h1>
-
-<h2>Tujuan</h2>
-
-<ul>
-<li>Mahir menggunakan library tambahan dari dunia open source</li>
-<li>Mahir menggunakan development tools Java</li>
-</ul>
-
-
-<h2>Batasan</h2>
-
-<ul>
-<li>Belum membuat user interface</li>
-</ul>
-
-
-<h2>Kebutuhan Software Lab</h2>
-
-<ul>
-<li>Semua requirement dari Pemrograman 1</li>
-<li><a href="http://maven.apache.org/">Apache Maven 3</a></li>
-<li>MySQL Server</li>
-</ul>
-
-
-<h2>Materi Kuliah</h2>
-
-<ul>
-<li>Build Tools</li>
-<li>Automated Test</li>
-<li>Date &amp; Time</li>
-<li>Collections</li>
-<li>JDBC</li>
-<li>String</li>
-<li>Regular Expression</li>
-<li>Multithreading / Concurrency</li>
-<li>File I/O</li>
-<li>Network I/O</li>
-<li>Popular Network Protocol (HTTP, FTP, SMTP, POP, IMAP)</li>
-<li>Studi Kasus</li>
-</ul>
-
-
-<p><a name="pemrograman-3"></a></p>
-
-<h1>Pemrograman 3 : Desktop</h1>
-
-<h2>Tujuan</h2>
-
-<ul>
-<li>Bisa membuat aplikasi lengkap dengan UI Desktop</li>
-</ul>
-
-
-<h2>Batasan</h2>
-
-<ul>
-<li>Aplikasi berjalan lokal</li>
-<li>Penyimpanan data dilakukan lokal</li>
-<li>Interaksi dengan server dilakukan dengan menggunakan service yang sudah tersedia (tidak membuat sendiri)</li>
-</ul>
-
-
-<h2>Referensi</h2>
-
-<ul>
-<li><a href="http://project-template.googlecode.com/files/Java%20Desktop%20-%20Ifnu%20Bima.pdf">Java Desktop, Ifnu Bima</a></li>
-</ul>
-
-
-<h2>Kebutuhan Software Lab</h2>
-
-<ul>
-<li>Sama seperti Pemrograman 2</li>
-</ul>
-
-
-<h2>Materi Kuliah</h2>
-
-<ul>
-<li><p>Arsitektur Aplikasi Desktop</p>
-
-<ul>
-<li>Container</li>
-<li>Simple Widget</li>
-<li>Event Handling</li>
-<li>Data backed Widget</li>
-</ul>
-</li>
-<li><p>Hello Swing</p></li>
-<li><p>Container</p>
-
-<ul>
-<li><a href="http://docs.oracle.com/javase/tutorial/uiswing/components/frame.html">Frame</a></li>
-<li><a href="http://docs.oracle.com/javase/tutorial/uiswing/components/dialog.html">Dialog</a></li>
-<li><a href="http://docs.oracle.com/javase/tutorial/uiswing/components/applet.html">Applet</a></li>
-<li><a href="http://docs.oracle.com/javase/tutorial/uiswing/components/panel.html">Panel</a></li>
-</ul>
-</li>
-<li><p><a href="http://docs.oracle.com/javase/tutorial/uiswing/components/menu.html">Menu</a></p></li>
-<li><p><a href="http://docs.oracle.com/javase/tutorial/uiswing/layout/using.html">Layout Manager</a></p>
-
-<ul>
-<li><a href="http://docs.oracle.com/javase/tutorial/uiswing/layout/border.html">Border Layout</a></li>
-<li><a href="http://docs.oracle.com/javase/tutorial/uiswing/layout/grid.html">Grid Layout</a></li>
-<li>Flow Layout</li>
-</ul>
-</li>
-<li><p>Simple Component</p>
-
-<ul>
-<li>Text Field</li>
-<li>Button</li>
-<li>Checkbox</li>
-<li>Radio Button</li>
-</ul>
-</li>
-<li><p><a href="http://docs.oracle.com/javase/tutorial/uiswing/events/index.html">Event Handling</a></p>
-
-<ul>
-<li>ActionEvent</li>
-<li>MouseEvent</li>
-</ul>
-</li>
-<li><p>Complex Component</p>
-
-<ul>
-<li>Combo/Select</li>
-<li>List</li>
-</ul>
-</li>
-<li><p>Swing Table</p>
-
-<ul>
-<li>JTable</li>
-<li>TableModel</li>
-</ul>
-</li>
-<li><p><a href="http://docs.oracle.com/javase/tutorial/uiswing/concurrency/index.html">Concurrent Execution</a></p>
-
-<ul>
-<li>Swing Worker</li>
-<li>Progress Bar</li>
-</ul>
-</li>
-<li><p>Internationalization</p></li>
-<li><p>Jasper Report</p>
-
-<ul>
-<li>Parameter</li>
-<li>Variable</li>
-<li>Report Datasource</li>
-</ul>
-</li>
-<li><p>iReport</p></li>
-<li><p>Studi Kasus</p></li>
-<li><p>Requirement Specification</p>
-
-<ul>
-<li>Daftar Fitur</li>
-<li>Arsitektur</li>
-<li>Desain UI</li>
-<li>Desain Database</li>
-</ul>
-</li>
-<li><p>Implementasi Frame dan Menu</p></li>
-<li>Implementasi Dummy Screen</li>
-<li>Implementasi Proses Bisnis</li>
-<li>Implementasi Akses Database</li>
-<li>Implementasi Report</li>
-</ul>
-
-
-<p><a name="pemrograman-4"></a></p>
-
-<h1>Pemrograman 4 : Aplikasi Web</h1>
-
-<h2>Tujuan</h2>
-
-<ul>
-<li>Bisa membuat aplikasi web dengan arsitektur REST</li>
-<li>Bisa menggunakan penyimpanan data non-relasional</li>
-</ul>
-
-
-<h2>Referensi</h2>
-
-<ul>
-<li><a href="http://software.endy.muhardin.com/java/development-stack-2014/">Development Stack ArtiVisi</a></li>
-</ul>
-
-
-<h2>Kebutuhan Software Lab</h2>
-
-<ul>
-<li>Sama seperti Pemrograman 2</li>
-<li><a href="http://software.endy.muhardin.com/javascript/persiapan-coding-nodejs/">NodeJS dan Yeoman</a></li>
-</ul>
-
-
-<h2>Materi Kuliah</h2>
-
-<ul>
-<li>Java Web Application</li>
-<li>Servlet, Filter, Listener</li>
-<li>JSP &amp; JSTL</li>
-<li>Security</li>
-<li>REST</li>
-<li>AngularJS dan Twitter Bootstrap</li>
-<li>Redis</li>
-<li>MongoDB</li>
-<li>Case Study</li>
-</ul>
-
 ]]></content>
   </entry>
   

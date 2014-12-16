@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Tools untuk Continuous Integration sudah sering dibahas di sini. Ada CruiseControl, Luntbuild, dan Hudson. Apa yang begitu pentingnya dari proses ini &hellip;">
+  <meta name="description" content="Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,195 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/aplikasi-web-spring25-4/">Aplikasi Web Dengan Spring 2.5 [Bagian 4]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-17T17:21:58+07:00" pubdate data-updated="true">Jan 17<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara menangani upload file dengan Spring MVC versi 2.5. Di artikel selanjutnya baru kita akan bahas tentang state management.</p>
+
+<p>Studi kasus kita kali ini sederhana saja. Kita sudah punya aplikasi buku alamat sederhana pada rangkaian artikel sebelumnya. Kita sudah bisa <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-1/">menampilkan daftar data orang</a>, <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-2/">mengedit data yang sudah ada atau menambah data baru</a>, serta <a href="http://endy.artivisi.com/blog/java/aplikasi-web-spring25-3/">menggunakan template untuk header dan footer</a>. Kali ini kita akan membuat fasilitas import data berupa text file berformat Comma Separated Value (CSV).</p>
+
+<p>File yang akan kita import kira-kira berbentuk seperti ini:</p>
+
+<pre><code>Endy Muhardin,endy.muhardin@gmail.com
+Hadikusuma Wahab,dhiku@artivisi.com
+Ifnu Bima,ifnubima@gmail.com
+</code></pre>
+
+<p>Setelah file tersebut diupload, kita akan memasukkan masing-masing data ke dalam database. Setelah itu, user akan kita arahkan ke halaman daftar data orang, sehingga data yang baru saja diupload bisa dilihat.</p>
+
+<p>Untuk melakukan upload, kita harus membuat HTML form dengan <em>encoding type</em> multipart form data. Artinya, data kita akan dikirim melalui HTTP POST dalam beberapa bagian (multipart). Kira-kira mekanismenya mirip dengan mengirim attachment melalui email.</p>
+
+<p>Berikut adalah kode program HTMLnya.</p>
+
+<h3>personuploadform.html</h3>
+
+<pre><code>&lt;html&gt;
+
+&lt;head&gt;&lt;title&gt;:: Upload Person Data ::&lt;/title&gt;&lt;/head&gt;
+
+&lt;body&gt;
+
+&lt;h1&gt;Upload Person Data&lt;/h1&gt;
+
+&lt;form method="POST" enctype="multipart/form-data"&gt;
+
+&lt;table&gt;  
+  &lt;tr&gt;
+    &lt;td&gt;&lt;label for="file"&gt;Person Data&lt;/label&gt;&lt;/td&gt;
+    &lt;td&gt;&lt;input type="file" name="persondata"&gt;&lt;/td&gt;
+  &lt;/tr&gt;&lt;tr&gt;
+    &lt;td&gt; &lt;/td&gt;
+    &lt;td&gt;&lt;input type="submit" class="inputbutton" value="Upload"/&gt;&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/form&gt;
+
+&lt;/body&gt;
+
+&lt;/html&gt;
+</code></pre>
+
+<p>Perhatikan tag form. Di sana ada satu hal yang berbeda, yaitu <code>enctype="multipart/form-data"</code>. Semua aplikasi web yang ingin mengupload file harus membuat tag form seperti itu, apapun bahasa pemrograman yang digunakan. Ini sering menimbulkan kebingungan di kalangan pemula.</p>
+
+<blockquote><p>Saya sudah ikuti semua instruksi, tapi kenapa file yang diupload tidak terbaca?</p></blockquote>
+
+<p>Untuk menerima file, kita gunakan <code>input type="file"</code>.</p>
+
+<p>Selanjutnya masuk ke kode Java. Untuk menampilkan dan memproses form ini, kita buatkan class PersonUploadController. Bentuknya mirip dengan PersonFormController yang kemarin sudah kita buat. Ada method untuk menampilkan halaman form, dan ada method untuk memproses data yang dikirim user. Berikut class PersonUploadController.</p>
+
+<h3>PersonUploadController.java</h3>
+
+<pre><code>package tutorial.spring25.ui.springmvc;
+
+@Controller
+@RequestMapping("/personuploadform")
+public class PersonUploadController {
+  private static final Log LOG = LogFactory.getLog(PersonUploadController.class);
+  private PersonCSVParser personDataParser;
+  private PersonDao personDao;
+
+  @Autowired(required=true)
+  public void setPersonDao(PersonDao personDao) {
+    this.personDao = personDao;
+  }
+
+  @Autowired(required=true)
+  public void setPersonDataParser(PersonCSVParser personDataParser) {
+    this.personDataParser = personDataParser;
+  }
+
+  @RequestMapping(method=RequestMethod.GET)
+  public ModelMap displayForm(){
+    return new ModelMap();
+  }
+
+  @RequestMapping(method=RequestMethod.POST) 
+  public String processForm(@RequestParam("persondata") MultipartFile file) {
+    // parse file into list of strings
+    List contents = new ArrayList();
+    try {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+      String content = reader.readLine();
+      while(content != null) {
+
+        if("".equals(content)) {
+          content = reader.readLine();
+          continue;
+        }
+        contents.add(content);
+        content = reader.readLine();
+      }
+      reader.close();
+    } catch (IOException e) {
+      LOG.warn(e.getMessage(), e);
+    }
+
+    // parse list of strings into list of Persons
+    List persons = new ArrayList();
+    List errors = new ArrayList();
+    personDataParser.parse(contents, persons, errors);
+
+    for (Person person : persons) {
+      personDao.save(person);
+    }
+
+    return "redirect:personlist"
+  }
+}
+</code></pre>
+
+<p>Logika kode di atas tidak sulit. Untuk mendisplay form, praktis tidak ada yang perlu dilakukan. Kita cukup memberikan model kosong, karena form upload tidak membutuhkan data apa-apa.</p>
+
+<p>Pada saat memproses form, kita menerima parameter MultipartFile. Ini adalah file yang sudah diparsing oleh Spring. Parameter ini diambil dari input form dengan nama <code>persondata</code>.</p>
+
+<p>Supaya Spring bisa memisahkan file yang diupload dari keseluruhan HttpRequest, kita harus menyediakan resolver. Ada dua library yang biasa digunakan orang untuk memproses file upload, yaitu:</p>
+
+<ul>
+<li><a href="http://commons.apache.org/fileupload/">Jakarta Commons FileUpload</a></li>
+<li><a href="http://www.servlets.com/cos/">COS (com.oreilly.servlet)</a></li>
+</ul>
+
+
+<p>Spring mendukung kedua library. Saya biasanya menggunakan Jakarta Commons. Untuk mengaktifkan dukungan ini, kita perlu menambahkan resolver di konfigurasi DispatcherServlet.</p>
+
+<h3>tutorial-servlet.xml</h3>
+
+<pre><code>&lt;bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"&gt;
+  &lt;property name="maxUploadSize" value="1000000"/&gt;
+&lt;/bean&gt;
+</code></pre>
+
+<p>Setelah file didapat, kita lalu membaca isinya. Hanya operasi I/O standar di sini. Kita membuka <code>InputStream</code> yang dibungkus dengan <code>BufferedReader</code> yang memiliki method <code>readLine</code> yang praktis. Kemudian kita looping setiap baris. Jangan lupa untuk memeriksa baris kosong. Hasil pembacaan file kita simpan ke List<String> untuk pemrosesan selanjutnya.</p>
+
+<p>Pemrosesan String menjadi Person kita lakukan di class PersonCSVParser supaya ada pembagian tanggung jawab yang jelas. Memisahkan parser di class tersendiri akan memudahkan kita untuk mengetes kode parser tersebut.</p>
+
+<p>PersonCSVParser tidak ditampilkan di sini. Bagi yang ingin melihat kode programnya dapat langsung pergi ke <a href="http://hello-spring-25.googlecode.com/svn/trunk/src/java/tutorial/spring25/helper/PersonCSVParser.java">GoogleCode</a>. Demikian juga kelengkapannya, seperti:</p>
+
+<ul>
+<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/src/java/test/spring25/helper/PersonCSVParserTest.java">PersonCSVParserTest</a></li>
+<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/fixtures/person.csv">person.csv</a> : sampel data test, semua data normal</li>
+<li><a href="http://hello-spring-25.googlecode.com/svn/trunk/fixtures/person-with-malformed-emails.csv">person-with-malformed-emails.csv</a> : sampel data test, ada email yang formatnya salah</li>
+</ul>
+
+
+<p>Setelah data diproses menjadi kumpulan Person, kita looping lagi untuk menyimpan hasilnya ke database dengan menggunakan <code>personDao</code>.</p>
+
+<p>Terakhir, setelah semua selesai, kita redirect ke halaman daftar orang. Seharusnya kita menampilkan hasil upload. Mana data yang error, dan mana data yang sukses diimpor. Tapi materi ini membutuhkan pengetahuan tentang session, yang akan kita bahas pada artikel mendatang.</p>
+
+<p>Selamat mencoba.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2437,103 +2626,6 @@ Selain untuk bug aplikasi, saya biasanya menggunakan jenis issue ini untuk menca
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/pakai-ide-apa/">Pakai IDE Apa?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-11-02T17:09:52+07:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Posting ini dibuat untuk menanggapi diskusi di milis Netbeans.
-Saya menyarankan para programmer, daripada menghabiskan waktunya untuk memperdebatkan editor, lebih baik menginvestasikan waktu dan energi untuk memperdalam konsep.
-Ekstrimnya, coding dengan Notepad bila perlu.</p>
-
-<p>Salah satu <a href="http://www.antonraharja.web.id/">programmer hebat yang saya kenal</a>, sampai hari ini masih coding menggunakan editornya Midnight Commander (MC). Untuk urusan produktivitas, <a href="http://www.antonraharja.web.id/curriculum-vitae/">daftar hasil karyanya</a> lebih panjang daripada anda-anda yang berdebat Eclipse vs Netbeans.</p>
-
-<p>Dari keseluruhan hasil karyanya, perkiraan saya paling tidak 75% dibuat dengan editor MC. Dan aplikasi yang ada di sana adalah aplikasi betulan, bukan tugas kuliah, bukan skripsi.</p>
-
-<p>Editor Midnight Commander, kalau ingin tau, terlihat seperti ini:</p>
-
-<p><img src="/images/uploads/2007/11/mcedit.png" title="Tampilan Editor MC" ></p>
-
-<p>Tidak ada autocomplete, tidak bisa mouse over terus keluar JavaDoc, tidak bisa klik kanan - Deploy in Tomcat.</p>
-
-<p>Komentar di milis Netbeans tentang coding pakai editor seperti ini:</p>
-
-<blockquote><p>waduh pake notepad&#8230; be-darah2 itu mah codingnyah</p></blockquote>
-
-<p>Not really &#8230; gak juga kok.
-Memang lebih lambat daripada pakai Eclipse/Netbeans, soalnya kalo ada syntax error baru ketahuan setelah compile.</p>
-
-<p>Workflownya mirip dengan coding PHP.
-Edit kodenya, save, refresh browser.</p>
-
-<p>Kalau Java, edit, save, Alt-Tab ke konsol, ant compile.
-Nanti kan keluar pesan errornya di baris berapa.</p>
-
-<p>Buat yang belum merasakan, memang terkesan seperti latihan kungfu di Shaolin.
-Keras dan melelahkan.</p>
-
-<p>Tapi ada hasilnya:</p>
-
-<ul>
-<li><p>Bebas mau pakai IDE apa aja. <br/>
-Bisa pakai the right tools for the right job. Spring development, pakai Eclipse. Desktop development, pakai Netbeans. Bikin aplikasi desktop yang mengakses Webservice, pakai 2-2nya</p></li>
-<li><p>Lebih jeli dalam mendebug. <br/>
-Sampai saat ini, sebagian besar XML code harus didebug manual, karena memang by nature sulit untuk disupport IDE. Development jaman sekarang, pasti harus melibatkan XML. Dengan coding pakai editor minimalis, kita akan terbiasa melihat error message dan mengartikannya.</p></li>
-<li><p>Lebih mudah mempelajari teknik automation, misalnya Continuous Integration (CI). <br/>
-Soalnya CI itu mengharuskan kita bisa compile tanpa IDE. Buat yang tidak terbiasa (apalagi lulusan VB/Delphi), pasti akan kaget, bagaimana bisa compile tanpa IDE?</p></li>
-<li><p>Lebih cepat belajar bahasa pemrograman baru.<br/>
-Kalau kita terbiasa coding pakai IDE, begitu belajar bahasa baru, hal pertama yang kita pikirkan adalah, &#8220;IDE-nya pakai apa ya??&#8221;. Lalu menghabiskan dua minggu debat di milis, baru pilih salah satu. Download butuh waktu 2 hari. Setelah terinstal, baca Help setengah jam, baru tau cara bikin file baru. Setelah coding Hello World, bingung cari tombol Compile dan Run, 2 jam lagi untuk baca Help. Notepad coder tidak. Langsung buka apapun editor yang tersedia, mulai coding dan compile via command-line. Pada saat IDE-code baru bisa menjalankan Hello World, Notepad-coder sudah paham tentang <a href="http://en.wikipedia.org/wiki/Duck_typing">duck-typing</a>.</p></li>
-</ul>
-
-
-<p>Satu pertanyaan yang selalu saya ajukan kalau ada yang tanya tentang IDE, RAD tools, dan sejenisnya.</p>
-
-<blockquote><p>&#8220;Apakah ini coding untuk belajar, atau coding untuk mencari nafkah??&#8221;</p></blockquote>
-
-<p>Kalau jawabannya belajar, entah itu mahasiswa, atau pro yang belajar framework baru, gunakan tools sesedikit mungkin.</p>
-
-<p>Alasannya adalah, karena tujuan kita untuk paham, bukan untuk selesai.
-Semakin banyak/canggih tools yang digunakan, pemahaman semakin minim.
-Tambahan lagi, kalau ada error (yang mana akan sering terjadi, namanya juga lagi belajar) sulit membedakan error karena salah pakai tools, atau error di kode program kita.</p>
-
-<p>Belajar Spring AOP dengan Notepad, tidak mungkin notepad yang salah, pasti kode kita.
-Belajar Spring AOP dengan Netbeans/Eclipse, ada kemungkinan tools tersebut salah loading classpath, punya asumsi sendiri tentang struktur folder, dsb.</p>
-
-<p>Kalau jawabannya untuk mencari nafkah, gunakan tools tercanggih yang bisa diperoleh dengan halal.
-Hal ini hanya mungkin jika kita tidak terikat pada tools tertentu.
-Tidak akan bisa coding desktop dengan Netbeans, kemudian buka Eclipse untuk coding server-side backend.</p>
-
-<p>Demikian saran dari saya.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/15/">&larr; Older</a>
@@ -2610,6 +2702,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/mengapa-kita-membuat-class/">Mengapa kita membuat class</a>
+      </li>
+    
+      <li class="post">
         <a href="/manajemen/pembagian-kerja-dalam-programming/">Pembagian Kerja dalam Programming</a>
       </li>
     
@@ -2643,10 +2739,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
-      </li>
-    
-      <li class="post">
-        <a href="/manajemen/aplikasi-prakarya-vs-aplikasi-production/">Aplikasi Prakarya vs Aplikasi Production</a>
       </li>
     
   </ul>

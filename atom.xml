@@ -4,7 +4,7 @@
   <title><![CDATA[Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2014-10-25T09:49:22+07:00</updated>
+  <updated>2014-12-16T15:38:28+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,180 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Mengapa kita membuat class]]></title>
+    <link href="http://software.endy.muhardin.com/java/mengapa-kita-membuat-class/"/>
+    <updated>2014-12-16T15:26:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/java/mengapa-kita-membuat-class</id>
+    
+    
+        <summary type="html"><![CDATA[<p>Ada pertanyaan di <a href="https://www.facebook.com/groups/ForumJavaIndonesia/">grup Facebook</a> yang cukup menarik untuk kita bahas di sini. Sample code yang ditanyakan saya modifikasi sedikit supaya lebih cocok.</p>
+
+<h2>Class Mahasiswa</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Mahasiswa</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">String</span> <span class="n">nama</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Date</span> <span class="n">tanggalLahir</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">JenisKelamin</span> <span class="n">jenisKelamin</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// getter setter</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">enum</span> <span class="n">JenisKelamin</span><span class="o">{</span>
+</span><span class='line'>    <span class="n">PRIA</span><span class="o">,</span> <span class="n">WANITA</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class SimpanMahasiswaServlet</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpanMahasiswaServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">MahasiswaDao</span> <span class="n">md</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MahasiswaDao</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">resp</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">Mahasiswa</span> <span class="n">m</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Mahasiswa</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">m</span><span class="o">.</span><span class="na">setNama</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;nama&quot;</span><span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">SimpleDateFormat</span> <span class="n">formatTanggal</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;yyyy-MM-dd&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">m</span><span class="o">.</span><span class="na">setTanggalLahir</span><span class="o">(</span><span class="n">formatTanggal</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;tanggal&quot;</span><span class="o">)));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">m</span><span class="o">.</span><span class="na">setJenisKelamin</span><span class="o">(</span><span class="n">JenisKelamin</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;jenis&quot;</span><span class="o">)));</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">md</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">m</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class MahasiswaDao</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MahasiswaDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">Mahasiswa</span> <span class="n">m</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;INSERT INTO mahasiswa values (?,?,?)&quot;</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">koneksi</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">ps</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">m</span><span class="o">.</span><span class="na">getNama</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">ps</span><span class="o">.</span><span class="na">setDate</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">Date</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">getTanggalLahir</span><span class="o">().</span><span class="na">getTime</span><span class="o">()));</span>
+</span><span class='line'>        <span class="n">ps</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">m</span><span class="o">.</span><span class="na">getJenisKelamin</span><span class="o">().</span><span class="na">name</span><span class="o">());</span>
+</span><span class='line'>        <span class="n">ps</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>Pertanyaan : Lebih kenceng mana contoh kode di atas (menggunakan class Mahasiswa) dibandingkan langsung saja pakai Map/Array ?</p></blockquote>
+
+<p>Supaya lebih jelas, berikut contoh yang pakai array.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpanMahasiswaServlet</span> <span class="kd">extends</span> <span class="n">HttpServlet</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">MahasiswaDao</span> <span class="n">md</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MahasiswaDao</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doPost</span><span class="o">(</span><span class="n">HttpServletRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">HttpServletResponse</span> <span class="n">resp</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">String</span><span class="o">[]</span> <span class="n">m</span> <span class="o">=</span> <span class="k">new</span> <span class="n">String</span><span class="o">[</span><span class="mi">3</span><span class="o">];</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">m</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;nama&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">m</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;tanggal&quot;</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">m</span><span class="o">[</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">&quot;jenis&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">md</span><span class="o">.</span><span class="na">simpan</span><span class="o">(</span><span class="n">m</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Class MahasiswaDao</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MahasiswaDao</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">simpan</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">m</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">String</span> <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;INSERT INTO mahasiswa values (?,?,?)&quot;</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">PreparedStatement</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">koneksi</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="n">sql</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">m</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">m</span><span class="o">++){</span>
+</span><span class='line'>            <span class="n">ps</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">m</span><span class="o">[</span><span class="n">i</span><span class="o">]);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">ps</span><span class="o">.</span><span class="na">executeUpdate</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Pembuatan class <code>Mahasiswa</code> di atas merupakan salah satu implementasi prinsip <code>encapsulation</code> dalam OOP. Class <code>Mahasiswa</code> disebut dengan istilah domain class, yaitu class yang dibuat untuk memodelkan kasus yang akan dibuat.</p>
+
+]]></summary>
+    
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Pembagian Kerja dalam Programming]]></title>
@@ -511,35 +685,6 @@ Nah saya yakin kebingungan ini juga akan dialami oleh rekan-rekan yang baru bela
         <summary type="html"><![CDATA[<p>Pada artikel terdahulu, kita telah membahas tentang <a href="http://software.endy.muhardin.com/life/lan-na-zha/">pentingnya penguasaan terhadap konsep dasar</a>. Kali ini, kita akan membahas tentang konsep dasar aplikasi web di Java. Ini juga akan menjawab pertanyaan yang sering ditanyakan di forum yaitu</p>
 
 <blockquote><p>Saya ingin belajar Java Enterprise Edition (Java EE), apa yang pertama harus saya pelajari?</p></blockquote>
-
-]]></summary>
-    
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Source Code Milik Siapa ?]]></title>
-    <link href="http://software.endy.muhardin.com/life/source-code-milik-siapa/"/>
-    <updated>2014-01-08T21:31:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/life/source-code-milik-siapa</id>
-    
-    
-        <summary type="html"><![CDATA[<p>Malam ini, saya mendapatkan pertanyaan menarik di milis komunitas programmer. Berikut isinya.</p>
-
-<blockquote><p>hello all,</p>
-
-<p>saya mau tanya, ketika kita bekerja di suatu perusahaan base on project single programmer, yang semua dikerjakan sendiri, dari mulai analis sampai coding, apakah source code hasil kerja kita adalah milik perusahaan? atau milik programmer ybs?</p>
-
-<p>karena source code itu kita yang buat dari awal hingga menjadi suatu sistem aplikasi, programmer dikecewakan dianggap tidak memenuhi target atau alasan lain, saat tiba waktu deadline pimpinan perusahaan marah2 bentak2 kemudian dengan gampang perusahaan meminta source yang kita kerjakan? padahal programmer tsb sudah menyelesaikan pekerjaannya</p>
-
-<p>sebagai programmer akhibat dikecewakan demi mempertahankan harga diri, akhirnya resign dan rela keluar dari perusahaan alias nganggur, programmer tidak rela memberikan source yg mjd hasil karyanya sendiri begitu saja</p>
-
-<p>apakah ada hukum kemudian terjadi tuntutan perusahaan ke programmer untuk meminta source code tersebut ?</p>
-
-<p>apakah source code hasil coding programmer adalah termasuk Hak Cipta Programmer?</p>
-
-<p>mohon sharingnya, thanks</p></blockquote>
-
-<p>Berikut tanggapan saya</p>
 
 ]]></summary>
     
