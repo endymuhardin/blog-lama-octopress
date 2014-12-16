@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Belajar membuat aplikasi web belum lengkap tanpa tahu caranya mengupload file dan mengelola state. Pada artikel ini kita akan belajar tentang cara &hellip;">
+  <meta name="description" content="Dulu saya pernah menulis tentang backup script Subversion untuk Linux, maupun untuk Windows. Sayangnya, script tersebut hanya bisa digunakan untuk &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,91 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/svn-parentpath-backup/">Another Subversion Backup Script</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2008-01-18T01:05:30+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2008</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dulu saya pernah menulis tentang <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-dan-restore/">backup script Subversion untuk Linux</a>, maupun <a href="http://endy.artivisi.com/blog/aplikasi/subversion-backup-script-untuk-windows/">untuk Windows</a>. Sayangnya, script tersebut hanya bisa digunakan untuk satu repository saja.</p>
+
+<p>Biasanya saya menghosting beberapa Subversion repository sekaligus, dipublikasikan menggunakan Apache dengan konfigurasi <code>SVNParentPath</code>. Setidaknya ada 10 repository yang saya kelola, sehingga untuk mengkonfigurasi backup otomatisnya cukup melelahkan juga.</p>
+
+<p>Oleh karena itu, saya membuat backup script lagi. Kali ini mampu menangani satu folder yang berisi banyak repository. Berikut scriptnya, masih dalam bahasa Ruby.</p>
+
+<h3>subversion-repos-full-backup.rb</h3>
+
+<pre><code>require 'zlib'
+
+if ARGV.length &lt; 2
+  puts "Usage : ruby full-backup.rb &lt;SVNParentPath folder&gt; &lt;backupfolder&gt;"  
+  exit
+end
+
+# some configuration
+svn_parent_path = ARGV[0]
+backup_folder = ARGV[1]
+
+# variable initialization
+current_date = Time.now.strftime("%Y%m%d")
+
+Dir.foreach(svn_parent_path) { |repo| 
+    next if('.' == repo || '..' == repo)
+    puts "Start to process folder : "+repo
+
+    puts "Performing svndump"
+    repo_name = svn_parent_path + File::SEPARATOR + repo
+    dumpfile_name = repo + '-' +current_date + '.dmp'
+    dumpfile = backup_folder + File::SEPARATOR + dumpfile_name
+
+    `svnadmin dump #{repo_name} &gt; #{dumpfile}`
+
+    puts "Compressing dumpfile"
+    Zlib::GzipWriter.open(dumpfile+".gz") do |gz|
+      gz.write(File.read(dumpfile))
+    end
+
+
+    puts "Deleting uncompressed file"
+    File.delete(dumpfile)
+}
+</code></pre>
+
+<p>Cara menjalankannya tidak sulit, cukup panggil dia melalui command prompt:</p>
+
+<pre><code>ruby subversion-repos-full-backup.rb /path/ke/repos /path/ke/backup-folder
+</code></pre>
+
+<p>Semoga bermanfaat</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2442,190 +2527,6 @@ Pertama, kita perlu mengaktifkan transaksi database untuk mengubah isi database.
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/aplikasi/redmine/">Mengelola Proyek Dengan Redmine</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-11-07T15:33:55+07:00" pubdate data-updated="true">Nov 7<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.redmine.org/">Redmine</a> adalah aplikasi manajemen proyek yang dibuat menggunakan framework Ruby on Rails.
-Pada saat artikel ini ditulis, Redmine sudah mencapai versi 0.5.1 yang dirilis 15 Juli 2007.</p>
-
-<p>Selain Redmine, banyak juga aplikasi manajemen proyek lainnya, misalnya:</p>
-
-<ul>
-<li><p><a href="http://www.activecollab.com/">ActiveCollab</a> (dulu gratis sekarang bayar)</p></li>
-<li><p><a href="http://trac.edgewall.org/">Trac</a></p></li>
-<li><p><a href="http://www.basecamphq.com/">BaseCamp</a> (hanya bisa diakses di websitenya, tidak bisa diinstal lokal)</p></li>
-<li><p><a href="http://www.dotproject.net/">DotProject</a></p></li>
-</ul>
-
-
-<p>Redmine mendukung multiple project. Jadi kita bisa menginstal Redmine di perusahaan untuk mengelola semua proyek yang sedang berjalan.</p>
-
-<p>Untuk pengelolaan proyek, Redmine memiliki Gantt chart dan Calendar. Untuk mengelola dokumentasi proyek, kita bisa menggunakan wiki yang sudah tersedia. Tugas dibagikan pada team member dengan menggunakan konsep issue yang akan dijelaskan di bawah. Kita bahkan bisa melihat kode program yang sudah dibuat menggunakan version control browser. Saat ini Redmine dapat melihat isi repository Subversion, CVS, Mercurial, dan Darcs.</p>
-
-<p>Pertama, kita <a href="http://dhiku.wordpress.com/2007/10/23/installing-redmine-di-windows/">instal dulu Redmine</a>.</p>
-
-<p>Selanjutnya, mari kita langsung saja menggunakan Redmine.</p>
-
-<p>Setelah Redmine terinstal, kita dapat langsung membuka browser dan melihat halaman depan Redmine. Segera klik tombol Login untuk masuk ke dalam sistem.</p>
-
-<p><img src="/images/uploads/2007/11/redmine-login.png" title="Login Screen" ></p>
-
-<p>Default username dan passwordnya adalah admin/admin. Segera masuk ke halaman My Account untuk mengganti password administrator.</p>
-
-<h3>Membuat user</h3>
-
-<p>Buat user baru melalui menu Administration > Users > New.</p>
-
-<p><img src="/images/uploads/2007/11/new-user.png" title="Menu New User" ></p>
-
-<p>Isi informasi yang sesuai di halaman form user baru.</p>
-
-<p><img src="/images/uploads/2007/11/new-user-form.png" title="Form User" ></p>
-
-<p>Jangan lupa untuk membuat beberapa user, agar bisa digunakan di</p>
-
-<h3>Membuat project</h3>
-
-<p>Selanjutnya, kita mendefinisikan project. Buat project baru melalui menu Administration > Projects > New.
-Isi informasi tentang project.</p>
-
-<p><img src="/images/uploads/2007/11/new-project-summary.png" title="Project Summary" ></p>
-
-<p>Isikan juga informasi tentang version control bila ada.</p>
-
-<p>Berikutnya, tentukan anggota project. Tentu saja saja anggota ini sudah harus didaftarkan dulu seperti pada langkah sebelumnya.</p>
-
-<p><img src="/images/uploads/2007/11/project-member.png" title="Assign Member" ></p>
-
-<p>Setelah itu, kita tentukan Version dalam proyek. Version ini bisa iterasi, atau fase, tergantung dari siklus pengembangan yang kita gunakan dalam proyek. Version ini nantinya digunakan sebagai target penyelesaian suatu issue.</p>
-
-<p><img src="/images/uploads/2007/11/version.png" title="Project Version" ></p>
-
-<p>Di halaman selanjutnya, kita akan menentukan kategori untuk issue. Semua tugas di dalam Redmine disebut Issue. Ada tiga jenis issue:</p>
-
-<ul>
-<li><p>Feature: Ini digunakan untuk membuat semacam To Do List untuk fitur yang akan dibuat dalam proyek kita.</p></li>
-<li><p>Bug: Ini digunakan untuk mencatat dan melacak status penyelesaian defect dalam proyek kita.
-Selain untuk bug aplikasi, saya biasanya menggunakan jenis issue ini untuk mencatat</p>
-
-<ul>
-<li><p>Resiko Proyek</p></li>
-<li><p>Kesalahan dokumen (salah requirement, revisi project schedule, dsb)</p></li>
-<li><p>Masalah yang terjadi dalam proyek</p></li>
-<li><p>Support: fitur ini tidak saya gunakan. Mungkin ini ditujukan untuk pertanyaan dari user yang belum tentu bug.</p></li>
-</ul>
-</li>
-</ul>
-
-
-<p>Saya menggunakan kategori berikut untuk issue:</p>
-
-<ul>
-<li><p>Project Document: Dokumentasi project seperti schedule, progress report, dsb</p></li>
-<li><p>Functional Specification: spesifikasi aplikasi yang ingin dibuat, sering disebut juga dengan dokumen analisa</p></li>
-<li><p>Technical Specification: spesifikasi tentang bagaimana cara membuatnya, sering disebut juga dengan dokumen desain</p></li>
-<li><p>User Documentation: segala issue yang berkaitan dengan dokumen user manual</p></li>
-<li><p>Business Layer: komponen logika bisnis dari aplikasi</p></li>
-<li><p>User Interface Layer: komponen tampilan aplikasi</p></li>
-<li><p>Data Access Layer: komponen aplikasi yang berinteraksi dengan database</p></li>
-</ul>
-
-
-<p>Persiapan project selesai. Sekarang kita bisa langsung membuat daftar pekerjaan. Melalui menu, klik Nama Project > New Issue > Feature.</p>
-
-<p><img src="/images/uploads/2007/11/new-feature.png" title="New Feature" ></p>
-
-<p>Kita bisa daftarkan tugas yang harus dilakukan dengan mengisi informasi pada formnya. Setelah diisi, tekan Save dan lihat hasilnya pada tampilan daftar issue.</p>
-
-<p><img src="/images/uploads/2007/11/list-issue.png" title="List of Issue" ></p>
-
-<p>Issue yang sudah didaftarkan dapat dilacak pengerjaannya. Dari tampilan daftar issue, klik nama issue sehingga muncul tampilan detailnya.</p>
-
-<p><img src="/images/uploads/2007/11/detail-issue.png" title="Detail Issue" ></p>
-
-<p>Kita bisa klik Log Time untuk memasukkan waktu yang sudah kita gunakan untuk menyelesaikan issue tersebut.</p>
-
-<p><img src="/images/uploads/2007/11/log-time.png" title="Log Time" ></p>
-
-<p>Isikan jumlah jam yang digunakan, misalnya 2 jam, lalu klik Save. Selanjutnya kita akan diarahkan ke halaman Spent Time. Halaman ini menunjukkan jumlah waktu yang sudah digunakan untuk berbagai task dalam project. Kita bisa melihat jumlah waktu untuk satu task saja ataupun keseluruhan project.</p>
-
-<p>Sekarang kita sudah memiliki beberapa issue yang terdaftar. Data tersebut ditampilkan oleh Redmine dalam berbagai bentuk, misalnya:</p>
-
-<h4>Calendar</h4>
-
-<p><img src="/images/uploads/2007/11/calendar.png" title="Calendar" ></p>
-
-<h4>Gantt Chart</h4>
-
-<p><img src="/images/uploads/2007/11/gantt.png" title="Gantt Chart" ></p>
-
-<h4>Report</h4>
-
-<p><img src="/images/uploads/2007/11/report.png" title="Report" ></p>
-
-<h4>Activity</h4>
-
-<p><img src="/images/uploads/2007/11/activity.png" title="Activity" ></p>
-
-<h4>Roadmap</h4>
-
-<p><img src="/images/uploads/2007/11/roadmap.png" title="Roadmap" ></p>
-
-<p>Untuk tampilan Activity dan Roadmap mirip sekali dengan Trac. Activity di Trac disebut dengan Timeline. Entah disengaja atau tidak, dari tampilan sampai cara kerjanya tidak dapat dibedakan. Silahkan lihat sendiri.</p>
-
-<h4>Timeline Trac</h4>
-
-<p><img src="/images/uploads/2007/11/timeline-trac.png" title="Timeline ala Trac" ></p>
-
-<h4>Roadmap Trac</h4>
-
-<p><img src="/images/uploads/2007/11/roadmap-trac.png" title="Roadmap ala Trac" ></p>
-
-<p>Kita juga bisa melihat isi repository Subversion kita.
-<img src="/images/uploads/2007/11/repo-browser.png" title="Repo Browser" ></p>
-
-<p>Seperti repo browser lainnya, kita bisa melihat perbandingan antara dua versi file yang berbeda.
-<img src="/images/uploads/2007/11/diff-inline.png" title="Inline Diff" ></p>
-
-<p>Perbedaan ini bisa ditampilkan secara inline seperti gambar di atas, atau secara berdampingan seperti ini.</p>
-
-<p><img src="/images/uploads/2007/11/diff-byside.png" title="Side by Side Diff" ></p>
-
-<p>Demikianlah sekilas tentang aplikasi Redmine. Masih banyak fitur Redmine yang belum dieksplorasi, misalnya wiki, document management, dan file management. Mengingat umurnya yang masih muda, besar harapan Redmine akan semakin canggih di masa yang akan datang.</p>
-
-<p>Dengan menggunakan aplikasi ini, kita dapat mengelola berbagai aspek dalam manajemen proyek kita secara terpusat. Redmine gratis dan mudah diinstal, jadi tunggu apa lagi &#8230; segera gunakan.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/15/">&larr; Older</a>
@@ -2702,6 +2603,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/scope-variabel/">Scope Variabel</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mengapa-kita-membuat-class/">Mengapa kita membuat class</a>
       </li>
     
@@ -2735,10 +2640,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/desain-skema-database/">Desain Skema Database</a>
-      </li>
-    
-      <li class="post">
-        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
       </li>
     
   </ul>

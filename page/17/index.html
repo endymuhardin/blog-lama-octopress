@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Posting ini saya tulis karena di milis JUG sedang rame membahas tentang boleh tidaknya karyawan nyambi. Sepanjang karir saya, urusan nyambi telah &hellip;">
+  <meta name="description" content="Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,430 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/java/remoting-dengan-spring/">Remoting Dengan Spring</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2007-04-17T00:49:19+07:00" pubdate data-updated="true">Apr 17<span>th</span>, 2007</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Aplikasi yang kita buat, tidak hanya digunakan oleh manusia. Ada kalanya aplikasi yang kita buat akan diakses oleh aplikasi orang lain. Jadi, user atau pengguna aplikasi kita bukanlah orang, melainkan mesin. Dalam hal ini, aplikasi kita dapat disebut dengan aplikasi server yang menyediakan service bagi aplikasi client.</p>
+
+<p>Bagaimana caranya agar aplikasi kita dapat digunakan oleh aplikasi lain? Caranya tentunya dengan menyediakan antarmuka yang sesuai bagi masing-masing aplikasi client. Ada banyak bahasa yang dijadikan patokan dalam komunikasi antar aplikasi. Beberapa protokol yang umum digunakan adalah:</p>
+
+<ul>
+<li><p>CORBA</p></li>
+<li><p>RMI (khusus Java)</p></li>
+<li><p>SOAP</p></li>
+<li><p>XML-RPC</p></li>
+<li><p>Hessian</p></li>
+<li><p>Burlap</p></li>
+<li><p>dan masih banyak yang lainnya</p></li>
+</ul>
+
+
+<p>Dengan cara tradisional, menyediakan antarmuka untuk masing-masing protokol ini cukup rumit. Selain harus mengerti protokolnya, kita juga harus menulis banyak kode untuk memformat data kita mengikuti aturan yang ditetapkan protokol tersebut. Kita juga harus menulis kode program agar dapat menerima data dalam protokol yang kita ingin sediakan.</p>
+
+<p><a href="http://www.springframework.org">Spring Framework</a> menyediakan library pembantu bagi kita agar kita dapat menyediakan akses dalam protokol tersebut dengan mudah. Bagaimana caranya, mari kita bahas dalam artikel ini.</p>
+
+<p>Sebagai contoh sederhana, misalnya kita ingin menyediakan layanan untuk mengambil data Person. Untuk menyederhakan masalah, Person hanya mengandung data nama dan email saja.</p>
+
+<h3>Person.java</h3>
+
+<pre><code>package tutorial.remoting;
+
+public class Person implements java.io.Serializable {
+    private String name;
+    private String email;
+
+    public Person() {
+        this("", "");
+    }
+
+    public Person(String name, String email){
+        this.name = name;
+        this.email = email;
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public String getEmail(){
+        return email;
+    }
+
+    public String toString(){
+        return name + " : " + email;
+    }
+}
+</code></pre>
+
+<p>Perhatikan bahwa kita harus mendefinisikan Person sebagai object yang Serializable. Ini penting agar object ini bisa ditransfer melalui jaringan.</p>
+
+<p>Kemudian, kita sediakan interface yang mendefinisikan layanan yang ingin kita sediakan bagi aplikasi lain. Kita sebut saja interface ini sebagai PersonService.</p>
+
+<h3>PersonService.java</h3>
+
+<pre><code>package tutorial.remoting;
+
+import java.util.List;
+
+public interface PersonService {    
+    public Person get(int id);
+    public List getAllPerson();
+} 
+</code></pre>
+
+<p>PersonService ini nantinya bisa kita implementasi sesuai dengan kebutuhan. Kita bisa mengambil datanya dari database, dari phonebook handphone, atau bahkan dari aplikasi lain. Agar contoh kodenya lebih sederhana, kita buat saja implementasinya dengan ArrayList. Para pembaca nanti bisa mencoba dengan implementasi lain yang lebih hi-tech seperti Hibernate atau OpenJPA.</p>
+
+<p>Berikut adalah implementasi dari PersonService, kita sebut saja PersonServiceImpl.</p>
+
+<h3>PersonServiceImpl.java</h3>
+
+<pre><code>package tutorial.remoting.remote;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import tutorial.remoting.Person;
+import tutorial.remoting.PersonService;
+
+public class PersonServiceImpl implements PersonService {
+
+    private List allPerson = new ArrayList();
+
+    public PersonServiceImpl(){
+        Person p = new Person("Endy Muhardin", "endy@artivisi.com");
+        Person p1 = new Person("Maya Mujawati", "moedja@yahoo.com");
+        allPerson.add(p);
+        allPerson.add(p1);
+    }
+
+    public Person get(int id){
+        if (id &gt;= allPerson.size()) return null;
+        return (Person) allPerson.get(id);
+    }
+
+    public List getAllPerson(){
+        return allPerson;
+    }
+} 
+</code></pre>
+
+<p>Seperti kita lihat di atas, tidak ada yang istimewa dengan kode program di atas. Bahkan validasi untuk field id pun tidak kita sediakan. Tentu saja kalau kita berikan masukan angka 2 atau lebih pada method public Person get(int id) akan terjadi ArrayIndexOutOfBoundException.</p>
+
+<p>Selesai sudah &#8230; sekarang kode tersebut dapat diakses oleh aplikasi lain.</p>
+
+<p>Apa?? Saya mendengar ada suara-suara kurang puas dari penonton.. Coba lebih keras??</p>
+
+<blockquote><p>Bagaimana cara mengaksesnya dari aplikasi client? Nampaknya belum ada kode program apa-apa untuk menyediakan layanan webservice. Mana bisa dibilang selesai?</p></blockquote>
+
+<p>Ok .. baiklah, memang ada satu langkah lagi. Yaitu mempublikasikan interface tersebut agar bisa diakses orang banyak. Kita akan sediakan akses melalui tiga protokol, yaitu:</p>
+
+<ol>
+<li><p>RMI</p></li>
+<li><p>Hessian</p></li>
+<li><p>Burlap</p></li>
+</ol>
+
+
+<blockquote><p>Tiga protokol?? Apa tidak terlalu ambisius? Nanti saya pusing baca kode sekian banyak.</p></blockquote>
+
+<p>Demikian terdengar komentar dari penonton. Hmm &#8230; penonton Indonesia memang terlalu banyak protes.</p>
+
+<p>Tenang saja. Kita akan gunakan Spring untuk mempublikasikan aplikasi kecil kita ini. Saya akan buktikan bahwa kodenya sedikit dan mudah dipahami. Sekarang, mari kita mulai dengan mempublikasikan protokol RMI. Di masa lalu, untuk menyediakan layanan ini, paling tidak kita harus:</p>
+
+<ol>
+<li><p>mengkompilasi stub</p></li>
+<li><p>mengkompilasi skeleton</p></li>
+<li><p>mengkonfigurasi Security setting</p></li>
+<li><p>menjalankan RMIRegistry</p></li>
+<li><p>mendaftarkan objek PersonServiceImpl ke RMIRegistry</p></li>
+<li><p>memberikan stub ke aplikasi client</p></li>
+</ol>
+
+
+<p>Sekarang tidak lagi. Kita cukup mendaftarkan interface PersonService, implementasi PersonServiceImpl di konfigurasi Spring. Berikut adalah isi file remote-ctx.xml</p>
+
+<h3>remote-ctx.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;
+    &lt;bean id="personServiceTarget" class="tutorial.remoting.remote.PersonServiceImpl"/&gt;
+
+    &lt;bean class="org.springframework.remoting.rmi.RmiServiceExporter"&gt;        
+        &lt;property name="serviceName" value="PersonRmiService"/&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;  
+        &lt;property name="registryPort" value="4321"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Hanya dengan membaca file XML di atas, kita sudah bisa menduga apa yang terjadi. Kita mempublikasikan layanan yang didefinisikan pada interface PersonService pada port 4321 dengan nama layanan PersonRmiService. Di sisi server, layanan ini akan disediakan oleh objek personServiceTarget yang merupakan instan dari class PersonServiceImpl. Kita memanfaatkan class RmiServiceExporter yang dimiliki Spring.</p>
+
+<p>Untuk menjalankan aplikasi kecil kita, buat sebuah class sederhana untuk mengaktifkan Spring Framework. Berikut adalah kode programnya.</p>
+
+<h3>PersonRmiService.java</h3>
+
+<pre><code>package tutorial.remoting.server;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class PersonRmiService {
+    public static void main(String[] xx) {
+        ApplicationContext ctx = 
+        new FileSystemXmlApplicationContext("webapp/WEB-INF/remote-ctx.xml");
+    }
+}
+</code></pre>
+
+<p>Silahkan jalankan class di atas. Asal classpath sudah disetting dengan benar, kita siap mengaksesnya dari client.
+Kita juga akan menggunakan bantuan dari Spring Framework untuk menemukan dan menginisialisasi layanan RMI yang berada di port 4321. Berikut adalah konfigurasi Spring di sisi client.</p>
+
+<h3>client-ctx.xml</h3>
+
+<pre><code>&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;    
+    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Berikut adalah kode program untuk mengakses RMI service kita.</p>
+
+<h3>Main.java</h3>
+
+<pre><code>package tutorial.remoting.client;
+
+import java.util.List;
+
+import tutorial.remoting.PersonService;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class Main {
+    public static void main(String[] args){
+        // initialize application context
+        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
+
+        // accessing RMI service
+        System.out.println("======= Accessing RMI Service ==========");
+        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
+        List all1 = ps1.getAllPerson();
+        for(int i=0; i&lt;all1.size(); i++) {
+            System.out.println(all1.get(i));
+        }
+}
+</code></pre>
+
+<p>Perhatikan konsol, dan saksikan RMI service kita sudah dieksekusi dengan sukses.</p>
+
+<p>Sekarang, kita publikasikan melalui protokol <a href="http://www.caucho.com/resin-3.0/protocols/hessian.xtp">Hessian</a> dan <a href="http://www.caucho.com/resin-3.0/protocols/burlap.xtp">Burlap</a>. Protokol ini adalah hasil karya Caucho untuk mempublikasikan service di atas protokol HTTP. Hessian menggunakan format binary, sedangkan Burlap menggunakan format XML.</p>
+
+<p>Karena berbasis HTTP, maka kita perlu menggunakan HTTP Server yang mendukung Java (khususnya Servlet). Kita bisa gunakan Tomcat atau Jetty. Yang jelas, kita perlu mendeklarasikan servlet untuk melayani client. Deklarasi dibuat di dalam file web.xml sebagai berikut.</p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+
+&lt;!DOCTYPE web-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd"&gt;
+
+&lt;web-app&gt;
+
+    &lt;context-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;
+            /WEB-INF/remote-ctx.xml
+        &lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+        &lt;load-on-startup&gt;2&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;remoting&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/remoting/*&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+    &lt;session-config&gt;
+        &lt;session-timeout&gt;10&lt;/session-timeout&gt;
+    &lt;/session-config&gt;
+
+
+&lt;/web-app&gt;
+</code></pre>
+
+<p>Kita membutuhkan satu file konfigurasi untuk mengkonfigurasi layanan Hessian dan Burlap. Berikut adalah isi file remoting-servlet.xml.</p>
+
+<h3>remoting-servlet.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;
+    &lt;bean name="/PersonHessianService" class="org.springframework.remoting.caucho.HessianServiceExporter"&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
+    &lt;/bean&gt;
+
+
+    &lt;bean name="/PersonBurlapService" class="org.springframework.remoting.caucho.BurlapServiceExporter"&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
+    &lt;/bean&gt;
+
+    &lt;bean name="/PersonHttpInvokerService" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"&gt;
+        &lt;property name="service" ref="personServiceTarget"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;          
+    &lt;/bean&gt;
+
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Letakkan file remoting-servlet.xml ini di sebelah web.xml. Kita juga perlu mengikutkan file remote-ctx.xml yang kita buat untuk RMI di atas, karena deklarasi objek PersonServiceImpl ada di sana. Bila kita tidak ingin mengikutkan file ini, kita bisa memindahkan deklarasi objek tersebut ke dalam file remoting-servlet.xml.</p>
+
+<p>Sekarang kita bisa mengkompilasi dan mendeploy aplikasi webnya. Untuk mengaksesnya, ubah sedikit kode program di aplikasi client menjadi sebagai berikut.</p>
+
+<h3>Main.java</h3>
+
+<pre><code>package tutorial.remoting.client;
+
+import java.util.List;
+
+import tutorial.remoting.PersonService;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class Main {
+    public static void main(String[] args){
+        // initialize application context
+        ApplicationContext ctx = new FileSystemXmlApplicationContext("client-ctx.xml");
+
+        // accessing RMI service
+        System.out.println("======= Accessing RMI Service ==========");
+        PersonService ps1 = (PersonService) ctx.getBean("personServiceRmi");
+        List all1 = ps1.getAllPerson();
+        for(int i=0; i&lt;all1.size(); i++) {
+            System.out.println(all1.get(i));
+        }
+
+        // accessing Hessian Service
+        System.out.println("======= Accessing Hessian Service ==========");
+        PersonService ps2 = (PersonService) ctx.getBean("personServiceHessian");
+        List all2 = ps2.getAllPerson();
+        for(int i=0; i&lt;all2.size(); i++) {
+            System.out.println(all2.get(i));
+        }
+
+        // accessing Burlap Service
+        System.out.println("======= Accessing Burlap Service ==========");
+        PersonService ps3 = (PersonService) ctx.getBean("personServiceBurlap");
+        List all3 = ps3.getAllPerson();
+        for(int i=0; i&lt;all3.size(); i++) {
+            System.out.println(all3.get(i));
+        }
+
+        // accessing Http Invoker Service
+        System.out.println("======= Accessing Http Invoker Service ==========");
+        PersonService ps4 = (PersonService) ctx.getBean("personServiceHttpInvoker");
+        List all4 = ps4.getAllPerson();
+        for(int i=0; i&lt;all4.size(); i++) {
+            System.out.println(all4.get(i));
+        }
+    }
+} 
+</code></pre>
+
+<p>Demikian juga dengan konfigurasi Spring di sisi client. Kita perlu menambahkan beberapa objek tambahan untuk mengakses layanan di berbagai protokol tersebut. Berikut adalah isi lengkap dari client-ctx.xml.</p>
+
+<h3>client-ctx.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8" ?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;    
+    &lt;bean id="personServiceRmi" class="org.springframework.remoting.rmi.RmiProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="rmi://localhost:4321/PersonRmiService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="personServiceHessian" class="org.springframework.remoting.caucho.HessianProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHessianService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="personServiceBurlap" class="org.springframework.remoting.caucho.BurlapProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonBurlapService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+
+    &lt;bean id="personServiceHttpInvoker" class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean"&gt;
+        &lt;property name="serviceUrl" value="http://localhost:9090/remoting/PersonHttpInvokerService"/&gt;
+        &lt;property name="serviceInterface" value="tutorial.remoting.PersonService"/&gt;
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre>
+
+<p>Aplikasi kecil kita sudah selesai. Setelah mendeploy aplikasi tersebut ke Servlet Container (Tomcat atau Jetty), kita dapat mengaksesnya melalui aplikasi client. Dengan tetap menggunakan remote-ctx.xml tanpa perubahan, selain menyediakan protokol Hessian dan Burlap, protokol RMI akan tetap tersedia.</p>
+
+<h3>Bonus</h3>
+
+<p>Pembaca yang teliti akan menemukan satu protokol tambahan pada contoh di atas, yaitu HttpInvoker. Ini adalah protokol khusus yang disediakan oleh Spring.</p>
+
+<p>Protokol Hessian dan Burlap tidak mendukung struktur objek secara sempurna. Dia akan mengalami kesulitan apabila objek yang kita kirim tidak sesederhana Person, misalnya memiliki List yang berisi objek lain. Agar bisa mengirim struktur objek yang sempurna, kita harus menggunakan RMI.</p>
+
+<p>Tetapi sayangnya, protokol RMI kurang lazim. Dia membutuhkan port tersendiri yang mungkin saja diblok oleh administrator jaringan, sehingga tidak sefleksibel HTTP.</p>
+
+<p>SpringHttpInvoker menjembatani keterbatasan ini. Kita bisa mengirim objek kompleks secara utuh di atas protokol HTTP dengan menggunakan SpringHttpInvoker.</p>
+
+<p>Demikian &#8230; semoga bermanfaat.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1448,275 +1872,6 @@ Selamat menampilkan rangkuman website orang di website anda sendiri. Jangan lupa
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/java/intro-jms/">Intro JMS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2007-01-18T20:19:14+07:00" pubdate data-updated="true">Jan 18<span>th</span>, 2007</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Pada artikel ini, kita akan coba buat demo penggunaan JMS menggunakan <a href="http://www.springframework.org">Spring Framework</a> dan <a href="http://incubator.apache.org/activemq">ActiveMQ</a>. Spring Framework 2.0 telah dilengkapi dengan helper class untuk memudahkan kita menggunakan JMS (Java Messaging Service). Sayangnya dokumentasi di Spring Reference kurang lengkap, sehingga ada beberapa bagian yang harus kita cari sendiri.</p>
-
-<p>Jangan khawatir, bagian yang kurang tersebut bisa dibaca di artikel ini.</p>
-
-<p>Berikut skenario yang ingin saya buat:</p>
-
-<ol>
-<li><p>Jalankan JMS server (kali ini saya gunakan ActiveMQ)</p></li>
-<li><p>Siapkan <em>MessageListener</em>, yang akan bereaksi bila menerima pesan pada destination tertentu</p></li>
-<li><p>Kirim beberapa pesan ke destination yang didengarkan oleh <em>MessageListener</em></p></li>
-<li><p>Pastikan pesan tersebut diterima dengan baik</p></li>
-</ol>
-
-
-<p>Kita akan buat kasus sederhana saja, melibatkan tiga class:</p>
-
-<ul>
-<li><p>Sender.java : pengirim pesan</p></li>
-<li><p>Receiver.java : penerima pesan (MessageListener)</p></li>
-<li><p>Main.java : class untuk menjalankan pengirim dan penerima</p></li>
-</ul>
-
-
-<p>Berikut adalah kode programnya.</p>
-
-<h3>Sender.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">jms</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.JMSException</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.Message</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.Session</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.jms.core.JmsTemplate</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.jms.core.MessageCreator</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sender</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;default message&quot;</span><span class="o">;</span>
-</span><span class='line'>  <span class="kd">private</span> <span class="n">JmsTemplate</span> <span class="n">jmsTemplate</span><span class="o">;</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setJmsTemplate</span><span class="o">(</span><span class="n">JmsTemplate</span> <span class="n">jmsTemplate</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">jmsTemplate</span> <span class="o">=</span> <span class="n">jmsTemplate</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setMessage</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">;</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">send</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">jmsTemplate</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">MessageCreator</span><span class="o">(){</span>
-</span><span class='line'>          <span class="kd">public</span> <span class="n">Message</span> <span class="nf">createMessage</span><span class="o">(</span><span class="n">Session</span> <span class="n">sess</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">JMSException</span> <span class="o">{</span>
-</span><span class='line'>              <span class="k">return</span> <span class="n">sess</span><span class="o">.</span><span class="na">createTextMessage</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
-</span><span class='line'>          <span class="o">}</span>            
-</span><span class='line'>      <span class="o">});</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Receiver.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">jms</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">javax.jms.JMSException</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Receiver</span> <span class="kd">implements</span> <span class="n">MessageListener</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onMessage</span><span class="o">(</span><span class="n">Message</span> <span class="n">msg</span><span class="o">){</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">msg</span> <span class="k">instanceof</span> <span class="n">TextMessage</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">TextMessage</span> <span class="n">txtMsg</span> <span class="o">=</span> <span class="o">(</span><span class="n">TextMessage</span><span class="o">)</span> <span class="n">msg</span><span class="o">;</span>
-</span><span class='line'>          <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>              <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">txtMsg</span><span class="o">.</span><span class="na">getText</span><span class="o">());</span>
-</span><span class='line'>          <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">JMSException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>              <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-</span><span class='line'>          <span class="o">}</span>
-</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>          <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Unsupported message type : &quot;</span><span class="o">+</span><span class="n">msg</span><span class="o">.</span><span class="na">getClass</span><span class="o">());</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>    
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Main.java</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">tutorial</span><span class="o">.</span><span class="na">spring</span><span class="o">.</span><span class="na">jms</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.ApplicationContext</span><span class="o">;</span>
-</span><span class='line'><span class="kn">import</span> <span class="nn">org.springframework.context.support.ClassPathXmlApplicationContext</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">ApplicationContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ClassPathXmlApplicationContext</span><span class="o">(</span><span class="s">&quot;jms-ctx.xml&quot;</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">Sender</span> <span class="n">sender</span> <span class="o">=</span> <span class="o">(</span><span class="n">Sender</span><span class="o">)</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;sender&quot;</span><span class="o">);</span>
-</span><span class='line'>      
-</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">&quot;Percobaan menggunakan JMS dengan Spring. &quot;</span><span class="o">);</span>        
-</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">send</span><span class="o">();</span>
-</span><span class='line'>      
-</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">&quot;Pesan ini seharusnya diterima oleh Message Driven POJO&quot;</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">sender</span><span class="o">.</span><span class="na">send</span><span class="o">();</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Integrasi antara kode Java dan ActiveMQ diatur di konfigurasi Spring, jms-ctx.xml. Berikut kodenya.</p>
-
-<h3>jms-ctx.xml</h3>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-</span><span class='line'><span class="cp">&lt;!DOCTYPE beans PUBLIC &quot;-//SPRING//DTD BEAN 2.0//EN&quot; &quot;http://www.springframework.org/dtd/spring-beans-2.0.dtd&quot;&gt;</span>
-</span><span class='line'><span class="nt">&lt;beans&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;messageListener&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.spring.jms.Receiver&quot;</span> <span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;listenerContainer&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jms.listener.SimpleMessageListenerContainer&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;connectionFactory&quot;</span> <span class="na">ref=</span><span class="s">&quot;jmsConnectionFactory&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;destinationName&quot;</span> <span class="na">value=</span><span class="s">&quot;TEST.FOO&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;messageListener&quot;</span> <span class="na">ref=</span><span class="s">&quot;messageListener&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>  
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jmsConnectionFactory&quot;</span> <span class="na">class=</span><span class="s">&quot;org.apache.activemq.ActiveMQConnectionFactory&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;&lt;null/&gt;&lt;/constructor-arg&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;1&quot;</span><span class="nt">&gt;&lt;null/&gt;&lt;/constructor-arg&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;constructor-arg</span> <span class="na">index=</span><span class="s">&quot;2&quot;</span> <span class="na">value=</span><span class="s">&quot;tcp://localhost:61616&quot;</span><span class="nt">&gt;&lt;/constructor-arg&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>   
-</span><span class='line'>  
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;sender&quot;</span> <span class="na">class=</span><span class="s">&quot;tutorial.spring.jms.Sender&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;jmsTemplate&quot;</span> <span class="na">ref=</span><span class="s">&quot;jmsTemplate&quot;</span><span class="nt">/&gt;</span>        
-</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;bean</span> <span class="na">id=</span><span class="s">&quot;jmsTemplate&quot;</span> <span class="na">class=</span><span class="s">&quot;org.springframework.jms.core.JmsTemplate&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;connectionFactory&quot;</span> <span class="na">ref=</span><span class="s">&quot;jmsConnectionFactory&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;defaultDestinationName&quot;</span> <span class="na">value=</span><span class="s">&quot;TEST.FOO&quot;</span><span class="nt">/&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/bean&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/beans&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Apabila kita ingin menggunakan JMS server yang lain (selain ActiveMQ), cukup ganti deklarasi <em>jmsConnectionFactory</em> pada <em>jms-ctx.xml</em> di atas. Destination name juga di-hard code dengan nilai <em>TEST.FOO</em>. Nantinya pada aplikasi nyata, nilai ini mungkin ingin kita konfigurasi lebih jauh, atau diparameterisasi dalam database.</p>
-
-<p>ActiveMQ mendukung <em>dynamic destination creation</em>, artinya destination <em>TEST.FOO</em> akan dibuatkan bila belum ada. Pada aplikasi server JMS yang lain, mungkin kita harus membuat <em>TEST.FOO</em> secara manual di server tersebut.</p>
-
-<p>Selamat mencoba, semoga sukses.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/18/">&larr; Older</a>
@@ -1793,6 +1948,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/java/scope-variabel/">Scope Variabel</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/mengapa-kita-membuat-class/">Mengapa kita membuat class</a>
       </li>
     
@@ -1826,10 +1985,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/desain-skema-database/">Desain Skema Database</a>
-      </li>
-    
-      <li class="post">
-        <a href="/manajemen/tahapan-membuat-aplikasi/">Tahapan Membuat Aplikasi</a>
       </li>
     
   </ul>
