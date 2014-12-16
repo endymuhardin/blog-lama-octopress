@@ -7,7 +7,7 @@ categories:
 - java
 ---
 
-Ada pertanyaan di [grup Facebook](https://www.facebook.com/groups/ForumJavaIndonesia/) yang cukup menarik untuk kita bahas di sini. Sample code yang ditanyakan saya modifikasi sedikit supaya lebih cocok.
+Ada [pertanyaan di grup Facebook](https://www.facebook.com/groups/ForumJavaIndonesia/10152533869543017) yang cukup menarik untuk kita bahas di sini. Sample code yang ditanyakan saya modifikasi sedikit supaya lebih cocok.
 
 ## Class Mahasiswa ##
 
