@@ -40,6 +40,18 @@ Software Developer, based in Jakarta, live in Bogor.
 #### Bank Mandiri
 
   * KCP Dewi Sartika Jakarta Timur
-  * Acc# 0 7 0000 4860 255
+  * Acc# 07 0000 4860 255
+  * Acc Name: Endy Muhardin
+
+#### Bank BNI
+
+  * KC UI Depok
+  * Acc# 025 8800 344
+  * Acc Name: Endy Muhardin
+
+#### Bank Niaga
+
+  * KCS Pondok Gede
+  * Acc# 517 01217131 16
   * Acc Name: Endy Muhardin
 
