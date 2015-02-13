@@ -315,7 +315,7 @@ Seperti Anda lihat pada screenshot di atas, saya memiliki beberapa domain lain y
 
 Tambahkan entri berjenis CNAME untuk nama domain `bisnis.endy.muhardin.com` dan arahkan ke `blogbisnis-endymuhardin.rhcloud.com`.
 
-![Konfigurasi CNAME](https://lh4.googleusercontent.com/-U0uF8BdRJcE/VNSOUssKWXI/AAAAAAAAH5c/4Y6MoXvWkYY/w917-h418-no/19.%2BCNAME%2BEntry.png)
+![Konfigurasi CNAME](https://lh3.googleusercontent.com/-uMAGnXHALqA/VN4krEtZs3I/AAAAAAAAH6k/6-eGym0Z0hI/w917-h418-no/19.%2BCNAME%2BEntry.png)
 
 ### VirtualHost Openshift ###
 Alamat domain kita sudah mengarah ke server Openshift. Ini bisa dibuktikan kalau kita browse ke `http://bisnis.endy.muhardin.com` akan diarahkan ke servernya Openshift.
