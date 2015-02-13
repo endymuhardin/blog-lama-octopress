@@ -4,7 +4,7 @@
   <title><![CDATA[Category: aplikasi | Living life and make it better]]></title>
   <link href="http://software.endy.muhardin.com/categories/aplikasi/atom.xml" rel="self"/>
   <link href="http://software.endy.muhardin.com/"/>
-  <updated>2015-02-12T19:06:07+07:00</updated>
+  <updated>2015-02-13T23:05:23+07:00</updated>
   <id>http://software.endy.muhardin.com/</id>
   <author>
     <name><![CDATA[Endy Muhardin]]></name>
@@ -12,6 +12,366 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Membuat Blog Gratis di Openshift]]></title>
+    <link href="http://software.endy.muhardin.com/aplikasi/membuat-blog-gratis-di-openshift/"/>
+    <updated>2015-02-13T22:28:00+07:00</updated>
+    <id>http://software.endy.muhardin.com/aplikasi/membuat-blog-gratis-di-openshift</id>
+    <content type="html"><![CDATA[<blockquote><p>Pengen cepat jadi expert?</p></blockquote>
+
+<p>Caranya sederhana. Cukup bikin blog, kemudian konsisten menulis tentang topik tertentu paling tidak seminggu sekali.</p>
+
+<blockquote><p>Waduh, menulis itu sulit. Apalagi konsisten.</p></blockquote>
+
+<p>Makanya saya bilang sederhana, bukan mudah :)</p>
+
+<p>Sebetulnya membuat blog jaman sekarang sudah semakin mudah dan murah. Tanpa keluar uang sepeserpun kita sudah bisa punya blog bagus. Desain tampilan juga banyak tersedia free. Bahkan desain gratis tersebut sudah <em>responsive</em>, artinya tetap bagus dilihat dari berbagai ukuran layar.</p>
+
+<p>Setelah blog kita jadi, tempat menaruhnya pun gratis. Beberapa yang populer diantaranya: <a href="http://www.wordpress.com/">wordpress</a>, <a href="https://www.tumblr.com/">tumblr</a>, dan lain sebagainya.</p>
+
+<p>Buat kita para programmer, tersedia juga aplikasi blog yang geeky, diantaranya <a href="http://jekyllrb.com/">jekyll</a>, <a href="http://octopress.org/">octopress</a> (dibangun di atas jekyll), <a href="https://middlemanapp.com/basics/blogging/">middleman</a>, <a href="https://ghost.org/">ghost</a>, <a href="https://iwantmyname.com/blog/2011/02/list-static-website-generators.html">dan teman-temannya</a>.</p>
+
+<p>Berbagai aplikasi yang saya sebutkan di atas memiliki kesamaan, semuanya adalah <a href="https://wiki.python.org/moin/StaticSiteGenerator">static content generator</a>. Artinya, dia mengkonversi tulisan kita menjadi HTML. File HTML tersebut tinggal kita upload ke webserver merek apapun. Dia juga tidak butuh database server. Ini akan sangat menyederhanakan kebutuhan di sisi server.</p>
+
+<p>Pada artikel ini, kita akan membahas cara membuat blog menggunakan Jekyll dan kemudian memasangnya di PaaS provider Openshift.</p>
+
+<!--more-->
+
+
+<p>Sebetulnya ada beberapa provider yang mendukung Jekyll, selain Openshift kita juga bisa pakai Heroku atau Github. Cara deploy ke kedua provider tersebut sudah dijelaskan di dokumentasi Jekyll, sehingga tidak perlu kita bahas lagi.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-0v-aweJAqUQ/VNSNiRPuxbI/AAAAAAAAH38/gzzHemMzJEY/w916-h558-no/07.%2BJekyll%2BHomepage.png" alt="Dokumentasi Deployment" /></p>
+
+<p>Secara garis besar, berikut langkah-langkah yang akan kita kerjakan:</p>
+
+<ol>
+<li>Instalasi Jekyll</li>
+<li>Mencari theme yang cocok</li>
+<li>Mulai menulis artikel</li>
+<li>Compile dan Preview di komputer kita</li>
+<li>Buat akun Openshift</li>
+<li>Buat aplikasi untuk blog kita</li>
+<li>Deploy ke Openshift</li>
+<li>Periksa hasilnya</li>
+</ol>
+
+
+<h2>Instalasi Jekyll</h2>
+
+<p>Jekyll merupakan aplikasi yang dibuat dengan Ruby. Dengan demikian, kita perlu menginstall Ruby terlebih dulu.</p>
+
+<h3>Instalasi Ruby</h3>
+
+<p>Tambahkan repository PPA brightbox.</p>
+
+<p><code>
+sudo apt-add-repository ppa:brightbox/ruby-ng
+</code></p>
+
+<p>Update database aplikasi</p>
+
+<p><code>
+sudo apt-get update
+</code></p>
+
+<p>Install Ruby 1.9</p>
+
+<p><code>
+sudo apt-get install ruby1.9.3
+</code></p>
+
+<p>Setelah itu, kita bisa langsung menginstall jekyll</p>
+
+<p><code>
+sudo gem install jekyll
+</code></p>
+
+<h2>Jekyll Theme</h2>
+
+<p>Sebetulnya pada titik ini kita sudah bisa langsung membuat website dengan perintah</p>
+
+<p><code>
+jekyll new blogsaya
+</code></p>
+
+<p>Tetapi, kita tentu ingin tampilan yang menarik. Untuk itu, kita cari dulu theme yang bagus untuk Jekyll.</p>
+
+<p><img src="https://lh4.googleusercontent.com/--lDlOyCn2Tw/VNSNva-nFTI/AAAAAAAAH4c/uNvFEtLvnBA/w791-h582-no/10.%2BCari%2BTheme.png" alt="Mencari theme Jekyll" /></p>
+
+<p>Ada banyak hasil di sana. Coba satu persatu sampai ketemu yang cocok.</p>
+
+<p>Baca instruksinya, dia bilang langsung saja extract.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-VMnzqkZ07dA/VNSNvmnMcXI/AAAAAAAAH4Y/TQ9en2RctLI/w855-h578-no/11.%2BDownload%2Bdan%2BExtract.png" alt="Extract Theme" /></p>
+
+<p>Berikut isi folder setelah diextract.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-dt0_MXF-F_E/VNSN8_MmXLI/AAAAAAAAH4k/3VLoa6em0mY/w855-h578-no/12.%2BHasil%2BExtract.png" alt="Hasil Extract" /></p>
+
+<p>Coba kita jalankan dengan perintah <code>bundle exec jekyll serve</code></p>
+
+<p><img src="https://lh5.googleusercontent.com/-w7tQ96eZQ8o/VNSOBSAWlDI/AAAAAAAAH4s/QDyxCTb-lKU/w728-h494-no/13.%2BJalankan%2Bdi%2Blocal.png" alt="Run Jekyll" /></p>
+
+<p>Kemudian browse ke <code>http://localhost:4000</code>.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-4E-myZULncY/VNSOJDurMBI/AAAAAAAAH40/jiwixObwMnw/w917-h566-no/14.%2BBrowse%2BLocal.png" alt="Local Deployment" /></p>
+
+<p>Nah, website kita sudah jalan di komputer kita sendiri. Sekarang, tinggal kita pasang di Openshift.</p>
+
+<h2>Pendaftaran Openshift</h2>
+
+<p>Kita perlu membuat akun di Openshift terlebih dulu. Caranya mudah, langsung saja isi form yang disediakan di websitenya.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-RAP1-lNzkkk/VNSNcEHC_oI/AAAAAAAAH3Y/9hRUK_dB3CM/w916-h528-no/01.%2BOpenshift%2BWebsite.png" alt="Website Openshift" /></p>
+
+<h2>Membuat Aplikasi</h2>
+
+<p>Setelah membuat akun dan login, kita bisa langsung klik link untuk membuat aplikasi baru.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-osxSBeceqjc/VNSNbx9oc1I/AAAAAAAAH3U/vTV27OtGsLA/w916-h522-no/02.%2BOpenshift%2BWelcome.png" alt="Welcome Screen" /></p>
+
+<p>Untuk aplikasi Jekyll, Openshift telah menyediakan starter pack khusus (cartridge dalam istilah Openshift). Langsung saja search</p>
+
+<p><img src="https://lh4.googleusercontent.com/-W_H0vkwfxS8/VNSNcNWgLLI/AAAAAAAAH3c/WR0cj05L0QQ/w876-h623-no/03.%2BJenis%2BAplikasi.png" alt="Search Cartridge" /></p>
+
+<p>Kemudian klik</p>
+
+<p><img src="https://lh4.googleusercontent.com/-sHIp8sVVCpY/VNSNfEgoYvI/AAAAAAAAH3s/57pQUsECd5A/w898-h623-no/04.%2BJekyll%2BCartridge.png" alt="Jekyll Cartridge" /></p>
+
+<p>Isikan nama aplikasi</p>
+
+<p><img src="https://lh4.googleusercontent.com/-Gxc-Bkk9USk/VNSNf1PmZCI/AAAAAAAAH3w/uBq-Nux9ceY/w857-h623-no/05.%2BCukup%2Bisi%2Bnama%2Baplikasi.png" alt="Nama Aplikasi" /></p>
+
+<p>Klik OK. Aplikasi sudah dibuat. Kita akan diberikan URL untuk melakukan <code>git clone</code></p>
+
+<p><img src="https://lh3.googleusercontent.com/-siiXJ3o4rwo/VNSNgEMQjwI/AAAAAAAAH30/E9VrPkeHglU/w868-h623-no/06.%2BAplikasi%2Bselesai%2Bdibuat.png" alt="Sukses" /></p>
+
+<p>Sebetulnya ini juga bisa kita lakukan melalui command prompt.</p>
+
+<p>Install dulu aplikasi Openshift di komputer. Aplikasinya dibuat menggunakan Ruby, sehingga kita gunakan <code>gem</code> untuk menginstalnya</p>
+
+<p>Setelah terinstall, kita login dulu</p>
+
+<p><code>
+rhc setup
+</code></p>
+
+<p>dia akan meminta username dan password Openshift kita. Kemudian menampilkan daftar aplikasi yang sudah kita miliki.</p>
+
+<p>```
+OpenShift Client Tools (RHC) Setup Wizard</p>
+
+<p>This wizard will help you upload your SSH keys, set your application namespace,
+and check that other programs like Git are properly installed.</p>
+
+<p>If you have your own OpenShift server, you can specify it now. Just hit enter to
+use the server for OpenShift Online: openshift.redhat.com.
+Enter the server hostname: |openshift.redhat.com|</p>
+
+<p>You can add more servers later using 'rhc server'.</p>
+
+<p>Using an existing token for endy.muhardin@gmail.com to login to
+openshift.redhat.com</p>
+
+<p>Saving configuration to /home/endy/.openshift/express.conf ... done</p>
+
+<p>Checking for git ... found git version 2.2.2</p>
+
+<p>Checking common problems .. done</p>
+
+<p>Checking for a domain ... endymuhardin</p>
+
+<p>Checking for applications ... found 1</p>
+
+<p>  blogbisnis http://blogbisnis-endymuhardin.rhcloud.com/</p>
+
+<p>  You are using 1 of 3 total gears
+  The following gear sizes are available to you: small</p>
+
+<p>Your client tools are now configured.
+```</p>
+
+<p>Setelah berhasil login, kita buat aplikasi dengan menggunakan cartridge Jekyll</p>
+
+<p><code>
+rhc app create jekyll https://raw.github.com/openshift-cartridges/openshift-jekyll-cartridge/master/metadata/manifest.yml
+</code></p>
+
+<p>Aplikasi siap diisi</p>
+
+<p>Jangan lupa catat URL aplikasi. Inilah URL yang akan menampilkan blog kita nantinya. Berikut adalah URL aplikasi yang kita dapatkan sesuai contoh di atas</p>
+
+<h2>Proses Deployment</h2>
+
+<p>Deployment Openshift dilakukan menggunakan aplikasi version control Git.</p>
+
+<p>Pertama, kita clone dulu repo aplikasi yang sudah dibuatkan Openshift.</p>
+
+<p><code>
+git clone ssh://54d478d14382ec586c000058@blogbisnis-endymuhardin.rhcloud.com/~/git/blogbisnis.git blogbisnis
+</code></p>
+
+<p>Kemudian, pindahkan blog Jekyll kita tadi ke dalam folder hasil clone dari Openshift</p>
+
+<p>Selanjutnya commit seperti biasa</p>
+
+<p><code>
+git add -A .
+git commit -m "commit pertama website jekyll"
+</code></p>
+
+<p>Lalu lakukan push untuk mendeploy</p>
+
+<p><code>
+git push
+</code></p>
+
+<p>Berikut output dari perintah di atas</p>
+
+<p><code>
+Counting objects: 155, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (149/149), done.
+Writing objects: 100% (155/155), 1.24 MiB | 0 bytes/s, done.
+Total 155 (delta 8), reused 0 (delta 0)
+remote: Stopping jekyll cart
+remote: Sending SIGTERM to jekyll:193432 ...
+remote: Building git ref 'master', commit 52fa2f6
+remote: Preparing build for deployment
+remote: Deployment id is 45c5465a
+remote: Activating deployment
+remote: Starting jekyll cart
+remote: Executing bundle install
+remote: Fetching gem metadata from https://rubygems.org/.........
+remote: Resolving dependencies...
+remote: Using blankslate (2.1.2.4)
+remote: Using hitimes (1.2.2)
+remote: Using timers (4.0.1)
+remote: Using celluloid (0.16.0)
+remote: Using fast-stemmer (1.0.2)
+remote: Using classifier-reborn (2.0.3)
+remote: Using coffee-script-source (1.9.0)
+remote: Using execjs (2.3.0)
+remote: Using coffee-script (2.3.0)
+remote: Using colorator (0.1)
+remote: Using ffi (1.9.6)
+remote: Using jekyll-coffeescript (1.0.1)
+remote: Using jekyll-gist (1.1.0)
+remote: Using jekyll-paginate (1.1.0)
+remote: Using sass (3.4.11)
+remote: Using jekyll-sass-converter (1.3.0)
+remote: Using rb-fsevent (0.9.4)
+remote: Using rb-inotify (0.9.5)
+remote: Using listen (2.8.5)
+remote: Using jekyll-watch (1.2.1)
+remote: Using kramdown (1.5.0)
+remote: Using liquid (2.6.2)
+remote: Using mercenary (0.3.5)
+remote: Using posix-spawn (0.3.9)
+remote: Using yajl-ruby (1.2.1)
+remote: Using pygments.rb (0.6.2)
+remote: Using redcarpet (3.2.2)
+remote: Using safe_yaml (1.0.4)
+remote: Using parslet (1.5.0)
+remote: Using toml (0.1.2)
+remote: Using jekyll (2.5.3)
+remote: Installing jekyll-sitemap (0.8.0)
+remote: Installing octopress-deploy (1.0.5)
+remote: Installing octopress-hooks (2.4.1)
+remote: Installing octopress-escape-code (2.0.6)
+remote: Installing titlecase (0.1.1)
+remote: Installing octopress (3.0.0.rc.32)
+remote: Using bundler (1.3.5)
+remote: Your bundle is complete!
+remote: Use `bundle show [gemname]` to see where a bundled gem is installed.
+remote: Starting Jekyll server
+remote: Found 127.6.249.129:8080 listening port
+remote: -------------------------
+remote: Git Post-Receive Result: success
+remote: Activation status: success
+remote: Deployment completed with status: success
+To ssh://54d478d14382ec586c000058@blogbisnis-endymuhardin.rhcloud.com/~/git/blogbisnis.git
+   722b0dc..52fa2f6  master -&gt; master
+</code></p>
+
+<p>Coba browse ke url aplikasi kita di Openshift, yaitu <code>http://blogbisnis-endymuhardin.rhcloud.com</code></p>
+
+<p><img src="https://lh6.googleusercontent.com/-iY15Z743RWw/VNSORWJhavI/AAAAAAAAH5E/YgL7ibpTUOc/w874-h623-no/15.%2BDeploy%2Bke%2BOpenshift.png" alt="Deploy di Openshift" /></p>
+
+<p>Voila, website kita sudah selesai.</p>
+
+<h2>Custom Domain</h2>
+
+<p>Pada titik ini sebetulnya website kita sudah berfungsi dengan sempurna. Walaupun demikian, untuk keperluan personal branding ini belum maksimal, karena namanya masih mengandung nama Redhat dan berbau gratisan. Dengan menambah investasi USD10 per tahun, kita bisa membeli domain atas nama kita sendiri, misalnya <code>endy.muhardin.com</code> untuk kemudian kita arahkan ke website kita tadi.</p>
+
+<p>Proses pembelian domain tidak akan saya ceritakan di sini karena amat sangat terlalu mudahnya. Asumsikan saja kita sudah punya domain dan DNS server untuk mengaturnya.</p>
+
+<p>Cara untuk mengaktifkan custom domain di Openshift bisa dicari dengan mudah di Google</p>
+
+<p><img src="https://lh6.googleusercontent.com/-eWzSXRQo5wI/VNSOSNew31I/AAAAAAAAH5M/1MqLL4CsW3w/w744-h623-no/16.%2BCari%2Bcara%2Buntuk%2Bcustom%2Bdomain.png" alt="Search Custom Domain Deployment" /></p>
+
+<p>Kita akan mendapatkan tutorialnya di website Openshift sendiri</p>
+
+<p><img src="https://lh3.googleusercontent.com/-p8QXyZfZDEA/VNSOSPxhrtI/AAAAAAAAH5I/OT5C0HVx1EY/w891-h552-no/17.%2BCommand%2Balias.png" alt="Cara setting custom domain" /></p>
+
+<h3>Konfigurasi DNS</h3>
+
+<p>Agar nama domain kita tadi mengarah ke website kita, perlu ditambahkan konfigurasi CNAME di DNS. Berikut ilustrasinya dengan menggunakan layanan ClouDNS yang saya gunakan</p>
+
+<p><img src="https://lh5.googleusercontent.com/-YqGp8TjNQsQ/VNSOUI7qP4I/AAAAAAAAH5g/n8U3y1YHxBQ/w917-h376-no/18.%2BDNS%2BConfig.png" alt="Edit CNAME ClouDNS" /></p>
+
+<p>Seperti Anda lihat pada screenshot di atas, saya memiliki beberapa domain lain yang mengarah ke github dan heroku. Yaitu</p>
+
+<ul>
+<li><a href="http://software.endy.muhardin.com">software.endy.muhardin.com</a> : mengarah ke servernya Github</li>
+<li><a href="http://rana.endy.muhardin.com">rana.endy.muhardin.com</a> : mengarah ke servernya Heroku</li>
+</ul>
+
+
+<p>Tambahkan entri berjenis CNAME untuk nama domain <code>bisnis.endy.muhardin.com</code> dan arahkan ke <code>blogbisnis-endymuhardin.rhcloud.com</code>.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-U0uF8BdRJcE/VNSOUssKWXI/AAAAAAAAH5c/4Y6MoXvWkYY/w917-h418-no/19.%2BCNAME%2BEntry.png" alt="Konfigurasi CNAME" /></p>
+
+<h3>VirtualHost Openshift</h3>
+
+<p>Alamat domain kita sudah mengarah ke server Openshift. Ini bisa dibuktikan kalau kita browse ke <code>http://bisnis.endy.muhardin.com</code> akan diarahkan ke servernya Openshift.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-S8Ul3djmpWA/VNSOU26jUoI/AAAAAAAAH5k/PmtKZJDR2Zo/w917-h401-no/20.%2BBelum%2Bdibikin%2Balias.png" alt="Virtual Host Error" /></p>
+
+<p>Kita bisa lihat pada screenshot di atas, Openshift sudah menerima request. Tapi muncul pesan error karena dia tidak paham bagaimana menangani request tersebut.</p>
+
+<p>Untuk itu, kita perlu membuat konfigurasi virtual host dulu. Gunanya supaya Openshift bisa mengenali request ke <code>bisnis.endy.muhardin.com</code></p>
+
+<p>Ini bisa dilakukan melalui web</p>
+
+<p><img src="https://lh6.googleusercontent.com/-BK2dMIan4VM/VN4XscJhKGI/AAAAAAAAH6U/f83fyASiyK8/w663-h623-no/22.%2BCustom%2BDomain%2BWeb%2BBased.png" alt="Web Based Custom Domain" /></p>
+
+<p>Atau melalui command line</p>
+
+<p><code>
+rhc alias add blogbisnis bisnis.endy.muhardin.com
+</code></p>
+
+<p>Berikut outputnya</p>
+
+<p><code>
+Alias 'bisnis.endy.muhardin.com' has been added.
+</code></p>
+
+<p>Setelah selesai, coba kita browse <code>http://bisnis.endy.muhardin.com</code></p>
+
+<p><img src="https://lh6.googleusercontent.com/-8dmIdYTjdyc/VNSOdH0KxqI/AAAAAAAAH5s/nMwJOFxyJe4/w827-h623-no/21.%2BSudah%2Bdibikin%2Balias.png" alt="Custom Domain Success" /></p>
+
+<p>Nah selesailah website kita. Tinggal diisi saja</p>
+
+<h2>Kesimpulan</h2>
+
+<p>Membuat blog atau website pribadi itu mudah dan murah. Sebagai praktisi IT, personal website sudah menjadi hal yang wajib. Ini bukan trend sesaat seperti dinyatakan 'pakar' pornomatika nasional, tapi adalah saluran kita untuk berbagi pengetahuan buat orang lain.</p>
+
+<p>Yuk, mari menulis di blog.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Tips Upgrade Library]]></title>
@@ -730,204 +1090,6 @@ verify error:num=19:self signed certificate in certificate chain</p>
 <p>Root CA memang self-signed, karena dia paling atas. Sertifikat self-signed milik Root CA inilah yang ditanam di dalam aplikasi seperti dijelaskan di <a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">artikel bagian pertama</a>.</p>
 
 <p>Demikianlah langkah-langkah untuk mengaktifkan SSL di Tomcat dan Nginx. Selamat mencoba. Kalau ada error atau hal yang kurang jelas, silahkan ditulis di komentar.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Membeli Sertifikat SSL]]></title>
-    <link href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/"/>
-    <updated>2013-07-11T19:55:00+07:00</updated>
-    <id>http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl</id>
-    <content type="html"><![CDATA[<p>Pada waktu saya pertama kali ingin membeli sertifikat SSL, saya dihadapkan pada berbagai jenis sertifikat yang bisa dibeli. Butuh waktu dan usaha yang relatif besar untuk mengetahui maksud dari macam-macam jenis sertifikat tersebut. Pada artikel ini, kita akan membahas berbagai jenis sertifikat tersebut dengan bahasa yang mudah dipahami.</p>
-
-<p>Artikel ini adalah bagian ketiga dari 4 artikel, yaitu:</p>
-
-<ol>
-<li><a href="http://software.endy.muhardin.com/aplikasi/apa-itu-ssl/">Apa itu SSL</a></li>
-<li><a href="http://software.endy.muhardin.com/aplikasi/membuat-self-signed-certificate/">Membuat self-signed certificate</a></li>
-<li><a href="http://software.endy.muhardin.com/aplikasi/membeli-sertifikat-ssl/">Membeli sertifikat SSL</a></li>
-<li><a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">Memasang sertifikat SSL</a></li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Vendor SSL</h2>
-
-<p>Ada banyak sekali vendor SSL yang tersedia. Beberapa yang populer antara lain:</p>
-
-<ul>
-<li><a href="http://www.comodo.com/">Comodo</a></li>
-<li><a href="http://www.verisign.com/">Verisign</a></li>
-<li><a href="http://www.verizonenterprise.com/products/security/identity/ssl/">Cybertrust/Verizon</a></li>
-<li><a href="http://www.startssl.com/">StartSSL</a></li>
-<li>dan masih banyak yang lain lagi</li>
-</ul>
-
-
-<p>Masing-masing vendor menyediakan berbagai paket dan kategori, masing-masing diberi nama yang terdengar canggih dan hi-tech. Ini semua membuat kita yang baru pertama kali membeli sertifikat menjadi bingung. Berdasarkan hasil tanya-tanya dan googling, akhirnya saya mendapatkan metode pengelompokan yang lebih mudah dipahami end-user.</p>
-
-<p>Kita bisa membedakan sertifikat SSL berdasarkan dua hal:</p>
-
-<ul>
-<li>cakupan penggunaan</li>
-<li>prosedur validasi</li>
-</ul>
-
-
-<h2>Penggunaan Sertifikat</h2>
-
-<p>Sertifikat SSL biasanya digunakan untuk webserver dan mailserver. Kedua layanan ini bekerja berdasarkan nama domain. Misalnya saya punya domain <code>artivisi.com</code>. Dari domain ini, saya bisa memiliki banyak server misalnya:</p>
-
-<ul>
-<li>www.artivisi.com : website perusahaan</li>
-<li>demo.artivisi.com : situs untuk demo produk dan layanan</li>
-<li>mail.artivisi.com : mail server, untuk mengirim dan menerima email</li>
-</ul>
-
-
-<p>Kita bisa membedakan jenis sertifikat SSL berdasarkan penggunaannya pada domain di atas menjadi:</p>
-
-<ul>
-<li>single domain</li>
-<li>wildcard domain</li>
-<li>multi domain</li>
-</ul>
-
-
-<h3>Single Domain</h3>
-
-<p>Sertifikat single domain hanya bisa digunakan di satu domain saja. Misalnya kita membeli sertifikat untuk <code>www.artivisi.com</code> sehingga website ArtiVisi bisa diakses melalui <code>https://www.artivisi.com</code>. Sertifikat yang kita beli ini hanya bisa digunakan untuk domain <code>www.artivisi.com</code>. Dia tidak bisa kita pasang di mail server yang memiliki nama <code>mail.artivisi.com</code>.</p>
-
-<p>Bila kita membutuhkan SSL untuk <code>mail.artivisi.com</code>, kita harus membeli sertifikat sekali lagi. Demikian seterusnya, masing-masing domain/subdomain harus memiliki sertifikat sendiri.</p>
-
-<blockquote><p>Wah, apa tidak merepotkan? Belum lagi harganya pasti akan jadi mahal kalau setiap subdomain harus beli lagi.</p></blockquote>
-
-<p>Nah, pada saat kita merasa kerepotan dan kemahalan, tiba saatnya kita membeli sertifikat <code>wildcard domain</code></p>
-
-<h3>Wildcard Domain</h3>
-
-<p>Sertifikat ini disebut wildcard karena satu sertifikat bisa digunakan untuk seluruh subdomain. CA akan membuatkan sertifikat dengan CN <code>*.artivisi.com</code>, sehingga bisa digunakan untuk <code>www.artivisi.com</code>, <code>mail.artivisi.com</code>, dan seluruh subdomain <code>artivisi.com</code>.</p>
-
-<p>Harganya tentu lebih mahal daripada single domain. Sebagai gambaran kita lihat <a href="http://www.symantec.com/page.jsp?id=compare-ssl-certificates">harga dari Verisign</a>. Single domain harganya $400 dan wildcard harganya $1200. Kita baru balik modal kalau punya 3 subdomain.</p>
-
-<h3>Multi Domain / SAN Extended</h3>
-
-<p>Sertifikat dengan extended validation (akan dibahas di bawah) tidak bisa menggunakan mekanisme wildcard. Untuk itu, diakali dengan menaruh banyak nama domain di field <code>subject alternative name</code> (SAN), sehingga satu sertifikat bisa digunakan di banyak nama domain.</p>
-
-<p>Dengan klasifikasi penggunaan ini, kita bisa memilih mana yang akan kita gunakan. Umumnya kita cuma memilih antara single dan wildcard. Pada kasus tertentu dimana kita menggunakan Extended Validation, barulah kita mempertimbangkan antara single domain dan multi domain.</p>
-
-<h2>Prosedur Validasi</h2>
-
-<p>Berdasarkan prosedur validasi, sertifikat SSL dibagi menjadi tiga jenis:</p>
-
-<ul>
-<li>Domain Validation (DV)</li>
-<li>Organization Validation (OV)</li>
-<li>Extended Validation (EV)</li>
-</ul>
-
-
-<h3>Domain Validation</h3>
-
-<p>Metode validasi yang paling mudah dan cepat adalah domain validation. Saking mudahnya, biasanya proses ini dilakukan dengan aplikasi dan tidak melibatkan campur tangan manusia, sehingga lebih murah.</p>
-
-<p>Domain validation memastikan bahwa pemohon benar-benar punya akses terhadap domain. Berikut cara kerjanya:</p>
-
-<ol>
-<li><p>Pemohon mengirim CSR pada CA berisi domain yang akan disertifikasi. Misalnya <code>demo.muhardin.com</code>.</p></li>
-<li><p>CA akan mencari tahu siapa pemilik domain tersebut menggunakan fasilitas whois. Disana nantinya ada informasi email pemilik domain. Contoh output whois seperti ini:</p>
-
-<p> <img src="/images/uploads/2013/07/ssl/output-whois.png" title="Output Whois" ></p></li>
-<li><p>Adakalanya orang yang membeli domain berbeda dengan orang teknis yang mengurus domain, sehingga alamat email di whois tidak bisa digunakan. Bila terjadi seperti ini, pemohon bisa minta CA menggunakan email lain, biasanya <code>postmaster@muhardin.com</code> atau <code>webmaster@muhardin.com</code>. Ini adalah alamat email standar untuk administrasi mailserver dan webserver. Jadi pastikan kedua alamat email ini dilindungi dengan baik dan hanya diberikan aksesnya pada orang yang berhak.</p></li>
-<li><p>CA mengirim email ke alamat yang ditentukan di langkah sebelumnya. Di email tersebut ada kode verifikasi untuk memastikan bahwa pemohon benar-benar punya akses ke alamat email tersebut.</p></li>
-<li><p>Pemohon membuktikan bahwa dia telah menerima email verifikasi. Cara yang umum dilakukan antara lain memasukkan kode verifikasi ke website CA, atau mengklik link verifikasi yang ada dalam email.</p></li>
-<li><p>Setelah verifikasi dilakukan, CA akan mengirim sertifikat domain yang telah ditandatangani. Atau pemohon juga bisa mengunduhnya di website CA.</p></li>
-</ol>
-
-
-<p>Pada level validasi ini, CA memastikan identitas pemohon berupa:</p>
-
-<ul>
-<li>akses/kontrol terhadap domain</li>
-</ul>
-
-
-<h3>Organization Validation</h3>
-
-<p>Selangkah lebih jauh, ada yang namanya Organization Validation. Pada validasi level ini, CA melakukan validasi tambahan terhadap organisasi yang meminta sertifikat SSL. Biasanya pemohon harus mengirim akta perusahaan atau bukti legalitas lainnya.</p>
-
-<p>Pada level validasi ini, CA memastikan identitas pemohon berupa:</p>
-
-<ul>
-<li>akses/kontrol terhadap domain</li>
-<li>legalitas organisasi pemilik domain</li>
-</ul>
-
-
-<h3>Extended Validation</h3>
-
-<p>Pada metode validasi sebelumnya, CA sama sekali tidak melakukan validasi terhadap orang/contact person.</p>
-
-<p><a href="http://en.wikipedia.org/wiki/Extended_Validation_Certificate">Metode Extended Validation</a> adalah metode validasi yang paling lengkap.</p>
-
-<p>Di sini CA juga akan menghubungi langsung contact person dari organisasi pemohon sertifikat. Detail teknisnya saya kurang paham karena belum pernah membeli sertifikat EV. Konon katanya, EV ini melibatkan pemeriksaan fisik berupa kunjungan atau pertemuan dengan perwakilan organisasi.</p>
-
-<p>Mengingat tingkat ketelitian dalam validasinya, maka sertifikat level EV tidak boleh diterbitkan dalam bentuk <em>wildcard</em>. Ini disebabkan karena sertifikat wildcard memungkinkan kita membuat domain tanpa harus divalidasi CA. Bila kita ingin satu sertifikat untuk banyak domain, maka kita harus menggunakan Subject Alternative Name (SAN), dimana masing-masing nama domain akan divalidasi satu-persatu.</p>
-
-<p>Sertifikat yang memiliki validasi EV akan terlihat berbeda di browser, ditandai dengan adanya <em>green bar</em> seperti di Internet Banking Mandiri</p>
-
-<p><img src="/images/uploads/2013/07/ssl/green-bar-mandiri.png" title="Green Bar Mandiri" ></p>
-
-<p>atau di KlikBCA</p>
-
-<p><img src="/images/uploads/2013/07/ssl/01-green-bar.png" title="Green Bar BCA" ></p>
-
-<p>Kita bisa melihat informasi detail tentang sertifikat SSL dengan cara klik green bar tersebut</p>
-
-<p><img src="/images/uploads/2013/07/ssl/02-green-bar-info.png" title="Informasi Green Bar" ></p>
-
-<p>Pada level validasi EV, CA memastikan identitas pemohon berupa:</p>
-
-<ul>
-<li>akses/kontrol terhadap domain</li>
-<li>legalitas organisasi pemilik domain</li>
-<li>keberadaan fisik organisasi dan contact person yang ditugaskan mewakilinya</li>
-</ul>
-
-
-<h3>Memilih metode validasi</h3>
-
-<blockquote><p>Dari ketiga metode ini, pilih mana?</p></blockquote>
-
-<p>Pertimbangan pertama tentu masalah harga. Makin teliti validasinya, biaya akan semakin tinggi.</p>
-
-<p>Pertimbangan kedua adalah masalah kerepotannya. Makin tinggi level validasi, makin banyak dokumen yang harus kita siapkan.</p>
-
-<p>Satu hal yang perlu diperhatikan, <a href="http://unmitigatedrisk.com/?p=203">pengunjung awam tidak akan bisa membedakan antara Domain Validation dan Organization Validation</a> . Jadi kalau ingin memilih, cukup dua yang dipertimbangkan, Extended Validation (EV) atau non-EV.</p>
-
-<p>Perlu diperhatikan juga bahwa validasi tidak menjamin keamanan 100%. Pernah ada kasus website palsu di Amerika Serikat yang memiliki sertifikat asli. Ceritanya bisa dibaca <a href="http://voices.washingtonpost.com/securityfix/2006/02/the_new_face_of_phishing_1.html">di sini</a>.</p>
-
-<h3>Memilih CA</h3>
-
-<p>CA yang menjajakan sertifikat di internet sangat banyak. Mulai dari yang gratis sampai yang mahal. Sepintas terlihat ada CA yang kredibilitasnya tinggi seperti Cybertrust atau VeriSign yang banyak dipakai bank di Indonesia, dan juga ada yang jarang terdengar seperti StartSSL atau Cacert. Kredibilitas CA ini mempengaruhi harga. Untuk produk yang setingkat, misalnya produk termurah single domain dengan domain validation, harganya bisa berbeda beberapa kali lipat. Coba bandingkan harga <a href="http://www.mangkukmerah.com/ssl">Comodo</a> dengan <a href="http://www.symantec.com/en/aa/theme.jsp?themeid=compare-ssl-certificates">Verisign</a>. Harga Comodo 240 ribu rupiah, sedangkan VeriSign 4 juta rupiah.</p>
-
-<p>Walaupun demikian, menurut pandangan saya pribadi, masalah kredibilitas ini tidak terlalu signifikan pengaruhnya terhadap pengunjung. Sebagai ilustrasi, kita yang sering menggunakan internet banking apa pernah tahu siapa CA yang digunakan oleh bank kita? Atau apakah kita tahu siapa itu Cybertrust atau VeriSign?</p>
-
-<p>Untuk menambah added value, beberapa CA mengeluarkan stempel (seal) yang bisa dipasang di website. Contohnya bisa dilihat di KlikBCA berikut</p>
-
-<p><img src="/images/uploads/2013/07/ssl/01-green-bar.png" title="Green Bar BCA" ></p>
-
-<p>atau Internet Banking Mandiri berikut</p>
-
-<p><img src="/images/uploads/2013/07/ssl/stempel-ca-mandiri.png" title="Green Bar Mandiri" ></p>
-
-<p>Tapi menurut saya, stempel inipun juga tidak menambah keyakinan pengunjung, karena siapapun bisa memasang logo tersebut dengan mudah.</p>
-
-<p>Ada faktor lain yang lebih penting dipertimbangkan menurut saya, yaitu kompatibilitasnya di berbagai browser. CA mahal biasanya kompatibel di semua browser, sedangkan CA murah kadang-kadang tidak diakui browser, sehingga menimbulkan warning seperti halnya self-signed certificate. Kalau memang tetap mengeluarkan warning, ya buat apa kita beli. Lebih baik pakai yang gratisan saja.</p>
-
-<p>Demikianlah penjelasan tentang bermacam-macam sertifikat SSL yang tersedia di pasaran. Silahkan pilih yang sesuai dengan kebutuhan. Setelah sertifikat didapatkan, baik self-signed atau dari CA resmi, kita akan membahas <a href="http://software.endy.muhardin.com/aplikasi/memasang-sertifikat-ssl/">cara instalasinya di artikel selanjutnya</a>.</p>
 ]]></content>
   </entry>
   

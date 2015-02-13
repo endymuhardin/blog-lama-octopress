@@ -9,7 +9,7 @@
   <meta name="author" content="Endy Muhardin">
 
   
-  <meta name="description" content="Gist adalah fitur yang disediakan oleh Github. Fungsi dasarnya mirip dengan pastebin, yaitu kita bisa paste text di sana, dan disharing dengan orang &hellip;">
+  <meta name="description" content="Skenario : selama ini kita coding di laptop sendiri saja. Kemudian ada kebutuhan untuk kolaborasi dengan orang lain melalui Git. Bagaimana caranya? &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +89,100 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/aplikasi/sharing-repository-git/">Sharing Repository Git</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-01-11T17:47:43+07:00" pubdate data-updated="true">Jan 11<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Skenario : selama ini kita coding di laptop sendiri saja. Kemudian ada kebutuhan untuk kolaborasi dengan orang lain melalui Git. Bagaimana caranya? Baiklah mari kita bahas di artikel ini.</p>
+
+<h2>Inisialisasi Repository Git</h2>
+
+<p>Pertama, kita inisialisasi dulu repository Git. Masuk ke dalam folder project dan ketikkan</p>
+
+<pre><code>git init
+</code></pre>
+
+<p>Git akan membuat repository kosong di dalam folder project, ditandai dengan adanya folder baru bernama .git</p>
+
+<p>Selanjutnya, kita akan memasukkan semua file dan folder project kita ke dalam repository. Yang harus dimasukkan adalah file source code, baik itu Java, HTML, XML, dan sebagainya. Yang tidak perlu dimasukkan adalah file hasil kompilasi atau hasil generate. Kita perlu mendaftarkan file yang tidak ingin disimpan dalam file konfigurasi yang bernama .gitignore</p>
+
+<p>File ini harus kita buat sendiri menggunakan text editor. Berikut contoh isi filenya, bila kita coding menggunakan Eclipse atau Netbeans</p>
+
+<p>[gist id=773975]</p>
+
+<p>Setelah kita setting ignore file, berikutnya kita masukkan semua file dan folder ke dalam antrian.</p>
+
+<pre><code>git add . 
+</code></pre>
+
+<p>Kemudian, simpan ke repository</p>
+
+<pre><code>git commit -m "commit pertama project XXX"
+</code></pre>
+
+<p>Project sudah tersimpan di repository Git di komputer lokal kita. Mari kita upload ke server, atau dikenal dengan istilah push.</p>
+
+<h2>Share Repository</h2>
+
+<p>Kita memerlukan server di mana kita memiliki ijin akses untuk melakukan push. Cara memperoleh ijin akses tidak dibahas pada artikel ini. Silahkan buat account di Github atau Gitorious. Bila ingin push ke repository perusahaan, minta informasinya pada admin Anda.</p>
+
+<p>Setelah kita mendapatkan URL server yang bisa kita gunakan, daftarkan sebagai remote. Berikut perintahnya.</p>
+
+<pre><code>git remote add &lt;namaremote&gt; &lt;URL&gt;
+</code></pre>
+
+<p>Contohnya seperti ini</p>
+
+<pre><code>git remote add github git@github.com:endymuhardin/project-terbaru-saya.git
+</code></pre>
+
+<p>Pastikan remotenya sudah terdaftar dengan perintah berikut</p>
+
+<pre><code>git remote -v
+</code></pre>
+
+<p>Terakhir, mari kita push dengan perintah berikut</p>
+
+<pre><code>git push &lt;namaremote&gt; &lt;namabranch&gt;
+</code></pre>
+
+<p>Contohnya</p>
+
+<pre><code>git push github master
+</code></pre>
+
+<p>Hore, project kita sudah naik ke server. Kita tinggal share URL tersebut ke rekan kerja kita.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1716,210 +1810,6 @@ untuk itu saya melakukan langkah2 berikut :</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/manajemen/manajemen-proyek-sederhana/">Manajemen Proyek Sederhana</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2010-02-17T04:55:40+07:00" pubdate data-updated="true">Feb 17<span>th</span>, 2010</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Di berbagai milis yang saya ikuti, ada diskusi menarik yang muncul. Apa saja yang harus dilakukan untuk dalam project management? Bagaimana SOP (standard operating procedure) nya? Tools apa yang digunakan?</p>
-
-<p>Saya sudah mencoba berbagai metodologi manajemen proyek sepanjang karir saya. Ala koboi di jaman jahiliah dulu, ala waterfall di perusahaan terdahulu, ala CMMI di BaliCamp, dan berbagai ala-ala lainnya. Sepanjang perjalanan tersebut, saya juga membaca tentang berbagai metodologi seperti XP, Scrum, Crystal, RUP, dsb.</p>
-
-<p>Dari semuanya, tentu tidak ada metodologi yang bisa digunakan di semua kondisi. Segalanya serba tergantung keadaan. Walaupun demikian, hasil pengalaman bertahun-tahun tersebut sudah memberikan saya pemahaman tentang latar belakang di aturan-aturan CMMI maupun di metodologi lainnya. Begitu kita mendapatkan alasan dibalik aturan tersebut, kita bisa mengambil esensinya dan mengimplementasikannya dengan bentuk lain yang sesuai dengan situasi kita.</p>
-
-<p>Berikut adalah manajemen proyek ala ArtiVisi.</p>
-
-<h2>Fase dan Siklus</h2>
-
-<p>Sebelum membahas lebih jauh tentang manajemen proyek, kita luruskan dulu beberapa istilah. Kita mengenal istilah fase dan siklus (lifecycle)</p>
-
-<p>Fase adalah tahapan yang dilalui dalam membuat aplikasi. Biasanya, dalam satu fase akan terdiri dari banyak task.</p>
-
-<p>Fase yang ada di internal ArtiVisi adalah sebagai berikut :
-1. Requirement Development
-2. Coding
-3. User Acceptance Test
-4. Implementasi</p>
-
-<p>Keempat fase ini berjalan secara serial, artinya, fase coding baru bisa dimulai setelah requirement development selesai, dsb.
-Mendengar ini, pembaca yang beraliran progresif revolusioner pasti langsung demo di Bundaran HI, &#8220;Waterfall is dead, long live Agile !!!&#8221;</p>
-
-<p>Tunggu dulu sebentar, waterfall dan iteratif itu adalah lifecycle, bukan fase.</p>
-
-<p>Lalu apa itu lifecycle? Lifecycle adalah urutan kita menjalankan fase tersebut <strong>di keseluruhan project</strong>. Bagaimana maksudnya ini?</p>
-
-<p>Begini, misalnya kita membuat aplikasi akunting. Aplikasi ini terdiri dari beberapa modul yaitu; ledger, hutang/piutang, dan manajemen kas. Lifecycle waterfall adalah apabila kita menjalankan project dengan urutan seperti ini :</p>
-
-<ol>
-<li><p>Project Planning</p>
-
-<ol>
-<li>Modul Ledger</li>
-<li>Modul Hutang/Piutang</li>
-<li>Modul Kas</li>
-</ol>
-</li>
-<li><p>Requirement Development</p>
-
-<ol>
-<li>Modul Ledger</li>
-<li>Modul Hutang/Piutang</li>
-<li>Modul Kas</li>
-</ol>
-</li>
-<li><p>Coding</p>
-
-<ol>
-<li>Modul Ledger</li>
-<li>Modul Hutang/Piutang</li>
-<li>Modul Kas</li>
-</ol>
-</li>
-<li><p>UAT</p>
-
-<ol>
-<li>Modul Ledger</li>
-<li>Modul Hutang/Piutang</li>
-<li>Modul Kas</li>
-</ol>
-</li>
-<li><p>Implementasi</p>
-
-<ol>
-<li>Modul Ledger</li>
-<li>Modul Hutang/Piutang</li>
-<li>Modul Kas</li>
-</ol>
-</li>
-</ol>
-
-
-<p>Lifecycle waterfall memang memiliki banyak kelemahan, apalagi kalau projectnya besar. Karena rentang waktu yang jauh antara fase requirement dan fase UAT, maka biasanya pada saat UAT user merasa kaget karena merasa aplikasi yang dibuat tidak sesuai ekspektasi. Entah karena user sudah lupa requirement yang dia bikin sendiri, ataupun karena proses bisnisnya memang sudah berubah.</p>
-
-<p>Lifecycle yang dijalankan ArtiVisi adalah Staged Delivery, seperti yang dijelaskan di bukunya Steve McConnell berjudul Rapid Development. Berikut urutannya.</p>
-
-<ol>
-<li><p>Global / High Level</p>
-
-<ol>
-<li>Project Planning</li>
-<li>Requirement Development</li>
-</ol>
-</li>
-<li><p>Modul Ledger</p>
-
-<ol>
-<li>Project Planning</li>
-<li>Requirement Development</li>
-<li>Coding</li>
-<li>UAT</li>
-<li>Implementasi</li>
-</ol>
-</li>
-<li><p>Modul Hutang/Piutang</p>
-
-<ol>
-<li>Project Planning</li>
-<li>Requirement Development</li>
-<li>Coding</li>
-<li>UAT</li>
-<li>Implementasi</li>
-</ol>
-</li>
-<li><p>Modul Kas</p>
-
-<ol>
-<li>Project Planning</li>
-<li>Requirement Development</li>
-<li>Coding</li>
-<li>UAT</li>
-<li>Implementasi</li>
-</ol>
-</li>
-</ol>
-
-
-<p>Pendekatan ini bukan waterfall, karena delivery-nya iteratif dan kecil-kecil. Satu modul biasanya berkisar 1 - 2 bulan saja, kira-kira sesuai dengan panjang sprint yang dianjurkan di metodologi Scrum. Tapi pendekatan ini juga bukan murni agile, karena ada global project planning dan requirement di awal. Untuk apa ada kegiatan itu? Tidak lain dan tidak bukan adalah untuk mengantisipasi interkoneksi antar modul.</p>
-
-<p>Bila kita langsung mengambil salah satu modul untuk diiterasi, maka ada resiko modul tersebut tidak nyambung dengan modul lainnya. Memang bisa disambungkan, tapi nanti akan berkesan tambal sulam. Istilahnya Fred Brooks dalam Mythical Man Month, tidak ada Conceptual Integrity. Oleh karena itu kita perlu melakukan global requirement development untuk melihat interaksi antar modul.</p>
-
-<p>Pembaca yang teliti mungkin juga akan bertanya, mengapa kita menggunakan istilah Requirement Development, bukannya Requirement Gathering? Ini karena untuk mendapatkan requirement, perlu usaha ekstra, tidak sekedar memungut (gathering) informasi di sana-sini. Seringkali kita harus menanyakan hal yang sama dari beberapa sudut pandang untuk mendapatkan apa maunya user. Di saat lain, kita harus bisa menebak fitur yang tersirat. Kalau user bilang, &#8220;Harus ada fitur untuk menyimpan data transaksi&#8221;, berarti tidak cuma ada screen edit dan list. Tapi juga harus ada fitur search berdasarkan tanggal, produk, nilai transaksi, dan atribut lainnya. Kadangkala ini juga berarti harus ada fitur untuk export/import ke format file lainnya. Jadi, untuk mendapatkan requirement, perlu proses development. Mulai dari sedikit, lalu diakumulasi, dan dikristalisasi sehingga benar-benar akurat dan lengkap. Jangan sampai ada yang ketinggalan.</p>
-
-<p>Kelima fase yang dijelaskan di atas merupakan fase yang sekuensial. Artinya, satu fase dijalankan setelah fase lain selesai. Kita tidak bisa mulai implementasi sebelum UAT selesai. Well, bisa sih, tapi hasilnya <em>tidak akan menyenangkan</em>. Demikian juga, kalau belum selesai coding, ya jangan UAT dulu. Bisa sih maksain UAT, tapi tentu <em>tidak akan menyenangkan</em>. Begitu juga halnya kalau kita coding sebelum jelas requirementnya.</p>
-
-<p>Selain fase yang sekuensial tersebut, ada juga serangkaian kegiatan yang harus kita lakukan secara kontinyu sepanjang project. Yaitu project tracking dan change management.</p>
-
-<h2>Project Tracking</h2>
-
-<p>Project tracking tidak sulit. Setiap minggu, harus ada orang yang melihat project plan dan membandingkan dengan kondisi sekarang. Task mana yang sudah selesai, mana yang sedang dikerjakan, mana yang sudah selesai. Kondisi sekarang ini direkap ke dalam satu laporan, 1-2 halaman, dan dilaporkan ke client dan manajemen. Di ArtiVisi, mengadopsi dari BaliCamp, selain rekap task juga disertakan rekap resiko dan masalah yang terjadi dalam proyek. Ini akan menjadi bahan diskusi dengan client, bagaimana cara memecahkan masalah tersebut, dan bagaimana mencegah resiko agar tidak berdampak merugikan.</p>
-
-<h2>Requirement Development</h2>
-
-<p>Sebelum membahas change management, kita bahas dulu requirement. Di ArtiVisi, requirement bentuknya adalah daftar screen aplikasi, biasanya dibuat dengan Netbeans. Kami tidak menggunakan format naratif seperti yang dianut beberapa organisasi dan dinamai User Requirement Specification (URS), Business Requirement Specification (BRS), atau Software Requirement Specification (SRS), User Story, atau istilah-istilah lainnya. Berdasarkan pengalaman, dokumen naratif membuat user malas berinteraksi. Untuk aplikasi shopping cart sederhana saja, bila dibuatkan <em>RS, akan menjadi lebih dari 20 halaman. Apalagi untuk aplikasi yang besar. Client akan malas membaca, dan akibatnya pada saat aplikasi dideliver hasilnya tidak sesuai ekspektasi, walaupun sesuai dengan </em>RS.</p>
-
-<p>ArtiVisi menggunakan prototype aplikasi untuk requirement. Kita buatkan screen desktop ataupun web, diisi data hardcoded, dan sudah memiliki menu dan flow. Dari screen registrasi klik submit akan masuk screen konfirmasi, dst. Dengan menggunakan prototype yang bisa diisi dan diklik, user akan lebih bersemangat untuk berinteraksi, sehingga hasil requirement akan menjadi berkualitas. Pada fase requirement ini user bebas meminta modifikasi apapun asal masih dalam scope yang disepakati.</p>
-
-<p>Setelah tidak ada lagi perubahan signifikan, semua screen dicapture, dimasukkan ke dokumen, dan diapprove client (sign off). Ini akan menjadi patokan dalam proses development, diantaranya digunakan oleh programmer untuk coding, dan technical writer untuk membuat user manual.</p>
-
-<h2>Change Management</h2>
-
-<p>Perubahan setelah sign off harus melalui prosedur change management. Ini gunanya agar progress project bisa terkendali. Sering sekali banyak project molor dan tidak selesai-selesai karena banyak perubahan ini itu yang tidak dikelola dengan baik sehingga tidak terlihat titik akhirnya.</p>
-
-<p><img src="/images/uploads/2010/02/change-procedure_id-212x300.png" title="Prosedur Change Management" ></p>
-
-<p>Prosedur change management tidak rumit. Hanya terdiri dari tiga langkah saja, yaitu :</p>
-
-<ol>
-<li>Requester menjelaskan perubahan yang diminta, apa alasan yang mendasari perubahan</li>
-<li>Tim development menganalisa dampak perubahan, apakah ada coding yang berubah, user manual, test scenario, dsb. Output dari analisa ini adalah estimasi berapa tambahan waktu, tenaga, dan biaya untuk mengeksekusi perubahan ini</li>
-<li><p>Manajemen di sisi client memutuskan berdasarkan estimasi tersebut, apakah perubahan ini akan :</p>
-
-<ul>
-<li>Dijalankan segera</li>
-<li>Ditunda ke iterasi berikut</li>
-<li>Ditolak, artinya tidak jadi dijalankan pada project ini, mungkin saja dijadikan project baru.</li>
-</ul>
-</li>
-</ol>
-
-
-<p>Dengan adanya proses ini, akan jelas berapa hari project akan mundur, dan berapa biaya tambahannya.</p>
-
-<p>Demikian sharing tentang praktek yang kita gunakan di ArtiVisi. Metodologi ini cukup sederhana, sehingga bisa dijalankan bahkan di project yang one-man-show. Project manager dia, business analyst dia, programmer dia juga, training lagi-lagi dia, terima transferan tidak lain dan tidak bukan adalah dia juga. Di project berskala besar, metodologi ini juga cukup efektif untuk membuat project berjalan secara predictable.</p>
-
-<p>Masih ada penjelasan lebih lanjut yang harus ditulis, diantaranya bagaimana cara menghitung (estimasi) project, dan bagaimana melakukan project planning dan tracking yang efektif. Ini akan dibahas di tulisan yang lain.</p>
-
-<p>Bila ingin berkomentar atau berdiskusi, silahkan bergabung di milis it-project-indonesia@googlegroups.com dengan cara mengirim email kosong ke it-project-indonesia-subscribe@googlegroups.com</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/page/10/">&larr; Older</a>
@@ -1996,6 +1886,10 @@ jangan ragu untuk memberikan donasi :)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/aplikasi/membuat-blog-gratis-di-openshift/">Membuat Blog Gratis di Openshift</a>
+      </li>
+    
+      <li class="post">
         <a href="/java/scope-variabel/">Scope Variabel</a>
       </li>
     
@@ -2029,10 +1923,6 @@ jangan ragu untuk memberikan donasi :)
     
       <li class="post">
         <a href="/java/memahami-authentication/">Memahami Authentication</a>
-      </li>
-    
-      <li class="post">
-        <a href="/java/desain-skema-database/">Desain Skema Database</a>
       </li>
     
   </ul>
