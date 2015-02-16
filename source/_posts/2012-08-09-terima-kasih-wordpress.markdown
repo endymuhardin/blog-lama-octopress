@@ -122,7 +122,7 @@ Selanjutnya, saya harus membersihkan tag image dan caption bawaan Wordpress, kar
 
 {% raw %}
 
-Berikut perintah untuk memperbaiki tag image yang tadinya seperti ini <code>!\[Synergy Screenshot](/images/uploads/2006/05/synergy.gif)</code> menjadi seperti ini <code>{% img /uploads/2006/05/synergy.gif Synergy Screenshot %} </code>, saya gunakan perintah berikut : 
+Berikut perintah untuk memperbaiki tag image yang tadinya seperti ini <code>!\[Synergy Screenshot](/images/uploads/2006/05/synergy.gif)</code> menjadi seperti ini <code>![Synergy Screenshot ](/uploads/2006/05/synergy.gif) </code>, saya gunakan perintah berikut : 
 
 
 ``` sh

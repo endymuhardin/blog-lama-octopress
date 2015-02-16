@@ -155,6 +155,6 @@ Berikut penjelasannya:
 
 
 Laporan yang dihasilkan bentuknya seperti ini: 
-{% img /images/uploads/2006/07/pmd-report.png PMD Review Result %}
+![PMD Review Result ](/images/uploads/2006/07/pmd-report.png)
 
 Selamat mencoba. Semoga bermanfaat. 

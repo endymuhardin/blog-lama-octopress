@@ -108,7 +108,7 @@ Sekarang kita bahas untuk Windows. Cara mengedit environment variable sama seper
 
 Buat variabel baru di System Variable untuk `ANDROID_HOME`.
 
-{% img http://lh4.googleusercontent.com/-O7f60nY5hdg/UpVtYN-9DGI/AAAAAAAACe8/sKR8b7FLBqE/s600/07.+ANDROID_HOME.png %}
+![Foto](http://lh4.googleusercontent.com/-O7f60nY5hdg/UpVtYN-9DGI/AAAAAAAACe8/sKR8b7FLBqE/s600/07.+ANDROID_HOME.png)
 
 Kemudian edit variabel `PATH`. Tambahkan:
 
@@ -118,14 +118,14 @@ whatever-isi-path-yang-lama;%ANDROID_HOME%\tools;%ANDROID_HOME%\platform-tools
 
 Klik OK untuk menutup semua dialog. Setelah itu kita test. Buka command prompt baru. Kalau sebelumnya sudah membuka command prompt, harus ditutup dulu dan buka yang baru. Jika konfigurasinya benar, kita bisa menjalankan Android SDK Manager dari command prompt seperti ini
 
-{% img http://lh6.googleusercontent.com/-rij7T-pjn68/UpVtZ4POW-I/AAAAAAAACfQ/djaLB5KDbwo/s600/10.+Test+Android+SDK.png %}
+![Foto](http://lh6.googleusercontent.com/-rij7T-pjn68/UpVtZ4POW-I/AAAAAAAACfQ/djaLB5KDbwo/s600/10.+Test+Android+SDK.png)
 
 <a name="update-android-sdk"></a>
 ## Update Android SDK ##
 
 Secara default, Android SDK yang baru saja kita extract hanya menyertakan library terbaru saja, pada waktu artikel ini ditulis versinya `4.4` atau _Kitkat_. 
 
-{% img http://lh5.googleusercontent.com/-vczCzhCpYws/UpVjYYmGRKI/AAAAAAAACdg/5p0aXCK_j0k/s600/01.+Android+SDK+Default.png %}
+![Foto](http://lh5.googleusercontent.com/-vczCzhCpYws/UpVjYYmGRKI/AAAAAAAACdg/5p0aXCK_j0k/s600/01.+Android+SDK+Default.png)
 
 Seperti kita lihat pada screenshot, yang statusnya `Installed` cuma versi terakhir saja.
 
@@ -146,7 +146,7 @@ Kalau kita mau mendukung perangkat mulai dari Honeycomb sampai Kitkat, maka kita
 
 Selanjutnya, kita centang `API` yang ingin kita instal, kemudian tekan tombol Install Package
 
-{% img http://lh3.googleusercontent.com/-fUnAXSB8xes/UpVjYe8lu4I/AAAAAAAACdk/8i7PtYMkJI4/s600/02.+Additional+Package.png %}
+![Foto](http://lh3.googleusercontent.com/-fUnAXSB8xes/UpVjYe8lu4I/AAAAAAAACdk/8i7PtYMkJI4/s600/02.+Additional+Package.png)
 
 Paket yang diinstal cukup besar. Dengan koneksi internet saya yang berkecepatan 60 KB/s, butuh waktu 60-90 menit untuk mengunduh versi Honeycomb.
 
@@ -213,7 +213,7 @@ Agar bisa dijalankan dengan baik, Maven Android SDK Deployer membutuhkan:
 
 Coba perhatikan apa-apa yang saya centang untuk diinstal di screenshot ini
 
-{% img http://lh3.googleusercontent.com/-fUnAXSB8xes/UpVjYe8lu4I/AAAAAAAACdk/8i7PtYMkJI4/s600/02.+Additional+Package.png %}
+![Foto](http://lh3.googleusercontent.com/-fUnAXSB8xes/UpVjYe8lu4I/AAAAAAAACdk/8i7PtYMkJI4/s600/02.+Additional+Package.png)
 
 Selanjutnya, kita deploy juga Maven artifact untuk versi `3.0` (Honeycomb)
 
@@ -258,7 +258,7 @@ Perintah `android create project` ini memerlukan beberapa opsi yaitu:
 
 * target : adalah versi Android yang akan didukung aplikasi kita. [Gunakan versi tertinggi/terbaru](http://developer.android.com/training/basics/firstapp/creating-project.html). Nilai target ini berbeda-beda tergantung versi Android yang sudah terpasang di Android SDK. Untuk mengetahui nilai target yang tersedia, jalankan perintah `android list target`. Hasilnya di laptop saya seperti ini
 
-    {% codeblock %}
+    ```
     Available Android targets:
     ----------
     id: 1 or "android-11"
@@ -306,7 +306,7 @@ Perintah `android create project` ini memerlukan beberapa opsi yaitu:
               API for Google Maps
          Skins: WVGA854, WQVGA400, WSVGA, WXGA800-7in, WXGA720, HVGA, WQVGA432, QVGA, WVGA800 (default), WXGA800
          ABIs : armeabi-v7a
-    {% endcodeblock %}
+    ```
 
 * name : Nama aplikasi.
 * path : lokasi folder tempat aplikasi akan dibuat.
@@ -352,7 +352,7 @@ Petunjuk lengkapnya [ada di website Android Maven Plugin](https://code.google.co
 
 * Sesuaikan dependensi supaya mengarah ke artifact yang [sudah kita install menggunakan Maven Android SDK Deployer](#konfigurasi-repository-maven-android). Berikut dependensi di `pom.xml` saya
 
-{% codeblock lang:xml %}
+```xml
 <dependencies>
     <dependency>
         <groupId>android</groupId>
@@ -361,11 +361,11 @@ Petunjuk lengkapnya [ada di website Android Maven Plugin](https://code.google.co
         <scope>provided</scope>
     </dependency>
 </dependencies>
-{% endcodeblock %}
+```
 
 * Coba build dengan perintah `mvn clean install`. Kalau lancar, berikut outputnya
 
-    {% codeblock %}
+    ```
 [INFO] Installing /home/endy/tmp/AplikasiAndroid/target/aplikasi-android.apk to /home/endy/.m2/repository/com/muhardin/endy/belajar/android/aplikasi-android/1.0.0-SNAPSHOT/aplikasi-android-1.0.0-SNAPSHOT.apk
 [INFO] Installing /home/endy/tmp/AplikasiAndroid/pom.xml to /home/endy/.m2/repository/com/muhardin/endy/belajar/android/aplikasi-android/1.0.0-SNAPSHOT/aplikasi-android-1.0.0-SNAPSHOT.pom
 [INFO] Installing /home/endy/tmp/AplikasiAndroid/target/aplikasi-android.jar to /home/endy/.m2/repository/com/muhardin/endy/belajar/android/aplikasi-android/1.0.0-SNAPSHOT/aplikasi-android-1.0.0-SNAPSHOT.jar
@@ -376,7 +376,7 @@ Petunjuk lengkapnya [ada di website Android Maven Plugin](https://code.google.co
 [INFO] Finished at: Wed Nov 27 14:31:53 WIT 2013
 [INFO] Final Memory: 24M/218M
 [INFO] ------------------------------------------------------------------------
-     {% endcodeblock %}
+     ```
 
 Project kita sudah siap dibuka di IDE. Silahkan dicoba edit dan build lagi.
 
@@ -385,11 +385,11 @@ Project kita sudah siap dibuka di IDE. Silahkan dicoba edit dan build lagi.
 
 Supaya bisa dideploy di emulator, terlebih dulu kita buat emulatornya di Android SDK. Kita bisa pilih versi Android dan juga ukuran layar yang diinginkan. Jalankan Android SDK, kemudian klik menu `Tools > Manage AVD`
 
-{% img http://lh5.googleusercontent.com/-Qv1lsyVMLOY/UpWhzrsreXI/AAAAAAAACfs/BSJ91bvXiI0/s600/03.+Konfigurasi+AVD.png %}
+![Foto](http://lh5.googleusercontent.com/-Qv1lsyVMLOY/UpWhzrsreXI/AAAAAAAACfs/BSJ91bvXiI0/s600/03.+Konfigurasi+AVD.png)
 
 Hasilnya bisa dilihat di AVD Manager
 
-{% img http://lh4.googleusercontent.com/-0ZCzrMJ58HE/UpWhzuL1sYI/AAAAAAAACfw/uZLHOeki2Kk/s600/04.+AVD+Manager.png %}
+![Foto](http://lh4.googleusercontent.com/-0ZCzrMJ58HE/UpWhzuL1sYI/AAAAAAAACfw/uZLHOeki2Kk/s600/04.+AVD+Manager.png)
 
 Pada screenshot di atas, nama emulatornya adalah `Nexus4`. Pemilihan nama bebas saja.
 
@@ -439,7 +439,7 @@ Selanjutnya, kita bisa jalankan emulator dari Maven dengan perintah `mvn android
 
 Emulator segera aktif. Tunggu sampai dia siap.
 
-{% img http://lh4.googleusercontent.com/-2Wg4lTl5IvM/UpWjpNoCAsI/AAAAAAAACgA/9qD6wVry2BQ/s600/05.+Android+Emulator.png %}
+![Foto](http://lh4.googleusercontent.com/-2Wg4lTl5IvM/UpWjpNoCAsI/AAAAAAAACgA/9qD6wVry2BQ/s600/05.+Android+Emulator.png)
 
 Kemudian kita bisa deploy menggunakan perintah `mvn android:deploy`. Berikut outputnya
 
@@ -467,7 +467,7 @@ Kemudian kita bisa deploy menggunakan perintah `mvn android:deploy`. Berikut out
 
 Aplikasi kita sudah terdeploy dengan sukses di emulator.
 
-{% img http://lh3.googleusercontent.com/-EM44OK6A32Y/UpWkehULp1I/AAAAAAAACgQ/TUMZ2MM0XLs/s600/06.+Aplikasi+Terdeploy.png %}
+![Foto](http://lh3.googleusercontent.com/-EM44OK6A32Y/UpWkehULp1I/AAAAAAAACgQ/TUMZ2MM0XLs/s600/06.+Aplikasi+Terdeploy.png)
 
 Selanjutnya, mari kita coba di handset.
 
@@ -503,11 +503,11 @@ Setelah itu, cukup tancapkan handset melalui USB, lalu jalankan lagi `mvn androi
 
 Aplikasipun terpasang di handset.
 
-{% img http://lh6.googleusercontent.com/-74yIG4jiS8U/UpWnVDIWZ1I/AAAAAAAACgo/Gzsz4YGGOLo/s600/07.+Deploy+Handset.png %}
+![Foto](http://lh6.googleusercontent.com/-74yIG4jiS8U/UpWnVDIWZ1I/AAAAAAAACgo/Gzsz4YGGOLo/s600/07.+Deploy+Handset.png)
 
 Kita bisa klik icon-nya untuk menjalankan
 
-{% img http://lh3.googleusercontent.com/-0evtaY9zktE/UpWnRhqFiAI/AAAAAAAACgg/pYaTd__syOY/s600/08.+Run+Application.png %}
+![Foto](http://lh3.googleusercontent.com/-0evtaY9zktE/UpWnRhqFiAI/AAAAAAAACgg/pYaTd__syOY/s600/08.+Run+Application.png)
 
 ## Kesimpulan ##
 

@@ -156,11 +156,11 @@ public class DayCounterTest extends TestCase {
 
 Akan menghasilkan coverage yang bagus, karena semua baris sudah ditest. Berikut adalah hasil coverage testnya:
 
-{% img /images/uploads/2006/07/cobertura-all-green-small.png Cobertura All Pass %}
+![Cobertura All Pass ](/images/uploads/2006/07/cobertura-all-green-small.png)
 
 Kita juga bisa melihat coverage detail dari class DayCounter.java: 
 
-{% img /images/uploads/2006/07/cobertura-class-green-small.png Cobertura Class Detail Pass %}
+![Cobertura Class Detail Pass ](/images/uploads/2006/07/cobertura-class-green-small.png)
 
 Bila kita non-aktifkan beberapa test, seperti ini: 
 
@@ -186,11 +186,11 @@ public class DayCounterTest extends TestCase {
 
 Maka kode kita tidak akan lolos test, karena hasil coverage totalnya seperti ini: 
 
-{% img /images/uploads/2006/07/cobertura-all-red-small.png Cobertura All Failed %}
+![Cobertura All Failed ](/images/uploads/2006/07/cobertura-all-red-small.png)
 
 dan detail classnya seperti ini
 
-{% img /images/uploads/2006/07/cobertura-class-red-small.png Cobertura Class Detail Failed %}
+![Cobertura Class Detail Failed ](/images/uploads/2006/07/cobertura-class-red-small.png)
 
 Bagaimana? 
 Mudah dan cepat kan?

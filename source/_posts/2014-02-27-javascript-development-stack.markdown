@@ -19,7 +19,7 @@ Nah saya yakin kebingungan ini juga akan dialami oleh rekan-rekan yang baru bela
 
 Sebagai gambaran, bentuk akhir dari aplikasi yang akan dibuat seperti ini
 
-{% img https://lh4.googleusercontent.com/-a6DbvzDCjUA/Uw7xgeieBQI/AAAAAAAAFR0/fIac8wOIBGg/w844-h597-no/mean-stack.png %}
+![Foto](https://lh4.googleusercontent.com/-a6DbvzDCjUA/Uw7xgeieBQI/AAAAAAAAFR0/fIac8wOIBGg/w844-h597-no/mean-stack.png)
 
 <!--more-->
 
@@ -27,7 +27,7 @@ Sebagai gambaran, bentuk akhir dari aplikasi yang akan dibuat seperti ini
 
 Biasanya kalau kita membuat aplikasi web modern dengan menggunakan AJAX, begini arsitekturnya:
 
-{% img https://lh3.googleusercontent.com/-5tGzUVc2lk4/UwFrrT20hmI/AAAAAAAAFJk/zRxIxumf_O4/w800-h566-no/restful-architecture.png %}
+![Foto](https://lh3.googleusercontent.com/-5tGzUVc2lk4/UwFrrT20hmI/AAAAAAAAFJk/zRxIxumf_O4/w800-h566-no/restful-architecture.png)
 
 Aplikasi akan terbagi menjadi dua bagian (client side dan server side) yang jelas batasannya, yaitu:
 
@@ -36,11 +36,11 @@ Aplikasi akan terbagi menjadi dua bagian (client side dan server side) yang jela
 
 Kalau kita membuat aplikasi menggunakan NodeJS, maka semuanya dibuat menggunakan bahasa pemrograman JavaScript. Ini bisa membuat kita bingung, mana client side mana server side, karena semuanya JS. Supaya tidak bingung, kita anggap saja NodeJS ini adalah PHP. Dia hanya bisa jalan di server saja, tidak bisa jalan di browser. Dengan cara berpikir seperti ini, skema berikut ini
 
-{% img https://lh3.googleusercontent.com/-rdH4DqYrios/Uw7xQi5JTUI/AAAAAAAAFRk/U1AOrcjH4yM/w522-h216-no/lamp-stack.png %}
+![Foto](https://lh3.googleusercontent.com/-rdH4DqYrios/Uw7xQi5JTUI/AAAAAAAAFRk/U1AOrcjH4yM/w522-h216-no/lamp-stack.png)
 
 sama saja dengan ini
 
-{% img https://lh3.googleusercontent.com/-AQfudbu3qXo/Uw7xRPvnQYI/AAAAAAAAFRs/G1pkS6S3uvM/w522-h216-no/mean-stack.png %}
+![Foto](https://lh3.googleusercontent.com/-AQfudbu3qXo/Uw7xRPvnQYI/AAAAAAAAFRs/G1pkS6S3uvM/w522-h216-no/mean-stack.png)
 
 
 Kita juga harus membedakan framework JavaScript client-side seperti:
@@ -164,11 +164,11 @@ Satu lagi membahas tentang [skema workflow selama development](http://www.emmanu
 
 Berikut adalah arsitektur deployment di lingkungan production yang kita tuju
 
-{% img https://lh5.googleusercontent.com/-45qcTjWcens/Uw8ehKdmLOI/AAAAAAAAFSo/ZQiJqKzeZrk/w734-h550-no/deployment-production.png %}
+![Foto](https://lh5.googleusercontent.com/-45qcTjWcens/Uw8ehKdmLOI/AAAAAAAAFSo/ZQiJqKzeZrk/w734-h550-no/deployment-production.png)
 
 Dan ini adalah skema deployment di laptop masing-masing programmer
 
-{% img https://lh4.googleusercontent.com/-LvEC29ahKfs/Uw8ehH3uMbI/AAAAAAAAFSs/QzxyjTUSWQ8/w386-h550-no/deployment-development.png %}
+![Foto](https://lh4.googleusercontent.com/-LvEC29ahKfs/Uw8ehH3uMbI/AAAAAAAAFSs/QzxyjTUSWQ8/w386-h550-no/deployment-development.png)
 
 > Cukup mirip kan?
 
@@ -248,7 +248,7 @@ debug: --------------------------------------------------------
 
 Kita bisa browse ke `http://localhost:1337`
 
-{% img https://lh6.googleusercontent.com/-lQ4xghosjJY/Uw9HAoW29FI/AAAAAAAAFTY/bitPnyw7nBk/w909-h573-no/01-test-sails-ok.png %}
+![Foto](https://lh6.googleusercontent.com/-lQ4xghosjJY/Uw9HAoW29FI/AAAAAAAAFTY/bitPnyw7nBk/w909-h573-no/01-test-sails-ok.png)
 
 Selesai sudah pembuatan aplikasi server. Mudah bukan? 
 
@@ -332,7 +332,7 @@ Waiting...
 
 Browser akan terbuka dan mengarah ke `http://127.0.0.1:9000`. Ini merupakan fitur LiveReload dari Grunt. Semua perubahan yang kita buat di source code akan langsung tampil di browser tanpa perlu refresh ataupun restart.
 
-{% img https://lh3.googleusercontent.com/-BIe-5q4gFYA/Uw9HAoUTHAI/AAAAAAAAFTc/wRPt39Kk9Bs/w909-h573-no/02-test-grunt-ok.png %}
+![Foto](https://lh3.googleusercontent.com/-BIe-5q4gFYA/Uw9HAoUTHAI/AAAAAAAAFTc/wRPt39Kk9Bs/w909-h573-no/02-test-grunt-ok.png)
 
 Untuk mematikannya, gunakan Ctrl-C
 
@@ -424,7 +424,7 @@ Bila PhantomJS belum ada, instal dulu menggunakan perintah `sudo npm install -g 
 
 Setelah rangkaian kegiatan yang dilakukan Grunt selesai, pastikan hasilnya ada dalam aplikasi server
 
-{% img https://lh3.googleusercontent.com/-kZ4ijjT4TAk/Uw9HB0thj3I/AAAAAAAAFTk/aKJJLsMglMk/w609-h597-no/04-test-compile-ok.png %}
+![Foto](https://lh3.googleusercontent.com/-kZ4ijjT4TAk/Uw9HB0thj3I/AAAAAAAAFTk/aKJJLsMglMk/w609-h597-no/04-test-compile-ok.png)
 
 Terakhir, kita aktifkan proxy agar url `api/*` yang mengarah ke server Grunt diteruskan ke SailsJS di port `1337`.  Proxy ini membutuhkan tambahan package `grunt-connect-proxy`. Install menggunakan `npm` dalam aplikasi client
 
@@ -445,7 +445,7 @@ Selanjutnya kita edit file `Gruntfile.js`. Ada beberapa bagian yang harus kita u
 
 * konfigurasi URL yang akan diproxy. Lokasinya di dalam blok `connect` sejajar dengan blok `options`. 
 
-{% codeblock Konfigurasi URL lang:js %}
+```js
 options: {
     port: 9000,
     // Change this to '0.0.0.0' to access the server from outside.
@@ -459,12 +459,12 @@ proxies: [
         port: 1337
     }
 ],
-{% endcodeblock %}
+```
 
 
 * Aktivasi proxy dalam `middleware`
 
-{% codeblock Konfigurasi Middleware lang:js %}
+```
 livereload: {
   options: {
     open: true,
@@ -480,12 +480,12 @@ livereload: {
     }
   }
 },
-{% endcodeblock %}
+```
 
 
 * Panggil konfigurasi proxy pada saat server Grunt dijalankan
 
-{% codeblock lang:js Aktivasi pada saat run %}
+```
 grunt.task.run([
       'clean:server',
       'bower-install',
@@ -495,11 +495,11 @@ grunt.task.run([
       'connect:livereload',
       'watch'
     ]);
-{% endcodeblock %}
+```
 
 Sekarang kita tes konfigurasi proxy dengan cara browse ke `http://localhost:9000/api`. Request ini akan diterima server Grunt dan akan diteruskan ke server Sails. Jadi harusnya request ini akan dilayani oleh Sails.
 
-{% img https://lh4.googleusercontent.com/-h-d7K0XO2x8/Uw9HAo4Ey4I/AAAAAAAAFTU/VRgJIDvUqxM/w909-h573-no/03-test-proxy-ok.png %}
+![Foto](https://lh4.googleusercontent.com/-h-d7K0XO2x8/Uw9HAo4Ey4I/AAAAAAAAFTU/VRgJIDvUqxM/w909-h573-no/03-test-proxy-ok.png)
 
 Tampak pesan error disana. Tidak apa-apa, kita akan perbaiki nanti. Yang penting sudah jelas bahwa request tersebut dilayani oleh Sails, bukan oleh Grunt.
 

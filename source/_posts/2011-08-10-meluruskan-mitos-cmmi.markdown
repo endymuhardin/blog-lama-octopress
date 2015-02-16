@@ -107,9 +107,9 @@ UUD 45 aja bisa diamandemen, masa project plan gak bisa :D
 
 Contoh lain, mengelola requirement (Requirement Management), Level 2.
 
-{% blockquote %}
-S.P 1.1 : Understand Requirement : kita harus memastikan bahwa requirement dipahami.
-{% endblockquote %}
+
+> S.P 1.1 : Understand Requirement : kita harus memastikan bahwa requirement dipahami.
+
 
 Gimana cara membuktikannya?
 
@@ -123,9 +123,9 @@ So, overhead dokumen (mis: review report) itu ada kalo kita memalsukan proses.
 
 Selama kita benar-benar menjalankan apa yang disuruh, pasti ada evidence bahwa kita menjalankan, entah itu bentuknya chat YM, email, Skype call, apalah terserah, tidak ada CMMI mewajibkan formatnya harus mp3 atau apa.
 
-{% blockquote %}
-SP 1.2 : Obtain Commitment to Requirement : semua pihak harus commit terhadap requirement yang sudah dibuat.
-{% endblockquote %}
+
+> SP 1.2 : Obtain Commitment to Requirement : semua pihak harus commit terhadap requirement yang sudah dibuat.
+
 
 Gimana cara membuktikan bahwa kita comply dengan SP ini?
 
@@ -139,9 +139,9 @@ Kalau proses ini tidak dijalankan, akan menimbulkan masalah di kemudian hari. Us
 
 Kalo prosesnya palsu, atau clientnya gaptek gak kenal email, ya dibuatlah dokumen requirement sign off. Orang2 tandatangan. Dokumennya dijadikan evidence.
 
-{% blockquote %}
-SP 1.3 : Manage Requirement Changes : kalo requirement berubah, harus di-manage.
-{% endblockquote %}
+
+> SP 1.3 : Manage Requirement Changes : kalo requirement berubah, harus di-manage.
+
 
 Apa itu dimanage? 
 
@@ -157,9 +157,9 @@ Ok, lalu kenapa semua harus ada evidence ??
 
 Berikut joke dari auditor kita dulu, 
 
-{% blockquote %}
-In God We Trust, everybody else brings data.
-{% endblockquote %}
+
+> In God We Trust, everybody else brings data.
+
 
 Jadi, CMMI = banyak dokumen hanyalah mitos belaka. Untuk bisa melakukan verifikasi, auditor tentu butuh melihat evidence. Di jaman modern seperti sekarang, evidence bentuknya tidak harus dokumen tertulis yang dibuat dengan aplikasi office. 
 

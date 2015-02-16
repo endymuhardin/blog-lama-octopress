@@ -15,26 +15,24 @@ Hari Senin kemarin, ArtiVisi mengadakan internal training mengenai ExtJS yang di
 
 ## Cara setup project ExtJS
 
-{% video http://artivisi.com/~endy/videos/training-extjs/01.%20Setup%20ExtJS.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/01.%20Setup%20ExtJS.png %}
+TODO : fix video
 
 ## Memahami Layout
 
-{% video http://artivisi.com/~endy/videos/training-extjs/02.%20ExtJS%20Layout.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/02.%20ExtJS%20Layout.png %}
-
+TODO : fix video
 
 ## Membuat Menubar
 
-{% video http://artivisi.com/~endy/videos/training-extjs/03.%20Klik%20Menu%20muncul%20Tab.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/03.%20Klik%20Menu%20muncul%20Tab.png %}
-
+TODO : fix video
 ## Membuat User Management Screen
 
 
-{% video http://artivisi.com/~endy/videos/training-extjs/04.%20Membuat%20User%20Management%20Screen.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/04.%20Membuat%20User%20Management%20Screen.png %}
+TODO : fix video
 
 ## Membuat Toolbar CRUD
 
 
-{% video http://artivisi.com/~endy/videos/training-extjs/05.%20Membuat%20Toolbar%20CRUD.mp4 640 320 http://artivisi.com/~endy/videos/training-extjs/05.%20Membuat%20Toolbar%20CRUD.png %}
+TODO : fix video
 
 Masih ada beberapa materi lanjutan yang belum sempat disampaikan, yaitu: 
 

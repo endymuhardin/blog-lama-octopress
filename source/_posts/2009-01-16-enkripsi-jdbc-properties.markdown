@@ -106,11 +106,10 @@ Nilai itulah yang kita copy-paste ke dalam `jdbc.properties`.
 
 Pembaca yang teliti belum puas dengan penjelasan ini, biasanya bertanya
 
-{% blockquote %}
-Lalu kalau passwordnya tetap kita tulis di file konfigurasi apa manfaatnya?
-Orang yang membaca file tersebut tinggal menjalankan Jasypt seperti contoh kode di atas, 
-dan dia akan mendapatkan password yang sebenarnya.
-{% endblockquote %}
+
+> Lalu kalau passwordnya tetap kita tulis di file konfigurasi apa manfaatnya?
+> Orang yang membaca file tersebut tinggal menjalankan Jasypt seperti contoh kode di atas, dan dia akan mendapatkan password yang sebenarnya.
+
 
 Nah, benar juga.
 

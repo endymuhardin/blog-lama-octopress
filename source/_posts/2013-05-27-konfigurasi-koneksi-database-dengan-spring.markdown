@@ -231,15 +231,15 @@ Keempat informasi di atas adalah informasi umum yang kita butuhkan apapun metode
 Saya pernah mendapatkan masalah karena setting default ini. Aplikasi bengong seolah hang. Dicek ke log file tidak ada error. Ternyata masalahnya ada query yang kurang optimal sehingga memakan waktu lama. Pada saat banyak request yang menjalankan query tersebut, request lain menunggu lama tanpa ada pemberitahuan, sehingga terkesan hang. Setelah nilai `maxWait` saya ganti menjadi 30 detik, mulai banyak error message bermunculan dari request yang menunggu > 30 detik. Dengan adanya error message, query bermasalah tersebut menjadi terlihat sehingga bisa diperbaiki.
 
 
-{% blockquote %}
-Pesan moral pertama : pesan error itu penting untuk mengetahui sumber masalah. Dalam bugfixing, yang paling penting adalah menemukan masalah. Kalau masalah sudah ditemukan, siapa saja bisa memperbaiki. Jadi kalau aplikasi kita bermasalah, prioritas pertama kita adalah membuat dia mengeluarkan pesan error yang jelas.
-{% endblockquote %}
+
+> Pesan moral pertama : pesan error itu penting untuk mengetahui sumber masalah. Dalam bugfixing, yang paling penting adalah menemukan masalah. Kalau masalah sudah ditemukan, siapa saja bisa memperbaiki. Jadi kalau aplikasi kita bermasalah, prioritas pertama kita adalah membuat dia mengeluarkan pesan error yang jelas.
+
 
 Baca [artikel ini](http://software.endy.muhardin.com/java/tips-melaporkan-error/) untuk mengetahui apa yang dimaksud dengan pesan error yang jelas.
 
-{% blockquote %}
-Pesan moral kedua : Dalam bugfixing, sering kali kita tidak langsung mendapatkan masalah utama. Pada kasus di atas, pertama kali saya menemukan bahwa perilaku defaultnya Commons DBCP adalah menunggu koneksi dengan sabar sampai selamanya. Setelah ini diubah, barulah saya menemukan masalah utama, yaitu ada query yang tidak optimal.
-{% endblockquote %}
+
+> Pesan moral kedua : Dalam bugfixing, sering kali kita tidak langsung mendapatkan masalah utama. Pada kasus di atas, pertama kali saya menemukan bahwa perilaku defaultnya Commons DBCP adalah menunggu koneksi dengan sabar sampai selamanya. Setelah ini diubah, barulah saya menemukan masalah utama, yaitu ada query yang tidak optimal.
+
 
 
 

@@ -149,9 +149,9 @@ public void simpan(Produk p) {
 
 ## Insert Data Header dan Detail ##
 
-{% blockquote %}
-Kenapa kita perlu mengambil primary key yang digenerate database?
-{% endblockquote %}
+
+> Kenapa kita perlu mengambil primary key yang digenerate database?
+
 
 Jawabannya karena kita membutuhkannya dalam skenario header dan detail. Di tabel detail, ada relasi foreign key ke tabel header. Sehingga untuk mengisi foreign key tersebut, kita harus mengetahui dulu primary key header.
 

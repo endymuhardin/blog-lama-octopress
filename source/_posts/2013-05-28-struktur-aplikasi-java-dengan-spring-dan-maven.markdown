@@ -43,10 +43,10 @@ Sesuai dengan skema database, kita akan membuat tiga class, yaitu:
 
 Buat yang sudah pernah coding JDBC biasanya akan bertanya,
 
-{% blockquote %}
-Kenapa repot-repot membuat domain class, kemudian harus konversi bolak balik?
-Kan bisa saja kita kirim `ResultSet` ke tampilan, ataupun insert langsung dari array ke `PreparedStatement`.
-{% endblockquote %}
+
+> Kenapa repot-repot membuat domain class, kemudian harus konversi bolak balik?
+> Kan bisa saja kita kirim `ResultSet` ke tampilan, ataupun insert langsung dari array ke `PreparedStatement`.
+
 
 Pertanyaan ini biasanya muncul dari programmer PHP yang terbiasa langsung menampilkan kembalian `mysql_fetch_array` dalam looping tabel.
 
@@ -111,19 +111,19 @@ Agar lebih jelas, silahkan lihat [superclassnya](https://github.com/endymuhardin
 
 Sekian banyak class, bagaimana penempatannya? Silahkan lihat struktur folder berikut:
 
-{% img /images/uploads/2013/05/struktur-aplikasi-spring-maven/01-struktur-folder-top-level.png Top Level Folder %}
+![Top Level Folder ](/images/uploads/2013/05/struktur-aplikasi-spring-maven/01-struktur-folder-top-level.png)
 
 Tidak ada yang istimewa dari struktur di atas, cuma struktur folder standar Maven. Mari kita lihat source code aplikasi.
 
-{% img /images/uploads/2013/05/struktur-aplikasi-spring-maven/02-struktur-folder-main-java.png Source Folder Java %}
+![Source Folder Java ](/images/uploads/2013/05/struktur-aplikasi-spring-maven/02-struktur-folder-main-java.png)
 
 Di sini kita bisa lihat class sudah diatur ke dalam package berbeda sesuai fungsinya, yaitu domain, service, dao. Untuk implementasi service dengan Spring JDBC kita buatkan package tersendiri. Selanjutnya kita lihat lokasi file konfigurasi.
 
-{% img /images/uploads/2013/05/struktur-aplikasi-spring-maven/03-struktur-folder-main-resources.png Source Folder Konfigurasi %}
+![Source Folder Konfigurasi ](/images/uploads/2013/05/struktur-aplikasi-spring-maven/03-struktur-folder-main-resources.png)
 
 File konfigurasi ditaruh dalam package. Sebetulnya ditaruh di top level juga boleh, ini hanya sekedar kebiasaan saja. 
 
-{% img /images/uploads/2013/05/struktur-aplikasi-spring-maven/04-struktur-folder-test.png Source Test Folder %}
+![Source Test Folder ](/images/uploads/2013/05/struktur-aplikasi-spring-maven/04-struktur-folder-test.png)
 
 Lokasi penempatan test class bisa dilihat di atas. Abstract class yang saya ceritakan di atas terlihat di package `com.muhardin.endy.training.java.aksesdb.service`, sedangkan implementasi konfigurasinya ada di subpackage `springjdbc` di bawahnya.
 

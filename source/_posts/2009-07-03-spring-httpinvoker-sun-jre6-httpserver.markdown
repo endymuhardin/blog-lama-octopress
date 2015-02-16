@@ -206,15 +206,15 @@ Selanjutnya, kita suruh Spring mendeteksi implementasi service kita secara otoma
 
 Berikut adalah dependensi pustaka di project client. 
 
-{% img /images/uploads/2009/07/remoting-library-client-300x220.png Library untuk Project Client %}
+![Library untuk Project Client ](/images/uploads/2009/07/remoting-library-client-300x220.png)
 
 Dan ini untuk di server. 
 
-{% img /images/uploads/2009/07/remoting-library-server-300x234.png Library untuk Project Server %}
+![Library untuk Project Server ](/images/uploads/2009/07/remoting-library-server-300x234.png)
 
 Keseluruhan project akan terlihat seperti ini. 
 
-{% img /images/uploads/2009/07/remoting-folder-structure-231x300.png Struktur Folder semua Project %}
+![Struktur Folder semua Project ](/images/uploads/2009/07/remoting-folder-structure-231x300.png)
 
 Semua library dapat diambil dari [distribusi Spring Framework](http://www.springsource.org/download) dan [Repository SpringSource](http://www.springsource.com/repository/app/).
 
